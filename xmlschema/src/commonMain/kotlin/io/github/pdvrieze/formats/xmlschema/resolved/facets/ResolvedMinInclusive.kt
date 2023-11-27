@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
@@ -40,6 +41,18 @@ class ResolvedMinInclusive(
         type.validateValue(value)
         val v = (type.value(value) as VDecimal)
         check(decimal >= v)
+    }
+
+    override fun validate(value: VAnySimpleType) = when (this.value) {
+        is VDecimal -> {
+            check(value is VDecimal)
+            check(value >= this.value)
+        }
+        is IDateTime -> {
+            check(value is IDateTime)
+            check(value >= this.value)
+        }
+        else -> error("Value $value cannot be validated")
     }
 
     override fun equals(other: Any?): Boolean {

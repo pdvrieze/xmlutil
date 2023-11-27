@@ -109,6 +109,18 @@ class FacetList(
             }
         }?.checkNotFixed(this.maxLength)
 
+        this.maxConstraint?.let { mc ->
+            newList.maxConstraint?.let { nmc ->
+                mc.validate(nmc.value)
+            }
+        }
+
+        this.minConstraint?.let { mc ->
+            newList.minConstraint?.let { nmc ->
+                mc.validate(nmc.value)
+            }
+        }
+
         val totalDigits: ResolvedTotalDigits? = newList.totalDigits?.checkNotFixed(this.totalDigits) ?: this.totalDigits
         val whiteSpace: ResolvedWhiteSpace? = newList.whiteSpace?.checkNotFixed(this.whiteSpace) ?: this.whiteSpace
 
