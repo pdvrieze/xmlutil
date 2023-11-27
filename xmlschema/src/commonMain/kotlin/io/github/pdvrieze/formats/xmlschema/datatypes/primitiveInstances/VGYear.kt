@@ -41,7 +41,7 @@ value class VGYear(val yearVal: UInt) : IDateTime {
 
     override val timezoneOffset: Int?
         get() = when {
-            yearVal and 0x70000000u == 0u -> null
+            yearVal and 0x80000000u == 0u -> null
             else -> (yearVal shr 18).intFromBits(13)
         }
 

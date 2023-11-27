@@ -43,7 +43,7 @@ value class VGDay(val dayVal: UInt) : IDateTime {
 
     override val day: UInt get() = dayVal.uintFromBits(6)
     override val timezoneOffset: Int? get() = when {
-            dayVal and 0x70000000u == 0u -> null
+            dayVal and 0x80000000u == 0u -> null
             else -> (dayVal shr 18).intFromBits(13)
         }
 
