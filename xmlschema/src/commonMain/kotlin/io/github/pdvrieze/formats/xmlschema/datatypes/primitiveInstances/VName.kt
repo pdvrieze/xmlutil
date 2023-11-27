@@ -34,6 +34,7 @@ interface VName : VToken {
     private value class Inst(override val xmlString: String) : VName {
 
         init {
+            NameType.mdlFacets.validateRepresentationOnly(NameType, this)
             NameType.validateValue(this)
         }
 
