@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDouble
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDuration
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VFloat
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
@@ -41,7 +42,9 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
 
     open fun validate(float: VFloat) {}
 
-    open fun validate(float: VDouble) {}
+    open fun validate(double: VDouble) {}
+
+    open fun validate(duration: VDuration) {}
 
     companion object {
         operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: AnyPrimitiveDatatype): ResolvedFacet = when (rawPart) {
