@@ -95,7 +95,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
             }
             mdlFacets.checkList(this)
         }
-        mdlFacets.check(this.mdlPrimitiveTypeDefinition)
+        mdlFacets.check(this)
     }
 
     override fun validateValue(value: Any) {
