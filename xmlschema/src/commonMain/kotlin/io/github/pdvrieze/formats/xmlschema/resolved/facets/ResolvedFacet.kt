@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDouble
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDuration
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VFloat
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
@@ -39,6 +36,8 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     open fun checkFacetValid(type: ResolvedSimpleType) {}
 
     open fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal) {}
+
+    open fun validate(value: VAnySimpleType) {}
 
     open fun validate(float: VFloat) {}
 
