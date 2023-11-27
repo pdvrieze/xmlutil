@@ -93,6 +93,7 @@ kotlin {
                 implementation(project(":core"))
                 api(project(":serialization"))
                 implementation(libs.serialization.core)
+                implementation(libs.datetime)
             }
         }
         val commonTest by getting {
