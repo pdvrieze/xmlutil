@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
@@ -200,6 +201,28 @@ class FacetList(
                 }
 
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            is DurationType -> {
+                val minDuration = minConstraint?.let { primitiveType.value(it.value) }
+                val maxDuration = maxConstraint?.let { primitiveType.value(it.value) }
+                if (minDuration!=null && maxDuration!=null) {
+                    check(minDuration <= maxDuration) { "Duration values not in range" }
+                }
+            }
+
+            is DateType,
+            is TimeType,
+            is GYearMonthType,
+            is GMonthDayType,
+            is GDayType,
+            is GMonthType,
+            is DateTimeType -> {
+                val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IDateTime?
+                val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IDateTime?
+                if (minDateTime!=null && maxDateTime!=null) {
+                    check(minDateTime <= maxDateTime) { "DateTime values not in range" }
+                }
             }
 
             else -> {}
