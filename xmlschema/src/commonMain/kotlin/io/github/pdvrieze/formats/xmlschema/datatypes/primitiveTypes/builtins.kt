@@ -1156,7 +1156,8 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XmlSchemaConstants.XS_N
         if (s.length == 4) {
             return VGMonth(month)
         } else { // Handle bogus month format with trailing dashes (non-standard compliant, error in xmlschema older versions).
-            val tz = if (s.length > 5 && s[4] == '-' && s[5] == '-') s.substring(6) else s.substring(4)
+            if (s.length > 5 && s[4] == '-' && s[5] == '-') error("Trailing slashes in month format (not compliant)")
+            val tz = s.substring(4)
             val tzOffset = IDateTime.timezoneFragValue(tz)
             return VGMonth(month, tzOffset)
         }
