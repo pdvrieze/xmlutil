@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
-import kotlin.math.abs
 
 @JvmInline
 @Serializable
@@ -50,7 +49,7 @@ value class VGYearMonth(val monthYear: ULong) : IDateTime {
     override val year: Int get() = (monthYear shr 4).intFromBits(46)
 
     override val timezoneOffset: Int? get() = when {
-        monthYear and 0x7000000000000000uL == 0uL -> null
+        monthYear and 0x80000000_00000000uL == 0uL -> null
         else -> (monthYear shr 50).intFromBits(13)
     }
 
