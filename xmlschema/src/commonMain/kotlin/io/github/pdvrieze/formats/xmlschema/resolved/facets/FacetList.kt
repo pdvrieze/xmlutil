@@ -163,11 +163,8 @@ class FacetList(
 
             is IDecimalType -> {
                 if (minConstraint != null && maxConstraint != null) {
-                    val minConstr = primitiveType.value(VString(minConstraint.value.xmlString))
-
-                    val maxConstr = primitiveType.value(VString(maxConstraint.value.xmlString))
-
-                    check(minConstr <= maxConstr) { "The minimum constraint ($minConstr) must be <= to the max constraint ($maxConstr)" }
+                    minConstraint.validate(maxConstraint.value)
+                    maxConstraint.validate(minConstraint.value)
                 } else if (minConstraint != null) {
                     primitiveType.validateValue(minConstraint.value)
                 } else if (maxConstraint != null) {
