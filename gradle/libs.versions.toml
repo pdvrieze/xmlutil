@@ -5,6 +5,7 @@ kotlin = "1.9.21"
 dokka = "1.9.10"
 binaryValidator = "0.13.2"
 woodstox = "6.5.1"
+dateTime = "0.4.1"
 
 [libraries]
 logback-classic = "ch.qos.logback:logback-classic:1.4.7"
@@ -17,6 +18,7 @@ junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "dateTime" }
 
 [plugins]
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin" }
