@@ -135,6 +135,10 @@ sealed class PrimitiveDatatype<out T: VAnySimpleType>(name: String, targetNamesp
         return valueFromNormalized(normalized)
     }
 
+    override fun validateValue(value: Any) {
+        mdlFacets.validateValue(value)
+    }
+
     protected abstract fun valueFromNormalized(normalized: VString): T
 
     abstract fun value(maybeValue: VAnySimpleType): VAnySimpleType
@@ -1333,9 +1337,9 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConst
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VByteArray {
-        require(representation.length % 2 == 0) { "Hex must have even amount of characters" }
-        val b = ByteArray(representation.length / 2) { representation.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+    override fun valueFromNormalized(normalized: VString): VByteArray {
+        require(normalized.length % 2 == 0) { "Hex must have even amount of characters" }
+        val b = ByteArray(normalized.length / 2) { normalized.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
         return VByteArray(b)
     }
 
@@ -1344,7 +1348,7 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConst
     }
 
     override fun validateValue(value: Any) {
-        check(value is ByteArray)
+        check(value is ByteArray) { "Value for hex binary is not a ByteArray" }
     }
 
     override fun validate(representation: VString) {
