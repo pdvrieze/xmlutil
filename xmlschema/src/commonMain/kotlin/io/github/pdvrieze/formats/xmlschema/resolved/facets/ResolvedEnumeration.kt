@@ -32,6 +32,10 @@ class ResolvedEnumeration<out T : Any>(
 ) : ResolvedFacet(rawPart, schema) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
+    override fun checkFacetValid(type: ResolvedSimpleType) {
+        type.validateValue(value)
+    }
+
     @Suppress("UNCHECKED_CAST")
     val value: T = dataType.value(rawPart.value) as T
 
