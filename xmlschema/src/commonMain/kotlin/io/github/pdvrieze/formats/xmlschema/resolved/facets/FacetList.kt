@@ -21,9 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
@@ -35,7 +33,7 @@ class FacetList(
     val assertions: List<ResolvedAssertionFacet> = emptyList(),
     val minConstraint: ResolvedMinBoundFacet? = null,
     val maxConstraint: ResolvedMaxBoundFacet? = null,
-    val enumeration: List<ResolvedEnumeration<VAnySimpleType>> = emptyList(),
+    val enumeration: List<ResolvedEnumeration<Any>> = emptyList(),
     val explicitTimezone: ResolvedExplicitTimezone? = null,
     val fractionDigits: ResolvedFractionDigits? = null,
     val minLength: IResolvedMinLength? = null,
@@ -69,7 +67,7 @@ class FacetList(
     fun overlay(newList: FacetList): FacetList {
         val otherFacets = mutableListOf<ResolvedFacet>().apply { addAll(otherFacets) }
         val assertions = mutableListOf<ResolvedAssertionFacet>().apply { addAll(assertions) }
-        val enumeration = mutableListOf<ResolvedEnumeration<VAnySimpleType>>().apply { addAll(enumeration) }
+        val enumeration = mutableListOf<ResolvedEnumeration<Any>>().apply { addAll(enumeration) }
         val patterns = mutableListOf<ResolvedPattern>().apply { addAll(patterns) }
         otherFacets.addAll(newList.otherFacets)
         assertions.addAll(newList.assertions)
@@ -249,62 +247,101 @@ class FacetList(
     }
 
     fun validate(primitiveType: AnyPrimitiveDatatype?, representation: VString) {
+        val normalized = validateRepresentationOnly(primitiveType, representation)
+
+
+        val actualValue = primitiveType?.value(normalized) ?: normalized
+
+        validateValue(actualValue)
+    }
+
+    internal fun validateRepresentationOnly(
+        primitiveType: AnyPrimitiveDatatype?,
+        representation: VString
+    ): VString {
         val normalized = whiteSpace?.value?.normalize(representation) ?: representation
         val normalizedStr = normalized.toString()
-
-        if (enumeration.isNotEmpty()) {
-            check(enumeration.any { normalized.xmlString == it.value.xmlString }) { "Value: '${normalized}' is not in ${enumeration.joinToString { "'${it.value.xmlString}'"}}" }
-        }
 
         for (pattern in patterns) {
             check(pattern.regex.matches(normalizedStr)) { "'$normalized' does not match expression '${pattern.value}'" }
         }
 
         when (primitiveType) {
-            is IStringType -> {
-                minLength?.let { check(normalizedStr.length >= it.value.toInt()) }
-                maxLength?.let { check(normalizedStr.length <= it.value.toInt()) }
+
+            is IDecimalType -> totalDigits?.let {
+                val actualLength = when {
+                    '.' in normalized -> normalized.length - 1 - normalized.leadingZeros() - normalized.trailingZeros()
+                    else -> normalized.length - normalized.leadingZeros()
+                }
+                check(actualLength <= it.value.toInt()) {
+                    "total digits of '$normalized' is more than ${it.value}"
+                }
             }
 
-            is IDecimalType -> {
-                val actualValue = primitiveType.value(normalized)
-                minConstraint?.validate(primitiveType, actualValue)
-                maxConstraint?.validate(primitiveType, actualValue)
-                totalDigits?.let { check(normalized.length <= it.value.toInt()) }
-
-                primitiveType.validateValue(actualValue)
-            }
-
+            is FloatType,
             is DoubleType -> {
-                val actualValue = primitiveType.value(normalized)
-                minConstraint?.validate(actualValue)
-                maxConstraint?.validate(actualValue)
-                fractionDigits?.let { check(normalizedStr.substringAfterLast('.', "").length <= it.value.toInt()) }
-
-                primitiveType.validateValue(actualValue)
-            }
-
-            is FloatType -> {
-                val actualValue = primitiveType.value(normalized)
-                minConstraint?.validate(actualValue)
-                maxConstraint?.validate(actualValue)
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
                 fractionDigits?.let { check(normalizedStr.substringAfterLast('.', "").length <= it.value.toInt()) }
-
-                primitiveType.validateValue(actualValue)
             }
 
             else -> {}
         }
+        return normalized
     }
 
-    fun checkList() {
+    fun validateValue(actualValue: Any) {
+        if (enumeration.isNotEmpty()) {
+
+            check(enumeration.any { actualValue == it.value }) { "Value: '${actualValue}' is not in ${enumeration.joinToString { "'${it.value}'"}}" }
+        }
+
+
+        when (actualValue) {
+            is List<*> -> {
+                minLength?.let { check(actualValue.size.toULong()>=it.value) {
+                    "Invalid List size (min) ($actualValue < ${it.value})}"
+                } }
+                maxLength?.let { check(actualValue.size.toULong()<=it.value) {
+                    "Invalid List size (max) ($actualValue > ${it.value})}"
+                } }
+            }
+            is VString -> {
+                minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) }
+                maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) }
+            }
+
+            is VDecimal -> {
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+            }
+
+            is VDouble -> {
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            is VFloat -> {
+                minConstraint?.validate(actualValue)
+                maxConstraint?.validate(actualValue)
+                check(totalDigits == null) { "totalDigits only applies to decimal types" }
+            }
+
+            else -> {}
+        }
+
+    }
+
+    internal fun checkList(type: ResolvedSimpleType) {
         check(assertions.isEmpty())
         check(explicitTimezone == null) { "lists don't have a timezone facet" }
         check(fractionDigits == null) { "lists don't have a fractionDigits facet" }
         check(minConstraint == null) { "lists don't have a minConstraint facet" }
         check(maxConstraint == null) { "lists don't have a maxConstraint facet" }
         check(totalDigits == null) { "lists don't have a totalDigits facet" }
+        for (e in enumeration) {
+            type.validateValue(e.value)
+        }
     }
 
 
@@ -314,33 +351,34 @@ class FacetList(
         operator fun invoke(
             rawFacets: Iterable<XSFacet>,
             schemaLike: ResolvedSchemaLike,
+            baseType: ResolvedSimpleType,
             primitiveType: PrimitiveDatatype<VAnySimpleType>,
             relaxedLength: Boolean
-        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, primitiveType) }, relaxedLength)
+        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, baseType) }, relaxedLength)
 
         fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList {
             val relaxedLength = baseType is IDRefsType || baseType is NMTokensType
             return when {
                 // String has no restrictions
-                baseType == AnySimpleType -> FacetList(facets, schema, StringType, relaxedLength)
+                baseType == AnySimpleType -> FacetList(facets, schema, baseType, StringType, relaxedLength)
 
                 // Use token as strings have collapsed strings
-                baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, TokenType, relaxedLength)
+                baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, baseType, TokenType, relaxedLength)
 
                 // Don't bother checking
-                baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, StringType, relaxedLength)
+                baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, baseType, StringType, relaxedLength)
 
                 baseType.mdlPrimitiveTypeDefinition == null ->
                     error("No primitive type for base type: $baseType")
 
-                else -> FacetList(facets, schema, baseType.mdlPrimitiveTypeDefinition!!, relaxedLength)
+                else -> FacetList(facets, schema, baseType, baseType.mdlPrimitiveTypeDefinition!!, relaxedLength)
             }
         }
 
         operator fun invoke(facets: Iterable<ResolvedFacet>, relaxedLength: Boolean): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()
             val assertions: MutableList<ResolvedAssertionFacet> = mutableListOf()
-            val enumeration: MutableList<ResolvedEnumeration<VAnySimpleType>> = mutableListOf()
+            val enumeration: MutableList<ResolvedEnumeration<out Any>> = mutableListOf()
             var minConstraint: ResolvedMinBoundFacet? = null
             var maxConstraint: ResolvedMaxBoundFacet? = null
             var explicitTimezone: ResolvedExplicitTimezone? = null
@@ -427,4 +465,22 @@ class FacetList(
             )
         }
     }
+}
+
+private fun CharSequence.leadingZeros(): Int {
+    for (i in indices) {
+        if (get(i) != '0') {
+            return i
+        }
+    }
+    return length
+}
+
+private fun CharSequence.trailingZeros(): Int {
+    for (i in indices) {
+        if (get(length -1 - i) != '0') {
+            return i
+        }
+    }
+    return length
 }
