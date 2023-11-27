@@ -49,7 +49,7 @@ value class VDate(val dateVal: ULong) : IDateTime {
     override val year: Int get() = (dateVal shr 9).intFromBits(41)
 
     override val timezoneOffset: Int? get() = when {
-        dateVal and 0x7000000000000000uL == 0uL -> null
+        dateVal and 0x80000000_00000000uL == 0uL -> null
         else -> (dateVal shr 50).intFromBits(13)
     }
 
