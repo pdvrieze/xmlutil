@@ -121,8 +121,6 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
             }
             Variety.NIL -> error("Nil variety cannot be validated")
         }
-        mdlPrimitiveTypeDefinition?.validateValue(value)
-//        mdlFacets.validate(mdlPrimitiveTypeDefinition, value)
     }
 
     override fun validate(representation: VString) {
