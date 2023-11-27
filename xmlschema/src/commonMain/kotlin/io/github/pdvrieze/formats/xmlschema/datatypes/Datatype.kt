@@ -142,6 +142,10 @@ abstract class ConstructedListDatatype : ListDatatype {
         simpleDerivation = BuiltinListDerivation(itemType)
     }
 
+    override fun validateValue(value: Any) {
+        check(value is List<*>)
+    }
+
     override val baseType: ResolvedType
         get() = AnySimpleType
 
