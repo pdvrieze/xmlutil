@@ -55,7 +55,7 @@ value class VGMonthDay(val monthdayVal: UInt) : IDateTime {
     override val month: UInt get() = (monthdayVal shr 5).uintFromBits(4)
 
     override val timezoneOffset: Int? get() = when {
-        monthdayVal and 0x70000000u == 0u -> null
+        monthdayVal and 0x80000000u == 0u -> null
         else -> (monthdayVal shr 18).intFromBits(13)
     }
 
