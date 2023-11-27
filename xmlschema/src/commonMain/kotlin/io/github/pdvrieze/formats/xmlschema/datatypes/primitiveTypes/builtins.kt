@@ -190,7 +190,7 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_N
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VAnyURI = VAnyURI(representation)
+    override fun valueFromNormalized(normalized: VString): VAnyURI = VAnyURI(normalized)
 
     override fun value(maybeValue: VAnySimpleType): VAnyURI {
         return maybeValue as? VAnyURI ?: value(VString(maybeValue.xmlString))
@@ -198,7 +198,7 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_N
 
     override fun validateValue(value: Any) {
         check(value is VAnyURI)
-        mdlFacets.validate(mdlPrimitiveTypeDefinition, VString(value.value))
+        mdlFacets.validateValue(value)
     }
 
     override fun validate(representation: VString) {
