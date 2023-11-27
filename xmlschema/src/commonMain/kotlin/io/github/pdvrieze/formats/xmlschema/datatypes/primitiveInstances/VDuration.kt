@@ -21,6 +21,28 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 class VDuration(override val months: Long, val millis: Long) : IDuration {
+    operator fun compareTo(other: VDuration): Int = when (val m = months.compareTo(other.months)) {
+        0 -> millis.compareTo(other.millis)
+        else -> m
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as VDuration
+
+        if (months != other.months) return false
+        if (millis != other.millis) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = months.hashCode()
+        result = 31 * result + millis.hashCode()
+        return result
+    }
 
     override val seconds: Double
         get() = millis.toDouble() / 1000.0
