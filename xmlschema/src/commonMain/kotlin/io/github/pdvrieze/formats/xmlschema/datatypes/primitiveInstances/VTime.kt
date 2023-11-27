@@ -67,7 +67,7 @@ value class VTime private constructor(val msecVal: ULong) : IDateTime {
 
     override val timezoneOffset: Int?
         get() = when {
-            msecVal and 0x70000000_00000000uL == 0uL -> null
+            msecVal and 0x80000000_00000000uL == 0uL -> null
             else -> (msecVal shr 27).intFromBits(13)
         }
 
@@ -89,14 +89,15 @@ value class VTime private constructor(val msecVal: ULong) : IDateTime {
             require(representation[5]==':')
             val secEnd = (6..<representation.length).firstOrNull { val c = representation[it] ;c != '.' && c !in '0'..'9' } ?: representation.length
             val millis = (representation.substring(6, secEnd).toDouble() * 1000.0).toUInt()
-            return when {
-                secEnd<representation.length -> {
+            val vTime = when {
+                secEnd < representation.length -> {
                     val tz = IDateTime.timezoneFragValue(representation.substring(secEnd))
                     VTime(hours, minutes, millis, tz)
                 }
 
                 else -> VTime(hours, minutes, millis)
             }
+            return vTime
 
         }
     }
