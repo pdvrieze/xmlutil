@@ -1,6 +1,10 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.DecimalType
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.toInstant
 
 interface IDateTime : VAnyAtomicType {
     /** any integer */
@@ -47,6 +51,24 @@ interface IDateTime : VAnyAtomicType {
             "$sign$hours:$minutes"
         }
     }
+
+    fun instant(): Instant {
+        val dateTime = LocalDateTime(
+            year ?: 0,
+            month?.toInt() ?: 1,
+            day?.toInt() ?: 1,
+            hour?.toInt() ?: 0,
+            minute?.toInt() ?: 0,
+            second?.toDouble()?.toInt() ?: 0
+        )
+        val zoneOffset = timezoneOffset?.let { UtcOffset(seconds = it * 60) } ?: UtcOffset.ZERO
+        return dateTime.toInstant(zoneOffset)
+    }
+
+    operator fun compareTo(other: IDateTime): Int {
+        return instant().compareTo(other.instant())
+    }
+
 
     companion object {
         fun yearFragValue(yr: String): Int = yr.toInt()
