@@ -33,7 +33,7 @@ sealed interface ResolvedType : ResolvedAnnotated {
 
     fun validate(representation: VString)
 
-    fun validateValue(representation: Any) {}
+    fun validateValue(value: Any) {}
 
     /**
      * Defined in 3.3.4.2 last paragraph

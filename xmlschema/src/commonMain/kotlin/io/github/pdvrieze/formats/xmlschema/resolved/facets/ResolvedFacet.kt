@@ -46,17 +46,21 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     open fun validate(duration: VDuration) {}
 
     companion object {
-        operator fun invoke(rawPart: XSFacet, schema: ResolvedSchemaLike, primitiveDatatype: AnyPrimitiveDatatype): ResolvedFacet = when (rawPart) {
+        operator fun invoke(
+            rawPart: XSFacet,
+            schema: ResolvedSchemaLike,
+            dataType: ResolvedSimpleType
+        ): ResolvedFacet = when (rawPart) {
             is XSAssertionFacet -> ResolvedAssertionFacet(rawPart, schema)
-            is XSEnumeration -> ResolvedEnumeration(rawPart, schema, primitiveDatatype)
+            is XSEnumeration -> ResolvedEnumeration<VAnySimpleType>(rawPart, schema, dataType)
             is XSExplicitTimezone -> ResolvedExplicitTimezone(rawPart, schema)
             is XSFractionDigits -> ResolvedFractionDigits(rawPart, schema)
             is XSLength -> ResolvedLength(rawPart, schema)
-            is XSMaxExclusive -> ResolvedMaxExclusive(rawPart, schema, primitiveDatatype)
-            is XSMaxInclusive -> ResolvedMaxInclusive(rawPart, schema, primitiveDatatype)
+            is XSMaxExclusive -> ResolvedMaxExclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
+            is XSMaxInclusive -> ResolvedMaxInclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
             is XSMaxLength -> ResolvedMaxLength(rawPart, schema)
-            is XSMinExclusive -> ResolvedMinExclusive(rawPart, schema, primitiveDatatype)
-            is XSMinInclusive -> ResolvedMinInclusive(rawPart, schema, primitiveDatatype)
+            is XSMinExclusive -> ResolvedMinExclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
+            is XSMinInclusive -> ResolvedMinInclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
             is XSMinLength -> ResolvedMinLength(rawPart, schema)
             is XSPattern -> ResolvedPattern(rawPart, schema)
             is XSTotalDigits -> ResolvedTotalDigits(rawPart, schema)
