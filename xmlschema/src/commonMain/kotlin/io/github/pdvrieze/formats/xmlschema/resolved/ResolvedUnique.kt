@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 
 interface ResolvedUnique : ResolvedReferenceableConstraint {
 
@@ -36,9 +35,6 @@ interface ResolvedUnique : ResolvedReferenceableConstraint {
             null -> ResolvedIndirectUnique(rawPart, schema, owner)
             else -> ResolvedDirectUnique(rawPart, schema, owner)
         }
-    }
-
-    override fun checkConstraint(checkHelper: CheckHelper) {
     }
 }
 

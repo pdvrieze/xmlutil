@@ -61,6 +61,7 @@ class ResolvedDirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner:
         }
 
     override fun checkConstraint(checkHelper: CheckHelper) {
+        super.checkConstraint(checkHelper)
         check(referenced.fields.size == fields.size) { "Key(${referenced.mdlQName}) and keyrefs(${mdlQName}) must have equal field counts" }
     }
 
