@@ -47,8 +47,8 @@ class ResolvedDirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner:
 
     override val fields: List<XSField> = rawPart.fields
 
-    val referenced: ResolvedDirectKey by lazy {
-        schema.identityConstraint(refer) as? ResolvedDirectKey
+    val referenced: ResolvedDirectKeylike by lazy {
+        schema.identityConstraint(refer) as? ResolvedDirectKeylike
             ?: throw NoSuchElementException("No identity constraint with name ${refer} exists")
     }
 

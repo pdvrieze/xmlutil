@@ -23,14 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedDirectUnique(
     rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedUnique {
+): ResolvedDirectKeylike(rawPart, schema, owner), ResolvedUnique {
 
     override val constraint: ResolvedDirectUnique
         get() = this

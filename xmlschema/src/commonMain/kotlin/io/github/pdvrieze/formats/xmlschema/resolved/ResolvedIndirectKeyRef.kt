@@ -47,7 +47,7 @@ class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owne
         require(rawPart.name == null) { "A key reference can either have a name or ref" }
     }
 
-    val referenced: ResolvedDirectKey get() = ref.referenced
+    val referenced: ResolvedDirectKeylike get() = ref.referenced
 
     override val mdlReferencedKey: ResolvedReferenceableConstraint get() = ref.mdlReferencedKey
 
