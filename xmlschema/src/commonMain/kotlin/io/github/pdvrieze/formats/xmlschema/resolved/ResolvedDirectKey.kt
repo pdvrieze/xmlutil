@@ -29,7 +29,7 @@ class ResolvedDirectKey(
     rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedDirectKeylike(rawPart, schema, owner), ResolvedKey {
+): ResolvedDirectReferenceable(rawPart, schema, owner), ResolvedKey {
 
     override val mdlQName: QName = checkNotNull(rawPart.name).toQname(schema.targetNamespace)
 

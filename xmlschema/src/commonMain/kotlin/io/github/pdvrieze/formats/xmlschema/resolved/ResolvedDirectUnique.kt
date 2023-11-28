@@ -29,7 +29,7 @@ class ResolvedDirectUnique(
     rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedDirectKeylike(rawPart, schema, owner), ResolvedUnique {
+): ResolvedDirectReferenceable(rawPart, schema, owner), ResolvedUnique {
 
     override val constraint: ResolvedDirectUnique
         get() = this
