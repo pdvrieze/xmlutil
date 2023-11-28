@@ -52,6 +52,7 @@ class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owne
     override val mdlReferencedKey: ResolvedReferenceableConstraint get() = ref.mdlReferencedKey
 
     override fun checkConstraint(checkHelper: CheckHelper) {
+        super.checkConstraint(checkHelper)
         checkNotNull(mdlReferencedKey)
         check(referenced.fields.size == fields.size) { "Key(${referenced.mdlQName}) and keyrefs(${ref.mdlQName}) must have equal field counts" }
     }

@@ -56,5 +56,7 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
 
     enum class Category { KEY, KEYREF, UNIQUE }
 
-    fun checkConstraint(checkHelper: CheckHelper)
+    fun checkConstraint(checkHelper: CheckHelper) {
+        super.checkAnnotated(checkHelper.version)
+    }
 }
