@@ -20,18 +20,24 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
 @Serializable
-abstract class XSOpenAttrsBase : XSI_OpenAttrs {
-    @XmlOtherAttributes
-    final override val otherAttrs: Map<@Serializable(with=QNameSerializer::class) QName, String>
+abstract class XSOpenAttrsBase(
+    @XmlOtherAttributes final override val otherAttrs: Map<@Serializable(with = QNameSerializer::class) QName, String> = emptyMap()
+) : XSI_OpenAttrs {
 
-    constructor(otherAttrs: Map<SerializableQName, String> = emptyMap()) {
-        this.otherAttrs = otherAttrs
+    init {
+        for (attrName in otherAttrs.keys) {
+            require(attrName.namespaceURI.let { it.isNotEmpty() && it != XmlSchemaConstants.XS_NAMESPACE }) {
+                "Invalid \"open\" attribute name $attrName"
+            }
+        }
     }
+
 }
