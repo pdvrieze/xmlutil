@@ -26,4 +26,10 @@ sealed class ResolvedDirectKeylike(
     rawPart: XSIdentityConstraint,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement
-) : ResolvedNamedIdentityConstraint(rawPart, schema, owner)
+) : ResolvedNamedIdentityConstraint(rawPart, schema, owner) {
+
+    init {
+        require(rawPart.fields.isNotEmpty()) { "identity constraint must have at least one field: $rawPart" }
+    }
+
+}

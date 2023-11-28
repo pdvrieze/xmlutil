@@ -22,7 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 interface ResolvedAnnotated {
 
@@ -34,6 +36,7 @@ interface ResolvedAnnotated {
 
 
     fun checkAnnotated(version: SchemaVersion) {
+        check(otherAttrs.keys.none { it.namespaceURI.let { it.isEmpty() || it == XmlSchemaConstants.XS_NAMESPACE } })
         for (a in mdlAnnotations) {
             a.check(version)
         }
