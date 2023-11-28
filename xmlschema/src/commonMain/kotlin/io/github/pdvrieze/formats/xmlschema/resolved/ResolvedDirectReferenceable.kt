@@ -22,11 +22,11 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 
-sealed class ResolvedDirectKeylike(
+sealed class ResolvedDirectReferenceable(
     rawPart: XSIdentityConstraint,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement
-) : ResolvedNamedIdentityConstraint(rawPart, schema, owner) {
+) : ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedReferenceableConstraint {
 
     init {
         require(rawPart.fields.isNotEmpty()) { "identity constraint must have at least one field: $rawPart" }
