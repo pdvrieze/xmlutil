@@ -20,13 +20,16 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -134,9 +137,9 @@ class XSSchema : XSOpenAttrsBase {
         return XML{ autoPolymorphic = true; indent=4 }.encodeToString(serializer(), this)
     }
 
-    fun resolve(resolver: ResolvedSchema.Resolver, defaultVersion: ResolvedSchema.Version = ResolvedSchema.Version.V1_1): ResolvedSchema = ResolvedSchema(this, resolver, defaultVersion)
+    fun resolve(resolver: ResolvedSchema.Resolver, defaultVersion: SchemaVersion = SchemaVersion.V1_1): ResolvedSchema = ResolvedSchema(this, resolver, defaultVersion)
 
-    fun check(resolver: ResolvedSchema.Resolver, defaultVersion: ResolvedSchema.Version = ResolvedSchema.Version.V1_1) {
+    fun check(resolver: ResolvedSchema.Resolver, defaultVersion: SchemaVersion = SchemaVersion.V1_1) {
         resolve(resolver, defaultVersion).check()
     }
 

@@ -30,7 +30,7 @@ value class VID(override val xmlString: String) : VNCName {
 
     init {
         IDType.mdlFacets.validateRepresentationOnly(IDType, this)
-        IDType.validateValue(this)
+        IDType.mdlFacets.validateValue(this)
     }
 
     override fun toString(): String = xmlString

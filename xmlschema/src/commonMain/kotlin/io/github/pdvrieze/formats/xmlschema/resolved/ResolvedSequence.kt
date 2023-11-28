@@ -45,7 +45,7 @@ class ResolvedSequence internal constructor(
     }
 
     override fun checkTerm(checkHelper: CheckHelper) {
-        super.checkTerm(checkHelper)
+        super<IResolvedSequence>.checkTerm(checkHelper)
         val existing = mutableMapOf<QName, ResolvedElement>()
         val terms = mdlParticles.asSequence()
             .filterIsInstance<IResolvedElementUse>()

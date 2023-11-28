@@ -87,7 +87,6 @@ sealed class ListDatatype(
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
     override fun checkType(checkHelper: CheckHelper) {
-        checkHelper.checkType(baseType)
     }
 
     override val model: ListDatatype
@@ -142,8 +141,13 @@ abstract class ConstructedListDatatype : ListDatatype {
         simpleDerivation = BuiltinListDerivation(itemType)
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is List<*>)
+    }
+
+    override fun checkType(checkHelper: CheckHelper) {
+        mdlFacets.checkList(this, checkHelper.version)
+        checkHelper.checkType(baseType)
     }
 
     override val baseType: ResolvedType
@@ -201,7 +205,7 @@ object ErrorType : Datatype("error", XS_NAMESPACE, BuiltinSchemaXmlschema),
     override val model: ErrorType get() = this
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         TODO("not implemented")
     }
 
@@ -232,7 +236,7 @@ object AnyType : ResolvedGlobalComplexType(
         VProcessContents.LAX
     )
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
 //        error("anyType cannot be directly implemented")
     }
 
@@ -293,7 +297,7 @@ object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmls
         numeric = false,
     )
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
 //        TODO("not implemented")
     }
 
