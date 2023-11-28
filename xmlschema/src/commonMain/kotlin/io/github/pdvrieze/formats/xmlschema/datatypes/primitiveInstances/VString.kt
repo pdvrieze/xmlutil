@@ -108,4 +108,26 @@ class VPrefixString(val namespace: String, val prefix: String, val localname: St
     fun toVQName(): VQName = VQName(namespace, localname, prefix)
 
     override fun toString(): String = xmlString
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        when (other) {
+            is VPrefixString -> {
+                if (namespace != other.namespace) return false
+                if (prefix != other.prefix) return false
+                if (localname != other.localname) return false
+
+                return true
+            }
+            is VString -> {
+                return xmlString == other.xmlString
+            }
+            else -> return false
+        }
+    }
+
+    override fun hashCode(): Int = xmlString.hashCode()
+
+
 }
