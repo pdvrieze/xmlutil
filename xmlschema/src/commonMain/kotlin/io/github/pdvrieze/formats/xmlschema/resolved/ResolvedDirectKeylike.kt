@@ -20,19 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 
-sealed class ResolvedNamedIdentityConstraint(
+sealed class ResolvedDirectKeylike(
     rawPart: XSIdentityConstraint,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement
-) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
-
-    final override val mdlSelector: XPathExpression =
-        XPathExpression(rawPart.selector.xpath.xmlString)
-
-    final override val mdlFields: List<XPathExpression> =
-        rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
-}
-
+) : ResolvedNamedIdentityConstraint(rawPart, schema, owner)
