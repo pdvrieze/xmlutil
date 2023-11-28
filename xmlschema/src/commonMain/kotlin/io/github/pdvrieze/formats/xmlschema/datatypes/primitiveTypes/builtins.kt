@@ -198,7 +198,7 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_N
 
     override fun validateValue(value: Any, version: SchemaVersion) {
         when (version) {
-            SchemaVersion.V1_0 -> check(value is VParsedURI)
+            SchemaVersion.V1_0 -> value is VParsedURI || (value is VAnyURI && VParsedURI(value)!=null)
             else -> check(value is VAnyURI)
         }
         mdlFacets.validateValue(value)
