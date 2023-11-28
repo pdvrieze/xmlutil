@@ -24,7 +24,7 @@
 @file:OptIn(XmlUtilInternal::class) // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
@@ -48,7 +48,7 @@ internal abstract class XRSpecialToken {
     }
 }
 
-internal class XRLexer(val patternString: String, internal val version: ResolvedSchema.Version) {
+internal class XRLexer(val patternString: String, internal val version: SchemaVersion) {
 
     // The property is set in the init block after some transformations over the pattern string.
     private val pattern: CharArray

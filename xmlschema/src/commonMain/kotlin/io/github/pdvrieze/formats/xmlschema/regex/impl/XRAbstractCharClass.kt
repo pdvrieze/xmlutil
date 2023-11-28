@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.impl.sets.XBitSet
 import io.github.pdvrieze.formats.xmlschema.regex.impl.sets.set
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 /**
@@ -886,9 +886,9 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
             return cc1.bits!!.intersects(cc2.bits!!)
         }
 
-        fun getPredefinedClass(name: String, negative: Boolean, version: Version): XRAbstractCharClass {
+        fun getPredefinedClass(name: String, negative: Boolean, version: SchemaVersion): XRAbstractCharClass {
             val charClass = classCacheMap[name] ?: when(version) {
-                Version.V1_0 -> throw XRPatternSyntaxException("No such character class ($name)")
+                SchemaVersion.V1_0 -> throw XRPatternSyntaxException("No such character class ($name)")
                 else -> classCacheMap["all"]!! // xsd 1.1 allows unknown classes }
             }
             val cachedClass = classCache[charClass.ordinal].value

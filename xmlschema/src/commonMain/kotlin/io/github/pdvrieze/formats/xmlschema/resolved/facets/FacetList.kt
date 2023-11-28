@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPat
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType.Variety
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class FacetList(
     val assertions: List<ResolvedAssertionFacet> = emptyList(),
@@ -142,13 +143,13 @@ class FacetList(
 
     }
 
-    fun check(simpleType: ResolvedSimpleType) {
+    fun check(simpleType: ResolvedSimpleType, version: SchemaVersion) {
         val primitiveType = simpleType.mdlPrimitiveTypeDefinition
         if (primitiveType != null) {
-            for (p in patterns) { p.checkFacetValid(primitiveType) }
+            for (p in patterns) { p.checkFacetValid(primitiveType, version) }
         }
         for (e in enumeration) {
-            e.checkFacetValid(simpleType)
+            e.checkFacetValid(simpleType, version)
         }
 
         if (minLength != null && maxLength != null) {
@@ -169,9 +170,9 @@ class FacetList(
                     minConstraint.validate(maxConstraint.value)
                     maxConstraint.validate(minConstraint.value)
                 } else if (minConstraint != null) {
-                    primitiveType.validateValue(minConstraint.value)
+                    primitiveType.validateValue(minConstraint.value, version)
                 } else if (maxConstraint != null) {
-                    primitiveType.validateValue(maxConstraint.value)
+                    primitiveType.validateValue(maxConstraint.value, version)
                 }
                 if (totalDigits != null) {
                     check(totalDigits.value >0uL) { "Decimals must have at least 1 digit" }
@@ -185,12 +186,12 @@ class FacetList(
             is DoubleType -> {
                 val minC = minConstraint?.let {
                     primitiveType.value(VString(it.value.xmlString)).also {
-                        primitiveType.validateValue(it)
+                        primitiveType.validateValue(it, version)
                     }
                 }
                 val maxC = maxConstraint?.let {
                     primitiveType.value(VString(it.value.xmlString)).also {
-                        primitiveType.validateValue(it)
+                        primitiveType.validateValue(it, version)
                     }
                 }
                 if (minC != null && maxC != null) {
@@ -203,12 +204,12 @@ class FacetList(
             is FloatType -> {
                 val minC = minConstraint?.let {
                     primitiveType.value(VString(it.value.xmlString)).also {
-                        primitiveType.validateValue(it)
+                        primitiveType.validateValue(it, version)
                     }
                 }
                 val maxC = maxConstraint?.let {
                     primitiveType.value(VString(it.value.xmlString)).also {
-                        primitiveType.validateValue(it)
+                        primitiveType.validateValue(it, version)
                     }
                 }
                 if (minC != null && maxC != null) {
@@ -332,15 +333,18 @@ class FacetList(
 
     }
 
-    internal fun checkList(type: ResolvedSimpleType) {
+    internal fun checkList(type: ResolvedSimpleType, version: SchemaVersion) {
         check(assertions.isEmpty())
         check(explicitTimezone == null) { "lists don't have a timezone facet" }
         check(fractionDigits == null) { "lists don't have a fractionDigits facet" }
         check(minConstraint == null) { "lists don't have a minConstraint facet" }
         check(maxConstraint == null) { "lists don't have a maxConstraint facet" }
         check(totalDigits == null) { "lists don't have a totalDigits facet" }
+        if (minLength!=null && maxLength!=null) {
+            check(minLength.value <= maxLength.value) { "Inverted min/max lengths in list" }
+        }
         for (e in enumeration) {
-            type.validateValue(e.value)
+            type.validateValue(e.value, version)
         }
     }
 

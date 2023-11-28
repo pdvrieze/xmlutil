@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnu
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class ResolvedEnumeration<out T : Any>(
     rawPart: XSEnumeration,
@@ -32,8 +33,8 @@ class ResolvedEnumeration<out T : Any>(
 ) : ResolvedFacet(rawPart, schema) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    override fun checkFacetValid(type: ResolvedSimpleType) {
-        type.validateValue(value)
+    override fun checkFacetValid(type: ResolvedSimpleType, version: SchemaVersion) {
+        type.validateValue(value, version)
     }
 
     @Suppress("UNCHECKED_CAST")

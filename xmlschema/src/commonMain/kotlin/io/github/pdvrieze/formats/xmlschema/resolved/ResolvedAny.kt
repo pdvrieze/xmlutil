@@ -66,7 +66,9 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
 
-    override fun checkTerm(checkHelper: CheckHelper) {}
+    override fun checkTerm(checkHelper: CheckHelper) {
+        super.checkTerm(checkHelper)
+    }
 
     fun intersects(other: ResolvedAny): Boolean = when (mdlMaxOccurs) {
         VAllNNI.ZERO -> false
