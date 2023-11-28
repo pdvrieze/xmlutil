@@ -22,9 +22,11 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 
 sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
     val selector: XSSelector
@@ -54,14 +56,30 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
         }
 
         //language=XsdRegExp
-        val PATTERN = XRegex("(\\.\\s*//\\s*)?" + // optional start with './/'
+        val SELECTORPATTERN = XRegex("(\\.\\s*//\\s*)?" + // optional start with './/'
                 "(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*" + // then (child::)?<qname> or '.'
-                "(/\\s*(((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*)*" + // followed by a sequence of above (starting with '/'
+                "(/\\s*(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*)*" + // followed by a sequence of above (starting with '/'
                 "(\\|\\s*" + // followed by '|' separated repeated
                     "(\\.//\\s*)?" + // start with './/'
-                        "(((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*" + // then qname or '.'
-                        "(/\\s*(((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*)*" + // then optionally more qnames
+                        "(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*" + // then qname or '.'
+                        "(/\\s*(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*)*" + // then optionally more qnames
                 ")*", SchemaVersion.V1_1)
+
+        //language=XsdRegExp
+        val FIELDPATTERN = XRegex("(\\.\\s*//\\s*)?" + // optional start with './/'
+                "((((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*/\\s*)*" +
+                "(" +
+                    "(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)|" +
+                    "((attribute\\s*::\\s*|@\\s*)((\\i\\c*:)?(\\i\\c*|\\*)))" +
+                ")\\s*" +
+                "(\\|\\s*(\\.//\\s*)?" +
+                    "((((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*/\\s*)*" +
+                    "(" +
+                        "(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)|((attribute\\s*::\\s*|@\\s*)((\\i\\c*:)?(\\i\\c*|\\*)))))*", SchemaVersion.V1_1)
+
+        /*
+        (\.//)?((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)/)*((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)|((attribute::|@)((\i\c*:)?(\i\c*|\*))))(\|(\.//)?((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)/)*((((child::)?((\i\c*:)?(\i\c*|\*)))|\.)|((attribute::|@)((\i\c*:)?(\i\c*|\*)))))*
+         */
 
     }
 
@@ -69,6 +87,14 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
 
     fun checkConstraint(checkHelper: CheckHelper) {
         super.checkAnnotated(checkHelper.version)
-        require(PATTERN.matches(mdlSelector.test)) { "Invalid xpath expression for selectors: '${mdlSelector.test}'" }
+        for (field in fields) {
+            for (otherAttrName in field.otherAttrs.keys) {
+                check(otherAttrName.namespaceURI.let { it.isNotEmpty() && it != XmlSchemaConstants.XS_NAMESPACE })
+            }
+            check(FIELDPATTERN.matches(field.xpath.xmlString)) {
+                "Invalid xpath expression for field: '${field.xpath.xmlString}'"
+            }
+        }
+        check(SELECTORPATTERN.matches(mdlSelector.test)) { "Invalid xpath expression for selectors: '${mdlSelector.test}'" }
     }
 }
