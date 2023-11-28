@@ -293,7 +293,9 @@ class FacetList(
     fun validateValue(actualValue: Any) {
         if (enumeration.isNotEmpty()) {
 
-            check(enumeration.any { actualValue == it.value }) { "Value: '${actualValue}' is not in ${enumeration.joinToString { "'${it.value}'"}}" }
+            check(enumeration.any { actualValue == it.value }) {
+                "Value: '${actualValue}' is not in ${enumeration.joinToString { "'${it.value}'"}}"
+            }
         }
 
 
