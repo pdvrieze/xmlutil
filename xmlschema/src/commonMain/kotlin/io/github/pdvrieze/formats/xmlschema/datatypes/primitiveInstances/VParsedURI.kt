@@ -54,7 +54,7 @@ class VParsedURI(str: String): VAnyURI() {
                 }
                 require(++next < str.length) { "No scheme end in uri" }
             }
-            scheme = str.substring(0, next)
+            scheme = str.substring(0, next).also { check(it.isValid(Part.SCHEME)) { "Scheme '$it' is not valid" } }
             pos = next + 1
 
             next = pos
@@ -63,7 +63,7 @@ class VParsedURI(str: String): VAnyURI() {
                 next = pos
                 val delims = arrayOf('/', '?', '#')
                 while (next < str.length && str[next].let { it != '/' && it != '?' && it != '#' }) ++next
-                authority = str.substring(pos, next)
+                authority = str.substring(pos, next).also { check(it.isValid(Part.AUTHORITY)) }
                 pos = next
             } else {
                 authority = null
@@ -75,11 +75,11 @@ class VParsedURI(str: String): VAnyURI() {
         }
 
         while (next < str.length && str[next].let { it != '?' && it != '#' }) ++next
-        path = str.substring(pos, next)
+        path = str.substring(pos, next).also { check(it.isValid(Part.PATH)) { "Path '$it' is not valid" } }
         if (next < str.length && str[next] == '?') {
             pos = ++next;
             while (next < str.length && str[next] != '#') ++next
-            query = str.substring(pos, next)
+            query = str.substring(pos, next).also { check(it.isValid(Part.QUERY)) { "Query '$it' is not valid" } }
         } else {
             query = null
         }
@@ -87,7 +87,7 @@ class VParsedURI(str: String): VAnyURI() {
 
         if (next < str.length) {
             require(str[next] == '#')
-            fragment = str.substring(pos + 1)
+            fragment = str.substring(pos + 1).also { check(it.isValid(Part.FRAGMENT)) { "Fragment '$it' is not valid" } }
         } else {
             fragment = null
         }
@@ -138,6 +138,8 @@ class VParsedURI(str: String): VAnyURI() {
         return result
     }
 
+    internal enum class Part { SCHEME, AUTHORITY, PATH, QUERY, FRAGMENT }
+
     companion object Serializer: KSerializer<VParsedURI> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xsd.anyURI", PrimitiveKind.STRING)
 
@@ -149,36 +151,152 @@ class VParsedURI(str: String): VAnyURI() {
         override fun serialize(encoder: Encoder, value: VParsedURI) {
             encoder.encodeString(value.xmlString)
         }
+
+
+        private val ALPHA = BooleanArray(127)
+        private val UNRESERVED = BooleanArray(127)
+        private val SCHEMELETTER = BooleanArray(127)
+        private val HEXLETTER = BooleanArray(127)
+        private val SUBDELIM = BooleanArray(127)
+
+        init {
+            for (i in ('A'.code..'Z'.code)+('a'.code..'z'.code)) {
+                ALPHA[i] = true
+                SCHEMELETTER[i] = true
+                UNRESERVED[i] = true
+            }
+            for (i in ('A'.code..'F'.code)+('a'.code..'f'.code)) {
+                HEXLETTER[i] = true
+            }
+            for (i in '0'.code..'9'.code) {
+                SCHEMELETTER[i] = true
+                UNRESERVED[i] = true
+                HEXLETTER[i] = true
+            }
+            SCHEMELETTER['+'.code] = true
+            SCHEMELETTER['-'.code] = true
+            SCHEMELETTER['.'.code] = true
+            UNRESERVED['-'.code] = true
+            UNRESERVED['.'.code] = true
+            UNRESERVED['_'.code] = true
+            UNRESERVED['~'.code] = true
+            for (c in arrayOf('!', '$', '&', '\'', '(',')', '*', '+', ',', ';', '=')) {
+                SUBDELIM[c.code] = true
+            }
+        }
+
+        internal fun CharSequence.isValid(part: Part): Boolean {
+
+            when (part) {
+                Part.SCHEME -> return length>0 && all { it.isSchemeLetter() }
+                Part.AUTHORITY -> { // somewhat partial
+                    var hasUser = false
+                    var hasPortOrIp6 = false
+                    var i = 0
+                    while(i<length) {
+                        when(val c = get(i)) {
+                            '@' -> if (!hasUser && !hasPortOrIp6) { hasUser = true } else return false
+                            '%' -> if (hasPortOrIp6 || (i+2 >= length && get(i+1).isHexLetter() && get(i+2).isHexLetter())) i+=2 else return false
+                            ':' -> hasPortOrIp6 = true//;if (!hasPort) { hasPort = true } else return false
+                            in '0'..'9' -> {} //always fine
+                            else -> {
+                                if (hasPortOrIp6 && !c.isHexLetter()) return false
+                                if (!c.isUnreserved() && !c.isSubDelim()) return false
+                            }
+                        }
+                        ++i
+                    }
+                }
+                Part.PATH -> {
+                    var lastSegmentLength = 1
+                    var currentSegmentLength = 0
+                    var i = 0
+                    while(i <length) {
+                        val c = get(i)
+                        when(c) {
+                            '/' -> when {
+                                lastSegmentLength == 0 -> return false // disallow consecutive
+
+                                else -> {
+                                    lastSegmentLength=if (i==0) 1 else currentSegmentLength
+                                    currentSegmentLength = 0
+                                }
+                            }
+                            '%' -> when {
+                                i+2 <= length && get(i+1).isHexLetter() && get(i+2).isHexLetter() -> {
+                                    i+=2
+                                    ++currentSegmentLength
+                                }
+                                else -> return false
+                            }
+                            ':', '@', '<', '>', '"' -> ++currentSegmentLength // allow last 3 for test compatibility (technically invalid)
+                            else -> {
+                                if (!c.isUnreserved() && !c.isSubDelim()) return false
+                                ++currentSegmentLength
+                            }
+
+                        }
+                        ++i
+                    }
+                }
+                Part.QUERY, Part.FRAGMENT -> {
+                    var i = 0
+                    while(i <length) {
+                        val c = get(i)
+                        when(c) {
+                            '%' -> if (i + 2 >= length && get(i + 1).isHexLetter() && get(i + 2).isHexLetter()) i += 2 else return false
+                            '/', '?', ':', '@' -> {}
+                            else -> if (!c.isUnreserved() && !c.isSubDelim()) return false
+
+                        }
+                        ++i
+                    }
+                }
+            }
+            return true
+        }
+
+        internal fun Char.isAlpha(): Boolean = when {
+            code < ALPHA.size -> ALPHA[code]
+            else -> false
+        }
+
+        internal fun Char.isHexLetter(): Boolean = when {
+            code < HEXLETTER.size -> HEXLETTER[code]
+            else -> false
+        }
+
+        internal fun Char.isSchemeLetter(): Boolean = when {
+            code < SCHEMELETTER.size -> SCHEMELETTER[code]
+            else -> false
+        }
+
+        internal fun Char.isSubDelim(): Boolean = when {
+            code < SUBDELIM.size -> SUBDELIM[code]
+            else -> false
+        }
+
+        internal fun Char.isUnreserved(): Boolean = when {
+            code < UNRESERVED.size -> UNRESERVED[code]
+            else -> this.isLetterOrDigit()
+        }
+
     }
 }
 
-private val ALPHA = BooleanArray(127).also {
-    sequence {
-        yieldAll('A'..'Z')
-        yieldAll('a'..'z')
-    }.forEach { c ->
-        it[c.code] = true
-    }
-}
-private val SCHEMELETTER = BooleanArray(127).also {
-    sequence {
-        yieldAll('A'..'Z')
-        yieldAll('a'..'z')
-        yieldAll('0'..'9')
-        yield('+')
-        yield('-')
-        yield('.')
-    }.forEach { c ->
-        it[c.code] = true
+internal fun <T: CharSequence> T.checkValidUriChars(): T = also {
+    for (c in it) {
+        c.checkValidUriChar()
     }
 }
 
-internal fun Char.isAlpha(): Boolean = when {
-    code < ALPHA.size -> ALPHA[code]
-    else -> false
-}
+private const val POS_SCHEME=0
+private const val POS_AUTHORITY=1
 
-internal fun Char.isSchemeLetter(): Boolean = when {
-    code < SCHEMELETTER.size -> SCHEMELETTER[code]
-    else -> false
+private fun Char.checkValidUriChar(pos: Int = 0): Unit {
+    when (code) {
+        in 0x80f..0xffff -> error("$this is not Ascii")
+        ':'.code, '/'.code, '?'.code, '#'.code, '['.code, ']'.code -> error("Character '$this' is a delimeter")
+        '@'.code -> if (pos != POS_AUTHORITY) error("@ outside of authority")
+    }
 }
