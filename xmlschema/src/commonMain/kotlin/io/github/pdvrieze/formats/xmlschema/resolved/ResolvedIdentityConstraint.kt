@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
@@ -52,11 +53,22 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
             is XSKeyRef -> ResolvedKeyRef(rawPart, schema, context)
         }
 
+        //language=XsdRegExp
+        val PATTERN = XRegex("(\\.\\s*//\\s*)?" + // optional start with './/'
+                "(((child\\s*::\\s*)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*" + // then (child::)?<qname> or '.'
+                "(/\\s*(((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*)*" + // followed by a sequence of above (starting with '/'
+                "(\\|\\s*" + // followed by '|' separated repeated
+                    "(\\.//\\s*)?" + // start with './/'
+                        "(((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*" + // then qname or '.'
+                        "(/\\s*(((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)\\s*)*" + // then optionally more qnames
+                ")*", SchemaVersion.V1_1)
+
     }
 
     enum class Category { KEY, KEYREF, UNIQUE }
 
     fun checkConstraint(checkHelper: CheckHelper) {
         super.checkAnnotated(checkHelper.version)
+        require(PATTERN.matches(mdlSelector.test)) { "Invalid xpath expression for selectors: '${mdlSelector.test}'" }
     }
 }

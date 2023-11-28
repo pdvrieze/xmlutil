@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
 
 @Serializable(VToken.Serializer::class)
@@ -38,13 +39,12 @@ interface VToken : VNormalizedString {
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VToken>("token") {
         override fun deserialize(decoder: Decoder): VToken {
-            return Inst(decoder.decodeString())
+            return Inst(xmlCollapseWhitespace(decoder.decodeString()))
         }
     }
 
     companion object {
-        operator fun invoke(value: String): VToken =
-            Inst(WhitespaceValue.COLLAPSE.normalize(VString(value)).xmlString)
+        operator fun invoke(value: String): VToken = Inst(xmlCollapseWhitespace(value))
     }
 
 }
