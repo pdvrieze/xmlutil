@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
     ResolvedAnnotated {
@@ -33,9 +34,9 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
 
     val mdlFixed = rawPart.fixed
 
-    open fun checkFacetValid(type: ResolvedSimpleType) {}
+    open fun checkFacetValid(type: ResolvedSimpleType, version: SchemaVersion) {}
 
-    open fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal) {}
+    open fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal, version: SchemaVersion) {}
 
     open fun validate(value: VAnySimpleType) {}
 

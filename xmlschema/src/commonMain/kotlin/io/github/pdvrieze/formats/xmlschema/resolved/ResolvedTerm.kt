@@ -26,7 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 interface ResolvedTerm : ResolvedAnnotated {
 
     fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
-    fun checkTerm(checkHelper: CheckHelper)
+    fun checkTerm(checkHelper: CheckHelper) {
+        checkAnnotated(checkHelper.version)
+    }
+
     fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle
 
 }
