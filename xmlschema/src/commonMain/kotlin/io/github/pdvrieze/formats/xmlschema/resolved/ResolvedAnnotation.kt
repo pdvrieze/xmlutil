@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAppInfo
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDocumentation
@@ -36,9 +37,16 @@ class ResolvedAnnotation(rawPart: XSAnnotation) {
     val mdlApplicationInformation: List<XSAppInfo> = rawPart.appInfos
     val mdlUserInformation: List<XSDocumentation> = rawPart.documentationElements
 
-    fun check(checkedTypes: MutableSet<QName>) {
+    fun check(version: SchemaVersion) {
         val xsAttrs = mdlOtherAttrs.keys.filter { it.prefix=="" || it.namespaceURI== XMLConstants.XSD_NS_URI }
         check(xsAttrs.isEmpty()) { "Open attributes in the empty or xmlschema namespace found: [${xsAttrs.joinToString()}]" }
+
+        for (info in mdlApplicationInformation) {
+            info.source?.let { AnyURIType.validateValue(it, version) }
+        }
+        mdlUserInformation.forEach {
+            it.source?.let { AnyURIType.validateValue(it, version) }
+        }
     }
 
 }

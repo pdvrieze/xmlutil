@@ -51,7 +51,7 @@ interface IResolvedSequence : ResolvedModelGroup {
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY
             particles.size == 1 -> when {
-                schema.version != ResolvedSchema.Version.V1_0 ->
+                schema.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
 
                 range.isSimple -> particles.single()

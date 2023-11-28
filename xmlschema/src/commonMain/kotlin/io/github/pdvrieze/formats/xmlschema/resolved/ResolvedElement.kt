@@ -21,10 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Element
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
@@ -117,12 +118,14 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     }
 
     override fun checkTerm(checkHelper: CheckHelper) {
+        super.checkTerm(checkHelper)
+
         for (constraint in mdlIdentityConstraints) {
             checkHelper.checkConstraint(constraint)
         }
         mdlValueConstraint?.let {
-            mdlTypeDefinition.validate(it.value)
-            if (checkHelper.version == ResolvedSchema.Version.V1_0) {
+            mdlTypeDefinition.validate(it.value, checkHelper.version)
+            if (checkHelper.version == SchemaVersion.V1_0) {
                 check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
                     "ID types can not have fixed values"
                 }

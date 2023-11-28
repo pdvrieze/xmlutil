@@ -71,13 +71,13 @@ sealed class ResolvedComplexType(
         return model.hasLocalNsInContext
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         when (val ct = mdlContentType) {
             is ResolvedSimpleContentType -> ct.mdlSimpleTypeDefinition.let { st ->
                 st.mdlFacets.validate(
                     st.mdlPrimitiveTypeDefinition,
                     representation
-                ); st.validate(representation)
+                ); st.validate(representation, version)
             }
 
             is MixedContentType -> {
@@ -115,6 +115,7 @@ sealed class ResolvedComplexType(
     }
 
     override fun checkType(checkHelper: CheckHelper) {
+        checkAnnotated(checkHelper.version)
         checkNotNull(model)
         for (attrUse in mdlAttributeUses.values) {
             attrUse.checkUse(checkHelper)
@@ -203,7 +204,7 @@ sealed class ResolvedComplexType(
                         ) { "Attribute wildcard does not match $dName" }
                     }
 
-                    else -> require(dAttr.isValidRestrictionOf(bAttr)) {
+                    else -> require(dAttr.isValidRestrictionOf(bAttr, schema.version)) {
                         "3.4.6.3 - ${dAttr} doesn't restrict base attribute validly"
                     }
                 }
@@ -253,7 +254,7 @@ sealed class ResolvedComplexType(
             is ResolvedSimpleContentType ->
                 when (val ct = mdlContentType) {
                     is EmptyContentType -> {
-                        require(baseType is ResolvedSimpleType || schema.version == ResolvedSchema.Version.V1_0) {
+                        require(baseType is ResolvedSimpleType || schema.version == SchemaVersion.V1_0) {
                             "From version 1.1 complexContent can not inherit simpleContent"
                         }
                         require(baseCType.mdlSimpleTypeDefinition.value(VString("")) != null) {
@@ -903,7 +904,7 @@ sealed class ResolvedComplexType(
                             val existingAttr = get(attrName)
                             if (existingAttr == null) {
                                 put(attrName, a)
-                            } else if (schema.version == ResolvedSchema.Version.V1_1 && existingAttr is ResolvedLocalAttribute) {
+                            } else if (schema.version == SchemaVersion.V1_1 && existingAttr is ResolvedLocalAttribute) {
                                 throw IllegalArgumentException("Local attributes can not override parent attributes in V1.1")
                             }
                         }
@@ -917,7 +918,7 @@ sealed class ResolvedComplexType(
                             } else {
                                 if (overriddenAttrUse == null) {
                                     put(qName, baseAttrUse)
-                                } else if (schema.version == ResolvedSchema.Version.V1_1 && overriddenAttrUse is ResolvedLocalAttribute) {
+                                } else if (schema.version == SchemaVersion.V1_1 && overriddenAttrUse is ResolvedLocalAttribute) {
                                     val oldC = baseAttrUse.mdlValueConstraint
                                     if (oldC != null) {
                                         val newC = overriddenAttrUse.mdlValueConstraint
@@ -940,7 +941,7 @@ sealed class ResolvedComplexType(
             }
             val attributeUses = attributes.toMap()
 
-            if (schema.version == ResolvedSchema.Version.V1_0) {
+            if (schema.version == SchemaVersion.V1_0) {
                 // this is legal in 1.1
                 var idAttrName: QName? = null
                 for (use in attributes.values) {

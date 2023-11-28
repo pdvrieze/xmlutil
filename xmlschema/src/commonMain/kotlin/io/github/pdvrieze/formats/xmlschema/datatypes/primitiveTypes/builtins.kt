@@ -135,7 +135,7 @@ sealed class PrimitiveDatatype<out T: VAnySimpleType>(name: String, targetNamesp
         return valueFromNormalized(normalized)
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         mdlFacets.validateValue(value)
     }
 
@@ -168,11 +168,11 @@ object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAM
         numeric = false,
     )
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         error("Atomic is not directly usable")
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         error("Atomic is not directly usable")
     }
 }
@@ -196,12 +196,15 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_N
         return maybeValue as? VAnyURI ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
-        check(value is VAnyURI)
+    override fun validateValue(value: Any, version: SchemaVersion) {
+        when (version) {
+            SchemaVersion.V1_0 -> check(value is VParsedURI)
+            else -> check(value is VAnyURI)
+        }
         mdlFacets.validateValue(value)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 }
@@ -213,7 +216,7 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchem
         return Base64.decode(representation).size
     }
 
-    val regex = XRegex("((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?", ResolvedSchema.Version.V1_0)
+    val regex = XRegex("((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?", SchemaVersion.V1_0)
 
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
@@ -237,11 +240,11 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchem
         return maybeValue as? VByteArray ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VByteArray)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -270,11 +273,11 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XmlSchemaConstants.X
         return maybeValue as? VBoolean ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VBoolean)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -320,11 +323,11 @@ object DateType : PrimitiveDatatype<VDate>("date", XmlSchemaConstants.XS_NAMESPA
         return maybeValue as? VDate ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VDate)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -374,8 +377,8 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XmlSchemaConstant
         return maybeValue as? VDateTime ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -409,8 +412,8 @@ object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XmlSche
         } ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -445,12 +448,12 @@ object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XmlSchemaConstants.X
         return maybeValue as? VDecimal ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VDecimal)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 
 }
@@ -481,12 +484,12 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XmlSchemaConstants.X
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VInteger)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
         //TODO("not implemented")
     }
 }
@@ -518,11 +521,11 @@ object LongType : PrimitiveDatatype<VInteger>("long", XmlSchemaConstants.XS_NAME
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VInteger)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -553,11 +556,11 @@ object IntType : PrimitiveDatatype<VInteger>("int", XmlSchemaConstants.XS_NAMESP
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VInteger)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -589,13 +592,13 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XmlSchemaConstants.XS_NA
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VInteger)
         check(value.toInt() in Short.MIN_VALUE..Short.MAX_VALUE)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 
 }
@@ -626,13 +629,13 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XmlSchemaConstants.XS_NAME
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VInteger)
         check(value.toInt() in Byte.MIN_VALUE..Byte.MAX_VALUE)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 
     override fun toString(): String = "Builtin:Byte"
@@ -663,11 +666,11 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
         return maybeValue as? VNonNegativeInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VNonNegativeInteger)  { "Value $value is not non-negative"}
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -698,11 +701,11 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
         return maybeValue as? VNonNegativeInteger ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VNonNegativeInteger)  { "Value $value is not positive"}
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -734,11 +737,11 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XmlSc
         return maybeValue as? VUnsignedLong ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VUnsignedLong)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -770,12 +773,12 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XmlSchem
         return maybeValue as? VUnsignedInt ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VUnsignedInt)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 
 }
@@ -806,12 +809,12 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XmlS
         return maybeValue as? VUnsignedInt ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VUnsignedInt)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 
 }
@@ -846,12 +849,12 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XmlSch
         return maybeValue as? VUnsignedInt ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VUnsignedInt)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 
 }
@@ -886,11 +889,11 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
         return maybeValue as? VDecimal ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VDecimal) { "Value $value is not a decimal"}
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         check(value(representation).toLong() <= 0L)
     }
 
@@ -926,12 +929,12 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XmlS
         return maybeValue as? VDecimal ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VDecimal)  { "Value $value is not a decimal"}
         check(value.toLong() < 0L) { "Value $value is not negative"}
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         check(value(representation).toLong() < 0L)
     }
 
@@ -959,11 +962,11 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XmlSchemaConstants.XS_N
         return maybeValue as? VDouble ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VDouble)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -991,7 +994,7 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XmlSchemaConstant
         return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1019,15 +1022,15 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", Xml
         return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         require(value is VDuration)
         require(value.months == 0L)
         val days = value.millis / (24 * 3600_000)
         require(days == 0L)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -1054,14 +1057,14 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
         return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         require(value is VDuration)
         val seconds = value.millis % (24 * 3600_000)
         require(seconds == 0L)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -1087,11 +1090,11 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XmlSchemaConstants.XS_NAME
         return maybeValue as? VFloat ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VFloat)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -1129,11 +1132,11 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XmlSchemaConstants.XS_NAMESPA
         return maybeValue as? VGDay ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VGDay)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1175,11 +1178,11 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XmlSchemaConstants.XS_N
         return maybeValue as? VGMonth ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VGMonth)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1224,11 +1227,11 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XmlSchemaConst
         return maybeValue as? VGMonthDay ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VGMonthDay)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1263,11 +1266,11 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XmlSchemaConstants.XS_NAME
         return maybeValue as? VGYear ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VGYear)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1299,11 +1302,11 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XmlSchemaCo
         return maybeValue as? VGYearMonth ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VGYearMonth)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 
@@ -1347,12 +1350,12 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConst
         return maybeValue as? VByteArray ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VByteArray) { "Value for hex binary is not a ByteArray" }
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -1378,11 +1381,11 @@ object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XmlSchemaConstant
         return maybeValue as? VNotation ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VNotation)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
 
     }
 }
@@ -1409,11 +1412,11 @@ object QNameType : PrimitiveDatatype<VQName>("QName", XmlSchemaConstants.XS_NAME
         return maybeValue as? VQName ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VQName)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         val localName = when (representation) {
             is VPrefixString -> representation.localname
             else -> representation.xmlString
@@ -1450,11 +1453,11 @@ object StringType : PrimitiveDatatype<VString>("string", XmlSchemaConstants.XS_N
         return maybeValue as? VString ?: VString(maybeValue.xmlString)
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VString)
     }
 
-    override fun validate(representation: VString) {}
+    override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
 object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedString", XmlSchemaConstants.XS_NAMESPACE), IStringType {
@@ -1479,11 +1482,11 @@ object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedSt
         return maybeValue as? VNormalizedString ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VNormalizedString)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         // all representations are valid
     }
 }
@@ -1510,11 +1513,11 @@ object TokenType : PrimitiveDatatype<VToken>("token", XmlSchemaConstants.XS_NAME
         return maybeValue as? VToken ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VToken)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         mdlFacets.validate(this, representation)
     }
 }
@@ -1542,11 +1545,11 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XmlSchemaConstant
         return maybeValue as? VLanguage ?: VLanguage(maybeValue.xmlString)
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         mdlFacets.validateValue(value as VLanguage)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation) // triggers validation in constructor
     }
 }
@@ -1574,11 +1577,11 @@ object NameType : PrimitiveDatatype<VName>("Name", XmlSchemaConstants.XS_NAMESPA
         return maybeValue as? VName ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VName)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1609,12 +1612,12 @@ object NCNameType : PrimitiveDatatype<VNCName>("NCName", XmlSchemaConstants.XS_N
         return maybeValue as? VNCName ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VNCName)
         mdlFacets.validate(mdlPrimitiveTypeDefinition, value)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 
@@ -1646,7 +1649,7 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XmlSchemaConstants.XS_N
         return maybeValue as? VString ?: VString(maybeValue.xmlString)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         mdlFacets.validate(this, representation)
     }
 }
@@ -1677,13 +1680,13 @@ object IDType : PrimitiveDatatype<VID>("ID", XmlSchemaConstants.XS_NAMESPACE), I
         return maybeValue as? VID ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VID)
         mdlFacets.validateValue(value)
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -1713,12 +1716,12 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XmlSchemaConstants.XS_NAME
         return maybeValue as? VIDRef ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VIDRef) {"$value is not an IDRef"}
         check(value.isNotEmpty()) { "IDRef may not be empty" }
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1746,11 +1749,11 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XmlSchemaConstants.X
         return maybeValue as? VNMToken ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         check(value is VNMToken)
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         value(representation)
     }
 }
@@ -1781,8 +1784,8 @@ object TimeType : PrimitiveDatatype<VTime>("time", XmlSchemaConstants.XS_NAMESPA
         return maybeValue as? VTime ?: value(VString(maybeValue.xmlString))
     }
 
-    override fun validate(representation: VString) {
-        validateValue(value(representation))
+    override fun validate(representation: VString, version: SchemaVersion) {
+        validateValue(value(representation), version)
     }
 }
 
@@ -1796,7 +1799,7 @@ object EntitiesType :
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = EntityType
 
-    override fun validate(representation: VString) {}
+    override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
 object IDRefsType : ConstructedListDatatype(
@@ -1808,7 +1811,7 @@ object IDRefsType : ConstructedListDatatype(
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = IDRefType
 
-    override fun validate(representation: VString) {}
+    override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
 object NMTokensType : ConstructedListDatatype(
@@ -1820,7 +1823,7 @@ object NMTokensType : ConstructedListDatatype(
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = NMTokenType
 
-    override fun validate(representation: VString) {}
+    override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
 object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecimal", XmlSchemaConstants.XS_NAMESPACE) {
@@ -1845,7 +1848,7 @@ object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecima
         TODO("not implemented")
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         mdlFacets.validate(this, representation)
 //        TODO("not implemented")
     }

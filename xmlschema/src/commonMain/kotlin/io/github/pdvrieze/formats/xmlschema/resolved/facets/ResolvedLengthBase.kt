@@ -25,13 +25,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFac
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 sealed class ResolvedLengthBase(rawPart: XSFacet, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     abstract val value: ULong
 
-    override fun checkFacetValid(type: ResolvedSimpleType) {
+    override fun checkFacetValid(type: ResolvedSimpleType, version: SchemaVersion) {
         when (type.mdlVariety) {
             ResolvedSimpleType.Variety.ATOMIC -> when (val primitive = type.mdlPrimitiveTypeDefinition) {
                 null -> error("Length is not supported on simple types not deriving from a primitive")

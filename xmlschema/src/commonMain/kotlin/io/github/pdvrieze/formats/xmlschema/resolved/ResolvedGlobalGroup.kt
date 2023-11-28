@@ -119,7 +119,7 @@ class ResolvedGlobalGroup internal constructor(
         ModelGroupBase(parent, elemPart, schema), IResolvedAll {
 
         init {
-            if (schema.version== ResolvedSchema.Version.V1_0) {
+            if (schema.version== SchemaVersion.V1_0) {
                 require(elemPart.elem.particles.all { it is XSLocalElement }) {
                     "Schema 1.0 only allows element members for all model group schema components"
                 }

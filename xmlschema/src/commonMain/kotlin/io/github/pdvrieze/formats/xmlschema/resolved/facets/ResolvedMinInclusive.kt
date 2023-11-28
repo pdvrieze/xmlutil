@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinInclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class ResolvedMinInclusive(
     rawPart: XSMinInclusive,
@@ -37,8 +38,8 @@ class ResolvedMinInclusive(
 ) : ResolvedMinBoundFacet(rawPart, schema) {
     override val isInclusive: Boolean get() = true
 
-    override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal) {
-        type.validateValue(value)
+    override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal, version: SchemaVersion) {
+        type.validateValue(value, version)
         val v = (type.value(value) as VDecimal)
         check(decimal >= v)
     }

@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDa
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxExclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class ResolvedMaxExclusive(
     rawPart: XSMaxExclusive,
@@ -37,8 +38,8 @@ class ResolvedMaxExclusive(
 ) : ResolvedMaxBoundFacet(schema, rawPart) {
     override val isInclusive: Boolean get() = false
 
-    override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal) {
-        type.validateValue(value)
+    override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal, version: SchemaVersion) {
+        type.validateValue(value, version)
         val v = (type.value(value) as VDecimal)
         check(decimal < v)
     }
