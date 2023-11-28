@@ -29,7 +29,7 @@ import kotlin.jvm.JvmInline
 value class VIDRef(override val xmlString: String) : VNCName {
 
     init {
-        IDRefType.validateValue(this)
+        IDRefType.mdlFacets.validateValue(this)
     }
 
     override fun toString(): String = xmlString

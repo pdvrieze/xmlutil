@@ -20,19 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XML_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XML_NAMESPACE
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
-    override val version: ResolvedSchema.Version get() = ResolvedSchema.Version.V1_1
+    override val version: SchemaVersion get() = SchemaVersion.V1_1
 
     override val defaultAttributes: Nothing? get() = null
 

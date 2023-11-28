@@ -31,9 +31,9 @@ sealed interface ResolvedType : ResolvedAnnotated {
 
     fun checkType(checkHelper: CheckHelper)
 
-    fun validate(representation: VString)
+    fun validate(representation: VString, version: SchemaVersion)
 
-    fun validateValue(value: Any) {}
+    fun validateValue(value: Any, version: SchemaVersion) {}
 
     /**
      * Defined in 3.3.4.2 last paragraph

@@ -35,7 +35,6 @@ interface VName : VToken {
 
         init {
             NameType.mdlFacets.validateRepresentationOnly(NameType, this)
-            NameType.validateValue(this)
         }
 
         override fun toString(): String = xmlString

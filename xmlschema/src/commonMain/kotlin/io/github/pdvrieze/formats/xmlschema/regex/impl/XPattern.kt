@@ -21,10 +21,10 @@
 @file:Suppress("DEPRECATION") // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Version
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
-internal class XPattern(val pattern: String, version: Version) {
+internal class XPattern(val pattern: String, version: SchemaVersion) {
 
     var flags = 0
         private set
@@ -548,7 +548,7 @@ internal class XPattern(val pattern: String, version: Version) {
                         buffer = -1
                     } else if (firstInClass
                         || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
-                        || (buffer < 0 && lexemes.version != Version.V1_0)) {
+                        || (buffer < 0 && lexemes.version != SchemaVersion.V1_0)) {
                         // Note that mid-range hyphens are only supported in 1.1
 
                         // Treat the hypen as a normal character.

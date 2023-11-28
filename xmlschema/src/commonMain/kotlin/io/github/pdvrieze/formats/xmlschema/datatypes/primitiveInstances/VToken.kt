@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.TokenType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -31,9 +30,6 @@ interface VToken : VNormalizedString {
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VToken {
-        init {
-            TokenType.validateValue(this)
-        }
 
         override fun toString(): String = xmlString
 

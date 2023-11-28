@@ -31,12 +31,12 @@ sealed interface IResolvedAttributeUse : ResolvedAnnotated {
     val mdlQName: QName
 
     fun checkUse(checkHelper: CheckHelper)
-    fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
+    fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse, version: SchemaVersion): Boolean {
         if (baseAttr.mdlRequired && !mdlRequired) return false
 
         val valueConstraint = mdlValueConstraint ?: mdlAttributeDeclaration.mdlValueConstraint
         if (valueConstraint != null) {
-            baseAttr.mdlAttributeDeclaration.mdlTypeDefinition.validate(valueConstraint.value)
+            baseAttr.mdlAttributeDeclaration.mdlTypeDefinition.validate(valueConstraint.value, version)
             (baseAttr.mdlValueConstraint ?: baseAttr.mdlAttributeDeclaration.mdlValueConstraint)?.let { bc ->
                 if (!valueConstraint.isValidRestrictionOf(baseAttr.mdlAttributeDeclaration.mdlTypeDefinition, bc)) return false
             }

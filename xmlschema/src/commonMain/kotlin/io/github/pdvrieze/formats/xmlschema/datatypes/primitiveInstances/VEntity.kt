@@ -29,7 +29,7 @@ import kotlin.jvm.JvmInline
 value class VEntity(override val xmlString: String) : VNCName {
 
     init {
-        EntityType.validateValue(this)
+        EntityType.mdlFacets.validate(EntityType, this)
     }
 
     override fun toString(): String = xmlString

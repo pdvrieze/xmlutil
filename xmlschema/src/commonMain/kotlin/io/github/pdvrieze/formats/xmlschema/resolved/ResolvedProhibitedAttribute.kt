@@ -36,7 +36,7 @@ class ResolvedProhibitedAttribute(
     init {
         check(rawPart.use == XSAttrUse.PROHIBITED) { "Prohibited attributes must have prohibited use" }
         require(rawPart.default == null) { "Prohibited attributes may not have a default value" }
-        if (schema.version != ResolvedSchema.Version.V1_0) {
+        if (schema.version != SchemaVersion.V1_0) {
             require(rawPart.fixed == null) { "Prohibited attributes may not have a fixed value in 1.1" }
         }
     }
@@ -62,7 +62,7 @@ class ResolvedProhibitedAttribute(
 
     override fun toString(): String = "prohibitedAttribute($mdlQName)"
 
-    override fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse): Boolean {
+    override fun isValidRestrictionOf(baseAttr: IResolvedAttributeUse, version: SchemaVersion): Boolean {
         if(baseAttr.mdlRequired) return false //Prohibited attributes cannot restrict required attributes
         return true
     }

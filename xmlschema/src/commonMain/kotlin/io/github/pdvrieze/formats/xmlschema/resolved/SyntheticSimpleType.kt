@@ -47,7 +47,7 @@ class SyntheticSimpleType(
 
     override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 

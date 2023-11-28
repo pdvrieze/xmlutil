@@ -38,6 +38,7 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
 
     override fun checkTerm(checkHelper: CheckHelper) {
+        super.checkTerm(checkHelper)
         for(particle in mdlParticles) {
             particle.checkParticle(checkHelper)
         }

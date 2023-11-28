@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,20 +18,16 @@
  * under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NMTokenType
-import kotlinx.serialization.Serializable
-import kotlin.jvm.JvmInline
+enum class SchemaVersion {
+    V1_0, V1_1;
 
-@JvmInline
-@Serializable
-value class VNMToken(override val xmlString: String) : VToken {
-
-    init {
-        NMTokenType.mdlFacets.validateRepresentationOnly(NMTokenType, this)
+    companion object {
+        fun fromXml(xml: String): SchemaVersion? = when (xml) {
+            "1.0" -> SchemaVersion.V1_0
+            "1.1" -> SchemaVersion.V1_1
+            else -> null
+        }
     }
-
-    override fun toString(): String = xmlString
-
 }

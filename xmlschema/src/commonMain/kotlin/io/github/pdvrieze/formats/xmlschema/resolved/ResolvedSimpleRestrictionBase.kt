@@ -49,6 +49,7 @@ abstract class ResolvedSimpleRestrictionBase(
     }
 
     override fun checkDerivation(checkHelper: CheckHelper) {
+        checkAnnotated(checkHelper.version)
         checkHelper.checkType(baseType)
     }
 

@@ -32,6 +32,14 @@ interface ResolvedAnnotated {
     val id: VID? get() = model.id
     val otherAttrs: Map<QName, String> get() = model.otherAttrs
 
+
+    fun checkAnnotated(version: SchemaVersion) {
+        for (a in mdlAnnotations) {
+            a.check(version)
+        }
+    }
+
+
     interface IModel {
         val annotations: List<ResolvedAnnotation>
         val id: VID?

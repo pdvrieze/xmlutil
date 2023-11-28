@@ -20,12 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_OpenAttrs
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
@@ -73,10 +73,10 @@ class TestXSTestSuite {
 //                .filter { it.href.contains("sunMeta/suntest") }
 //                .filter { it.href.contains("msMeta/Additional") }
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
-                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
-                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
-                    "msMeta/Errata", "msMeta/Group", "msMeta/Regex").any { m -> it.href.contains(m) } }
-//                .filter { (it.href.contains("msMeta/")) }
+//                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
+//                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
+//                    "msMeta/Errata", "msMeta/Group", "msMeta/Regex").any { m -> it.href.contains(m) } }
+                .filter { (it.href.contains("msMeta/DataTypes")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -88,7 +88,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (true|| group.name.startsWith("elemZ026")) {
+                            if (true || group.name.startsWith("IDREFS_minLength006")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
@@ -473,10 +473,10 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     documentation: String
 ) {
     val defaultVersions = when(schemaTest.version) {
-        "1.0" -> listOf(ResolvedSchema.Version.V1_0)
-        "1.1" -> listOf(ResolvedSchema.Version.V1_1)
+        "1.0" -> listOf(SchemaVersion.V1_0)
+        "1.1" -> listOf(SchemaVersion.V1_1)
 //        else -> listOf(ResolvedSchema.Version.V1_0)//ResolvedSchema.Version.entries
-        else -> ResolvedSchema.Version.entries
+        else -> SchemaVersion.entries
     }
     val resolver = SimpleResolver(setBaseUrl)
 
@@ -486,7 +486,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         }
     }
 
-    val expecteds = mutableMapOf<ResolvedSchema.Version, TSExpected>()
+    val expecteds = mutableMapOf<SchemaVersion, TSExpected>()
     for (e in schemaTest.expected) {
         when (e.version) {
             null -> {

@@ -30,7 +30,7 @@ value class VLanguage(override val xmlString: String) : VToken {
 
     init {
         LanguageType.mdlFacets.validateRepresentationOnly(LanguageType, this)
-        LanguageType.validateValue(this)
+        LanguageType.mdlFacets.validateValue(this)
     }
 
     override fun toString(): String = xmlString

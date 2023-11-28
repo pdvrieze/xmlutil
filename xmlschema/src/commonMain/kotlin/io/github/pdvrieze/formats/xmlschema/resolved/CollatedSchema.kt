@@ -591,7 +591,7 @@ class OwnerWrapper internal constructor(base: ResolvedSchemaLike, val owner: XSS
         else -> base
     }
 
-    override val version: ResolvedSchema.Version get() = owner.version?.let { ResolvedSchema.Version.fromXml(it.xmlString) } ?: base.version
+    override val version: SchemaVersion get() = owner.version?.let { SchemaVersion.fromXml(it.xmlString) } ?: base.version
 
     override val targetNamespace: VAnyURI? get() = owner.targetNamespace
 
@@ -650,7 +650,7 @@ class ChameleonWrapper internal constructor(
     val chameleonNamespace: VAnyURI?
 ) : ResolvedSchemaLike() {
 
-    override val version: ResolvedSchema.Version get() = base.version
+    override val version: SchemaVersion get() = base.version
 
     override val targetNamespace: VAnyURI?
         get() = chameleonNamespace
@@ -729,7 +729,7 @@ internal class RedefineSchema(
     override val defaultAttributes: QName? = null,
 ) : ResolvedSchemaLike() {
 
-    override val version: ResolvedSchema.Version get() = base.version
+    override val version: SchemaVersion get() = base.version
 
     override val targetNamespace: VAnyURI? get() = data.namespace?.let { VAnyURI(it) } ?: base.targetNamespace
     private val originalNS get() = targetNamespace?.value ?: ""

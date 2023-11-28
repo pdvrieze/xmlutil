@@ -45,10 +45,10 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchema
     open fun checkAttribute(checkHelper: CheckHelper) {
         checkHelper.checkType(mdlTypeDefinition)
         mdlValueConstraint?.let {
-            if (checkHelper.version == ResolvedSchema.Version.V1_0) {
+            if (checkHelper.version == SchemaVersion.V1_0) {
                 require(mdlTypeDefinition.mdlPrimitiveTypeDefinition != IDType) { "In version 1.0 ID (derived) type attributes may not have value constraints" }
             }
-            mdlTypeDefinition.validate(it.value)
+            mdlTypeDefinition.validate(it.value, checkHelper.version)
         }
         require(mdlQName.getNamespaceURI()!= XmlSchemaConstants.XSI_NAMESPACE) {
             "3.2.6.4 - Attributes may not have the XSI namespace as their target namespace"

@@ -33,7 +33,7 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
     private val checkedGroups: MutableSet<ResolvedGlobalGroup> = HashSet()
     private val checkedNotations: MutableSet<ResolvedNotation> = HashSet()
 
-    val version: ResolvedSchema.Version get() = schema.version
+    val version: SchemaVersion get() = schema.version
 
     private val checkHelper get() = this
 
@@ -83,7 +83,7 @@ class CheckHelper(private val schema: ResolvedSchemaLike) {
         attributeGroup: ResolvedGlobalAttributeGroup,
         seen: MutableSet<ResolvedGlobalAttributeGroup> = mutableSetOf()
     ) {
-        if (version == ResolvedSchema.Version.V1_0 && attributeGroup in seen) {
+        if (version == SchemaVersion.V1_0 && attributeGroup in seen) {
             throw IllegalStateException("Circular attribute group (in 1.0 mode): ${attributeGroup.mdlQName}")
         } else {
             seen.add(attributeGroup)

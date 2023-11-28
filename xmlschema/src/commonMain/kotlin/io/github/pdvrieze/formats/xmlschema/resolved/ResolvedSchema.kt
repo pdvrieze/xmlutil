@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 // TODO("Support resolving documents that are external to the original/have some resolver type")
-class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: Version = Version.V1_1) :
+class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: SchemaVersion = SchemaVersion.V1_1) :
     ResolvedSchemaLike() {
 
     private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
@@ -103,7 +103,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         return nestedData.containsKey("")
     }
 
-    override val version: Version = rawPart.version?.run { Version.fromXml(xmlString) } ?: defaultVersion
+    override val version: SchemaVersion = rawPart.version?.run { SchemaVersion.fromXml(xmlString) } ?: defaultVersion
 
     val lang: VLanguage? get() = rawPart.lang
 
@@ -188,19 +188,6 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         }
 
     }
-
-    enum class Version {
-        V1_0, V1_1;
-
-        companion object {
-            fun fromXml(xml: String): Version? = when (xml) {
-                "1.0" -> Version.V1_0
-                "1.1" -> Version.V1_1
-                else -> null
-            }
-        }
-    }
-
 
     interface Resolver {
         val baseUri: VAnyURI
@@ -406,9 +393,9 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
     companion object {
 
 
-        fun Version(str: String): Version = when (str) {
-            "1.0" -> Version.V1_0
-            "1.1" -> Version.V1_1
+        fun Version(str: String): SchemaVersion = when (str) {
+            "1.0" -> SchemaVersion.V1_0
+            "1.1" -> SchemaVersion.V1_1
             else -> throw IllegalArgumentException("'$str' is not a supported version")
         }
 

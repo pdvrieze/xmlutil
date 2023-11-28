@@ -71,6 +71,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
     override fun checkType(
         checkHelper: CheckHelper
     ) { // TODO maybe move to toplevel
+        checkAnnotated(checkHelper.version)
         simpleDerivation.checkDerivation(checkHelper)
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
@@ -93,16 +94,17 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 check(baseTypeDef.mdlVariety == Variety.LIST)
                 check(VDerivationControl.RESTRICTION !in baseTypeDef.mdlFinal)
             }
-            mdlFacets.checkList(this)
+            mdlFacets.checkList(this, checkHelper.version)
+        } else {
+            mdlFacets.check(this, checkHelper.version)
         }
-        mdlFacets.check(this)
     }
 
-    override fun validateValue(value: Any) {
+    override fun validateValue(value: Any, version: SchemaVersion) {
         when (mdlVariety) {
             Variety.ATOMIC -> {
                 val pt = checkNotNull(mdlPrimitiveTypeDefinition)
-                pt.validateValue(value)
+                pt.validateValue(value, version)
                 mdlFacets.validateValue(value)
             }
             Variety.LIST -> {
@@ -110,26 +112,26 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 check(value is List<*>)
                 mdlFacets.validateValue(value)
                 for (i in value.requireNoNulls()) {
-                    id.validateValue(i)
+                    id.validateValue(i, version)
                 }
             }
             Variety.UNION -> {
                 check(mdlMemberTypeDefinitions.isNotEmpty())
                 check(mdlMemberTypeDefinitions.any {t ->
-                    runCatching { t.validateValue(value); true }.getOrDefault(false)
+                    runCatching { t.validateValue(value, version); true }.getOrDefault(false)
                 })
             }
             Variety.NIL -> error("Nil variety cannot be validated")
         }
     }
 
-    override fun validate(representation: VString) {
+    override fun validate(representation: VString, version: SchemaVersion) {
         check(this != mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
         val v = value(representation)
-        if (v != null) validateValue(v)
+        if (v != null) validateValue(v, version)
         val pt = mdlPrimitiveTypeDefinition
         if (pt != null) {
-            pt.validate(representation)
+            pt.validate(representation, version)
             mdlFacets.validate(pt, representation)
         }
     }

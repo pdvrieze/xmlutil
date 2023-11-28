@@ -65,7 +65,7 @@ class ResolvedGlobalAttributeGroup internal constructor(
                     for (dAttr in attrUses) {
                         val dName = dAttr.mdlAttributeDeclaration.mdlQName
                         val bAttr = requireNotNull(baseAttrs.remove(dName)) { "Attribute group redefines without self reference may only restrict" }
-                        require(dAttr.isValidRestrictionOf(bAttr)) {
+                        require(dAttr.isValidRestrictionOf(bAttr, unresolvedSchema.version)) {
                             "3.4.6.3 - ${dAttr} doesn't restrict base attribute validly"
                         }
                     }
