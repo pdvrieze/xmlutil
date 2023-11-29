@@ -36,7 +36,7 @@ open class ResolvedGlobalComplexType(
         elemPart.elem.name.toQname(schema.targetNamespace),
         schema,
         {
-            when (val r = elemPart.elem) {
+            when (elemPart.elem) {
                 is XSGlobalComplexTypeComplex -> ComplexModel(this, elemPart.cast(), schema)
                 is XSGlobalComplexTypeShorthand -> ShorthandModel(this, elemPart.cast(), schema)
                 is XSGlobalComplexTypeSimple -> SimpleModel(this, elemPart.cast(), schema)

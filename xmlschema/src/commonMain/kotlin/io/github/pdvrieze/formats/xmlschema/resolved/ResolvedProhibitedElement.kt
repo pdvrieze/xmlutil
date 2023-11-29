@@ -55,7 +55,7 @@ class ResolvedProhibitedElement(
         }
     }
 
-    override fun flatten(typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
+    override fun flatten(typeContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
         return FlattenedGroup.EMPTY
     }
 
