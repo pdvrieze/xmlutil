@@ -22,10 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNotation
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VPrefixString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
@@ -189,10 +186,15 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 return type.value(normalized)
             }
             Variety.LIST -> {
+                if (normalized.isEmpty()) return emptyList<Any>()
+                val itemType = checkNotNull(mdlItemTypeDefinition)
+
                 return when {
                     normalized.isEmpty() -> emptyList()
+                    normalized is VPrefixStringList -> normalized.elems.map {
+                        itemType.value(it)
+                    }
                     else -> normalized.split(' ').map {
-                        val itemType = checkNotNull(mdlItemTypeDefinition)
                         itemType.value(VString(it))
                     }
                 }
