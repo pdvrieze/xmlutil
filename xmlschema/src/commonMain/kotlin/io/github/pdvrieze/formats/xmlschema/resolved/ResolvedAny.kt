@@ -64,6 +64,10 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         return FlattenedParticle.Wildcard(range, this)
     }
 
+    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        return super<ResolvedParticle>.flatten(schema)
+    }
+
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAny(this)
 
     override fun checkTerm(checkHelper: CheckHelper) {

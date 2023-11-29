@@ -44,6 +44,10 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
 
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
+    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        return super<ResolvedGroupParticle>.flatten(schema)
+    }
+
     internal operator fun invoke(
         parent: ResolvedComplexType,
         elemPart: SchemaElement<XSExplicitGroup>,
