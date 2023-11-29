@@ -113,7 +113,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 }
             }
             Variety.UNION -> {
-                check(mdlMemberTypeDefinitions.isNotEmpty())
+                check(mdlMemberTypeDefinitions.isNotEmpty()) { "Union type ${this} has no members" }
                 check(mdlMemberTypeDefinitions.any {t ->
                     runCatching { t.validateValue(value, version); true }.getOrDefault(false)
                 })
@@ -304,16 +304,20 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
             }
 
             mdlMemberTypeDefinitions = when {
-                simpleDerivation !is XSSimpleUnion -> emptyList()
+                mdlVariety != Variety.UNION -> emptyList()
+                simpleDerivation !is XSSimpleUnion -> recurseBaseType(mdlBaseTypeDefinition) {
+                    it.mdlMemberTypeDefinitions
+                }
+
                 mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map {
                     schema.simpleType(it)
                 } ?: simpleDerivation.simpleTypes.map {
                         ResolvedLocalSimpleType(it, schema, context)
                     }
 
-                else -> recurseBaseType(
-                    mdlBaseTypeDefinition,
-                ) { it.mdlMemberTypeDefinitions }
+                else -> recurseBaseType(mdlBaseTypeDefinition) {
+                    it.mdlMemberTypeDefinitions
+                }
             }
 
 
