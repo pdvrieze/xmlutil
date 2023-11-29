@@ -37,10 +37,4 @@ class SyntheticChoice(
 
     override val mdlTerm: SyntheticChoice get() = this
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        for (particle in mdlParticles) {
-            particle.collectConstraints(collector)
-        }
-    }
-
 }

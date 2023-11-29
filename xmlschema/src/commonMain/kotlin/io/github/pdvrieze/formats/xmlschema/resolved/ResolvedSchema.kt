@@ -332,7 +332,9 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                 types.values.forEach { type ->
                     if (type is ResolvedComplexType) type.collectConstraints(collector)
                 }
-                groups.values.forEach { group -> group.collectConstraints(collector) }
+                groups.values.forEach { group ->
+                    group.mdlModelGroup.collectConstraints(collector)
+                }
             }
             val map = HashMap<String, ResolvedIdentityConstraint>()
             for (c in identityConstraintList) {

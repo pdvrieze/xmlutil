@@ -72,13 +72,14 @@ interface IResolvedAll : ResolvedModelGroup {
         return true
     }
 
-    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
+    override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAll(this)
 
+    override fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
         val particles = mutableListOf<FlattenedParticle>()
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
         for (p in mdlParticles) {
-            val f = p.flatten(typeContext, schema)
+            val f = p.flatten(nameContext, schema)
             if (f.maxOccurs == VAllNNI.ZERO) continue // skip it
             particles.add(f)
             for(startElem in f.startingTerms()) {

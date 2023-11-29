@@ -36,10 +36,4 @@ class SyntheticAll(
     override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticAll get() = this
-
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        for (particle in mdlParticles) {
-            particle.collectConstraints(collector)
-        }
-    }
 }

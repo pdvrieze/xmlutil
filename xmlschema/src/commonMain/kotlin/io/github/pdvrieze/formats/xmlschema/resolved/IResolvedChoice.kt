@@ -31,9 +31,39 @@ interface IResolvedChoice : ResolvedModelGroup {
     override val mdlCompositor: Compositor get() = Compositor.CHOICE
 
 
+    override fun restricts(general: ResolvedModelGroup): Boolean {
+        if (general !is IResolvedChoice) return false
+
+        // TODO be order independent
+        val specificParticles = mdlParticles.toList()
+        val generalParticles = general.mdlParticles.toList()
+
+        var thisPos = 0
+
+        for (generalPos in generalParticles.indices) {
+            if (thisPos >= specificParticles.size) { // the particle must be ignorable
+                if (!generalParticles[generalPos].mdlIsEmptiable()) return false
+            } else {
+                if (specificParticles[thisPos] != generalParticles[generalPos]) {
+                    return false
+                } else {
+                    ++thisPos
+                }
+            }
+        }
+        for (tailIdx in thisPos until specificParticles.size) {
+            if (!specificParticles[tailIdx].mdlIsEmptiable()) return false
+        }
+        return true
+    }
+
+    override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R {
+        return visitor.visitChoice(this)
+    }
+
     override fun flatten(
         range: AllNNIRange,
-        typeContext: ResolvedComplexType,
+        nameContext: ContextT,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
         val seenNames = mutableSetOf<QName>()
@@ -41,7 +71,7 @@ interface IResolvedChoice : ResolvedModelGroup {
 
         val particles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            val f = p.flatten(typeContext, schema)
+            val f = p.flatten(nameContext, schema)
 
             when {
                 f is FlattenedGroup.Choice && f.range.isSimple -> particles.addAll(f.particles)
@@ -80,9 +110,5 @@ interface IResolvedChoice : ResolvedModelGroup {
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
         } ?: FlattenedGroup.Choice(range, particles, schema.version)
-    }
-
-    override fun restricts(general: ResolvedModelGroup): Boolean {
-        TODO("not implemented")
     }
 }

@@ -43,7 +43,7 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
         rawPart.processContents ?: VProcessContents.STRICT
     )
 
-    fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+    fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
 

@@ -40,10 +40,6 @@ class ResolvedSequence internal constructor(
 
     override val mdlTerm: ResolvedSequence get() = this
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        super.collectConstraints(collector)
-    }
-
     override fun checkTerm(checkHelper: CheckHelper) {
         super<IResolvedSequence>.checkTerm(checkHelper)
         val existing = mutableMapOf<QName, ResolvedElement>()

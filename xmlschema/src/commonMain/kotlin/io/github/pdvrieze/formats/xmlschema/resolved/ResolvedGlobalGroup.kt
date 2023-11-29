@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
 
 class ResolvedGlobalGroup internal constructor(
     elemPart: SchemaElement<XSGroup>,
@@ -72,11 +73,10 @@ class ResolvedGlobalGroup internal constructor(
         }
     }
 
-    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        for(p in mdlModelGroup.mdlParticles) {
-            if (p is ResolvedTerm) p.collectConstraints(collector)
-        }
+    override fun toString(): String {
+        return "ResolvedGlobalGroup($mdlQName, $mdlModelGroup)"
     }
+
 
     class Model internal constructor(
         parent: ResolvedGlobalGroup,
@@ -97,14 +97,34 @@ class ResolvedGlobalGroup internal constructor(
     }
 
     private sealed class ModelGroupBase(
-        parent: ResolvedGlobalGroup,
+        private val parent: ResolvedGlobalGroup,
         elemPart: SchemaElement<XSGroup.XSGroupElement>,
         schema: ResolvedSchemaLike
-    ): ResolvedTerm {
+    ): ResolvedModelGroup {
         override val model: Model by lazy { Model(parent, elemPart, schema) }
-        val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
+        override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-        abstract override fun checkTerm(checkHelper: CheckHelper)
+        override fun checkTerm(checkHelper: CheckHelper) {
+            val redefined = model.redefineBase
+            if (redefined != null) {
+                val hasSelfRef = visit(object : ResolvedTerm.Visitor<Boolean>() {
+                    override fun visitElement(element: ResolvedElement): Boolean = false
+
+                    override fun visitModelGroup(group: ResolvedModelGroup): Boolean {
+                        return mdlParticles.any {
+                            when (it) {
+                                is ResolvedGroupRef -> it.mdlRef.isEquivalent(parent.mdlQName)
+                                is ResolvedModelGroup -> it.visit(this)
+                                else -> false
+                            }
+                        }
+                    }
+
+                    override fun visitAny(any: ResolvedAny): Boolean = false
+                })
+                check(hasSelfRef || this.restricts(redefined.mdlModelGroup)) { "Redefined model group ($this) is not a valid restriction of its redefined base ($redefined)" }
+            }
+        }
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()
 //        abstract val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
 
@@ -112,6 +132,21 @@ class ResolvedGlobalGroup internal constructor(
             val localInContext = elemPart.elem.particles.any { it.hasLocalNsInContext(schema) }
 
             val particles = elemPart.wrapEach { particles }.map { ResolvedParticle(parent, it, schema, localInContext) }
+
+            internal val lazyCheck: Exception? by lazy {
+                when (schema) {
+                    is RedefineSchema -> {
+                        val redefineBase = schema.nestedGroup(parent.mdlQName)
+
+                    }
+                    else -> null
+                }
+
+
+                null
+            }
+
+            internal val redefineBase = (schema as? RedefineSchema)?.nestedGroup(parent.mdlQName)
         }
     }
 
@@ -127,7 +162,8 @@ class ResolvedGlobalGroup internal constructor(
         }
 
         override fun checkTerm(checkHelper: CheckHelper) {
-            super.checkTerm(checkHelper)
+            super<ModelGroupBase>.checkTerm(checkHelper)
+            super<IResolvedAll>.checkTerm(checkHelper)
         }
 
     }
@@ -137,7 +173,8 @@ class ResolvedGlobalGroup internal constructor(
         IResolvedChoice {
 
         override fun checkTerm(checkHelper: CheckHelper) {
-            super.checkTerm(checkHelper)
+            super<ModelGroupBase>.checkTerm(checkHelper)
+            super<IResolvedChoice>.checkTerm(checkHelper)
         }
 
     }
@@ -148,7 +185,8 @@ class ResolvedGlobalGroup internal constructor(
     ) : ModelGroupBase(parent, elemPart, schema), IResolvedSequence {
 
         override fun checkTerm(checkHelper: CheckHelper) {
-            super.checkTerm(checkHelper)
+            super<ModelGroupBase>.checkTerm(checkHelper)
+            super<IResolvedSequence>.checkTerm(checkHelper)
         }
 
     }

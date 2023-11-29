@@ -76,7 +76,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     override fun flatten(
         range: AllNNIRange,
-        typeContext: ResolvedComplexType,
+        nameContext: ContextT,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
         return Element(range, this, true)
@@ -134,10 +134,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         checkHelper.checkType(mdlTypeDefinition)
     }
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        collector.addAll(mdlIdentityConstraints)
-        (mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
-    }
+    override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitElement(this)
 
     abstract class Model(
         rawPart: XSElement,
