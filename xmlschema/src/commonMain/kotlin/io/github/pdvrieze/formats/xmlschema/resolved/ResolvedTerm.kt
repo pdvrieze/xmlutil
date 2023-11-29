@@ -54,8 +54,11 @@ interface ResolvedTerm : ResolvedAnnotated {
         return collector
     }
 
-    fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle =
-        flatten(range, nameContext, schema)
+    fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle
+    fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        val names = buildList { visit(ElementNameCollector(this)) }
+        return flatten(AllNNIRange.SINGLERANGE, names, schema)
+    }
 
     abstract class Visitor<R> {
         abstract fun visitElement(element: ResolvedElement): R

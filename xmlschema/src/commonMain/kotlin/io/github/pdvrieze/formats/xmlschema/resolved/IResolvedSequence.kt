@@ -30,30 +30,6 @@ interface IResolvedSequence : ResolvedModelGroup {
 
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
-    override fun restricts(general: ResolvedModelGroup): Boolean {
-        if (general !is IResolvedSequence) return false
-        val specificParticles = mdlParticles.toList()
-        val generalParticles = general.mdlParticles.toList()
-
-        var thisPos = 0
-
-        for (generalPos in generalParticles.indices) {
-            if (thisPos >= specificParticles.size) { // the particle must be ignorable
-                if (!generalParticles[generalPos].mdlIsEmptiable()) return false
-            } else {
-                if (specificParticles[thisPos] != generalParticles[generalPos]) {
-                    return false
-                } else {
-                    ++thisPos
-                }
-            }
-        }
-        for (tailIdx in thisPos until specificParticles.size) {
-            if (!specificParticles[tailIdx].mdlIsEmptiable()) return false
-        }
-        return true
-    }
-
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitSequence(this)
 
     override fun flatten(

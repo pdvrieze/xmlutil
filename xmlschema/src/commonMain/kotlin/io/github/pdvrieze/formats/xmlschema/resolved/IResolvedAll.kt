@@ -47,31 +47,6 @@ interface IResolvedAll : ResolvedModelGroup {
         }
     }
 
-    override fun restricts(general: ResolvedModelGroup): Boolean {
-        // TODO be order independent
-        if (general !is IResolvedAll) return false
-        val specificParticles = mdlParticles.toList()
-        val generalParticles = general.mdlParticles.toList()
-
-        var thisPos = 0
-
-        for (generalPos in generalParticles.indices) {
-            if (thisPos >= specificParticles.size) { // the particle must be ignorable
-                if (!generalParticles[generalPos].mdlIsEmptiable()) return false
-            } else {
-                if (specificParticles[thisPos] != generalParticles[generalPos]) {
-                    return false
-                } else {
-                    ++thisPos
-                }
-            }
-        }
-        for (tailIdx in thisPos until specificParticles.size) {
-            if (!specificParticles[tailIdx].mdlIsEmptiable()) return false
-        }
-        return true
-    }
-
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAll(this)
 
     override fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
