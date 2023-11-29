@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.parseQName
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
 
-    fun contains(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+    fun contains(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
         return values.any { it.matches(name, context, schema) }
     }
 
@@ -43,28 +43,24 @@ abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : L
     abstract fun intersection(other: VQNameListBase<E>): VQNameListBase<E>
 
     interface IElem {
-        fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean
+        fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean
     }
     sealed interface AttrElem : IElem
     sealed class Elem : IElem
     object DEFINED : Elem(), AttrElem {
-        override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+        override fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return schema.maybeAttribute(name) != null || schema.maybeElement(name) != null
         }
     }
 
     object DEFINEDSIBLING : Elem() {
-        override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
-            val ct = context.mdlContentType
-
-
-            return context.mdlAttributeUses[name]!=null ||
-                    (ct is ResolvedComplexType.ElementContentType && ct.mdlParticle.mdlTerm.definesElement(name))
+        override fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return context.any { it.isEquivalent(name) }
         }
     }
 
     class Name(val qName: QName) : Elem(), AttrElem {
-        override fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+        override fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return qName.isEquivalent(name)
         }
     }

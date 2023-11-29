@@ -67,6 +67,9 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
+        if (mdlTerm is IResolvedAll) {
+            check(mdlMaxOccurs == VAllNNI.ONE) { "all: maxOccurs must be 1" }
+        }
         mdlTerm.checkTerm(checkHelper)
     }
 
@@ -78,12 +81,16 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         return this
     }
 
-    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
+    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
+        mdlTerm.collectConstraints(collector)
+    }
 
-    fun flatten(typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle {
-        return when(mdlMaxOccurs){
+    fun <R> visitTerm(visitor: ResolvedTerm.Visitor<R>): R = mdlTerm.visit(visitor)
+
+    fun flatten(typeContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
+        return when (mdlMaxOccurs) {
             VAllNNI.ZERO -> FlattenedGroup.EMPTY
-            else ->mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), typeContext, schema)
+            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), typeContext, schema)
         }
     }
 

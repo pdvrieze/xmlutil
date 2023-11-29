@@ -24,12 +24,60 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 
 interface ResolvedTerm : ResolvedAnnotated {
-
-    fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>)
     fun checkTerm(checkHelper: CheckHelper) {
         checkAnnotated(checkHelper.version)
     }
 
-    fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle
+    fun <R> visit(visitor: Visitor<R>): R
 
+    fun <T: MutableCollection<ResolvedIdentityConstraint>> collectConstraints(collector: T): T {
+        visit(object : ElementVisitor() {
+            override fun visitModelGroup(group: ResolvedModelGroup) {
+                for (p in group.mdlParticles) {
+                    when (p) {
+                        is ResolvedElementRef,
+                        is ResolvedProhibitedElement,
+                        is ResolvedGroupRef -> {}
+
+                        else -> p.mdlTerm.visit(this)
+                    }
+                }
+            }
+
+            override fun visitElement(element: ResolvedElement) {
+                collector.addAll(element.mdlIdentityConstraints)
+                (element.mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
+            }
+
+            override fun visitAny(any: ResolvedAny) {} // no constraints
+        })
+        return collector
+    }
+
+    fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle =
+        flatten(range, nameContext, schema)
+
+    abstract class Visitor<R> {
+        abstract fun visitElement(element: ResolvedElement): R
+
+        abstract fun visitModelGroup(group : ResolvedModelGroup): R
+
+        open fun visitAll(all: IResolvedAll): R =  visitModelGroup(all)
+        open fun visitChoice(choice: IResolvedChoice): R = visitModelGroup(choice)
+        open fun visitSequence(sequence: IResolvedSequence): R = visitModelGroup(sequence)
+        abstract fun visitAny(any: ResolvedAny): R
+    }
+
+    abstract class ElementVisitor : Visitor<Unit>() {
+        override fun visitModelGroup(group: ResolvedModelGroup) {
+            for(p in group.mdlParticles) {
+                when (p) {
+                    is ResolvedProhibitedElement -> visitProhibited(p)
+                    else -> p.mdlTerm.visit(this)
+                }
+            }
+        }
+
+        open fun visitProhibited(prohibitedElement: ResolvedProhibitedElement) {}
+    }
 }

@@ -247,4 +247,10 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
 
         return AllNNIRange(newStart, newEnd)
     }
+
+    companion object {
+        val INFRANGE: AllNNIRange = VAllNNI.ZERO..VAllNNI.UNBOUNDED
+        val SINGLERANGE: AllNNIRange = VAllNNI.ONE..VAllNNI.ONE
+        val OPTRANGE: AllNNIRange = VAllNNI.ZERO..VAllNNI.ONE
+    }
 }
