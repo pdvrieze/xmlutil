@@ -77,6 +77,9 @@ class TestXSTestSuite {
 //                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
 //                    "msMeta/Errata", "msMeta/Group", "msMeta/Regex").any { m -> it.href.contains(m) } }
                 .filter { (it.href.contains("msMeta/DataTypes")) }
+                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
+                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
+                    "msMeta/Datatypes", "msMeta/Errata", "msMeta/Group", "msMeta/ModelGroups", "msMeta/Regex").any { m -> it.href.contains(m) } }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()

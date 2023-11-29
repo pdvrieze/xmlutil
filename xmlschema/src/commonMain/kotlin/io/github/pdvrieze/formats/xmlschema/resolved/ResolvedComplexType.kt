@@ -1030,13 +1030,3 @@ sealed class ResolvedComplexType(
     enum class Variety { EMPTY, SIMPLE, ELEMENT_ONLY, MIXED }
 
 }
-
-private fun ResolvedParticle<ResolvedModelGroup>.collectElementNames(collector: MutableList<QName>) {
-    visitTerm(object : ResolvedTerm.ElementVisitor() {
-        override fun visitElement(element: ResolvedElement) {
-            collector.add(element.mdlQName)
-        }
-
-        override fun visitAny(any: ResolvedAny) = Unit
-    })
-}

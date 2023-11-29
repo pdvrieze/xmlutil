@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
@@ -65,6 +66,10 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
         }
 
+    fun collectElementNames(collector: MutableList<QName>) {
+        visitTerm(ElementNameCollector(collector))
+    }
+
     fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         if (mdlTerm is IResolvedAll) {
@@ -86,6 +91,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     }
 
     fun <R> visitTerm(visitor: ResolvedTerm.Visitor<R>): R = mdlTerm.visit(visitor)
+
+    fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        val names = buildList { visitTerm(ElementNameCollector(this)) }
+        return flatten(names, schema)
+    }
 
     fun flatten(typeContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
         return when (mdlMaxOccurs) {
@@ -121,4 +131,12 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             is XSSequence -> ResolvedSequence(parent, elemPart.cast(), schema)
         }
     }
+}
+
+class ElementNameCollector(private val collector: MutableList<QName>) : ResolvedTerm.ElementVisitor() {
+    override fun visitElement(element: ResolvedElement) {
+        collector.add(element.mdlQName)
+    }
+
+    override fun visitAny(any: ResolvedAny) = Unit
 }

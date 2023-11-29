@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 
-class CheckHelper(private val schema: ResolvedSchemaLike) {
+class CheckHelper(internal val schema: ResolvedSchemaLike) {
     private val checkedTypes: MutableSet<ResolvedType> = HashSet()
     private val checkedElements: MutableSet<ResolvedGlobalElement> = HashSet()
     private val checkedAttributes: MutableSet<ResolvedGlobalAttribute> = HashSet()

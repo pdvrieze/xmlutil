@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 
@@ -107,8 +108,12 @@ class ResolvedGlobalGroup internal constructor(
         override fun checkTerm(checkHelper: CheckHelper) {
             val redefined = model.redefineBase
             if (redefined != null) {
+                val names = mutableSetOf<QName>()
                 val hasSelfRef = visit(object : ResolvedTerm.Visitor<Boolean>() {
-                    override fun visitElement(element: ResolvedElement): Boolean = false
+                    override fun visitElement(element: ResolvedElement): Boolean {
+                        names.add(element.mdlQName)
+                        return false
+                    }
 
                     override fun visitModelGroup(group: ResolvedModelGroup): Boolean {
                         return mdlParticles.any {
@@ -122,7 +127,11 @@ class ResolvedGlobalGroup internal constructor(
 
                     override fun visitAny(any: ResolvedAny): Boolean = false
                 })
-                check(hasSelfRef || this.restricts(redefined.mdlModelGroup)) { "Redefined model group ($this) is not a valid restriction of its redefined base ($redefined)" }
+                if (!hasSelfRef) {
+                    val thisFlat=flatten(AllNNIRange.SINGLERANGE, names, checkHelper.schema)
+                    val baseFlat = redefined.mdlModelGroup.flatten(checkHelper.schema)
+                    check(thisFlat.restricts(baseFlat, names, checkHelper.schema)) { "Redefined model group ($this) is not a valid restriction of its redefined base ($redefined)" }
+                }
             }
         }
 //        val mdlAnnotations: ResolvedAnnotation? get() = rawPart.annotation.models()

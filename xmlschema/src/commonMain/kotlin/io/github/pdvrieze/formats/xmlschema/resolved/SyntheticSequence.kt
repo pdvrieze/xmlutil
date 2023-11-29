@@ -38,4 +38,8 @@ class SyntheticSequence(
 
     override val mdlTerm: SyntheticSequence get() = this
 
+    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        return super<ResolvedParticle>.flatten(schema)
+    }
+
 }

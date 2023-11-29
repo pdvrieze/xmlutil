@@ -36,4 +36,8 @@ class SyntheticAll(
     override val model: ResolvedAnnotated.IModel get() = ResolvedAnnotated.Empty
 
     override val mdlTerm: SyntheticAll get() = this
+
+    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        return super<ResolvedParticle>.flatten(schema)
+    }
 }

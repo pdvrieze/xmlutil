@@ -88,6 +88,10 @@ class ResolvedLocalElement private constructor(
         elemPart.elem.maxOccurs ?: VAllNNI.ONE,
     )
 
+    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        return super<ResolvedElement>.flatten(schema)
+    }
+
     override fun toString(): String {
         return buildString {
             append("ResolvedLocalElement(")

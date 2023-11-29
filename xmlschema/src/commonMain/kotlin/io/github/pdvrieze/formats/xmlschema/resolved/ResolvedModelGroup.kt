@@ -37,8 +37,6 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
         }
     }
 
-    fun restricts(general: ResolvedModelGroup): Boolean
-
     fun definesElement(name: QName): Boolean {
         for (particle in mdlParticles) {
             when (val t = particle.mdlTerm) {
