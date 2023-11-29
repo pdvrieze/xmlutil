@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
 import nl.adaptivity.xmlutil.QName
 
@@ -29,7 +30,7 @@ data class VQName(val namespaceUri: String, val localName: String, val prefix: S
     init {
         NCNameType.mdlFacets.validateRepresentationOnly(NCNameType, VString(localName))
         if (prefix.isNotEmpty()) NCNameType.mdlFacets.validateRepresentationOnly(NCNameType, VString(prefix))
-        if (namespaceUri.isNotEmpty()) NCNameType.mdlFacets.validateRepresentationOnly(NCNameType, VString(namespaceUri))
+        if (namespaceUri.isNotEmpty()) AnyURIType.mdlFacets.validateRepresentationOnly(NCNameType, VString(namespaceUri))
     }
 
     override val xmlString: String
