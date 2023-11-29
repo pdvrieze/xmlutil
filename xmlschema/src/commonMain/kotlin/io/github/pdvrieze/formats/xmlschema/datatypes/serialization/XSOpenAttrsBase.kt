@@ -34,7 +34,7 @@ abstract class XSOpenAttrsBase(
 
     init {
         for (attrName in otherAttrs.keys) {
-            check(attrName.namespaceURI.let { it.isNotEmpty() && it != XmlSchemaConstants.XS_NAMESPACE }) {
+            require(attrName.namespaceURI.let { it.isNotEmpty() && it != XmlSchemaConstants.XS_NAMESPACE }) {
                 "Invalid \"open\" attribute name $attrName"
             }
         }

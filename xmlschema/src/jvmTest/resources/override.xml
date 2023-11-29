@@ -586,7 +586,7 @@
     <ts:expected validity="invalid" exception="IllegalStateException" message="Attributes may not have both default and fixed values"/>
   </test>
   <test path="AttrDecl/ad_valconstr00201m5/AD_valConstr00201m5">
-    <ts:expected validity="invalid" exception="IllegalStateException" message="Open attributes in the empty or xmlschema namespace found: \[use\]"/>
+    <ts:expected validity="invalid" exception="IllegalArgumentException" message="Invalid &quot;open&quot; attribute name use"/>
   </test>
   <test path="CType/abstract00101m1/Negative" isInstance="true">
     <ts:expected validity="invalid" exception="xx" message="yy"/>
