@@ -37,4 +37,8 @@ class SyntheticChoice(
 
     override val mdlTerm: SyntheticChoice get() = this
 
+    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
+        return super<ResolvedParticle>.flatten(schema)
+    }
+
 }
