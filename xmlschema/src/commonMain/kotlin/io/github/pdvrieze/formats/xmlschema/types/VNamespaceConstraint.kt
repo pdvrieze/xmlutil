@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
+import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
@@ -56,20 +56,19 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         }
     }
 
-    fun matches(elem: E, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean = when (elem) {
+    fun matches(elem: E, context: ContextT, schema: ResolvedSchemaLike): Boolean = when (elem) {
         is VQNameListBase.Name -> matches(elem.qName, context, schema)
         else -> elem !in disallowedNames
     }
 
-    fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
+    fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
         Variety.ANY -> !disallowedNames.contains(name, context, schema)
-        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces && !disallowedNames.contains(
-            name,
-            context,
-            schema
-        )
 
-        Variety.NOT -> name.namespaceURI.isNotEmpty() && VAnyURI(name.namespaceURI) !in namespaces && !disallowedNames.contains(name, context, schema)
+        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces &&
+                !disallowedNames.contains(name, context, schema)
+
+        Variety.NOT -> name.namespaceURI.isNotEmpty() && VAnyURI(name.namespaceURI) !in namespaces &&
+                !disallowedNames.contains(name, context, schema)
     }
 
     /**
@@ -167,7 +166,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     /* Determined by 3.10.6.3 (for attributes) */
     fun union(
         other: VNamespaceConstraint<E>,
-        context: ResolvedComplexType,
+        context: ContextT,
         schema: ResolvedSchemaLike
     ): VNamespaceConstraint<E> {
         // TODO resolve the "special" values

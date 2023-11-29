@@ -178,14 +178,19 @@ sealed class ResolvedComplexType(
 
             contentType is ElementOnlyContentType -> {
                 check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                check(contentType.restricts(baseContentType, this, schema)) {
+                val context = buildList { contentType.mdlParticle.collectElementNames(this) }
+                check(contentType.restricts(baseContentType, context, schema)) {
                     "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}"
                 }
             }
 
             contentType is MixedContentType -> {
                 check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
-                check(contentType.restricts(baseContentType, this, schema) || true) // TODO do check
+                val context = buildList {
+                    addAll(mdlAttributeUses.keys)
+                    contentType.mdlParticle.collectElementNames(this)
+                }
+                check(contentType.restricts(baseContentType, context, schema) || true) // TODO do check
             }
         }
 
@@ -199,8 +204,9 @@ sealed class ResolvedComplexType(
                     null -> {
                         val attrWildcard =
                             requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
+                        val context = dAttrs.keys
                         require(
-                            attrWildcard.matches(dName, this, schema)
+                            attrWildcard.matches(dName, context, schema)
                         ) { "Attribute wildcard does not match $dName" }
                     }
 
@@ -250,7 +256,8 @@ sealed class ResolvedComplexType(
             require(wc.mdlNamespaceConstraint.isSupersetOf(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
         }
 
-        when (val baseCType = baseType.mdlContentType) {
+        val baseCType = baseType.mdlContentType
+        when (baseCType) {
             is ResolvedSimpleContentType ->
                 when (val ct = mdlContentType) {
                     is EmptyContentType -> {
@@ -296,6 +303,16 @@ sealed class ResolvedComplexType(
 
             }
         }
+        if (schema.version == SchemaVersion.V1_0) {
+            when (baseCType) {
+                is ElementContentType -> {
+                    require(baseCType.mdlParticle.mdlTerm !is IResolvedAll) {
+                        "Extending type with an all particle is not allowed in version 1.0"
+                    }
+                }
+            }
+        }
+
     }
 
     fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
@@ -369,7 +386,6 @@ sealed class ResolvedComplexType(
             val content: XSI_ComplexContent = rawPart.content
             val derivation: XSI_ComplexDerivation
 
-
             when (content) {
                 is XSComplexContent -> {
                     derivation = content.derivation
@@ -431,14 +447,31 @@ sealed class ResolvedComplexType(
                     when {
                         baseWildcard == null -> completeWildcard
                         completeWildcard == null -> baseWildcard
-                        else -> ResolvedAnyAttribute(
-                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(
-                                completeWildcard.mdlNamespaceConstraint,
-                                typeContext,
-                                schema
-                            ),
-                            mdlProcessContents = completeWildcard.mdlProcessContents
-                        )
+                        else -> {
+                            val defaultNS = when(schema.attributeFormDefault) {
+                                VFormChoice.QUALIFIED -> schema.targetNamespace
+                                VFormChoice.UNQUALIFIED -> ""
+                            }
+                            val otherAttrNames = buildList {
+                                rawPart.content.derivation.attributes.mapNotNullTo(this) {
+                                    when {
+                                        it.name == null -> null
+                                        it.targetNamespace != null -> QName(it.targetNamespace.value, it.name.xmlString)
+                                        (it.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED -> QName(schema.targetNamespace?.value ?: "", it.name.xmlString)
+                                        else -> QName(it.name.xmlString)
+                                    }
+                                }
+                            }
+
+                            ResolvedAnyAttribute(
+                                mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(
+                                    completeWildcard.mdlNamespaceConstraint,
+                                    otherAttrNames,
+                                    schema
+                                ),
+                                mdlProcessContents = completeWildcard.mdlProcessContents
+                            )
+                        }
                     }
                 }
             }
@@ -465,6 +498,7 @@ sealed class ResolvedComplexType(
                     require(term.minOccurs == VNonNegativeInteger.ZERO) {
                         "Invalid range: ! ${term.minOccurs ?: "1"} <= ${term.maxOccurs ?: "1"}"
                     }
+                    require(schema.version != SchemaVersion.V1_0 || term !is XSAll) { "Schema 1.0 does not allow empty all group" }
                     null
                 }
 
@@ -492,15 +526,15 @@ sealed class ResolvedComplexType(
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
                         derivation is XSComplexType.Shorthand -> // restriction (or shorthand)
-                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
+                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
 
                 baseTypeDefinition !is ResolvedComplexType -> // simple type 4.2.1
-                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
+                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
                 baseTypeDefinition.mdlContentType.mdlVariety.let { // simple content 4.2.1
                     it == Variety.SIMPLE || it == Variety.EMPTY
-                } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
+                } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
                 else -> { // extension
@@ -537,9 +571,13 @@ sealed class ResolvedComplexType(
                             )
                         }
                     }
+                    val nameContext = buildList {
+//                        addAll(mdlAttributeUses.keys)
+                        part.collectElementNames(this)
+                    }
                     when {
-                        effectiveMixed -> MixedContentType(part, typeContext, schema, openContent)
-                        else -> ElementOnlyContentType(part, typeContext, schema, openContent)
+                        effectiveMixed -> MixedContentType(part, nameContext, schema, openContent)
+                        else -> ElementOnlyContentType(part, nameContext, schema, openContent)
                     }
                 }
             }
@@ -570,17 +608,22 @@ sealed class ResolvedComplexType(
                     ), schema, particle.mdlTerm.hasLocalNsInContext()
                 )
 
+                val nameContext = buildList {
+                    addAll(mdlAttributeUses.keys)
+                    particle.collectElementNames(this)
+                }
+
                 mdlContentType = when {
                     effectiveMixed -> MixedContentType(
                         mdlParticle = particle,
-                        typeContext = typeContext,
+                        nameContext = nameContext,
                         schema = schema,
                         mdlOpenContent = openContent,
                     )
 
                     else -> ElementOnlyContentType(
                         mdlParticle = particle,
-                        typeContext = typeContext,
+                        typeContext = nameContext,
                         schema = schema,
                         mdlOpenContent = openContent,
                     )
@@ -655,14 +698,27 @@ sealed class ResolvedComplexType(
                     when {
                         baseWildcard == null -> completeWildcard
                         completeWildcard == null -> baseWildcard
-                        else -> ResolvedAnyAttribute(
-                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(
-                                completeWildcard.mdlNamespaceConstraint,
-                                context,
-                                schema
-                            ),
-                            mdlProcessContents = completeWildcard.mdlProcessContents
-                        )
+                        else -> {
+                            val otherAttrNames = buildList {
+                                rawPart.content.derivation.attributes.mapNotNullTo(this) {
+                                    when {
+                                        it.name == null -> null
+                                        it.targetNamespace != null -> QName(it.targetNamespace.value, it.name.xmlString)
+                                        (it.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED -> QName(schema.targetNamespace?.value ?: "", it.name.xmlString)
+                                        else -> QName(it.name.xmlString)
+                                    }
+                                }
+                            }
+
+                            ResolvedAnyAttribute(
+                                mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(
+                                    completeWildcard.mdlNamespaceConstraint,
+                                    otherAttrNames,
+                                    schema
+                                ),
+                                mdlProcessContents = completeWildcard.mdlProcessContents
+                            )
+                        }
                     }
                 }
             }
@@ -749,7 +805,7 @@ sealed class ResolvedComplexType(
         /** Implementation of 3.4.6.4 */
         fun restricts(
             baseCT: ResolvedContentType,
-            typeContext: ResolvedComplexType,
+            typeContext: ContextT,
             schema: ResolvedSchemaLike
         ): Boolean {
             if (baseCT !is ElementContentType) return false
@@ -769,13 +825,17 @@ sealed class ResolvedComplexType(
         ) {
             fun collectElements(
                 term: ResolvedTerm,
-                target: MutableList<ResolvedElement> = mutableListOf()
+                target: MutableList<ResolvedElement> = mutableListOf(),
+                depth: Int = 0
             ): List<ResolvedElement> {
                 when (term) {
                     is ResolvedElement -> target.add(term)
-                    is ResolvedModelGroup -> for (p in term.mdlParticles) {
-                        if (p !is ResolvedProhibitedElement) {
-                            collectElements(p.mdlTerm, target)
+                    is ResolvedModelGroup -> {
+                        if (term is IResolvedAll) require(depth == 0) { "All particles must only be used as root of a type" }
+                        for (p in term.mdlParticles) {
+                            if (p !is ResolvedProhibitedElement) {
+                                collectElements(p.mdlTerm, target, depth + 1)
+                            }
                         }
                     }
                 }
@@ -797,18 +857,18 @@ sealed class ResolvedComplexType(
 
     class MixedContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        typeContext: ResolvedComplexType,
+        nameContext: ContextT,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(mdlParticle.range, typeContext, schema)
+        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(mdlParticle.range, nameContext, schema)
     }
 
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        typeContext: ResolvedComplexType,
+        typeContext: ContextT,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.ElementOnly, ElementContentType {
@@ -836,16 +896,24 @@ sealed class ResolvedComplexType(
 
     }
 
-    internal fun contentType(
+    private fun contentType(
         effectiveMixed: Boolean,
-        particle: ResolvedParticle<ResolvedModelGroup>?,
+        effectiveContent: ResolvedParticle<ResolvedModelGroup>?,
         schema: ResolvedSchemaLike,
-        openContent: ResolvedOpenContent?
+        openContent: ResolvedOpenContent?,
+        attributeNames: Collection<QName>
     ): ResolvedContentType {
+        if (effectiveContent == null) return EmptyContentType
+
+        val context = buildList<QName> {
+            addAll(attributeNames)
+            effectiveContent.collectElementNames(this)
+        }
+
         return when {
-            particle == null -> EmptyContentType
-            effectiveMixed -> MixedContentType(particle, this, schema, openContent)
-            else -> ElementOnlyContentType(particle, this, schema, openContent)
+
+            effectiveMixed -> MixedContentType(effectiveContent, context, schema, openContent)
+            else -> ElementOnlyContentType(effectiveContent, context, schema, openContent)
         }
     }
 
@@ -961,4 +1029,14 @@ sealed class ResolvedComplexType(
 
     enum class Variety { EMPTY, SIMPLE, ELEMENT_ONLY, MIXED }
 
+}
+
+private fun ResolvedParticle<ResolvedModelGroup>.collectElementNames(collector: MutableList<QName>) {
+    visitTerm(object : ResolvedTerm.ElementVisitor() {
+        override fun visitElement(element: ResolvedElement) {
+            collector.add(element.mdlQName)
+        }
+
+        override fun visitAny(any: ResolvedAny) = Unit
+    })
 }

@@ -130,7 +130,7 @@ class ResolvedGlobalElement private constructor(
 
     override fun flatten(
         range: AllNNIRange,
-        typeContext: ResolvedComplexType,
+        nameContext: ContextT,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
         // this factory handles substitution groups

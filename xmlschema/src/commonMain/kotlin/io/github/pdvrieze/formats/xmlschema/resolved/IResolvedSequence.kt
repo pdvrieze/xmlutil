@@ -30,41 +30,6 @@ interface IResolvedSequence : ResolvedModelGroup {
 
     override val mdlCompositor: Compositor get() = Compositor.SEQUENCE
 
-    override fun flatten(
-        range: AllNNIRange,
-        typeContext: ResolvedComplexType,
-        schema: ResolvedSchemaLike
-    ): FlattenedParticle {
-
-        val particles = mdlParticles.flatMap {
-            val f = it.flatten(typeContext, schema)
-            when {
-                f is FlattenedGroup.Sequence && f.range.isSimple -> f.particles
-                f.maxOccurs == VAllNNI.ZERO -> emptyList()
-                else -> listOf(f)
-            }
-        }
-
-        // TODO move to this class
-        FlattenedGroup.checkSequence(particles, typeContext, schema)
-
-        return when {
-            particles.isEmpty() -> FlattenedGroup.EMPTY
-            particles.size == 1 -> when {
-                schema.version != SchemaVersion.V1_0 ->
-                    particles.single() * range // multiply will be null if not valid
-
-                range.isSimple -> particles.single()
-
-                else -> null
-            }
-
-            particles.size == 1 && range.isSimple -> particles.single()
-            else -> null
-        } ?: FlattenedGroup.Sequence(range, particles)
-    }
-
-
     override fun restricts(general: ResolvedModelGroup): Boolean {
         if (general !is IResolvedSequence) return false
         val specificParticles = mdlParticles.toList()
@@ -87,5 +52,43 @@ interface IResolvedSequence : ResolvedModelGroup {
             if (!specificParticles[tailIdx].mdlIsEmptiable()) return false
         }
         return true
+    }
+
+    override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitSequence(this)
+
+    override fun flatten(
+        range: AllNNIRange,
+        nameContext: ContextT,
+        schema: ResolvedSchemaLike
+    ): FlattenedParticle {
+
+        val particles = mdlParticles.flatMap {
+            val f = it.flatten(nameContext, schema)
+            when {
+                f is FlattenedGroup.Sequence && f.range.isSimple -> f.particles
+                f.maxOccurs == VAllNNI.ZERO -> emptyList()
+                else -> listOf(f)
+            }
+        }
+
+        val names = nameContext
+
+        // TODO move to this class
+        FlattenedGroup.checkSequence(particles, names, schema)
+
+        return when {
+            particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.size == 1 -> when {
+                schema.version != SchemaVersion.V1_0 ->
+                    particles.single() * range // multiply will be null if not valid
+
+                range.isSimple -> particles.single()
+
+                else -> null
+            }
+
+            particles.size == 1 && range.isSimple -> particles.single()
+            else -> null
+        } ?: FlattenedGroup.Sequence(range, particles)
     }
 }
