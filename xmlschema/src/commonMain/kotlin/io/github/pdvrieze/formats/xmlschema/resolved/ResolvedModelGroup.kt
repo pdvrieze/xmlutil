@@ -30,13 +30,6 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     val mdlCompositor: Compositor
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {
-        mdlParticles.forEach { particle ->
-            particle.collectConstraints(collector)
-        }
-    }
-
-
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         for(particle in mdlParticles) {

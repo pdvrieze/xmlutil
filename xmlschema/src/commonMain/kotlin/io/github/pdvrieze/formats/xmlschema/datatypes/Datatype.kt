@@ -254,7 +254,7 @@ object AnyType : ResolvedGlobalComplexType(
                 VNonNegativeInteger.ZERO, VAllNNI.UNBOUNDED,
                 listOf(urWildcard)
             ),
-            typeContext = AnyType,
+            nameContext = emptyList(),
             schema = schema
         )
 

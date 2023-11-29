@@ -60,11 +60,11 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override val mdlTerm: ResolvedAny get() = this
 
-    override fun flatten(range: AllNNIRange, typeContext: ResolvedComplexType, schema: ResolvedSchemaLike): FlattenedParticle.Wildcard {
+    override fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle.Wildcard {
         return FlattenedParticle.Wildcard(range, this)
     }
 
-    override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {}
+    override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAny(this)
 
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
@@ -75,7 +75,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         else -> this.mdlNamespaceConstraint.intersects(other.mdlNamespaceConstraint)
     }
 
-    fun matches(name: QName, context: ResolvedComplexType, schema: ResolvedSchemaLike): Boolean {
+    fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
 }
