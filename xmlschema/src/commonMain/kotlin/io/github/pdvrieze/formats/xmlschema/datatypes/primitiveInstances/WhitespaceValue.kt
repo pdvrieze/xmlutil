@@ -45,6 +45,7 @@ enum class WhitespaceValue {
         }
 
         override fun normalize(representation: VString): VString = when(representation) {
+            is VPrefixStringList -> VPrefixStringList(representation.elems.map { normalize(it) })
             is VPrefixString -> VPrefixString(
                 namespace = replace(representation.namespace),
                 prefix = replace(representation.prefix),
@@ -60,6 +61,11 @@ enum class WhitespaceValue {
     @SerialName("collapse")
     COLLAPSE {
         override fun normalize(representation: VString): VString = when (representation) {
+            is VPrefixStringList -> VPrefixStringList(representation.elems.asSequence()
+                .filter { it is VPrefixString || it.isNotEmpty() }
+                .map { normalize(it) }
+                .toList()
+            )
             is VPrefixString -> VPrefixString(
                 namespace = xmlCollapseWhitespace(representation.namespace),
                 prefix = xmlCollapseWhitespace(representation.prefix),
