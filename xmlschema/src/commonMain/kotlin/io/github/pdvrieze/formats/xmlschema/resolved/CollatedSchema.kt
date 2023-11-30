@@ -28,8 +28,10 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
 
+internal open class NamespaceHolder(val namespace: String)
+
 internal class SchemaData(
-    val namespace: String,
+    namespace: String,
     val schemaLocation: String?,
     val rawSchema: XSSchema,
     val elements: Map<String, SchemaElement<XSGlobalElement>>,
@@ -39,9 +41,9 @@ internal class SchemaData(
     val attributeGroups: Map<String, SchemaElement<XSAttributeGroup>>,
     val notations: Map<String, XSNotation>,
     val includedNamespaceToUri: Map<String, VAnyURI>,
-    val knownNested: Map<String, SchemaData?>,
+    val knownNested: Map<String, NamespaceHolder>,
     val importedNamespaces: Set<String>,
-) {
+) : NamespaceHolder(namespace) {
     val elementFormDefault: VFormChoice? get() = rawSchema.elementFormDefault
     val attributeFormDefault: VFormChoice? get() = rawSchema.attributeFormDefault
 
@@ -87,7 +89,7 @@ internal class SchemaData(
 
         if (elementName.namespaceURI in importedNamespaces) {
             includedNamespaceToUri[elementName.namespaceURI]?.value?.let { uri ->
-                knownNested[uri]?.let { n ->
+                (knownNested[uri] as? SchemaData)?.let { n ->
                     n.elements[elementName.localPart]?.let { return Pair(n, it)}
                 }
             }
@@ -276,7 +278,7 @@ internal class SchemaData(
     }
 
 
-    class DataBuilder(processed: Map<String, SchemaData?>? = null) {
+    class DataBuilder(processed: MutableMap<String, NamespaceHolder> = mutableMapOf()) {
         val elements: MutableMap<String, SchemaElement<XSGlobalElement>> = mutableMapOf()
         val attributes: MutableMap<String, SchemaElement<XSGlobalAttribute>> = mutableMapOf()
         val types: MutableMap<String, SchemaElement<XSGlobalType>> = mutableMapOf()
@@ -284,7 +286,7 @@ internal class SchemaData(
         val attributeGroups: MutableMap<String, SchemaElement<XSAttributeGroup>> = mutableMapOf()
         val notations: MutableMap<String, XSNotation> = mutableMapOf()
         val includedNamespaceToUri: MutableMap<String, VAnyURI> = mutableMapOf()
-        val newProcessed: MutableMap<String, SchemaData?> = processed?.toMutableMap() ?: mutableMapOf()
+        val newProcessed: MutableMap<String, NamespaceHolder> = processed
         val importedNamespaces: MutableSet<String> = mutableSetOf()
 
         fun addFromSchema(sourceSchema: XSSchema, schemaLocation: String, targetNamespace: String?) {
@@ -384,7 +386,7 @@ internal class SchemaData(
             schemaLocation: String,
             targetNamespace: String?,
             resolver: ResolvedSchema.Resolver,
-            alreadyProcessed: Map<String, SchemaData?>
+            alreadyProcessed: MutableMap<String, NamespaceHolder> = mutableMapOf()
         ): SchemaData {
             for (attrName in sourceSchema.otherAttrs.keys) {
                 require(attrName.namespaceURI.isNotEmpty()) {
@@ -396,7 +398,8 @@ internal class SchemaData(
             }
 
             val b = DataBuilder(alreadyProcessed)
-            b.newProcessed.put(schemaLocation, null)
+            val ns: String = (targetNamespace?.let { VAnyURI(it) } ?: sourceSchema.targetNamespace)?.value ?: ""
+            b.newProcessed.put(schemaLocation, NamespaceHolder(ns))
 
             b.addFromSchema(sourceSchema, schemaLocation, targetNamespace)
 
@@ -407,7 +410,8 @@ internal class SchemaData(
                     includeLocation.value in b.newProcessed -> continue@includeLoop
 
                     includeLocation.value in alreadyProcessed -> {
-                        requireNotNull(alreadyProcessed[includeLocation.value]) { "Recursive includes: $includeLocation" }
+                        val processed = alreadyProcessed[includeLocation.value]
+                        requireNotNull(processed as? SchemaData) { "Recursive includes: $includeLocation" }
                     }
 
                     else -> when (val parsed = resolver.tryReadSchema(includeLocation)) {
@@ -430,7 +434,7 @@ internal class SchemaData(
                 if (includeData != null) {
                     b.addInclude(includeData, targetNamespace)
                 } else if (includeLocation.value.isNotEmpty()) {
-                    b.newProcessed[includeLocation.value] = null // add entry for this being processed
+                    b.newProcessed[includeLocation.value] = NamespaceHolder(targetNamespace?:"") // add entry for this being processed
                 }
             }
 
@@ -438,7 +442,7 @@ internal class SchemaData(
                 val redefineLocation = resolver.resolve(redefine.schemaLocation)
                 val redefineData: SchemaData? = when {
                     redefineLocation.value in alreadyProcessed ->
-                        requireNotNull(alreadyProcessed[redefineLocation.value]) { "Recursive redefines: $redefineLocation" }
+                        requireNotNull(alreadyProcessed[redefineLocation.value] as? SchemaData) { "Recursive redefines: $redefineLocation" }
 
                     else -> {
                         val delegateResolver = resolver.delegate(redefineLocation)
@@ -468,7 +472,7 @@ internal class SchemaData(
 
                 if (redefineData ==null) {
                     if (redefineLocation.value.isNotEmpty())
-                        b.newProcessed[redefineLocation.value] = null
+                        b.newProcessed[redefineLocation.value] = NamespaceHolder(targetNamespace ?:"")
                 } else {
                     b.addInclude(redefineData, targetNamespace)
 
@@ -524,9 +528,9 @@ internal class SchemaData(
                     val actualImport: SchemaData? = when {
                         // imports can be delayed in parsing
                         importLocation.value in alreadyProcessed -> {
-                            alreadyProcessed[importLocation.value]?.also {
-                                b.importedNamespaces.add(it.namespace)
-                            }
+                            val existing = alreadyProcessed[importLocation.value]!!
+                            b.importedNamespaces.add(import.namespace?.value ?: existing.namespace)
+                            existing as? SchemaData
                         }
 
                         else -> {
@@ -578,7 +582,7 @@ internal class SchemaData(
                 elementFormDefault = sourceSchema.elementFormDefault,
                 attributeFormDefault = sourceSchema.attributeFormDefault,
                 builder = b
-            )
+            ).also { b.newProcessed[schemaLocation] = it }
         }
 
     }
@@ -731,7 +735,7 @@ internal class RedefineSchema(
 
     override val version: SchemaVersion get() = base.version
 
-    override val targetNamespace: VAnyURI? get() = data.namespace?.let { VAnyURI(it) } ?: base.targetNamespace
+    override val targetNamespace: VAnyURI? get() = VAnyURI(data.namespace) ?: base.targetNamespace
     private val originalNS get() = targetNamespace?.value ?: ""
 
     override fun hasLocalTargetNamespace(): Boolean {
