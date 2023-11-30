@@ -305,6 +305,7 @@ sealed class ResolvedComplexType(
         }
         if (schema.version == SchemaVersion.V1_0) {
             when (baseCType) {
+                mdlContentType -> {} // no actual change is valid
                 is ElementContentType -> {
                     require(baseCType.mdlParticle.mdlTerm !is IResolvedAll) {
                         "Extending type with an all particle is not allowed in version 1.0"
