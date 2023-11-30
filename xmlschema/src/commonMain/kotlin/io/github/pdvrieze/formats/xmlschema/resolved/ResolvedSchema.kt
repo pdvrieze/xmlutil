@@ -43,7 +43,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
     init {
         val schemaData =
-            SchemaData(rawPart, resolver.baseUri.value, rawPart.targetNamespace?.value ?: "", resolver, emptyMap())
+            SchemaData(rawPart, resolver.baseUri.value, rawPart.targetNamespace?.value ?: "", resolver)
 
         schemaData.checkRecursiveTypeDefinitions()
         schemaData.checkRecursiveSubstitutionGroups()
@@ -54,7 +54,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         for (importNS in schemaData.importedNamespaces) {
             if (importNS !in nestedData) { // don't duplicate
                 val importData = schemaData.includedNamespaceToUri[importNS]?.let { schemaData.knownNested[it.value] }
-                if (importData != null) {
+                if (importData is SchemaData) {
                     nestedData[importNS] = NestedData(VAnyURI(importNS), importData)
                 }
             }
@@ -290,7 +290,10 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                 for (ns in source.importedNamespaces) {
                     val uri = source.includedNamespaceToUri[ns]
                     val resolver: SchemaElementResolver? = when {
-                            ! uri.isNullOrEmpty() -> source.knownNested[uri.value]?.let { NestedData(VAnyURI(ns), it) }
+                            ! uri.isNullOrEmpty() -> (source.knownNested[uri.value] as? SchemaData)?.let {
+                                NestedData(VAnyURI(ns), it)
+                            }
+
                             else -> {
                                 val preParsed = nestedData[ns]
                                 when {
