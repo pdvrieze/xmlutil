@@ -35,7 +35,9 @@ class VRelaxedURI(override val xmlString: String) : VAnyURI() {
 
     init {
         // This can not be AnyURIType as it is used in defining AtomicDataType
-        require(value == xmlCollapseWhitespace(value))
+        require(value == xmlCollapseWhitespace(value)) {
+            "Not initialised with normalised value"
+        }
     }
 
 

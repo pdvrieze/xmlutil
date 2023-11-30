@@ -52,4 +52,7 @@ sealed class VAnyURI : VAnyAtomicType, CharSequence {
     }
 }
 
-internal fun String.toAnyUri(): VAnyURI = kotlin.runCatching { VParsedURI(this) }.getOrElse { VRelaxedURI(this) }
+internal fun String.toAnyUri(): VAnyURI {
+    val s = xmlCollapseWhitespace(this)
+    return kotlin.runCatching { VParsedURI(s) }.getOrElse { VRelaxedURI(s) }
+}
