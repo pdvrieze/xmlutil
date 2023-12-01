@@ -151,7 +151,9 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         if (base is ResolvedSimpleType && base.mdlVariety == Variety.UNION) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
             val members = base.transitiveUnionMembership() //2.2.4.2
-            return members.any { m -> isValidlyDerivedFrom(m, asRestriction) }
+            return members.any { m ->
+                isValidlyDerivedFrom(m, asRestriction)
+            }
         }
         return false //none of the 4 options is true
     }
