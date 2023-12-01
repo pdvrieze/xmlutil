@@ -49,6 +49,19 @@ sealed class VAnyURI : VAnyAtomicType, CharSequence {
         }
 
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VAnyURI) return false
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
 }
 
 internal fun String.toAnyUri(): VAnyURI {
