@@ -23,6 +23,6 @@ import nl.adaptivity.xmlutil.QName
 
 interface T_IntFacet : T_Facet {
 
-    final override val value: Int
+    override val value: Int
 
 }
