@@ -44,11 +44,11 @@ class ResolvedUnionDerivation(
 
     override val baseType: ResolvedSimpleType get() = AnySimpleType
 
-    val memberTypes: List<ResolvedSimpleType> get() = _model.memberTypes
+    val memberTypes: List<ResolvedSimpleType> get() = _model.memberTypes.map { (it as? UnionMemberWrapper)?.base ?: it }
 
     override fun checkDerivation(checkHelper: CheckHelper) {
-        require(memberTypes.isNotEmpty()) { "Union without elements" }
-        for (m in memberTypes) {
+        require(_model.memberTypes.isNotEmpty()) { "Union without elements" }
+        for (m in _model.memberTypes) {
             // TODO must ignore member facets that are not "pattern" or "enumeration"
             checkHelper.checkType(m)
 
