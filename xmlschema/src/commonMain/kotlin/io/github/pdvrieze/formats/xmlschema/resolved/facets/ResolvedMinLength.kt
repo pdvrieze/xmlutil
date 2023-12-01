@@ -21,9 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedMinLength(rawPart: XSMinLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
+class ResolvedMinLength(rawPart: XSMinLength) : ResolvedLengthBase(rawPart),
     IResolvedMinLength {
 
     override val value: ULong = rawPart.value

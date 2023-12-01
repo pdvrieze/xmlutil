@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import nl.adaptivity.xmlutil.QName
@@ -38,7 +39,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
                 require(namespaces.isNotEmpty()) { "3.10.6.1(2) - not constraint must have at least 1 member" }
                 for (n in disallowedNames) {
                     if (n is VQNameListBase.Name) {
-                        val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { VAnyURI(it) }
+                        val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { it.toAnyUri() }
                         require(ns !in namespaces) { "3.10.6.1(4) - disallowed names must not already be disallowed by namespaces list" }
                     }
                 }
@@ -48,7 +49,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
             Variety.ENUMERATION -> {
                 for (n in disallowedNames) {
                     if (n is VQNameListBase.Name) {
-                        val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { VAnyURI(it) }
+                        val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { it.toAnyUri() }
                         require(ns in namespaces) { "3.10.6.1(4) - disallowed names must be included in the wildcard of namespaces" }
                     }
                 }
@@ -64,10 +65,10 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
         Variety.ANY -> !disallowedNames.contains(name, context, schema)
 
-        Variety.ENUMERATION -> VAnyURI(name.namespaceURI) in namespaces &&
+        Variety.ENUMERATION -> name.namespaceURI.toAnyUri() in namespaces &&
                 !disallowedNames.contains(name, context, schema)
 
-        Variety.NOT -> name.namespaceURI.isNotEmpty() && VAnyURI(name.namespaceURI) !in namespaces &&
+        Variety.NOT -> name.namespaceURI.isNotEmpty() && name.namespaceURI.toAnyUri() !in namespaces &&
                 !disallowedNames.contains(name, context, schema)
     }
 
@@ -149,7 +150,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
                 VQNameListBase.DEFINED -> if (n !in sub.disallowedNames.values) return false
 
                 is VQNameListBase.Name -> {
-                    val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { VAnyURI(it) }
+                    val ns = n.qName.namespaceURI.takeIf { it.isNotEmpty() }?.let { it.toAnyUri() }
                     if (n !in sub.disallowedNames.values) { // not explicitly disallowed
                         if (sub.mdlVariety == Variety.ENUMERATION) {
                             if (ns in sub.namespaces) return false

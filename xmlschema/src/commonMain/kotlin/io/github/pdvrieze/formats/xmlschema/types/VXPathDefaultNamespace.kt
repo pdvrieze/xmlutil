@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -54,7 +55,7 @@ sealed class VXPathDefaultNamespace {
             "##defaultNamespace" -> DEFAULTNAMESPACE
             "##targetNamespace" -> TARGETNAMESPACE
             "##local" -> LOCAL
-            else -> Uri(VAnyURI(str))
+            else -> Uri(str.toAnyUri())
         }
     }
 }

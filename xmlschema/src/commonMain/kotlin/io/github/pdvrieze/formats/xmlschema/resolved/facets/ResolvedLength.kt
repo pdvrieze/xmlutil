@@ -22,9 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSLength
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedLength(rawPart: XSLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
+class ResolvedLength(rawPart: XSLength) : ResolvedLengthBase(rawPart),
     IResolvedMinLength, IResolvedMaxLength {
 
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
