@@ -22,10 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExplicitTimezone
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedExplicitTimezone(rawPart: XSExplicitTimezone, schema: ResolvedSchemaLike) :
-    ResolvedFacet(rawPart, schema) {
+class ResolvedExplicitTimezone(rawPart: XSExplicitTimezone) :
+    ResolvedFacet(rawPart) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     val value: XSExplicitTimezone.Value = rawPart.value

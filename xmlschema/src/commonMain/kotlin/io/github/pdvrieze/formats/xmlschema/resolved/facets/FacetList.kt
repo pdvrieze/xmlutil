@@ -309,8 +309,8 @@ class FacetList(
                 } }
             }
             is VString -> {
-                minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) }
-                maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) }
+                minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) { "Value |$actualValue| < ${minLength.value}"} }
+                maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) { "Value |$actualValue| > ${maxLength.value}"} }
             }
 
             is VDecimal -> {
@@ -358,30 +358,29 @@ class FacetList(
             rawFacets: Iterable<XSFacet>,
             schemaLike: ResolvedSchemaLike,
             baseType: ResolvedSimpleType,
-            primitiveType: PrimitiveDatatype<VAnySimpleType>,
             relaxedLength: Boolean
-        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, baseType) }, relaxedLength)
+        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, baseType) }, relaxedLength, schemaLike.version)
 
         fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList {
             val relaxedLength = baseType is IDRefsType || baseType is NMTokensType
             return when {
                 // String has no restrictions
-                baseType == AnySimpleType -> FacetList(facets, schema, baseType, StringType, relaxedLength)
+                baseType == AnySimpleType -> FacetList(facets, schema, baseType, relaxedLength)
 
                 // Use token as strings have collapsed strings
-                baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, baseType, TokenType, relaxedLength)
+                baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, baseType, relaxedLength)
 
                 // Don't bother checking
-                baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, baseType, StringType, relaxedLength)
+                baseType.mdlVariety == Variety.UNION -> FacetList(facets, schema, baseType, relaxedLength)
 
                 baseType.mdlPrimitiveTypeDefinition == null ->
                     error("No primitive type for base type: $baseType")
 
-                else -> FacetList(facets, schema, baseType, baseType.mdlPrimitiveTypeDefinition!!, relaxedLength)
+                else -> FacetList(facets, schema, baseType, relaxedLength)
             }
         }
 
-        operator fun invoke(facets: Iterable<ResolvedFacet>, relaxedLength: Boolean): FacetList {
+        operator fun invoke(facets: Iterable<ResolvedFacet>, relaxedLength: Boolean, version: SchemaVersion): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()
             val assertions: MutableList<ResolvedAssertionFacet> = mutableListOf()
             val enumeration: MutableList<ResolvedEnumeration<out Any>> = mutableListOf()
@@ -442,7 +441,7 @@ class FacetList(
                     }
 
                     is ResolvedPattern -> pattern?.let {// combine by or
-                        ResolvedPattern(XSPattern("(?:${it.value}|${facet.value})"), it.schema)
+                        ResolvedPattern(XSPattern("(?:${it.value}|${facet.value})"), version)
                     } ?: run {
                         pattern = facet
                     }

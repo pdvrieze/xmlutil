@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
@@ -75,11 +75,10 @@ class TestXSTestSuite {
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
 //                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
 //                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
-//                    "msMeta/Errata", "msMeta/Group", "msMeta/Regex").any { m -> it.href.contains(m) } }
-                .filter { (it.href.contains("msMeta/DataTypes")) }
-                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/Additional",
-                    "msMeta/Additional", "msMeta/Attribute", "msMeta/ComplexType", "msMeta/Element",
-                    "msMeta/Datatypes", "msMeta/Errata", "msMeta/Group", "msMeta/ModelGroups", "msMeta/Regex").any { m -> it.href.contains(m) } }
+//                    "msMeta/Datatypes", "msMeta/Errata", "msMeta/Group", "msMeta/ModelGroups", "msMeta/Regex").any { m -> it.href.contains(m) } }
+//                .filter { arrayOf("msMeta/Notation", "msMeta/Particles", "msMeta/Schema", "msMeta/SimpleType",
+//                    "msMeta/Wildcards").any { m -> it.href.contains(m) } }
+                .filter { (it.href.contains("msMeta/Particles")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -91,7 +90,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.startsWith("IDREFS_minLength006")) {
+                            if (true || group.name.startsWith("particlesZ007")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group)
                                 }
@@ -461,7 +460,7 @@ private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
         }
     }
     if (instanceTest.expected.firstOrNull { it.version != "1.0" }?.validity == TSValidityOutcome.VALID) {
-        val schemaLocation = VAnyURI(schemaDoc.href)
+        val schemaLocation = schemaDoc.href.toAnyUri()
         val schema = resolver.readSchema(schemaLocation).resolve(resolver)
 
     }
@@ -510,7 +509,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 if (true) {
                     dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
                         val e = assertFails(documentation) {
-                            val schemaLocation = VAnyURI(schemaDoc.href)
+                            val schemaLocation = schemaDoc.href.toAnyUri()
                             val schema = resolver.readSchema(schemaLocation)
                             val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation), version)
                             resolvedSchema.check()
@@ -556,7 +555,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 
             null,
             TSValidityOutcome.VALID -> {
-                val schemaLocation = VAnyURI(schemaDoc.href)
+                val schemaLocation = schemaDoc.href.toAnyUri()
                 dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
                     val schema = resolver.readSchema(schemaLocation)
                     assertNotNull(schema)
@@ -570,7 +569,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
             }
 
             TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)
-                val schemaLocation = VAnyURI(schemaDoc.href)
+                val schemaLocation = schemaDoc.href.toAnyUri()
                 dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
                     val schema = resolver.readSchema(schemaLocation)
                     assertNotNull(schema)
