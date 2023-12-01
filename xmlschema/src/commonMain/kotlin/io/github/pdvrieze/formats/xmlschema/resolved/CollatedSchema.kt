@@ -103,7 +103,9 @@ internal class SchemaData(
             namespace == typeName.namespaceURI -> types[typeName.localPart]
             typeName.namespaceURI in importedNamespaces -> {
                 includedNamespaceToUri[typeName.namespaceURI]?.value?.let { uri ->
-                    knownNested[uri]?.run { types[typeName.localPart] }
+                    (knownNested[uri] as? SchemaData)?.let {
+                        it.types[typeName.localPart]
+                    }
                 }
             }
 
@@ -263,7 +265,9 @@ internal class SchemaData(
                 startType is SchemaElement.Redefined<*> && ref.isEquivalent(startType.elementName) ->
                     requireNotNull(startType.baseSchema.findType(ref)) { "Failure to find redefined type $ref" }
 
-                else -> requireNotNull(findType(ref)) { "Failure to find referenced type $ref" }
+                else -> requireNotNull(findType(ref)) {
+                    "Failure to find referenced type $ref"
+                }
             }
 
             if (typeInfo.elem !in seenTypes) {
