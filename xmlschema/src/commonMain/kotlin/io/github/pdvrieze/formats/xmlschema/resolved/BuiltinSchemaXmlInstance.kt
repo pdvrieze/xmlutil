@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.BooleanType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.QNameType
@@ -45,7 +46,7 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
 
     init {
         val rawSchema = XSSchema(
-            targetNamespace = VAnyURI(XmlSchemaConstants.XSI_NAMESPACE),
+            targetNamespace = XmlSchemaConstants.XSI_NAMESPACE.toAnyUri(),
             attributeFormDefault = VFormChoice.QUALIFIED,
             attributes = listOf(
                 XSGlobalAttribute(
@@ -106,7 +107,7 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
     }
 
 
-    override val targetNamespace: VAnyURI get() = VAnyURI(XmlSchemaConstants.XSI_NAMESPACE)
+    override val targetNamespace: VAnyURI get() = XmlSchemaConstants.XSI_NAMESPACE.toAnyUri()
 
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = delegate.blockDefault
 

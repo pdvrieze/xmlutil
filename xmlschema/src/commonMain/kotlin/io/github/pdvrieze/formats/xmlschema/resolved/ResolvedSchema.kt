@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -55,7 +56,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
             if (importNS !in nestedData) { // don't duplicate
                 val importData = schemaData.includedNamespaceToUri[importNS]?.let { schemaData.knownNested[it.value] }
                 if (importData is SchemaData) {
-                    nestedData[importNS] = NestedData(VAnyURI(importNS), importData)
+                    nestedData[importNS] = NestedData(importNS.toAnyUri(), importData)
                 }
             }
         }
@@ -97,7 +98,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
     val id: VID? get() = rawPart.id
 
-    override val targetNamespace: VAnyURI get() = rawPart.targetNamespace ?: VAnyURI("")
+    override val targetNamespace: VAnyURI get() = rawPart.targetNamespace ?: "".toAnyUri()
 
     override fun hasLocalTargetNamespace(): Boolean {
         return nestedData.containsKey("")
@@ -205,7 +206,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
     }
 
     internal object DummyResolver : Resolver {
-        override val baseUri: VAnyURI = VAnyURI("")
+        override val baseUri: VAnyURI = "".toAnyUri()
 
         override fun readSchema(schemaLocation: VAnyURI): XSSchema {
             throw UnsupportedOperationException("Dummy resolver")
@@ -291,7 +292,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                     val uri = source.includedNamespaceToUri[ns]
                     val resolver: SchemaElementResolver? = when {
                             ! uri.isNullOrEmpty() -> (source.knownNested[uri.value] as? SchemaData)?.let {
-                                NestedData(VAnyURI(ns), it)
+                                NestedData(ns.toAnyUri(), it)
                             }
 
                             else -> {

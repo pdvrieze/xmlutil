@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import nl.adaptivity.xmlutil.QName
 
 object AGAttrUseDefaults {
@@ -41,7 +41,7 @@ object AGAttrUseDefaults {
         )
     )
     val expectedSchema = XSSchema(
-        targetNamespace = VAnyURI(ns),
+        targetNamespace = ns.toAnyUri(),
         elements = listOf(
             XSGlobalElement(name = VNCName("root")),
             XSGlobalElement(

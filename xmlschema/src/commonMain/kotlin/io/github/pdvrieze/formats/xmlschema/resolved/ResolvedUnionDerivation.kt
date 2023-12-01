@@ -21,9 +21,15 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import nl.adaptivity.xmlutil.QName
 
 class ResolvedUnionDerivation(
     rawPart: XSSimpleUnion,
@@ -43,6 +49,7 @@ class ResolvedUnionDerivation(
     override fun checkDerivation(checkHelper: CheckHelper) {
         require(memberTypes.isNotEmpty()) { "Union without elements" }
         for (m in memberTypes) {
+            // TODO must ignore member facets that are not "pattern" or "enumeration"
             checkHelper.checkType(m)
 
             check(VDerivationControl.UNION !in m.mdlFinal) {
@@ -59,10 +66,10 @@ class ResolvedUnionDerivation(
         val memberTypes: List<ResolvedSimpleType>
 
         init {
-            val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it, schema, context) }
+            val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it.filterUnionFacets(), schema, context) }
 
-            val mt = rawPart.memberTypes?.map {
-                schema.simpleType(it)
+            val mt: List<ResolvedGlobalSimpleType>? = rawPart.memberTypes?.map {
+                schema.simpleType(it).unionMemberWrapper()
             }
 
             memberTypes = when {
@@ -78,4 +85,40 @@ class ResolvedUnionDerivation(
             }
         }
     }
+}
+
+private fun ResolvedGlobalSimpleType.unionMemberWrapper(): ResolvedGlobalSimpleType {
+    val f = mdlFacets
+    if (f.assertions.isEmpty() && f.minConstraint == null && f.maxConstraint == null &&
+        f.explicitTimezone == null && f.fractionDigits == null && f.minLength == null &&
+        f.maxLength == null && f.totalDigits == null && f.whiteSpace == null &&
+        f.otherFacets.isEmpty()) return this
+
+    return UnionMemberWrapper(this)
+}
+
+private class UnionMemberWrapper(val base: ResolvedGlobalSimpleType) : ResolvedGlobalSimpleType {
+    override val mdlFacets: FacetList = FacetList(enumeration = base.mdlFacets.enumeration, patterns = base.mdlFacets.patterns)
+
+    override val mdlQName: QName get() = base.mdlQName
+
+    override val model: ResolvedSimpleType.Model get() = base.model
+    override val simpleDerivation: ResolvedSimpleType.Derivation get() = base.simpleDerivation
+    override val mdlFinal: Set<VDerivationControl.Type> get() = base.mdlFinal
+}
+
+/**
+ * Unions ignore facets other than pattern/enumeration
+ */
+private fun XSLocalSimpleType.filterUnionFacets(): XSLocalSimpleType {
+    val newDerivation = when (simpleDerivation) {
+        is XSSimpleRestriction -> with(simpleDerivation) {
+            val filteredFacets = facets.filter { it is XSPattern || it is XSEnumeration }
+            XSSimpleRestriction(
+                base, simpleType, filteredFacets, otherContents, id, annotation, otherAttrs
+            )
+        }
+        else -> return this
+    }
+    return XSLocalSimpleType(newDerivation, id, annotation, otherAttrs)
 }
