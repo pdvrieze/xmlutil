@@ -341,7 +341,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
             is XSSimpleList -> FacetList(
                 whiteSpace =
-                ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), schema)
+                ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
             )
 
             is XSSimpleUnion -> FacetList.EMPTY
