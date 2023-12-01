@@ -116,9 +116,8 @@ class VParsedURI(str: String): VAnyURI() {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as VParsedURI
+        if (other == null) return false
+        if (other !is VParsedURI) return super.equals(other)
 
         if (scheme != other.scheme) return false
         if (authority != other.authority) return false
