@@ -21,26 +21,19 @@
 package net.devrieze.gradle.ext
 
 import org.gradle.api.Action
-import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
-import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.getByName
-import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.kotlin.dsl.registering
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.kpm.external.ExternalVariantApi
 import org.jetbrains.kotlin.gradle.kpm.external.project
 import org.jetbrains.kotlin.gradle.plugin.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
-import java.util.*
 
 enum class Host {
     Windows,
@@ -149,14 +142,6 @@ fun Project.addNativeTargets() {
         Host.Linux -> fun KotlinMultiplatformExtension.() { linuxX64() } //presets.nativePreset("linuxX64")
     }
 
-    val nativeMainSets = mutableListOf<KotlinSourceSet>()
-    val nativeTestSets = mutableListOf<KotlinSourceSet>()
-
-    fun KotlinNativeTarget.addSourceSets() {
-        nativeMainSets.add(compilations.getByName("main").kotlinSourceSets.first())
-        nativeTestSets.add(compilations.getByName("test").kotlinSourceSets.first())
-    }
-
     if (nativeState != NativeState.DISABLED) {
         with(kotlin) {
             if (singleTargetMode) {
@@ -165,29 +150,31 @@ fun Project.addNativeTargets() {
             } else {
                 if(true) {
                     if (nativeState != NativeState.HOST || host == Host.Linux) {
-                        linuxX64 { addSourceSets() }
-                        linuxArm64 { addSourceSets() }
+                        linuxX64()
+                        linuxArm64()
+                        @Suppress("DEPRECATION")
+                        linuxArm32Hfp()
                     }
 
                     if (nativeState != NativeState.HOST || host == Host.Macos) {
-                        macosX64 { addSourceSets() }
-                        macosArm64 { addSourceSets() }
-                        iosArm64 { addSourceSets() }
-                        iosSimulatorArm64 { addSourceSets() }
-                        iosX64 { addSourceSets() }
+                        macosX64()
+                        macosArm64()
+                        iosArm64()
+                        iosSimulatorArm64()
+                        iosX64()
 
-                        watchosSimulatorArm64() { addSourceSets() }
-                        watchosX64 { addSourceSets() }
-                        watchosArm32 { addSourceSets() }
-                        watchosArm64 { addSourceSets() }
+                        watchosSimulatorArm64()
+                        watchosX64()
+                        watchosArm32()
+                        watchosArm64()
 
-                        tvosSimulatorArm64 { addSourceSets() }
-                        tvosArm64 { addSourceSets() }
-                        tvosX64 { addSourceSets() }
+                        tvosSimulatorArm64()
+                        tvosArm64()
+                        tvosX64()
                     }
 
                     if (nativeState != NativeState.HOST || host == Host.Windows) {
-                        mingwX64 { addSourceSets() }
+                        mingwX64 { }
                     }
                 }
             }

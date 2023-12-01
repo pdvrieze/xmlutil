@@ -1,9 +1,8 @@
 [versions]
-ktor = "1.6.8"
-junit5-jupiter = "5.9.2"
-kotlinx-serialization = "1.6.1"
-kotlin = "1.9.20"
-dokka = "1.8.20"
+junit5-jupiter = "5.10.1"
+kotlinx-serialization = "1.6.2"
+kotlin = "1.9.21"
+dokka = "1.9.10"
 binaryValidator = "0.13.2"
 woodstox = "6.5.1"
 
@@ -11,11 +10,6 @@ woodstox = "6.5.1"
 logback-classic = "ch.qos.logback:logback-classic:1.4.7"
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
 kxml2 = "net.sf.kxml:kxml2:2.3.0"
-
-ktor-serialization = { module = "io.ktor:ktor-serialization", version.ref = "ktor" }
-ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
-ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
-ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5-jupiter" }
