@@ -6,7 +6,7 @@
     <ts:expected validity="invalid" version="1.0" annotation="Not valid in 1.0 due to cardinality mismatch"/>
   </test>
   <test path="MS-Particles2006-07-15/particlesZ033_g/particlesZ033_g">
-    <ts:expected validity="valid" annotation="This can be handled correctly as we use long for maxOccurs"/>
+    <ts:expected validity="valid" version="1.1" annotation="This can be handled correctly as we use long for maxOccurs"/>
   </test>
   <test path="MS-Element2006-07-15/elemZ026/elemZ026">
     <ts:expected validity="invalid" version="1.0" annotation="1.0 substitution checks are more strict"/>
