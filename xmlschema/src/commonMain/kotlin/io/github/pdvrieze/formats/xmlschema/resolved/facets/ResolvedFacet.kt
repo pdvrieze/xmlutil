@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
-sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
+sealed class ResolvedFacet(rawPart: XSFacet) :
     ResolvedAnnotated {
     abstract override val model: ResolvedAnnotated.IModel
 
@@ -52,20 +52,20 @@ sealed class ResolvedFacet(rawPart: XSFacet, val schema: ResolvedSchemaLike) :
             schema: ResolvedSchemaLike,
             dataType: ResolvedSimpleType
         ): ResolvedFacet = when (rawPart) {
-            is XSAssertionFacet -> ResolvedAssertionFacet(rawPart, schema)
-            is XSEnumeration -> ResolvedEnumeration<VAnySimpleType>(rawPart, schema, dataType)
-            is XSExplicitTimezone -> ResolvedExplicitTimezone(rawPart, schema)
-            is XSFractionDigits -> ResolvedFractionDigits(rawPart, schema)
-            is XSLength -> ResolvedLength(rawPart, schema)
-            is XSMaxExclusive -> ResolvedMaxExclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
-            is XSMaxInclusive -> ResolvedMaxInclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
-            is XSMaxLength -> ResolvedMaxLength(rawPart, schema)
-            is XSMinExclusive -> ResolvedMinExclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
-            is XSMinInclusive -> ResolvedMinInclusive(rawPart, schema, dataType.mdlPrimitiveTypeDefinition!!)
-            is XSMinLength -> ResolvedMinLength(rawPart, schema)
-            is XSPattern -> ResolvedPattern(rawPart, schema)
-            is XSTotalDigits -> ResolvedTotalDigits(rawPart, schema)
-            is XSWhiteSpace -> ResolvedWhiteSpace(rawPart, schema)
+            is XSAssertionFacet -> ResolvedAssertionFacet(rawPart)
+            is XSEnumeration -> ResolvedEnumeration<VAnySimpleType>(rawPart, dataType)
+            is XSExplicitTimezone -> ResolvedExplicitTimezone(rawPart)
+            is XSFractionDigits -> ResolvedFractionDigits(rawPart)
+            is XSLength -> ResolvedLength(rawPart)
+            is XSMaxExclusive -> ResolvedMaxExclusive(rawPart, dataType.mdlPrimitiveTypeDefinition!!)
+            is XSMaxInclusive -> ResolvedMaxInclusive(rawPart, dataType.mdlPrimitiveTypeDefinition!!)
+            is XSMaxLength -> ResolvedMaxLength(rawPart)
+            is XSMinExclusive -> ResolvedMinExclusive(rawPart, dataType.mdlPrimitiveTypeDefinition!!)
+            is XSMinInclusive -> ResolvedMinInclusive(rawPart, dataType.mdlPrimitiveTypeDefinition!!)
+            is XSMinLength -> ResolvedMinLength(rawPart)
+            is XSPattern -> ResolvedPattern(rawPart, schema.version)
+            is XSTotalDigits -> ResolvedTotalDigits(rawPart)
+            is XSWhiteSpace -> ResolvedWhiteSpace(rawPart)
         }
     }
 }

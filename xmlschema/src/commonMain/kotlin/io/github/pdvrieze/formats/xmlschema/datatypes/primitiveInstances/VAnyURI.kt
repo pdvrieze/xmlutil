@@ -40,8 +40,7 @@ sealed class VAnyURI : VAnyAtomicType, CharSequence {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xsd.anyURI", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): VAnyURI {
-            val s = xmlCollapseWhitespace(decoder.decodeString())
-            return kotlin.runCatching { VParsedURI(s) }.getOrElse { VRelaxedURI(s) }
+            return decoder.decodeString().toAnyUri()
         }
 
 

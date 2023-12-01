@@ -23,12 +23,11 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
-class ResolvedPattern(rawPart: XSPattern, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
-    override val model: Model by lazy { Model(rawPart, schema) }
+class ResolvedPattern(rawPart: XSPattern, version: SchemaVersion) : ResolvedFacet(rawPart) {
+    override val model: Model by lazy { Model(rawPart, version) }
 
     val value: String = rawPart.value
 
@@ -49,8 +48,8 @@ class ResolvedPattern(rawPart: XSPattern, schema: ResolvedSchemaLike) : Resolved
         return value.hashCode()
     }
 
-    class Model(rawPart: XSPattern, schema: ResolvedSchemaLike): ResolvedAnnotated.Model(rawPart) {
-        val regex: XRegex = XRegex(rawPart.value, schema.version)
+    class Model(rawPart: XSPattern, version: SchemaVersion): ResolvedAnnotated.Model(rawPart) {
+        val regex: XRegex = XRegex(rawPart.value, version)
     }
 
     override fun checkFacetValid(type: ResolvedSimpleType, version: SchemaVersion) {

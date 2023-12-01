@@ -50,7 +50,7 @@ abstract class Datatype(
     abstract val baseType: ResolvedType
 
     constructor(name: String, targetNamespace: String, schema: ResolvedSchemaLike) :
-            this(VNCName(name), schema, VAnyURI(targetNamespace))
+            this(VNCName(name), schema, targetNamespace.toAnyUri())
 
     val dtFunctions: List<DataFunction> get() = emptyList()
     val identityFunction: DataFunction get() = TODO()
@@ -97,8 +97,8 @@ sealed class ListDatatype(
     final override val annotations: List<ResolvedAnnotation> get() = emptyList()
     final override val mdlBaseTypeDefinition: AnySimpleType get() = AnySimpleType
     final override val mdlFacets: FacetList = FacetList(
-        minLength = ResolvedMinLength(XSMinLength(1u), schema),
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), schema)
+        minLength = ResolvedMinLength(XSMinLength(1u)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE))
     )
     final override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = Order.FALSE,
@@ -312,6 +312,6 @@ internal open class SimpleBuiltinRestriction(
     schema: ResolvedSchemaLike,
     facets: List<XSFacet> = listOf(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
 ) : ResolvedSimpleRestrictionBase(null) {
-    override val model: IModel = Model(baseType, FacetList.safe(facets, schema, baseType))
+    override val model: IModel = Model(baseType, FacetList(facets, schema, baseType, false))
 }
 

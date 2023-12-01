@@ -27,15 +27,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxExclusive
-import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class ResolvedMaxExclusive(
     rawPart: XSMaxExclusive,
-    schema: ResolvedSchemaLike,
     override val value: VAnySimpleType
-) : ResolvedMaxBoundFacet(schema, rawPart) {
+) : ResolvedMaxBoundFacet(rawPart) {
     override val isInclusive: Boolean get() = false
 
     override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal, version: SchemaVersion) {
@@ -72,12 +69,12 @@ class ResolvedMaxExclusive(
     override fun toString(): String = "-$value)"
 
     companion object {
-        operator fun invoke(rawPart: XSMaxExclusive, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype<VAnySimpleType>): ResolvedMaxExclusive {
-            return ResolvedMaxExclusive(rawPart, schema, primitiveDatatype.mdlPrimitiveTypeDefinition!!.value(rawPart.value))
+        operator fun invoke(rawPart: XSMaxExclusive, primitiveDatatype: PrimitiveDatatype<VAnySimpleType>): ResolvedMaxExclusive {
+            return ResolvedMaxExclusive(rawPart, primitiveDatatype.mdlPrimitiveTypeDefinition!!.value(rawPart.value))
         }
 
         internal fun createUnverified(value: VAnySimpleType): ResolvedMaxExclusive {
-            return ResolvedMaxExclusive(XSMaxExclusive(VString(value.xmlString)), BuiltinSchemaXmlschema, value)
+            return ResolvedMaxExclusive(XSMaxExclusive(VString(value.xmlString)), value)
         }
     }
 

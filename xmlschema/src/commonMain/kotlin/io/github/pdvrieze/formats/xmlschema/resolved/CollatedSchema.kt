@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -398,7 +399,7 @@ internal class SchemaData(
             }
 
             val b = DataBuilder(alreadyProcessed)
-            val ns: String = (targetNamespace?.let { VAnyURI(it) } ?: sourceSchema.targetNamespace)?.value ?: ""
+            val ns: String = (targetNamespace?.let { it.toAnyUri() } ?: sourceSchema.targetNamespace)?.value ?: ""
             b.newProcessed.put(schemaLocation, NamespaceHolder(ns))
 
             b.addFromSchema(sourceSchema, schemaLocation, targetNamespace)
@@ -520,7 +521,7 @@ internal class SchemaData(
                 if (il == null) {
                     val ns =
                         requireNotNull(import.namespace) { "import must specify at least namespace or location" }
-                    b.includedNamespaceToUri[ns.value] = VAnyURI("")
+                    b.includedNamespaceToUri[ns.value] = "".toAnyUri()
                     b.importedNamespaces.add(ns.value)
                 } else {
                     val importLocation = resolver.resolve(il)
@@ -541,7 +542,7 @@ internal class SchemaData(
                                     val actualNamespace = when (val ins = import.namespace) {
                                         null -> {
                                             if (targetNamespace.isNullOrEmpty()) requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
-                                            VAnyURI("")
+                                            "".toAnyUri()
                                         }
 
                                         else -> {
@@ -735,7 +736,7 @@ internal class RedefineSchema(
 
     override val version: SchemaVersion get() = base.version
 
-    override val targetNamespace: VAnyURI? get() = VAnyURI(data.namespace) ?: base.targetNamespace
+    override val targetNamespace: VAnyURI? get() = data.namespace.toAnyUri() ?: base.targetNamespace
     private val originalNS get() = targetNamespace?.value ?: ""
 
     override fun hasLocalTargetNamespace(): Boolean {
@@ -969,7 +970,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
                 attributeFormDefault = attributeFormDefault ?: VFormChoice.UNQUALIFIED,
                 elementFormDefault = elementFormDefault ?: VFormChoice.UNQUALIFIED,
                 base = schema,
-                chameleonNamespace = VAnyURI(newNS)
+                chameleonNamespace = newNS.toAnyUri()
             )
         }
         override fun toString(): String = "chameleon($newNS, $elem)"

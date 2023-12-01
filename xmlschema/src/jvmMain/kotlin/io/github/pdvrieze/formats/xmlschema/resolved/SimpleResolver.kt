@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
@@ -35,7 +36,7 @@ import java.net.URL
 internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
     ResolvedSchema.Resolver {
     override val baseUri: VAnyURI
-        get() = VAnyURI(baseURI.toASCIIString())
+        get() = baseURI.toASCIIString().toAnyUri()
 
     override fun readSchema(schemaLocation: VAnyURI): XSSchema {
         val schemaUri = URI(schemaLocation.value)
@@ -68,20 +69,22 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
             if (schemaUri.scheme == "file") throw FileNotFoundException("Absolute file uri references are not supported")
             return null
         }
-        val stream = try { baseURI.resolve(schemaUri).toURL().openStream() } catch (e: FileNotFoundException) {
+        val stream = try {
+            baseURI.resolve(schemaUri).toURL().openStream()
+        } catch (e: FileNotFoundException) {
             return null
         }
 
         return stream.withXmlReader { reader ->
-                XML {
-                    defaultPolicy {
-                        autoPolymorphic = true
-                        throwOnRepeatedElement = true
-                        verifyElementOrder = true
-                        isStrictAttributeNames = true
-                    }
-                }.decodeFromReader<XSSchema>(reader)
-            }
+            XML {
+                defaultPolicy {
+                    autoPolymorphic = true
+                    throwOnRepeatedElement = true
+                    verifyElementOrder = true
+                    isStrictAttributeNames = true
+                }
+            }.decodeFromReader<XSSchema>(reader)
+        }
     }
 
     override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
@@ -89,7 +92,7 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
     }
 
     override fun resolve(relativeUri: VAnyURI): VAnyURI {
-        return VAnyURI(baseURI.resolve(relativeUri.xmlString).toASCIIString())
+        return baseURI.resolve(relativeUri.xmlString).toASCIIString().toAnyUri()
     }
 }
 

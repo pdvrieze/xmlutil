@@ -180,7 +180,7 @@ object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAM
 object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_NAMESPACE) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema)
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -190,7 +190,7 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_N
         numeric = false,
     )
 
-    override fun valueFromNormalized(normalized: VString): VAnyURI = VAnyURI(normalized)
+    override fun valueFromNormalized(normalized: VString): VAnyURI = normalized.toString().toAnyUri()
 
     override fun value(maybeValue: VAnySimpleType): VAnyURI {
         return maybeValue as? VAnyURI ?: value(VString(maybeValue.xmlString))
@@ -221,7 +221,7 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchem
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -253,7 +253,7 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XmlSchemaConstants.X
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -288,10 +288,9 @@ object DateType : PrimitiveDatatype<VDate>("date", XmlSchemaConstants.XS_NAMESPA
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -336,10 +335,9 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XmlSchemaConstant
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -386,10 +384,9 @@ object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XmlSche
     override val baseType: DateTimeType get() = DateTimeType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.REQUIRED, true),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.REQUIRED, true)
         ),
     )
 
@@ -421,7 +418,7 @@ object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XmlSchemaConstants.X
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -464,9 +461,9 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XmlSchemaConstants.X
     override val baseType: DecimalType get() = DecimalType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -498,9 +495,9 @@ object LongType : PrimitiveDatatype<VInteger>("long", XmlSchemaConstants.XS_NAME
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = // pass null as this has an initialization loop. The value is pre-normalized.
         ResolvedMaxInclusive.createUnverified(VInteger(Long.MAX_VALUE)),
         minConstraint = ResolvedMinInclusive.createUnverified(VInteger(Long.MIN_VALUE)),
@@ -534,9 +531,9 @@ object IntType : PrimitiveDatatype<VInteger>("int", XmlSchemaConstants.XS_NAMESP
     override val baseType: LongType get() = LongType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VInteger(Int.MAX_VALUE)),
         minConstraint = ResolvedMinInclusive.createUnverified(VInteger(Int.MIN_VALUE)),
     )
@@ -570,9 +567,9 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XmlSchemaConstants.XS_NA
     override val baseType: IntType get() = IntType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VInteger(32767)),
         minConstraint = ResolvedMinInclusive.createUnverified(VInteger(-32768)),
     )
@@ -607,9 +604,9 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XmlSchemaConstants.XS_NAME
     override val baseType: ShortType get() = ShortType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VInteger(127)),
         minConstraint = ResolvedMinInclusive.createUnverified(VInteger(-128)),
     )
@@ -645,9 +642,9 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         minConstraint = ResolvedMinInclusive.createUnverified(VNonNegativeInteger(0)),
     )
 
@@ -680,9 +677,9 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
     override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         minConstraint = ResolvedMinInclusive.createUnverified(VNonNegativeInteger(1)),
     )
 
@@ -715,9 +712,9 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XmlSc
     override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VUnsignedLong(ULong.MAX_VALUE)),
         minConstraint = ResolvedMinInclusive.createUnverified(VUnsignedLong(0uL)),
     )
@@ -751,9 +748,9 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XmlSchem
     override val baseType: UnsignedLongType get() = UnsignedLongType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VUnsignedInt(UInt.MAX_VALUE)),
         minConstraint = ResolvedMinInclusive.createUnverified(VUnsignedInt(0u)),
     )
@@ -787,9 +784,9 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XmlS
     override val baseType: UnsignedIntType get() = UnsignedIntType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VUnsignedInt(65535u)),
         minConstraint = ResolvedMinInclusive.createUnverified(VUnsignedInt(0u)),
     )
@@ -823,9 +820,9 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XmlSch
     override val baseType: UnsignedShortType get() = UnsignedShortType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(
             VUnsignedInt(255u)
         ),
@@ -863,9 +860,9 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VInteger(0)),
     )
 
@@ -903,9 +900,9 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XmlS
     override val baseType: NonPositiveIntegerType get() = NonPositiveIntegerType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
+        patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
         maxConstraint = ResolvedMaxInclusive.createUnverified(VInteger(-1)),
     )
 
@@ -944,7 +941,7 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XmlSchemaConstants.XS_N
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -976,7 +973,7 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XmlSchemaConstant
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1003,8 +1000,8 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", Xml
     override val baseType: DurationType get() = DurationType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[^YM]*(T.*)?"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        patterns = listOf(ResolvedPattern(XSPattern("[^YM]*(T.*)?"), SchemaVersion.V1_1,)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1038,8 +1035,8 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
     override val baseType: DurationType get() = DurationType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[^DT]*"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
+        patterns = listOf(ResolvedPattern(XSPattern("[^DT]*"), SchemaVersion.V1_1,)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1072,7 +1069,7 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XmlSchemaConstants.XS_NAME
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1104,10 +1101,9 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XmlSchemaConstants.XS_NAMESPA
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -1145,10 +1141,9 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XmlSchemaConstants.XS_N
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -1191,10 +1186,9 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XmlSchemaConst
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -1240,10 +1234,9 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XmlSchemaConstants.XS_NAME
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -1279,10 +1272,9 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XmlSchemaCo
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -1330,7 +1322,7 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConst
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1363,7 +1355,7 @@ object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XmlSchemaConstant
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1394,7 +1386,7 @@ object QNameType : PrimitiveDatatype<VQName>("QName", XmlSchemaConstants.XS_NAME
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1435,7 +1427,7 @@ object StringType : PrimitiveDatatype<VString>("string", XmlSchemaConstants.XS_N
         )
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.PRESERVE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.PRESERVE)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1464,7 +1456,7 @@ object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedSt
     override val baseType: StringType get() = StringType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.REPLACE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.REPLACE)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1495,7 +1487,7 @@ object TokenType : PrimitiveDatatype<VToken>("token", XmlSchemaConstants.XS_NAME
     override val baseType: NormalizedStringType get() = NormalizedStringType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1526,8 +1518,8 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XmlSchemaConstant
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
+        patterns = listOf(ResolvedPattern(XSPattern("[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"), SchemaVersion.V1_1,)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1558,8 +1550,8 @@ object NameType : PrimitiveDatatype<VName>("Name", XmlSchemaConstants.XS_NAMESPA
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("\\i\\c*"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
+        patterns = listOf(ResolvedPattern(XSPattern("\\i\\c*"), SchemaVersion.V1_1,)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1590,10 +1582,10 @@ object NCNameType : PrimitiveDatatype<VNCName>("NCName", XmlSchemaConstants.XS_N
     override val baseType: NameType get() = NameType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
         patterns = listOf(
-            ResolvedPattern(XSPattern("\\i\\c*"), BuiltinSchemaXmlschema),
-            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), BuiltinSchemaXmlschema)
+            ResolvedPattern(XSPattern("\\i\\c*"), SchemaVersion.V1_1,),
+            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), SchemaVersion.V1_1,)
         ),
     )
 
@@ -1627,10 +1619,10 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XmlSchemaConstants.XS_N
     override val baseType: NCNameType get() = NCNameType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
         patterns = listOf(
-            ResolvedPattern(XSPattern("\\i\\c*"), BuiltinSchemaXmlschema),
-            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), BuiltinSchemaXmlschema)
+            ResolvedPattern(XSPattern("\\i\\c*"), SchemaVersion.V1_1,),
+            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), SchemaVersion.V1_1,)
         ),
     )
 
@@ -1658,10 +1650,10 @@ object IDType : PrimitiveDatatype<VID>("ID", XmlSchemaConstants.XS_NAMESPACE), I
     override val baseType: NCNameType get() = NCNameType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
         patterns = listOf(
-            ResolvedPattern(XSPattern("\\i\\c*"), BuiltinSchemaXmlschema),
-            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), BuiltinSchemaXmlschema)
+            ResolvedPattern(XSPattern("\\i\\c*"), SchemaVersion.V1_1,),
+            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), SchemaVersion.V1_1,)
         ),
     )
 
@@ -1694,10 +1686,10 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XmlSchemaConstants.XS_NAME
     override val baseType: NCNameType get() = NCNameType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
         patterns = listOf(
-            ResolvedPattern(XSPattern("\\i\\c*"), BuiltinSchemaXmlschema),
-            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), BuiltinSchemaXmlschema)
+            ResolvedPattern(XSPattern("\\i\\c*"), SchemaVersion.V1_1,),
+            ResolvedPattern(XSPattern("[\\i-[:]][\\c-[:]]*"), SchemaVersion.V1_1,)
         ),
     )
 
@@ -1730,8 +1722,8 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XmlSchemaConstants.X
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE), BuiltinSchemaXmlschema),
-        patterns = listOf(ResolvedPattern(XSPattern("\\c+"), BuiltinSchemaXmlschema)),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
+        patterns = listOf(ResolvedPattern(XSPattern("\\c+"), SchemaVersion.V1_1,)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -1762,10 +1754,9 @@ object TimeType : PrimitiveDatatype<VTime>("time", XmlSchemaConstants.XS_NAMESPA
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         explicitTimezone = ResolvedExplicitTimezone(
-            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL),
-            BuiltinSchemaXmlschema
+            XSExplicitTimezone(XSExplicitTimezone.Value.OPTIONAL)
         ),
     )
 
@@ -1830,7 +1821,7 @@ object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecima
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true), BuiltinSchemaXmlschema),
+        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(

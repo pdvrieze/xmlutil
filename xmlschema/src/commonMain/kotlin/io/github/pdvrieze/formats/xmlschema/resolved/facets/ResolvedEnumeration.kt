@@ -22,15 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class ResolvedEnumeration<out T : Any>(
     rawPart: XSEnumeration,
-    schema: ResolvedSchemaLike,
     dataType: ResolvedSimpleType
-) : ResolvedFacet(rawPart, schema) {
+) : ResolvedFacet(rawPart) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     override fun checkFacetValid(type: ResolvedSimpleType, version: SchemaVersion) {

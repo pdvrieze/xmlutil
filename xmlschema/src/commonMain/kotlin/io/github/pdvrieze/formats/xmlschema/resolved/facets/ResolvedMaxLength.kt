@@ -21,9 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxLength
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-class ResolvedMaxLength(rawPart: XSMaxLength, schema: ResolvedSchemaLike) : ResolvedLengthBase(rawPart, schema),
+class ResolvedMaxLength(rawPart: XSMaxLength) : ResolvedLengthBase(rawPart),
     IResolvedMaxLength {
 
     override val value: ULong = rawPart.value

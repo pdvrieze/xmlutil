@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
@@ -60,7 +60,7 @@ class ResolvedLocalAttribute private constructor(
         mdlQName = invariantNotNull(rawPart.name).toQname(
             rawPart.targetNamespace ?: when {
                 (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
-                    VAnyURI(elem.targetNamespace)
+                    elem.targetNamespace.toAnyUri()
 
                 else -> null
             }

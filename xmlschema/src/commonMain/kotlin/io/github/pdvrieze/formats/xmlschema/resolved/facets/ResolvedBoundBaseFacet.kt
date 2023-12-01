@@ -23,9 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-sealed class ResolvedBoundBaseFacet(rawPart: XSFacet, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
+sealed class ResolvedBoundBaseFacet(rawPart: XSFacet) : ResolvedFacet(rawPart) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     abstract val isInclusive: Boolean

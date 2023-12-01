@@ -27,15 +27,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinInclusive
-import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
 class ResolvedMinInclusive(
     rawPart: XSMinInclusive,
-    schema: ResolvedSchemaLike,
     override val value: VAnySimpleType,
-) : ResolvedMinBoundFacet(rawPart, schema) {
+) : ResolvedMinBoundFacet(rawPart) {
     override val isInclusive: Boolean get() = true
 
     override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal, version: SchemaVersion) {
@@ -72,12 +69,12 @@ class ResolvedMinInclusive(
     override fun toString(): String = "[$value-"
 
     companion object {
-        operator fun invoke(rawPart: XSMinInclusive, schema: ResolvedSchemaLike, primitiveDatatype: PrimitiveDatatype<*>): ResolvedMinInclusive {
-            return ResolvedMinInclusive(rawPart, schema, primitiveDatatype.value(rawPart.value))
+        operator fun invoke(rawPart: XSMinInclusive, primitiveDatatype: PrimitiveDatatype<*>): ResolvedMinInclusive {
+            return ResolvedMinInclusive(rawPart, primitiveDatatype.value(rawPart.value))
         }
 
         internal fun createUnverified(value: VAnySimpleType): ResolvedMinInclusive {
-            return ResolvedMinInclusive(XSMinInclusive(VString(value.xmlString)), BuiltinSchemaXmlschema, value)
+            return ResolvedMinInclusive(XSMinInclusive(VString(value.xmlString)), value)
         }
     }
 

@@ -23,11 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 
-sealed class ResolvedLengthBase(rawPart: XSFacet, schema: ResolvedSchemaLike) : ResolvedFacet(rawPart, schema) {
+sealed class ResolvedLengthBase(rawPart: XSFacet) : ResolvedFacet(rawPart) {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     abstract val value: ULong

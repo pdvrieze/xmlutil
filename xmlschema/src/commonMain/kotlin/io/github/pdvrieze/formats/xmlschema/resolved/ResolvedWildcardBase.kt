@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyBase
@@ -93,8 +94,8 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
                     namespaces = buildSet {
                         // only add local when relevant to the context (there is something in the context
                         // This should handle "other" being special
-                        if(localInOther) add(VAnyURI(""))
-                        add(schemaLike.targetNamespace ?: VAnyURI(""))
+                        if(localInOther) add("".toAnyUri())
+                        add(schemaLike.targetNamespace ?: "".toAnyUri())
                     }
                 }
 
@@ -122,14 +123,14 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
         }
 
         private fun VNamespaceList.Elem.toUri(schemaLike: ResolvedSchemaLike): VAnyURI = when (this) {
-            VNamespaceList.LOCAL -> VAnyURI("")
-            VNamespaceList.TARGETNAMESPACE -> schemaLike.targetNamespace ?: VAnyURI("")
+            VNamespaceList.LOCAL -> "".toAnyUri()
+            VNamespaceList.TARGETNAMESPACE -> schemaLike.targetNamespace ?: "".toAnyUri()
             is VNamespaceList.Uri -> value
         }
 
         private fun VNotNamespaceList.Elem.toUri(schemaLike: ResolvedSchemaLike): VAnyURI? = when (this) {
-            VNotNamespaceList.LOCAL -> VAnyURI("")
-            VNotNamespaceList.TARGETNAMESPACE -> schemaLike.targetNamespace ?: VAnyURI("")
+            VNotNamespaceList.LOCAL -> "".toAnyUri()
+            VNotNamespaceList.TARGETNAMESPACE -> schemaLike.targetNamespace ?: "".toAnyUri()
             is VNotNamespaceList.Uri -> value
         }
 

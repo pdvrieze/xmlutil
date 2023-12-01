@@ -21,6 +21,5 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 
-sealed class ResolvedMaxBoundFacet(schema: ResolvedSchemaLike, rawPart: XSFacet) : ResolvedBoundBaseFacet(rawPart, schema)
+sealed class ResolvedMaxBoundFacet(rawPart: XSFacet) : ResolvedBoundBaseFacet(rawPart)
