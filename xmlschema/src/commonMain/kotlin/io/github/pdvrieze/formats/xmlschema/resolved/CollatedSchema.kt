@@ -41,7 +41,7 @@ internal class SchemaData(
     val groups: Map<String, SchemaElement<XSGroup>>,
     val attributeGroups: Map<String, SchemaElement<XSAttributeGroup>>,
     val notations: Map<String, XSNotation>,
-    val includedNamespaceToUri: Map<String, VAnyURI>,
+    val includedNamespaceToUris: Map<String, List<VAnyURI>>,
     val knownNested: Map<String, NamespaceHolder>,
     val importedNamespaces: Set<String>,
 ) : NamespaceHolder(namespace) {
@@ -58,7 +58,7 @@ internal class SchemaData(
         groups = emptyMap(),
         attributeGroups = emptyMap(),
         notations = emptyMap(),
-        includedNamespaceToUri = emptyMap(),
+        includedNamespaceToUris = emptyMap(),
         knownNested = emptyMap(),
         importedNamespaces = emptySet(),
     )
@@ -80,7 +80,7 @@ internal class SchemaData(
         groups = builder.groups,
         attributeGroups = builder.attributeGroups,
         notations = builder.notations,
-        includedNamespaceToUri = builder.includedNamespaceToUri,
+        includedNamespaceToUris = builder.includedNamespaceToUris,
         knownNested = builder.newProcessed,
         importedNamespaces = builder.importedNamespaces,
     )
@@ -89,9 +89,12 @@ internal class SchemaData(
         if (namespace == elementName.namespaceURI) { elements[elementName.localPart]?.let { return Pair(this, it) } }
 
         if (elementName.namespaceURI in importedNamespaces) {
-            includedNamespaceToUri[elementName.namespaceURI]?.value?.let { uri ->
-                (knownNested[uri] as? SchemaData)?.let { n ->
-                    n.elements[elementName.localPart]?.let { return Pair(n, it)}
+            val l = includedNamespaceToUris[elementName.namespaceURI]
+            if (l != null) {
+                for ((uri) in l) {
+                    (knownNested[uri] as? SchemaData)?.let { n ->
+                        n.elements[elementName.localPart]?.let { return Pair(n, it)}
+                    }
                 }
             }
         }
@@ -99,17 +102,20 @@ internal class SchemaData(
     }
 
     fun findType(typeName: QName): SchemaElement<XSGlobalType>? {
-        return when {
-            namespace == typeName.namespaceURI -> types[typeName.localPart]
+        when {
+            namespace == typeName.namespaceURI -> return types[typeName.localPart]
             typeName.namespaceURI in importedNamespaces -> {
-                includedNamespaceToUri[typeName.namespaceURI]?.value?.let { uri ->
-                    (knownNested[uri] as? SchemaData)?.let {
-                        it.types[typeName.localPart]
+                val l = includedNamespaceToUris[typeName.namespaceURI]
+                if (l != null) {
+                    for ((uri) in l) {
+                        (knownNested[uri] as? SchemaData)?.let {
+                            return it.types[typeName.localPart]
+                        }
                     }
                 }
+                return null
             }
-
-            else -> null
+            else -> return null
         }
     }
 
@@ -290,7 +296,7 @@ internal class SchemaData(
         val groups: MutableMap<String, SchemaElement<XSGroup>> = mutableMapOf()
         val attributeGroups: MutableMap<String, SchemaElement<XSAttributeGroup>> = mutableMapOf()
         val notations: MutableMap<String, XSNotation> = mutableMapOf()
-        val includedNamespaceToUri: MutableMap<String, VAnyURI> = mutableMapOf()
+        val includedNamespaceToUris: MutableMap<String, MutableList<VAnyURI>> = mutableMapOf()
         val newProcessed: MutableMap<String, NamespaceHolder> = processed
         val importedNamespaces: MutableSet<String> = mutableSetOf()
 
@@ -370,6 +376,28 @@ internal class SchemaData(
             }
             sourceData.schemaLocation?.let { newProcessed[it] = sourceData }
             importedNamespaces.addAll(sourceData.importedNamespaces)
+        }
+
+        fun mergeUnique(toMerge: SchemaData) {
+            for ((n, e) in toMerge.elements) {
+                require(elements.put(n, e) == null) { "Duplicate element with name ${QName(toMerge.namespace, n)}" }
+            }
+            for ((n, a) in toMerge.attributes) {
+                require(attributes.put(n, a) == null) { "Duplicate attribute with name ${QName(toMerge.namespace, n)}" }
+            }
+            for ((n, t) in toMerge.types) {
+                require(types.put(n, t) == null) { "Duplicate type with name ${QName(toMerge.namespace, n)}" }
+            }
+            for ((n, g) in toMerge.groups) {
+                require(groups.put(n, g) == null) { "Duplicate group with name ${QName(toMerge.namespace, n)}" }
+            }
+            for ((n, ag) in toMerge.attributeGroups) {
+                require(attributeGroups.put(n, ag) == null) { "Duplicate attribute group with name ${QName(toMerge.namespace, n)}" }
+            }
+            for ((name, notation) in toMerge.notations) {
+                require(notations.put(name, notation) == null) { "Duplicate notation with name ${QName(toMerge.namespace, name)}" }
+            }
+
         }
 
     }
@@ -523,9 +551,10 @@ internal class SchemaData(
             for (import in sourceSchema.imports) {
                 val il = import.schemaLocation
                 if (il == null) {
-                    val ns =
-                        requireNotNull(import.namespace) { "import must specify at least namespace or location" }
-                    b.includedNamespaceToUri[ns.value] = "".toAnyUri()
+                    val ns = requireNotNull(import.namespace) { "import must specify at least namespace or location" }
+                    b.includedNamespaceToUris.getOrPut(ns.value, { mutableListOf() }).let {
+                        if (VAnyURI.EMPTY !in it) it.add(VAnyURI.EMPTY) // Don't duplicate "missing" uris
+                    }
                     b.importedNamespaces.add(ns.value)
                 } else {
                     val importLocation = resolver.resolve(il)
@@ -563,7 +592,10 @@ internal class SchemaData(
 
                                     require(parsed.targetNamespace.let { it == null || it == import.namespace }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
                                     b.importedNamespaces.add(actualNamespace.value)
-                                    b.includedNamespaceToUri[actualNamespace.value] = importLocation
+                                    b.includedNamespaceToUris.getOrPut(actualNamespace.value, { mutableListOf() }).also {
+                                        require(importLocation !in it) { "Duplicate import of location ${importLocation}" }
+                                        it.add(importLocation)
+                                    }
 
                                     SchemaData(
                                         parsed,
@@ -581,6 +613,23 @@ internal class SchemaData(
                     if (actualImport != null) b.newProcessed[importLocation.value] = actualImport
                 }
             }
+
+/*
+            for((ns, uriList) in b.includedNamespaceToUris) {
+                if (uriList.size > 1) {
+                    val datas = uriList.asSequence()
+                        .mapNotNull { b.newProcessed[it.value] }
+                        .filterIsInstance<SchemaData>()
+                        .toList()
+                    if (datas.size>1) {
+                        val b = DataBuilder()
+                        for (d in datas) {
+                            b.mergeUnique(d)
+                        }
+                    }
+                }
+            }
+*/
 
             // TODO add override support
 
