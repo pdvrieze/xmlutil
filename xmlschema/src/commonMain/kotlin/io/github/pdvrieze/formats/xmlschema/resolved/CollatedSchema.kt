@@ -534,7 +534,11 @@ internal class SchemaData(
                         // imports can be delayed in parsing
                         importLocation.value in alreadyProcessed -> {
                             val existing = alreadyProcessed[importLocation.value]!!
-                            b.importedNamespaces.add(import.namespace?.value ?: existing.namespace)
+                            val importNS = import.namespace?.value
+                            require(existing.namespace.let { it.isEmpty() || importNS==null || it == importNS }) {
+                                "Imported schema's namespace (${existing.namespace}) is not null and does not match specified namespace ($importNS)"
+                            }
+                            b.importedNamespaces.add(importNS ?: existing.namespace)
                             existing as? SchemaData
                         }
 
