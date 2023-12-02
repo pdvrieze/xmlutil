@@ -54,9 +54,24 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
         for (importNS in schemaData.importedNamespaces) {
             if (importNS !in nestedData) { // don't duplicate
-                val importData = schemaData.includedNamespaceToUri[importNS]?.let { schemaData.knownNested[it.value] }
-                if (importData is SchemaData) {
-                    nestedData[importNS] = NestedData(importNS.toAnyUri(), importData)
+                val uris = schemaData.includedNamespaceToUris[importNS]
+                if (!uris.isNullOrEmpty()) {
+                    if (uris.size == 1) {
+                        val importData = schemaData.knownNested[uris.single().value] as? SchemaData
+                        if (importData is SchemaData) {
+                            val newValue = NestedData(importNS.toAnyUri(), importData)
+                            nestedData[importNS] =
+                                (nestedData[importNS] as? NestedData)?.mergeWith(newValue) ?: newValue
+                        }
+                    } else {
+                        val initial = nestedData[importNS] as? NestedData
+                        val mergedData = uris.asSequence()
+                            .mapNotNull { schemaData.knownNested[it.value] as? SchemaData }
+                            .map { NestedData(importNS.toAnyUri(), it) }
+                            .fold(initial) { acc, nestedData -> acc?.mergeWith(nestedData) ?: nestedData }
+
+                        nestedData[importNS] = mergedData!!
+                    }
                 }
             }
         }
@@ -289,28 +304,56 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
             imports = mutableMapOf<String, SchemaElementResolver?>().apply {
                 for (ns in source.importedNamespaces) {
-                    val uri = source.includedNamespaceToUri[ns]
+                    val uris = source.includedNamespaceToUris[ns]
                     val resolver: SchemaElementResolver? = when {
-                            ! uri.isNullOrEmpty() -> (source.knownNested[uri.value] as? SchemaData)?.let {
-                                NestedData(ns.toAnyUri(), it)
-                            }
+                        !uris.isNullOrEmpty() -> {
+                            val nsUri = ns.toAnyUri()
 
-                            else -> {
-                                val preParsed = nestedData[ns]
-                                when {
-                                    preParsed != null -> preParsed
-                                    ns == BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
-                                    ns == BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
-                                    ns == BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
-                                    else -> null // missing schemas are allowed as long as not used{
+                            uris.asSequence()
+                                .mapNotNull { source.knownNested[it.value] }
+                                .filterIsInstance<SchemaData>()
+                                .map { NestedData(nsUri, it) }
+                                .fold<NestedData, NestedData?>(null) { a, b ->
+                                    a?.mergeWith(b) ?: b
                                 }
+                        }
+
+                        else -> {
+                            val preParsed = nestedData[ns]
+                            when {
+                                preParsed != null -> preParsed
+                                ns == BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
+                                ns == BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
+                                ns == BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
+                                else -> null // missing schemas are allowed as long as not used{
                             }
                         }
+                    }
                     if (resolver != null) nestedData.getOrPut(ns) { resolver }
 
                     set(ns, resolver)
                 }
             }
+        }
+
+        private constructor(
+            targetNamespace: VAnyURI,
+            elements: Map<String, ResolvedGlobalElement>,
+            attributes: Map<String, ResolvedGlobalAttribute>,
+            types: Map<String, ResolvedGlobalType>,
+            groups: Map<String, ResolvedGlobalGroup>,
+            attributeGroups: Map<String, ResolvedGlobalAttributeGroup>,
+            notations: Map<String, ResolvedNotation>,
+            imports: Map<String, SchemaElementResolver?>,
+        ) {
+            this.targetNamespace = targetNamespace
+            _elements = elements
+            this.attributes = attributes
+            _types = types
+            _groups = groups
+            this.attributeGroups = attributeGroups
+            this.notations = notations
+            this.imports = imports
         }
 
         private val _elements: Map<String, ResolvedGlobalElement>
@@ -392,6 +435,51 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
                     targetNamespace.value == it.namespaceURI && it.localPart == headName
                 } == true
             }
+        }
+
+        fun mergeWith(otherData: NestedData): NestedData {
+            val newElements = mutableMapOf<String, ResolvedGlobalElement>().apply { putAll(_elements) }
+
+            val newAttributes = mutableMapOf<String, ResolvedGlobalAttribute>().apply { putAll(attributes) }
+            val newTypes = mutableMapOf<String, ResolvedGlobalType>().apply { putAll(_types) }
+            val newGroups = mutableMapOf<String, ResolvedGlobalGroup>().apply { putAll(_groups) }
+            val newAttributeGroups = mutableMapOf<String, ResolvedGlobalAttributeGroup>().apply { putAll(attributeGroups) }
+            val newNotations = mutableMapOf<String, ResolvedNotation>().apply { putAll(notations) }
+            val newImports = mutableMapOf<String, SchemaElementResolver?>().apply { putAll(imports) }
+
+            val ons = otherData.targetNamespace.value
+
+            for ((n, e) in otherData.elements) {
+                require(newElements.put(n, e) == null) { "Duplicate element with name ${QName(ons, n)}" }
+            }
+            for ((n, a) in otherData.attributes) {
+                require(newAttributes.put(n, a) == null) { "Duplicate attribute with name ${QName(ons, n)}" }
+            }
+            for ((n, t) in otherData.types) {
+                require(newTypes.put(n, t) == null) { "Duplicate type with name ${QName(ons, n)}" }
+            }
+            for ((n, g) in otherData.groups) {
+                require(newGroups.put(n, g) == null) { "Duplicate group with name ${QName(ons, n)}" }
+            }
+            for ((n, ag) in otherData.attributeGroups) {
+                require(newAttributeGroups.put(n, ag) == null) { "Duplicate attribute group with name ${QName(ons, n)}" }
+            }
+            for ((name, notation) in otherData.notations) {
+                require(newNotations.put(name, notation) == null) { "Duplicate notation with name ${QName(ons, name)}" }
+            }
+
+
+
+            return NestedData(
+                targetNamespace,
+                newElements,
+                newAttributes,
+                newTypes,
+                newGroups,
+                newAttributeGroups,
+                newNotations,
+                newImports,
+            )
         }
 
     }
