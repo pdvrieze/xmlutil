@@ -34,6 +34,8 @@ sealed class VAnyURI : VAnyAtomicType, CharSequence {
 
     val value: String get() = xmlString
 
+    operator fun component1(): String = value
+
     companion object Serializer : KSerializer<VAnyURI> {
         operator fun invoke(value: String) = value.toAnyUri()
         operator fun invoke(value: CharSequence) = value.toString().toAnyUri()
@@ -47,6 +49,8 @@ sealed class VAnyURI : VAnyAtomicType, CharSequence {
         override fun serialize(encoder: Encoder, value: VAnyURI) {
             encoder.encodeString(value.xmlString)
         }
+
+        val EMPTY: VAnyURI = "".toAnyUri()
 
     }
 
