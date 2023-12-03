@@ -609,13 +609,16 @@ internal class SchemaData(
 /*
                 val importNS = when (val i = import.namespace) {
                     null -> {
+                        // TODO, do we need only the second one that has the local targetNamespace?
                         require(!sourceSchema.targetNamespace.isNullOrEmpty()) { "4.2.6.2 1.1) Import with empty namespace inside a schema without target namespace" }
+                        require(!targetNamespace.isNullOrEmpty()) { "Imports must not be to the same namespace: <empty>" }
 
                         VAnyURI("")
                     }
 
                     else -> {
                         require(i != sourceSchema.targetNamespace) { "4.2.6.2 1.2) Import may not match container's target namespace" }
+                        require(i?.value != targetNamespace) { "Imports must not be the same namespace: $i, $targetNamespace" }
                         i
                     }
                 }
@@ -645,6 +648,7 @@ internal class SchemaData(
                         }
 
                         else -> {
+
                             when (val parsed = resolver.tryReadSchema(importLocation)) {
                                 null -> null
                                 else -> {
