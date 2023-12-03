@@ -68,14 +68,17 @@ open class ResolvedGlobalComplexType(
         parent: ResolvedComplexType,
         elemPart: SchemaElement<XSGlobalComplexTypeSimple>,
         schema: ResolvedSchemaLike,
-    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, elemPart, schema),
-        Model {
+    ) : SimpleModelBase<XSGlobalComplexTypeSimple>(parent, elemPart, schema), Model {
         override val mdlContext: VComplexTypeScope.Member = parent
         override val mdlAbstract: Boolean = elemPart.elem.abstract ?: false
         override val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> =
             calcProhibitedSubstitutions(elemPart.elem, schema)
         override val mdlFinal: Set<VDerivationControl.Complex> =
             calcFinalSubstitutions(elemPart.elem, schema)
+
+        init {
+            require(schema !is RedefineSchema) { "Redefines must extend their base type, thus a complex type in a redefine can not have simple content: ${elemPart.elem.name}" }
+        }
     }
 
     private class ShorthandModel(
