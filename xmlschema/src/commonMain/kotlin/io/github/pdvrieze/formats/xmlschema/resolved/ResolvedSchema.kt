@@ -34,7 +34,6 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-// TODO("Support resolving documents that are external to the original/have some resolver type")
 class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: SchemaVersion = SchemaVersion.V1_1) :
     ResolvedSchemaLike() {
 
@@ -43,49 +42,33 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
 
     init {
-        val schemaData =
+        val rootData =
             SchemaData(rawPart, resolver.baseUri.value, rawPart.targetNamespace?.value ?: "", resolver)
 
-        schemaData.checkRecursiveTypeDefinitions()
-        schemaData.checkRecursiveSubstitutionGroups()
+        rootData.checkRecursiveTypeDefinitions()
+        rootData.checkRecursiveSubstitutionGroups()
 
-        nestedData[targetNamespace.value] = NestedData(targetNamespace, schemaData)
+        val allData: Collection<Pair<String, SchemaData>> = rootData.collectAndMergeNested(mutableMapOf()).values
 
+        val allNeededNamespaces = HashSet<String>()
 
-        for (importNS in schemaData.importedNamespaces) {
-            if (importNS !in nestedData) { // don't duplicate
-                val uris = schemaData.includedNamespaceToUris[importNS]
-                if (!uris.isNullOrEmpty()) {
-                    if (uris.size == 1) {
-                        val importData = schemaData.knownNested[uris.single().value] as? SchemaData
-                        if (importData is SchemaData) {
-                            val newValue = NestedData(importNS.toAnyUri(), importData)
-                            nestedData[importNS] =
-                                (nestedData[importNS] as? NestedData)?.mergeWith(newValue) ?: newValue
-                        }
-                    } else {
-                        val initial = nestedData[importNS] as? NestedData
-                        val mergedData = uris.asSequence()
-                            .mapNotNull { schemaData.knownNested[it.value] as? SchemaData }
-                            .map { NestedData(importNS.toAnyUri(), it) }
-                            .fold(initial) { acc, nestedData -> acc?.mergeWith(nestedData) ?: nestedData }
-
-                        nestedData[importNS] = mergedData!!
-                    }
-                }
-            }
+        for((importNs, schemaData) in allData) {
+            allNeededNamespaces.addAll(schemaData.includedNamespaceToUris.keys)
+            val nestedData = NestedData(importNs.toAnyUri(), schemaData)
+            val past = (this.nestedData[importNs] as? NestedData)
+            this.nestedData[importNs] = past?.mergeWith(nestedData) ?: nestedData
         }
 
         // Use getOrPut to ensure uniqueness
         nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
         nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
         if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
-            XMLConstants.XML_NS_URI in schemaData.knownNested
+            XMLConstants.XML_NS_URI in allNeededNamespaces
         ) {
-            nestedData[XMLConstants.XML_NS_URI] = BuiltinSchemaXml.resolver
+            nestedData.getOrPut(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
         }
 
-        visibleNamespaces = schemaData.importedNamespaces.toSet()
+        visibleNamespaces = rootData.importedNamespaces.toSet()
 
     }
 
@@ -267,8 +250,6 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         constructor(targetNamespace: VAnyURI, source: SchemaData) {
             this.targetNamespace = targetNamespace
 
-            nestedData.getOrPut(targetNamespace.value) { this }
-
             require(targetNamespace.value == source.namespace) {
                 "Namespace mismatch (${targetNamespace.value} != ${source.namespace})"
             }
@@ -302,38 +283,35 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
             }
             notations = DelegateMap(targetNamespace.value, source.notations) { v -> ResolvedNotation(v, s, loc) }
 
-            imports = mutableMapOf<String, SchemaElementResolver?>().apply {
-                for (ns in source.importedNamespaces) {
-                    val uris = source.includedNamespaceToUris[ns]
-                    val resolver: SchemaElementResolver? = when {
-                        !uris.isNullOrEmpty() -> {
-                            val nsUri = ns.toAnyUri()
+            imports = source.importedNamespaces.associateWith { ns ->
+                object : SchemaElementResolver {
+                    val delegate by lazy { nestedData[ns] }
+                    override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? =
+                        delegate?.maybeSimpleType(typeName)
 
-                            uris.asSequence()
-                                .mapNotNull { source.knownNested[it.value] }
-                                .filterIsInstance<SchemaData>()
-                                .map { NestedData(nsUri, it) }
-                                .fold<NestedData, NestedData?>(null) { a, b ->
-                                    a?.mergeWith(b) ?: b
-                                }
-                        }
+                    override fun maybeType(typeName: String): ResolvedGlobalType? =
+                        delegate?.maybeType(typeName)
 
-                        else -> {
-                            val preParsed = nestedData[ns]
-                            when {
-                                preParsed != null -> preParsed
-                                ns == BuiltinSchemaXml.targetNamespace.value -> BuiltinSchemaXml.resolver
-                                ns == BuiltinSchemaXmlschema.targetNamespace.value -> BuiltinSchemaXmlschema.resolver
-                                ns == BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.resolver
-                                else -> null // missing schemas are allowed as long as not used{
-                            }
-                        }
-                    }
-                    if (resolver != null) nestedData.getOrPut(ns) { resolver }
+                    override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? =
+                        delegate?.maybeAttributeGroup(attributeGroupName)
 
-                    set(ns, resolver)
+                    override fun maybeGroup(groupName: String): ResolvedGlobalGroup? =
+                        delegate?.maybeGroup(groupName)
+
+                    override fun maybeElement(elementName: String): ResolvedGlobalElement? =
+                        delegate?.maybeElement(elementName)
+
+                    override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? =
+                        delegate?.maybeAttribute(attributeName)
+
+                    override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? =
+                        delegate?.maybeIdentityConstraint(constraintName)
+
+                    override fun maybeNotation(notationName: String): ResolvedNotation? =
+                        delegate?.maybeNotation(notationName)
                 }
             }
+
         }
 
         private constructor(
