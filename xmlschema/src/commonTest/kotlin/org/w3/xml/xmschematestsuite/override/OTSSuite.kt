@@ -20,7 +20,17 @@
 
 package org.w3.xml.xmschematestsuite.override
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.xml.xmschematestsuite.*
 
 @Serializable
@@ -83,8 +93,6 @@ data class OTSSuite(val testSetOverrides: List<OTSTestSet>) {
 
                 OTSTestGroup(groupName, schemaTest, instanceTests, isIgnored)
             }
-
-            return TODO()
         }
     }
 }
@@ -214,6 +222,40 @@ private fun mergeExpecteds(originalExpected: List<TSExpected>, overridden: List<
 
 
 @Serializable
+@XmlSerialName("expected")
+class OTSExpected : TSExpected {
+    override val exception: String?
+
+    @XmlElement(false)
+    override val message: @Serializable(RegexSerializer::class) Regex?
+
+    val annotation: String?
+
+    constructor(
+        validity: TSValidityOutcome,
+        version: String? = null,
+        exception: String? = null,
+        message: Regex? = null,
+        annotation: String? = null,
+        otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) : super(validity, version, otherAttributes) {
+        this.exception = exception
+        this.message = message
+        this.annotation = annotation
+    }
+
+    override fun copy(
+        validity: TSValidityOutcome,
+        version: String?,
+        exception: String?,
+        message: Regex?,
+        annotation: String?,
+        otherAttributes: Map<QName, String>
+    ): OTSExpected = OTSExpected(validity, version, exception, message, annotation, otherAttributes)
+}
+
+
+@Serializable
 data class OTSSchemaTest(
     val name: String,
     val version: String? = null,
@@ -240,4 +282,18 @@ data class OTSInstanceTest(
         return original.copy(version = version ?: original.version, expected = newExpected)
     }
 
+}
+
+
+internal object RegexSerializer : KSerializer<Regex> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.text.Regex", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): Regex {
+        val pattern = decoder.decodeString()
+        return Regex(pattern, setOf(RegexOption.MULTILINE))
+    }
+
+    override fun serialize(encoder: Encoder, value: Regex) {
+        encoder.encodeString(value.pattern)
+    }
 }

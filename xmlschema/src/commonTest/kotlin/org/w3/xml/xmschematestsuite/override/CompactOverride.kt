@@ -48,8 +48,8 @@ class CompactOverride(
 
 @Serializable
 @XmlSerialName("test", namespace = "http://pdvrieze.github.io/xmlutil/testoverride", "")
-data class ExpectedOverride(val path: TestPath, val expecteds: List<TSExpected>, @XmlDefault("false") val isInstance: Boolean = false) {
-    constructor(path: TestPath, expecteds: List<TSExpected>) : this(path, expecteds, !path.isSchema)
+data class ExpectedOverride(val path: TestPath, val expecteds: List<OTSExpected>, @XmlDefault("false") val isInstance: Boolean = false) {
+    constructor(path: TestPath, expecteds: List<TSExpected>) : this(path, expecteds.map { it.copy() }, !path.isSchema)
 }
 
 @Serializable(TestPath.Companion::class)

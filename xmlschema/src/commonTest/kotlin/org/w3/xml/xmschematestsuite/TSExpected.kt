@@ -20,44 +20,48 @@
 
 package org.w3.xml.xmschematestsuite
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.w3.xml.xmschematestsuite.override.OTSExpected
 
 @Serializable
 @XmlSerialName("expected", TS_NAMESPACE, TS_PREFIX)
-data class TSExpected(
+open class TSExpected {
     @XmlElement(false)
-    val validity: TSValidityOutcome,
+    val validity: TSValidityOutcome
+
     @XmlElement(false)
-    val version: String? = null,
-    val exception: String? = null,
-    @XmlElement(false)
-    val message: @Serializable(RegexSerializer::class) Regex? = null,
-    val annotation: String? = null,
+    val version: String?
+
     @XmlOtherAttributes
-    val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-)
+    val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String>
 
-private object RegexSerializer : KSerializer<Regex> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.text.Regex", PrimitiveKind.STRING)
+    open val exception: String? get() = null
 
-    override fun deserialize(decoder: Decoder): Regex {
-        val pattern = decoder.decodeString()
-        return Regex(pattern, setOf(RegexOption.MULTILINE))
+    open val message: Regex? get() = null
+
+    constructor(
+        validity: TSValidityOutcome,
+        version: String? = null,
+        otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
+    ) {
+        this.validity = validity
+        this.version = version
+        this.otherAttributes = otherAttributes
     }
 
-    override fun serialize(encoder: Encoder, value: Regex) {
-        encoder.encodeString(value.pattern)
+    open fun copy(
+        validity: TSValidityOutcome = this.validity,
+        version: String? = this.version,
+        exception: String? = null,
+        message: Regex? = null,
+        annotation: String? = null,
+        otherAttributes: Map<QName, String> = this.otherAttributes
+    ): OTSExpected {
+        return OTSExpected(validity, version, exception, message, annotation, otherAttributes)
     }
 }
