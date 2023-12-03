@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 
@@ -109,28 +110,34 @@ class ResolvedGlobalGroup internal constructor(
             val redefined = model.redefineBase
             if (redefined != null) {
                 val names = mutableSetOf<QName>()
-                val hasSelfRef = visit(object : ResolvedTerm.Visitor<Boolean>() {
-                    override fun visitElement(element: ResolvedElement): Boolean {
+                val selfRefs = visit(object : ResolvedTerm.Visitor<List<ResolvedGroupRef>>() {
+                    override fun visitElement(element: ResolvedElement): List<ResolvedGroupRef> {
                         names.add(element.mdlQName)
-                        return false
+                        return emptyList()
                     }
 
-                    override fun visitModelGroup(group: ResolvedModelGroup): Boolean {
-                        return mdlParticles.any {
+                    override fun visitModelGroup(group: ResolvedModelGroup): List<ResolvedGroupRef> {
+                        return mdlParticles.flatMap() {
                             when (it) {
-                                is ResolvedGroupRef -> it.mdlRef.isEquivalent(parent.mdlQName)
                                 is ResolvedModelGroup -> it.visit(this)
-                                else -> false
+                                is ResolvedGroupRef -> listOf(it).filter { it.mdlRef.isEquivalent(parent.mdlQName) }
+                                else -> emptyList()
                             }
                         }
                     }
 
-                    override fun visitAny(any: ResolvedAny): Boolean = false
+                    override fun visitAny(any: ResolvedAny): List<ResolvedGroupRef> = emptyList()
                 })
-                if (!hasSelfRef) {
+                if (selfRefs.isEmpty()) {
                     val thisFlat=flatten(AllNNIRange.SINGLERANGE, names, checkHelper.schema)
                     val baseFlat = redefined.mdlModelGroup.flatten(checkHelper.schema)
                     check(thisFlat.restricts(baseFlat, names, checkHelper.schema)) { "Redefined model group ($this) is not a valid restriction of its redefined base ($redefined)" }
+                    redefined.checkGroup(checkHelper)
+                } else {
+                    val selfRef = selfRefs.single()
+                    check(selfRef.mdlMinOccurs.toULong() == 1uL && selfRef.mdlMaxOccurs == VAllNNI.ONE) {
+                        "4.2.4 - 6.1.2) self-reference in redefined group must have occurence 1..1"
+                    }
                 }
             }
         }
