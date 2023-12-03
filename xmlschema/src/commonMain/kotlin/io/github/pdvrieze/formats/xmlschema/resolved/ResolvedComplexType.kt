@@ -837,10 +837,13 @@ sealed class ResolvedComplexType(
                 when (term) {
                     is ResolvedElement -> target.add(term)
                     is ResolvedModelGroup -> {
-                        if (term is IResolvedAll) require(depth == 0) { "All particles must only be used as root of a type" }
+                        if (term is IResolvedAll) require(depth == 0) {
+                            "All particles must only be used as root of a type"
+                        }
                         for (p in term.mdlParticles) {
                             if (p !is ResolvedProhibitedElement) {
-                                collectElements(p.mdlTerm, target, depth + 1)
+                                val d = if (checkHelper.version == SchemaVersion.V1_1 && term is IResolvedAll) 0 else depth +1
+                                collectElements(p.mdlTerm, target, d)
                             }
                         }
                     }
