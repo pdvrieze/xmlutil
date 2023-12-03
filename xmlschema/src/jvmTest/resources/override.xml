@@ -1,4 +1,7 @@
 <overrides xmlns="http://pdvrieze.github.io/xmlutil/testoverride" xmlns:ts="http://www.w3.org/XML/2004/xml-schema-test-suite/">
+  <test path="MS-Schema2006-07-15/schL10/schL10">
+    <ts:expected validity="invalid" exception="IllegalStateException" message="Redefined model group \(.* is not a valid restriction of its redefined base \(ResolvedGlobalGroup\(\{ns-a\}b-g3,[^)]*\)\)"/>
+  </test>
   <test path="MS-Schema2006-07-15/schG11/schG11">
     <ts:expected validity="invalid" exception="IllegalArgumentException" message="Duplicate element with name \{ns-a\}foo"/>
   </test>
