@@ -396,6 +396,7 @@ sealed class ResolvedComplexType(
 
                         baseTypeDefinition = schema.nestedComplexType(base)
                     } else {
+                        require(schema !is RedefineSchema) { "When redefining a complex type the base type must be the original" }
 
                         val seenTypes = mutableSetOf<QName>()
                         seenTypes.add(base)
@@ -407,6 +408,10 @@ sealed class ResolvedComplexType(
                 }
 
                 is XSComplexType.Shorthand -> {
+                    require(schema !is RedefineSchema) {
+                        "When redefining a complex type must have a base type, thus can not be shorthand: ${(typeContext as? ResolvedGlobalType)?.mdlQName}"
+                    }
+
                     derivation = content
                     check(derivation.base == null) { " Shorthand has no base" }
                     baseTypeDefinition = AnyType

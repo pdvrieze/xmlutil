@@ -891,7 +891,7 @@ internal class RedefineSchema(
         require(originalNS == typeName.namespaceURI)
         val t = data.findType(typeName)
         if (t != null && t.elem is XSGlobalSimpleType) {
-            return ResolvedGlobalSimpleType(t as SchemaElement<XSGlobalSimpleType>, t.effectiveSchema(this))
+            return ResolvedGlobalSimpleType(t as SchemaElement<XSGlobalSimpleType>, t.effectiveSchema(base))
         }
         error("Nested simple type with name $typeName could not be found")
     }
@@ -899,7 +899,8 @@ internal class RedefineSchema(
     fun nestedComplexType(typeName: QName): ResolvedGlobalComplexType {
         require(originalNS == typeName.namespaceURI)
         val t = data.findComplexType(typeName) ?: error("No nested complex type with name $typeName")
-        return ResolvedGlobalComplexType(t, t.effectiveSchema(this))
+        // unwrap the nesting here, so RedefineSchema is an indicator of direct redefine
+        return ResolvedGlobalComplexType(t, t.effectiveSchema(base))
     }
 
     fun nestedType(typeName: QName): ResolvedGlobalType {
@@ -908,9 +909,9 @@ internal class RedefineSchema(
         val t = data.findType(typeName)
         if (t != null) {
             if (t.elem is XSGlobalComplexType) {
-                return ResolvedGlobalComplexType(t.cast(), t.effectiveSchema(this))
+                return ResolvedGlobalComplexType(t.cast(), t.effectiveSchema(base))
             } else if (t.elem is XSGlobalSimpleType) {
-                return ResolvedGlobalSimpleType(t.elem, t.effectiveSchema(this))
+                return ResolvedGlobalSimpleType(t.elem, t.effectiveSchema(base))
             }
         }
         error("No nested complex type with name $typeName")
@@ -922,7 +923,7 @@ internal class RedefineSchema(
         val localName = typeName.localPart
         val ag = data.attributeGroups[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalAttributeGroup(ag, ag.effectiveSchema(this))
+        return ResolvedGlobalAttributeGroup(ag, ag.effectiveSchema(base))
     }
 
     fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
@@ -930,7 +931,7 @@ internal class RedefineSchema(
         val localName = typeName.localPart
         val g = data.groups[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalGroup(g, g.effectiveSchema(this))
+        return ResolvedGlobalGroup(g, g.effectiveSchema(base))
     }
 
     fun nestedElement(typeName: QName): ResolvedGlobalElement {
@@ -938,7 +939,7 @@ internal class RedefineSchema(
         val localName = typeName.localPart
         val e = data.elements[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalElement(e, this)
+        return ResolvedGlobalElement(e, base)
     }
 
     fun nestedAttribute(typeName: QName): ResolvedGlobalAttribute {
@@ -946,7 +947,7 @@ internal class RedefineSchema(
         val localName = typeName.localPart
         val a = data.attributes[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalAttribute(a, this)
+        return ResolvedGlobalAttribute(a, base)
     }
 
     override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
