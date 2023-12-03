@@ -2,6 +2,9 @@
   <test path="MS-Schema2006-07-15/schG11/schG11">
     <ts:expected validity="invalid" exception="IllegalArgumentException" message="Duplicate element with name \{ns-a\}foo"/>
   </test>
+  <test path="MS-Schema2006-07-15/schJ2/schJ2">
+    <ts:expected validity="invalid" exception="IllegalArgumentException" message="Redefine of simple type \([^)]*\) must use original as base"/>
+  </test>
   <test path="MS-Particles2006-07-15/particlesV020/particlesV020">
     <ts:expected validity="valid" version="1.1" annotation="It is not clear why this is invalid at 1.1, it can be parsed"/>
   </test>

@@ -251,27 +251,31 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
             val simpleDerivation = rawPart.simpleDerivation
 
             mdlBaseTypeDefinition = when {
+                schema is RedefineSchema -> {
+                    checkNotNull(typeName) { "Redefines are global and must have a name" }
+                    check(simpleDerivation is XSSimpleRestriction) { "Redefines are restrictions" }
+                    require(typeName.isEquivalent(checkNotNull(simpleDerivation.base))) { "Redefine of simple type ($typeName) must use original as base" }
+
+                    schema.nestedType(typeName) as ResolvedGlobalSimpleType
+                }
+
                 simpleDerivation !is XSSimpleRestriction -> AnySimpleType
 
                 rawPart is XSGlobalSimpleType &&
                         typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
-                    require(schema is RedefineSchema) { "Only redefines can have 'self-referencing types'" }
-                    schema.nestedType(typeName) as ResolvedGlobalSimpleType
-/*
-                    ResolvedGlobalSimpleType(
-                        schema.originalSchema.simpleTypes.single { it.name.xmlString == typeName.localPart },
-                        schema
-                    )
-*/
+                    throw IllegalArgumentException( "Only redefines can have 'self-referencing types' in $typeName" )
                 }
 
                 simpleDerivation.base?.isEquivalent(AnySimpleType.mdlQName) == true -> AnySimpleType
 
-                else -> simpleDerivation.base?.let {
-                    require(typeName == null || !it.isEquivalent(typeName))
-                    schema.simpleType(it)
-                } ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
+                else -> {
+                    simpleDerivation.base?.let {
+                        require(typeName == null || !it.isEquivalent(typeName))
+                        schema.simpleType(it)
+                    } ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
+                }
             }
+
 
 
             mdlVariety = when (simpleDerivation) {
