@@ -67,11 +67,9 @@ class ResolvedElementRef constructor(
 
     override fun toString(): String {
         return buildString {
-            append("ResolvedLocalElement(")
-            append("mdlName=$mdlQName, ")
-            if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
-            if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
-            append("type=${mdlTerm.mdlTypeDefinition}")
+            append("localElemRef(r=")
+            append(mdlQName)
+            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
             append(")")
         }
     }

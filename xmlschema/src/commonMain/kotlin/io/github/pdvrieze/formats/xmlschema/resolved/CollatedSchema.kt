@@ -272,7 +272,7 @@ internal class SchemaData(
         for (ref in finalRefs) {
             val typeInfo = when {
                 startType is SchemaElement.Redefined<*> && ref.isEquivalent(startType.elementName) ->
-                    requireNotNull(startType.baseSchema.findType(ref)) { "Failure to find redefined type $ref" }
+                    requireNotNull(startType.overriddenSchema.findType(ref)) { "Failure to find redefined type $ref" }
 
                 else -> requireNotNull(findType(ref)) {
                     "Failure to find referenced type $ref"
@@ -574,7 +574,7 @@ internal class SchemaData(
                         // TODO add check for base type
                         val typeName = QName(targetNamespace ?: "", name)
                         b.types[name] =
-                            SchemaElement.Redefined(st, redefineData, schemaLocation, typeName, Redefinable.TYPE)
+                            SchemaElement.Redefined(st, sourceSchema, redefineData, schemaLocation, typeName, Redefinable.TYPE)
                     }
 
                     val redefinedGroups = mutableSetOf<String>()
@@ -585,7 +585,7 @@ internal class SchemaData(
                         // TODO add checks if needed
                         val groupName = QName(targetNamespace ?: "", name)
                         b.groups[name] =
-                            SchemaElement.Redefined(g, redefineData, schemaLocation, groupName, Redefinable.GROUP)
+                            SchemaElement.Redefined(g, sourceSchema, redefineData, schemaLocation, groupName, Redefinable.GROUP)
                     }
 
                     val redefinedAttrGroups = mutableSetOf<String>()
@@ -598,7 +598,7 @@ internal class SchemaData(
                         val agName = QName(targetNamespace ?: "", name)
 
                         b.attributeGroups[name] = SchemaElement.Redefined(
-                            ag, redefineData, schemaLocation,
+                            ag, sourceSchema, redefineData, schemaLocation,
                             agName, Redefinable.ATTRIBUTEGROUP
                         )
                     }
@@ -772,11 +772,12 @@ class OwnerWrapper internal constructor(
 }
 
 class ChameleonWrapper internal constructor(
-    override val attributeFormDefault: VFormChoice = VFormChoice.UNQUALIFIED,
-    override val elementFormDefault: VFormChoice = VFormChoice.UNQUALIFIED,
     val base: ResolvedSchemaLike,
     val chameleonNamespace: VAnyURI?
 ) : ResolvedSchemaLike() {
+
+    override val attributeFormDefault: VFormChoice get() = base.attributeFormDefault
+    override val elementFormDefault: VFormChoice get() = base.elementFormDefault
 
     override val version: SchemaVersion get() = base.version
 
@@ -847,8 +848,8 @@ class ChameleonWrapper internal constructor(
 
 
 internal class RedefineSchema(
-    val base: ResolvedSchemaLike,
-    val data: SchemaData,
+    val referenceSchema: ResolvedSchemaLike,
+    val originSchemaData: SchemaData,
     internal val elementName: QName,
     internal val elementKind: Redefinable,
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
@@ -857,9 +858,9 @@ internal class RedefineSchema(
     override val defaultAttributes: QName? = null,
 ) : ResolvedSchemaLike() {
 
-    override val version: SchemaVersion get() = base.version
+    override val version: SchemaVersion get() = referenceSchema.version
 
-    override val targetNamespace: VAnyURI? get() = data.namespace.toAnyUri() ?: base.targetNamespace
+    override val targetNamespace: VAnyURI? get() = originSchemaData.namespace.toAnyUri() ?: referenceSchema.targetNamespace
     private val originalNS get() = targetNamespace?.value ?: ""
 
     override fun hasLocalTargetNamespace(): Boolean {
@@ -867,16 +868,16 @@ internal class RedefineSchema(
     }
 
     override val attributeFormDefault: VFormChoice
-        get() = data.attributeFormDefault ?: VFormChoice.UNQUALIFIED
+        get() = originSchemaData.attributeFormDefault ?: VFormChoice.UNQUALIFIED
     override val elementFormDefault: VFormChoice
-        get() = data.elementFormDefault ?: VFormChoice.UNQUALIFIED
+        get() = originSchemaData.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
         if (elementKind == Redefinable.TYPE && elementName == typeName) {
             return nestedSimpleType(typeName)
         }
 
-        return base.maybeSimpleType(typeName)
+        return referenceSchema.maybeSimpleType(typeName)
     }
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? {
@@ -884,34 +885,34 @@ internal class RedefineSchema(
             return nestedType(typeName)
         }
 
-        return base.maybeType(typeName)
+        return referenceSchema.maybeType(typeName)
     }
 
     fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType {
         require(originalNS == typeName.namespaceURI)
-        val t = data.findType(typeName)
+        val t = originSchemaData.findType(typeName)
         if (t != null && t.elem is XSGlobalSimpleType) {
-            return ResolvedGlobalSimpleType(t as SchemaElement<XSGlobalSimpleType>, t.effectiveSchema(base))
+            return ResolvedGlobalSimpleType(t as SchemaElement<XSGlobalSimpleType>, t.effectiveSchema(referenceSchema))
         }
         error("Nested simple type with name $typeName could not be found")
     }
 
     fun nestedComplexType(typeName: QName): ResolvedGlobalComplexType {
         require(originalNS == typeName.namespaceURI)
-        val t = data.findComplexType(typeName) ?: error("No nested complex type with name $typeName")
+        val t = originSchemaData.findComplexType(typeName) ?: error("No nested complex type with name $typeName")
         // unwrap the nesting here, so RedefineSchema is an indicator of direct redefine
-        return ResolvedGlobalComplexType(t, t.effectiveSchema(base))
+        return ResolvedGlobalComplexType(t, t.effectiveSchema(referenceSchema))
     }
 
     fun nestedType(typeName: QName): ResolvedGlobalType {
         require(originalNS == typeName.namespaceURI)
 
-        val t = data.findType(typeName)
+        val t = originSchemaData.findType(typeName)
         if (t != null) {
             if (t.elem is XSGlobalComplexType) {
-                return ResolvedGlobalComplexType(t.cast(), t.effectiveSchema(base))
+                return ResolvedGlobalComplexType(t.cast(), t.effectiveSchema(referenceSchema))
             } else if (t.elem is XSGlobalSimpleType) {
-                return ResolvedGlobalSimpleType(t.elem, t.effectiveSchema(base))
+                return ResolvedGlobalSimpleType(t.elem, t.effectiveSchema(referenceSchema))
             }
         }
         error("No nested complex type with name $typeName")
@@ -921,73 +922,73 @@ internal class RedefineSchema(
         require(originalNS == typeName.namespaceURI) { "Redefine namespace mismatch. Nested ns: $originalNS, name: $typeName" }
 
         val localName = typeName.localPart
-        val ag = data.attributeGroups[localName] ?: error("No nested complex type with name $typeName")
+        val ag = originSchemaData.attributeGroups[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalAttributeGroup(ag, ag.effectiveSchema(base))
+        return ResolvedGlobalAttributeGroup(ag, ag.effectiveSchema(referenceSchema))
     }
 
     fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
         require(originalNS == typeName.namespaceURI) { }
         val localName = typeName.localPart
-        val g = data.groups[localName] ?: error("No nested complex type with name $typeName")
+        val g = originSchemaData.groups[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalGroup(g, g.effectiveSchema(base))
+        return ResolvedGlobalGroup(g, g.effectiveSchema(referenceSchema))
     }
 
     fun nestedElement(typeName: QName): ResolvedGlobalElement {
         require(originalNS == typeName.namespaceURI) { }
         val localName = typeName.localPart
-        val e = data.elements[localName] ?: error("No nested complex type with name $typeName")
+        val e = originSchemaData.elements[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalElement(e, base)
+        return ResolvedGlobalElement(e, referenceSchema)
     }
 
     fun nestedAttribute(typeName: QName): ResolvedGlobalAttribute {
         require(originalNS == typeName.namespaceURI) { }
         val localName = typeName.localPart
-        val a = data.attributes[localName] ?: error("No nested complex type with name $typeName")
+        val a = originSchemaData.attributes[localName] ?: error("No nested complex type with name $typeName")
 
-        return ResolvedGlobalAttribute(a, base)
+        return ResolvedGlobalAttribute(a, referenceSchema)
     }
 
     override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? {
         if (elementKind == Redefinable.ATTRIBUTEGROUP && elementName == attributeGroupName) {
             return nestedAttributeGroup(attributeGroupName)
         }
-        return base.maybeAttributeGroup(attributeGroupName)
+        return referenceSchema.maybeAttributeGroup(attributeGroupName)
     }
 
     override fun maybeGroup(groupName: QName): ResolvedGlobalGroup? {
         if (elementKind == Redefinable.GROUP && elementName == groupName) {
             return nestedGroup(groupName)
         }
-        return base.maybeGroup(groupName)
+        return referenceSchema.maybeGroup(groupName)
     }
 
     override fun maybeElement(elementName: QName): ResolvedGlobalElement? {
         if (elementKind == Redefinable.ELEMENT && this.elementName == elementName) {
             return nestedElement(elementName)
         }
-        return base.maybeElement(elementName)
+        return referenceSchema.maybeElement(elementName)
     }
 
     override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
         if (elementKind == Redefinable.ATTRIBUTE && elementName == attributeName) {
             return nestedAttribute(attributeName)
         }
-        return base.maybeAttribute(attributeName)
+        return referenceSchema.maybeAttribute(attributeName)
     }
 
     override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? {
-        return base.maybeIdentityConstraint(constraintName)
+        return referenceSchema.maybeIdentityConstraint(constraintName)
     }
 
     override fun maybeNotation(notationName: QName): ResolvedNotation? {
-        return base.maybeNotation(notationName)
+        return referenceSchema.maybeNotation(notationName)
     }
 
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
-        return base.substitutionGroupMembers(headName)
+        return referenceSchema.substitutionGroupMembers(headName)
     }
 
 }
@@ -1097,8 +1098,6 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             schema is ChameleonWrapper && schema.targetNamespace?.value == newNS -> schema
             else -> ChameleonWrapper(
-                attributeFormDefault = attributeFormDefault ?: VFormChoice.UNQUALIFIED,
-                elementFormDefault = elementFormDefault ?: VFormChoice.UNQUALIFIED,
                 base = schema,
                 chameleonNamespace = newNS.toAnyUri()
             )
@@ -1109,22 +1108,23 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
 
     class Redefined<T>(
         elem: T,
-        val baseSchema: SchemaData,
+        rawSchema: XSSchema,
+        val overriddenSchema: SchemaData,
         schemaLocation: String,
         val elementName: QName,
-        val elementKind: Redefinable
-    ) : SchemaElement<T>(elem, schemaLocation, baseSchema.rawSchema) {
+        val elementKind: Redefinable,
+    ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
         override val targetNamespace: String
             get() = elementName.namespaceURI
 
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             // handle the case where it is called multiple times
-            schema is RedefineSchema && schema.data == baseSchema -> schema
-            else -> RedefineSchema(schema, baseSchema, elementName, elementKind)
+            schema is RedefineSchema && schema.originSchemaData == overriddenSchema -> schema
+            else -> RedefineSchema(schema, overriddenSchema, elementName, elementKind)
         }
 
         override fun <U> wrap(value: U): SchemaElement<U> {
-            return Redefined(value, baseSchema, schemaLocation, elementName, elementKind)
+            return Redefined(value, rawSchema, overriddenSchema, schemaLocation, elementName, elementKind)
         }
 
         override fun toChameleon(

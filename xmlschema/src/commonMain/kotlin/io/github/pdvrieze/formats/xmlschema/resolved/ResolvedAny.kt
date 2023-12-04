@@ -82,4 +82,14 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
+
+    override fun toString(): String {
+        return buildString {
+            append("any(")
+            append(mdlNamespaceConstraint)
+            append(")")
+            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+        }
+    }
+
 }
