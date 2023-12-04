@@ -298,9 +298,10 @@ object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmls
     )
 
     override fun validate(representation: VString, version: SchemaVersion) {
-//        TODO("not implemented")
+        // any representation is valid
     }
 
+    override fun value(representation: VString): Any = representation
 }
 
 private object AnySimpleTypeRestriction : ResolvedSimpleRestrictionBase(null) {
