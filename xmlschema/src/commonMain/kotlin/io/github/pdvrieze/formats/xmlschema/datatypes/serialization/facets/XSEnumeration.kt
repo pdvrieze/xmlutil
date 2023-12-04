@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -40,6 +40,8 @@ class XSEnumeration : XSFacet.NotFixed {
     ) : super(id, annotation, otherAttrs) {
         this.value = value
     }
+
+    override val isUnionFacet: Boolean get() = true
 
     override val value: VString
 }

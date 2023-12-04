@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -32,6 +32,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("pattern", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSPattern : XSFacet.NotFixed {
     override val value: String
+
+    override val isUnionFacet: Boolean get() = true
 
     constructor(
         value: String,
