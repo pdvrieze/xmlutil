@@ -299,11 +299,29 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
 
             mdlItemTypeDefinition = when (mdlVariety) {
-                Variety.LIST -> when (mdlBaseTypeDefinition) {
-                    AnySimpleType -> (simpleDerivation as XSSimpleList).itemTypeName?.let { schema.simpleType(it) }
-                        ?: ResolvedLocalSimpleType(simpleDerivation.simpleType!!, schema, context)
+                Variety.LIST -> when {
+                    mdlBaseTypeDefinition != AnySimpleType -> {
+                        require(simpleDerivation !is XSSimpleList || (simpleDerivation.simpleType == null && simpleDerivation.itemTypeName == null)) {
+                            "Lists by base type should have item types"
+                        }
 
-                    else -> recurseBaseType(mdlBaseTypeDefinition) { it.mdlItemTypeDefinition }
+                        recurseBaseType(mdlBaseTypeDefinition) { it.mdlItemTypeDefinition }
+                    }
+                    else -> {
+                        val d = simpleDerivation as XSSimpleList
+                        when {
+                            d.itemTypeName != null -> {
+                                require(d.simpleType == null) { "List specifies simpleType and itemType ($rawPart)" }
+                                schema.simpleType(d.itemTypeName)
+                            }
+
+                            d.simpleType != null -> {
+                                ResolvedLocalSimpleType(d.simpleType, schema, context)
+                            }
+
+                            else -> throw IllegalArgumentException("List type without item type")
+                        }
+                    }
                 }
 
                 else -> null
