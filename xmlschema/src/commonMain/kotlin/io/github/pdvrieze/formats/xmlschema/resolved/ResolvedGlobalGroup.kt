@@ -131,7 +131,9 @@ class ResolvedGlobalGroup internal constructor(
                 if (selfRefs.isEmpty()) {
                     val thisFlat=flatten(AllNNIRange.SINGLERANGE, names, checkHelper.schema)
                     val baseFlat = redefined.mdlModelGroup.flatten(checkHelper.schema)
-                    check(thisFlat.restricts(baseFlat, names, checkHelper.schema)) { "Redefined model group ($this) is not a valid restriction of its redefined base ($redefined)" }
+                    check(thisFlat.restricts(baseFlat, names, checkHelper.schema)) {
+                        "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
+                    }
                     redefined.checkGroup(checkHelper)
                 } else {
                     val selfRef = selfRefs.single()
@@ -182,6 +184,11 @@ class ResolvedGlobalGroup internal constructor(
             super<IResolvedAll>.checkTerm(checkHelper)
         }
 
+        override fun toString(): String = buildString {
+            append('{')
+            mdlParticles.joinTo(this, " & ")
+            append('}')
+        }
     }
 
     private class ChoiceImpl(parent: ResolvedGlobalGroup, elemPart: SchemaElement<XSGroup.Choice>, schema: ResolvedSchemaLike) :
@@ -191,6 +198,12 @@ class ResolvedGlobalGroup internal constructor(
         override fun checkTerm(checkHelper: CheckHelper) {
             super<ModelGroupBase>.checkTerm(checkHelper)
             super<IResolvedChoice>.checkTerm(checkHelper)
+        }
+
+        override fun toString(): String = buildString {
+            append('(')
+            mdlParticles.joinTo(this, " | ")
+            append(')')
         }
 
     }
@@ -203,6 +216,12 @@ class ResolvedGlobalGroup internal constructor(
         override fun checkTerm(checkHelper: CheckHelper) {
             super<ModelGroupBase>.checkTerm(checkHelper)
             super<IResolvedSequence>.checkTerm(checkHelper)
+        }
+
+        override fun toString(): String = buildString {
+            append('(')
+            mdlParticles.joinTo(this, ", ")
+            append(')')
         }
 
     }

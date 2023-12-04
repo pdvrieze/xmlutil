@@ -59,13 +59,18 @@ class ResolvedLocalElement private constructor(
 
     override val model: Model by lazy { Model(elemPart, schema, this) }
 
-    override val mdlQName: QName = invariantNotNull(elemPart.elem.name).toQname(
-        elemPart.elem.targetNamespace?.also { require(elemPart.elem.form==null) { "3.3.3(4.2) - If targetNamespace is present form must not be" } }
-            ?: when (elemPart.elem.form ?: schema.elementFormDefault) {
-                VFormChoice.QUALIFIED -> schema.targetNamespace
-                else -> null
-            }
-    )
+    override val mdlQName: QName
+
+    init {
+        mdlQName = invariantNotNull(elemPart.elem.name).toQname(
+            elemPart.elem.targetNamespace?.also { require(elemPart.elem.form==null) { "3.3.3(4.2) - If targetNamespace is present form must not be" } }
+                ?: when (elemPart.elem.form ?: elemPart.elementFormDefault) {
+                    VFormChoice.QUALIFIED -> schema.targetNamespace
+                    else -> null
+                }
+        )
+
+    }
 
     override val mdlSubstitutionGroupExclusions: Set<VDerivationControl.T_BlockSetValues> =
         schema.finalDefault.filterIsInstanceTo(HashSet())
@@ -94,11 +99,10 @@ class ResolvedLocalElement private constructor(
 
     override fun toString(): String {
         return buildString {
-            append("ResolvedLocalElement(")
-            append("name=$mdlQName, ")
-            if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
-            if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
-            append("type=${this@ResolvedLocalElement.mdlTypeDefinition}")
+            append("localElement(")
+            append(mdlQName)
+            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+            append(", type=${this@ResolvedLocalElement.mdlTypeDefinition}")
             append(")")
         }
     }

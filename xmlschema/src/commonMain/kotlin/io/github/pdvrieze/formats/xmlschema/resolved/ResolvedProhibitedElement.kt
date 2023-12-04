@@ -75,4 +75,12 @@ class ResolvedProhibitedElement(
     override val mdlTerm: Nothing
         get() = throw UnsupportedOperationException("Prohibited elements have no terms")
 
+    override fun toString(): String {
+        return buildString {
+            append("!localElement(")
+            append(mdlQName)
+            append(")")
+        }
+    }
+
 }

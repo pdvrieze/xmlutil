@@ -1,7 +1,11 @@
 <overrides xmlns="http://pdvrieze.github.io/xmlutil/testoverride">
+  <test path="MS-Schema2006-07-15/schN12/schN12">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="Redefined model group \(ResolvedGlobalGroup\(\{ns-b\}c-g2, .*\)\) is not a valid restriction of its redefined base \(ResolvedGlobalGroup\(\{ns-b\}c-g2,.*\)\)"/>
+  </test>
   <test path="MS-Schema2006-07-15/schL10/schL10">
     <expected validity="invalid" exception="IllegalStateException"
-              message="Redefined model group \(.* is not a valid restriction of its redefined base \(ResolvedGlobalGroup\(\{ns-a\}b-g3,[^)]*\)\)"/>
+              message="Redefined model group \(ResolvedGlobalGroup\(\{ns-a\}b-g3,.*\) is not a valid restriction of its redefined base \(ResolvedGlobalGroup\(\{ns-a\}b-g3, \(.*\)\)"/>
   </test>
   <test path="MS-Schema2006-07-15/schG11/schG11">
     <expected validity="invalid" exception="IllegalArgumentException"
