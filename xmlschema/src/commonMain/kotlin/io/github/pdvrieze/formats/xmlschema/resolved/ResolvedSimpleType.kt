@@ -116,7 +116,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 check(mdlMemberTypeDefinitions.isNotEmpty()) { "Union type ${this} has no members" }
                 check(mdlMemberTypeDefinitions.any {t ->
                     runCatching { t.validateValue(value, version); true }.getOrDefault(false)
-                })
+                }) { "Value $value does not fit any members of union: ${mdlMemberTypeDefinitions}" }
             }
             Variety.NIL -> error("Nil variety cannot be validated")
         }
