@@ -297,6 +297,10 @@ object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmls
         numeric = false,
     )
 
+    override fun validateValue(value: Any, version: SchemaVersion) {
+        // Valid for any value
+    }
+
     override fun validate(representation: VString, version: SchemaVersion) {
         // any representation is valid
     }

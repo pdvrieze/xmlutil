@@ -68,19 +68,21 @@ class ResolvedUnionDerivation(
         init {
             val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it.filterUnionFacets(), schema, context) }
 
-            val mt: List<ResolvedGlobalSimpleType>? = rawPart.memberTypes?.map {
+            val resolvedMemberRefs: List<ResolvedGlobalSimpleType>? = rawPart.memberTypes?.map {
                 schema.simpleType(it).unionMemberWrapper()
             }
 
             memberTypes = when {
-                mt.isNullOrEmpty() -> simpleTypes
-                rawPart.simpleTypes.isEmpty() -> mt
-                else -> mt + simpleTypes
+                resolvedMemberRefs.isNullOrEmpty() -> simpleTypes
+                rawPart.simpleTypes.isEmpty() -> resolvedMemberRefs
+                else -> resolvedMemberRefs + simpleTypes
             }
 
             // Check 3.16.6.2
             for (mt in memberTypes) {
-                require(mt!is ResolvedBuiltinType || !mt.isSpecial) { "3.16.6.2(3.1) - Unions cannot derive from special types" }
+                if (schema.version != SchemaVersion.V1_0) {
+                    require(mt !is ResolvedBuiltinType || !mt.isSpecial) { "3.16.6.2(3.1) - Unions cannot derive from special types" }
+                }
                 require(VDerivationControl.UNION !in mt.mdlFinal) { "3.16.6.2(3.2.1.1) - Member type is final for union"}
             }
         }
