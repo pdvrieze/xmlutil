@@ -61,6 +61,15 @@ class ResolvedGroupRef(
         }
     }
 
+    override fun toString(): String {
+        return buildString {
+            append("groupRef(")
+            append(mdlRef)
+            append(")")
+            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+        }
+    }
+
     class Model(rawPart: XSGroupRef, schema: ResolvedSchemaLike) : ResolvedAnnotated.Model(rawPart) {
         val referenced: ResolvedGlobalGroup = schema.modelGroup(rawPart.ref)
     }
