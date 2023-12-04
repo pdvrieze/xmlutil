@@ -1097,10 +1097,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
 
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             schema is ChameleonWrapper && schema.targetNamespace?.value == newNS -> schema
-            else -> ChameleonWrapper(
-                base = schema,
-                chameleonNamespace = newNS.toAnyUri()
-            )
+            else -> ChameleonWrapper(base = schema, chameleonNamespace = newNS.toAnyUri())
         }
 
         override fun toString(): String = "chameleon($newNS, $elem)"
