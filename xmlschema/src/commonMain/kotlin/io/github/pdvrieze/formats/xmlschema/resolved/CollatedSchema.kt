@@ -188,24 +188,31 @@ internal class SchemaData(
     }
 
     private fun checkRecursiveTypes(
-        typeInfo: Pair<SchemaData, SchemaElement<out XSGlobalType>>,
+        typeInfo: Pair<SchemaData, SchemaElement<XSGlobalType>>,
         seenTypes: MutableSet<XSGlobalType>,
-        inheritanceChain: MutableSet<XSGlobalType>,
+        inheritanceChain: Set<XSGlobalType>,
     ) {
         val (schema, type) = typeInfo
         checkRecursiveTypes(type, schema, type.rawSchema, seenTypes, inheritanceChain)
     }
 
     private fun checkRecursiveTypes(
-        startType: SchemaElement<out XSIType>,
+        startType: SchemaElement<XSIType>,
         schema: SchemaData,
         rawSchema: XSSchema,
         seenTypes: MutableSet<XSGlobalType>,
-        inheritanceChain: MutableSet<XSGlobalType>
+        inheritanceChain: Set<XSGlobalType>
     ) {
-        require(startType.elem !is XSGlobalType || inheritanceChain.add(startType.elem)) {
-            "Recursive type use for ${(startType.elem as XSGlobalType).name}: ${inheritanceChain.joinToString { it.name }}"
+        val newInheritanceChain: Set<XSGlobalType> = when(val e = startType.elem) {
+            is XSGlobalType -> {
+                require(e !in inheritanceChain) {
+                    "Recursive type use for ${e.name}: ${inheritanceChain.joinToString { it.name }}"
+                }
+                inheritanceChain + e
+            }
+            else -> inheritanceChain
         }
+
         val refs: List<QName>
         val locals: List<XSLocalType>
         when (val st = startType.elem) {
@@ -282,7 +289,7 @@ internal class SchemaData(
             }
 
             if (typeInfo.elem !in seenTypes) {
-                checkRecursiveTypes(Pair(this, typeInfo), seenTypes, inheritanceChain)
+                checkRecursiveTypes(Pair(this, typeInfo), seenTypes, newInheritanceChain)
             }
 
         }
