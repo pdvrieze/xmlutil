@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyAtomicType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -29,7 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 abstract class ResolvedSimpleRestrictionBase(
-    rawPart: XSSimpleRestriction?
+    rawPart: XSSimpleRestriction?,
 ) : ResolvedSimpleType.Derivation() {
 
     abstract override val model: IModel
@@ -59,13 +60,13 @@ abstract class ResolvedSimpleRestrictionBase(
         val otherContents: List<CompactFragment>
     }
 
-    class Model: ResolvedAnnotated.Model, IModel {
+    class Model : ResolvedAnnotated.Model, IModel {
         override val baseType: ResolvedType
         override val facets: FacetList
 
         override val otherContents: List<CompactFragment>
 
-        constructor(
+        internal constructor(
             baseType: ResolvedType = AnySimpleType,
             facets: FacetList = FacetList.EMPTY,
             otherContents: List<CompactFragment> = emptyList(),
@@ -76,6 +77,7 @@ abstract class ResolvedSimpleRestrictionBase(
             this.baseType = baseType
             this.otherContents = otherContents
             this.facets = facets
+            // does not need restriction type, this is only for builtins
         }
 
         constructor(
@@ -87,6 +89,13 @@ abstract class ResolvedSimpleRestrictionBase(
             this.baseType = baseType
             this.otherContents = rawPart.otherContents
             this.facets = FacetList.safe(rawPart.facets, schema, baseType)
+
+            if (schema.version == SchemaVersion.V1_1) {
+                require(baseType!=AnySimpleType && baseType!=AnyAtomicType) {
+                    "2.4.2.1) Restrictions may only inherit from non-special types"
+                }
+            }
+
         }
 
         constructor(
@@ -105,7 +114,8 @@ abstract class ResolvedSimpleRestrictionBase(
                 schema,
                 context
             ),
-            annotations)
+            annotations
+        )
 
     }
 
