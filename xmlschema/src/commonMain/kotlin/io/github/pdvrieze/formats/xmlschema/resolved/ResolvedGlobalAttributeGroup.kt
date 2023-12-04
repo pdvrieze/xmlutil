@@ -57,13 +57,13 @@ class ResolvedGlobalAttributeGroup internal constructor(
             val selfRefCount = attributeGroups.count { it.resolvedGroup.mdlQName == mdlQName }
 
             val baseGroup = actualSchema.nestedAttributeGroup(mdlQName)
-            val baseAttrs = baseGroup.getAttributeUses().associateByTo(mutableMapOf()) { it.mdlAttributeDeclaration.mdlQName }
+            val baseAttrs = baseGroup.getAttributeUses().associateByTo(mutableMapOf()) { it.mdlQName }
             val attrUses = getAttributeUses()/*.mapTo(HashSet()) { it.mdlAttributeDeclaration.mdlQName }*/
 
             when(selfRefCount) {
                 0 -> {
                     for (dAttr in attrUses) {
-                        val dName = dAttr.mdlAttributeDeclaration.mdlQName
+                        val dName = dAttr.mdlQName
                         val bAttr = requireNotNull(baseAttrs.remove(dName)) { "Attribute group redefines without self reference may only restrict" }
                         require(dAttr.isValidRestrictionOf(bAttr, unresolvedSchema.version)) {
                             "3.4.6.3 - ${dAttr} doesn't restrict base attribute validly"
