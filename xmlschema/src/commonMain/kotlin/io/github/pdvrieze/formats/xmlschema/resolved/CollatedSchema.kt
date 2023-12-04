@@ -31,6 +31,8 @@ import nl.adaptivity.xmlutil.*
 
 internal open class NamespaceHolder(val namespace: String)
 
+internal class RecursiveRedefine(val schemaLocation: VAnyURI, namespace: String) : NamespaceHolder(namespace)
+
 internal class SchemaData(
     namespace: String,
     val schemaLocation: String?,
@@ -318,7 +320,7 @@ internal class SchemaData(
     }
 
 
-    class DataBuilder(processed: MutableMap<String, NamespaceHolder> = mutableMapOf()) {
+    class DataBuilder(rootLocation: String, processed: MutableMap<String, NamespaceHolder> = mutableMapOf()) {
         val elements: MutableMap<String, SchemaElement<XSGlobalElement>> = mutableMapOf()
         val attributes: MutableMap<String, SchemaElement<XSGlobalAttribute>> = mutableMapOf()
         val types: MutableMap<String, SchemaElement<XSGlobalType>> = mutableMapOf()
@@ -328,6 +330,7 @@ internal class SchemaData(
         val includedNamespaceToUris: MutableMap<String, MutableList<VAnyURI>> = mutableMapOf()
         val newProcessed: MutableMap<String, NamespaceHolder> = processed
         val importedNamespaces: MutableSet<String> = mutableSetOf()
+        val schemaLocations: MutableSet<String> = mutableSetOf(rootLocation)
 
         fun addFromSchema(sourceSchema: XSSchema, schemaLocation: String, targetNamespace: String?) {
             val chameleon = when {
@@ -393,6 +396,8 @@ internal class SchemaData(
         }
 
         fun addInclude(sourceData: SchemaData, targetNamespace: String?) {
+            sourceData.schemaLocation?.let { schemaLocations.add(it) }
+
             val chameleon = when {
                 sourceData.namespace.isNullOrEmpty() -> null
                 targetNamespace.isNullOrEmpty() -> error("Invalid name override to default namespace")
@@ -471,7 +476,7 @@ internal class SchemaData(
          */
         operator fun invoke(
             sourceSchema: XSSchema,
-            schemaLocation: String,
+            schemaLocations: List<String>,
             targetNamespace: String?,
             resolver: ResolvedSchema.Resolver,
             alreadyProcessed: MutableMap<String, NamespaceHolder> = mutableMapOf()
@@ -485,11 +490,12 @@ internal class SchemaData(
                 }
             }
 
-            val b = DataBuilder(alreadyProcessed)
-            val ns: String = (targetNamespace?.let { it.toAnyUri() } ?: sourceSchema.targetNamespace)?.value ?: ""
-            b.newProcessed.put(schemaLocation, NamespaceHolder(ns))
+            val lastLocation = schemaLocations.last()
+            val b = DataBuilder(lastLocation, alreadyProcessed)
+            val ns: String = (targetNamespace?.toAnyUri() ?: sourceSchema.targetNamespace)?.value ?: ""
+            b.newProcessed.put(lastLocation, NamespaceHolder(ns))
 
-            b.addFromSchema(sourceSchema, schemaLocation, targetNamespace)
+            b.addFromSchema(sourceSchema, lastLocation, targetNamespace)
 
             includeLoop@ for (include in sourceSchema.includes) {
                 val includeLocation = resolver.resolve(include.schemaLocation)
@@ -509,7 +515,7 @@ internal class SchemaData(
                             require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
                             SchemaData(
                                 parsed,
-                                includeLocation.value,
+                                schemaLocations + includeLocation.value,
                                 targetNamespace,
                                 delegateResolver,
                                 b.newProcessed
@@ -528,10 +534,16 @@ internal class SchemaData(
             }
 
             for (redefine in sourceSchema.redefines) {
+                require(redefine.schemaLocation.value !in b.schemaLocations) { "Redefine (indirectly) refers to itself" }
                 val redefineLocation = resolver.resolve(redefine.schemaLocation)
-                val redefineData: SchemaData? = when {
-                    redefineLocation.value in alreadyProcessed ->
-                        requireNotNull(alreadyProcessed[redefineLocation.value] as? SchemaData) { "Recursive redefines: $redefineLocation" }
+                val redefineData: NamespaceHolder? = when(val processed = alreadyProcessed[redefineLocation.value]) {
+                    is SchemaData -> processed
+
+                    is NamespaceHolder -> {
+
+                        require(redefineLocation.value !in schemaLocations) { "Redefines can not refer to documents themselves" }
+                        RecursiveRedefine(redefineLocation, processed.namespace)
+                    }
 
                     else -> {
                         val delegateResolver = resolver.delegate(redefineLocation)
@@ -548,7 +560,7 @@ internal class SchemaData(
                                 require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
                                 SchemaData(
                                     parsed,
-                                    redefineLocation.value,
+                                    listOf(redefineLocation.value),
                                     targetNamespace,
                                     delegateResolver,
                                     b.newProcessed
@@ -560,7 +572,7 @@ internal class SchemaData(
                     }
                 }
 
-                if (redefineData == null) {
+                if (redefineData !is SchemaData) {
                     if (redefineLocation.value.isNotEmpty())
                         b.newProcessed[redefineLocation.value] = NamespaceHolder(targetNamespace ?: "")
                 } else {
@@ -574,7 +586,7 @@ internal class SchemaData(
                         // TODO add check for base type
                         val typeName = QName(targetNamespace ?: "", name)
                         b.types[name] =
-                            SchemaElement.Redefined(st, sourceSchema, redefineData, schemaLocation, typeName, Redefinable.TYPE)
+                            SchemaElement.Redefined(st, sourceSchema, redefineData, schemaLocations.first(), typeName, Redefinable.TYPE)
                     }
 
                     val redefinedGroups = mutableSetOf<String>()
@@ -585,7 +597,7 @@ internal class SchemaData(
                         // TODO add checks if needed
                         val groupName = QName(targetNamespace ?: "", name)
                         b.groups[name] =
-                            SchemaElement.Redefined(g, sourceSchema, redefineData, schemaLocation, groupName, Redefinable.GROUP)
+                            SchemaElement.Redefined(g, sourceSchema, redefineData, schemaLocations.first(), groupName, Redefinable.GROUP)
                     }
 
                     val redefinedAttrGroups = mutableSetOf<String>()
@@ -598,7 +610,7 @@ internal class SchemaData(
                         val agName = QName(targetNamespace ?: "", name)
 
                         b.attributeGroups[name] = SchemaElement.Redefined(
-                            ag, sourceSchema, redefineData, schemaLocation,
+                            ag, sourceSchema, redefineData, schemaLocations.first(),
                             agName, Redefinable.ATTRIBUTEGROUP
                         )
                     }
@@ -673,7 +685,7 @@ internal class SchemaData(
 
                                     SchemaData(
                                         parsed,
-                                        importLocation.value,
+                                        listOf(importLocation.value),
                                         parsed.targetNamespace?.value,
                                         delegateResolver,
                                         b.newProcessed
@@ -690,6 +702,7 @@ internal class SchemaData(
 
             // TODO add override support
 
+            val schemaLocation = schemaLocations.first()
             return SchemaData(
                 namespace = targetNamespace ?: "",
                 schemaLocation = schemaLocation,

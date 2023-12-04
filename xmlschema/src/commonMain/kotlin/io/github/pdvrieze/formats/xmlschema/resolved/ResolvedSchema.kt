@@ -43,7 +43,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
     init {
         val rootData =
-            SchemaData(rawPart, resolver.baseUri.value, rawPart.targetNamespace?.value ?: "", resolver)
+            SchemaData(rawPart, listOf(resolver.baseUri.value), rawPart.targetNamespace?.value ?: "", resolver)
 
         rootData.checkRecursiveTypeDefinitions()
         rootData.checkRecursiveSubstitutionGroups()
