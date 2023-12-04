@@ -481,6 +481,8 @@ internal class SchemaData(
             resolver: ResolvedSchema.Resolver,
             alreadyProcessed: MutableMap<String, NamespaceHolder> = mutableMapOf()
         ): SchemaData {
+            require(sourceSchema.targetNamespace.let { it ==null || it.isNotEmpty() }) { "Empty namespaces are not allowed for schemas (${schemaLocations.last()})" }
+
             for (attrName in sourceSchema.otherAttrs.keys) {
                 require(attrName.namespaceURI.isNotEmpty()) {
                     "Unknown unqualified attribute on schema: ${attrName.localPart}"
