@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyAtomicType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Companion.STRICT_ALL_IN_EXTENSION
@@ -673,6 +674,19 @@ sealed class ResolvedComplexType(
                 }
 
                 is XSSimpleContentRestriction -> {
+                    val b = derivation.base
+                    if (schema.version != SchemaVersion.V1_0 && b != null) {
+                        if(baseType is ResolvedComplexType) {
+                            val ct = baseType.mdlContentType
+                            if (ct is ResolvedSimpleContentType) {
+                                val b = ct.mdlSimpleTypeDefinition
+                                require(b !== AnySimpleType && b !== AnyAtomicType) {
+                                    "Complex type with simple content may not be a restriction of special types"
+                                }
+                            }
+                        }
+                    }
+
                     require(VDerivationControl.RESTRICTION !in baseType.mdlFinal) {
                         "${derivation.base} is final for extension"
                     }
@@ -739,12 +753,17 @@ sealed class ResolvedComplexType(
                         derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) } //1.1
                             ?: complexBaseContentType.mdlSimpleTypeDefinition // 1.2
 
+                    val newVariety = when {
+                        schema.version != SchemaVersion.V1_0 -> b.mdlVariety.notNil()
+                        b == AnySimpleType -> ResolvedSimpleType.Variety.NIL
+                        else -> b.mdlVariety.notNil()
+                    }
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         context,
                         b,
                         b.mdlFacets.overlay(FacetList.safe(derivation.facets, schema, b)),
                         b.mdlFundamentalFacets, // TODO may need further specialisation
-                        b.mdlVariety.notNil(),
+                        newVariety,
                         b.mdlPrimitiveTypeDefinition,
                         b.mdlItemTypeDefinition,
                         b.mdlMemberTypeDefinitions
