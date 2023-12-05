@@ -20,7 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
 
@@ -41,7 +44,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
 
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
-    override val mdlFinal: Set<VDerivationControl.Type> = rawPart.final
+    override val mdlFinal: Set<VDerivationControl.Type> = rawPart.final ?: schema.finalDefault
 
     override val simpleDerivation: ResolvedSimpleType.Derivation = when (val raw = rawPart.simpleDerivation) {
         is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)
