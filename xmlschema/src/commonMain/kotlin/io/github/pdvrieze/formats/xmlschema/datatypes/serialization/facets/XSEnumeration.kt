@@ -42,6 +42,7 @@ class XSEnumeration : XSFacet.NotFixed {
     }
 
     override val isUnionFacet: Boolean get() = true
+    override val isListFacet: Boolean get() = true
 
     override val value: VString
 }

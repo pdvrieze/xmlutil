@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.WhitespaceValue
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
+import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -33,6 +33,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("whiteSpace", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
 class XSWhiteSpace : XSFacet.Fixed {
+
+    override val isListFacet: Boolean get() = true
+
     @XmlElement(false)
     override val value: WhitespaceValue
 

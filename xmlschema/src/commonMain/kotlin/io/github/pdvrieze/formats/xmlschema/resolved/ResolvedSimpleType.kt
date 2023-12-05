@@ -361,11 +361,17 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
         final override val mdlFacets: FacetList = when (val d = rawPart.simpleDerivation) {
             is XSSimpleRestriction -> {
-                if (mdlVariety == Variety.UNION) {
-                    for (f in d.facets) {
-                        require(f.isUnionFacet) { "Union variety types may not contain non-union facet: $f" }
+                when (mdlVariety) {
+                    Variety.UNION ->
+                        for (f in d.facets) {
+                            require(f.isUnionFacet) { "Union variety types may not contain non-union facet: $f" }
+                        }
 
-                    }
+                    Variety.LIST ->
+                        for (f in d.facets) {
+                            require(f.isListFacet) { "List variety types may not contain non-list facet: $f" }
+                        }
+                    else -> {}
                 }
                 mdlBaseTypeDefinition.mdlFacets.overlay(FacetList.safe(d.facets, schema, mdlBaseTypeDefinition))
             }
