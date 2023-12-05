@@ -63,7 +63,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
 
         @JvmStatic
         protected fun XSAny.toConstraint(schemaLike: ResolvedSchemaLike): VNamespaceConstraint<VQNameListBase.Elem> {
-            val p = toConstraintHelper(schemaLike, schemaLike.hasLocalTargetNamespace())
+            val p = toConstraintHelper(schemaLike)
 
             return VNamespaceConstraint(p.first, p.second, notQName ?: VQNameList())
         }
@@ -71,12 +71,12 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
         @JvmStatic
         protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike, hasUnqualifiedAttrs: Boolean): VNamespaceConstraint<VQNameListBase.AttrElem> {
 
-            val (variety, nsSet) = toConstraintHelper(schemaLike, hasUnqualifiedAttrs || schemaLike.hasLocalTargetNamespace())
+            val (variety, nsSet) = toConstraintHelper(schemaLike)
 
             return VNamespaceConstraint(variety, nsSet, notQName ?: VAttrQNameList())
         }
 
-        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike, localInOther: Boolean): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
+        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
             val ns = namespace
             val notNs = notNamespace
 
@@ -94,8 +94,8 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
                     namespaces = buildSet {
                         // only add local when relevant to the context (there is something in the context
                         // This should handle "other" being special
-                        if(localInOther) add("".toAnyUri())
-                        add(schemaLike.targetNamespace ?: "".toAnyUri())
+                        add("".toAnyUri())
+                        schemaLike.targetNamespace?.let { add(it) }
                     }
                 }
 
