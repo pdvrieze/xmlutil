@@ -29,6 +29,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(VNamespaceList.Serializer::class)
 sealed class VNamespaceList {
@@ -41,7 +42,10 @@ sealed class VNamespaceList {
             fun fromString(string: String): Elem = when (string) {
                 "##targetNamespace" -> TARGETNAMESPACE
                 "##local" -> LOCAL
-                else -> Uri(string.toAnyUri())
+                else -> {
+                    require(!string.startsWith("##")) { "Namespace strings are not allowed to start with ##" }
+                    Uri(string.toAnyUri())
+                }
             }
         }
     }
@@ -70,7 +74,7 @@ sealed class VNamespaceList {
         }
 
         override fun deserialize(decoder: Decoder): VNamespaceList {
-            return when (val str = decoder.decodeString().trim()) {
+            return when (val str = xmlCollapseWhitespace(decoder.decodeString())) {
                 "##any" -> ANY
                 "##other" -> OTHER
                 else -> {
