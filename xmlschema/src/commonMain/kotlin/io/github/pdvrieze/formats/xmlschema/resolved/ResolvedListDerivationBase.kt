@@ -68,15 +68,20 @@ abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
                     ResolvedLocalSimpleType(simpleTypeDef, schema, context)
                 }
             }
+            require(VDerivationControl.LIST !in itemType.mdlFinal) { "Item type $itemTypeName is final for list, but used as item type in ${context}"}
         }
 
-        constructor(
+        /**
+         * Only for use internally
+         */
+        internal constructor(
             itemType: ResolvedSimpleType,
             id: VID? = null,
             annotations: List<ResolvedAnnotation> = emptyList(),
             otherAttrs: Map<QName, String> = emptyMap(),
         ) : super(annotations, id, otherAttrs) {
             this.itemType = itemType
+            require(VDerivationControl.LIST !in itemType.mdlFinal) { "Item type $itemType is final for list, but used as item type"}
         }
 
     }
