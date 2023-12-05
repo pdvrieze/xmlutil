@@ -76,15 +76,34 @@ class FacetList(
         patterns.addAll(newList.patterns)
 
         // TODO("Handle min/max constraints properly")
-        val minConstraint: ResolvedMinBoundFacet? =
-            newList.minConstraint?.checkNotFixed(this.minConstraint) ?: this.minConstraint
-        val maxConstraint: ResolvedMaxBoundFacet? =
-            newList.maxConstraint?.checkNotFixed(this.maxConstraint) ?: this.maxConstraint
+        val minConstraint: ResolvedMinBoundFacet? = when {
+            newList.minConstraint == null -> this.minConstraint
+            this.minConstraint == null -> newList.minConstraint
+            else -> {
+                minConstraint.validate(newList.minConstraint.value)
+                newList.minConstraint.checkNotFixed(this.minConstraint)
+            }
+        }
+
+        val maxConstraint: ResolvedMaxBoundFacet? = when {
+            newList.maxConstraint == null -> this.maxConstraint
+            this.maxConstraint == null -> newList.maxConstraint
+            else -> {
+                maxConstraint.validate(newList.maxConstraint.value)
+                newList.maxConstraint.checkNotFixed(this.maxConstraint)
+            }
+        }
 
         val explicitTimezone: ResolvedExplicitTimezone? =
             newList.explicitTimezone?.checkNotFixed(this.explicitTimezone) ?: this.explicitTimezone
-        val fractionDigits: ResolvedFractionDigits? =
-            newList.fractionDigits?.checkNotFixed(this.fractionDigits) ?: this.fractionDigits
+        val fractionDigits: ResolvedFractionDigits? = when {
+            newList.fractionDigits == null -> this.fractionDigits
+            this.fractionDigits == null -> newList.fractionDigits
+            else -> {
+                require(this.fractionDigits.value == newList.fractionDigits.value)
+                newList.fractionDigits.checkNotFixed(this.fractionDigits)
+            }
+        }
 
         val minLength: IResolvedMinLength? = run {
             val old = this.minLength?.value
@@ -108,21 +127,14 @@ class FacetList(
             }
         }?.checkNotFixed(this.maxLength)
 
-        this.maxConstraint?.let { mc ->
-            newList.maxConstraint?.let { nmc ->
-                mc.validate(nmc.value)
-            }
+        val totalDigits: ResolvedTotalDigits? = when {
+            newList.totalDigits == null -> this.totalDigits
+            this.totalDigits == null -> newList.totalDigits
+            else -> newList.totalDigits.checkNotFixed(this.totalDigits)
         }
 
-        this.minConstraint?.let { mc ->
-            newList.minConstraint?.let { nmc ->
-                mc.validate(nmc.value)
-            }
-        }
-
-        val totalDigits: ResolvedTotalDigits? = newList.totalDigits?.checkNotFixed(this.totalDigits) ?: this.totalDigits
         val whiteSpace: ResolvedWhiteSpace? = newList.whiteSpace?.let {
-            if (this.whiteSpace!=null) check(it.value.canOverride(this.whiteSpace.value))
+            if (this.whiteSpace != null) check(it.value.canOverride(this.whiteSpace.value))
             it.checkNotFixed(this.whiteSpace)
         } ?: this.whiteSpace
 
