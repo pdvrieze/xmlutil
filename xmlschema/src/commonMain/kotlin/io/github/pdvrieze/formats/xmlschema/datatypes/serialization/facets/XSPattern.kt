@@ -35,6 +35,8 @@ class XSPattern : XSFacet.NotFixed {
 
     override val isUnionFacet: Boolean get() = true
 
+    override val isListFacet: Boolean get() = true
+
     constructor(
         value: String,
         id: VID? = null,
