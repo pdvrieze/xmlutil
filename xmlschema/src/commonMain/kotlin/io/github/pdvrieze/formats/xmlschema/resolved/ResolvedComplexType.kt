@@ -675,15 +675,20 @@ sealed class ResolvedComplexType(
 
                 is XSSimpleContentRestriction -> {
                     val b = derivation.base
-                    if (schema.version != SchemaVersion.V1_0 && b != null) {
-                        if(baseType is ResolvedComplexType) {
-                            val ct = baseType.mdlContentType
-                            if (ct is ResolvedSimpleContentType) {
-                                val b = ct.mdlSimpleTypeDefinition
-                                require(b !== AnySimpleType && b !== AnyAtomicType) {
+                    if(baseType is ResolvedComplexType) {
+                        val ct = baseType.mdlContentType
+                        if (ct is ResolvedSimpleContentType) {
+                            val simpleBase = ct.mdlSimpleTypeDefinition
+                            if (simpleBase === AnySimpleType || simpleBase === AnyAtomicType) {
+                                require(schema.version == SchemaVersion.V1_0) {
                                     "Complex type with simple content may not be a restriction of special types"
                                 }
+                                require(derivation.facets.isEmpty()) {
+                                    "complex types with simple content of special simple type can not have facets"
+                                }
                             }
+
+
                         }
                     }
 

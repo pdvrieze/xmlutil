@@ -35,6 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 sealed class XSFacet : XSI_Annotated {
 
     open val isUnionFacet: Boolean get() = false
+    open val isListFacet: Boolean get() = false
     abstract val value: Any
     abstract val fixed: Boolean?
 
