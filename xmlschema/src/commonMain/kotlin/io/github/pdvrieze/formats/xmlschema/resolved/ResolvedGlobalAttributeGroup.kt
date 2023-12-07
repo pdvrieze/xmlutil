@@ -48,8 +48,9 @@ class ResolvedGlobalAttributeGroup internal constructor(
 
     val attributeGroups: List<ResolvedAttributeGroupRef> get() = model.attributeGroups
 
-    val anyAttribute: XSAnyAttribute? = element.elem.anyAttribute
-
+    val anyAttribute: ResolvedAnyAttribute? = element.elem.anyAttribute?.let {
+        ResolvedAnyAttribute(it, element.effectiveSchema(unresolvedSchema))
+    }
 
     init {
         if (element is SchemaElement.Redefined) {

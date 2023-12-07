@@ -29,7 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotate
 import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlin.jvm.JvmStatic
 
-abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructor(
+abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal constructor(
     final val mdlNamespaceConstraint: VNamespaceConstraint<E>,
     final val mdlProcessContents: VProcessContents,
     final override val model: ResolvedAnnotated.IModel
@@ -37,7 +37,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
 
     constructor(
         mdlNamespaceConstraint: VNamespaceConstraint<E>,
-        mdlProcessContents: VProcessContents
+        mdlProcessContents: VProcessContents,
     ) : this (mdlNamespaceConstraint, mdlProcessContents, ResolvedAnnotated.Empty)
 
     constructor(
@@ -69,14 +69,14 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
         }
 
         @JvmStatic
-        protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike, hasUnqualifiedAttrs: Boolean): VNamespaceConstraint<VQNameListBase.AttrElem> {
+        protected fun XSAnyAttribute.toConstraint(schemaLike: ResolvedSchemaLike): VNamespaceConstraint<VQNameListBase.AttrElem> {
 
             val (variety, nsSet) = toConstraintHelper(schemaLike)
 
             return VNamespaceConstraint(variety, nsSet, notQName ?: VAttrQNameList())
         }
 
-        private fun XSAnyBase.toConstraintHelper(schemaLike: ResolvedSchemaLike): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
+        private fun XSAnyBase.toConstraintHelper(schema: ResolvedSchemaLike): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
             val ns = namespace
             val notNs = notNamespace
 
@@ -94,14 +94,18 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
                     namespaces = buildSet {
                         // only add local when relevant to the context (there is something in the context
                         // This should handle "other" being special
-                        add("".toAnyUri())
-                        schemaLike.targetNamespace?.let { add(it) }
+
+                        // in version 1.0 it doesn't include the "absent" namespace, but in 1.1 it does
+                        if (schema.version != SchemaVersion.V1_0 || schema.targetNamespace == null) {
+                            add(VAnyURI.EMPTY)
+                        }
+                        schema.targetNamespace?.let { add(it) }
                     }
                 }
 
                 is VNamespaceList.Values -> {
                     variety = VNamespaceConstraint.Variety.ENUMERATION
-                    namespaces = ns.values.mapTo(mutableSetOf()) { it.toUri(schemaLike) }
+                    namespaces = ns.values.mapTo(mutableSetOf()) { it.toUri(schema) }
                 }
 
                 null -> when (notNs) {
@@ -112,7 +116,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> private constructo
 
                     else -> {
                         variety = VNamespaceConstraint.Variety.NOT
-                        namespaces = notNs.mapNotNullTo(mutableSetOf()) { it.toUri(schemaLike) }
+                        namespaces = notNs.mapNotNullTo(mutableSetOf()) { it.toUri(schema) }
                     }
                 }
 

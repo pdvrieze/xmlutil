@@ -30,12 +30,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Companion.STRICT_ALL_IN_EXTENSION
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.VContentMode
-import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.namespaceURI
 
 sealed class ResolvedComplexType(
     val schema: ResolvedSchemaLike
@@ -253,8 +249,12 @@ sealed class ResolvedComplexType(
         // 1.3
         val baseWc = baseType.mdlAttributeWildcard
         if (baseWc != null) {
-            val wc = requireNotNull(mdlAttributeWildcard) { "3.4.6.2(1.3) - extension must have also one" }
-            require(wc.mdlNamespaceConstraint.isSupersetOf(baseWc.mdlNamespaceConstraint)) { "3.4.6.2(1.3) - base wildcard is subset of extension" }
+            val wc = requireNotNull(mdlAttributeWildcard) {
+                "3.4.6.2(1.3) - extensions of type with attribute wildcard must have also one ($this extends $baseType)"
+            }
+            require(baseWc.mdlNamespaceConstraint.isSubsetOf(wc.mdlNamespaceConstraint, schema.version)) {
+                "3.4.6.2(1.3) - base wildcard ($baseWc) is not subset of extension (${wc}) ($this extends $baseType)"
+            }
         }
 
         val baseCType = baseType.mdlContentType
@@ -343,13 +343,26 @@ sealed class ResolvedComplexType(
         val hasLocalNsInContext: Boolean
     }
 
+    internal class AttributeModel(
+        val attributeUses: Map<QName, IResolvedAttributeUse>,
+        val attributeWildcard: ResolvedAnyAttribute?
+    ) {
+//        val attributeWildcard: ResolvedAnyAttribute? get() = null
+    }
+
     protected abstract class ModelBase<R : XSIComplexType> internal constructor(
         context: ResolvedComplexType,
         elem: SchemaElement<R>,
         schema: ResolvedSchemaLike
     ) : ResolvedAnnotated.Model(elem.elem), Model {
 
-        final override val mdlAttributeUses: Map<QName, IResolvedAttributeUse> by lazy {
+        final override val mdlAttributeUses: Map<QName, IResolvedAttributeUse>
+            get() = attrModel.attributeUses
+
+        final override val mdlAttributeWildcard: ResolvedAnyAttribute?
+            get() = attrModel.attributeWildcard
+
+        private val attrModel: AttributeModel by lazy {
             calculateAttributeUses(schema, elem, context)
         }
 
@@ -377,9 +390,6 @@ sealed class ResolvedComplexType(
         final override val mdlBaseTypeDefinition: ResolvedType
 
         final override val mdlDerivationMethod: VDerivationControl.Complex
-
-        final override val mdlAttributeWildcard: ResolvedAnyAttribute?
-
 
         init {
             val rawPart = elemPart.elem
@@ -421,67 +431,6 @@ sealed class ResolvedComplexType(
                 else -> error("Should be unreachable (sealed type)")
             }
 
-
-            // attribute wildcards according to 3.4.2.5
-            /* -- It is not clear what this does (attribute groups are outside the wildcard)
-                        val defaultAttrGroupRef = when {
-                            rawPart.defaultAttributesApply!=false -> schema.defaultAttributes
-                            else -> null
-                        }
-            */
-
-            val completeWildcard = content.derivation.anyAttribute?.let {
-                ResolvedAnyAttribute(
-                    it,
-                    schema,
-                    hasUnqualifiedAttrs = content.derivation.attributes.any {
-                        when (it.form) {
-                            VFormChoice.UNQUALIFIED -> true
-                            VFormChoice.QUALIFIED -> false
-                            null -> it.targetNamespace == null && schema.attributeFormDefault == VFormChoice.UNQUALIFIED
-                        }
-                    } || (baseTypeDefinition is ResolvedComplexType && baseTypeDefinition.mdlAttributeUses.keys.any { it.namespaceURI.isEmpty() })
-                )
-            }
-
-            mdlAttributeWildcard = when {
-                // 2.1
-                derivation !is XSComplexContent.XSExtension -> completeWildcard
-                else -> { // extension
-                    // 2.2.1
-                    val baseWildcard = (baseTypeDefinition as? ResolvedComplexType)?.mdlAttributeWildcard
-
-                    when {
-                        baseWildcard == null -> completeWildcard
-                        completeWildcard == null -> baseWildcard
-                        else -> {
-                            val defaultNS = when(schema.attributeFormDefault) {
-                                VFormChoice.QUALIFIED -> schema.targetNamespace
-                                VFormChoice.UNQUALIFIED -> ""
-                            }
-                            val otherAttrNames = buildList {
-                                rawPart.content.derivation.attributes.mapNotNullTo(this) {
-                                    when {
-                                        it.name == null -> null
-                                        it.targetNamespace != null -> QName(it.targetNamespace.value, it.name.xmlString)
-                                        (it.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED -> QName(schema.targetNamespace?.value ?: "", it.name.xmlString)
-                                        else -> QName(it.name.xmlString)
-                                    }
-                                }
-                            }
-
-                            ResolvedAnyAttribute(
-                                mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(
-                                    completeWildcard.mdlNamespaceConstraint,
-                                    otherAttrNames,
-                                    schema
-                                ),
-                                mdlProcessContents = completeWildcard.mdlProcessContents
-                            )
-                        }
-                    }
-                }
-            }
 
             mdlBaseTypeDefinition = baseTypeDefinition
 
@@ -658,8 +607,6 @@ sealed class ResolvedComplexType(
 
         final override val mdlSimpleTypeDefinition: ResolvedSimpleType
 
-        final override val mdlAttributeWildcard: ResolvedAnyAttribute?
-
         init {
             val rawPart = elem.elem
             require(rawPart.mixed != true) { "3.4.3(1) - Simple content can not have mixed=true" }
@@ -694,56 +641,6 @@ sealed class ResolvedComplexType(
 
                     require(VDerivationControl.RESTRICTION !in baseType.mdlFinal) {
                         "${derivation.base} is final for extension"
-                    }
-                }
-            }
-
-
-            val completeWildcard = rawPart.content.derivation.anyAttribute?.let {
-                ResolvedAnyAttribute(
-                    it,
-                    schema,
-                    hasUnqualifiedAttrs = rawPart.content.derivation.attributes.any {
-                        when (it.form) {
-                            VFormChoice.UNQUALIFIED -> true
-                            VFormChoice.QUALIFIED -> false
-                            null -> it.targetNamespace == null && schema.attributeFormDefault == VFormChoice.UNQUALIFIED
-                        }
-                    } || (baseType is ResolvedComplexType && baseType.mdlAttributeUses.keys.any { it.namespaceURI.isEmpty() })
-                )
-            }
-
-            mdlAttributeWildcard = when {
-                // 2.1
-                derivation !is XSSimpleContentExtension -> completeWildcard
-                else -> { // extension
-                    // 2.2.1
-                    val baseWildcard = (baseType as? ResolvedComplexType)?.mdlAttributeWildcard
-
-                    when {
-                        baseWildcard == null -> completeWildcard
-                        completeWildcard == null -> baseWildcard
-                        else -> {
-                            val otherAttrNames = buildList {
-                                rawPart.content.derivation.attributes.mapNotNullTo(this) {
-                                    when {
-                                        it.name == null -> null
-                                        it.targetNamespace != null -> QName(it.targetNamespace.value, it.name.xmlString)
-                                        (it.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED -> QName(schema.targetNamespace?.value ?: "", it.name.xmlString)
-                                        else -> QName(it.name.xmlString)
-                                    }
-                                }
-                            }
-
-                            ResolvedAnyAttribute(
-                                mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(
-                                    completeWildcard.mdlNamespaceConstraint,
-                                    otherAttrNames,
-                                    schema
-                                ),
-                                mdlProcessContents = completeWildcard.mdlProcessContents
-                            )
-                        }
                     }
                 }
             }
@@ -959,14 +856,18 @@ sealed class ResolvedComplexType(
             schema: ResolvedSchemaLike,
             elem: SchemaElement<XSIComplexType>,
             parent: ResolvedComplexType
-        ): Map<QName, IResolvedAttributeUse> {
+        ): AttributeModel {
             val rawPart = elem.elem
 
+            val wildcards = ArrayList<ResolvedAnyAttribute>()
             val defaultAttributeGroup = (schema as? ResolvedSchema)?.defaultAttributes
                 ?.takeIf { rawPart.defaultAttributesApply != false }
 
+            elem.elem.content.derivation.anyAttribute?.let { wildcards.add(ResolvedAnyAttribute(it, schema)) }
+
             val prohibitedAttrNames = mutableSetOf<QName>()
-            val seenAttrNames = mutableSetOf<QName>()
+
+            val baseType = parent.mdlBaseTypeDefinition as? ResolvedComplexType
 
             val attributes = buildMap<QName, IResolvedAttributeUse> {
                 // Defined attributes
@@ -990,10 +891,10 @@ sealed class ResolvedComplexType(
                     for (use in groupAttributeUses) {
                         require(put(use.mdlQName, use) == null) { "Duplicate attribute and group '${use.mdlQName}' for group ${group.mdlQName}" }
                     }
+                    group.anyAttribute?.let { wildcards.add(it) }
                 }
 
                 // Extension/restriction. Only restriction can prohibit attributes.
-                val baseType = parent.mdlBaseTypeDefinition as? ResolvedComplexType
                 when (baseType?.mdlDerivationMethod) {
                     VDerivationControl.EXTENSION ->
                         for (a in baseType.mdlAttributeUses.values) {
@@ -1055,7 +956,43 @@ sealed class ResolvedComplexType(
                     }
                 }
             }
-            return attributeUses
+
+
+            val completeWildcard = when (wildcards.size) {
+                0 -> null
+                1 -> wildcards.single()
+                else -> wildcards.reduce { l, r ->
+                    val newConstraint: VNamespaceConstraint<VQNameListBase.AttrElem> = l.mdlNamespaceConstraint.intersection(
+                        r.mdlNamespaceConstraint,
+                        schema.version
+                    )
+                    ResolvedAnyAttribute(
+                        mdlProcessContents = l.mdlProcessContents,
+                        mdlNamespaceConstraint = newConstraint,
+                        model = l.model // copy annotations
+                    )
+                }
+            }
+
+            val attributeWildcard = when (parent.mdlDerivationMethod) {
+                !is VDerivationControl.EXTENSION -> completeWildcard
+                else -> {
+                    val baseWildcard = baseType?.mdlAttributeWildcard // 2.2.1.*
+                    when {
+                        baseType == AnyType ||
+                        baseWildcard == null -> completeWildcard
+                        completeWildcard == null -> baseWildcard
+                        else -> ResolvedAnyAttribute(
+                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(completeWildcard.mdlNamespaceConstraint, emptyList(), schema),
+                            mdlProcessContents = completeWildcard.mdlProcessContents,
+                            model = completeWildcard.model
+                        )
+                    }
+                }
+            }
+
+            return AttributeModel(attributeUses, attributeWildcard)
+
         }
 
     }
