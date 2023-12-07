@@ -979,7 +979,6 @@ sealed class ResolvedComplexType(
                 else -> {
                     val baseWildcard = baseType?.mdlAttributeWildcard // 2.2.1.*
                     when {
-                        baseType == AnyType ||
                         baseWildcard == null -> completeWildcard
                         completeWildcard == null -> baseWildcard
                         else -> ResolvedAnyAttribute(
