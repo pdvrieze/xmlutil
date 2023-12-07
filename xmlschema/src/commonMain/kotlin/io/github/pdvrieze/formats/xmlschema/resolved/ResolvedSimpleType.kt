@@ -28,7 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateT
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
@@ -37,6 +36,7 @@ import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.qname
 
@@ -283,7 +283,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
                     when {
                         it is AnySimpleType -> {
-                            require(schema.targetNamespace?.value == XmlSchemaConstants.XS_NAMESPACE) {
+                            require(schema.targetNamespace?.value == XSD_NS_URI) {
                                 "Direct inheritance of AnySimpleType is only allowed in the XMLSchema namespace"
                             }
                             Variety.ATOMIC

@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalAttribute
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedGlobalAttribute(
@@ -44,7 +44,7 @@ class ResolvedGlobalAttribute(
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
     init {
-        require(mdlQName.namespaceURI!= XmlSchemaConstants.XSI_NAMESPACE) {
+        require(mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
             "Attributes can not be declared into the XSI namespace"
         }
     }

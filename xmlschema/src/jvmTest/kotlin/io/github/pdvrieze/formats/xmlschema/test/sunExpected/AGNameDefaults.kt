@@ -23,8 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 
 object AGNameDefaults {
     val ns = "AttrGroup/name"
@@ -35,11 +35,11 @@ object AGNameDefaults {
             XSLocalAttribute(
                 name = VNCName("number"),
                 use = XSAttrUse.REQUIRED,
-                type = QName(XS_NAMESPACE, "integer", "xsd")
+                type = QName(XMLConstants.XSD_NS_URI, "integer", "xsd")
             ),
             XSLocalAttribute(
                 name = VNCName("height"),
-                type = QName(XS_NAMESPACE, "decimal", "xsd")
+                type = QName(XMLConstants.XSD_NS_URI, "decimal", "xsd")
             )
         )
     )
@@ -53,7 +53,7 @@ object AGNameDefaults {
                     attributes = listOf(
                         XSLocalAttribute(
                             name = VNCName("good"),
-                            type = QName(XS_NAMESPACE, "string", "xsd")
+                            type = QName(XMLConstants.XSD_NS_URI, "string", "xsd")
                         )
                     ),
                     attributeGroups = listOf(
