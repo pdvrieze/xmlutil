@@ -22,10 +22,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.namespaceURI
 
 abstract class ResolvedSchemaLike {
@@ -56,7 +56,7 @@ abstract class ResolvedSchemaLike {
     abstract fun maybeNotation(notationName: QName): ResolvedNotation?
 
     fun simpleType(typeName: QName): ResolvedGlobalSimpleType = when (typeName.namespaceURI) {
-        XmlSchemaConstants.XS_NAMESPACE -> maybeSimpleType(typeName)
+        XSD_NS_URI -> maybeSimpleType(typeName)
             ?: BuiltinSchemaXmlschema.maybeSimpleType(typeName)
 
         targetNamespace?.value -> maybeSimpleType(typeName)
@@ -65,11 +65,11 @@ abstract class ResolvedSchemaLike {
 
     fun type(typeName: QName): ResolvedGlobalType = when (typeName.namespaceURI) {
         targetNamespace?.value -> when (typeName.namespaceURI) {
-            XmlSchemaConstants.XS_NAMESPACE -> maybeType(typeName) ?: BuiltinSchemaXmlschema.maybeType(typeName)
+            XSD_NS_URI -> maybeType(typeName) ?: BuiltinSchemaXmlschema.maybeType(typeName)
             else -> maybeType(typeName)
         }
 
-        XmlSchemaConstants.XS_NAMESPACE -> BuiltinSchemaXmlschema.maybeType(typeName)
+        XSD_NS_URI -> BuiltinSchemaXmlschema.maybeType(typeName)
         else -> maybeType(typeName)
     } ?: throw NoSuchElementException("No type with name $typeName found")
 

@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
@@ -34,7 +34,7 @@ abstract class XSOpenAttrsBase(
 
     init {
         for (attrName in otherAttrs.keys) {
-            require(attrName.namespaceURI.let { it.isNotEmpty() && it != XmlSchemaConstants.XS_NAMESPACE }) {
+            require(attrName.namespaceURI.let { it.isNotEmpty() && it != XSD_NS_URI }) {
                 "Invalid \"open\" attribute name $attrName"
             }
         }

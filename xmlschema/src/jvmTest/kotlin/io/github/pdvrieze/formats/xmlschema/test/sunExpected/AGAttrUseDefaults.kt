@@ -23,15 +23,15 @@ package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 object AGAttrUseDefaults {
     val ns = "AttrGroup/attrUse"
 
     val heightAttr = XSLocalAttribute(
         name = VNCName("height"),
-        type = QName(XmlSchemaConstants.XS_NAMESPACE, "decimal", "xsd")
+        type = QName(XSD_NS_URI, "decimal", "xsd")
     )
     val ag = XSAttributeGroup(
         name = VNCName("aGr"),
@@ -50,7 +50,7 @@ object AGAttrUseDefaults {
                     attributes = listOf(
                         XSLocalAttribute(
                             name = VNCName("good"),
-                            type = QName(XmlSchemaConstants.XS_NAMESPACE, "string", "xsd")
+                            type = QName(XSD_NS_URI, "string", "xsd")
                         )
                     ),
                     attributeGroups = listOf(
@@ -62,7 +62,7 @@ object AGAttrUseDefaults {
         attributes = listOf(
             XSGlobalAttribute(
                 name = VNCName("number"),
-                type = QName(XmlSchemaConstants.XS_NAMESPACE, "integer", "xsd")
+                type = QName(XSD_NS_URI, "integer", "xsd")
             )
         ),
         attributeGroups = listOf(ag)

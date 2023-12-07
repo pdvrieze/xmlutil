@@ -23,16 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
@@ -146,7 +143,7 @@ class TestXSTestSuite {
         collector: MutableList<XmlDescriptor> = mutableListOf()
     ): List<XmlDescriptor> {
         fun XmlDescriptor.canRecurse(): Boolean {
-            return tagName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE &&
+            return tagName.namespaceURI == XSD_NS_URI &&
                     collector.none { it.serialDescriptor == serialDescriptor }
         }
 

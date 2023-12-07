@@ -22,20 +22,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
-@XmlSerialName("group", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+@XmlSerialName("group", XSD_NS_URI, XSD_PREFIX)
 class XSGroup(
     val name: VNCName,
     @XmlId
@@ -52,7 +53,7 @@ class XSGroup(
         abstract val particles: List<XSI_NestedParticle>
     }
 
-    @XmlSerialName("all", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @XmlSerialName("all", XSD_NS_URI, XSD_PREFIX)
     @Serializable
     class All(
         override val particles: List<XSI_AllParticle> = emptyList(),
@@ -64,7 +65,7 @@ class XSGroup(
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSGroupElement()
 
-    @XmlSerialName("choice", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @XmlSerialName("choice", XSD_NS_URI, XSD_PREFIX)
     @Serializable
     class Choice(
         override val particles: List<XSI_NestedParticle>,
@@ -76,7 +77,7 @@ class XSGroup(
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSGroupElement()
 
-    @XmlSerialName("sequence", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @XmlSerialName("sequence", XSD_NS_URI, XSD_PREFIX)
     @Serializable
     class Sequence(
         override val particles: List<XSI_NestedParticle>,

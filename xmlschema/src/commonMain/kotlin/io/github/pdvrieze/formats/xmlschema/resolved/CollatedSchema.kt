@@ -24,10 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 internal open class NamespaceHolder(val namespace: String)
 
@@ -265,7 +265,7 @@ internal class SchemaData(
             else -> throw AssertionError("Unreachable")
         }
         val finalRefs = refs.asSequence()
-            .filter { it.namespaceURI != XmlSchemaConstants.XS_NAMESPACE && it.namespaceURI != XmlSchemaConstants.XSI_NAMESPACE }
+            .filter { it.namespaceURI != XSD_NS_URI && it.namespaceURI != XMLConstants.XSI_NS_URI }
             .let {
                 when {
                     rawSchema.targetNamespace.isNullOrEmpty() && schema.namespace.isNotEmpty() ->
@@ -494,7 +494,7 @@ internal class SchemaData(
                 require(attrName.namespaceURI.isNotEmpty()) {
                     "Unknown unqualified attribute on schema: ${attrName.localPart}"
                 }
-                require(attrName.namespaceURI != XmlSchemaConstants.XS_NAMESPACE) {
+                require(attrName.namespaceURI != XSD_NS_URI) {
                     "Attributes qualified with the XMLSchema namespace are not allowed in schemas"
                 }
             }
@@ -754,7 +754,7 @@ class OwnerWrapper internal constructor(
     override val defaultOpenContent: XSDefaultOpenContent? get() = base.defaultOpenContent
 
     private inline fun <R> checkImport(name: QName, action: () -> R): R = when (name.namespaceURI) {
-        XmlSchemaConstants.XS_NAMESPACE,
+        XSD_NS_URI,
         in importedNamespaces,
         targetNamespace?.value ?: "" -> action()
 

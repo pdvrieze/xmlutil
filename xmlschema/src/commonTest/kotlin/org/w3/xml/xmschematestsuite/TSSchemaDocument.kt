@@ -20,11 +20,11 @@
 
 package org.w3.xml.xmschematestsuite
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -32,9 +32,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("schemaDocument", TS_NAMESPACE, TS_PREFIX)
 class TSSchemaDocument(
-    @XmlSerialName("href", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
+    @XmlSerialName("href", XMLConstants.XLINK_NAMESPACE, "xlink")
     override val href: String,
-    @XmlSerialName("type", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
+    @XmlSerialName("type", XMLConstants.XLINK_NAMESPACE, "xlink")
     override val locator: String = "locator",
     @XmlSerialName("role", "", "")
     @XmlElement(false)

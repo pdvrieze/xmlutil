@@ -20,19 +20,19 @@
 
 package org.w3.xml.xmschematestsuite
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("instanceDocument", TS_NAMESPACE, TS_PREFIX)
 class TSInstanceDocument(
-    @XmlSerialName("href", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
+    @XmlSerialName("href", XMLConstants.XLINK_NAMESPACE, "xlink")
     override val href: String,
-    @XmlSerialName("type", XmlSchemaConstants.XLINK_NAMESPACE, "xlink")
+    @XmlSerialName("type", XMLConstants.XLINK_NAMESPACE, "xlink")
     override val locator: String = "locator",
     @XmlOtherAttributes
     override val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()

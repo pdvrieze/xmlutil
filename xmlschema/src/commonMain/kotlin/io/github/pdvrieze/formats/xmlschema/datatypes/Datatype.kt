@@ -28,7 +28,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpl
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -39,6 +38,7 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 abstract class Datatype(
     name: VNCName,
@@ -173,7 +173,7 @@ sealed class UnionDatatype(name: String, targetNamespace: String, schema: Resolv
     val members: List<Datatype> get() = TODO()
 }
 
-object ErrorType : Datatype("error", XS_NAMESPACE, BuiltinSchemaXmlschema),
+object ErrorType : Datatype("error", XSD_NS_URI, BuiltinSchemaXmlschema),
     ResolvedGlobalSimpleType,
     ResolvedBuiltinSimpleType,
     ResolvedSimpleType.Model {
@@ -215,7 +215,7 @@ object ErrorType : Datatype("error", XS_NAMESPACE, BuiltinSchemaXmlschema),
 }
 
 object AnyType : ResolvedGlobalComplexType(
-    mdlQName = QName(XS_NAMESPACE, "anyType"),
+    mdlQName = QName(XSD_NS_URI, "anyType"),
     schema = BuiltinSchemaXmlschema,
     modelFactory = { AnyModel },
 ), ResolvedBuiltinType {
@@ -274,7 +274,7 @@ object AnyType : ResolvedGlobalComplexType(
     }
 }
 
-object AnySimpleType : Datatype("anySimpleType", XS_NAMESPACE, BuiltinSchemaXmlschema), ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
+object AnySimpleType : Datatype("anySimpleType", XSD_NS_URI, BuiltinSchemaXmlschema), ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
     override val isSpecial: Boolean get() = true
 
     override val baseType: AnyType get() = AnyType

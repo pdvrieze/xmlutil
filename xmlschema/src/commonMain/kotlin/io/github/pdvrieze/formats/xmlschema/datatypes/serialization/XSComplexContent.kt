@@ -23,7 +23,6 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
@@ -34,10 +33,12 @@ import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-@XmlSerialName("complexContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+@XmlSerialName("complexContent", XSD_NS_URI, XSD_PREFIX)
 @Serializable
 class XSComplexContent(
     @XmlId
@@ -100,7 +101,7 @@ class XSComplexContent(
         val maxOccurs: VAllNNI?
     }
 
-    @XmlSerialName("restriction", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @XmlSerialName("restriction", XSD_NS_URI, XSD_PREFIX)
     @Serializable
     class XSRestriction : XSComplexDerivationBase {
         val simpleType: XSLocalSimpleType?
@@ -142,7 +143,7 @@ class XSComplexContent(
         override val derivationMethod: VDerivationControl.Complex get() = VDerivationControl.RESTRICTION
     }
 
-    @XmlSerialName("extension", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+    @XmlSerialName("extension", XSD_NS_URI, XSD_PREFIX)
     @Serializable
     class XSExtension : XSComplexDerivationBase {
         constructor(
