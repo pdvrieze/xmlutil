@@ -22,12 +22,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -35,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 @Serializable
-@XmlSerialName("appinfo", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+@XmlSerialName("appinfo", XSD_NS_URI, XSD_PREFIX)
 class XSAppInfo : XSOpenAttrsBase {
     @XmlValue(true)
     @Serializable(CompactFragmentSerializer::class)

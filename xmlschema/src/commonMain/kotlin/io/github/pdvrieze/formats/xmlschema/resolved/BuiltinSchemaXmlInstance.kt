@@ -27,10 +27,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.BooleanType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.QNameType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 
 /**
  * Built-in schema attribute declarations (3.2.7)
@@ -46,7 +46,7 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
 
     init {
         val rawSchema = XSSchema(
-            targetNamespace = XmlSchemaConstants.XSI_NAMESPACE.toAnyUri(),
+            targetNamespace = XMLConstants.XSI_NS_URI.toAnyUri(),
             attributeFormDefault = VFormChoice.QUALIFIED,
             attributes = listOf(
                 XSGlobalAttribute(
@@ -74,40 +74,40 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
 
     internal val resolver: ResolvedSchema.SchemaElementResolver = object : ResolvedSchema.SchemaElementResolver {
         override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
-            return maybeSimpleType(QName(XmlSchemaConstants.XML_NAMESPACE, typeName))
+            return maybeSimpleType(QName(XMLConstants.XML_NS_URI, typeName))
         }
 
         override fun maybeType(typeName: String): ResolvedGlobalType? {
-            return maybeType(QName(XmlSchemaConstants.XML_NAMESPACE, typeName))
+            return maybeType(QName(XMLConstants.XML_NS_URI, typeName))
         }
 
         override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
-            return maybeAttributeGroup(QName(XmlSchemaConstants.XML_NAMESPACE, attributeGroupName))
+            return maybeAttributeGroup(QName(XMLConstants.XML_NS_URI, attributeGroupName))
         }
 
         override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
-            return maybeGroup(QName(XmlSchemaConstants.XML_NAMESPACE, groupName))
+            return maybeGroup(QName(XMLConstants.XML_NS_URI, groupName))
         }
 
         override fun maybeElement(elementName: String): ResolvedGlobalElement? {
-            return maybeElement(QName(XmlSchemaConstants.XML_NAMESPACE, elementName))
+            return maybeElement(QName(XMLConstants.XML_NS_URI, elementName))
         }
 
         override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
-            return maybeAttribute(QName(XmlSchemaConstants.XML_NAMESPACE, attributeName))
+            return maybeAttribute(QName(XMLConstants.XML_NS_URI, attributeName))
         }
 
         override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
-            return maybeIdentityConstraint(QName(XmlSchemaConstants.XML_NAMESPACE, constraintName))
+            return maybeIdentityConstraint(QName(XMLConstants.XML_NS_URI, constraintName))
         }
 
         override fun maybeNotation(notationName: String): ResolvedNotation? {
-            return maybeNotation(QName(XmlSchemaConstants.XML_NAMESPACE, notationName))
+            return maybeNotation(QName(XMLConstants.XML_NS_URI, notationName))
         }
     }
 
 
-    override val targetNamespace: VAnyURI get() = XmlSchemaConstants.XSI_NAMESPACE.toAnyUri()
+    override val targetNamespace: VAnyURI get() = XMLConstants.XSI_NS_URI.toAnyUri()
 
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = delegate.blockDefault
 

@@ -26,7 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyAtomicTy
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
+import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 abstract class ResolvedSimpleRestrictionBase(
@@ -46,6 +49,19 @@ abstract class ResolvedSimpleRestrictionBase(
             } else {
                 require(rawPart.simpleType == null)
             }
+            for (c in rawPart.otherContents) {
+                val r = c.getXmlReader()
+                while (r.hasNext()) {
+                    when (r.nextTag()) {
+                        EventType.START_ELEMENT -> {
+                            val n = r.name
+                            require(n.namespaceURI != XSD_NS_URI) { "Simple types can not contain XMLSchema namespace elements as free content" }
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
         }
     }
 
@@ -54,7 +70,7 @@ abstract class ResolvedSimpleRestrictionBase(
         checkHelper.checkType(baseType)
     }
 
-    interface IModel: ResolvedAnnotated.IModel {
+    interface IModel : ResolvedAnnotated.IModel {
         val baseType: ResolvedType
         val facets: FacetList
         val otherContents: List<CompactFragment>
@@ -91,7 +107,7 @@ abstract class ResolvedSimpleRestrictionBase(
             this.facets = FacetList.safe(rawPart.facets, schema, baseType)
 
             if (schema.version == SchemaVersion.V1_1) {
-                require(baseType!=AnySimpleType && baseType!=AnyAtomicType) {
+                require(baseType != AnySimpleType && baseType != AnyAtomicType) {
                     "2.4.2.1) Restrictions may only inherit from non-special types"
                 }
             }

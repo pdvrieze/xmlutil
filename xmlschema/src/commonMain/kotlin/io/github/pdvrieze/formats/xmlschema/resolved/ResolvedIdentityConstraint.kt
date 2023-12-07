@@ -20,12 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.XPathExpression
+import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.namespaceURI
 
 sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
@@ -89,7 +89,7 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
         super.checkAnnotated(checkHelper.version)
         for (field in fields) {
             for (otherAttrName in field.otherAttrs.keys) {
-                check(otherAttrName.namespaceURI.let { it.isNotEmpty() && it != XmlSchemaConstants.XS_NAMESPACE })
+                check(otherAttrName.namespaceURI.let { it.isNotEmpty() && it != XSD_NS_URI })
             }
             check(FIELDPATTERN.matches(field.xpath.xmlString)) {
                 "Invalid xpath expression for field: '${field.xpath.xmlString}'"

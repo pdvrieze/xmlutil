@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExp
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFractionDigits
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
@@ -34,13 +33,14 @@ import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 fun builtinType(localName: String, targetNamespace: String): ResolvedBuiltinType? {
-    if (targetNamespace != XmlSchemaConstants.XS_NAMESPACE) return null
+    if (targetNamespace != XSD_NS_URI) return null
     return when (localName) {
         "anyType" -> AnyType
         "anySimpleType" -> AnySimpleType
@@ -151,7 +151,7 @@ sealed class PrimitiveDatatype<out T: VAnySimpleType>(name: String, targetNamesp
     override val mdlPrimitiveTypeDefinition: PrimitiveDatatype<T>? get() = this
 }
 
-object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAMESPACE) {
+object AnyAtomicType : AtomicDatatype("anyAtomicType", XSD_NS_URI) {
     override val isSpecial: Boolean get() = true
     override val baseType: AnySimpleType get() = AnySimpleType
     override val simpleDerivation: ResolvedSimpleRestrictionBase =
@@ -177,7 +177,7 @@ object AnyAtomicType : AtomicDatatype("anyAtomicType", XmlSchemaConstants.XS_NAM
     }
 }
 
-object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_NAMESPACE) {
+object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
@@ -210,7 +210,7 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XmlSchemaConstants.XS_N
 }
 
 @OptIn(ExperimentalEncodingApi::class)
-object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchemaConstants.XS_NAMESPACE) {
+object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XSD_NS_URI) {
     fun length(representation: String): Int {
         // TODO don't actually decode just for length.
         return Base64.decode(representation).size
@@ -249,7 +249,7 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XmlSchem
     }
 }
 
-object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XmlSchemaConstants.XS_NAMESPACE) {
+object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -284,7 +284,7 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XmlSchemaConstants.X
 
 interface FiniteDateType : ResolvedBuiltinSimpleType
 
-object DateType : PrimitiveDatatype<VDate>("date", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
+object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -331,7 +331,7 @@ object DateType : PrimitiveDatatype<VDate>("date", XmlSchemaConstants.XS_NAMESPA
     }
 }
 
-object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XmlSchemaConstants.XS_NAMESPACE) {
+object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -380,7 +380,7 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XmlSchemaConstant
     }
 }
 
-object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XmlSchemaConstants.XS_NAMESPACE) {
+object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XSD_NS_URI) {
     override val baseType: DateTimeType get() = DateTimeType
 
     override val mdlFacets: FacetList = FacetList(
@@ -414,7 +414,7 @@ object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XmlSche
     }
 }
 
-object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XmlSchemaConstants.XS_NAMESPACE), IDecimalType {
+object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XSD_NS_URI), IDecimalType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -457,7 +457,7 @@ object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XmlSchemaConstants.X
 
 sealed interface IIntegerType : IDecimalType
 
-object IntegerType : PrimitiveDatatype<VInteger>("integer", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object IntegerType : PrimitiveDatatype<VInteger>("integer", XSD_NS_URI), IIntegerType {
     override val baseType: DecimalType get() = DecimalType
 
     override val mdlFacets: FacetList = FacetList(
@@ -491,7 +491,7 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XmlSchemaConstants.X
     }
 }
 
-object LongType : PrimitiveDatatype<VInteger>("long", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType {
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -527,7 +527,7 @@ object LongType : PrimitiveDatatype<VInteger>("long", XmlSchemaConstants.XS_NAME
     }
 }
 
-object IntType : PrimitiveDatatype<VInteger>("int", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
     override val baseType: LongType get() = LongType
 
     override val mdlFacets: FacetList = FacetList(
@@ -563,7 +563,7 @@ object IntType : PrimitiveDatatype<VInteger>("int", XmlSchemaConstants.XS_NAMESP
 
 }
 
-object ShortType : PrimitiveDatatype<VInteger>("short", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object ShortType : PrimitiveDatatype<VInteger>("short", XSD_NS_URI), IIntegerType {
     override val baseType: IntType get() = IntType
 
     override val mdlFacets: FacetList = FacetList(
@@ -600,7 +600,7 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XmlSchemaConstants.XS_NA
 
 }
 
-object ByteType : PrimitiveDatatype<VInteger>("byte", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object ByteType : PrimitiveDatatype<VInteger>("byte", XSD_NS_URI), IIntegerType {
     override val baseType: ShortType get() = ShortType
 
     override val mdlFacets: FacetList = FacetList(
@@ -638,7 +638,7 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XmlSchemaConstants.XS_NAME
     override fun toString(): String = "Builtin:Byte"
 }
 
-object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegativeInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegativeInteger", XSD_NS_URI), IIntegerType {
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -673,7 +673,7 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
 
 }
 
-object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInteger", XSD_NS_URI), IIntegerType {
     override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -708,7 +708,7 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
 
 }
 
-object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_NS_URI), IIntegerType {
     override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -744,7 +744,7 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XmlSc
 
 }
 
-object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_URI), IIntegerType {
     override val baseType: UnsignedLongType get() = UnsignedLongType
 
     override val mdlFacets: FacetList = FacetList(
@@ -780,7 +780,7 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XmlSchem
 
 }
 
-object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_NS_URI), IIntegerType {
     override val baseType: UnsignedIntType get() = UnsignedIntType
 
     override val mdlFacets: FacetList = FacetList(
@@ -816,7 +816,7 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XmlS
 
 }
 
-object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS_URI), IIntegerType {
     override val baseType: UnsignedShortType get() = UnsignedShortType
 
     override val mdlFacets: FacetList = FacetList(
@@ -856,7 +856,7 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XmlSch
 
 }
 
-object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger", XSD_NS_URI), IIntegerType {
     override val baseType: IntegerType get() = IntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -896,7 +896,7 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
 
 }
 
-object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XmlSchemaConstants.XS_NAMESPACE), IIntegerType {
+object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XSD_NS_URI), IIntegerType {
     override val baseType: NonPositiveIntegerType get() = NonPositiveIntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -937,7 +937,7 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XmlS
 
 }
 
-object DoubleType : PrimitiveDatatype<VDouble>("double", XmlSchemaConstants.XS_NAMESPACE) {
+object DoubleType : PrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -969,7 +969,7 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XmlSchemaConstants.XS_N
 
 }
 
-object DurationType : PrimitiveDatatype<VDuration>("duration", XmlSchemaConstants.XS_NAMESPACE) {
+object DurationType : PrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -996,7 +996,7 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XmlSchemaConstant
     }
 }
 
-object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XmlSchemaConstants.XS_NAMESPACE) {
+object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD_NS_URI) {
     override val baseType: DurationType get() = DurationType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1031,7 +1031,7 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", Xml
     }
 }
 
-object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration", XmlSchemaConstants.XS_NAMESPACE) {
+object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration", XSD_NS_URI) {
     override val baseType: DurationType get() = DurationType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1065,7 +1065,7 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
     }
 }
 
-object FloatType : PrimitiveDatatype<VFloat>("float", XmlSchemaConstants.XS_NAMESPACE) {
+object FloatType : PrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1097,7 +1097,7 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XmlSchemaConstants.XS_NAME
 
 }
 
-object GDayType : PrimitiveDatatype<VGDay>("gDay", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
+object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1137,7 +1137,7 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XmlSchemaConstants.XS_NAMESPA
     }
 }
 
-object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
+object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1182,7 +1182,7 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XmlSchemaConstants.XS_N
     }
 }
 
-object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
+object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1230,7 +1230,7 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XmlSchemaConst
     }
 }
 
-object GYearType : PrimitiveDatatype<VGYear>("gYear", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
+object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1268,7 +1268,7 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XmlSchemaConstants.XS_NAME
     }
 }
 
-object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XmlSchemaConstants.XS_NAMESPACE), FiniteDateType {
+object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI), FiniteDateType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1304,7 +1304,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XmlSchemaCo
 
 }
 
-object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConstants.XS_NAMESPACE) {
+object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XSD_NS_URI) {
     fun length(representation: String): Int {
         var acc = 0
         for (c in representation) {
@@ -1351,7 +1351,7 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XmlSchemaConst
     }
 }
 
-object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XmlSchemaConstants.XS_NAMESPACE) {
+object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1382,7 +1382,7 @@ object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XmlSchemaConstant
     }
 }
 
-object QNameType : PrimitiveDatatype<VQName>("QName", XmlSchemaConstants.XS_NAMESPACE) {
+object QNameType : PrimitiveDatatype<VQName>("QName", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1417,7 +1417,7 @@ object QNameType : PrimitiveDatatype<VQName>("QName", XmlSchemaConstants.XS_NAME
     }
 }
 
-object StringType : PrimitiveDatatype<VString>("string", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object StringType : PrimitiveDatatype<VString>("string", XSD_NS_URI), IStringType {
     override val baseType: AnyAtomicType get() = AnyAtomicType
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = SimpleBuiltinRestriction(
@@ -1452,7 +1452,7 @@ object StringType : PrimitiveDatatype<VString>("string", XmlSchemaConstants.XS_N
     override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
-object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedString", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedString", XSD_NS_URI), IStringType {
     override val baseType: StringType get() = StringType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1483,7 +1483,7 @@ object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedSt
     }
 }
 
-object TokenType : PrimitiveDatatype<VToken>("token", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object TokenType : PrimitiveDatatype<VToken>("token", XSD_NS_URI), IStringType {
     override val baseType: NormalizedStringType get() = NormalizedStringType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1514,7 +1514,7 @@ object TokenType : PrimitiveDatatype<VToken>("token", XmlSchemaConstants.XS_NAME
     }
 }
 
-object LanguageType : PrimitiveDatatype<VLanguage>("language", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStringType {
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1546,7 +1546,7 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XmlSchemaConstant
     }
 }
 
-object NameType : PrimitiveDatatype<VName>("Name", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1578,7 +1578,7 @@ object NameType : PrimitiveDatatype<VName>("Name", XmlSchemaConstants.XS_NAMESPA
     }
 }
 
-object NCNameType : PrimitiveDatatype<VNCName>("NCName", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object NCNameType : PrimitiveDatatype<VNCName>("NCName", XSD_NS_URI), IStringType {
     override val baseType: NameType get() = NameType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1615,7 +1615,7 @@ object NCNameType : PrimitiveDatatype<VNCName>("NCName", XmlSchemaConstants.XS_N
 
 }
 
-object EntityType : PrimitiveDatatype<VString>("ENTITY", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object EntityType : PrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), IStringType {
     override val baseType: NCNameType get() = NCNameType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1646,7 +1646,7 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XmlSchemaConstants.XS_N
     }
 }
 
-object IDType : PrimitiveDatatype<VID>("ID", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object IDType : PrimitiveDatatype<VID>("ID", XSD_NS_URI), IStringType {
     override val baseType: NCNameType get() = NCNameType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1682,7 +1682,7 @@ object IDType : PrimitiveDatatype<VID>("ID", XmlSchemaConstants.XS_NAMESPACE), I
     }
 }
 
-object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
     override val baseType: NCNameType get() = NCNameType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1718,7 +1718,7 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XmlSchemaConstants.XS_NAME
     }
 }
 
-object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XmlSchemaConstants.XS_NAMESPACE), IStringType {
+object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IStringType {
     override val baseType: TokenType get() = TokenType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1750,7 +1750,7 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XmlSchemaConstants.X
     }
 }
 
-object TimeType : PrimitiveDatatype<VTime>("time", XmlSchemaConstants.XS_NAMESPACE) {
+object TimeType : PrimitiveDatatype<VTime>("time", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
@@ -1783,7 +1783,7 @@ object TimeType : PrimitiveDatatype<VTime>("time", XmlSchemaConstants.XS_NAMESPA
 object EntitiesType :
     ConstructedListDatatype(
         "ENTITIES",
-        XmlSchemaConstants.XS_NAMESPACE,
+        XSD_NS_URI,
         EntityType,
         BuiltinSchemaXmlschema,
     ) {
@@ -1794,11 +1794,11 @@ object EntitiesType :
 }
 
 object IDRefsType : ConstructedListDatatype(
-        "IDREFS",
-        XmlSchemaConstants.XS_NAMESPACE,
-        EntityType,
-        BuiltinSchemaXmlschema
-    ) {
+    "IDREFS",
+    XSD_NS_URI,
+    EntityType,
+    BuiltinSchemaXmlschema
+) {
     override val mdlItemTypeDefinition: ResolvedSimpleType
         get() = IDRefType
 
@@ -1807,7 +1807,7 @@ object IDRefsType : ConstructedListDatatype(
 
 object NMTokensType : ConstructedListDatatype(
     "NMTOKENS",
-    XmlSchemaConstants.XS_NAMESPACE,
+    XSD_NS_URI,
     EntityType,
     BuiltinSchemaXmlschema
 ) {
@@ -1817,7 +1817,7 @@ object NMTokensType : ConstructedListDatatype(
     override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
-object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecimal", XmlSchemaConstants.XS_NAMESPACE) {
+object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecimal", XSD_NS_URI) {
     override val baseType: AnyAtomicType get() = AnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(

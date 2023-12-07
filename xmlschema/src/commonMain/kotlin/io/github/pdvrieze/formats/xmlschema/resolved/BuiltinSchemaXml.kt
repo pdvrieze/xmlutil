@@ -26,11 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XML_NAMESPACE
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants.XS_NAMESPACE
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 
 object BuiltinSchemaXml : ResolvedSchemaLike() {
     override val version: SchemaVersion get() = SchemaVersion.V1_1
@@ -44,18 +43,18 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     init {
         val rawSchema = XSSchema(
-            targetNamespace = XML_NAMESPACE.toAnyUri(),
+            targetNamespace = XMLConstants.XML_NS_URI.toAnyUri(),
             attributeFormDefault = VFormChoice.QUALIFIED,
             attributes = listOf(
                 XSGlobalAttribute(
                     name = VNCName("lang"),
                     simpleType = XSLocalSimpleType(
                         simpleDerivation = XSSimpleUnion(
-                            memberTypes = listOf(QName(XS_NAMESPACE, "language")),
+                            memberTypes = listOf(QName(XMLConstants.XSD_NS_URI, "language")),
                             simpleTypes = listOf(
                                 XSLocalSimpleType(
                                     simpleDerivation = XSSimpleRestriction(
-                                        base = QName(XS_NAMESPACE, "string"),
+                                        base = QName(XMLConstants.XSD_NS_URI, "string"),
                                         facets = listOf(XSEnumeration(VString("")))
                                     )
                                 )
@@ -67,7 +66,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
                     name = VNCName("space"), default = VString("preserve"),
                     simpleType = XSLocalSimpleType(
                         simpleDerivation = XSSimpleRestriction(
-                            base = QName(XS_NAMESPACE, "NCName"),
+                            base = QName(XMLConstants.XSD_NS_URI, "NCName"),
                             facets = listOf(
                                 XSEnumeration(VString("default")),
                                 XSEnumeration(VString("preserve")),
@@ -75,16 +74,16 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
                         )
                     )
                 ),
-                XSGlobalAttribute(name = VNCName("base"), type = QName(XS_NAMESPACE, "anyURI")),
-                XSGlobalAttribute(name = VNCName("id"), type = QName(XS_NAMESPACE, "ID")),
+                XSGlobalAttribute(name = VNCName("base"), type = QName(XMLConstants.XSD_NS_URI, "anyURI")),
+                XSGlobalAttribute(name = VNCName("id"), type = QName(XMLConstants.XSD_NS_URI, "ID")),
             ),
             attributeGroups = listOf(
                 XSAttributeGroup(
                     VNCName("specialAttrs"), attributes = listOf(
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "base")),
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "lang")),
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "space")),
-                        XSLocalAttribute(ref = QName(XML_NAMESPACE, "id")),
+                        XSLocalAttribute(ref = QName(XMLConstants.XML_NS_URI, "base")),
+                        XSLocalAttribute(ref = QName(XMLConstants.XML_NS_URI, "lang")),
+                        XSLocalAttribute(ref = QName(XMLConstants.XML_NS_URI, "space")),
+                        XSLocalAttribute(ref = QName(XMLConstants.XML_NS_URI, "id")),
                     )
                 )
             ),
@@ -95,35 +94,35 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     internal val resolver: ResolvedSchema.SchemaElementResolver = object : ResolvedSchema.SchemaElementResolver {
         override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
-            return maybeSimpleType(QName(XML_NAMESPACE, typeName))
+            return maybeSimpleType(QName(XMLConstants.XML_NS_URI, typeName))
         }
 
         override fun maybeType(typeName: String): ResolvedGlobalType? {
-            return maybeType(QName(XML_NAMESPACE, typeName))
+            return maybeType(QName(XMLConstants.XML_NS_URI, typeName))
         }
 
         override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
-            return maybeAttributeGroup(QName(XML_NAMESPACE, attributeGroupName))
+            return maybeAttributeGroup(QName(XMLConstants.XML_NS_URI, attributeGroupName))
         }
 
         override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
-            return maybeGroup(QName(XML_NAMESPACE, groupName))
+            return maybeGroup(QName(XMLConstants.XML_NS_URI, groupName))
         }
 
         override fun maybeElement(elementName: String): ResolvedGlobalElement? {
-            return maybeElement(QName(XML_NAMESPACE, elementName))
+            return maybeElement(QName(XMLConstants.XML_NS_URI, elementName))
         }
 
         override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
-            return maybeAttribute(QName(XML_NAMESPACE, attributeName))
+            return maybeAttribute(QName(XMLConstants.XML_NS_URI, attributeName))
         }
 
         override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
-            return maybeIdentityConstraint(QName(XML_NAMESPACE, constraintName))
+            return maybeIdentityConstraint(QName(XMLConstants.XML_NS_URI, constraintName))
         }
 
         override fun maybeNotation(notationName: String): ResolvedNotation? {
-            return maybeNotation(QName(XML_NAMESPACE, notationName))
+            return maybeNotation(QName(XMLConstants.XML_NS_URI, notationName))
         }
     }
 

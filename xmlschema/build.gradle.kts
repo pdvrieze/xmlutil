@@ -146,6 +146,6 @@ configureDokka(myModuleVersion = xmlutil_core_version)
 
 idea {
     module {
-        name = "xmlutil-serialutil"
+        name = "xmlutil-xmlschema"
     }
 }

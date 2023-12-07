@@ -20,15 +20,16 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
-@XmlSerialName("openContent", XmlSchemaConstants.XS_NAMESPACE, XmlSchemaConstants.XS_PREFIX)
+@XmlSerialName("openContent", XSD_NS_URI, XSD_PREFIX)
 class XSOpenContent : XSOpenContentBase {
     constructor(
         id: VID? = null,

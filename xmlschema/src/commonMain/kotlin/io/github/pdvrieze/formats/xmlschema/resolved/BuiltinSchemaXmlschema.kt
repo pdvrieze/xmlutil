@@ -25,15 +25,15 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
-import io.github.pdvrieze.formats.xmlschema.impl.XmlSchemaConstants
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val version: SchemaVersion get() = SchemaVersion.V1_1
-    override val targetNamespace: VAnyURI = XmlSchemaConstants.XS_NAMESPACE.toAnyUri()
+    override val targetNamespace: VAnyURI = XSD_NS_URI.toAnyUri()
     override val defaultOpenContent: Nothing? get() = null
     override val defaultAttributes: Nothing? get() = null
 
@@ -41,7 +41,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val elementFormDefault: VFormChoice get() = VFormChoice.QUALIFIED
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-        require(typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE) {
+        require(typeName.namespaceURI == XSD_NS_URI) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
 
@@ -49,7 +49,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     }
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? {
-        if (typeName.namespaceURI == XmlSchemaConstants.XS_NAMESPACE && typeName.localPart == "anyType") return AnyType
+        if (typeName.namespaceURI == XSD_NS_URI && typeName.localPart == "anyType") return AnyType
         return maybeSimpleType(typeName)
     }
 
