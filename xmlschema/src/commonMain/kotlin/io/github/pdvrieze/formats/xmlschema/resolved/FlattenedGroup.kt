@@ -936,7 +936,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             if (!base.range.contains(range)) return false
 
             // NSSubset 2, subset per Schema 1 - 3.10.6
-            if (!term.mdlNamespaceConstraint.isSubsetOf(base.term.mdlNamespaceConstraint)) return false
+            if (!term.mdlNamespaceConstraint.isSubsetOf(base.term.mdlNamespaceConstraint, schema.version)) return false
 
             // NSSubset 3, (exception for the ur-wildcard is needed - although a shortcut may apply by just always
             // restricting AnyType)
@@ -957,7 +957,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
             if (!reference.range.contains(range)) return null
-            if (!term.mdlNamespaceConstraint.isSubsetOf(reference.term.mdlNamespaceConstraint)) return null
+            if (!term.mdlNamespaceConstraint.isSubsetOf(reference.term.mdlNamespaceConstraint, schema.version)) return null
             if (reference.term !== AnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) return null
             return reference - range
         }

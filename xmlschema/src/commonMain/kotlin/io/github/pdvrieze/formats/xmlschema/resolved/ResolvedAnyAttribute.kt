@@ -34,12 +34,17 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
     ) : super(mdlNamespaceConstraint, mdlProcessContents)
 
     constructor(
+        mdlNamespaceConstraint: VNamespaceConstraint<VQNameListBase.AttrElem>,
+        mdlProcessContents: VProcessContents,
+        model: ResolvedAnnotated.IModel,
+    ) : super(mdlNamespaceConstraint, mdlProcessContents, model)
+
+    constructor(
         rawPart: XSAnyAttribute,
         schema: ResolvedSchemaLike,
-        hasUnqualifiedAttrs: Boolean,
     ) : super(
         rawPart,
-        rawPart.toConstraint(schema, hasUnqualifiedAttrs), // for now attributes always have ## local in the context
+        rawPart.toConstraint(schema), // for now attributes always have ## local in the context
         rawPart.processContents ?: VProcessContents.STRICT
     )
 

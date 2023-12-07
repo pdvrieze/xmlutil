@@ -55,14 +55,16 @@ interface IResolvedChoice : ResolvedModelGroup {
             for (startElem in f.startingTerms()) {
                 when (startElem) {
                     is FlattenedParticle.Element -> require(seenNames.add(startElem.term.mdlQName)) {
-                        "Non-deterministic all group: all{${mdlParticles.joinToString()}}"
+                        "Non-deterministic choice group: choice{${mdlParticles.joinToString()}}"
                     }
 
                     is FlattenedParticle.Wildcard -> {
-                        require(seenWildcards.none { it.intersects(startElem.term) }) {
-                            "Non-deterministic all group: all${mdlParticles.joinToString()}"
+                        if (startElem.term.mdlNamespaceConstraint.namespaces.singleOrNull()?.value?.isNotEmpty() ?: true) {
+                            require(seenWildcards.none { it.intersects(startElem.term) }) {
+                                "Non-deterministic choice group: choice${mdlParticles.joinToString()}"
+                            }
+                            seenWildcards.add(startElem.term)
                         }
-                        seenWildcards.add(startElem.term)
                     }
                 }
 
