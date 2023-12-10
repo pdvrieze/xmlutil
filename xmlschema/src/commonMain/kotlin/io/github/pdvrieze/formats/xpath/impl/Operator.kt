@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,24 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+enum class Operator(val literal: String, val priority: Int) {
 
-@XmlUtilInternal
-public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
-    }
+    OR("or", 1),
+    AND("and", 2),
+    UNION("union", 7),
+    EQ("=", 3),
+    NEQ("!=", 3),
+    LT("<", 4),
+    LE("<=", 4),
+    GT(">", 4),
+    GE(">=", 4),
+    ADD("+", 5),
+    SUB("-", 5),
+    MUL("*", 6),
+    DIV("div", 6),
+    MOD("mod", 6),
+    ;
+
 }

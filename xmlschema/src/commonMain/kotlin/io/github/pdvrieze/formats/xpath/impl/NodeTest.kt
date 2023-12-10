@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,17 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import nl.adaptivity.xmlutil.QName
 
-@XmlUtilInternal
-public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
-    }
+@XPathInternal
+internal sealed class NodeTest {
+    sealed class NameTest() : NodeTest()
+    class NodeTypeTest(val type: NodeType) : NodeTest()
+    class ProcessingInstructionTest(val literal: String? = null) : NodeTest()
+    class QNameTest(val qName: QName) : NameTest()
+    class NSTest(val namespace: VNCName) : NameTest()
+    object AnyNameTest : NameTest()
 }

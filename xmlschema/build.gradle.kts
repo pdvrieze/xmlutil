@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -26,21 +26,18 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id(libs.plugins.dokka.get().pluginId)
+    alias(libs.plugins.dokka)
     idea
 //    alias(libs.plugins.binaryValidator)
 }
 
-val xmlutil_core_version: String by project
-val xmlutil_versiondesc: String by project
-
 base {
-    archivesName.set("xmlschema")
-    version = xmlutil_core_version
+    archivesName = "xmlschema"
     description = "A simple library for serializing/deserializing xmlschema"
 }
 
@@ -75,19 +72,9 @@ kotlin {
                 }
             }
         }
-        mavenPublication {
-            version = xmlutil_core_version
-        }
     }
 
     sourceSets {
-        all {
-            languageSettings {
-                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-                optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
-            }
-        }
-
         val commonMain by getting {
             dependencies {
                 implementation(project(":core"))
@@ -110,39 +97,20 @@ kotlin {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
 
-                implementation(kotlin("test-junit5"))
-
                 runtimeOnly(libs.junit5.engine)
                 runtimeOnly(libs.woodstox)
             }
         }
-        all {
-            languageSettings.apply {
-                optIn("kotlin.RequiresOptIn")
-            }
-        }
     }
-}
-
-tasks.create<Task>("test") {
-    dependsOn(tasks.named("jvmTest"))
-    group="verification"
 }
 
 addNativeTargets()
 
-/*
-apiValidation {
-    ignoredPackages.apply {
-//        add("nl.adaptivity.serialutil.impl")
-    }
-
-}
-*/
-
 doPublish()
 
-configureDokka(myModuleVersion = xmlutil_core_version)
+config {
+    dokkaModuleName = "xmlschema"
+}
 
 idea {
     module {

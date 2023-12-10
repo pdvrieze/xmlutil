@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,9 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
-@XmlUtilInternal
-public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
-    }
-}
+@RequiresOptIn("accessible for testing only")
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
+internal annotation class XPathInternal()

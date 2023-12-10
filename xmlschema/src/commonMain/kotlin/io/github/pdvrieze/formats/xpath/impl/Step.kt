@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,21 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+@XPathInternal
+internal class Step(
+    val axis: Axis,
+    val test: NodeTest,
+    val predicates: List<Expr>
+) : PrimaryOrStep() {
+    constructor(test: NodeTest) : this(Axis.CHILD, test, emptyList())
 
-@XmlUtilInternal
-public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
-    }
+    constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
 }
+
+@XPathInternal
+internal sealed class PrimaryOrStep
+
+@XPathInternal
+internal class Primary(val expr: Expr) : PrimaryOrStep()

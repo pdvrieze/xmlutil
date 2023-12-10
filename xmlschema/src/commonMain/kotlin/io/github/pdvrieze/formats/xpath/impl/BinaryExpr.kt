@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,17 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+@XPathInternal
+internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): Expr() {
+    companion object {
+        fun priority(op: Operator, left: Expr, right: Expr): Expr {
+            if (left !is BinaryExpr ||
+                op.priority<= left.operator.priority) return BinaryExpr(op, left, right)
 
-@XmlUtilInternal
-public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
+            return BinaryExpr(left.operator, left.left, BinaryExpr(op, left.right, right))
+        }
     }
 }
+

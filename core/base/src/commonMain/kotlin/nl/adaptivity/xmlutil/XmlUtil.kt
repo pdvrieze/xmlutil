@@ -55,6 +55,32 @@ public fun xmlCollapseWhitespace(original: String): String = buildString(origina
     if (last == ' ' && isNotEmpty()) this.deleteAt(this.length - 1) // make sure to trim
 }
 
+public fun xmlTrimWhitespace(original: String): String = buildString(original.length) {
+    var start = -1
+    for (i in original.indices) {
+        when (original[i]) {
+            '\t', '\n', '\r', ' ' -> {}
+            else -> { start = i; break }
+        }
+    }
+    if (start < 0) return "" // loop finished
+    var end = -1
+    for (i in original.indices.reversed()) {
+        when (original[i]) {
+            '\t', '\n', '\r', ' ' -> {}
+            else -> { end = i; break }
+        }
+    }
+
+    for(i in start..end) {
+        when (val c=original[i]) {
+            '\t', '\n', '\r', ' ' -> append(' ')
+
+            else -> append(c)
+        }
+    }
+}
+
 
 @Deprecated(
     "Use the version that takes string parameters",
