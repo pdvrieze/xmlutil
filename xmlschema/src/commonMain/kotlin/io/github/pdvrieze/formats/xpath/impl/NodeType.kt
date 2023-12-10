@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,20 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.internal
+package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+import io.github.pdvrieze.formats.xpath.XPathExpression
 
-@XmlUtilInternal
-public fun String.countIndentedLength(): Int = fold(0) { acc, ch ->
-    acc + when (ch) {
-        '\t' -> 8
-        else -> 1
+enum class NodeType(val literal: String) {
+    COMMENT("comment"),
+    TEXT("text"),
+    PROCESSING_INSTRUCTION("processing-instruction"),
+    NODE("node"),;
+
+    companion object {
+        private val lookup = entries.associateBy { it.literal }
+        fun maybeValueOf(name: String): NodeType? {
+            return lookup[name]
+        }
     }
 }
