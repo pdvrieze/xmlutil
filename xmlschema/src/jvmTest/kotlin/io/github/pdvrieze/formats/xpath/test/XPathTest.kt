@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.impl.LocationPath
 import io.github.pdvrieze.formats.xpath.impl.NumberLiteral
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -47,9 +48,7 @@ class XPathTest {
         assertEquals(Axis.CHILD, s.axis)
         assertEquals(0, s.predicates.size)
         val name = assertIs<NodeTest.QNameTest>(s.test).qName
-        assertEquals("", name.namespaceURI)
-        assertEquals("", name.prefix)
-        assertEquals("para", name.localPart)
+        assertEquals(QName("para"), name)
     }
 
     @Test
@@ -333,12 +332,29 @@ class XPathTest {
             assertEquals(Axis.DESCENDANT, s.axis)
             assertEquals(0, s.predicates.size)
             val name = assertIs<NodeTest.QNameTest>(s.test).qName
-            assertEquals("", name.namespaceURI)
-            assertEquals("", name.prefix)
-            assertEquals("para", name.localPart)
+            assertEquals(QName("para"), name)
         }
 
     }
 
+    @Test
+    fun testUnionPath() {
+        testPath(".//myNS:t | .//myNS:u", "myNS" to "myNS") {
+            assertBinary(Operator.UNION) {
+                assertLeft<LocationPath> {
+                    assertPath {
+                        assertStepSelf()
+                        assertStep(Axis.DESCENDANT, QName("myNS", "t", "myNS"))
+                    }
+                }
+                assertRight<LocationPath> {
+                    assertPath {
+                        assertStepSelf()
+                        assertStep(Axis.DESCENDANT, QName("myNS", "u", "myNS"))
+                    }
+                }
+            }
+        }
+    }
 
 }

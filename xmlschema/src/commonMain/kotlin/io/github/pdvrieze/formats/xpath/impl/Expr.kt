@@ -21,4 +21,4 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal sealed class Expr
+sealed class Expr
