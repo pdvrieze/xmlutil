@@ -151,6 +151,7 @@ class XPathExpression private constructor(
                 }
 
                 c == '(' -> {
+                    ++i
                     current = ParenExpr(parseExpr(true))
                     skipWhitespace()
                     require(checkCurrent(')')) { "@$i> missing closing )" }
@@ -255,6 +256,7 @@ class XPathExpression private constructor(
                         if (start == i) rooted = true
 
                         ++i
+                        skipWhitespace()
                         val exprStart = i
                         when (val s = parseStep(steps.size)) {
                             is Step -> steps.add(s)
@@ -342,6 +344,81 @@ class XPathExpression private constructor(
             var currentAxis: Axis? = null
             var currentTest: NodeTest? = null
             var currentPrefix: String? = null
+            var parsePos = -1
+
+            fun finaliseName(): Primary? {
+                val localName = str.substring(start, i)
+                skipWhitespace()
+                when {
+                    currentAxis == null && parsePos<=0 && checkCurrent("::") -> {
+                        currentAxis = Axis.from(localName)
+                        i += 2
+                        start = i
+                        parsePos = 1
+                        return null
+                    }
+
+                    checkCurrent(':') -> {
+                        require(currentPrefix==null)
+                        require(parsePos<=1)
+                        currentPrefix = localName
+                        ++i
+                        start = i
+                        parsePos = 2
+                        return null
+                    }
+
+                    checkCurrent('(') -> {
+                        ++i
+                        skipWhitespace()
+                        val nodeType = if (currentPrefix == null) NodeType.maybeValueOf(localName) else null
+                        if (nodeType!=null) {
+                            check(currentAxis==null)
+                            currentAxis = Axis.CHILD
+
+                            if (checkCurrent(')')) {
+                                currentTest = NodeTest.NodeTypeTest(nodeType)
+                            } else {
+                                require(nodeType == NodeType.PROCESSING_INSTRUCTION)
+                                currentTest = NodeTest.ProcessingInstructionTest(parseLiteral().value)
+                                require(checkCurrent(')'))
+                            }
+                            ++i // closing )
+                        } else {
+                            require(currentAxis==null) { "Primary functions ($localName) can not be in a path with axis" }
+                            val ns = lookupNamespace(currentPrefix)
+                            val name = QName(ns, localName, currentPrefix?:"")
+                            val args = mutableListOf<Expr>()
+
+                            while (! checkCurrent(')')) {
+                                args.add(parseExpr(true))
+                                skipWhitespace()
+                                if (i >= str.length || str[i].let { it != ',' && it != ')' }) {
+                                    throw IllegalArgumentException("@$i> Unexpected token in arguments)")
+                                }
+                            }
+                            ++i // last)
+                            return Primary(FunctionCall(name, args))
+                        }
+                        parsePos = 3
+                    }
+                    else -> {
+                        check(i>=str.length || !isNameChar(str[i])) { "@$i> Not finished name (${str[i]}): $str"}
+                        // can be already set
+                        if (currentAxis==null) currentAxis = Axis.CHILD
+
+                        val ns = lookupNamespace(currentPrefix)
+                        val name = QName(ns, localName, currentPrefix?:"")
+                        currentTest = NodeTest.QNameTest(name)
+                        parsePos = 3
+                    }
+                }
+
+
+
+                return null
+            }
+
             val currentPredicates: MutableList<Expr> = mutableListOf()
 
             /*
@@ -353,11 +430,12 @@ class XPathExpression private constructor(
              * 3    -   NodeTest has been read.
              */
 
-            var parsePos = -1
             while (i < str.length) {
                 val c = str[i]
                 when {
-                    c == ' ' -> {} // ignore
+                    c == ' ' -> {
+                        finaliseName()?.let { return it }
+                    } // ignore
 
                     c == '/' && i == start -> {
                         ++i
@@ -377,7 +455,8 @@ class XPathExpression private constructor(
                     c == '@' -> { //attribute
                         require(parsePos < 1 && i == start) { "@$i> attribute out of scope" }
                         parsePos = 1
-                        start = i + 1
+                        ++i
+                        start = i
                         currentAxis = Axis.ATTRIBUTE
                     }
 
@@ -387,8 +466,8 @@ class XPathExpression private constructor(
                             parsePos = 1
                             require(currentAxis == null) { "Multiple axes in xpath" }
                             currentAxis = Axis.from(str.substring(start, i))
-                            ++i // skip extra character
-                            start = i + 1
+                            i+=2 // skip extra character
+                            start = i
                         }
 
                         else -> {
@@ -396,7 +475,8 @@ class XPathExpression private constructor(
                             currentPrefix = str.substring(start, i).also {
                                 require(it.isNCName()) { "@$start> '$it' is not a valid NCName/prefix" }
                             }
-                            start = i + 1
+                            ++i
+                            start = i
                         }
                     }
 
@@ -410,156 +490,59 @@ class XPathExpression private constructor(
                             currentAxis = Axis.CHILD
                             currentTest = NodeTest.AnyNameTest
                             parsePos = 3
+                            ++i
                         }
 
                         parsePos == 1 -> {
                             currentTest = NodeTest.AnyNameTest
                             parsePos = 3
+                            ++i
                         }
 
                         else -> {
                             check(str[i - 1] == ':') { "Should not happen" }
                             currentTest = NodeTest.NSTest(VNCName(str.substring(start, i - 1)))
                             parsePos = 3
+                            ++i
                         }
                     }
 
-                    c == '(' -> when {
-                        parsePos < 0 -> {// start Expr
-                            error("Should be unreachable")
-                            val expr = parseExpr(true)
-                            ++i
-                            skipWhitespace()
-                            require(checkCurrent(')')) { "@$i> expression not closed by ')'" }
-                            return TODO("return expr")
-                        }
-
-                        else -> { // must be function call or node type
-                            require(parsePos <= 2) { "@$start> Function call instead of predicate" }
-                            require(currentAxis == null) { "Function calls do not allow an axis" }
-                            val localName = str.substring(start, i)
-                            require(localName.isNCName()) { "@$start> Function name is not an ncname" }
-                            val nodeType = if(currentPrefix == null) NodeType.maybeValueOf(localName) else null
-                            ++i
-                            skipWhitespace()
-
-                            if (nodeType != null) {
-                                val args = when {
-                                    nodeType == NodeType.PROCESSING_INSTRUCTION &&
-                                            !checkCurrent(')') -> parseLiteral().also { skipWhitespace() }
-
-                                    else -> null
-                                }
-                                require(checkCurrent(')')) { "@$i> NodeType call is not closed with ')'" }
-                                ++i
-                                parsePos = 3
-                                currentAxis = Axis.CHILD
-                                currentTest = NodeTest.NodeTypeTest(nodeType)
-                            } else {
-                                val ns = currentPrefix?.let { namespaceContext.getNamespaceURI(it) } ?: ""
-                                val args = mutableListOf<Expr>()
-                                while (str[i] != ')') {
-                                    args.add(parseExpr(false))
-                                    skipWhitespace()
-                                    if (checkCurrent(',')) {
-                                        ++i
-                                        skipWhitespace()
-                                        require(!checkCurrent(',')) { "@$i> Empty parameter" }
-                                        require(!checkCurrent(')')) { "@$i> Trailing comma in parameters" }
-                                    }
-
-                                    if (i >= str.length) throw IllegalArgumentException("Non-closed function call")
-                                }
-                                ++i
-                                skipWhitespace()
-                                val name = QName(ns, localName, currentPrefix?:"")
-                                return Primary(FunctionCall(name, args))
-                            }
-
-                        }
+                    c == '(' -> {
+                        finaliseName()?.let { return it }
+                        // will have created the function call if relevant
                     }
 
                     c == '[' -> {
-                        when (parsePos) {
-                            -1 -> throw IllegalArgumentException("@$i> Predicate without node (parsePos: $parsePos)")
-                            0 -> {
-                                currentAxis = Axis.CHILD
-                                val localName = str.substring(start, i)
-                                require(localName.isNCName()) { "@$start> '$localName' is not a valid ncname" }
-                                val ns = namespaceContext.getNamespaceURI("") ?: ""
-                                currentTest = NodeTest.QNameTest(QName(ns, localName))
-                            }
+                        finaliseName()?.let { return it } // this will take care of predicates
 
-                            1 -> {
-                                val localName = str.substring(start, i)
-                                require(localName.isNCName()) { "@$start> '$localName' is not a valid ncname" }
-                                val ns = namespaceContext.getNamespaceURI("") ?: ""
-                                currentTest = NodeTest.QNameTest(QName(ns, localName))
-                            }
-
-                            2 -> {
-                                val localName = str.substring(start, i)
-                                checkNotNull(currentPrefix)
-                                require(localName.isNCName()) { "@$start> '$localName' is not a valid ncname" }
-                                val ns = namespaceContext.getNamespaceURI(currentPrefix) ?: ""
-                                currentTest = NodeTest.QNameTest(QName(ns, localName, currentPrefix))
-                            }
-                        }
-                        parsePos = 3
                         ++i
 
                         currentPredicates.add(parseExpr(true))
                         skipWhitespace()
                         require(checkCurrent(']')) { "@$i> predicate not closed by ']'" }
+                        ++i
                     }
 
                     isNameStartChar(c) -> {
                         if (parsePos < 0) parsePos = 0
+                        ++i
+                    }
+
+                    start != i && c.isDigit() -> ++i
+                    c == '|' -> {
+                        break
                     }
 
                     else -> {
-                        throw IllegalArgumentException("@$i> Unexpected token '${c}'")
+                        throw IllegalArgumentException("@$i> Unexpected token '${c}' in '$str'")
                     }
                 }
-                ++i
             }
-            when (parsePos) {
-                -1 -> error("Should be unreachable - empty path")
-                0 -> { // no axis observed, but some letters
-                    currentAxis = Axis.CHILD
-                    val name = str.substring(start, i)
-                    require(name.isNCName()) { "@$start> Expected NCName, but got '$name'" }
-                    val ns = namespaceContext.getNamespaceURI("") ?: ""
-                    currentTest = NodeTest.QNameTest(QName(ns, name))
-                }
-
-                1 -> { // axis parsed, but no prefix
-                    assert(currentAxis != null)
-                    val ns = namespaceContext.getNamespaceURI("") ?: ""
-                    val name = str.substring(start, i)
-                    require(name.isNCName()) { "@$start> Expected NCName, but got '$name'" }
-                    currentTest = NodeTest.QNameTest(QName(ns, name))
-                }
-
-                2 -> { // axis parsed and prefix parsed
-                    assert(currentAxis != null)
-                    assert(currentPrefix != null)
-                    val ns = namespaceContext.getNamespaceURI(currentPrefix!!) ?: ""
-                    val localName = str.substring(start, i)
-                    require(localName.isNCName()) { "@$start> Expected NCName, but got '$localName'" }
-                    currentTest = NodeTest.QNameTest(QName(ns, localName))
-                }
-
-/*
-                3 -> when (currentPredicates.size) {
-                    0 -> assert(str[i - 1] != ']')
-                    else -> assert(str[i - 1] == ']')
-                }
-*/
+            if (parsePos<3 && currentTest==null) {
+                finaliseName()?.let { return it }
             }
 
-
-            return Step(currentAxis!!, currentTest!!, currentPredicates)
+            return Step(checkNotNull(currentAxis){ "missing axis" }, checkNotNull(currentTest){ "missing test" }, currentPredicates)
         }
 
         fun checkCurrent(char: Char): Boolean {
@@ -578,6 +561,13 @@ class XPathExpression private constructor(
             return i >= str.length || !isNameChar(str[i])
         }
 
+        fun lookupNamespace(prefix: String?): String = when (prefix){
+            "",
+            null -> namespaceContext.getNamespaceURI("") ?: ""
+            else -> requireNotNull(namespaceContext.getNamespaceURI(prefix)) {
+                "Missing namespace for prefix $prefix"
+            }
+        }
 
     }
 
