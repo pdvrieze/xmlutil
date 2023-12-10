@@ -153,24 +153,121 @@ class XPathTest {
     fun testParaGrandChildren() {
         val expr = XPathExpression("*/para")
         assertEquals("*/para", expr.test)
+
+        val e = assertIs<LocationPath>(expr.expr)
+        assertFalse(e.rooted)
+        assertEquals(2, e.steps.size)
+
+        run {
+            val s = e.steps[0]
+            assertEquals(Axis.CHILD, s.axis)
+            assertEquals(0, s.predicates.size)
+            assertIs<NodeTest.AnyNameTest>(s.test)
+        }
+
+        run {
+            val s = e.steps[1]
+            assertEquals(Axis.CHILD, s.axis)
+            assertEquals(0, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("para", name.localPart)
+        }
+
     }
 
     @Test
     fun testSectionInDocChapter() {
         val expr = XPathExpression("/doc/chapter[5]/section[2]")
         assertEquals("/doc/chapter[5]/section[2]", expr.test)
+
+        val e = assertIs<LocationPath>(expr.expr)
+        assertTrue(e.rooted)
+        assertEquals(3, e.steps.size)
+
+        run {
+            val s = e.steps[0]
+            assertEquals(Axis.CHILD, s.axis)
+            assertEquals(0, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("doc", name.localPart)
+        }
+
+        run {
+            val s = e.steps[1]
+            assertEquals(Axis.CHILD, s.axis)
+            assertEquals(1, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("chapter", name.localPart)
+            val p = assertIs<NumberLiteral>(s.predicates.single())
+            assertEquals(5L, p.value)
+        }
+
+        run {
+            val s = e.steps[2]
+            assertEquals(Axis.CHILD, s.axis)
+            assertEquals(1, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("section", name.localPart)
+            val p = assertIs<NumberLiteral>(s.predicates.single())
+            assertEquals(2L, p.value)
+        }
+
     }
 
     @Test
     fun testChapterParaDescendants() {
         val expr = XPathExpression("chapter//para")
         assertEquals("chapter//para", expr.test)
+        val e = assertIs<LocationPath>(expr.expr)
+        assertFalse(e.rooted)
+        assertEquals(2, e.steps.size)
+
+        run {
+            val s = e.steps[0]
+            assertEquals(Axis.CHILD, s.axis)
+            assertEquals(0, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("chapter", name.localPart)
+        }
+
+        run {
+            val s = e.steps[1]
+            assertEquals(Axis.DESCENDANT, s.axis)
+            assertEquals(0, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("para", name.localPart)
+        }
+
     }
 
     @Test
     fun testParaDescendants() {
         val expr = XPathExpression("//para")
         assertEquals("//para", expr.test)
+        val e = assertIs<LocationPath>(expr.expr)
+        assertTrue(e.rooted)
+        assertEquals(1, e.steps.size)
+
+        val s = e.steps[0]
+        assertEquals(Axis.DESCENDANT_OR_SELF, s.axis)
+        assertEquals(0, s.predicates.size)
+        val name = assertIs<NodeTest.QNameTest>(s.test).qName
+        assertEquals("", name.namespaceURI)
+        assertEquals("", name.prefix)
+        assertEquals("para", name.localPart)
+
     }
 
     @Test
@@ -207,12 +304,40 @@ class XPathTest {
     fun testContextNode() {
         val expr = XPathExpression(".")
         assertEquals(".", expr.test)
+        val e = assertIs<LocationPath>(expr.expr)
+        assertFalse(e.rooted)
+        assertEquals(1, e.steps.size)
+        val s = e.steps.single()
+        assertEquals(Axis.SELF, s.axis)
+        assertEquals(0, s.predicates.size)
+        assertIs<NodeTest.AnyNameTest>(s.test)
     }
 
     @Test
     fun testContextParaDescendants() {
         val expr = XPathExpression(".//para")
         assertEquals(".//para", expr.test)
+        val e = assertIs<LocationPath>(expr.expr)
+        assertFalse(e.rooted)
+        assertEquals(2, e.steps.size)
+
+        run {
+            val s = e.steps[0]
+            assertEquals(Axis.SELF, s.axis)
+            assertEquals(0, s.predicates.size)
+            assertIs<NodeTest.AnyNameTest>(s.test)
+        }
+
+        run {
+            val s = e.steps[1]
+            assertEquals(Axis.DESCENDANT, s.axis)
+            assertEquals(0, s.predicates.size)
+            val name = assertIs<NodeTest.QNameTest>(s.test).qName
+            assertEquals("", name.namespaceURI)
+            assertEquals("", name.prefix)
+            assertEquals("para", name.localPart)
+        }
+
     }
 
 

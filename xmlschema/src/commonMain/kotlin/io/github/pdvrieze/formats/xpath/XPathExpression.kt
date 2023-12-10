@@ -111,11 +111,11 @@ class XPathExpression private constructor(
 
                     '.',
                     '/',
-                    '@' -> current = parseLocationPathPartial()
+                    '@' -> current = parseLocationPath()
 
                     else -> {
                         if (c.isLetter() && current == null) {
-                            current = parseLocationPathPartial()
+                            current = parseLocationPath()
                         } else {
                             throw IllegalArgumentException("@$i> Unexpected token '$c' in xpath expression")
                         }
@@ -147,7 +147,7 @@ class XPathExpression private constructor(
             val c = str[i]
             when {
                 c == '/' || c == '@' || c == '.' || c == '*' -> {
-                    current = parseLocationPathPartial()
+                    current = parseLocationPath()
                 }
 
                 c == '(' -> {
@@ -162,7 +162,7 @@ class XPathExpression private constructor(
                 }
 
                 isNameStartChar(c) -> {
-                    val p = parseLocationPathPartial()
+                    val p = parseLocationPath()
                     current = when {
                         p.steps.isEmpty() -> checkNotNull(p.primaryExpr)
                         else -> p
@@ -230,7 +230,7 @@ class XPathExpression private constructor(
             return e
         }
 
-        private fun parseLocationPathPartial(): LocationPath {
+        private fun parseLocationPath(): LocationPath {
             val start = i
             var rooted = false
             val steps = mutableListOf<Step>()
@@ -256,7 +256,7 @@ class XPathExpression private constructor(
 
                         ++i
                         val exprStart = i
-                        when (val s = parseStep()) {
+                        when (val s = parseStep(steps.size)) {
                             is Step -> steps.add(s)
                             is Primary -> {
                                 require(primaryExpr == null && steps.isEmpty()) { "@$exprStart, expression as path step is not valid" }
@@ -284,7 +284,7 @@ class XPathExpression private constructor(
                             c == '*' ||
                             c == '@' -> { //attribute
                         val exprStart = i
-                        when (val s = parseStep()) {
+                        when (val s = parseStep(steps.size)) {
                             is Step -> steps.add(s)
                             is Primary -> {
                                 require(primaryExpr == null && steps.isEmpty()) { "@$exprStart, expression as path step is not valid" }
@@ -336,7 +336,7 @@ class XPathExpression private constructor(
             return NumberLiteral(str.substring(start, i).toLong())
         }
 
-        private fun parseStep(): PrimaryOrStep {
+        private fun parseStep(stepCount: Int): PrimaryOrStep {
             var start = i
 
             var currentAxis: Axis? = null
@@ -361,8 +361,11 @@ class XPathExpression private constructor(
 
                     c == '/' && i == start -> {
                         ++i
-                        currentAxis = Axis.DESCENDANT_OR_SELF
-//                        currentTest = NodeTest.NodeTypeTest(NodeType.NODE)
+                        currentAxis = when (stepCount) {
+                            0 -> Axis.DESCENDANT_OR_SELF
+                            else -> Axis.DESCENDANT
+                        }
+
                         parsePos = 1
                         start = i
                     }
@@ -508,7 +511,6 @@ class XPathExpression private constructor(
                         currentPredicates.add(parseExpr(true))
                         skipWhitespace()
                         require(checkCurrent(']')) { "@$i> predicate not closed by ']'" }
-                        ++i
                     }
 
                     isNameStartChar(c) -> {
