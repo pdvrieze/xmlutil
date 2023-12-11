@@ -95,6 +95,6 @@ sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
                 "Invalid xpath expression for field: '${field.xpath.xmlString}'"
             }
         }
-        check(SELECTORPATTERN.matches(mdlSelector.test)) { "Invalid xpath expression for selectors: '${mdlSelector.test}'" }
+        check(SELECTORPATTERN.matches(mdlSelector.xmlString)) { "Invalid xpath expression for selectors: '${mdlSelector.xmlString}'" }
     }
 }

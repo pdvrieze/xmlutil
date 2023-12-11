@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
+import io.github.pdvrieze.formats.xpath.XPathExpression
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -35,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("field", XSD_NS_URI, XSD_PREFIX)
 data class XSField(
-    val xpath: VToken,
+    val xpath: XPathExpression,
     val xpathDefaultNamespace: VXPathDefaultNamespace? = null,
     @XmlId
     override val id: VID? = null,

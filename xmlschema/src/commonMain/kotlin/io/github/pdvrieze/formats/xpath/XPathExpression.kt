@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameChar
@@ -39,10 +40,10 @@ import nl.adaptivity.xmlutil.serialization.XML
 @OptIn(XPathInternal::class)
 @Serializable(XPathExpression.Serializer::class)
 class XPathExpression private constructor(
-    val test: String,
+    override val xmlString: String,
     @XPathInternal
     internal val expr: Expr
-) {
+): VToken {
 
     companion object Serializer : KSerializer<XPathExpression> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
@@ -54,7 +55,7 @@ class XPathExpression private constructor(
             if (encoder is XML.XmlOutput) {
                 // todo ensure prefixes exist encoder.target
             }
-            return encoder.encodeString(value.test) // TODO use xml aware writing
+            return encoder.encodeString(value.xmlString) // TODO use xml aware writing
         }
 
         override fun deserialize(decoder: Decoder): XPathExpression {
@@ -527,7 +528,7 @@ class XPathExpression private constructor(
                         ++i
                     }
 
-                    start != i && c.isDigit() -> ++i
+                    start != i && isNameChar(c) -> ++i
                     c == '|' -> {
                         break
                     }
