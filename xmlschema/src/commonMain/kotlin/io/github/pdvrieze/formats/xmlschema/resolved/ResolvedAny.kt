@@ -53,6 +53,9 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         rawPart.toConstraint(schema),
         rawPart.processContents ?: VProcessContents.STRICT
     ) {
+        if (schema.version == SchemaVersion.V1_0) {
+            require(rawPart.notQName == null) { "NotQName is not allowed in v1.0 documents" }
+        }
         require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         this.mdlMinOccurs = mdlMinOccurs
         this.mdlMaxOccurs = mdlMaxOccurs
