@@ -60,7 +60,7 @@ class XPathExpression private constructor(
 
         override fun deserialize(decoder: Decoder): XPathExpression {
             val nsContext = (decoder as? XML.XmlInput)?.input?.namespaceContext ?: SimpleNamespaceContext()
-            return invoke(decoder.decodeString(), nsContext)
+            return invoke(xmlTrimWhitespace(decoder.decodeString()), nsContext)
         }
 
         operator fun invoke(
