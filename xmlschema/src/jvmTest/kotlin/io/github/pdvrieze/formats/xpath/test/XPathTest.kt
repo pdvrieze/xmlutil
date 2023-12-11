@@ -158,7 +158,7 @@ class XPathTest {
     @Test
     fun testAnyOlistItem() {
         val expr = XPathExpression("//olist/item")
-        assertEquals("//olist/item", expr.test)
+        assertEquals("//olist/item", expr.xmlString)
         testPath("//olist/item") {
             assertPath {
                 assertStep(Axis.DESCENDANT_OR_SELF, NodeType.NODE)
