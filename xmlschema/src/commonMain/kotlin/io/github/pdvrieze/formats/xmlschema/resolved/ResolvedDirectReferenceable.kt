@@ -21,7 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
+import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.formats.xpath.impl.BinaryExpr
+import io.github.pdvrieze.formats.xpath.impl.LocationPath
+import io.github.pdvrieze.formats.xpath.impl.NodeTest
+import io.github.pdvrieze.formats.xpath.impl.Step
 
+@OptIn(XPathInternal::class)
 sealed class ResolvedDirectReferenceable(
     rawPart: XSIdentityConstraint,
     schema: ResolvedSchemaLike,
@@ -30,6 +37,44 @@ sealed class ResolvedDirectReferenceable(
 
     init {
         require(rawPart.fields.isNotEmpty()) { "identity constraint must have at least one field: $rawPart" }
+        for (field in rawPart.fields) {
+            require(isXsdSubset(field.xpath.expr, true)) { "${field.xpath.xmlString} is not in the field subset" }
+        }
+        require(isXsdSubset(rawPart.selector.xpath, false)) { "${rawPart.selector.xpath.xmlString} is not in the selector subset"}
+    }
+
+    private fun isXsdSubset(xPathExpression: XPathExpression, isTrailingAttrAllowed: Boolean): Boolean {
+        return isXsdSubset(xPathExpression.expr, isTrailingAttrAllowed)
+    }
+
+    private fun isXsdSubset(expr: Expr, isTrailingAttrAllowed: Boolean): Boolean {
+        return when (expr) {
+            is BinaryExpr -> expr.operator == Operator.UNION &&
+                    isXsdSubset(expr.left, isTrailingAttrAllowed) &&
+                    isXsdSubset(expr.right, isTrailingAttrAllowed)
+
+            is LocationPath -> {
+                if (expr.rooted || expr.steps.size==0) return false
+                val firstStep = expr.steps.first()
+                val stepIndices: IntRange = if (firstStep.axis == Axis.SELF && expr.steps.size>1 &&
+                    expr.steps[1].let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTest.NodeTypeTest(NodeType.NODE) }) {
+                    2 until expr.steps.size
+                } else {
+                    expr.steps.indices
+                }
+                return stepIndices.all {
+                    isXsdSubset(expr.steps[it], isTrailingAttrAllowed && it + 1 == expr.steps.size)
+                }
+            }
+            else -> false
+        }
+    }
+
+    private fun isXsdSubset(step: Step, canBeAttr: Boolean = false): Boolean = step.predicates.size == 0 && when(step.axis) {
+        Axis.SELF -> step.test == NodeTest.NodeTypeTest(NodeType.NODE)
+        Axis.ATTRIBUTE -> canBeAttr && step.test is NodeTest.NameTest
+        Axis.CHILD -> step.test is NodeTest.NameTest
+        else -> false
     }
 
 }

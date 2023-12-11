@@ -350,7 +350,7 @@ class XPathExpression private constructor(
             var parsePos = -1
 
             fun finaliseName(): Primary? {
-                require(i>start) { "@$start> Empty name in path step"}
+                require(i>start) { "@$start> Empty name in path step: '$str'"}
                 val localName = str.substring(start, i)
                 skipWhitespace()
                 when {
@@ -470,6 +470,7 @@ class XPathExpression private constructor(
                         require(parsePos < 1 && i == start) { "@$i> attribute out of scope" }
                         parsePos = 1
                         ++i
+                        skipWhitespace()
                         start = i
                         currentAxis = Axis.ATTRIBUTE
                     }
@@ -506,12 +507,14 @@ class XPathExpression private constructor(
                             currentTest = NodeTest.AnyNameTest
                             parsePos = 3
                             ++i
+                            skipWhitespace()
                         }
 
                         parsePos == 1 -> {
                             currentTest = NodeTest.AnyNameTest
                             parsePos = 3
                             ++i
+                            skipWhitespace()
                         }
 
                         else -> {
@@ -522,6 +525,7 @@ class XPathExpression private constructor(
                             currentTest = NodeTest.NSTest(ns.toAnyUri(), prefix)
                             parsePos = 3
                             ++i
+                            skipWhitespace()
                         }
                     }
 
