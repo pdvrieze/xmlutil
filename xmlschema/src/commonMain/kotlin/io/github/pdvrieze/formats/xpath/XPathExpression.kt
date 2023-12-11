@@ -357,6 +357,7 @@ class XPathExpression private constructor(
                     currentAxis == null && parsePos<=0 && checkCurrent("::") -> {
                         currentAxis = Axis.from(localName)
                         i += 2
+                        skipWhitespace()
                         start = i
                         parsePos = 1
                         return null
@@ -465,6 +466,7 @@ class XPathExpression private constructor(
                             require(currentAxis == null) { "Multiple axes in xpath" }
                             currentAxis = Axis.from(str.substring(start, i))
                             i+=2 // skip extra character
+                            skipWhitespace()
                             start = i
                         }
 
