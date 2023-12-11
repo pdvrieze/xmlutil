@@ -29,10 +29,9 @@ sealed class ResolvedNamedIdentityConstraint(
     owner: ResolvedElement
 ) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
 
-    final override val mdlSelector: XPathExpression =
-        XPathExpression(rawPart.selector.xpath.xmlString)
+    final override val mdlSelector: XPathExpression = rawPart.selector.xpath
 
     final override val mdlFields: List<XPathExpression> =
-        rawPart.fields.map { XPathExpression(it.xpath.xmlString) }
+        rawPart.fields.map { it.xpath }
 }
 
