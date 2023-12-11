@@ -25,11 +25,21 @@ import io.github.pdvrieze.formats.xpath.impl.*
 import nl.adaptivity.xmlutil.QName
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 @OptIn(XPathInternal::class)
 class XPathTest {
+
+    @Test
+    fun testMissingSelector() {
+        val e = assertThrows<IllegalArgumentException> { XPathExpression("child::") }
+
+        assertContains(e.message?:"", "Empty name in path step")
+
+    }
 
     @Test
     fun testPara() {

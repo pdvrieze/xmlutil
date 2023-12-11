@@ -350,6 +350,7 @@ class XPathExpression private constructor(
             var parsePos = -1
 
             fun finaliseName(): Primary? {
+                require(i>start) { "@$start> Empty name in path step"}
                 val localName = str.substring(start, i)
                 skipWhitespace()
                 when {
