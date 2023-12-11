@@ -42,6 +42,15 @@ class XPathTest {
     }
 
     @Test
+    fun testWSAfterAxis() {
+        testPath("child:: imp:iid", "imp" to "imp") {
+            assertPath {
+                assertStep(QName("imp", "iid", "imp")) {}
+            }
+        }
+    }
+
+    @Test
     fun testPara() {
         testPath("para") {
             assertPath {
