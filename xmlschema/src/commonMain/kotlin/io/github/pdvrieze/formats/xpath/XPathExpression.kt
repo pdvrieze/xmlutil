@@ -240,7 +240,7 @@ class XPathExpression private constructor(
                 when {
                     c == ' ' -> ++i // ignore
 
-                    c == '.' -> {
+                    c == '.' -> { // TODO can use step parsing
                         require(primaryExpr == null)
                         ++i
                         val axis = when {
@@ -449,6 +449,21 @@ class XPathExpression private constructor(
 
                     c == '/' -> { // step finished
                         break
+                    }
+
+                    i==start && c == '.' && checkCurrent("..") -> {
+                        require(parsePos<0)
+                        currentAxis = Axis.PARENT
+                        currentTest = NodeTest.NodeTypeTest(NodeType.NODE)
+                        parsePos = 3
+                        i += 2
+                    }
+
+                    i==start && c == '.' -> {
+                        currentAxis = Axis.SELF
+                        currentTest = NodeTest.NodeTypeTest(NodeType.NODE)
+                        parsePos = 3
+                        i += 1
                     }
 
                     c == '@' -> { //attribute
