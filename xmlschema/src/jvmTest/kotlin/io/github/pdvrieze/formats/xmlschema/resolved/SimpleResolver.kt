@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -45,7 +45,19 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
             (schemaUri.scheme != baseURI.scheme ||
                     schemaUri.host != baseURI.host)
         ) {
-            throw FileNotFoundException("Absolute uri references are not supported ${schemaLocation}")
+            when (schemaLocation.value) {
+                "http://www.w3.org/XML/2008/06/xlink.xsd" -> return baseURI.resolve("/xlink.xsd").withXmlReader { reader ->
+                    XML {
+                        defaultPolicy {
+                            autoPolymorphic = true
+                            throwOnRepeatedElement = true
+                            verifyElementOrder = true
+                            isStrictAttributeNames = true
+                        }
+                    }.decodeFromReader<XSSchema>(reader)
+                }
+                else -> throw FileNotFoundException("Absolute uri references are not supported ${schemaLocation}")
+            }
         }
         return baseURI.resolve(schemaUri).withXmlReader { reader ->
             XML {
@@ -67,7 +79,19 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
                     schemaUri.host != baseURI.host)
         ) {
             if (schemaUri.scheme == "file") throw FileNotFoundException("Absolute file uri references are not supported")
-            return null
+            when (schemaLocation.value) {
+                "http://www.w3.org/XML/2008/06/xlink.xsd" -> return javaClass.classLoader.getResourceAsStream("xlink.xsd").withXmlReader { reader ->
+                    XML {
+                        defaultPolicy {
+                            autoPolymorphic = true
+                            throwOnRepeatedElement = true
+                            verifyElementOrder = true
+                            isStrictAttributeNames = true
+                        }
+                    }.decodeFromReader<XSSchema>(reader)
+                }
+                else -> return null
+            }
         }
         val stream = try {
             baseURI.resolve(schemaUri).toURL().openStream()
@@ -95,7 +119,6 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
         return baseURI.resolve(relativeUri.xmlString).toASCIIString().toAnyUri()
     }
 }
-
 
 private inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
     return toURL().withXmlReader(body)
