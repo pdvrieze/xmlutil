@@ -22,6 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
+import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.formats.xpath.impl.BinaryExpr
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 sealed class ResolvedIdentityConstraintBase(
     rawPart: XSIdentityConstraint,
