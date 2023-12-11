@@ -54,6 +54,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
         for((importNs, schemaData) in allData) {
             allNeededNamespaces.addAll(schemaData.includedNamespaceToUris.keys)
+            allNeededNamespaces.addAll(schemaData.importedNamespaces) // allow for unresolved namespaces
             val nestedData = NestedData(importNs.toAnyUri(), schemaData)
             val past = (this.nestedData[importNs] as? NestedData)
             this.nestedData[importNs] = past?.mergeWith(nestedData) ?: nestedData
@@ -65,7 +66,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
             XMLConstants.XML_NS_URI in allNeededNamespaces
         ) {
-            nestedData.getOrPut(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
+            val old = nestedData.getOrPut(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
         }
 
         visibleNamespaces = rootData.importedNamespaces.toSet()
