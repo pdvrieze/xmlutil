@@ -21,13 +21,11 @@
 package io.github.pdvrieze.formats.xpath
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameChar
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameStartChar
 import io.github.pdvrieze.formats.xpath.impl.*
-import io.github.pdvrieze.formats.xpath.impl.BinaryExpr
-import io.github.pdvrieze.formats.xpath.impl.Expr
-import io.github.pdvrieze.formats.xpath.impl.LocationPath
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -36,7 +34,6 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XML
 
 @OptIn(XPathInternal::class)
@@ -249,20 +246,25 @@ class XPathExpression private constructor(
                             checkCurrent('.') -> Axis.PARENT
                             else -> Axis.SELF
                         }
-                        steps.add(Step(axis, NodeTest.AnyNameTest))
+                        steps.add(Step(axis, NodeTest.NodeTypeTest(NodeType.NODE)))
                     }
 
                     c == '/' -> {
                         if (start == i) rooted = true
 
                         ++i
-                        skipWhitespace()
-                        val exprStart = i
-                        when (val s = parseStep(steps.size)) {
-                            is Step -> steps.add(s)
-                            is Primary -> {
-                                require(primaryExpr == null && steps.isEmpty()) { "@$exprStart, expression as path step is not valid" }
-                                primaryExpr = s.expr
+                        if (checkCurrent('/')) { // shortcut
+                            ++i
+                            steps.add(Step(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE)))
+                        } else {
+                            skipWhitespace()
+                            val exprStart = i
+                            when (val s = parseStep(steps.size)) {
+                                is Step -> steps.add(s)
+                                is Primary -> {
+                                    require(primaryExpr == null && steps.isEmpty()) { "@$exprStart, expression as path step is not valid" }
+                                    primaryExpr = s.expr
+                                }
                             }
                         }
                     }
@@ -439,13 +441,7 @@ class XPathExpression private constructor(
 
                     c == '/' && i == start -> {
                         ++i
-                        currentAxis = when (stepCount) {
-                            0 -> Axis.DESCENDANT_OR_SELF
-                            else -> Axis.DESCENDANT
-                        }
-
-                        parsePos = 1
-                        start = i
+                        return Step(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE))
                     }
 
                     c == '/' -> { // step finished
@@ -501,7 +497,10 @@ class XPathExpression private constructor(
 
                         else -> {
                             check(str[i - 1] == ':') { "Should not happen" }
-                            currentTest = NodeTest.NSTest(VNCName(str.substring(start, i - 1)))
+                            val prefix = VNCName(str.substring(start, i - 1))
+
+                            val ns = requireNotNull(namespaceContext.getNamespaceURI(prefix.xmlString)) { "@$start> Missing namespace for '$prefix'" }
+                            currentTest = NodeTest.NSTest(ns.toAnyUri(), prefix)
                             parsePos = 3
                             ++i
                         }
