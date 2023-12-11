@@ -51,6 +51,18 @@ class XPathTest {
     }
 
     @Test
+    fun testMultipleContext() {
+        testPath(".//./.") {
+            assertPath {
+                assertStepSelf()
+                assertStepDescendant()
+                assertStepSelf()
+                assertStepSelf()
+            }
+        }
+    }
+
+    @Test
     fun testPara() {
         testPath("para") {
             assertPath {
