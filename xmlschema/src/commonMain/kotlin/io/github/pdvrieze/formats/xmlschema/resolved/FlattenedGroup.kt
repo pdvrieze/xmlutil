@@ -383,7 +383,8 @@ sealed class FlattenedGroup(
             for (p in particles) { // 2.2
                 val matchIdx = unprocessed.indexOfFirst { it != null && p.restricts(it, isSiblingName, schema) }
                 if (matchIdx < 0) return false
-                unprocessed[matchIdx] = null // 2.1
+                val newMatch = (unprocessed[matchIdx]!! - p.range)?.takeIf { it.maxOccurs > VAllNNI.ZERO }
+                unprocessed[matchIdx] = newMatch // 2.1
             }
 
             for (bp in unprocessed) { // 2.3
