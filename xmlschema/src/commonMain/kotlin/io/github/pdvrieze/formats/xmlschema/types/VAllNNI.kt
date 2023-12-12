@@ -96,7 +96,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         operator fun minus(other: Value): Value = Value(value.toULong() - other.value.toULong())
 
-        override fun minus(other: VAllNNI): VAllNNI = when(other) {
+        override fun minus(other: VAllNNI): Value = when(other) {
             UNBOUNDED -> ZERO
             is Value -> Value((value.toULong() - other.value.toULong()))
         }
