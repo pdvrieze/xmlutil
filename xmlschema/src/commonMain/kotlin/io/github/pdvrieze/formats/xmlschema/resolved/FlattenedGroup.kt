@@ -141,7 +141,7 @@ sealed class FlattenedGroup(
         override fun effectiveTotalRange(): AllNNIRange {
             return particles.asSequence()
                 .map { it.effectiveTotalRange() }
-                .reduce { l, r -> l + r }
+                .fold(VAllNNI.ZERO..VAllNNI.ZERO) { l, r -> l + r }
                 .let { it.start * range.start..it.endInclusive * range.endInclusive }
         }
 
