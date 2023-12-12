@@ -87,7 +87,7 @@ class TestXSTestSuite {
                         for (group in testSet.testGroups) {
                             if (false || group.name.contains("sg-abstract-edc")) {
                                 dynamicContainer("Group '${group.name}'") {
-                                    addSchemaTests(setBaseUrl, group)
+                                    addSchemaTests(setBaseUrl, group, testSet.schemaVersion?.let(::listOf))
                                 }
                             }
                         }
@@ -413,20 +413,21 @@ data class ElementInfo(val name: QName, var hasBeenAbsent: Boolean = false, var 
 
 private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
     setBaseUrl: URI,
-    group: TSTestGroup
+    group: TSTestGroup,
+    testSetVersion: List<SchemaVersion>?
 ) {
     var targetSchemaDoc: TSSchemaDocument? = null
     group.schemaTest?.let { schemaTest ->
         val documentation = group.documentationString()
         if (schemaTest.schemaDocuments.size == 1) {
             val schemaDoc = schemaTest.schemaDocuments.single()
-            addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation)
+            addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation, group.version?.let(::listOf) ?: testSetVersion)
             targetSchemaDoc = schemaDoc
         } else {
             dynamicContainer("Schema documents") {
                 for (schemaDoc in schemaTest.schemaDocuments) {
                     if (true || schemaDoc.href.contains("ipo.xsd")) {
-                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation)
+                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation, group.version?.let(::listOf) ?: testSetVersion)
                         targetSchemaDoc = schemaDoc
                     }
                 }
@@ -467,13 +468,13 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     setBaseUrl: URI,
     schemaTest: TSSchemaTest,
     schemaDoc: TSSchemaDocument,
-    documentation: String
+    documentation: String,
+    testGroupVersions: List<SchemaVersion>?,
 ) {
     val defaultVersions = when(schemaTest.version) {
         "1.0" -> listOf(SchemaVersion.V1_0)
         "1.1" -> listOf(SchemaVersion.V1_1)
-//        else -> listOf(ResolvedSchema.Version.V1_0)//ResolvedSchema.Version.entries
-        else -> SchemaVersion.entries
+        else -> testGroupVersions ?: SchemaVersion.entries
     }
     val resolver = SimpleResolver(setBaseUrl)
 

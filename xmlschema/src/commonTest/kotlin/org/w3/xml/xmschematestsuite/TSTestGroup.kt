@@ -20,6 +20,8 @@
 
 package org.w3.xml.xmschematestsuite
 
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -39,6 +41,8 @@ data class TSTestGroup(
     @XmlElement(true)
     val instanceTests: List<TSInstanceTest> = emptyList(),
     val name: String,
+    @SerialName("version")
+    val version: SchemaVersion?,
     @XmlOtherAttributes
     val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) {
