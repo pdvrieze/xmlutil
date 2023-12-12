@@ -116,7 +116,7 @@ data class OTSTestSet(val name: String, val groups: List<OTSTestGroup> = emptyLi
         return TSTestSet(
             original.contributor,
             original.name,
-            original.version,
+            original.schemaVersion,
             original.annotation,
             newGroups
         )
