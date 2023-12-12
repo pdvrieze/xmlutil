@@ -111,11 +111,26 @@ repositories {
    implementation("io.github.pdvrieze.xmlutil:serialization-js:0.86.2")
 ```
 
-### Ktor
-Ktor supports XML through this library by default. You are suggested to use the
-official Ktor xml serialization support module that is mostly equal to this version. 
+### -Ktor- (Deprecated)
+
+**Deprecated**
+
+This library is no longer supported. Instead use official Ktor xml serialization
+support. It is mostly equal to this version.
 
 ## Serialization help
+### Hello world
+To serialize a very simple type you have the following:
+```kotlin
+@Serializable
+data class HelloWorld(val user: String)
+
+println(XML.encodeToString(HelloWorld("You!")))
+```
+Please look at the examples and the documentation for further features
+that can influence: the tag names/namespaces used, the actual structure
+used (how lists and polymorphic types are handled), etc.
+
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
 ### Format
@@ -129,19 +144,39 @@ val format = XML(mySerialModule) {
 ```
 The following options are available when using the XML format builder:
 
-| Option                  | Description                                                                                                                                                                                                                                                                                                                |
-|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| `repairNamespaces`      | Should namespaces automatically be repaired. This option will be passed on to the `XmlWriter`                                                                                                                                                                                                                              |
-| `xmlDeclMode`           | The mode to use for emitting XML declarations (<?xml ...?>). Replaces omitXmlDecl for more finegrained control                                                                                                                                                                                                             |
-| `indentString`          | The indentation to use. Must be a combination of XML whitespace or comments (this is checked). This is passed to the `XmlWriter`                                                                                                                                                                                           |
-| `policy`                | This is a class that can be used to define a custom policy that informs how the kotlin structure is translated to XML. It drives most complex configuration                                                                                                                                                                |
-| `autoPolymorphic`       | When not specifying a custom policy this determines whether polymorphism is handled without wrappers. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present)    |
-| -`indent`-              | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces.                                                              |
-| -`omitXmlDecl`-         | *Deprecated* (use `xmlDeclMode`). Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter`                                                                                                                                                                                            |
-| -`unknownChildHandler`- | *Deprecated into policy* A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well.                                                                                                                                                      |
+| Option                     | Description                                                                                                                                                                                                                                                                                             |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
+| `repairNamespaces`         | Should namespaces automatically be repaired. This option will be passed on to the `XmlWriter`                                                                                                                                                                                                           |
+| `xmlDeclMode`              | The mode to use for emitting XML declarations (<?xml ...?>). Replaces omitXmlDecl for more finegrained control                                                                                                                                                                                          |
+| `indentString`             | The indentation to use. Must be a combination of XML whitespace or comments (this is checked). This is passed to the `XmlWriter`                                                                                                                                                                        |
+| -`autoPolymorphic`-        | *Deprecated* Shorcut to `policy.autoPolymorphic`                                                                                                                                                                                                                                                        |                                                                                                                                                                                                                                                                      |
+| `isInlineCollapsed`        | If `true`(default) the content of an inline type is used directly, with the name of the inline type.                                                                                                                                                                                                    |
+| `xmlVersion`               | Which xml version will be written/declared (default XML 1.1)                                                                                                                                                                                                                                            |
+| `isCollectingNSAttributes` | (Attempt to) collect all needed namespace declarations and emit them on the root tag, this does have a performance overhead                                                                                                                                                                             |
+| `policy`                   | This is a class that can be used to define a custom policy that informs how the kotlin structure is translated to XML. It drives most complex configuration                                                                                                                                             |
+| `defaultPolicy {}`         | Builder that allows configuring the default policy. This policy is stable, it doesn't change across versions.                                                                                                                                                                                           |
+| `recommended {}`           | Builder that sets the policy to the *currently* recommended defaults, note that this policy is *not stable*. This currently includes: autopolymorphic, inlineCollapsed, indent=4, p.pedantic, p.typeDiscriminatorName=xsi:type, encodeDefault=ANNOTATED, throwOnRepeatedElement, isStrictAttributeNames |                                                                                                                                                                                                                  
+| -`indent`-                 | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces.                                           |
+| -`omitXmlDecl`-            | *Deprecated* (use `xmlDeclMode`). Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter`                                                                                                                                                                         |
+| -`unknownChildHandler`-    | *Deprecated into policy* A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well.                                                                                                                                   |
 
 The properties that have been moved into the policy can still be set in the builder,
 but are no longer able to be read through the config object.
+
+The following options are available as part of the default policy builder. Note that the policy
+is designed to allow configuration through code, but the default policy has significant
+configuration options available.
+
+| Option                   | Description                                                                                                                                                                                                                                                                                                             |
+|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `pedantic`               | Fail on output type specifications that are incompatible with the data, rather than silently correcting this                                                                                                                                                                                                            |
+| `autoPolymorphic`        | When not specifying a custom policy this determines whether polymorphism is handled without wrappers. This replaces `XmlPolyChildren`, but changes serialization where that annotation is not applied. This option will become the default in the future although XmlPolyChildren will retain precedence (when present) |
+| `encodeDefault`          | Determine whether in which cases default values should be encoded.                                                                                                                                                                                                                                                      |
+| `unknownChildHandler`    | A function that is called when an unknown child is found. By default an exception is thrown but the function can silently ignore it as well.                                                                                                                                                                            |
+| `typeDiscriminatorName`  | This property determines the type discriminator attribute used. It is always recognised, but not serialized in transparent polymorphic (autoPolymorphic) mode. If this is null, a wrapper tag with type attribute is used instead of a discriminator.                                                                   |
+| `throwOnRepeatedElement` | Rather than silently allowing a repeated element (not part of a list), throw an exception if the element occurs multiple times.                                                                                                                                                                                         |
+| `verifyElementOrder`     | While element order (when specified using `@XmlBefore` and `@XmlAfter`) is always used for serialization, this flag allows checking this order on inputs.                                                                                                                                                               |
+| `isStrictAttributeNames` | Enables stricter, standard compliant attribute name mapping in respect to default/null namespaces. Mainly relevant to decoding.                                                                                                                                                                                         |
 
 ### Algorithms
 XML and Kotlin data types are not perfectly alligned. As such there are some
