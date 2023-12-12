@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isEquivalent
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
@@ -70,6 +71,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         visitTerm(ElementNameCollector(collector))
     }
 
+    fun isSiblingName(name: QName) : Boolean {
+        return visitTerm(IsSiblingNameVisitor(name))
+    }
+
+
     fun checkParticle(checkHelper: CheckHelper) {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         if (mdlTerm is IResolvedAll) {
@@ -93,14 +99,13 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     fun <R> visitTerm(visitor: ResolvedTerm.Visitor<R>): R = mdlTerm.visit(visitor)
 
     fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
-        val names = buildList { visitTerm(ElementNameCollector(this)) }
-        return flatten(names, schema)
+        return flatten(::isSiblingName, schema)
     }
 
-    fun flatten(typeContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
+    fun flatten(isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle {
         return when (mdlMaxOccurs) {
             VAllNNI.ZERO -> FlattenedGroup.EMPTY
-            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), typeContext, schema)
+            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName, schema)
         }
     }
 
@@ -116,7 +121,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             is XSChoice -> ResolvedChoice(parent, elemPart.cast(), schema)
             is XSSequence -> ResolvedSequence(parent, elemPart.cast(), schema)
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
-            is XSAny -> ResolvedAny(rawPart, schema, localInContext)
+            is XSAny -> ResolvedAny(rawPart, schema)
             is XSLocalElement -> IResolvedElementUse(parent, elemPart.cast(), schema)
             else -> error("Compiler limitation")
         }
@@ -139,4 +144,16 @@ class ElementNameCollector(private val collector: MutableList<QName>) : Resolved
     }
 
     override fun visitAny(any: ResolvedAny) = Unit
+}
+
+class IsSiblingNameVisitor(private val name: QName) : ResolvedTerm.Visitor<Boolean>() {
+    override fun visitModelGroup(group: ResolvedModelGroup): Boolean {
+        return group.mdlParticles.any { it.visitTerm(this) }
+    }
+
+    override fun visitElement(element: ResolvedElement): Boolean {
+        return element.mdlQName.isEquivalent(name)
+    }
+
+    override fun visitAny(any: ResolvedAny): Boolean = false
 }

@@ -49,12 +49,12 @@ interface IResolvedAll : ResolvedModelGroup {
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAll(this)
 
-    override fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle {
+    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle {
         val particles = mutableListOf<FlattenedParticle>()
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
         for (p in mdlParticles) {
-            val f = p.flatten(nameContext, schema)
+            val f = p.flatten(::isSiblingName, schema)
             if (f.maxOccurs == VAllNNI.ZERO) continue // skip it
             particles.add(f)
             for(startElem in f.startingTerms()) {
@@ -64,7 +64,7 @@ interface IResolvedAll : ResolvedModelGroup {
                     }
 
                     is FlattenedParticle.Wildcard -> {
-                        require(seenWildcards.none { it.intersects(startElem.term) }) {
+                        require(seenWildcards.none { it.intersects(startElem.term, isSiblingName, schema) }) {
                             "Non-deterministic all group: all${mdlParticles.joinToString()}"
                         }
                         seenWildcards.add(startElem.term)

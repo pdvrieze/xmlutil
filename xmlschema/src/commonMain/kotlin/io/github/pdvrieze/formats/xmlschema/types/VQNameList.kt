@@ -35,32 +35,32 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
 
-    fun contains(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-        return values.any { it.matches(name, context, schema) }
+    fun contains(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        return values.any { it.matches(name, isSiblingName, schema) }
     }
 
     abstract fun union(other: VQNameListBase<E>): VQNameListBase<E>
     abstract fun intersection(other: VQNameListBase<E>): VQNameListBase<E>
 
     interface IElem {
-        fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean
+        fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean
     }
     sealed interface AttrElem : IElem
     sealed class Elem : IElem
     object DEFINED : Elem(), AttrElem {
-        override fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
             return schema.maybeAttribute(name) != null || schema.maybeElement(name) != null
         }
     }
 
     object DEFINEDSIBLING : Elem() {
-        override fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return context.any { it.isEquivalent(name) }
+        override fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return isSiblingName(name)
         }
     }
 
     class Name(val qName: QName) : Elem(), AttrElem {
-        override fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
             return qName.isEquivalent(name)
         }
     }

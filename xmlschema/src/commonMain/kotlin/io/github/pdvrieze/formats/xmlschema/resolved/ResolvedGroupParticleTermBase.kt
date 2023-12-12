@@ -48,6 +48,10 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
         return super<ResolvedGroupParticle>.flatten(schema)
     }
 
+    override fun isSiblingName(name: QName): Boolean {
+        return super<ResolvedGroupParticle>.isSiblingName(name)
+    }
+
     internal operator fun invoke(
         parent: ResolvedComplexType,
         elemPart: SchemaElement<XSExplicitGroup>,

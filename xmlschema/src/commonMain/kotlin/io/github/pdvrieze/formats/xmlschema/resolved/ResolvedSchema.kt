@@ -151,6 +151,16 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
         substitutionGroupMembers(it)
     }
 
+
+    override fun getElements(): Set<ResolvedGlobalElement> {
+        return nestedData.values.asSequence()
+            .filterIsInstance<NestedData>()
+            .flatMap { it.elements.values }
+            .filter { ! it.mdlAbstract }
+            .toSet()
+    }
+
+
     fun check() {
         val checkHelper = CheckHelper(this)
 

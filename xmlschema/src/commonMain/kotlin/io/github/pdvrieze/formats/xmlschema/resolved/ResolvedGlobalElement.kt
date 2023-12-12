@@ -70,10 +70,14 @@ class ResolvedGlobalElement private constructor(
         }
     }
 
-    fun fullSubstitutionGroup(): List<ResolvedGlobalElement> {
+    fun fullSubstitutionGroup(schemaVersion: SchemaVersion): List<ResolvedGlobalElement> {
         val map = mutableMapOf<QName, ResolvedGlobalElement>()
         fullSubstitutionGroup(map)
-        return map.values.filter { ! it.mdlAbstract } //abstract members are not part of the substitution group
+        if (schemaVersion==SchemaVersion.V1_0) {
+            return map.values.filter { !it.mdlAbstract } //abstract members are not part of the substitution group
+        } else {
+            return map.values.toList() // in version 1.1 they are part of the substitution group (but not legal for use)
+        }
     }
 
     override fun checkTerm(checkHelper: CheckHelper) {
@@ -130,11 +134,11 @@ class ResolvedGlobalElement private constructor(
 
     override fun flatten(
         range: AllNNIRange,
-        nameContext: ContextT,
+        isSiblingName: (QName) -> Boolean,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
         // this factory handles substitution groups
-        return FlattenedParticle.elementOrSubstitution(range, this)
+        return FlattenedParticle.elementOrSubstitution(range, this, schema.version)
     }
 
     override fun toString(): String {
