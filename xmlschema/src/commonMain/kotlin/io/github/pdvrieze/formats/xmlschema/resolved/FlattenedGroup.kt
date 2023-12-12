@@ -944,6 +944,27 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return base.term === AnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
         }
 
+        override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return when(schema.version) {
+                SchemaVersion.V1_0 -> false
+                else -> All(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsAll(base, context, schema)
+            }
+        }
+
+        override fun restrictsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return when(schema.version) {
+                SchemaVersion.V1_0 -> false
+                else -> Choice(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsChoice(base, context, schema)
+            }
+        }
+
+        override fun restrictsSequence(base: Sequence, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return when(schema.version) {
+                SchemaVersion.V1_0 -> false
+                else -> Sequence(AllNNIRange.SINGLERANGE, listOf(this)).restrictsSequence(base, context, schema)
+            }
+        }
+
         override fun remove(
             reference: FlattenedParticle,
             context: ContextT,
