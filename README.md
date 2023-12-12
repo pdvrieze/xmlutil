@@ -127,6 +127,15 @@ data class HelloWorld(val user: String)
 
 println(XML.encodeToString(HelloWorld("You!")))
 ```
+
+To deserialize you would do:
+```kotlin
+@Serializable
+data class HelloWorld(val user: String)
+
+XML.decodeFromString(HelloWorld.serializer(), "<HelloWorld user='You!' />")
+```
+
 Please look at the examples and the documentation for further features
 that can influence: the tag names/namespaces used, the actual structure
 used (how lists and polymorphic types are handled), etc.
