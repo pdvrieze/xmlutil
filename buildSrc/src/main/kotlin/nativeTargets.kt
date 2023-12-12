@@ -74,7 +74,9 @@ private val defaultXmlUtilHierarchyTemplate  = KotlinHierarchyTemplate {
 
         group("commonDom") {
 
-            withWasm()
+            group("wasmCommon") {
+                withWasm()
+            }
 
             group("native") {
                 group("apple") {

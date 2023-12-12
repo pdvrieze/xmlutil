@@ -23,6 +23,7 @@
 import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -64,6 +65,13 @@ kotlin {
             }
         }
     }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
         browser {

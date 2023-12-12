@@ -24,6 +24,7 @@
 import net.devrieze.gradle.ext.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
@@ -89,18 +90,19 @@ kotlin {
             }
         }
     }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName="core-wasm"
         nodejs()
         browser {
             testTask {
                 isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
-            }
-        }
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                verbose = true
             }
         }
     }
