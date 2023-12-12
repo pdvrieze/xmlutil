@@ -753,7 +753,17 @@ sealed class ResolvedComplexType(
                 depth: Int = 0
             ): List<ResolvedElement> {
                 when (term) {
+                    is ResolvedGlobalElement -> {
+                        target.add(term)
+                        for (m in term.mdlSubstitutionGroupMembers) {
+                            if (checkHelper.version != SchemaVersion.V1_0 || !m.mdlAbstract) {
+                                target.add(m)
+                            }
+                        }
+                    }
+
                     is ResolvedElement -> target.add(term)
+
                     is ResolvedModelGroup -> {
                         if (term is IResolvedAll) require(depth == 0) {
                             "All particles must only be used as root of a type"
@@ -771,7 +781,8 @@ sealed class ResolvedComplexType(
 
             val elements = mutableMapOf<QName, ResolvedType>()
             mdlParticle.checkParticle(checkHelper)
-            for (particle in collectElements(mdlParticle.mdlTerm)) {
+            val memberElements = collectElements(mdlParticle.mdlTerm)
+            for (particle in memberElements) {
                 val qName = particle.mdlQName
                 val old = elements.put(qName, particle.mdlTypeDefinition)
                 if (old != null) require(particle.mdlTypeDefinition == old) {
