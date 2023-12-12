@@ -201,26 +201,22 @@ sealed class FlattenedGroup(
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
 
-            val baseIt = base.particles.iterator()
+            val baseParts = base.particles.toTypedArray<FlattenedParticle?>()
 
             for (p in particles) {
-                var match = false
-                while (!match) {
-                    if (!baseIt.hasNext()) return null
-                    val basePart = baseIt.next()
-                    if (!p.restricts(basePart, isSiblingName, schema)) {
-                        if (!basePart.isEmptiable) return null
-                    } else {
-                        match = true
-                    }
+                val matchIdx = baseParts.indexOfFirst {
+                    it != null && p.single().restricts(it.single(), isSiblingName, schema)
                 }
-                if (!match) return null
-            }
-            while (baseIt.hasNext()) {
-                if (!baseIt.next().isEmptiable) return null
-            }
+                if (matchIdx < 0) return null
 
-            return EMPTY
+                val match = baseParts[matchIdx]!!
+                if (p.maxOccurs > match.maxOccurs) return null // can not work
+                baseParts[matchIdx] = (match - p.range)?.takeIf { it.maxOccurs > VAllNNI.ZERO }
+            }
+            for (b in baseParts) {
+                if (b != null && !b.isEmptiable) return null
+            }
+            return All(base.range, baseParts.filterNotNull(), schema.version)
         }
 
         override fun single(): All {
