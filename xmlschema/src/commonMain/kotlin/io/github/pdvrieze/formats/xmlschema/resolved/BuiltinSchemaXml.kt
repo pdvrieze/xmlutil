@@ -156,4 +156,8 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> =
         delegate.substitutionGroupMembers(headName)
+
+    override fun getElements(): Set<ResolvedGlobalElement> {
+        return delegate.getElements()
+    }
 }

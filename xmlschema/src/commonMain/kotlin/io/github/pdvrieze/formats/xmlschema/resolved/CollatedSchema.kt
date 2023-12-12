@@ -788,6 +788,10 @@ class OwnerWrapper internal constructor(
         base.maybeNotation(notationName)
     }
 
+    override fun getElements(): Set<ResolvedGlobalElement> {
+        return base.getElements()
+    }
+
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> = checkImport(headName) {
         base.substitutionGroupMembers(headName)
     }
@@ -859,6 +863,10 @@ class ChameleonWrapper internal constructor(
 
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
         return base.substitutionGroupMembers(headName)
+    }
+
+    override fun getElements(): Set<ResolvedGlobalElement> {
+        return base.getElements()
     }
 
     override fun toString(): String {
@@ -1007,6 +1015,10 @@ internal class RedefineSchema(
 
     override fun maybeNotation(notationName: QName): ResolvedNotation? {
         return referenceSchema.maybeNotation(notationName)
+    }
+
+    override fun getElements(): Set<ResolvedGlobalElement> {
+        return referenceSchema.getElements()
     }
 
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {

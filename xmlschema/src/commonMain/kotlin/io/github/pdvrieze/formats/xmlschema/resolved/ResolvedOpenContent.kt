@@ -31,7 +31,7 @@ class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike
         VContentMode.NONE -> Mode.NONE
     }
 
-    val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schema, localInContext) }
+    val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schema) }
 
     init {
         when(mdlMode) {

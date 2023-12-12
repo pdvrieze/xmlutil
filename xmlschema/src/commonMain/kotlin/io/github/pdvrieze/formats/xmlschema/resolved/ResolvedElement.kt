@@ -76,7 +76,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     override fun flatten(
         range: AllNNIRange,
-        nameContext: ContextT,
+        isSiblingName: (QName) -> Boolean,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
         return Element(range, this, true)

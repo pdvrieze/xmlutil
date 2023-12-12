@@ -129,9 +129,9 @@ class ResolvedGlobalGroup internal constructor(
                     override fun visitAny(any: ResolvedAny): List<ResolvedGroupRef> = emptyList()
                 })
                 if (selfRefs.isEmpty()) {
-                    val thisFlat=flatten(AllNNIRange.SINGLERANGE, names, checkHelper.schema)
+                    val thisFlat=flatten(AllNNIRange.SINGLERANGE, ::isSiblingName, checkHelper.schema)
                     val baseFlat = redefined.mdlModelGroup.flatten(checkHelper.schema)
-                    check(thisFlat.restricts(baseFlat, names, checkHelper.schema)) {
+                    check(thisFlat.restricts(baseFlat, ::isSiblingName, checkHelper.schema)) {
                         "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
                     }
                     redefined.checkGroup(checkHelper)

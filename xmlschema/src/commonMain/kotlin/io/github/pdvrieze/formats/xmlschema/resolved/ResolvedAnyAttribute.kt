@@ -21,12 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
-import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
-import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
-import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
+import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
+    override val mdlNotQName: VAttrQNameList get() = mdlNamespaceConstraint.disallowedNames as VAttrQNameList
 
     constructor(
         mdlNamespaceConstraint: VNamespaceConstraint<VQNameListBase.AttrElem>,

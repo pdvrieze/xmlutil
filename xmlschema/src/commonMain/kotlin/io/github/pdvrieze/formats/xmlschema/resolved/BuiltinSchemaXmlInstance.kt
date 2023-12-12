@@ -134,6 +134,10 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
 
     override fun maybeNotation(notationName: QName): ResolvedNotation? = delegate.maybeNotation(notationName)
 
+    override fun getElements(): Set<ResolvedGlobalElement> {
+        return delegate.getElements()
+    }
+
     override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> =
         delegate.substitutionGroupMembers(headName)
 

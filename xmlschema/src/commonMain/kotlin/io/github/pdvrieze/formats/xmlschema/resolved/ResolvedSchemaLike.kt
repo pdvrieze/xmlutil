@@ -88,6 +88,8 @@ abstract class ResolvedSchemaLike {
             ?: throw NoSuchElementException("No element with name $elementName found")
     }
 
+    abstract fun getElements(): Set<ResolvedGlobalElement>
+
     fun attribute(attributeName: QName): ResolvedGlobalAttribute {
         return maybeAttribute(attributeName)
             ?: throw NoSuchElementException("No attribute with name $attributeName found")

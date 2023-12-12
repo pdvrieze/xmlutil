@@ -175,19 +175,16 @@ sealed class ResolvedComplexType(
 
             contentType is ElementOnlyContentType -> {
                 check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
-                val context = buildList { contentType.mdlParticle.collectElementNames(this) }
-                check(contentType.restricts(baseContentType, context, schema)) {
+
+                check(contentType.restricts(baseContentType, contentType.mdlParticle::isSiblingName, schema)) {
                     "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}"
                 }
             }
 
             contentType is MixedContentType -> {
                 check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
-                val context = buildList {
-                    addAll(mdlAttributeUses.keys)
-                    contentType.mdlParticle.collectElementNames(this)
-                }
-                check(contentType.restricts(baseContentType, context, schema) || true) // TODO do check
+
+                check(contentType.restricts(baseContentType,contentType.mdlParticle::isSiblingName, schema) || true) // TODO do check
             }
         }
 
@@ -201,7 +198,7 @@ sealed class ResolvedComplexType(
                     null -> {
                         val attrWildcard =
                             requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
-                        val context = dAttrs.keys
+                        val context = { n: QName -> n in dAttrs }
                         require(
                             attrWildcard.matches(dName, context, schema)
                         ) { "Attribute wildcard does not match $dName" }
@@ -532,8 +529,8 @@ sealed class ResolvedComplexType(
                         part.collectElementNames(this)
                     }
                     when {
-                        effectiveMixed -> MixedContentType(part, nameContext, schema, openContent)
-                        else -> ElementOnlyContentType(part, nameContext, schema, openContent)
+                        effectiveMixed -> MixedContentType(part, part::isSiblingName, schema, openContent)
+                        else -> ElementOnlyContentType(part, part::isSiblingName, schema, openContent)
                     }
                 }
             }
@@ -572,14 +569,14 @@ sealed class ResolvedComplexType(
                 mdlContentType = when {
                     effectiveMixed -> MixedContentType(
                         mdlParticle = particle,
-                        nameContext = nameContext,
+                        isSiblingName = particle::isSiblingName,
                         schema = schema,
                         mdlOpenContent = openContent,
                     )
 
                     else -> ElementOnlyContentType(
                         mdlParticle = particle,
-                        typeContext = nameContext,
+                        isSiblingName = particle::isSiblingName,
                         schema = schema,
                         mdlOpenContent = openContent,
                     )
@@ -732,7 +729,7 @@ sealed class ResolvedComplexType(
         /** Implementation of 3.4.6.4 */
         fun restricts(
             baseCT: ResolvedContentType,
-            typeContext: ContextT,
+            isSiblingName: (QName) -> Boolean,
             schema: ResolvedSchemaLike
         ): Boolean {
             if (baseCT !is ElementContentType) return false
@@ -740,10 +737,10 @@ sealed class ResolvedComplexType(
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
 
             // we use indirect access to term as that will give us groups.
-            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, typeContext, schema)
-            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, typeContext, schema)
+            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, schema)
+            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, isSiblingName, schema)
 
-            return flattened.restricts(flattenedBase, typeContext, schema)
+            return flattened.restricts(flattenedBase, isSiblingName, schema)
         }
 
         override fun check(
@@ -787,24 +784,32 @@ sealed class ResolvedComplexType(
 
     class MixedContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        nameContext: ContextT,
+        isSiblingName: (QName) -> Boolean,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(mdlParticle.range, nameContext, schema)
+        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(
+            mdlParticle.range,
+            isSiblingName,
+            schema
+        )
     }
 
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        typeContext: ContextT,
+        isSiblingName: (QName) -> Boolean,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(mdlParticle.range, typeContext, schema)
+        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(
+            mdlParticle.range,
+            isSiblingName,
+            schema
+        )
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,
@@ -842,8 +847,8 @@ sealed class ResolvedComplexType(
 
         return when {
 
-            effectiveMixed -> MixedContentType(effectiveContent, context, schema, openContent)
-            else -> ElementOnlyContentType(effectiveContent, context, schema, openContent)
+            effectiveMixed -> MixedContentType(effectiveContent, effectiveContent::isSiblingName, schema, openContent)
+            else -> ElementOnlyContentType(effectiveContent, effectiveContent::isSiblingName, schema, openContent)
         }
     }
 
@@ -967,8 +972,8 @@ sealed class ResolvedComplexType(
                         schema.version
                     )
                     ResolvedAnyAttribute(
-                        mdlProcessContents = l.mdlProcessContents,
                         mdlNamespaceConstraint = newConstraint,
+                        mdlProcessContents = l.mdlProcessContents,
                         model = l.model // copy annotations
                     )
                 }
@@ -982,7 +987,8 @@ sealed class ResolvedComplexType(
                         baseWildcard == null -> completeWildcard
                         completeWildcard == null -> baseWildcard
                         else -> ResolvedAnyAttribute(
-                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(completeWildcard.mdlNamespaceConstraint, emptyList(), schema),
+                            mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(completeWildcard.mdlNamespaceConstraint,
+                                { n:QName -> n in attributeUses }, schema),
                             mdlProcessContents = completeWildcard.mdlProcessContents,
                             model = completeWildcard.model
                         )

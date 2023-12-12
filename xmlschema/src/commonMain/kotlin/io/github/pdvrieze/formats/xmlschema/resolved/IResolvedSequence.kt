@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
 interface IResolvedSequence : ResolvedModelGroup {
 
@@ -34,12 +35,12 @@ interface IResolvedSequence : ResolvedModelGroup {
 
     override fun flatten(
         range: AllNNIRange,
-        nameContext: ContextT,
+        isSiblingName: (QName) -> Boolean,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
 
         val particles = mdlParticles.flatMap {
-            val f = it.flatten(nameContext, schema)
+            val f = it.flatten(::isSiblingName, schema)
             when {
                 f is FlattenedGroup.Sequence && f.range.isSimple -> f.particles
                 f.maxOccurs == VAllNNI.ZERO -> emptyList()
@@ -47,10 +48,8 @@ interface IResolvedSequence : ResolvedModelGroup {
             }
         }
 
-        val names = nameContext
-
         // TODO move to this class
-        FlattenedGroup.checkSequence(particles, names, schema)
+        FlattenedGroup.checkSequence(particles, isSiblingName, schema)
 
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY

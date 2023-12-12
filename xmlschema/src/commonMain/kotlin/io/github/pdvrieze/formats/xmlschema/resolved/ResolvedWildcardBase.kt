@@ -30,8 +30,8 @@ import io.github.pdvrieze.formats.xmlschema.types.*
 import kotlin.jvm.JvmStatic
 
 abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal constructor(
-    final val mdlNamespaceConstraint: VNamespaceConstraint<E>,
-    final val mdlProcessContents: VProcessContents,
+    val mdlNamespaceConstraint: VNamespaceConstraint<E>,
+    val mdlProcessContents: VProcessContents,
     final override val model: ResolvedAnnotated.IModel
 ) : ResolvedAnnotated {
 
@@ -49,6 +49,8 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
         mdlProcessContents,
         ResolvedAnnotated.Model(rawPart),
     )
+
+    abstract val mdlNotQName: VQNameListBase<E>
 
     override fun toString(): String {
         return buildString {

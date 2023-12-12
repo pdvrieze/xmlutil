@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import nl.adaptivity.xmlutil.QName
 
 class SyntheticAll(
     override val mdlMinOccurs: VNonNegativeInteger,
@@ -39,5 +40,9 @@ class SyntheticAll(
 
     override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
         return super<ResolvedParticle>.flatten(schema)
+    }
+
+    override fun isSiblingName(name: QName): Boolean {
+        return super<IResolvedAll>.isSiblingName(name)
     }
 }
