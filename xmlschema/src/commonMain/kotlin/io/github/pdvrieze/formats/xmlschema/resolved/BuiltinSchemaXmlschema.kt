@@ -93,6 +93,8 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
 
     override fun substitutionGroupMembers(headName: QName): Set<Nothing> = emptySet()
 
+    override fun getElements(): Set<ResolvedGlobalElement> = emptySet()
+
     internal val resolver = object : ResolvedSchema.SchemaElementResolver {
         override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
             return typeMap[typeName]

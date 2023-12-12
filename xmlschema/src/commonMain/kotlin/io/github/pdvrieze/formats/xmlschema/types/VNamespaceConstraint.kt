@@ -80,12 +80,12 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     fun intersects(other: VNamespaceConstraint<E>): Boolean = when (mdlVariety) {
         Variety.ANY -> when (other.mdlVariety) {
             Variety.ANY,
-            Variety.ENUMERATION -> true
+            Variety.ENUMERATION -> other.namespaces.isNotEmpty()
 
             Variety.NOT -> ! other.namespaces.containsAll(namespaces)
         }
 
-        Variety.ENUMERATION -> when (other.mdlVariety) {
+        Variety.ENUMERATION -> namespaces.isNotEmpty() && when (other.mdlVariety) {
             Variety.ANY -> true
             Variety.ENUMERATION -> other.namespaces.toSet().let { ons -> namespaces.any { it in ons } }
             Variety.NOT -> other.namespaces.toSet().let { ons -> namespaces.all { it in ons } }
@@ -95,7 +95,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
             Variety.ANY,
             Variety.NOT -> true
 
-            Variety.ENUMERATION -> namespaces.toSet().let { ns -> ! other.namespaces.all { it in ns } }
+            Variety.ENUMERATION -> other.namespaces.isNotEmpty() && namespaces.toSet().let { ns -> ! other.namespaces.all { it in ns } }
         }
     }
 
@@ -429,6 +429,24 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
             }
             append(")")
         }
+    }
+
+    fun reduceStrict(availableNames: List<QName>, isSiblingName: ContextT, schema: ResolvedSchemaLike): VNamespaceConstraint<E> {
+
+        val newNames = when (mdlVariety) {
+            Variety.ANY -> availableNames.asSequence()
+
+            Variety.ENUMERATION -> availableNames.asSequence()
+                .filter { it.namespaceURI.toAnyUri() in namespaces }
+
+            Variety.NOT -> availableNames.asSequence()
+                .filter { it.namespaceURI.toAnyUri() !in namespaces }
+
+        }.filter { !disallowedNames.contains(it, isSiblingName, schema) }
+            .mapTo(HashSet()) { it.namespaceURI.toAnyUri() }
+
+        return VNamespaceConstraint(Variety.ENUMERATION, newNames, disallowedNames)
+
     }
 
     enum class Variety { ANY, ENUMERATION, NOT }

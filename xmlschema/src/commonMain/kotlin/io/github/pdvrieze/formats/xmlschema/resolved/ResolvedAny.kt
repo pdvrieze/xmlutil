@@ -30,6 +30,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override val mdlMinOccurs: VNonNegativeInteger
     override val mdlMaxOccurs: VAllNNI
+    override val mdlNotQName: VQNameList get() = mdlNamespaceConstraint.disallowedNames as VQNameList
 
     constructor(
         mdlNamespaceConstraint: VNamespaceConstraint<VQNameListBase.Elem>,
@@ -45,7 +46,6 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     constructor(
         rawPart: XSAny,
         schema: ResolvedSchemaLike,
-        localInContext: Boolean,
         mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
         mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
     ) : super(
@@ -61,9 +61,13 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         this.mdlMaxOccurs = mdlMaxOccurs
     }
 
+    override fun isSiblingName(name: QName): Boolean {
+        return super<ResolvedBasicTerm>.isSiblingName(name)
+    }
+
     override val mdlTerm: ResolvedAny get() = this
 
-    override fun flatten(range: AllNNIRange, nameContext: ContextT, schema: ResolvedSchemaLike): FlattenedParticle.Wildcard {
+    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle.Wildcard {
         return FlattenedParticle.Wildcard(range, this)
     }
 
@@ -77,9 +81,29 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         super.checkTerm(checkHelper)
     }
 
-    fun intersects(other: ResolvedAny): Boolean = when (mdlMaxOccurs) {
-        VAllNNI.ZERO -> false
-        else -> this.mdlNamespaceConstraint.intersects(other.mdlNamespaceConstraint)
+    fun intersects(other: ResolvedAny, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        if (mdlMaxOccurs == VAllNNI.ZERO) return false
+        if (true || (mdlProcessContents != VProcessContents.STRICT && other.mdlProcessContents != VProcessContents.STRICT)) {
+            return mdlNamespaceConstraint.intersects(other.mdlNamespaceConstraint)
+        }// only for all NOT cases
+
+        val availableNames = schema.getElements().map { it.mdlQName }
+
+        val leftConstraint = when(mdlProcessContents) {
+            VProcessContents.STRICT -> mdlNamespaceConstraint.reduceStrict(availableNames, isSiblingName, schema).also {
+                if (it.namespaces.isEmpty()) return false
+            }
+            else -> mdlNamespaceConstraint
+        }
+
+        val rightConstraint = when(other.mdlProcessContents) {
+            VProcessContents.STRICT -> other.mdlNamespaceConstraint.reduceStrict(availableNames, isSiblingName, schema).also {
+                if (it.namespaces.isEmpty()) return false
+            }
+            else -> other.mdlNamespaceConstraint
+        }
+
+        return leftConstraint.intersects(rightConstraint)
     }
 
     fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {

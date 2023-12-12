@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -37,7 +38,7 @@ interface IResolvedChoice : ResolvedModelGroup {
 
     override fun flatten(
         range: AllNNIRange,
-        nameContext: ContextT,
+        isSiblingName: (QName) -> Boolean,
         schema: ResolvedSchemaLike
     ): FlattenedParticle {
         val seenNames = mutableSetOf<QName>()
@@ -45,7 +46,7 @@ interface IResolvedChoice : ResolvedModelGroup {
 
         val particles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            val f = p.flatten(nameContext, schema)
+            val f = p.flatten(::isSiblingName, schema)
 
             when {
                 f is FlattenedGroup.Choice && f.range.isSimple -> particles.addAll(f.particles)
@@ -54,14 +55,18 @@ interface IResolvedChoice : ResolvedModelGroup {
 
             for (startElem in f.startingTerms()) {
                 when (startElem) {
-                    is FlattenedParticle.Element -> require(seenNames.add(startElem.term.mdlQName)) {
-                        "Non-deterministic choice group: choice{${mdlParticles.joinToString()}}"
+                    is FlattenedParticle.Element -> {
+                        require(seenNames.add(startElem.term.mdlQName)) {
+                            "Non-deterministic choice group: choice({${mdlParticles.joinToString()}})"
+                        }
                     }
 
                     is FlattenedParticle.Wildcard -> {
                         if (startElem.term.mdlNamespaceConstraint.namespaces.singleOrNull()?.value?.isNotEmpty() ?: true) {
-                            require(seenWildcards.none { it.intersects(startElem.term) }) {
-                                "Non-deterministic choice group: choice${mdlParticles.joinToString()}"
+                            for (wc in seenWildcards) {
+                                require(! wc.intersects(startElem.term, isSiblingName, schema)) {
+                                    "Non-deterministic choice group (conflicting wildcards): $wc and $startElem in choice(${mdlParticles.joinToString()})"
+                                }
                             }
                             seenWildcards.add(startElem.term)
                         }
@@ -86,5 +91,11 @@ interface IResolvedChoice : ResolvedModelGroup {
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
         } ?: FlattenedGroup.Choice(range, particles, schema.version)
+    }
+
+    override fun checkTerm(checkHelper: CheckHelper) {
+        super.checkTerm(checkHelper)
+        // Trigger flatten check
+        flatten(checkHelper.schema)
     }
 }
