@@ -95,7 +95,10 @@ internal class DocumentImpl(override val doctype: DocumentType?) : Document {
                 if (documentElement != null) throw UnsupportedOperationException("Only one root element is supported for now")
                 _documentElement = n
             }
+
+            is Comment,
             is ProcessingInstructionImpl -> {}// fine
+
             is TextImpl -> require(n.data.isXmlWhitespace()) { "Non-whitespace nodes cannot be added directly to a document" }
             else -> throw IllegalArgumentException("Attempting to add node ${n.nodeType} where not permitted")
         }

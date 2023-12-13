@@ -29,6 +29,9 @@ Fixes:
 - Add a proper non-deprecated constructor for `DefaultXmlSerializationPolicy`
   this takes a Builder, or a configuration lambda. Both options enable
   future proofing when further attributes are added.
+- In the platform independent (native) DOM implementation allow
+  comments outside the document element (rather than throwing an exception).
+  Fixes #189.
 
 # 0.86.2
 *(September 13, 2023)<br />*

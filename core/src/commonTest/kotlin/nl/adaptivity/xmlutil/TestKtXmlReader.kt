@@ -100,4 +100,9 @@ class TestKtXmlReader : TestCommonReader() {
          assertXmlEquals(expectedXml, fromDom.toString())
     }
 
+    @Test
+    fun testReadToDom() {
+        testReadToDom(::createReader)
+    }
+
 }

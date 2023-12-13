@@ -74,4 +74,9 @@ class TestXmlReader : TestCommonReader() {
         testProcessingInstruction(::createReader) { DomWriter() }
     }
 
+    @Test
+    fun testReadToDom() {
+        testReadToDom(::createReader)
+    }
+
 }

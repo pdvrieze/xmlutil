@@ -220,4 +220,26 @@ abstract class TestCommonReader {
         }
     }
 
+
+    /** Test to reproduce #189 problem with comment */
+    protected fun testReadToDom(createReader: (String) -> XmlReader) {
+        val text = """
+            
+            <!-- Problem: Doubled child entries -->
+
+            <?xpacket begin='﻿' id='W5M0MpCehiHzreSzNTczkc9d'?>
+            <x:xmpmeta xmlns:x='adobe:ns:meta/'>
+            <rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'/>
+            </x:xmpmeta>
+            <?xpacket end='r'?>
+        """.trimIndent()
+
+        val writer = DomWriter()
+        val reader = createReader(text)
+
+        while (reader.hasNext()) {
+            reader.next()
+            reader.writeCurrent(writer)
+        }
+    }
 }
