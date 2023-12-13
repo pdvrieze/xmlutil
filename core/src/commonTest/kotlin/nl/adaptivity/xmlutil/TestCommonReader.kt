@@ -20,10 +20,12 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.KtXmlWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import kotlin.test.*
+import nl.adaptivity.xmlutil.dom.*
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 abstract class TestCommonReader {
     protected fun testReadCompactFragmentWithNamespaceInOuter(createReader: (String) -> XmlReader) {
@@ -241,5 +243,25 @@ abstract class TestCommonReader {
             reader.next()
             reader.writeCurrent(writer)
         }
+        val doc = writer.target
+
+        // whitespace outside of document element is ignored by DomWriter as the jvm dom implementation fails on it
+        var c: Node? = doc.firstChild
+        assertEquals(NodeConsts.COMMENT_NODE, c?.nodeType)
+        assertEquals(" Problem: Doubled child entries ", (c as Comment).data)
+
+        c = c.nextSibling
+        assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
+        val piStart = c as ProcessingInstruction
+        assertEquals("xpacket", piStart.getTarget())
+        assertEquals("begin='\uFEFF' id='W5M0MpCehiHzreSzNTczkc9d'", piStart.getData())
+
+        c = c.nextSibling
+        assertEquals(NodeConsts.ELEMENT_NODE, c?.nodeType)
+
+        c = c?.nextSibling
+        assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
+        val piEnd = c as ProcessingInstruction
+        assertEquals("xpacket", piEnd.getTarget())
     }
 }
