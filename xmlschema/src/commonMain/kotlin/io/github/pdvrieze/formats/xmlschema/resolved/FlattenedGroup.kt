@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import kotlin.jvm.JvmStatic
 
-internal typealias ContextT=(QName) -> Boolean
+internal typealias ContextT = (QName) -> Boolean
 
 sealed class FlattenedGroup(
     range: AllNNIRange,
@@ -50,6 +50,9 @@ sealed class FlattenedGroup(
             return reference.isEmptiable
         }
 
+        override fun plus(other: FlattenedParticle): FlattenedParticle {
+            return other // empty is never anything
+        }
     }
 
     override val isEmptiable: Boolean
@@ -121,7 +124,7 @@ sealed class FlattenedGroup(
         isSiblingName: ContextT,
         schema: ResolvedSchemaLike
     ): FlattenedParticle? {
-        if (particles.any { ! it.single().restricts(reference.single(), isSiblingName, schema) }) return null
+        if (particles.any { !it.single().restricts(reference.single(), isSiblingName, schema) }) return null
         return reference - effectiveTotalRange() // this should already cause range checking
     }
 
@@ -159,25 +162,23 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): Boolean = other.restrictsAll(this, context, schema)
 
-        /*
-        override fun removeFromWildcard(
-            base: Wildcard,
-            context: ContextT,
-            schema: ResolvedSchemaLike
-        ): FlattenedParticle? {
-            if (minOccurs > base.maxOccurs) return null
-            var b: FlattenedParticle? = base
-            for (p in particles) {
-                if (!p.restricts(base, context, schema)) return null
-                b = b?.consume(p, context, schema)
-                if (b == null) return null
+        override fun plus(other: FlattenedParticle): FlattenedParticle = when {
+            other == EMPTY -> this
+            other is All && range.isSimple && other.range.isSimple -> {
+                val mergedParticles = (particles.asSequence() + other.particles.asSequence()).groupBy {
+                    it.toString()
+                }.flatMap { (_, toMerge) ->
+                    val p = toMerge.reduce { l, r -> l + r }
+                    when {
+                        p is All && p.range.isSimple -> p.particles
+                        else -> listOf(p)
+                    }
+                }
+                All(AllNNIRange.SINGLERANGE, mergedParticles)
             }
 
-            val effectiveTotalRange = effectiveTotalRange()
-            if (! base.range.contains(effectiveTotalRange)) return null
-            return b
+            else -> All(AllNNIRange.SINGLERANGE, listOf(this, other))
         }
-*/
 
         /**
          * Recurse
@@ -287,7 +288,7 @@ sealed class FlattenedGroup(
             if (schema.version == SchemaVersion.V1_0) return false
             return particles.all {
                 val reRanged = it * range
-                reRanged!=null && reRanged.restrictsAll(base, context, schema)
+                reRanged != null && reRanged.restrictsAll(base, context, schema)
             }
         }
 
@@ -338,6 +339,11 @@ sealed class FlattenedGroup(
             return this.range.minus(range)?.let { Choice(it, particles) }
         }
 
+        override fun plus(other: FlattenedParticle): FlattenedParticle = when {
+            other == EMPTY -> this
+            else -> All(AllNNIRange.SINGLERANGE, listOf(this, other))
+        }
+
         override fun toString(): String =
             particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
     }
@@ -384,16 +390,38 @@ sealed class FlattenedGroup(
 
             val unprocessed = base.particles.toMutableList<FlattenedParticle?>() // 2.1
 
+            val pendingChoiceParticles = mutableListOf<Choice>()
             for (p in particles) { // 2.2
                 val matchIdx = unprocessed.indexOfFirst { it != null && p.restricts(it, isSiblingName, schema) }
-                if (matchIdx < 0) return false
-                val newMatch = (unprocessed[matchIdx]!! - p.range)?.takeIf { it.maxOccurs > VAllNNI.ZERO }
-                unprocessed[matchIdx] = newMatch // 2.1
+                when {
+                    matchIdx >= 0 -> {
+                        val newMatch = (unprocessed[matchIdx]!! - p.range)?.takeIf { it.maxOccurs > VAllNNI.ZERO }
+                        unprocessed[matchIdx] = newMatch // 2.1
+                    }
+
+                    p is Choice -> pendingChoiceParticles.add(p)
+                    else -> return false
+                }
             }
 
             for (bp in unprocessed) { // 2.3
                 if (bp != null && !bp.isEmptiable) return false
             }
+
+            val remaining = All(range, unprocessed.filterNotNull())
+
+            val choices = pendingChoiceParticles
+                .flatMap { ch -> ch.particles.map { it * ch.range ?: return false } }
+                .groupBy { toString() }
+                .map { (strRep, parts) -> parts.reduce { l, r -> l + r } }
+
+            for (choice in pendingChoiceParticles) {
+
+                for (e in choice.particles) {
+                    if (unprocessed.none { it != null && e.restricts(it, isSiblingName, schema) }) return false
+                }
+            }
+
             return true
         }
 
@@ -402,7 +430,10 @@ sealed class FlattenedGroup(
          */
         override fun restrictsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return restrictsChoice_1_0(base, context, schema) ||
-                    (schema.version == SchemaVersion.V1_1 && Choice(AllNNIRange.SINGLERANGE, listOf(this)).restrictsChoice(base, context, schema))
+                    (schema.version == SchemaVersion.V1_1 && Choice(
+                        AllNNIRange.SINGLERANGE,
+                        listOf(this)
+                    ).restrictsChoice(base, context, schema))
         }
 
         private fun restrictsChoice_1_0(
@@ -431,7 +462,7 @@ sealed class FlattenedGroup(
             for (i in base.particles.indices) { // if consumed (and therefore maxValues>0) it must be within the range
                 if (maxValues[i] > VAllNNI.ZERO) {
                     // This is more restrictive than needed, and can cause failures with open ranges
-        //                    val collapsedRange = base.particles[i].range * base.range
+                    //                    val collapsedRange = base.particles[i].range * base.range
                     val collapsedRange =
                         base.particles[i].let { (minOccurs * it.minOccurs)..(maxOccurs * it.maxOccurs) }
                     if (!collapsedRange.contains(minValues[i]..maxValues[i])) return false
@@ -447,7 +478,7 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
             // try to match the sequence to a single element in the sequence
-            if (base.maxOccurs> VAllNNI.ONE) {
+            if (base.maxOccurs > VAllNNI.ONE) {
                 val reduced = base.particles.asSequence().mapNotNull { it.remove(this, context, schema) }.firstOrNull()
                 if (reduced != null) {
                     val tail = base - AllNNIRange.SINGLERANGE
@@ -500,13 +531,17 @@ sealed class FlattenedGroup(
                     // The sequences "match"
                     return base - range
                 }
-                val head = Sequence(base.minOccurs.. VAllNNI.ONE, base.particles)
+                val head = Sequence(base.minOccurs..VAllNNI.ONE, base.particles)
                 val tail = (base - AllNNIRange.SINGLERANGE)!!
                 val reducedHead = removeFromSequence(head, isSiblingName, schema) ?: return null
                 return Sequence(AllNNIRange.SINGLERANGE, listOf(reducedHead, tail))
             } else { //base is optional or simple
                 if (maxOccurs > VAllNNI.ONE) {
-                    return Sequence(AllNNIRange.SINGLERANGE, listOf(this)).removeFromSequence(base, isSiblingName, schema)
+                    return Sequence(AllNNIRange.SINGLERANGE, listOf(this)).removeFromSequence(
+                        base,
+                        isSiblingName,
+                        schema
+                    )
                 }
                 if (minOccurs == VAllNNI.ZERO && base.effectiveTotalRange().start != VAllNNI.ZERO) return null
                 val baseIt = base.particles.iterator()
@@ -526,11 +561,13 @@ sealed class FlattenedGroup(
                                     val bp2 = pending ?: if (baseIt.hasNext()) baseIt.next() else return null
                                     pending = null
                                     // TODO use removal rather than restriction
-                                    val i = choiceMembers.indexOfFirst { it != null && it.restricts(
-                                        bp2,
-                                        isSiblingName,
-                                        schema
-                                    ) }
+                                    val i = choiceMembers.indexOfFirst {
+                                        it != null && it.restricts(
+                                            bp2,
+                                            isSiblingName,
+                                            schema
+                                        )
+                                    }
                                     if (i < 0) {
                                         if (!bp.isEmptiable) return null
                                     } else {
@@ -571,6 +608,11 @@ sealed class FlattenedGroup(
 
         override fun minus(range: AllNNIRange): FlattenedParticle? {
             return this.range.minus(range)?.let { Sequence(it, particles) }
+        }
+
+        override fun plus(other: FlattenedParticle): FlattenedParticle = when {
+            other == EMPTY -> this
+            else -> All(AllNNIRange.SINGLERANGE, listOf(this, other))
         }
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
@@ -743,7 +785,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         abstract override fun single(): Term
     }
 
-    class Element internal constructor(range: AllNNIRange, override val term: ResolvedElement, @Suppress("UNUSED_PARAMETER") dummy: Boolean) :
+    class Element internal constructor(
+        range: AllNNIRange,
+        override val term: ResolvedElement,
+        @Suppress("UNUSED_PARAMETER") dummy: Boolean
+    ) :
         Term(range) {
         override fun startingTerms(): List<Element> {
             return listOf(this)
@@ -883,10 +929,12 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                 val removed = part.remove(this, context, schema)
                 when {
                     removed == null -> if (!part.isEmptiable) return null
+
                     removed.maxOccurs > VAllNNI.ZERO -> {
                         newParticles.add(removed)
                         break
                     }
+
                     else -> break
                 }
             }
@@ -895,10 +943,10 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             } // flush remaining particles
 
             // We consumed part of the sequence so it must occur
-            return when(newParticles.size) {
+            return when (newParticles.size) {
                 0 -> EMPTY
-                1 -> newParticles.single()*range
-                else  -> Sequence(AllNNIRange.SINGLERANGE, newParticles)
+                1 -> newParticles.single() * range
+                else -> Sequence(AllNNIRange.SINGLERANGE, newParticles)
             }
         }
 
@@ -912,12 +960,31 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return this.range.minus(range)?.let { Element(it, term, true) }
         }
 
+        override fun plus(other: FlattenedParticle): FlattenedParticle {
+            return when {
+                other == EMPTY -> this
+
+                other is All -> return other + this
+
+                other is Element && this.isMergable(other) ->
+                    Element(range + other.range, term, false)
+
+                else -> All(AllNNIRange.SINGLERANGE, listOf(this, other))
+            }
+        }
+
+        private fun isMergable(other: Element): Boolean {
+            return term.mdlAbstract == other.term.mdlAbstract &&
+                    term.mdlQName == other.term.mdlQName
+        }
+
         override fun toString(): String = range.toPostfix(term.mdlQName.toString())
 
 
     }
 
     abstract operator fun minus(range: AllNNIRange): FlattenedParticle?
+    abstract operator fun plus(other: FlattenedParticle): FlattenedParticle
 
     class Wildcard(range: AllNNIRange, override val term: ResolvedAny) : Term(range) {
 
@@ -953,25 +1020,40 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         }
 
         override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return when(schema.version) {
+            return when (schema.version) {
                 SchemaVersion.V1_0 -> false
                 else -> All(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsAll(base, context, schema)
             }
         }
 
         override fun restrictsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return when(schema.version) {
+            return when (schema.version) {
                 SchemaVersion.V1_0 -> false
-                else -> Choice(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsChoice(base, context, schema)
+                else -> Choice(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsChoice(
+                    base,
+                    context,
+                    schema
+                )
             }
         }
 
         override fun restrictsSequence(base: Sequence, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return when(schema.version) {
+            return when (schema.version) {
                 SchemaVersion.V1_0 -> false
                 else -> Sequence(AllNNIRange.SINGLERANGE, listOf(this)).restrictsSequence(base, context, schema)
             }
         }
+
+        override fun plus(other: FlattenedParticle): FlattenedParticle = when {
+            other == EMPTY -> this
+            other is Wildcard && this.isMergable(other) -> Wildcard(this.range + other.range, term)
+            else -> All(AllNNIRange.SINGLERANGE, listOf(this, other))
+        }
+
+        fun isMergable(other: Wildcard) =
+            term.mdlNamespaceConstraint == other.term.mdlNamespaceConstraint &&
+                    term.mdlProcessContents == other.term.mdlProcessContents &&
+                    term.mdlNotQName == other.term.mdlNotQName
 
         override fun remove(
             reference: FlattenedParticle,
@@ -987,7 +1069,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             schema: ResolvedSchemaLike
         ): FlattenedParticle? {
             if (!reference.range.contains(range)) return null
-            if (!term.mdlNamespaceConstraint.isSubsetOf(reference.term.mdlNamespaceConstraint, schema.version)) return null
+            if (!term.mdlNamespaceConstraint.isSubsetOf(
+                    reference.term.mdlNamespaceConstraint,
+                    schema.version
+                )
+            ) return null
             if (reference.term !== AnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) return null
             return reference - range
         }
@@ -1010,7 +1096,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
          * Either create an element, or a choice for the substitution group (if it exists)
          */
         @JvmStatic
-        fun elementOrSubstitution(range: AllNNIRange, term: ResolvedElement, schemaVersion: SchemaVersion): FlattenedParticle = when {
+        fun elementOrSubstitution(
+            range: AllNNIRange,
+            term: ResolvedElement,
+            schemaVersion: SchemaVersion
+        ): FlattenedParticle = when {
             term !is ResolvedGlobalElement ||
                     term.mdlSubstitutionGroupMembers.isEmpty()
             -> Element(range, term, true)
@@ -1021,7 +1111,11 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                     0 -> EMPTY
                     else -> {
                         val elems = sg.map { Element(AllNNIRange.SINGLERANGE, it, true) }
-                        Choice(range, elems, SchemaVersion.V1_1) // force 1.1 to "sort" the elements as substitution groups are not ordered
+                        Choice(
+                            range,
+                            elems,
+                            SchemaVersion.V1_1
+                        ) // force 1.1 to "sort" the elements as substitution groups are not ordered
                     }
                 }
             }
