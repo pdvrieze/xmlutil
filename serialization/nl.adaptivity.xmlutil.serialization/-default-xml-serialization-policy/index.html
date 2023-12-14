@@ -1,9 +1,11 @@
 <!doctype html>
-<html>
+<html class="no-js">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>DefaultXmlSerializationPolicy</title>
-<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
     if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
@@ -16,12 +18,13 @@
         }
     }
     </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
 <link href="../../../styles/style.css" rel="Stylesheet">
-<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
@@ -29,48 +32,54 @@
 <script type="text/javascript" src="../../../scripts/prism.js" async></script>
 <script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
 <body>
-<div class="navigation-wrapper" id="navigation-wrapper">
-    <div id="leftToggler"><span class="icon-toggler"></span></div>
-    <div class="library-name">
-<a href="../../../index.html">
-<span>xmlutil</span>            </a>    </div>
-    <div>0.86.2
-    </div>
-    <div class="pull-right d-flex">
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../../index.html">
+                            xmlutil
+                    </a>            </div>
+            <div class="library-version">0.86.3
+            </div>
+        </div>
         <div class="filter-section" id="filter-section">
                 <button class="platform-tag platform-selector common-like" data-active="" data-filter=":serialization:dokkaHtmlPartial/commonMain">Common</button>
         </div>
-        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
-        <div id="searchBar"></div>
     </div>
-</div>
-<div id="container">
-    <div id="leftColumn">
-        <div id="sideMenu"></div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
     </div>
-    <div id="main">
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
 <div class="main-content" data-page-type="classlike" id="content" pageids="serialization::nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy///PointingToDeclaration//85105109">
   <div class="breadcrumbs"><a href="../../index.html">serialization</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil.serialization</a><span class="delimiter">/</span><span class="current">DefaultXmlSerializationPolicy</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Default</span><wbr><span>Xml</span><wbr><span>Serialization</span><wbr><span><span>Policy</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="index.html">DefaultXmlSerializationPolicy</a> : <a href="../-xml-serialization-policy/index.html">XmlSerializationPolicy</a><span class="clearfix"><span class="floating-right">(<a href="https://github.com/pdvrieze/xmlutil/tree/master/serialization/src/commonMain/kotlin/nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy.kt#L298">source</a>)</span></span></div><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>auto</span><wbr><span><span>Polymorphic</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Should polymorphic information be retrieved using <span data-unresolved-link="kotlinx.serialization.modules/SerializersModule///PointingToDeclaration/">SerializersModule</span> configuration. This replaces     <a href="../-xml-poly-children/index.html">XmlPolyChildren</a>, but changes serialization where that annotation is not applied. This option will     become the default in the future although XmlPolyChildren will retain precedence (when present)</p></div></div></div></div><div class="table-row" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>unknown</span><wbr><span>Child</span><wbr><span><span>Handler</span></span></u></div></span></div><div><div class="title"><p class="paragraph">A function that is called when an unknown child is found. By default an exception is thrown     but the function can silently ignore it as well.</p></div></div></div></div></div></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="index.html">DefaultXmlSerializationPolicy</a> : <a href="../-xml-serialization-policy/index.html">XmlSerializationPolicy</a><span class="clearfix"><span class="floating-right">(<a href="https://github.com/pdvrieze/xmlutil/tree/master/serialization/src/commonMain/kotlin/nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy.kt#L320">source</a>)</span></span></div><p class="paragraph">Default implementation of a serialization policy that provides a behaviour that attempts to create an XML format that resembles what would be created manually in line with XML's design.</p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
     <div class="tabs-section-body">
       <div data-togglable="CONSTRUCTOR">
         <h2 class="">Constructors</h2>
-        <div class="table"><a data-name="477289913%2FConstructors%2F85105109" anchor-label="DefaultXmlSerializationPolicy" id="477289913%2FConstructors%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
+        <div class="table"><a data-name="898843242%2FConstructors%2F85105109" anchor-label="DefaultXmlSerializationPolicy" id="898843242%2FConstructors%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
           <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-default-xml-serialization-policy.html"><span>Default</span><wbr><span>Xml</span><wbr><span>Serialization</span><wbr><span><span>Policy</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="477289913%2FConstructors%2F85105109"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="898843242%2FConstructors%2F85105109"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">original<span class="token operator">: </span><a href="../-xml-serialization-policy/index.html">XmlSerializationPolicy</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">original<span class="token operator">: </span><a href="../-xml-serialization-policy/index.html">XmlSerializationPolicy</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">config<span class="token operator">: </span><span class="token keyword"></span><a href="-builder/index.html">DefaultXmlSerializationPolicy.Builder</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -89,7 +98,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="-builder/index.html">Builder</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="-builder/index.html">Builder</a></div><div class="brief "><p class="paragraph">A configuration builder for the default serialization policy.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -108,7 +117,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="auto-polymorphic.html">autoPolymorphic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="auto-polymorphic.html">autoPolymorphic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div><div class="brief "><p class="paragraph">Should polymorphic information be retrieved using <a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/index.html">SerializersModule</a> configuration. This replaces</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -153,7 +162,22 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="encode-default.html">encodeDefault</a><span class="token operator">: </span><a href="../-xml-serialization-policy/-xml-encode-default/index.html">XmlSerializationPolicy.XmlEncodeDefault</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="encode-default.html">encodeDefault</a><span class="token operator">: </span><a href="../-xml-serialization-policy/-xml-encode-default/index.html">XmlSerializationPolicy.XmlEncodeDefault</a></div><div class="brief "><p class="paragraph">Determine whether defaults need to be encoded</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-287350050%2FProperties%2F85105109" anchor-label="isStrictBoolean" id="-287350050%2FProperties%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-strict-boolean.html"><span>is</span><wbr><span>Strict</span><wbr><span><span>Boolean</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-287350050%2FProperties%2F85105109"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="is-strict-boolean.html">isStrictBoolean</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div><div class="brief "><p class="paragraph">Parse boolean data according to the requirements of XML, rather than the (very lenient) toBoolean function from the Kotlin standard library.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -183,7 +207,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="pedantic.html">pedantic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="pedantic.html">pedantic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Enable some stricter behaviour</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -198,7 +222,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="throw-on-repeated-element.html">throwOnRepeatedElement</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="throw-on-repeated-element.html">throwOnRepeatedElement</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div><div class="brief "><p class="paragraph">When a single-value elemement is repeated in the content, will this throw an exception or only retain the final value</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -213,7 +237,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="type-discriminator-name.html">typeDiscriminatorName</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="type-discriminator-name.html">typeDiscriminatorName</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token operator">?</span><span class="token operator"> = </span>null</div><div class="brief "><p class="paragraph">When set, use a type discriminator property</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -228,7 +252,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="unknown-child-handler.html">unknownChildHandler</a><span class="token operator">: </span><a href="../-unknown-child-handler/index.html">UnknownChildHandler</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="unknown-child-handler.html">unknownChildHandler</a><span class="token operator">: </span><a href="../-unknown-child-handler/index.html">UnknownChildHandler</a></div><div class="brief "><p class="paragraph">A function that is called when an unknown child is found. By default an exception is thrown</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -243,7 +267,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="verify-element-order.html">verifyElementOrder</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="verify-element-order.html">verifyElementOrder</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div><div class="brief "><p class="paragraph">Verify that element children are in the order required by order annotations (and fail if not correct). Note that attribute order in XML is arbitrary and not meaningful.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -267,17 +291,32 @@
               </div>
             </div>
           </div>
-<a data-name="-2092111697%2FFunctions%2F85105109" anchor-label="copy" id="-2092111697%2FFunctions%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
+<a data-name="553075736%2FFunctions%2F85105109" anchor-label="builder" id="553075736%2FFunctions%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
           <div class="table-row" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="copy.html"><span><span>copy</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2092111697%2FFunctions%2F85105109"></span>
+                  <div><a href="builder.html"><span><span>builder</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="553075736%2FFunctions%2F85105109"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">pedantic<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>this.pedantic<span class="token punctuation">, </span></span><span class="parameter ">autoPolymorphic<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>this.autoPolymorphic<span class="token punctuation">, </span></span><span class="parameter ">encodeDefault<span class="token operator">: </span><a href="../-xml-serialization-policy/-xml-encode-default/index.html">XmlSerializationPolicy.XmlEncodeDefault</a><span class="token operator"> = </span>this.encodeDefault<span class="token punctuation">, </span></span><span class="parameter ">typeDiscriminatorName<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token operator">?</span><span class="token operator"> = </span>this.typeDiscriminatorName</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">DefaultXmlSerializationPolicy</a></div><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">pedantic<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>this.pedantic<span class="token punctuation">, </span></span><span class="parameter ">autoPolymorphic<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span>this.autoPolymorphic<span class="token punctuation">, </span></span><span class="parameter ">encodeDefault<span class="token operator">: </span><a href="../-xml-serialization-policy/-xml-encode-default/index.html">XmlSerializationPolicy.XmlEncodeDefault</a><span class="token operator"> = </span>this.encodeDefault<span class="token punctuation">, </span></span><span class="parameter ">unknownChildHandler<span class="token operator">: </span><a href="../-unknown-child-handler/index.html">UnknownChildHandler</a><span class="token punctuation">, </span></span><span class="parameter ">typeDiscriminatorName<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token operator">?</span><span class="token operator"> = </span>this.typeDiscriminatorName</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">DefaultXmlSerializationPolicy</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="builder.html"><span class="token function">builder</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-builder/index.html">DefaultXmlSerializationPolicy.Builder</a></div><div class="brief "><p class="paragraph">Create a builder for this policy. This function allows subclasses to have their own configuration.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="248235248%2FFunctions%2F85105109" anchor-label="copy" id="248235248%2FFunctions%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="copy.html"><span><span>copy</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="248235248%2FFunctions%2F85105109"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-experimental-serialization-api/index.html"><span class="token annotation builtin">ExperimentalSerializationApi</span></a></div></div><span class="token keyword">inline </span><span class="token keyword">fun </span><a href="copy.html"><span class="token function">copy</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">config<span class="token operator">: </span><span class="token keyword"></span><a href="-builder/index.html">DefaultXmlSerializationPolicy.Builder</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">DefaultXmlSerializationPolicy</a></div><div class="brief "><p class="paragraph">Create a copy of this configuration with the changes specified through the config parameter.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -292,7 +331,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-xml-serialization-policy/default-output-kind.html"><span class="token function">defaultOutputKind</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">serialKind<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.descriptors/SerialKind///PointingToDeclaration/">SerialKind</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-output-kind/index.html">OutputKind</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-xml-serialization-policy/default-output-kind.html"><span class="token function">defaultOutputKind</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">serialKind<span class="token operator">: </span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-kind/index.html">SerialKind</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-output-kind/index.html">OutputKind</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -352,7 +391,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-xml-serialization-policy/enum-encoding.html"><span class="token function">enumEncoding</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enumDescriptor<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.descriptors/SerialDescriptor///PointingToDeclaration/">SerialDescriptor</span><span class="token punctuation">, </span></span><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-xml-serialization-policy/enum-encoding.html"><span class="token function">enumEncoding</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">enumDescriptor<span class="token operator">: </span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a><span class="token punctuation">, </span></span><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -412,7 +451,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="initial-child-reorder-map.html"><span class="token function">initialChildReorderMap</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">parentDescriptor<span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization.descriptors/SerialDescriptor///PointingToDeclaration/">SerialDescriptor</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-xml-order-constraint/index.html">XmlOrderConstraint</a><span class="token operator">&gt;</span><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Default implementation that uses <a href="../-xml-before/index.html">XmlBefore</a> and <a href="../-xml-after/index.html">XmlAfter</a>. It does not use the parent descriptor at all.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="initial-child-reorder-map.html"><span class="token function">initialChildReorderMap</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">parentDescriptor<span class="token operator">: </span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/index.html">SerialDescriptor</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-xml-order-constraint/index.html">XmlOrderConstraint</a><span class="token operator">&gt;</span><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Default implementation that uses <a href="../-xml-before/index.html">XmlBefore</a> and <a href="../-xml-after/index.html">XmlAfter</a>. It does not use the parent descriptor at all.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -547,7 +586,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="override-serializer-or-null.html"><span class="token function">overrideSerializerOrNull</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">serializerParent<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-safe-parent-info/index.html">SafeParentInfo</a><span class="token punctuation">, </span></span><span class="parameter ">tagParent<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-safe-parent-info/index.html">SafeParentInfo</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.serialization/KSerializer///PointingToDeclaration/">KSerializer</span><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">?</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="override-serializer-or-null.html"><span class="token function">overrideSerializerOrNull</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">serializerParent<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-safe-parent-info/index.html">SafeParentInfo</a><span class="token punctuation">, </span></span><span class="parameter ">tagParent<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-safe-parent-info/index.html">SafeParentInfo</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html">KSerializer</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">?</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -627,6 +666,21 @@
               </div>
             </div>
           </div>
+<a data-name="-792465270%2FFunctions%2F85105109" anchor-label="textListDelimiters" id="-792465270%2FFunctions%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-xml-serialization-policy/text-list-delimiters.html"><span>text</span><wbr><span>List</span><wbr><span><span>Delimiters</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-792465270%2FFunctions%2F85105109"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-xml-serialization-policy/text-list-delimiters.html"><span class="token function">textListDelimiters</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">serializerParent<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-safe-parent-info/index.html">SafeParentInfo</a><span class="token punctuation">, </span></span><span class="parameter ">tagParent<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.serialization.structure/-safe-parent-info/index.html">SafeParentInfo</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Determine the delimiters to use to separate primitive/textual list elements when use inside an element. When writing will always write the first element.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
 <a data-name="-2037241579%2FFunctions%2F85105109" anchor-label="typeQName" id="-2037241579%2FFunctions%2F85105109" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain"></a>
           <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":serialization:dokkaHtmlPartial/commonMain" data-filterable-set=":serialization:dokkaHtmlPartial/commonMain">
             <div class="main-subrow keyValue ">
@@ -665,8 +719,9 @@
       <div class="footer">
         <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2023 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
       </div>
+            </div>
+        </div>
     </div>
-</div>
 </body>
 </html>
 
