@@ -57,7 +57,9 @@ The library is designed as a multiplatform Kotlin module, but platform-specific 
 ### Add repository
 The project's Maven access is hosted on OSS Sonatype (and available from Maven Central).
 
-Releases can be added from **maven central** or from Sonatype by adding the following to your
+Releases can be added from **maven central**
+
+They are also available directly from Sonatype by adding the following to your
 Gradle build file:
 ```groovy
 repositories {
@@ -79,19 +81,19 @@ repositories {
 ### Core
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:core:0.86.4-SNAPSHOT")
 ```
 #### JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.4-SNAPSHOT")
 ```
 #### Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.86.4-SNAPSHOT")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.86.4-SNAPSHOT")
 ```
 
 #### Native
@@ -102,19 +104,19 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.86.4-SNAPSHOT")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.4-SNAPSHOT")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.86.4-SNAPSHOT")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.86.3")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.86.4-SNAPSHOT")
 ```
 
 ### -Ktor- (Deprecated)
@@ -170,6 +172,7 @@ The following options are available when using the XML format builder:
 | `isCollectingNSAttributes` | (Attempt to) collect all needed namespace declarations and emit them on the root tag, this does have a performance overhead                                                                                                                                                                             |
 | `policy`                   | This is a class that can be used to define a custom policy that informs how the kotlin structure is translated to XML. It drives most complex configuration                                                                                                                                             |
 | `defaultPolicy {}`         | Builder that allows configuring the default policy. This policy is stable, it doesn't change across versions.                                                                                                                                                                                           |
+| `recommended_0_86_3 {}`    | Builder that sets the policy to the recommended defaults per version 0.86.3, this is stable and includes: autopolymorphic, inlineCollapsed, indent=4, p.pedantic, p.typeDiscriminatorName=xsi:type, encodeDefault=ANNOTATED, throwOnRepeatedElement, isStrictAttributeNames                             |                                                                                                                                                                                                                  
 | `recommended {}`           | Builder that sets the policy to the *currently* recommended defaults, note that this policy is *not stable*. This currently includes: autopolymorphic, inlineCollapsed, indent=4, p.pedantic, p.typeDiscriminatorName=xsi:type, encodeDefault=ANNOTATED, throwOnRepeatedElement, isStrictAttributeNames |                                                                                                                                                                                                                  
 | -`indent`-                 | *Deprecated for reading*: The indentation level (in spaces) to use. This is backed by `indentString`. Reading is "invalid" for `indentString` values that are not purely string sequences. Writing it will set indentation as the specified amount of spaces.                                           |
 | -`omitXmlDecl`-            | *Deprecated* (use `xmlDeclMode`). Should the generated XML contain an XML declaration or not. This is passed to the `XmlWriter`                                                                                                                                                                         |
