@@ -21,14 +21,11 @@
 package net.devrieze.gradle.ext
 
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.Platform
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder
+import java.net.URI
 import java.net.URL
 
 fun Project.configureDokka(
@@ -43,6 +40,8 @@ fun Project.configureDokka(
         }
     }
 }
+
+private fun Project.url(value: String): URL = URI(value).toURL()
 
 private fun Project.configureDokkaSourceSet(
     sourceSet: GradleDokkaSourceSetBuilder
@@ -77,15 +76,12 @@ private fun Project.configureDokkaSourceSet(
                 logger.lifecycle("Adding source link for root: $relativeRoot")
                 sourceLink {
                     localDirectory = sourceRoot
-                    remoteUrl = URL("https://github.com/pdvrieze/xmlutil/tree/master/${relativeRoot}")
+                    remoteUrl = url("https://github.com/pdvrieze/xmlutil/tree/master/${relativeRoot}")
                 }
             }
 
             externalDocumentationLink {
-                url.set(URL("https://kotlinlang.org/api/kotlinx.serialization/"))
-                packageListUrl.set(
-                    rootProject.projectDir.resolve("serialization.package.list").toURL()
-                )
+                url = url("https://kotlinlang.org/api/kotlinx.serialization/")
             }
 
             perPackageOption {
