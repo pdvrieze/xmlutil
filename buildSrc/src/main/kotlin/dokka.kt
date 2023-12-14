@@ -76,7 +76,9 @@ private fun Project.configureDokkaSourceSet(
                 logger.lifecycle("Adding source link for root: $relativeRoot")
                 sourceLink {
                     localDirectory = sourceRoot
-                    remoteUrl = url("https://github.com/pdvrieze/xmlutil/tree/master/${relativeRoot}")
+                    val relURI = relativeRoot.toURI()
+                    val absUrl = URI.create("https://github.com/pdvrieze/xmlutil/tree/master/").resolve(relURI)
+                    remoteUrl = absUrl.toURL()
                 }
             }
 
