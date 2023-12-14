@@ -449,6 +449,24 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
 
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VNamespaceConstraint<*>) return false
+
+        if (mdlVariety != other.mdlVariety) return false
+        if (! namespaces.isContentEqual(other.namespaces)) return false
+        if (! disallowedNames.isContentEqual(other.disallowedNames)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = mdlVariety.hashCode()
+        result = 31 * result + namespaces.hashCode()
+        result = 31 * result + disallowedNames.hashCode()
+        return result
+    }
+
     enum class Variety { ANY, ENUMERATION, NOT }
 }
 
