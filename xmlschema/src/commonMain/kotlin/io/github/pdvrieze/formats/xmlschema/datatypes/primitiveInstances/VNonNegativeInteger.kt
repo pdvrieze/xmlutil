@@ -65,6 +65,8 @@ interface VNonNegativeInteger : VInteger {
     operator fun rangeTo(end: VAllNNI): AllNNIRange =
         AllNNIRange(this, end)
 
+    operator fun plus(other: ULong): VNonNegativeInteger
+
     private class Inst(override val xmlString: String) : VNonNegativeInteger {
         override fun toLong(): Long = xmlString.toLong()
 
@@ -76,6 +78,10 @@ interface VNonNegativeInteger : VInteger {
 
         override fun plus(other: VNonNegativeInteger): VNonNegativeInteger {
             return VUnsignedLong(toULong() + other.toULong())
+        }
+
+        override fun plus(other: ULong): VNonNegativeInteger {
+            return VUnsignedLong(toULong() + other)
         }
 
         override fun times(other: VNonNegativeInteger): VNonNegativeInteger {

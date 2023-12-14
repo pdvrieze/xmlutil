@@ -46,6 +46,10 @@ interface VUnsignedLong : VNonNegativeInteger {
             return Inst(value + other.toULong())
         }
 
+        override fun plus(other: ULong): VNonNegativeInteger {
+            return Inst(value + other)
+        }
+
         override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
             return VUnsignedLong(toULong() * other.toULong())
         }

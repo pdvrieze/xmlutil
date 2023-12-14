@@ -224,7 +224,7 @@ sealed class FlattenedGroup(
         }
 
         override fun times(range: AllNNIRange): All? {
-            return this.range.times(range)?.let { All(it, particles) }
+            return this.range.mergeRanges(range)?.let { All(it, particles) }
         }
 
         override fun minus(range: AllNNIRange): FlattenedParticle? {
@@ -283,6 +283,14 @@ sealed class FlattenedGroup(
             return true
         }
 
+        override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            if (schema.version == SchemaVersion.V1_0) return false
+            return particles.all {
+                val reRanged = it * range
+                reRanged!=null && reRanged.restrictsAll(base, context, schema)
+            }
+        }
+
         override fun remove(
             reference: FlattenedParticle,
             isSiblingName: ContextT,
@@ -323,7 +331,7 @@ sealed class FlattenedGroup(
         }
 
         override fun times(range: AllNNIRange): Choice? {
-            return (this.range * range)?.let { Choice(it, particles) }
+            return this.range.mergeRanges(range)?.let { Choice(it, particles) }
         }
 
         override fun minus(range: AllNNIRange): FlattenedParticle? {
@@ -558,7 +566,7 @@ sealed class FlattenedGroup(
         }
 
         override fun times(range: AllNNIRange): Sequence? {
-            return (this.range * range)?.let { Sequence(it, particles) }
+            return this.range.mergeRanges(range)?.let { Sequence(it, particles) }
         }
 
         override fun minus(range: AllNNIRange): FlattenedParticle? {
@@ -735,7 +743,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         abstract override fun single(): Term
     }
 
-    class Element internal constructor(range: AllNNIRange, override val term: ResolvedElement, dummy: Boolean) :
+    class Element internal constructor(range: AllNNIRange, override val term: ResolvedElement, @Suppress("UNUSED_PARAMETER") dummy: Boolean) :
         Term(range) {
         override fun startingTerms(): List<Element> {
             return listOf(this)
@@ -897,7 +905,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun single(): Element = Element(AllNNIRange.SINGLERANGE, term, true)
 
         override fun times(range: AllNNIRange): Element? {
-            return (this.range * range)?.let { Element(it, term, true) }
+            return this.range.mergeRanges(range)?.let { Element(it, term, true) }
         }
 
         override fun minus(range: AllNNIRange): FlattenedParticle? {
@@ -987,7 +995,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun single(): Wildcard = Wildcard(AllNNIRange.SINGLERANGE, term)
 
         override fun times(range: AllNNIRange): Wildcard? {
-            return (this.range * range)?.let { Wildcard(it, term) }
+            return this.range.mergeRanges(range)?.let { Wildcard(it, term) }
         }
 
         override fun minus(range: AllNNIRange): FlattenedParticle? {
