@@ -1,10 +1,10 @@
 name: Create and publish a package
 on:
-    release:
-        types: [ created ]
     push:
         branches:
             - 'dev'
+        tags:
+            - v[0-9]*
     workflow_dispatch:
 jobs:
     create-staging-repository:
