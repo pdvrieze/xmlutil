@@ -38,8 +38,11 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
     abstract operator fun minus(other: VAllNNI): VAllNNI
 
     abstract operator fun times(other: VAllNNI): VAllNNI
+    abstract operator fun times(other: Value): VAllNNI
+    abstract operator fun times(mult: VNonNegativeInteger): VAllNNI
 
     abstract fun safeMinus(other: VAllNNI, min: Value = ZERO): VAllNNI
+    abstract operator fun plus(other: ULong): VAllNNI
 
     object UNBOUNDED : VAllNNI() {
         override fun compareTo(other: VAllNNI): Int = when(other){
@@ -47,12 +50,19 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             else -> 1
         }
 
+        override fun times(mult: VNonNegativeInteger): UNBOUNDED = this
+
         operator fun plus(other: VNonNegativeInteger): VAllNNI = UNBOUNDED
         override operator fun plus(other: VAllNNI): VAllNNI = UNBOUNDED
+        override fun plus(other: ULong): VAllNNI = UNBOUNDED
+
         override operator fun minus(other: VAllNNI): VAllNNI = when (other) {
             UNBOUNDED -> ZERO
             else -> UNBOUNDED
         }
+
+        override fun times(other: Value): VAllNNI = UNBOUNDED
+
         override operator fun times(other: VAllNNI): VAllNNI = UNBOUNDED
 
         override fun safeMinus(other: VAllNNI, min: Value): VAllNNI = when(other) {
@@ -92,7 +102,9 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             is UNBOUNDED -> UNBOUNDED
         }
 
-        operator fun times(other: Value): Value = Value(value.toULong() * other.value.toULong())
+        override operator fun times(other: Value): Value = Value(value.toULong() * other.value.toULong())
+
+        override operator fun times(other: VNonNegativeInteger): Value = Value(value.toULong() * other.toULong())
 
         operator fun minus(other: Value): Value = Value(value.toULong() - other.value.toULong())
 
@@ -139,6 +151,10 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             return value.hashCode()
         }
 
+        override operator fun plus(other: ULong): Value {
+            return Value(value+other)
+        }
+
         companion object Serializer : KSerializer<Value> {
             override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI.Value", PrimitiveKind.STRING)
 
@@ -181,7 +197,9 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 }
 
 class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: VAllNNI) : ClosedRange<VAllNNI> {
-    val isSimple: Boolean get() = endInclusive == VAllNNI.ONE && start == VAllNNI.ONE
+    val isSimple: Boolean get() = endInclusive == VAllNNI.ONE && startsWithOne
+    val isSingletonRange: Boolean get() = start == endInclusive
+    val startsWithOne: Boolean get() = start == VAllNNI.ONE
 
     constructor(startNNI: VNonNegativeInteger, endInclusive: VAllNNI) : this(VAllNNI.Value(startNNI), endInclusive)
     constructor(
@@ -202,11 +220,26 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
         return endInclusive !is VAllNNI.UNBOUNDED && start < endInclusive
     }
 
-    operator fun times(other: AllNNIRange): AllNNIRange? = when {
-        isSimple -> other
-        other.isSimple -> this
-        start > VAllNNI.ONE -> null
-        else -> AllNNIRange(start * other.start, endInclusive * other.endInclusive)
+    private operator fun times(mult: VNonNegativeInteger): AllNNIRange {
+        return AllNNIRange(this.start*mult, endInclusive*mult)
+    }
+
+    /**
+     * This function returns a contiguous range if ranges can be merged, if not returns `null`.
+     * Note that this is **not** commutative. The outer and inner ranges differ, and multiplier values matter too.
+     *
+     * For an inner range: (a..b).mergeRanges(c..d) where (c..d) is not a single value, it is required
+     * that c*a..c*b is consecutive with (c+1)*a..(c+1)*b. That is the case if (c*b)+1>=(c+1)*a.
+     */
+    fun mergeRanges(outer: AllNNIRange): AllNNIRange? {
+        if (isSimple) return outer
+        if (outer.isSimple) return this
+        if (startsWithOne && isSingletonRange) return AllNNIRange(start*outer.start, endInclusive*outer.endInclusive)
+
+        val startEnd = outer.start*endInclusive
+        val secondStart = (outer.start + VAllNNI.ONE)* start
+        if (startEnd+VAllNNI.ONE>=secondStart) return AllNNIRange(start*outer.start, endInclusive*outer.endInclusive)
+        return null
     }
 
     override fun toString(): String = when(endInclusive) {

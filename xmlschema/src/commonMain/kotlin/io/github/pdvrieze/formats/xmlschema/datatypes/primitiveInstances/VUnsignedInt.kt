@@ -46,6 +46,10 @@ abstract class VUnsignedInt : VUnsignedLong {
             return Inst(value + other.toUInt())
         }
 
+        override fun plus(other: ULong): VUnsignedInt {
+            return Inst(value + other.toUInt())
+        }
+
         override fun times(other: VNonNegativeInteger): VNonNegativeInteger {
             return VUnsignedLong(toULong() * other.toULong())
         }
