@@ -1,4 +1,5 @@
-# 0.86.3-SNAPSHOT
+# 0.86.3
+*(December 14, 2023)
 Changes:
 - The `XmlStreaming` object in core is replaced by an interface `IXmlStreaming`
   with an accessor function `xmlStreaming` that provides an appropriate
@@ -6,7 +7,7 @@ Changes:
   In various places extension functions have been added.
 
 Features:
-- Update to kotlinx.serialization 1.6.1, add wasmJs support.
+- Update to kotlinx.serialization 1.6.1, add wasmJs/wasmWasi support.
 - Support strict boolean parsing in policy 
   (using xml schema rules allowing: 1, true, 0, false)
 - Add an alias XmlBoolean that parses according to xml rules independent of
