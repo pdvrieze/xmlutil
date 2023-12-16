@@ -88,7 +88,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         Variety.ENUMERATION -> namespaces.isNotEmpty() && when (other.mdlVariety) {
             Variety.ANY -> true
             Variety.ENUMERATION -> other.namespaces.toSet().let { ons -> namespaces.any { it in ons } }
-            Variety.NOT -> other.namespaces.toSet().let { ons -> namespaces.all { it in ons } }
+            Variety.NOT -> namespaces.isNotEmpty() && other.namespaces.toSet().let { ons -> ! namespaces.all { it in ons } }
         }
 
         Variety.NOT -> when (other.mdlVariety) {
