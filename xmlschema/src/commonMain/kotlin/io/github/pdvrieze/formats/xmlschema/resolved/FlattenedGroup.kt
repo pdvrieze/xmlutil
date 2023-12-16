@@ -480,7 +480,11 @@ sealed class FlattenedGroup(
         ): Boolean {
             // 3.9.6.2
             // part 1
-            if (particles.isContentEqual(base.particles)) return range == base.range
+            if (particles.size >= base.particles.size &&
+                particles.subList(0, base.particles.size).isContentEqual(base.particles)
+            ) {
+                return range == base.range
+            }
             // part 2
             return range.isSimple && particles.first().extends(base, isSiblingName, schema)
         }
