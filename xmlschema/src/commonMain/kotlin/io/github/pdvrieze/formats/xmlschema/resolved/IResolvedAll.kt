@@ -20,11 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAll : ResolvedModelGroup {
@@ -33,8 +35,17 @@ interface IResolvedAll : ResolvedModelGroup {
     override val mdlCompositor: Compositor get() = Compositor.ALL
 
     override fun checkTerm(checkHelper: CheckHelper) {
+        val seenWildcards = mutableListOf<ResolvedAny>()
         // super just calls check on the particles
         for (particle in mdlParticles) {
+            if (particle is ResolvedAny) {
+                for (seen in seenWildcards) {
+                    require(! seen.intersects(particle,::isSiblingName, checkHelper.schema)) {
+                        "Intersecting wildcards in all group: $particle and $seen"
+                    }
+                }
+                seenWildcards.add(particle)
+            }
             particle.checkParticle(checkHelper)
             if (checkHelper.version == SchemaVersion.V1_0) {
                 val maxOccurs = particle.mdlMaxOccurs

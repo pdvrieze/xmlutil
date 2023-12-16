@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.*
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.localPart
@@ -162,6 +163,18 @@ sealed class FlattenedGroup(
             schema: ResolvedSchemaLike
         ): Boolean = other.restrictsAll(this, context, schema)
 
+        override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return other.extendsAll(this, context, schema)
+        }
+
+        override fun extendsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            // part 3.1
+            if (minOccurs != base.minOccurs) return false
+
+            // this is also true if both terms are equal
+            return particles.containsAll(base.particles)
+        }
+
         override fun plus(other: FlattenedParticle): FlattenedParticle = when {
             other == EMPTY -> this
             other is All && range.isSimple && other.range.isSimple -> {
@@ -233,6 +246,22 @@ sealed class FlattenedGroup(
         }
 
         override fun toString(): String = particles.joinToString(prefix = "{", postfix = range.toPostfix("}"))
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as All
+
+            return particles == other.particles
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + particles.hashCode()
+            return result
+        }
     }
 
     class Choice(range: AllNNIRange, override val particles: List<FlattenedParticle>) :
@@ -267,6 +296,14 @@ sealed class FlattenedGroup(
             context: ContextT,
             schema: ResolvedSchemaLike
         ): Boolean = other.restrictsChoice(this, context, schema)
+
+        override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return other.extendsChoice(this, context, schema)
+        }
+
+        override fun extendsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return range == base.range && particles.isContentEqual(base.particles)
+        }
 
         // Recurse lax
         override fun restrictsChoice(base: Choice, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
@@ -346,6 +383,22 @@ sealed class FlattenedGroup(
 
         override fun toString(): String =
             particles.joinToString(separator = "| ", prefix = "(", postfix = range.toPostfix(")"))
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Choice
+
+            return particles == other.particles
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + particles.hashCode()
+            return result
+        }
     }
 
     open class Sequence internal constructor(
@@ -383,6 +436,42 @@ sealed class FlattenedGroup(
             context: ContextT,
             schema: ResolvedSchemaLike
         ): Boolean = other.restrictsSequence(this, context, schema)
+
+        override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return other.extendsSequence(this, context, schema)
+        }
+
+        override fun extendsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            // 3.9.6.2 step 2
+            return range.isSimple && particles.isNotEmpty() && particles.first().extends(base, context, schema)
+        }
+
+        override fun extendsWildcard(base: Wildcard, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            // 3.9.6.2 step 2
+            return range.isSimple && particles.isNotEmpty() && particles.first().extends(base, context, schema)
+        }
+
+        override fun extendsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            // 3.9.6.2 step 2
+            return range.isSimple && particles.isNotEmpty() && particles.first().extends(base, context, schema)
+        }
+
+        override fun extendsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            // 3.9.6.2 step 2
+            return range.isSimple && particles.isNotEmpty() && particles.first().extends(base, context, schema)
+        }
+
+        override fun extendsSequence(
+            base: Sequence,
+            isSiblingName: (QName) -> Boolean,
+            schema: ResolvedSchemaLike
+        ): Boolean {
+            // 3.9.6.2
+            // part 1
+            if (particles.isContentEqual(base.particles)) return range == base.range
+            // part 2
+            return range.isSimple && particles.first().extends(base, isSiblingName, schema)
+        }
 
         // Restrict recurseUnordered
         override fun restrictsAll(base: All, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
@@ -617,6 +706,22 @@ sealed class FlattenedGroup(
 
         override fun toString(): String = particles.joinToString(prefix = "(", postfix = range.toPostfix(")"))
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Sequence
+
+            return particles == other.particles
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + particles.hashCode()
+            return result
+        }
+
     }
 
     companion object {
@@ -727,6 +832,28 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         return reference.isRestrictedBy(this, isSiblingName, schema)
     }
 
+    open fun extends(base: FlattenedParticle, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): Boolean {
+        return base.isExtendedBy(this, isSiblingName, schema)
+    }
+
+    protected abstract fun isExtendedBy(
+        other: FlattenedParticle,
+        context: ContextT,
+        schema: ResolvedSchemaLike
+    ): Boolean
+
+    open fun extendsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
+
+    open fun extendsWildcard(base: Wildcard, context: ContextT, schema: ResolvedSchemaLike): Boolean =
+        false
+
+    open fun extendsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
+
+    open fun extendsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
+
+    open fun extendsSequence(base: Sequence, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): Boolean =
+        false
+
     open fun restrictsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
 
     open fun restrictsWildcard(base: Wildcard, context: ContextT, schema: ResolvedSchemaLike): Boolean =
@@ -783,6 +910,21 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun effectiveTotalRange(): AllNNIRange = range
 
         abstract override fun single(): Term
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Term
+
+            return term == other.term
+        }
+
+        override fun hashCode(): Int {
+            return term.hashCode()
+        }
+
+
     }
 
     class Element internal constructor(
@@ -802,6 +944,14 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ContextT,
             schema: ResolvedSchemaLike
         ): Boolean = other.restrictsElement(this, context, schema)
+
+        override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return other.extendsElement(this, context, schema)
+        }
+
+        override fun extendsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return range == base.range && term == base.term
+        }
 
         override fun restrictsElement(
             base: Element,
@@ -985,6 +1135,18 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
     abstract operator fun minus(range: AllNNIRange): FlattenedParticle?
     abstract operator fun plus(other: FlattenedParticle): FlattenedParticle
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as FlattenedParticle
+
+        return range == other.range
+    }
+
+    override fun hashCode(): Int {
+        return range.hashCode()
+    }
 
     class Wildcard(range: AllNNIRange, override val term: ResolvedAny) : Term(range) {
 
@@ -999,6 +1161,14 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             context: ContextT,
             schema: ResolvedSchemaLike
         ): Boolean = other.restrictsWildcard(this, context, schema)
+
+        override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return other.extendsWildcard(this, context, schema)
+        }
+
+        override fun extendsWildcard(base: Wildcard, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return range == base.range && term == base.term
+        }
 
         /**
          * NSSubset
@@ -1089,6 +1259,22 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         }
 
         override fun toString(): String = range.toPostfix("<${term.mdlNamespaceConstraint}>")
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Wildcard
+
+            return term == other.term
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + term.hashCode()
+            return result
+        }
     }
 
     companion object {

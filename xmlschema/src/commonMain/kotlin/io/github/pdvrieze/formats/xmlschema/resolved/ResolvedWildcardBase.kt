@@ -52,6 +52,8 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
 
     abstract val mdlNotQName: VQNameListBase<E>
 
+
+
     override fun toString(): String {
         return buildString {
             append("wildcard(")
@@ -59,6 +61,26 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
             append(mdlNamespaceConstraint)
             append(")")
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedWildcardBase<*>
+
+        if (mdlNamespaceConstraint != other.mdlNamespaceConstraint) return false
+        if (mdlProcessContents != other.mdlProcessContents) return false
+        if (mdlNotQName != other.mdlNotQName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = mdlNamespaceConstraint.hashCode()
+        result = 31 * result + mdlProcessContents.hashCode()
+        result = 31 * result + mdlNotQName.hashCode()
+        return result
     }
 
     companion object {

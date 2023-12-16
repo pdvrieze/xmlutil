@@ -135,6 +135,35 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     }
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitElement(this)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ResolvedElement
+
+        if (otherAttrs != other.otherAttrs) return false
+        if (mdlQName != other.mdlQName) return false
+        if (mdlNillable != other.mdlNillable) return false
+        if (mdlDisallowedSubstitutions != other.mdlDisallowedSubstitutions) return false
+        if (mdlSubstitutionGroupExclusions != other.mdlSubstitutionGroupExclusions) return false
+        if (mdlAbstract != other.mdlAbstract) return false
+        if (mdlScope != other.mdlScope) return false
+        if (model != other.model) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = otherAttrs.hashCode()
+        result = 31 * result + model.hashCode()
+        result = 31 * result + mdlQName.hashCode()
+        result = 31 * result + mdlNillable.hashCode()
+        result = 31 * result + mdlDisallowedSubstitutions.hashCode()
+        result = 31 * result + mdlSubstitutionGroupExclusions.hashCode()
+        result = 31 * result + mdlAbstract.hashCode()
+        result = 31 * result + mdlScope.hashCode()
+        return result
+    }
 
     abstract class Model(
         rawPart: XSElement,
@@ -152,7 +181,33 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
             rawPart.identityConstraints.mapTo(HashSet()) {
                 ResolvedIdentityConstraint(it, schema, context)
             }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Model
+
+            if (mdlTypeDefinition != other.mdlTypeDefinition) return false
+            if (mdlTypeTable != other.mdlTypeTable) return false
+            if (mdlValueConstraint != other.mdlValueConstraint) return false
+            if (mdlIdentityConstraints != other.mdlIdentityConstraints) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = mdlTypeDefinition.hashCode()
+            result = 31 * result + (mdlTypeTable?.hashCode() ?: 0)
+            result = 31 * result + (mdlValueConstraint?.hashCode() ?: 0)
+            result = 31 * result + mdlIdentityConstraints.hashCode()
+            return result
+        }
+
+
     }
+
+
 
     abstract val mdlScope: VElementScope
 }
