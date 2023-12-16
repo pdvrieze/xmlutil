@@ -119,4 +119,24 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as ResolvedAny
+
+        if (mdlMinOccurs != other.mdlMinOccurs) return false
+        if (mdlMaxOccurs != other.mdlMaxOccurs) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + mdlMinOccurs.hashCode()
+        result = 31 * result + mdlMaxOccurs.hashCode()
+        return result
+    }
+
 }
