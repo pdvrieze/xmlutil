@@ -281,6 +281,24 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
         return AllNNIRange(newStart, newEnd)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as AllNNIRange
+
+        if (start != other.start) return false
+        if (endInclusive != other.endInclusive) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = start.hashCode()
+        result = 31 * result + endInclusive.hashCode()
+        return result
+    }
+
     companion object {
         val INFRANGE: AllNNIRange = VAllNNI.ZERO..VAllNNI.UNBOUNDED
         val SINGLERANGE: AllNNIRange = VAllNNI.ONE..VAllNNI.ONE
