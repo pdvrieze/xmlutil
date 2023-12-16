@@ -580,7 +580,8 @@ class XPathExpression private constructor(
 
         fun checkCurrentWord(check: String): Boolean {
             checkCurrent(check)
-            return i >= str.length || !isNameChar(str[i])
+            val j = i + check.length
+            return j >= str.length || !isNameChar(str[j])
         }
 
         fun lookupNamespace(prefix: String?): String = when (prefix){
