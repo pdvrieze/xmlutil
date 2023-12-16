@@ -255,9 +255,10 @@ sealed class ResolvedComplexType(
         }
 
         val baseCType = baseType.mdlContentType
+        val derivedCType = mdlContentType
         when (baseCType) {
             is ResolvedSimpleContentType ->
-                when (val ct = mdlContentType) {
+                when (val ct = derivedCType) {
                     is EmptyContentType -> {
                         require(baseType is ResolvedSimpleType || schema.version == SchemaVersion.V1_0) {
                             "From version 1.1 complexContent can not inherit simpleContent"
@@ -283,10 +284,10 @@ sealed class ResolvedComplexType(
             is EmptyContentType -> {}//1.4.2 / 1.4.3.2.1 can extend from empty
 
             is MixedContentType -> {
-                require(mdlContentType is MixedContentType) { "3.4.6.2(1.4.3.2.2.1) - mixed must be extended by mixed" }
+                require(derivedCType is MixedContentType) { "3.4.6.2(1.4.3.2.2.1) - mixed must be extended by mixed" }
                 // Ensure chcking particle extensions
                 val bot = baseCType.mdlOpenContent
-                val eot = (mdlContentType as MixedContentType).mdlOpenContent
+                val eot = (derivedCType as MixedContentType).mdlOpenContent
                 require(bot == null || eot?.mdlMode == ResolvedOpenContent.Mode.INTERLEAVE || (bot.mdlMode == ResolvedOpenContent.Mode.SUFFIX && eot?.mdlMode == ResolvedOpenContent.Mode.SUFFIX)) {
                     "3.4.6.2(1.4.3.2.2.3) - open content not compatible"
                 }
@@ -296,19 +297,26 @@ sealed class ResolvedComplexType(
             }
 
             is ElementOnlyContentType -> {
-                require(mdlContentType is ElementOnlyContentType) { "Content type for complex extension must match: ${mdlContentType.mdlVariety}!= ${baseCType.mdlVariety}" }
+                require(derivedCType is ElementOnlyContentType) { "Content type for complex extension must match: ${derivedCType.mdlVariety}!= ${baseCType.mdlVariety}" }
                 // Ensure chcking particle extensions
 
             }
         }
-        if (schema.version == SchemaVersion.V1_0) {
-            when (baseCType) {
-                mdlContentType -> {} // no actual change is valid
-                is ElementContentType -> {
+        when (baseCType) {
+            derivedCType -> {} // no actual change is valid
+            is ElementContentType -> {
+                if (schema.version == SchemaVersion.V1_0) {
                     require(baseCType.mdlParticle.mdlTerm !is IResolvedAll) {
                         "Extending type with an all particle is not allowed in version 1.0"
                     }
                 }
+                check(derivedCType is ElementContentType) // implied 1.4.3.1, already checked
+
+                // 3.4.6.2 (1.4.3.2.2)
+                check(derivedCType.extends(baseCType, derivedCType.mdlParticle::isSiblingName, schema)) {
+                    "${derivedCType.flattened} does not extend ${baseCType.flattened}"
+                }
+
             }
         }
 
@@ -741,6 +749,22 @@ sealed class ResolvedComplexType(
             val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, isSiblingName, schema)
 
             return flattened.restricts(flattenedBase, isSiblingName, schema)
+        }
+
+        /** Implementation of 3.9.6.2 */
+        fun extends(
+            baseCT: ElementContentType,
+            isSiblingName: (QName) -> Boolean,
+            schema: ResolvedSchemaLike
+        ): Boolean {
+            // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
+            // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
+
+            // we use indirect access to term as that will give us groups.
+            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, schema)
+            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, isSiblingName, schema)
+
+            return flattened.extends(flattenedBase, isSiblingName, schema)
         }
 
         override fun check(

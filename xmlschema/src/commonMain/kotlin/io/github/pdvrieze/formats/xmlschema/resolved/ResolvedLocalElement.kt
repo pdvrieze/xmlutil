@@ -111,6 +111,32 @@ class ResolvedLocalElement private constructor(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as ResolvedLocalElement
+
+        if (mdlMinOccurs != other.mdlMinOccurs) return false
+        if (mdlMaxOccurs != other.mdlMaxOccurs) return false
+        if (mdlQName != other.mdlQName) return false
+        if (mdlSubstitutionGroupExclusions != other.mdlSubstitutionGroupExclusions) return false
+        if (mdlScope != other.mdlScope) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + mdlMinOccurs.hashCode()
+        result = 31 * result + mdlMaxOccurs.hashCode()
+        result = 31 * result + mdlQName.hashCode()
+        result = 31 * result + mdlSubstitutionGroupExclusions.hashCode()
+        result = 31 * result + mdlScope.hashCode()
+        return result
+    }
+
     class Model internal constructor(
         elemPart: SchemaElement<XSLocalElement>,
         schema: ResolvedSchemaLike,
@@ -127,6 +153,28 @@ class ResolvedLocalElement private constructor(
                 .let { if (it.elem != null) ResolvedLocalType(it.cast<XSLocalType>(), schema, context) else null }
                 ?: elemPart.elem.type?.let { schema.type(it) }
                 ?: AnyType
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Model
+
+            if (mdlTerm != other.mdlTerm) return false
+            if (mdlTypeDefinition != other.mdlTypeDefinition) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + mdlTerm.hashCode()
+            result = 31 * result + mdlTypeDefinition.hashCode()
+            return result
+        }
+
+
     }
 
     interface Parent
