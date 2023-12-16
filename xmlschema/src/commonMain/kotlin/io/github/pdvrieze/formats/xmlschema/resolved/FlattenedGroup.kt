@@ -175,6 +175,11 @@ sealed class FlattenedGroup(
             return particles.containsAll(base.particles)
         }
 
+        override fun extendsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return extendsAll(All(AllNNIRange.SINGLERANGE, listOf(base)), context, schema) ||
+                    (schema.version != SchemaVersion.V1_0 && extendsAll(All(base.range, listOf(base.single())), context, schema))
+        }
+
         override fun plus(other: FlattenedParticle): FlattenedParticle = when {
             other == EMPTY -> this
             other is All && range.isSimple && other.range.isSimple -> {
@@ -303,6 +308,11 @@ sealed class FlattenedGroup(
 
         override fun extendsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return range == base.range && particles.isContentEqual(base.particles)
+        }
+
+        override fun extendsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+            return extendsChoice(Choice(AllNNIRange.SINGLERANGE, listOf(base)), context, schema) ||
+                    (schema.version != SchemaVersion.V1_0 && extendsChoice(Choice(base.range, listOf(base.single())), context, schema))
         }
 
         // Recurse lax
@@ -443,7 +453,9 @@ sealed class FlattenedGroup(
 
         override fun extendsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             // 3.9.6.2 step 2
-            return range.isSimple && particles.isNotEmpty() && particles.first().extends(base, context, schema)
+            return (range.isSimple && particles.isNotEmpty() && particles.first().extends(base, context, schema)) ||
+                    extendsSequence(Sequence(AllNNIRange.SINGLERANGE, listOf(base)), context, schema) ||
+                    (schema.version != SchemaVersion.V1_0 && extendsSequence(Sequence(base.range, listOf(base.single())), context, schema))
         }
 
         override fun extendsWildcard(base: Wildcard, context: ContextT, schema: ResolvedSchemaLike): Boolean {
