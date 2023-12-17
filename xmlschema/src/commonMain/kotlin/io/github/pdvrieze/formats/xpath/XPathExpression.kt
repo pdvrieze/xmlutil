@@ -153,7 +153,7 @@ class XPathExpression private constructor(
             }
         }
 
-        private fun parseSequenceType(): SequenceType {
+        private fun parseItemType(): ItemType {
             val localOrPrefix = parseNCName()
             if (localOrPrefix=="item") {
                 skipWhitespace()
@@ -162,7 +162,7 @@ class XPathExpression private constructor(
                 skipWhitespace()
                 require(tryCurrent(')'))
 
-                return SequenceType.ItemTest
+                return ItemType.ItemTest
             }
             val nodeType = NodeType.maybeValueOf(localOrPrefix)
             if (nodeType != null) {
@@ -170,10 +170,38 @@ class XPathExpression private constructor(
             }
             if (tryCurrent(':')) {
                 val localName = parseNCName()
-                return SequenceType.AtomicType(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
+                return ItemType.AtomicType(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
             } else {
-                return SequenceType.AtomicType(QName(lookupNamespace(""), localOrPrefix, ""))
+                return ItemType.AtomicType(QName(lookupNamespace(""), localOrPrefix, ""))
             }
+        }
+
+        private fun parseSequenceType(): SequenceType {
+            if (tryCurrentWord("empty-sequence")) {
+                skipWhitespace()
+                require(tryCurrent('('))
+                skipWhitespace()
+                require(tryCurrent(')'))
+                return SequenceType.EmptySequence
+            }
+            val itemType = parseItemType()
+            skipWhitespace()
+            val occurrence = when(peekCurrent()) {
+                '?' -> {
+                    ++i
+                    SequenceType.OccurrenceType.OPTIONAL
+                }
+                '*' -> {
+                    ++i
+                    SequenceType.OccurrenceType.ANY
+                }
+                '+' -> {
+                    ++i
+                    SequenceType.OccurrenceType.AT_LEAST_ONE
+                }
+                else -> SequenceType.OccurrenceType.SINGLE
+            }
+            return SequenceType.ItemSequence(itemType, occurrence)
         }
 
         private fun parseVariableReference(): VariableRef {
@@ -722,6 +750,11 @@ class XPathExpression private constructor(
 
                 skipWhitespace()
             }
+        }
+
+        private fun peekCurrent(): Char? {
+            if (i>=str.length) return null
+            return str[i]
         }
 
         private fun peekCurrent(char: Char): Boolean {

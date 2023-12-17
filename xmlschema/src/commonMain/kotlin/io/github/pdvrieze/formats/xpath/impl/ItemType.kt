@@ -22,13 +22,26 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
 
-interface SequenceType {
+interface ItemType {
 
-    object ItemTest: SequenceType {
+    object ItemTest: ItemType {
         override fun toString(): String = "item()"
     }
 
-    class AtomicType(val name: QName): SequenceType {
+    class AtomicType(val name: QName): ItemType {
         override fun toString(): String = name.toString()
+    }
+}
+
+sealed class SequenceType {
+    object EmptySequence : SequenceType()
+
+    class ItemSequence(val itemType: ItemType, val occurrence: OccurrenceType) : SequenceType()
+
+    enum class OccurrenceType(val literal: String) {
+        SINGLE(""),
+        OPTIONAL("?"),
+        ANY("*"),
+        AT_LEAST_ONE("+")
     }
 }
