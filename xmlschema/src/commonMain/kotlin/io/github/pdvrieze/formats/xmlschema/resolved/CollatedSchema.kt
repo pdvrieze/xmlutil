@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 
 internal open class NamespaceHolder(val namespace: String)
 
@@ -339,7 +340,12 @@ internal class SchemaData(
         val importedNamespaces: MutableSet<String> = mutableSetOf()
         val schemaLocations: MutableSet<String> = mutableSetOf(rootLocation)
 
-        fun addFromSchema(sourceSchema: XSSchema, schemaLocation: String, targetNamespace: String?) {
+        fun addFromSchema(
+            sourceSchema: XSSchema,
+            schemaLocation: String,
+            targetNamespace: String?,
+            builtin: Boolean = false
+        ) {
             val chameleon = when {
                 !sourceSchema.targetNamespace.isNullOrEmpty() -> null
                 targetNamespace.isNullOrEmpty() -> null //error("Invalid name override to default namespace")
@@ -352,6 +358,7 @@ internal class SchemaData(
                     sourceSchema,
                     chameleon,
                     importedNamespaces,
+                    builtin,
                 )
             }
             sourceSchema.attributes.associateToUnique(attributes) {
@@ -361,6 +368,7 @@ internal class SchemaData(
                     sourceSchema,
                     chameleon,
                     importedNamespaces,
+                    builtin,
                 )
             }
             sourceSchema.simpleTypes.associateToUnique(types) {
@@ -370,6 +378,7 @@ internal class SchemaData(
                     sourceSchema,
                     chameleon,
                     importedNamespaces,
+                    builtin,
                 )
             }
             sourceSchema.complexTypes.associateToUnique(types) {
@@ -379,6 +388,7 @@ internal class SchemaData(
                     sourceSchema,
                     chameleon,
                     importedNamespaces,
+                    builtin,
                 )
             }
             sourceSchema.groups.associateToUnique(groups) {
@@ -388,6 +398,7 @@ internal class SchemaData(
                     sourceSchema,
                     chameleon,
                     importedNamespaces,
+                    builtin,
                 )
             }
             sourceSchema.attributeGroups.associateToUnique(attributeGroups) {
@@ -397,6 +408,7 @@ internal class SchemaData(
                     sourceSchema,
                     chameleon,
                     importedNamespaces,
+                    builtin,
                 )
             }
             sourceSchema.notations.associateToUnique(notations) { it.name.toString() to it }
@@ -486,16 +498,19 @@ internal class SchemaData(
             schemaLocations: List<String>,
             targetNamespace: String?,
             resolver: ResolvedSchema.Resolver,
-            alreadyProcessed: MutableMap<String, NamespaceHolder> = mutableMapOf()
+            alreadyProcessed: MutableMap<String, NamespaceHolder> = mutableMapOf(),
+            builtin: Boolean = false
         ): SchemaData {
-            require(sourceSchema.targetNamespace.let { it ==null || it.isNotEmpty() }) { "Empty namespaces are not allowed for schemas (${schemaLocations.last()})" }
+            if (!builtin) {
+                require(sourceSchema.targetNamespace.let { it == null || it.isNotEmpty() }) { "Empty namespaces are not allowed for schemas (${schemaLocations.last()})" }
 
-            for (attrName in sourceSchema.otherAttrs.keys) {
-                require(attrName.namespaceURI.isNotEmpty()) {
-                    "Unknown unqualified attribute on schema: ${attrName.localPart}"
-                }
-                require(attrName.namespaceURI != XSD_NS_URI) {
-                    "Attributes qualified with the XMLSchema namespace are not allowed in schemas"
+                for (attrName in sourceSchema.otherAttrs.keys) {
+                    require(attrName.namespaceURI.isNotEmpty()) {
+                        "Unknown unqualified attribute on schema: ${attrName.localPart}"
+                    }
+                    require(attrName.namespaceURI != XSD_NS_URI) {
+                        "Attributes qualified with the XMLSchema namespace are not allowed in schemas"
+                    }
                 }
             }
 
@@ -504,7 +519,7 @@ internal class SchemaData(
             val ns: String = (targetNamespace?.toAnyUri() ?: sourceSchema.targetNamespace)?.value ?: ""
             b.newProcessed.put(lastLocation, NamespaceHolder(ns))
 
-            b.addFromSchema(sourceSchema, lastLocation, targetNamespace)
+            b.addFromSchema(sourceSchema, lastLocation, targetNamespace, builtin)
 
             includeLoop@ for (include in sourceSchema.includes) {
                 val includeLocation = resolver.resolve(include.schemaLocation)
@@ -755,6 +770,7 @@ class OwnerWrapper internal constructor(
 
     private inline fun <R> checkImport(name: QName, action: () -> R): R = when (name.namespaceURI) {
         XSD_NS_URI,
+        XSI_NS_URI,
         in importedNamespaces,
         targetNamespace?.value ?: "" -> action()
 
@@ -1052,7 +1068,7 @@ private inline fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
 }
 
 internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: String, val rawSchema: XSSchema) {
-
+    abstract internal val builtin: Boolean
     abstract val targetNamespace: String
     val attributeFormDefault: VFormChoice? get() = rawSchema.attributeFormDefault
     val elementFormDefault: VFormChoice? get() = rawSchema.elementFormDefault
@@ -1079,8 +1095,13 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         return this as SchemaElement<U>
     }
 
-    class Direct<out T>(elem: T, schemaLocation: String, rawSchema: XSSchema, val importedNamespaces: Set<String>) :
-        SchemaElement<T>(elem, schemaLocation, rawSchema) {
+    class Direct<out T>(
+        elem: T,
+        schemaLocation: String,
+        rawSchema: XSSchema,
+        val importedNamespaces: Set<String>,
+        internal override val builtin: Boolean
+    ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
         override val targetNamespace: String
             get() = rawSchema.targetNamespace?.xmlString ?: ""
 
@@ -1106,7 +1127,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         }
 
         override fun <U> wrap(value: U): Direct<U> {
-            return Direct(value, schemaLocation, rawSchema, importedNamespaces)
+            return Direct(value, schemaLocation, rawSchema, importedNamespaces, builtin)
         }
 
         override fun toString(): String = "d($elem)"
@@ -1118,8 +1139,9 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         rawSchema: XSSchema,
         val newNS: String
     ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
-        override val targetNamespace: String
-            get() = newNS
+        override val targetNamespace: String get() = newNS
+
+        override val builtin: Boolean get() = false
 
         override fun <U> wrap(value: U): Chameleon<U> {
             return Chameleon(value, schemaLocation, rawSchema, newNS)
@@ -1148,6 +1170,8 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         override val targetNamespace: String
             get() = elementName.namespaceURI
 
+        override val builtin: Boolean get() = false
+
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             // handle the case where it is called multiple times
             schema is RedefineSchema && schema.originSchemaData == overriddenSchema -> schema
@@ -1172,17 +1196,19 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
             elem: T,
             schemaLocation: String,
             rawSchema: XSSchema,
-            importedNamespaces: Set<String>
-        ): Direct<T> = Direct(elem, schemaLocation, rawSchema, importedNamespaces)
+            importedNamespaces: Set<String>,
+            builtin: Boolean = false
+        ): Direct<T> = Direct(elem, schemaLocation, rawSchema, importedNamespaces, builtin)
 
         inline fun <T> auto(
             elem: T,
             schemaLocation: String,
             baseSchema: XSSchema,
             chameleonNs: String?,
-            importedNamespaces: Set<String>
+            importedNamespaces: Set<String>,
+            builtin: Boolean = false
         ): SchemaElement<T> = when (chameleonNs) {
-            null -> Direct(elem, schemaLocation, baseSchema, importedNamespaces)
+            null -> Direct(elem, schemaLocation, baseSchema, importedNamespaces, builtin)
             else -> Chameleon(elem, schemaLocation, baseSchema, chameleonNs)
         }
     }

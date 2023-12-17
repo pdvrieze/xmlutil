@@ -74,7 +74,7 @@ class CheckHelper(internal val schema: ResolvedSchemaLike) {
     }
 
     fun checkAttribute(attribute: ResolvedAttributeDef) {
-        if (attribute !is ResolvedGlobalAttribute || checkedAttributes.add(attribute)) {
+        if (attribute !is ResolvedGlobalAttribute || (!attribute.builtin && checkedAttributes.add(attribute))) {
             attribute.checkAttribute(this)
         }
     }

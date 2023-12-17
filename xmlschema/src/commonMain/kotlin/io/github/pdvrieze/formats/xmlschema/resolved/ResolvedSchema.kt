@@ -34,7 +34,12 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: SchemaVersion = SchemaVersion.V1_1) :
+class ResolvedSchema(
+    val rawPart: XSSchema,
+    resolver: Resolver,
+    defaultVersion: SchemaVersion = SchemaVersion.V1_1,
+    builtin: Boolean = false
+) :
     ResolvedSchemaLike() {
 
     private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
@@ -43,7 +48,7 @@ class ResolvedSchema(val rawPart: XSSchema, resolver: Resolver, defaultVersion: 
 
     init {
         val rootData =
-            SchemaData(rawPart, listOf(resolver.baseUri.value), rawPart.targetNamespace?.value ?: "", resolver)
+            SchemaData(rawPart, listOf(resolver.baseUri.value), rawPart.targetNamespace?.value ?: "", resolver, builtin = builtin)
 
         rootData.checkRecursiveTypeDefinitions()
         rootData.checkRecursiveSubstitutionGroups()

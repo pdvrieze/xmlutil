@@ -69,40 +69,40 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
             ),
         )
 
-        delegate = ResolvedSchema(rawSchema, ResolvedSchema.DummyResolver)
+        delegate = ResolvedSchema(rawSchema, ResolvedSchema.DummyResolver, version, true)
     }
 
     internal val resolver: ResolvedSchema.SchemaElementResolver = object : ResolvedSchema.SchemaElementResolver {
         override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
-            return maybeSimpleType(QName(XMLConstants.XML_NS_URI, typeName))
+            return maybeSimpleType(QName(XMLConstants.XSI_NS_URI, typeName))
         }
 
         override fun maybeType(typeName: String): ResolvedGlobalType? {
-            return maybeType(QName(XMLConstants.XML_NS_URI, typeName))
+            return maybeType(QName(XMLConstants.XSI_NS_URI, typeName))
         }
 
         override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
-            return maybeAttributeGroup(QName(XMLConstants.XML_NS_URI, attributeGroupName))
+            return maybeAttributeGroup(QName(XMLConstants.XSI_NS_URI, attributeGroupName))
         }
 
         override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
-            return maybeGroup(QName(XMLConstants.XML_NS_URI, groupName))
+            return maybeGroup(QName(XMLConstants.XSI_NS_URI, groupName))
         }
 
         override fun maybeElement(elementName: String): ResolvedGlobalElement? {
-            return maybeElement(QName(XMLConstants.XML_NS_URI, elementName))
+            return maybeElement(QName(XMLConstants.XSI_NS_URI, elementName))
         }
 
         override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
-            return maybeAttribute(QName(XMLConstants.XML_NS_URI, attributeName))
+            return maybeAttribute(QName(XMLConstants.XSI_NS_URI, attributeName))
         }
 
         override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
-            return maybeIdentityConstraint(QName(XMLConstants.XML_NS_URI, constraintName))
+            return maybeIdentityConstraint(QName(XMLConstants.XSI_NS_URI, constraintName))
         }
 
         override fun maybeNotation(notationName: String): ResolvedNotation? {
-            return maybeNotation(QName(XMLConstants.XML_NS_URI, notationName))
+            return maybeNotation(QName(XMLConstants.XSI_NS_URI, notationName))
         }
     }
 

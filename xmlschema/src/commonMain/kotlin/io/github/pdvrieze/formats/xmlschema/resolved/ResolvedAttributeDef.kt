@@ -26,11 +26,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.XMLConstants
 
-abstract class ResolvedAttributeDef(rawPart: XSAttribute, schema: ResolvedSchemaLike) :
-    ResolvedAttribute(rawPart, schema) {
+abstract class ResolvedAttributeDef(rawPart: XSAttribute) : ResolvedAttribute(rawPart) {
 
     internal constructor(elem: SchemaElement<XSAttribute>, unresolvedSchema: ResolvedSchemaLike) :
-            this(elem.elem, elem.effectiveSchema(unresolvedSchema))
+            this(elem.elem)
 
     abstract override val model: Model
 
