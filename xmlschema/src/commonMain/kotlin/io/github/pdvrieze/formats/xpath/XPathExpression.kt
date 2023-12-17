@@ -276,6 +276,8 @@ class XPathExpression private constructor(
                     '<' -> current = when {
                         tryCurrent("<=") -> BinaryExpr.priority(Operator.LE, current, parseExpr())
 
+                        tryCurrent("<<") -> BinaryExpr.priority(Operator.PRECEDES, current, parseExpr())
+
                         else -> {
                             ++i
                             BinaryExpr.priority(Operator.LT, current, parseExpr())
@@ -284,6 +286,8 @@ class XPathExpression private constructor(
 
                     '>' -> current = when {
                         tryCurrent(">=") -> BinaryExpr.priority(Operator.GE, current, parseExpr())
+
+                        tryCurrent(">>") -> BinaryExpr.priority(Operator.FOLLOWS, current, parseExpr())
 
                         else -> {
                             ++i
@@ -354,13 +358,21 @@ class XPathExpression private constructor(
                     }
 
                     'i' -> {
-                        if (tryCurrentWord("instance")) {
-                            skipWhitespace()
-                            tryCurrentWord("of")
-                            skipWhitespace()
-                            current = InstanceOfExpr(current, parseSequenceType())
-                        } else {
-                            return current
+                        when {
+                            tryCurrentWord("instance") -> {
+                                skipWhitespace()
+                                tryCurrentWord("of")
+                                skipWhitespace()
+                                current = InstanceOfExpr(current, parseSequenceType())
+                            }
+
+                            tryCurrentWord("idiv") ->
+                                current = BinaryExpr.priority(Operator.IDIV, current, parseExpr())
+
+                            tryCurrent("is") ->
+                                current = BinaryExpr.priority(Operator.IS, current, parseExpr())
+
+                            else -> return current
                         }
                     }
 
