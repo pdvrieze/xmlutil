@@ -26,9 +26,12 @@ import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
+@XmlSerialName("alternative", XMLConstants.XSD_NS_URI, XMLConstants.XSD_PREFIX)
 class XSAlternative : XSAnnotatedBase {
 
     val localType: XSLocalType?
