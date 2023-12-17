@@ -31,11 +31,18 @@ enum class Operator(val literal: String, val priority: Int) {
     LE("<=", 4),
     GT(">", 4),
     GE(">=", 4),
+    VAL_EQ("eq", 3),
+    VAL_NEQ("neq", 3),
+    VAL_LT("lt", 4),
+    VAL_LE("le", 4),
+    VAL_GT("gt", 4),
+    VAL_GE("ge", 4),
     ADD("+", 5),
     SUB("-", 5),
     MUL("*", 6),
     DIV("div", 6),
     MOD("mod", 6),
+    RANGE("to", 1),
     ;
 
 }
