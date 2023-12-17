@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.XmlBefore
 @Serializable
 sealed class XSIdentityConstraint : XSAnnotatedBase {
     @XmlBefore("fields")
-    val selector: XSSelector
+    val selector: XSSelector?
 
     /**
      * At least 1 if selector is present

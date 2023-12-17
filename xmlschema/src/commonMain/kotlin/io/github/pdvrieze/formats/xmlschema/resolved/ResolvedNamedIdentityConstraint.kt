@@ -29,7 +29,7 @@ sealed class ResolvedNamedIdentityConstraint(
     owner: ResolvedElement
 ) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
 
-    final override val mdlSelector: XPathExpression = rawPart.selector.xpath
+    final override val mdlSelector: XPathExpression = requireNotNull(rawPart.selector).xpath
 
     final override val mdlFields: List<XPathExpression> =
         rawPart.fields.map { it.xpath }

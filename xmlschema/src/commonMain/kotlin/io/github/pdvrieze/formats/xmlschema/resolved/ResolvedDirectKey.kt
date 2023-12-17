@@ -33,7 +33,7 @@ class ResolvedDirectKey(
 
     override val mdlQName: QName = checkNotNull(rawPart.name).toQname(schema.targetNamespace)
 
-    override val selector: XSSelector = rawPart.selector
+    override val selector: XSSelector = checkNotNull(rawPart.selector)
 
     override val fields: List<XSField> = rawPart.fields
 
