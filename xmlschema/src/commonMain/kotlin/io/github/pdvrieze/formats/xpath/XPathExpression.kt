@@ -714,8 +714,8 @@ class XPathExpression private constructor(
         }
 
         private fun parseAttribute(): Step {
-            check(str[i] == '@')
-            ++i
+            check(tryCurrent('@'))
+            skipWhitespace()
             val test: NodeTest = requireNotNull(parseNodeTest()) { "@$i> Missing node test for attribute: '${str.substring(i)}'"}
             return Step(Axis.ATTRIBUTE, test, parsePredicates())
         }
@@ -773,13 +773,13 @@ class XPathExpression private constructor(
 
         private fun peekCurrent(check: String): Boolean {
             val end = i + check.length
-            if ((end + 1) >= str.length) return false
+            if ((end - 1) >= str.length) return false
             return str.substring(i, end) == check
         }
 
         private fun tryCurrent(check: String): Boolean {
             val end = i + check.length
-            if ((end + 1) >= str.length) return false
+            if ((end - 1) >= str.length) return false
             if(str.substring(i, end) == check) {
                 i = end
                 return true
@@ -803,12 +803,10 @@ class XPathExpression private constructor(
             return false
         }
 
-        fun lookupNamespace(prefix: String?): String = when (prefix) {
-            "",
-            null -> namespaceContext.getNamespaceURI("") ?: ""
-
+        fun lookupNamespace(prefix: String?): String = when {
+            prefix.isNullOrEmpty() -> namespaceContext.getNamespaceURI("") ?: ""
             else -> requireNotNull(namespaceContext.getNamespaceURI(prefix)) {
-                "Missing namespace for prefix $prefix"
+                "Missing namespace for prefix '$prefix'"
             }
         }
 
