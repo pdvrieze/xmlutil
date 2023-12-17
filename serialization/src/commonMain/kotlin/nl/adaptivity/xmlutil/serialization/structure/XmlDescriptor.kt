@@ -255,8 +255,16 @@ public sealed class XmlDescriptor(
                     )
 
                 StructureKind.MAP -> {
-                    return when (serializerParent.elementUseOutputKind) {
-                        OutputKind.Attribute -> XmlAttributeMapDescriptor(
+                    return when {
+                        serializerParent.elementUseAnnotations.filterIsInstance<XmlOtherAttributes>().isNotEmpty() ->
+                            XmlAttributeMapDescriptor(
+                                config,
+                                serializersModule,
+                                effectiveSerializerParent,
+                                effectiveTagParent
+                            )
+
+                        serializerParent.elementUseOutputKind == OutputKind.Attribute -> XmlAttributeMapDescriptor(
                             config,
                             serializersModule,
                             effectiveSerializerParent,

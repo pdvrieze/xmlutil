@@ -1189,18 +1189,15 @@ internal open class XmlDecoderBase internal constructor(
                 .getElementDescriptor(fixedIndex)
                 .effectiveDeserializationStrategy(deserializer)
 
-            if (fixedIndex == 0) {
-
+            if (fixedIndex == 0 && effectiveDeserializer == XmlQNameSerializer) {
                 @Suppress("UNCHECKED_CAST")
-                if (effectiveDeserializer == XmlQNameSerializer) {
-                    return input.getAttributeName(attrIndex) as T
-                }
+                return input.getAttributeName(attrIndex) as T
             }
+
+            val value = decodeStringElement(descriptor, index)
+
             return effectiveDeserializer.deserialize(
-                StringDecoder(
-                    xmlDescriptor.valueDescriptor,
-                    xmlCollapseWhitespace(input.getAttributeValue(attrIndex))
-                )
+                StringDecoder(xmlDescriptor.valueDescriptor, value)
             )
         }
 
@@ -1214,7 +1211,7 @@ internal open class XmlDecoderBase internal constructor(
                 }
             }
 
-            else -> input.getAttributeValue(attrIndex)
+            else -> xmlCollapseWhitespace(input.getAttributeValue(attrIndex))
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {

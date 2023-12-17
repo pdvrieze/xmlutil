@@ -1,4 +1,8 @@
 # 0.86.4-SNAPSHOT
+Fixes:
+- Using an attribute map wouldn't work when the key was a string rather than
+  a qname. Fixes #190.
+- Properly require `@XmlOtherAttributes`
 
 # 0.86.3
 *(December 14, 2023)

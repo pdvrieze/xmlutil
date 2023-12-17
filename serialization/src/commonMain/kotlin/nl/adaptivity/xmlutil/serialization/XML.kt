@@ -1130,12 +1130,18 @@ internal fun XmlDescriptor.getValueChild(): Int {
     return -1
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun XmlDescriptor.getAttrMap(): Int {
-
+    var fallbackIdx = -1
     for (i in 0 until elementsCount) {
-        if (getElementDescriptor(i) is XmlAttributeMapDescriptor) return i
+        if (getElementDescriptor(i) is XmlAttributeMapDescriptor) {
+            if (serialDescriptor.getElementAnnotations(i).firstOrNull<XmlOtherAttributes>() != null) {
+                return i
+            }
+            if (fallbackIdx<0) fallbackIdx = i
+        }
     }
-    return -1
+    return fallbackIdx // fallbacks for old behaviour.
 }
 
 /** Straightforward copy function */
