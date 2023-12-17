@@ -29,7 +29,9 @@ import nl.adaptivity.xmlutil.namespaceURI
 @XPathInternal
 internal sealed class NodeTest {
     sealed class NameTest() : NodeTest()
-    class NodeTypeTest(val type: NodeType) : NodeTest() {
+    class NodeTypeTest(val type: NodeType, args: List<Expr> = emptyList()) : NodeTest(), SequenceType {
+        val args: List<Expr> = args.toList()
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is NodeTypeTest) return false

@@ -23,6 +23,11 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathExpression
 
 enum class NodeType(val literal: String) {
+    DOCUMENT("document-node"),
+    ELEMENT("element"),
+    SCHEMA_ELEMENT("schema-element"),
+    SCHEMA_ATTRIBUTE("schema-attribute"),
+    ATTRIBUTE("attribute"),
     COMMENT("comment"),
     TEXT("text"),
     PROCESSING_INSTRUCTION("processing-instruction"),

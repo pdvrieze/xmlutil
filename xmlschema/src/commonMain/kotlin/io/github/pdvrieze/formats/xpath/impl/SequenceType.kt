@@ -22,26 +22,13 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
 
-@XPathInternal
-class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceType): Expr() {
-    override fun toString(): String {
-        return "$expr instance of $sequenceType"
-    }
-}
+interface SequenceType {
 
-@XPathInternal
-class CastExpr(val expr: Expr, val type: QName): Expr() {
-    override fun toString(): String {
-        return "$expr cast as $type"
+    object ItemTest: SequenceType {
+        override fun toString(): String = "item()"
     }
-}
 
-@XPathInternal
-class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean): Expr() {
-    override fun toString(): String = buildString{
-        append(expr)
-        append("castable as")
-        append(type)
-        if (allowsEmpty) append('?')
+    class AtomicType(val name: QName): SequenceType {
+        override fun toString(): String = name.toString()
     }
 }
