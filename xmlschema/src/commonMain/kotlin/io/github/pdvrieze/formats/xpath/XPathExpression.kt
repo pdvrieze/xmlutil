@@ -162,9 +162,9 @@ class XPathExpression private constructor(
 
                 c == '(' -> current = parseSequenceOrParen()
 
-                c == '\'' || c=='"' -> return parseLiteral()
+                c == '\'' || c=='"' -> current = parseLiteral()
 
-                c == '-' || c.isDigit() -> return parseNumber()
+                c == '-' || c.isDigit() -> current = parseNumber()
 
                 isNameStartChar(c) -> {
                     when {
@@ -336,6 +336,7 @@ class XPathExpression private constructor(
         }
 
         private fun parseSequenceOrParen(): Expr {
+            require(str[i] == '(')
             val c: Expr
             ++i
             val expr = parseExpr()
