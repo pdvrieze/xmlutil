@@ -43,7 +43,7 @@ class ResolvedDirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner:
 
     override val mdlQName: QName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
 
-    override val selector: XSSelector = rawPart.selector
+    override val selector: XSSelector = requireNotNull(rawPart.selector)
 
     override val fields: List<XSField> = rawPart.fields
 
