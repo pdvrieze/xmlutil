@@ -40,7 +40,8 @@ sealed class ResolvedDirectReferenceable(
         for (field in rawPart.fields) {
             require(isXsdSubset(field.xpath.expr, true)) { "${field.xpath.xmlString} is not in the field subset" }
         }
-        require(isXsdSubset(rawPart.selector.xpath, false)) { "${rawPart.selector.xpath.xmlString} is not in the selector subset"}
+        val selector = requireNotNull(rawPart.selector)
+        require(isXsdSubset(selector.xpath, false)) { "${selector.xpath.xmlString} is not in the selector subset"}
     }
 
     private fun isXsdSubset(xPathExpression: XPathExpression, isTrailingAttrAllowed: Boolean): Boolean {
