@@ -21,6 +21,15 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NumberLiteral(value: Long) : LiteralExpr<Long>(value) {
-    override fun toString(): String = value.toString()
+class QuantifiedExpr constructor(
+    val kind: Kind,
+    val varName: String,
+    val source: Expr,
+    val condition: Expr
+) : Expr() {
+    enum class Kind(val literal: String) {
+        EVERY("every"),
+        SOME("some");
+    }
+
 }
