@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("assert", XSD_NS_URI, XSD_PREFIX)
 class XSAssert : XSAnnotatedBase, XSIAssertCommon {
     override val test: XPathExpression?
-    override val xPathDefaultNamespace: VXPathDefaultNamespace?
+    override val xpathDefaultNamespace: VXPathDefaultNamespace?
 
     constructor(
         test: XPathExpression,
@@ -47,7 +47,7 @@ class XSAssert : XSAnnotatedBase, XSIAssertCommon {
         otherAttrs: Map<QName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {
         this.test = test
-        this.xPathDefaultNamespace = xPathDefaultNamespace
+        this.xpathDefaultNamespace = xPathDefaultNamespace
     }
 
 }

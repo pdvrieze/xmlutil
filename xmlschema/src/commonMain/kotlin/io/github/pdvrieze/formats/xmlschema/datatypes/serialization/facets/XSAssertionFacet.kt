@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("assertion", XSD_NS_URI, XSD_PREFIX)
 class XSAssertionFacet : XSFacet.NotFixed, XSIAssertCommon {
 
-    override val xPathDefaultNamespace: VXPathDefaultNamespace?
+    override val xpathDefaultNamespace: VXPathDefaultNamespace?
     override val test: XPathExpression?
     override val value: Any get() = this
 
@@ -47,7 +47,7 @@ class XSAssertionFacet : XSFacet.NotFixed, XSIAssertCommon {
         annotation: XSAnnotation? = null,
         otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {
-        this.xPathDefaultNamespace = xPathDefaultNamespace
+        this.xpathDefaultNamespace = xPathDefaultNamespace
         this.test = test
     }
 }
