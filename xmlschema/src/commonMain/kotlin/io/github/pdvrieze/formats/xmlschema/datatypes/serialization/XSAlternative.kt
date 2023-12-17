@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
+import io.github.pdvrieze.formats.xpath.XPathExpression
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
@@ -37,7 +37,7 @@ class XSAlternative : XSAnnotatedBase {
     val localType: XSLocalType?
 
     @XmlElement(false)
-    val test: VString?
+    val test: XPathExpression?
 
     @XmlElement(false)
     val type: SerializableQName?
@@ -46,7 +46,7 @@ class XSAlternative : XSAnnotatedBase {
 
     constructor(
         localType: XSLocalType? = null,
-        test: VString? = null,
+        test: XPathExpression? = null,
         type: QName? = null,
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         id: VID? = null,
