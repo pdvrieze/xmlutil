@@ -143,6 +143,16 @@ class XPathExpression private constructor(
             }
         }
 
+        private fun parseQName(): QName {
+            val prefixOrLocal = parseNCName()
+            return when {
+                peekCurrent(':') ->
+                    QName(lookupNamespace(prefixOrLocal), parseNCName(), prefixOrLocal)
+
+                else -> QName(lookupNamespace(""), prefixOrLocal, "")
+            }
+        }
+
         private fun parseVariableReference(): VariableRef {
             require(peekCurrent('$'))
             ++i
@@ -286,9 +296,20 @@ class XPathExpression private constructor(
                                 current = BinaryExpr.priority(Operator.VAL_GT, current, parseExpr())
                             }
 
-                            else -> throw IllegalArgumentException(
-                                "@$i> Unexpected token ${str.substring(i - 1, i + 1)}"
-                            )
+                            else -> return current
+                        }
+                    }
+
+                    'i' -> {
+                        if (peekCurrentWord("instance")) {
+                            i+=8
+                            skipWhitespace()
+                            peekCurrentWord("of")
+                            i+=2
+                            skipWhitespace()
+                            current = InstanceOfExpr(current, parseQName())
+                        } else {
+                            return current
                         }
                     }
 
