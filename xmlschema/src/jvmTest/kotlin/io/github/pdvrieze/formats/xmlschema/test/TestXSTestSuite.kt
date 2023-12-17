@@ -486,13 +486,18 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 
     val expecteds = mutableMapOf<SchemaVersion, TSExpected>()
     for (e in schemaTest.expected) {
-        when (e.version) {
+        val version = when (e.version) {
+            "1.0" -> SchemaVersion.V1_0
+            "1.1" -> SchemaVersion.V1_1
+            else -> null
+        }
+        when (version) {
             null -> {
                 for (ver in defaultVersions) {
                     expecteds.getOrPut(ver) { e }
                 }
             }
-            else -> expecteds[ResolvedSchema.Version(e.version)] = e
+            else -> expecteds[version] = e
         }
     }
 
