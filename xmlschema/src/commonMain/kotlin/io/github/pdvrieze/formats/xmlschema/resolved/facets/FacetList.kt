@@ -168,6 +168,10 @@ class FacetList(
             check(minLength.value <= maxLength.value) { "minLength > maxLengh is not valid" }
         }
 
+        if (version == SchemaVersion.V1_0 && simpleType.mdlVariety == Variety.UNION) {
+            check(assertions.isEmpty())
+        }
+
         when (primitiveType) {
             is IStringType -> {
 
@@ -348,7 +352,7 @@ class FacetList(
     }
 
     internal fun checkList(type: ResolvedSimpleType, version: SchemaVersion) {
-        check(assertions.isEmpty())
+        if (version== SchemaVersion.V1_0) check(assertions.isEmpty())
         check(explicitTimezone == null) { "lists don't have a timezone facet" }
         check(fractionDigits == null) { "lists don't have a fractionDigits facet" }
         check(minConstraint == null) { "lists don't have a minConstraint facet" }

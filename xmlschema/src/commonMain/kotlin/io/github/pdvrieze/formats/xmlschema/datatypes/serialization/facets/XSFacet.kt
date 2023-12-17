@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolea
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -34,8 +35,8 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 @Serializable
 sealed class XSFacet : XSI_Annotated {
 
-    open val isUnionFacet: Boolean get() = false
-    open val isListFacet: Boolean get() = false
+    open fun isUnionFacet(version: SchemaVersion): Boolean = false
+    open fun isListFacet(version: SchemaVersion): Boolean = false
     abstract val value: Any
     abstract val fixed: Boolean?
 
