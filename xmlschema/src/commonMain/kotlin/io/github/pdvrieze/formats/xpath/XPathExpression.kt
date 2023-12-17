@@ -153,6 +153,30 @@ class XPathExpression private constructor(
             }
         }
 
+        private fun parseSequenceType(): SequenceType {
+            val localOrPrefix = parseNCName()
+            if (localOrPrefix=="item") {
+                skipWhitespace()
+                require(peekCurrent('('))
+                ++i
+                skipWhitespace()
+                require(peekCurrent(')'))
+                ++i
+                return SequenceType.ItemTest
+            }
+            val nodeType = NodeType.maybeValueOf(localOrPrefix)
+            if (nodeType != null) {
+                return NodeTest.NodeTypeTest(nodeType, parseArgs())
+            }
+            if (peekCurrent(':')) {
+                ++i
+                val localName = parseNCName()
+                return SequenceType.AtomicType(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
+            } else {
+                return SequenceType.AtomicType(QName(lookupNamespace(""), localOrPrefix, ""))
+            }
+        }
+
         private fun parseVariableReference(): VariableRef {
             require(peekCurrent('$'))
             ++i
@@ -259,17 +283,32 @@ class XPathExpression private constructor(
                         current = BinaryExpr.priority(Operator.SUB, current, parseExpr())
                     }
 
-                    'o' -> {
-                        if (!peekCurrentWord("or")) return current
-
-                        i += 2
-                        current = BinaryExpr.priority(Operator.OR, current, parseExpr())
-                    }
-
                     'a' -> {
                         if (!peekCurrentWord("and")) return current
                         i += 3
                         current = BinaryExpr.priority(Operator.AND, current, parseExpr())
+                    }
+
+                    'c' -> {
+                        when {
+                            tryCurrentWord("cast") -> {
+                                skipWhitespace()
+                                require(tryCurrentWord("as"))
+                                skipWhitespace()
+                                current = CastExpr(current, parseQName())
+                            }
+
+                            tryCurrentWord("castable") -> {
+                                skipWhitespace()
+                                require(tryCurrentWord("as"))
+                                skipWhitespace()
+                                val typeName = parseQName()
+                                skipWhitespace()
+                                val allowsEmpty = tryCurrent('?')
+                                current = CastableExpr(current, typeName, allowsEmpty)
+                            }
+                            else -> return current
+                        }
                     }
 
                     'd' -> {
@@ -307,7 +346,7 @@ class XPathExpression private constructor(
                             peekCurrentWord("of")
                             i+=2
                             skipWhitespace()
-                            current = InstanceOfExpr(current, parseQName())
+                            current = InstanceOfExpr(current, parseSequenceType())
                         } else {
                             return current
                         }
@@ -339,6 +378,13 @@ class XPathExpression private constructor(
                         if (!peekCurrentWord("ne")) return current
                         i += 2
                         current = BinaryExpr.priority(Operator.VAL_NEQ, current, parseExpr())
+                    }
+
+                    'o' -> {
+                        if (!peekCurrentWord("or")) return current
+
+                        i += 2
+                        current = BinaryExpr.priority(Operator.OR, current, parseExpr())
                     }
 
                     't' -> {
@@ -626,40 +672,26 @@ class XPathExpression private constructor(
                     val currentTest: NodeTest
                     if (nodeTest is NodeTest.QNameTest && peekCurrent('(')) {
                         val curName = nodeTest.qName
-                        ++i
+                        val args = parseArgs()
+
                         val nodeType =
                             if (curName.namespaceURI.isEmpty()) NodeType.maybeValueOf(curName.localPart) else null
                         when(nodeType) {
                             NodeType.PROCESSING_INSTRUCTION -> {
-                                    skipWhitespace()
-                                    require(peekCurrent('('))
-                                    ++i
-                                    skipWhitespace()
-                                    if (peekCurrent(')')) {
-                                        currentTest = NodeTest.ProcessingInstructionTest()
-                                    } else {
-                                        currentTest = NodeTest.ProcessingInstructionTest(parseLiteral().value)
-                                        skipWhitespace()
-                                    }
-                                    require(peekCurrent(')'))
-                                    ++i
-                                }
+                                if (args.isEmpty()) {
+                                    currentTest = NodeTest.ProcessingInstructionTest()
+                                } else if (args.size == 1) {
+                                    var arg = args.first()
+                                    require(arg is LiteralExpr<*>)
+                                    currentTest = NodeTest.ProcessingInstructionTest(arg.value as String)
+                                } else throw IllegalArgumentException("Unexpected arguments to processing instruction test")
+                            }
 
-                            is NodeType -> currentTest = NodeTest.NodeTypeTest(nodeType)
+                            is NodeType -> {
+                                currentTest = NodeTest.NodeTypeTest(nodeType, args)
+                            }
 
                             else -> {
-
-                                val args = mutableListOf<Expr>()
-                                if (!peekCurrent(')')) {
-                                    while (true) {
-                                        skipWhitespace()
-                                        args.add(parseExpr())
-                                        require(i < str.length) { "@$i> Missing closing parenthesis" }
-                                        if (peekCurrent(')')) break
-                                        require(str[i++] == ',') { "@$i> parameters should be separated by ',': '${str.substring(i-1)}" }
-                                    }
-                                }
-                                ++i
                                 return Primary(FunctionCall(curName, args))
                             }
                         }
@@ -678,6 +710,24 @@ class XPathExpression private constructor(
 //                        throw IllegalArgumentException("@$i> Unexpected token '${c}' in '$str'")
                 }
             }
+        }
+
+        private fun parseArgs(): List<Expr> {
+            require(peekCurrent('('))
+            ++i
+
+            val args = mutableListOf<Expr>()
+            if (!peekCurrent(')')) {
+                while (true) {
+                    skipWhitespace()
+                    args.add(parseExpr())
+                    require(i < str.length) { "@$i> Missing closing parenthesis" }
+                    if (peekCurrent(')')) break
+                    require(str[i++] == ',') { "@$i> parameters should be separated by ',': '${str.substring(i - 1)}" }
+                }
+            }
+            ++i
+            return args
         }
 
         private fun parseAttribute(): Step {
@@ -730,16 +780,45 @@ class XPathExpression private constructor(
             return str[i] == char
         }
 
+        private fun tryCurrent(char: Char): Boolean {
+            if (i >= str.length) return false
+            if(str[i] == char) {
+                ++i
+                return true
+            }
+            return false
+        }
+
         private fun peekCurrent(check: String): Boolean {
             val end = i + check.length
             if ((end + 1) >= str.length) return false
             return str.substring(i, end) == check
         }
 
+        private fun tryCurrent(check: String): Boolean {
+            val end = i + check.length
+            if ((end + 1) >= str.length) return false
+            if(str.substring(i, end) == check) {
+                i = end
+                return true
+            }
+            return false
+        }
+
         private fun peekCurrentWord(check: String): Boolean {
             if (!peekCurrent(check)) return false
             val j = i + check.length
             return j >= str.length || !isNameChar(str[j])
+        }
+
+        private fun tryCurrentWord(check: String): Boolean {
+            if (!peekCurrent(check)) return false
+            val j = i + check.length
+            if(j >= str.length || !isNameChar(str[j])) {
+                i = j
+                return true
+            }
+            return false
         }
 
         fun lookupNamespace(prefix: String?): String = when (prefix) {
