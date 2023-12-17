@@ -25,5 +25,5 @@ import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 
 interface XSIAssertCommon: XSI_Annotated {
     val test: XPathExpression?
-    val xPathDefaultNamespace: VXPathDefaultNamespace?
+    val xpathDefaultNamespace: VXPathDefaultNamespace?
 }
