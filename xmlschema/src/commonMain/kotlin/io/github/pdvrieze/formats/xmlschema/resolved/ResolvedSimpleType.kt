@@ -364,12 +364,12 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 when (mdlVariety) {
                     Variety.UNION ->
                         for (f in d.facets) {
-                            require(f.isUnionFacet) { "Union variety types may not contain non-union facet: $f" }
+                            require(f.isUnionFacet(schema.version)) { "Union variety types may not contain non-union facet: $f" }
                         }
 
                     Variety.LIST ->
                         for (f in d.facets) {
-                            require(f.isListFacet) { "List variety types may not contain non-list facet: $f" }
+                            require(f.isListFacet(schema.version)) { "List variety types may not contain non-list facet: $f" }
                         }
                     else -> {}
                 }
