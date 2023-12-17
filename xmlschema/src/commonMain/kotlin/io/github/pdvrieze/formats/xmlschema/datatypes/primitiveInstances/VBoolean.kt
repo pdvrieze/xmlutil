@@ -27,6 +27,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xmlutil.xmlTrimWhitespace
 import kotlin.jvm.JvmInline
 
 @JvmInline
@@ -49,7 +50,7 @@ value class VBoolean(val value: Boolean): VAnyAtomicType {
             else -> encoder.encodeString("false")
         }
 
-        override fun deserialize(decoder: Decoder): VBoolean = when (val s = decoder.decodeString()) {
+        override fun deserialize(decoder: Decoder): VBoolean = when (val s = xmlTrimWhitespace(decoder.decodeString())) {
             "0", "false" -> FALSE
             "1", "true" -> TRUE
             else -> throw NumberFormatException("Invalid boolean value: $s")
