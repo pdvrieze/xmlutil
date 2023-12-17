@@ -126,9 +126,29 @@ class XPathExpression private constructor(
         }
 
         private fun skipWhitespace() {
-            while (i < str.length && isXmlWhitespace(str[i])) {
-                ++i
+            while (i < str.length) {
+                val c = str[i]
+                when {
+                    c=='(' && peekCurrent("(:")-> parseComment()
+
+                    !isXmlWhitespace(c) -> return
+                    else -> ++i
+                }
             }
+        }
+
+        private fun parseComment() {
+            val start = i
+            check(tryCurrent("(:"))
+            while (i < str.length) {
+                val c = str[i]
+                when {
+                    c == ':' && tryCurrent(":)") -> return
+                    c == '(' && peekCurrent("(:") -> parseComment()
+                    else -> ++i
+                }
+            }
+            throw IllegalArgumentException("@$i> Comment not closed: ${str.substring(start)}")
         }
 
         /**
