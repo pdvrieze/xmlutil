@@ -58,7 +58,7 @@ class XSComplexContent(
     sealed class XSComplexDerivationBase : XSAnnotatedBase, XSI_ComplexDerivation {
         @XmlBefore("attributes", "attributeGroups")
         final override val term: XSIDerivationParticle?
-        final override val asserts: List<XSAssertionFacet>
+        final override val asserts: List<XSAssert>
         @XmlBefore("anyAttribute")
         final override val attributes: List<XSLocalAttribute>
         @XmlBefore("anyAttribute")
@@ -75,7 +75,7 @@ class XSComplexContent(
             term: XSIDerivationParticle?,
             attributes: List<XSLocalAttribute>,
             attributeGroups: List<XSAttributeGroupRef>,
-            asserts: List<XSAssertionFacet>,
+            asserts: List<XSAssert>,
             anyAttribute: XSAnyAttribute?,
             openContent: XSOpenContent?,
             id: VID?,
@@ -114,7 +114,7 @@ class XSComplexContent(
             term: XSIDerivationParticle? = null,
             attributes: List<XSLocalAttribute> = emptyList(),
             attributeGroups: List<XSAttributeGroupRef> = emptyList(),
-            asserts: List<XSAssertionFacet> = emptyList(),
+            asserts: List<XSAssert> = emptyList(),
             anyAttribute: XSAnyAttribute? = null,
             openContent: XSOpenContent? = null,
             id: VID? = null,
@@ -151,7 +151,7 @@ class XSComplexContent(
             term: XSIDerivationParticle? = null,
             attributes: List<XSLocalAttribute> = emptyList(),
             attributeGroups: List<XSAttributeGroupRef> = emptyList(),
-            asserts: List<XSAssertionFacet> = emptyList(),
+            asserts: List<XSAssert> = emptyList(),
             anyAttribute: XSAnyAttribute? = null,
             openContent: XSOpenContent? = null,
             id: VID? = null,
