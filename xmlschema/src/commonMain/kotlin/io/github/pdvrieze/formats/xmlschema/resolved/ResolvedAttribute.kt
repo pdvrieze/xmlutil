@@ -24,8 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedAttribute(
-    rawPart: XSAttribute,
-    val schema: ResolvedSchemaLike
+    rawPart: XSAttribute
 ) : ResolvedAnnotated, VSimpleTypeScope.Member {
 
     final override val otherAttrs: Map<QName, String> = rawPart.resolvedOtherAttrs()

@@ -25,17 +25,21 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.namespaceURI
 
-class ResolvedGlobalAttribute(
+class ResolvedGlobalAttribute internal constructor(
     rawPart: XSGlobalAttribute,
     schema: ResolvedSchemaLike,
     val location: String,
-) : ResolvedAttributeDef(rawPart, schema), IScope.Global, NamedPart {
+    val builtin: Boolean,
+) : ResolvedAttributeDef(rawPart), IScope.Global, NamedPart {
+
+    constructor(
+        rawPart: XSGlobalAttribute,
+        schema: ResolvedSchemaLike,
+        location: String
+    ) : this(rawPart, schema, location, false)
 
     internal constructor(elem: SchemaElement<XSGlobalAttribute>, schema: ResolvedSchemaLike) :
-            this(elem.elem, elem.effectiveSchema(schema), elem.schemaLocation)
-
-    internal constructor(rawPart: XSGlobalAttribute, schema: ResolvedSchemaLike) :
-            this(rawPart, schema, "")
+            this(elem.elem, elem.effectiveSchema(schema), elem.schemaLocation, elem.builtin)
 
     override val model: Model by lazy { Model(rawPart, schema, this) }
 
@@ -44,7 +48,8 @@ class ResolvedGlobalAttribute(
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
     init {
-        require(mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
+        require(schema.targetNamespace?.value == XMLConstants.XSI_NS_URI ||
+                mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
             "Attributes can not be declared into the XSI namespace"
         }
     }

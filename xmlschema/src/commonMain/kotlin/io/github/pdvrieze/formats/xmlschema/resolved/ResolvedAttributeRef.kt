@@ -31,7 +31,7 @@ class ResolvedAttributeRef(
     parent: VAttributeScope.Member,
     rawPart: XSLocalAttribute,
     schema: ResolvedSchemaLike
-) : ResolvedAttribute(rawPart, schema), IResolvedAttributeUse {
+) : ResolvedAttribute(rawPart), IResolvedAttributeUse {
 
     init {
         invariant(rawPart.ref != null) { "Attribute references must have a value" }
