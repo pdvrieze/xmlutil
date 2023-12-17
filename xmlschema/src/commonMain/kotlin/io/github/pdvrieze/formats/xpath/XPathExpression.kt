@@ -152,7 +152,7 @@ class XPathExpression private constructor(
         private fun parseExpr(): Expr {
             skipWhitespace()
 
-            val current: Expr
+            var current: Expr
 
             require(i < str.length) { "Empty expression" }
             val c = str[i]
@@ -195,131 +195,141 @@ class XPathExpression private constructor(
                     "@$i> Unexpected character '${str[i]}' in expression - '${str.substring(i)}'"
                 )
             }
+
             skipWhitespace()
-            if (i >= str.length) return current
-            when (str[i]) {
-                '|' -> {
-                    ++i
-                    return BinaryExpr.priority(Operator.UNION, current, parseExpr())
-                }
-
-                '=' -> {
-                    ++i
-                    return BinaryExpr.priority(Operator.EQ, current, parseExpr())
-                }
-
-                '!' -> {
-                    ++i
-                    return BinaryExpr.priority(Operator.NEQ, current, parseExpr())
-                }
-
-                '<' -> return when {
-                    peekCurrent("<=") -> {
-                        i += 2
-                        BinaryExpr.priority(Operator.LE, current, parseExpr())
-                    }
-                    else -> {
+            while (i < str.length) {
+//            if (i >= str.length) return current
+                when (str[i]) {
+                    '|' -> {
                         ++i
-                        BinaryExpr.priority(Operator.LT, current, parseExpr())
+                        current = BinaryExpr.priority(Operator.UNION, current, parseExpr())
                     }
-                }
 
-                '>' -> return when {
-                    peekCurrent(">=") -> {
-                        i += 2
-                        BinaryExpr.priority(Operator.GE, current, parseExpr())
-                    }
-                    else -> {
+                    '=' -> {
                         ++i
-                        BinaryExpr.priority(Operator.GT, current, parseExpr())
+                        current = BinaryExpr.priority(Operator.EQ, current, parseExpr())
                     }
-                }
 
-                '+' -> {
-                    ++i
-                    return BinaryExpr.priority(Operator.ADD, current, parseExpr())
-                }
-
-                '-' -> {
-                    ++i
-                    return BinaryExpr.priority(Operator.SUB, current, parseExpr())
-                }
-
-                'o' -> {
-                    if (!peekCurrentWord("or")) return current
-
-                    i += 2
-                    return BinaryExpr.priority(Operator.OR, current, parseExpr())
-                }
-
-                'a' -> {
-                    if (!peekCurrentWord("and")) return current
-                    i += 3
-                    return BinaryExpr.priority(Operator.AND, current, parseExpr())
-                }
-
-                'd' -> {
-                    if (!peekCurrentWord("div")) return current
-                    i += 3
-                    return BinaryExpr.priority(Operator.DIV, current, parseExpr())
-                }
-
-                'e' -> {
-                    if (!peekCurrentWord("eq")) return current
-                    i += 2
-                    return BinaryExpr(Operator.VAL_EQ, current, parseExpr())
-                }
-
-                'g' -> {
-                    when {
-                        peekCurrentWord("ge") -> {
-                            i += 2
-                            return BinaryExpr(Operator.VAL_GE, current, parseExpr())
-                        }
-
-                        peekCurrentWord("gt") -> {
-                            i += 2
-                            return BinaryExpr(Operator.VAL_GT, current, parseExpr())
-                        }
-
-                        else -> throw IllegalArgumentException("@$i> Unexpected token ${str.substring(i - 1, i + 1)}")
+                    '!' -> {
+                        ++i
+                        current = BinaryExpr.priority(Operator.NEQ, current, parseExpr())
                     }
-                }
 
-                'l' -> {
-                    when {
-                        peekCurrentWord("le") -> {
+                    '<' -> current = when {
+                        peekCurrent("<=") -> {
                             i += 2
-                            return BinaryExpr(Operator.VAL_LE, current, parseExpr())
+                            BinaryExpr.priority(Operator.LE, current, parseExpr())
                         }
 
-                        peekCurrentWord("lt") -> {
-                            i += 2
-                            return BinaryExpr(Operator.VAL_LT, current, parseExpr())
+                        else -> {
+                            ++i
+                            BinaryExpr.priority(Operator.LT, current, parseExpr())
                         }
-
-                        else -> throw IllegalArgumentException("@$i> Unexpected token ${str.substring(i - 1, i + 1)}")
                     }
-                }
 
-                'm' -> {
-                    require(peekCurrentWord("mod"))
-                    i += 3
-                    return BinaryExpr.priority(Operator.MOD, current, parseExpr())
-                }
+                    '>' -> current = when {
+                        peekCurrent(">=") -> {
+                            i += 2
+                            BinaryExpr.priority(Operator.GE, current, parseExpr())
+                        }
 
-                'n' -> {
-                    if (!peekCurrentWord("ne")) return current
-                    i += 2
-                    return BinaryExpr(Operator.VAL_NEQ, current, parseExpr())
-                }
+                        else -> {
+                            ++i
+                            BinaryExpr.priority(Operator.GT, current, parseExpr())
+                        }
+                    }
 
-                't' -> {
-                    if (!peekCurrentWord("to")) return current
-                    i += 2
-                    return BinaryExpr(Operator.RANGE, current, parseExpr())
-                }
+                    '+' -> {
+                        ++i
+                        current = BinaryExpr.priority(Operator.ADD, current, parseExpr())
+                    }
 
+                    '-' -> {
+                        ++i
+                        current = BinaryExpr.priority(Operator.SUB, current, parseExpr())
+                    }
+
+                    'o' -> {
+                        if (!peekCurrentWord("or")) return current
+
+                        i += 2
+                        current = BinaryExpr.priority(Operator.OR, current, parseExpr())
+                    }
+
+                    'a' -> {
+                        if (!peekCurrentWord("and")) return current
+                        i += 3
+                        current = BinaryExpr.priority(Operator.AND, current, parseExpr())
+                    }
+
+                    'd' -> {
+                        if (!peekCurrentWord("div")) return current
+                        i += 3
+                        current = BinaryExpr.priority(Operator.DIV, current, parseExpr())
+                    }
+
+                    'e' -> {
+                        if (!peekCurrentWord("eq")) return current
+                        i += 2
+                        current = BinaryExpr.priority(Operator.VAL_EQ, current, parseExpr())
+                    }
+
+                    'g' -> {
+                        when {
+                            peekCurrentWord("ge") -> {
+                                i += 2
+                                current = BinaryExpr.priority(Operator.VAL_GE, current, parseExpr())
+                            }
+
+                            peekCurrentWord("gt") -> {
+                                i += 2
+                                current = BinaryExpr.priority(Operator.VAL_GT, current, parseExpr())
+                            }
+
+                            else -> throw IllegalArgumentException(
+                                "@$i> Unexpected token ${str.substring(i - 1, i + 1)}"
+                            )
+                        }
+                    }
+
+                    'l' -> {
+                        when {
+                            peekCurrentWord("le") -> {
+                                i += 2
+                                current = BinaryExpr.priority(Operator.VAL_LE, current, parseExpr())
+                            }
+
+                            peekCurrentWord("lt") -> {
+                                i += 2
+                                current = BinaryExpr.priority(Operator.VAL_LT, current, parseExpr())
+                            }
+
+                            else -> return current
+                        }
+                    }
+
+                    'm' -> {
+                        if(!peekCurrentWord("mod")) return current
+                        i += 3
+                        current = BinaryExpr.priority(Operator.MOD, current, parseExpr())
+                    }
+
+                    'n' -> {
+                        if (!peekCurrentWord("ne")) return current
+                        i += 2
+                        current = BinaryExpr.priority(Operator.VAL_NEQ, current, parseExpr())
+                    }
+
+                    't' -> {
+                        if (!peekCurrentWord("to")) return current
+                        i += 2
+                        current = BinaryExpr.priority(Operator.RANGE, current, parseExpr())
+                    }
+
+                    else -> return current //no expression elements
+
+                }
+                skipWhitespace()
             }
             return current
 //            throw IllegalArgumentException("@${i}> Trailing content at end of expression: ${str.substring(i)}")
@@ -334,7 +344,7 @@ class XPathExpression private constructor(
             if (str[i] != ')') {
                 val elements = mutableListOf(expr)
                 do {
-                    require(str[i] == ',') { "@$i> Invalid character '${str[i]}' in range expression" }
+                    require(str[i] == ',') { "@$i> Invalid character '${str[i]}' in range expression: '${str.substring(i)}'" }
                     ++i
                     skipWhitespace()
                     elements.add(parseExpr())
