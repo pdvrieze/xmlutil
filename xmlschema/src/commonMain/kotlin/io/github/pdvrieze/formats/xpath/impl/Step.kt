@@ -29,6 +29,18 @@ internal class Step(
     constructor(test: NodeTest) : this(Axis.CHILD, test, emptyList())
 
     constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
+
+    override fun toString(): String = buildString {
+        when (axis) {
+            Axis.ATTRIBUTE -> append('@')
+            Axis.CHILD -> {}
+            else -> append(axis.literal).append("::")
+        }
+        append(test.toString())
+        for (p in predicates) {
+            append("[").append(p).append("]")
+        }
+    }
 }
 
 @XPathInternal

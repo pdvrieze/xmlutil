@@ -29,4 +29,13 @@ internal class LocationPath(
     constructor(step: Step) : this(false, null, listOf(step))
 
     constructor(rooted: Boolean, primaryExpr: Expr?, step: Step) : this(rooted, primaryExpr, listOf(step))
+
+    override fun toString(): String = buildString {
+        if (rooted) append('/')
+        if (primaryExpr!=null) {
+            append(primaryExpr)
+            if (steps.isNotEmpty()) append('/')
+        }
+        steps.joinTo(this, "/")
+    }
 }

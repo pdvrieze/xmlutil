@@ -21,6 +21,6 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NumberLiteral(value: Long) : LiteralExpr<Long>(value) {
-    override fun toString(): String = value.toString()
+class SequenceExpr(elements: List<Expr>) : Expr() {
+    val elements = elements.toList()
 }

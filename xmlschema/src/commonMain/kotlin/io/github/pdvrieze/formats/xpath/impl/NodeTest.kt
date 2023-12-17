@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 
 @XPathInternal
 internal sealed class NodeTest {
@@ -60,6 +62,14 @@ internal sealed class NodeTest {
         }
     }
     class QNameTest(val qName: QName) : NameTest() {
+
+        override fun toString(): String = buildString {
+            if (qName.namespaceURI.isNotEmpty()) {
+                append("Q{").append(qName.namespaceURI).append("}")
+            }
+            append(qName.localPart)
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is QNameTest) return false

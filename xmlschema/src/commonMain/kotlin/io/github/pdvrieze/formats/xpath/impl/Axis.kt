@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-enum class Axis(val repr: String) {
+enum class Axis(val literal: String) {
     CHILD("child"),
     DESCENDANT("descendant"),
     PARENT("parent"),
@@ -37,7 +37,7 @@ enum class Axis(val repr: String) {
     ;
 
     companion object {
-        private val lookup = Axis.values().associateBy { it.repr }
+        private val lookup = Axis.values().associateBy { it.literal }
 
         fun from(value: String): Axis {
             return requireNotNull(lookup[value]) { "$value is not a valid path axis" }

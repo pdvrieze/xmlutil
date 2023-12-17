@@ -22,4 +22,6 @@ package io.github.pdvrieze.formats.xpath.impl
 
 @OptIn(XPathInternal::class)
 @XPathInternal
-internal class VariableRef(val varName: String): Expr()
+internal class VariableRef(val varName: String): Expr() {
+    override fun toString(): String = "@$varName"
+}

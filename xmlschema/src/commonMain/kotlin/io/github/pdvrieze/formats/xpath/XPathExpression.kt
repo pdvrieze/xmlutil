@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xpath
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameChar
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameStartChar
 import io.github.pdvrieze.formats.xpath.impl.*
@@ -43,7 +42,7 @@ class XPathExpression private constructor(
     override val xmlString: String,
     @XPathInternal
     internal val expr: Expr
-): VToken {
+) : VToken {
 
     companion object Serializer : KSerializer<XPathExpression> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
@@ -100,7 +99,7 @@ class XPathExpression private constructor(
 
                     '(' -> {
                         ++i
-                        current = parseExpr(true)
+                        current = parseExpr()
                         while (isXmlWhitespace(str[i]) && (i + 1 < str.length)) {
                             ++i
                         }
@@ -132,100 +131,263 @@ class XPathExpression private constructor(
             }
         }
 
-        private fun parseVariableReference(): VariableRef {
-            TODO("not implemented")
+        /**
+         * Parse a word (not allowing ':' letters)
+         */
+        private fun parseNCName(): String = buildString {
+            if (i >= str.length || !isNameStartChar(str[i])) return@buildString
+
+            append(str[i++])
+            while (i < str.length && (str[i]!=':' && isNameChar(str[i]))) {
+                append(str[i++])
+            }
         }
 
-        private fun parseExpr(doSkipWhitespace: Boolean): Expr {
-            if (doSkipWhitespace) skipWhitespace()
+        private fun parseVariableReference(): VariableRef {
+            require(peekCurrent('$'))
+            ++i
+            return VariableRef(parseNCName())
+        }
+
+        private fun parseExpr(): Expr {
+            skipWhitespace()
 
             val current: Expr
 
             require(i < str.length) { "Empty expression" }
             val c = str[i]
             when {
-                c == '/' || c == '@' || c == '.' || c == '*' -> {
+                c == '/' || c == '@' || c == '.' || c == '*' || c == '$' ->
                     current = parseLocationPath()
-                }
 
-                c == '(' -> {
-                    ++i
-                    current = ParenExpr(parseExpr(true))
-                    skipWhitespace()
-                    require(checkCurrent(')')) { "@$i> missing closing )" }
-                    ++i
-                }
+                c == '(' -> current = parseSequenceOrParen()
 
-                c == '-' || c.isDigit() -> {
-                    current = parseNumber()
-                }
+                c == '\'' || c=='"' -> return parseLiteral()
+
+                c == '-' || c.isDigit() -> return parseNumber()
 
                 isNameStartChar(c) -> {
-                    val p = parseLocationPath()
-                    current = when {
-                        p.steps.isEmpty() -> checkNotNull(p.primaryExpr)
-                        else -> p
+                    when {
+                        peekCurrentWord("every") -> {
+                            i += 5
+                            skipWhitespace()
+                            current = parseQuantifiedExpr(QuantifiedExpr.Kind.EVERY)
+                        }
+
+                        peekCurrentWord("some") -> {
+                            i += 4
+                            skipWhitespace()
+                            current = parseQuantifiedExpr(QuantifiedExpr.Kind.SOME)
+                        }
+
+                        else -> {
+                            val p = parseLocationPath()
+                            current = when {
+                                p.steps.isEmpty() -> checkNotNull(p.primaryExpr)
+                                else -> p
+                            }
+                        }
                     }
+
                 }
 
-                else -> throw IllegalArgumentException("@$i> Unexpected character '${str[i]}' in expression")
+                else -> throw IllegalArgumentException(
+                    "@$i> Unexpected character '${str[i]}' in expression - '${str.substring(i)}'"
+                )
             }
             skipWhitespace()
             if (i >= str.length) return current
-            when (str[i++]) {
-                '|' -> return BinaryExpr.priority(Operator.UNION, current, parseExpr(true))
+            when (str[i]) {
+                '|' -> {
+                    ++i
+                    return BinaryExpr.priority(Operator.UNION, current, parseExpr())
+                }
 
-                '=' -> return BinaryExpr.priority(Operator.EQ, current, parseExpr(true))
+                '=' -> {
+                    ++i
+                    return BinaryExpr.priority(Operator.EQ, current, parseExpr())
+                }
 
-                '!' -> return BinaryExpr.priority(Operator.NEQ, current, parseExpr(true))
+                '!' -> {
+                    ++i
+                    return BinaryExpr.priority(Operator.NEQ, current, parseExpr())
+                }
 
                 '<' -> return when {
-                    checkCurrent('=') -> BinaryExpr.priority(Operator.LE, current, parseExpr(true))
-                    else -> BinaryExpr.priority(Operator.LT, current, parseExpr(true))
+                    peekCurrent("<=") -> {
+                        i += 2
+                        BinaryExpr.priority(Operator.LE, current, parseExpr())
+                    }
+                    else -> {
+                        ++i
+                        BinaryExpr.priority(Operator.LT, current, parseExpr())
+                    }
                 }
 
                 '>' -> return when {
-                    checkCurrent('=') -> BinaryExpr.priority(Operator.GE, current, parseExpr(true))
-                    else -> BinaryExpr.priority(Operator.GT, current, parseExpr(true))
+                    peekCurrent(">=") -> {
+                        i += 2
+                        BinaryExpr.priority(Operator.GE, current, parseExpr())
+                    }
+                    else -> {
+                        ++i
+                        BinaryExpr.priority(Operator.GT, current, parseExpr())
+                    }
                 }
 
-                '+' -> return BinaryExpr.priority(Operator.ADD, current, parseExpr(true))
+                '+' -> {
+                    ++i
+                    return BinaryExpr.priority(Operator.ADD, current, parseExpr())
+                }
 
-                '-' -> return BinaryExpr.priority(Operator.SUB, current, parseExpr(true))
+                '-' -> {
+                    ++i
+                    return BinaryExpr.priority(Operator.SUB, current, parseExpr())
+                }
 
                 'o' -> {
-                    require(checkCurrentWord("r"))
-                    ++i
-                    return BinaryExpr.priority(Operator.OR, current, parseExpr(true))
+                    if (!peekCurrentWord("or")) return current
+
+                    i += 2
+                    return BinaryExpr.priority(Operator.OR, current, parseExpr())
                 }
 
                 'a' -> {
-                    require(checkCurrentWord("nd"))
-                    i += 2
-                    return BinaryExpr.priority(Operator.AND, current, parseExpr(true))
-                }
-
-                'm' -> {
-                    require(checkCurrentWord("od"))
-                    i += 2
-                    return BinaryExpr.priority(Operator.MOD, current, parseExpr(true))
+                    if (!peekCurrentWord("and")) return current
+                    i += 3
+                    return BinaryExpr.priority(Operator.AND, current, parseExpr())
                 }
 
                 'd' -> {
-                    require(checkCurrentWord("div"))
-                    i += 2
-                    return BinaryExpr.priority(Operator.DIV, current, parseExpr(true))
+                    if (!peekCurrentWord("div")) return current
+                    i += 3
+                    return BinaryExpr.priority(Operator.DIV, current, parseExpr())
                 }
+
+                'e' -> {
+                    if (!peekCurrentWord("eq")) return current
+                    i += 2
+                    return BinaryExpr(Operator.VAL_EQ, current, parseExpr())
+                }
+
+                'g' -> {
+                    when {
+                        peekCurrentWord("ge") -> {
+                            i += 2
+                            return BinaryExpr(Operator.VAL_GE, current, parseExpr())
+                        }
+
+                        peekCurrentWord("gt") -> {
+                            i += 2
+                            return BinaryExpr(Operator.VAL_GT, current, parseExpr())
+                        }
+
+                        else -> throw IllegalArgumentException("@$i> Unexpected token ${str.substring(i - 1, i + 1)}")
+                    }
+                }
+
+                'l' -> {
+                    when {
+                        peekCurrentWord("le") -> {
+                            i += 2
+                            return BinaryExpr(Operator.VAL_LE, current, parseExpr())
+                        }
+
+                        peekCurrentWord("lt") -> {
+                            i += 2
+                            return BinaryExpr(Operator.VAL_LT, current, parseExpr())
+                        }
+
+                        else -> throw IllegalArgumentException("@$i> Unexpected token ${str.substring(i - 1, i + 1)}")
+                    }
+                }
+
+                'm' -> {
+                    require(peekCurrentWord("mod"))
+                    i += 3
+                    return BinaryExpr.priority(Operator.MOD, current, parseExpr())
+                }
+
+                'n' -> {
+                    if (!peekCurrentWord("ne")) return current
+                    i += 2
+                    return BinaryExpr(Operator.VAL_NEQ, current, parseExpr())
+                }
+
+                't' -> {
+                    if (!peekCurrentWord("to")) return current
+                    i += 2
+                    return BinaryExpr(Operator.RANGE, current, parseExpr())
+                }
+
             }
-            --i
             return current
 //            throw IllegalArgumentException("@${i}> Trailing content at end of expression: ${str.substring(i)}")
         }
 
-        fun parse(): Expr {
-            val e = parseExpr(true)
+        private fun parseSequenceOrParen(): Expr {
+            val c: Expr
+            ++i
+            val expr = parseExpr()
             skipWhitespace()
-            if (i<str.length) throw IllegalArgumentException("@$i> Trailing content in expression: '${str.substring(i)}'")
+            require(i < str.length) { "@$i> missing closing )" }
+            if (str[i] != ')') {
+                val elements = mutableListOf(expr)
+                do {
+                    require(str[i] == ',') { "@$i> Invalid character '${str[i]}' in range expression" }
+                    ++i
+                    skipWhitespace()
+                    elements.add(parseExpr())
+                    require(i < str.length) { "@$i> missing closing )" }
+                } while (str[i] != ')')
+                c = SequenceExpr(elements)
+            } else {
+                c = expr as? ParenExpr ?: ParenExpr(expr)
+            }
+            ++i
+            return c
+        }
+
+        private fun parseQuantifiedExpr(kind: QuantifiedExpr.Kind): Expr {
+            val oldStart = i - kind.literal.length
+            skipWhitespace()
+
+            // Allow for matching a location part with quantifier name
+            if (!peekCurrent('$')) {
+                i = oldStart; return parseLocationPath()
+            }
+
+            val varName = parseVariableReference()
+            skipWhitespace()
+
+            require(peekCurrentWord("in")) { "@$i> Missing 'in' in quantified expression '${str.substring(i)}'" }
+            i += 2
+            skipWhitespace()
+
+            val exprs = mutableListOf<Expr>()
+            exprs.add(parseExpr())
+            while (peekCurrent(',')) {
+                ++i
+                skipWhitespace()
+                exprs.add(parseExpr())
+            }
+            val source = exprs.singleOrNull() ?: SequenceExpr(exprs)
+            skipWhitespace()
+
+            require(peekCurrentWord("satisfies")) { "@$i> Missing satisfies in quantified expression: ${str.substring(i)}" }
+            i += 9
+            skipWhitespace()
+
+            val condition = parseExpr()
+            skipWhitespace()
+
+            return QuantifiedExpr(kind, varName.varName, source, condition)
+        }
+
+        fun parse(): Expr {
+            val e = parseExpr()
+            skipWhitespace()
+            if (i < str.length) throw IllegalArgumentException("@$i> Trailing content in expression: '${str.substring(i)}'")
             return e
         }
 
@@ -234,27 +396,34 @@ class XPathExpression private constructor(
             var rooted = false
             val steps = mutableListOf<Step>()
             var primaryExpr: Expr? = null
-
+            skipWhitespace()
             while (i < str.length) {
                 val c = str[i]
                 when {
-                    c == ' ' -> ++i // ignore
+//                    c == ' ' -> ++i // ignore
 
                     c == '.' -> { // TODO can use step parsing
                         require(primaryExpr == null)
                         ++i
                         val axis = when {
-                            checkCurrent('.') -> Axis.PARENT
+                            peekCurrent('.') -> Axis.PARENT
                             else -> Axis.SELF
                         }
                         steps.add(Step(axis, NodeTest.NodeTypeTest(NodeType.NODE)))
+                        skipWhitespace()
+                        if (!peekCurrent('/')) break;
+                    }
+
+                    c == '$' -> {
+                        require(primaryExpr == null)
+                        primaryExpr = parseVariableReference()
                     }
 
                     c == '/' -> {
                         if (start == i) rooted = true
 
                         ++i
-                        if (checkCurrent('/')) { // shortcut
+                        if (peekCurrent('/')) { // shortcut
                             ++i
                             steps.add(Step(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE)))
                         } else {
@@ -273,16 +442,21 @@ class XPathExpression private constructor(
                     c == '(' -> {
                         require(primaryExpr == null && steps.isEmpty()) { "Primary expression in invalid point" }
                         ++i
-                        primaryExpr = parseExpr(true)
+                        primaryExpr = parseExpr()
                         skipWhitespace()
-                        require(checkCurrent(')')) { "@$i> Expression not ended by ')'" }
+                        require(peekCurrent(')')) { "@$i> Expression not ended by ')'" }
                         ++i
+                        skipWhitespace()
+                        // needs separatator to follow
+                        if (!peekCurrent('/')) break;
                     }
 
                     c.isDigit() -> {
                         require(primaryExpr == null && steps.isEmpty()) { "Primary expression in invalid point" }
                         primaryExpr = parseNumber()
                         skipWhitespace()
+                        if (!peekCurrent('/')) break;
+
                     }
 
                     isNameStartChar(c) ||
@@ -292,14 +466,32 @@ class XPathExpression private constructor(
                         when (val s = parseStep(steps.size)) {
                             is Step -> steps.add(s)
                             is Primary -> {
-                                require(primaryExpr == null && steps.isEmpty()) { "@$exprStart, expression as path step is not valid" }
+                                require(primaryExpr == null) {
+                                    "@$exprStart, expression as path step is not valid (primary expression already set: $primaryExpr) - '${
+                                        str.substring(
+                                            exprStart
+                                        )
+                                    }'"
+                                }
+                                require(steps.isEmpty()) {
+                                    "@$exprStart, expression as path step is not valid (steps already provided: ${steps.joinToString()}) - '${
+                                        str.substring(
+                                            exprStart
+                                        )
+                                    }'"
+                                }
                                 primaryExpr = s.expr
+                                if (!peekCurrent('/')) break;
                             }
                         }
                     }
 
                     else -> break
                 }
+                skipWhitespace()
+                if (! peekCurrent('/')) break
+                ++i
+                skipWhitespace()
             }
             return LocationPath(rooted, primaryExpr, steps)
         }
@@ -342,251 +534,186 @@ class XPathExpression private constructor(
         }
 
         private fun parseStep(stepCount: Int): PrimaryOrStep {
-            var start = i
+            skipWhitespace()
+            if (i>=str.length) { "@$i> Empty expression" }
 
-            var currentAxis: Axis? = null
-            var currentTest: NodeTest? = null
-            var currentPrefix: String? = null
-            var parsePos = -1
+            val c = str[i]
+            when {
+                c == '/' -> { // special case for "empty" expression
+//                    ++i
+                    return Step(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE))
+                }
 
-            fun finaliseName(): Primary? {
-                require(i>start) { "@$start> Empty name in path step: '$str'"}
-                val localName = str.substring(start, i)
-                skipWhitespace()
-                when {
-                    currentAxis == null && parsePos<=0 && checkCurrent("::") -> {
-                        currentAxis = Axis.from(localName)
+                c == '.' && peekCurrent("..") -> {
+                    i+=2
+                    skipWhitespace()
+                    return Step(Axis.PARENT, NodeTest.NodeTypeTest(NodeType.NODE), parsePredicates())
+                }
+
+                c == '.' -> {
+                    ++i
+                    skipWhitespace()
+                    return Step(Axis.SELF, NodeTest.NodeTypeTest(NodeType.NODE), parsePredicates())
+                }
+
+                c == '@' -> { //attribute
+                    return parseAttribute()
+                }
+
+                c == '*' -> {
+                    ++i
+                    skipWhitespace()
+                    return Step(Axis.CHILD, NodeTest.AnyNameTest, parsePredicates())
+                }
+
+                c == '(' -> {
+                    TODO("Sequences are not part of expressions")
+//                    finaliseName()?.let { return it }
+                    // will have created the function call if relevant
+                }
+
+                isNameStartChar(c) -> {
+                    val startPos = i
+                    val word = parseNCName()
+
+//                    val curName: QName
+                    val axis: Axis
+                    val nodeTest: NodeTest
+
+                    skipWhitespace()
+                    if (peekCurrent("::")) {
+                        axis = Axis.from(word)
                         i += 2
                         skipWhitespace()
-                        start = i
-                        parsePos = 1
-                        return null
+                        nodeTest = requireNotNull(parseNodeTest()) { "@$i> Missing node test in step: '${str.substring(i)}'" }
+                    } else {
+                        axis = Axis.CHILD
+                        nodeTest = requireNotNull(parseNodeTest(word)) { "@$i> Missing node test in step: '${str.substring(i)}'" }
                     }
 
-                    checkCurrent(':') -> {
-                        require(currentPrefix==null)
-                        require(parsePos<=1)
-                        currentPrefix = localName
+                    val currentTest: NodeTest
+                    if (nodeTest is NodeTest.QNameTest && peekCurrent('(')) {
+                        val curName = nodeTest.qName
                         ++i
-                        start = i
-                        parsePos = 2
-                        return null
-                    }
-
-                    checkCurrent('(') -> {
-                        ++i
-                        skipWhitespace()
-                        val nodeType = if (currentPrefix == null) NodeType.maybeValueOf(localName) else null
-                        if (nodeType!=null) {
-                            check(currentAxis==null)
-                            currentAxis = Axis.CHILD
-
-                            if (checkCurrent(')')) {
-                                currentTest = NodeTest.NodeTypeTest(nodeType)
-                            } else {
-                                require(nodeType == NodeType.PROCESSING_INSTRUCTION)
-                                currentTest = NodeTest.ProcessingInstructionTest(parseLiteral().value)
-                                require(checkCurrent(')'))
-                            }
-                            ++i // closing )
-                        } else {
-                            require(currentAxis==null) { "Primary functions ($localName) can not be in a path with axis" }
-                            val ns = lookupNamespace(currentPrefix)
-                            val name = QName(ns, localName, currentPrefix?:"")
-                            val args = mutableListOf<Expr>()
-
-                            while (! checkCurrent(')')) {
-                                args.add(parseExpr(true))
-                                skipWhitespace()
-                                if (i >= str.length || str[i].let { it != ',' && it != ')' }) {
-                                    throw IllegalArgumentException("@$i> Unexpected token in arguments)")
+                        val nodeType =
+                            if (curName.namespaceURI.isEmpty()) NodeType.maybeValueOf(curName.localPart) else null
+                        when(nodeType) {
+                            NodeType.PROCESSING_INSTRUCTION -> {
+                                    skipWhitespace()
+                                    require(peekCurrent('('))
+                                    ++i
+                                    skipWhitespace()
+                                    if (peekCurrent(')')) {
+                                        currentTest = NodeTest.ProcessingInstructionTest()
+                                    } else {
+                                        currentTest = NodeTest.ProcessingInstructionTest(parseLiteral().value)
+                                        skipWhitespace()
+                                    }
+                                    require(peekCurrent(')'))
+                                    ++i
                                 }
-                            }
-                            ++i // last)
-                            return Primary(FunctionCall(name, args))
-                        }
-                        parsePos = 3
-                    }
-                    else -> {
-                        check(i>=str.length || !isNameChar(str[i])) { "@$i> Not finished name (${str[i]}): $str"}
-                        // can be already set
-                        if (currentAxis==null) currentAxis = Axis.CHILD
 
-                        val ns = lookupNamespace(currentPrefix)
-                        val name = QName(ns, localName, currentPrefix?:"")
-                        currentTest = NodeTest.QNameTest(name)
-                        parsePos = 3
+                            is NodeType -> currentTest = NodeTest.NodeTypeTest(nodeType)
+
+                            else -> {
+
+                                val args = mutableListOf<Expr>()
+                                if (!peekCurrent(')')) {
+                                    while (true) {
+                                        skipWhitespace()
+                                        args.add(parseExpr())
+                                        require(i < str.length) { "@$i> Missing closing parenthesis" }
+                                        if (peekCurrent(')')) break
+                                        require(str[i++] == ',') { "@$i> parameters should be separated by ',': '${str.substring(i-1)}" }
+                                    }
+                                }
+                                ++i
+                                return Primary(FunctionCall(curName, args))
+                            }
+                        }
+
+                    } else {
+                        currentTest = nodeTest
                     }
+                    skipWhitespace()
+
+                    return Step(axis, currentTest, parsePredicates())
                 }
 
-
-
-                return null
-            }
-
-            val currentPredicates: MutableList<Expr> = mutableListOf()
-
-            /*
-             * Parse positions:
-             * -1   -   Before start
-             * 0    -   Reading characters that could be axis selector
-             * 1    -   After axis selector
-             * 2    -   A prefix has been read
-             * 3    -   NodeTest has been read.
-             */
-
-            while (i < str.length) {
-                val c = str[i]
-                when {
-                    c == ' ' -> {
-                        finaliseName()?.let { return it }
-                    } // ignore
-
-                    c == '/' && i == start -> {
-                        ++i
-                        return Step(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE))
-                    }
-
-                    c == '/' -> { // step finished
-                        break
-                    }
-
-                    i==start && c == '.' && checkCurrent("..") -> {
-                        require(parsePos<0)
-                        currentAxis = Axis.PARENT
-                        currentTest = NodeTest.NodeTypeTest(NodeType.NODE)
-                        parsePos = 3
-                        i += 2
-                    }
-
-                    i==start && c == '.' -> {
-                        currentAxis = Axis.SELF
-                        currentTest = NodeTest.NodeTypeTest(NodeType.NODE)
-                        parsePos = 3
-                        i += 1
-                    }
-
-                    c == '@' -> { //attribute
-                        require(parsePos < 1 && i == start) { "@$i> attribute out of scope" }
-                        parsePos = 1
-                        ++i
-                        skipWhitespace()
-                        start = i
-                        currentAxis = Axis.ATTRIBUTE
-                    }
-
-                    c == ':' -> when {
-                        i + 1 < str.length && str.get(i + 1) == ':' -> {
-                            require(parsePos < 1) { "Multiple axis selectors" }
-                            parsePos = 1
-                            require(currentAxis == null) { "Multiple axes in xpath" }
-                            currentAxis = Axis.from(str.substring(start, i))
-                            i+=2 // skip extra character
-                            skipWhitespace()
-                            start = i
-                        }
-
-                        else -> {
-                            require(currentPrefix == null) { "QName can only have 1 prefix" }
-                            currentPrefix = str.substring(start, i).also {
-                                require(it.isNCName()) { "@$start> '$it' is not a valid NCName/prefix" }
-                            }
-                            ++i
-                            start = i
-                        }
-                    }
-
-                    c == '*' -> when {
-                        parsePos >= 3 ||
-                                i != start -> throw IllegalArgumentException("@$i> * in unexpected location")
-
-                        currentTest != null -> throw IllegalArgumentException("Repeated test")
-
-                        parsePos <= 0 -> {
-                            currentAxis = Axis.CHILD
-                            currentTest = NodeTest.AnyNameTest
-                            parsePos = 3
-                            ++i
-                            skipWhitespace()
-                        }
-
-                        parsePos == 1 -> {
-                            currentTest = NodeTest.AnyNameTest
-                            parsePos = 3
-                            ++i
-                            skipWhitespace()
-                        }
-
-                        else -> {
-                            check(str[i - 1] == ':') { "Should not happen" }
-                            val prefix = VNCName(str.substring(start, i - 1))
-
-                            val ns = requireNotNull(namespaceContext.getNamespaceURI(prefix.xmlString)) { "@$start> Missing namespace for '$prefix'" }
-                            currentTest = NodeTest.NSTest(ns.toAnyUri(), prefix)
-                            parsePos = 3
-                            ++i
-                            skipWhitespace()
-                        }
-                    }
-
-                    c == '(' -> {
-                        finaliseName()?.let { return it }
-                        // will have created the function call if relevant
-                    }
-
-                    c == '[' -> {
-                        finaliseName()?.let { return it } // this will take care of predicates
-
-                        ++i
-
-                        currentPredicates.add(parseExpr(true))
-                        skipWhitespace()
-                        require(checkCurrent(']')) { "@$i> predicate not closed by ']'" }
-                        ++i
-                    }
-
-                    isNameStartChar(c) -> {
-                        if (parsePos < 0) parsePos = 0
-                        ++i
-                    }
-
-                    start != i && isNameChar(c) -> ++i
-                    c == '|' -> {
-                        break
-                    }
-
-                    else -> {
-                        throw IllegalArgumentException("@$i> Unexpected token '${c}' in '$str'")
-                    }
+                else -> { // finish the step, but don't throw an exception
+                    TODO("Not valid")
+//                    break;
+//                        throw IllegalArgumentException("@$i> Unexpected token '${c}' in '$str'")
                 }
             }
-            if (parsePos<3 && currentTest==null) {
-                finaliseName()?.let { return it }
-            }
-
-            return Step(checkNotNull(currentAxis){ "missing axis" }, checkNotNull(currentTest){ "missing test" }, currentPredicates)
         }
 
-        fun checkCurrent(char: Char): Boolean {
+        private fun parseAttribute(): Step {
+            check(str[i] == '@')
+            ++i
+            val test: NodeTest = requireNotNull(parseNodeTest()) { "@$i> Missing node test for attribute: '${str.substring(i)}'"}
+            return Step(Axis.ATTRIBUTE, test, parsePredicates())
+        }
+
+        private fun parseNodeTest(firstWord: String? = null): NodeTest? {
+            if (firstWord== null && peekCurrent('*')) {
+                ++i
+                return NodeTest.AnyNameTest
+            }
+
+            if (firstWord == null && (i >= str.length || !isNameStartChar(str[i]))) return null
+
+            val prefixOrLocal = firstWord ?: parseNCName()
+            skipWhitespace()
+            if (peekCurrent(':')) {
+                ++i
+                skipWhitespace()
+                val ns = lookupNamespace(prefixOrLocal)
+                if (peekCurrent('*')) {
+                    ++i
+                    return NodeTest.NSTest(ns.toAnyUri(), VNCName(prefixOrLocal))
+                } else {
+                    return NodeTest.QNameTest(QName(ns, parseNCName(), prefixOrLocal))
+                }
+            } else {
+                val ns = namespaceContext.getNamespaceURI("") ?: ""
+                return NodeTest.QNameTest(QName(ns, prefixOrLocal))
+            }
+        }
+
+        private fun parsePredicates(): List<Expr> = buildList {
+            while (peekCurrent('[')) {
+                ++i
+                skipWhitespace()
+                add(parseExpr())
+                skipWhitespace()
+                require(peekCurrent(']')) { "@$i> Predicate not closed by ']': '${str.substring(i)}'" }
+                ++i
+                skipWhitespace()
+            }
+        }
+
+        private fun peekCurrent(char: Char): Boolean {
             if (i >= str.length) return false
             return str[i] == char
         }
 
-        fun checkCurrent(check: String): Boolean {
+        private fun peekCurrent(check: String): Boolean {
             val end = i + check.length
             if ((end + 1) >= str.length) return false
             return str.substring(i, end) == check
         }
 
-        fun checkCurrentWord(check: String): Boolean {
-            checkCurrent(check)
+        private fun peekCurrentWord(check: String): Boolean {
+            if (!peekCurrent(check)) return false
             val j = i + check.length
             return j >= str.length || !isNameChar(str[j])
         }
 
-        fun lookupNamespace(prefix: String?): String = when (prefix){
+        fun lookupNamespace(prefix: String?): String = when (prefix) {
             "",
             null -> namespaceContext.getNamespaceURI("") ?: ""
+
             else -> requireNotNull(namespaceContext.getNamespaceURI(prefix)) {
                 "Missing namespace for prefix $prefix"
             }
