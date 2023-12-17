@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -35,7 +36,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("assertion", XSD_NS_URI, XSD_PREFIX)
 class XSAssertionFacet : XSFacet.NotFixed, XSIAssertCommon {
-
+    override fun isListFacet(version: SchemaVersion): Boolean = version != SchemaVersion.V1_0
+    override fun isUnionFacet(version: SchemaVersion): Boolean = version != SchemaVersion.V1_0
     override val xpathDefaultNamespace: VXPathDefaultNamespace?
     override val test: XPathExpression?
     override val value: Any get() = this
