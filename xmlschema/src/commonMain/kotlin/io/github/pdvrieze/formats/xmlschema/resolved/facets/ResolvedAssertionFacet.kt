@@ -29,7 +29,7 @@ class ResolvedAssertionFacet(rawPart: XSAssertionFacet) :
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
 
     val test = rawPart.test
-    val xPathDefaultNamespace = rawPart.xPathDefaultNamespace
+    val xPathDefaultNamespace = rawPart.xpathDefaultNamespace
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
