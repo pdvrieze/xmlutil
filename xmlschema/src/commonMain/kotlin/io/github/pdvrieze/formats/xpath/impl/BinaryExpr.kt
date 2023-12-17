@@ -22,6 +22,15 @@ package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
 internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): Expr() {
+
+    override fun toString(): String = buildString {
+        append(left)
+        append(' ')
+        append(operator.literal)
+        append(' ')
+        append(right)
+    }
+
     companion object {
         fun priority(op: Operator, left: Expr, right: Expr): Expr {
             if (left !is BinaryExpr ||
