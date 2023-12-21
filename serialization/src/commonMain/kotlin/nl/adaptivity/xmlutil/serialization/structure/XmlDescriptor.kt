@@ -726,7 +726,7 @@ internal constructor(
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     public val attrMapChild: Int by lazy { //uses elementDescriptor, so needs to be lazy
-        var fallbackIdx = -1
+        var fallbackIdx = if(config.policy.isStrictOtherAttributes) Int.MAX_VALUE else -1
         for (i in 0 until elementsCount) {
             if (getElementDescriptor(i) is XmlAttributeMapDescriptor) {
                 if (serialDescriptor.getElementAnnotations(i).firstOrNull<XmlOtherAttributes>() != null) {
@@ -736,8 +736,7 @@ internal constructor(
                 if (fallbackIdx < 0) fallbackIdx = i
             }
         }
-
-        fallbackIdx // fallbacks for old behaviour.
+        if (fallbackIdx==Int.MAX_VALUE) -1 else fallbackIdx // fallbacks for old behaviour.
     }
 
     override val outputKind: OutputKind get() = OutputKind.Element
