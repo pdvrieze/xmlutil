@@ -124,7 +124,7 @@ allprojects {
                     languageSettings {
                         progressiveMode = true
                         languageVersion = "1.9"
-                        apiVersion = "1.9"
+                        apiVersion = "1.8"
                         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
                     }
                 }
@@ -140,7 +140,7 @@ allprojects {
                     languageSettings {
                         progressiveMode = true
                         languageVersion = "1.9"
-                        apiVersion = "1.9"
+                        apiVersion = "1.8"
                         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
                     }
                 }

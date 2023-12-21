@@ -18,11 +18,8 @@
  * under the License.
  */
 
-@file:OptIn(ExperimentalNativeApi::class)
-
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlin.experimental.ExperimentalNativeApi
 import kotlin.reflect.KClass
 
 public actual val KClass<*>.name: String get() = qualifiedName!!
@@ -38,11 +35,11 @@ public actual annotation class Throws(actual vararg val exceptionClasses: KClass
 
 
 public actual fun assert(value: Boolean, lazyMessage: () -> String) {
-    kotlin.assert(value, lazyMessage)
+    if (!value) throw AssertionError(lazyMessage())
 }
 
 public actual fun assert(value: Boolean) {
-    kotlin.assert(value)
+    if (!value) throw AssertionError()
 }
 
 public inline fun <T : Closeable, R> T.use(block: (T) -> R): R {

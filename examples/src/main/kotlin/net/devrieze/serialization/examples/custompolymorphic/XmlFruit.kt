@@ -98,6 +98,7 @@ data class XmlFruit(
         )
 
         override fun deserialize(decoder: Decoder): FruitType =
+            @OptIn(ExperimentalStdlibApi::class)
             FruitType.entries.first { decoder.decodeString() == it.serialName }
 
         override fun serialize(encoder: Encoder, value: FruitType): Unit = encoder.encodeString(value.serialName)
