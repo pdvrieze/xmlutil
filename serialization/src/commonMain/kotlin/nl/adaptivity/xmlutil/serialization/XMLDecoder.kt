@@ -817,7 +817,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val containingNamespaceUri = serialName.namespaceURI
             // Allow attributes in the null namespace to match candidates with a name that is that of the parent tag
-            if (isNameOfAttr && !config.policy.isStrictNames) {
+            if (isNameOfAttr && !config.policy.isStrictAttributeNames) {
                 if (name.namespaceURI.isEmpty()) {
                     val attrName = normalizedName.copy(namespaceURI = containingNamespaceUri)
                     nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
@@ -839,7 +839,7 @@ internal open class XmlDecoderBase internal constructor(
 
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
-            if (!config.policy.isStrictNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
+            if (!config.policy.isStrictAttributeNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
                 nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
             }
 
@@ -848,31 +848,6 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
                     return valueChildIdx.checkRepeat()
-                    /*
-                                        var isListOrMap = false
-                                        var valChildDesc: XmlDescriptor = xmlDescriptor.getElementDescriptor(valueChildIdx)
-
-                                        do {
-                                            when {
-                                                valChildDesc is XmlListDescriptor && valChildDesc.isListEluded ->
-                                                    isListOrMap = true
-
-                                                valChildDesc is XmlMapDescriptor && valChildDesc.isListEluded ->
-                                                    isListOrMap = true
-
-                                                valChildDesc is XmlInlineDescriptor ->
-                                                    valChildDesc = valChildDesc.getElementDescriptor(0)
-
-                                                else -> break
-                                            }
-                                        } while (!isListOrMap)
-
-
-
-                                        if (isListOrMap || valChildDesc.serialDescriptor in SPECIAL_VALUE_SERIALDESCS) {
-                                            return valueChildIdx.checkRepeat()
-                                        }
-                    */
                 }
             }
 

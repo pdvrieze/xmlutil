@@ -39,8 +39,11 @@ public interface XmlSerializationPolicy {
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
     public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
+    @Deprecated("Use isStrictAttributeNames instead")
     public val isStrictNames: Boolean get() = false
+    public val isStrictAttributeNames: Boolean get() = isStrictNames
     public val isStrictBoolean: Boolean get() = false
+    public val isStrictOtherAttributes: Boolean get() = false
 
     @ExperimentalXmlUtilApi
     public val verifyElementOrder: Boolean get() = false
@@ -327,9 +330,13 @@ private constructor(
     public val typeDiscriminatorName: QName? = null,
     public val throwOnRepeatedElement: Boolean = false,
     public override val verifyElementOrder: Boolean = false,
-    public override val isStrictNames: Boolean,
+    public override val isStrictAttributeNames: Boolean,
     public override val isStrictBoolean: Boolean = false,
+    public override val isStrictOtherAttributes: Boolean = false,
 ) : XmlSerializationPolicy {
+
+    @Deprecated("Invalid name of property. This only affects attributes")
+    public override val isStrictNames: Boolean get() = isStrictAttributeNames
 
     @Deprecated("Use builder")
     @ExperimentalXmlUtilApi
@@ -407,8 +414,9 @@ private constructor(
         typeDiscriminatorName = (original as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
         throwOnRepeatedElement = (original as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false,
         verifyElementOrder = original?.verifyElementOrder ?: false,
-        isStrictNames = original?.isStrictNames ?: false,
+        isStrictAttributeNames = original?.isStrictAttributeNames ?: false,
         isStrictBoolean = original?.isStrictBoolean ?: false,
+        isStrictOtherAttributes = original?.isStrictOtherAttributes ?: false
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
@@ -420,8 +428,9 @@ private constructor(
         typeDiscriminatorName = builder.typeDiscriminatorName,
         throwOnRepeatedElement = builder.throwOnRepeatedElement,
         verifyElementOrder = builder.verifyElementOrder,
-        isStrictNames = builder.isStrictAttributeNames,
+        isStrictAttributeNames = builder.isStrictAttributeNames,
         isStrictBoolean = builder.isStrictBoolean,
+        isStrictOtherAttributes = builder.isStrictOtherAttributes
     )
 
     public constructor(config: Builder.() -> Unit) : this(Builder().apply(config))
@@ -856,32 +865,46 @@ private constructor(
      */
     @OptIn(ExperimentalXmlUtilApi::class)
     public open class Builder internal constructor(
-        public var pedantic: Boolean = false,
-        public var autoPolymorphic: Boolean = false,
-        public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED,
-        public var unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
-        public var typeDiscriminatorName: QName? = null,
-        public var throwOnRepeatedElement: Boolean = false,
-        public var verifyElementOrder: Boolean = false,
-        public var isStrictAttributeNames: Boolean = false,
-        public var isStrictBoolean: Boolean = false,
+        public var pedantic: Boolean,
+        public var autoPolymorphic: Boolean,
+        public var encodeDefault: XmlEncodeDefault,
+        public var unknownChildHandler: UnknownChildHandler,
+        public var typeDiscriminatorName: QName?,
+        public var throwOnRepeatedElement: Boolean,
+        public var verifyElementOrder: Boolean,
+        public var isStrictAttributeNames: Boolean,
+        public var isStrictBoolean: Boolean,
+        public var isStrictOtherAttributes: Boolean,
     ) {
         /**
          * Constructor for default builder. To set any values, use the property setters. The primary constructor
          * is internal as it is not stable as new configuration options are added.
          */
-        public constructor() : this(pedantic = false)
+        public constructor() : this(
+            pedantic = false,
+            autoPolymorphic = false,
+            encodeDefault = XmlEncodeDefault.ANNOTATED,
+            unknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+            typeDiscriminatorName = null,
+            throwOnRepeatedElement = false,
+            verifyElementOrder = false,
+            isStrictAttributeNames = false,
+            isStrictBoolean = false,
+            isStrictOtherAttributes = false,
+        )
 
         @ExperimentalXmlUtilApi
         public constructor(policy: DefaultXmlSerializationPolicy) : this(
-            pedantic = policy.pedantic,
-            autoPolymorphic = policy.autoPolymorphic,
-            encodeDefault = policy.encodeDefault,
-            unknownChildHandler = policy.unknownChildHandler,
-            typeDiscriminatorName = policy.typeDiscriminatorName,
-            throwOnRepeatedElement = policy.throwOnRepeatedElement,
-            verifyElementOrder = policy.verifyElementOrder,
-            isStrictAttributeNames = policy.isStrictNames,
+            policy.pedantic,
+            policy.autoPolymorphic,
+            policy.encodeDefault,
+            policy.unknownChildHandler,
+            policy.typeDiscriminatorName,
+            policy.throwOnRepeatedElement,
+            policy.verifyElementOrder,
+            policy.isStrictAttributeNames,
+            policy.isStrictOtherAttributes,
+            policy.isStrictBoolean,
         )
 
         public fun ignoreUnknownChildren() {

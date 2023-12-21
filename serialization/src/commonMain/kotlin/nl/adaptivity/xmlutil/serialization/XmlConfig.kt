@@ -235,7 +235,9 @@ private constructor(
                 field = value
                 if (value != null) {
                     (policy as? DefaultXmlSerializationPolicy)?.also { p ->
-                        policy = p.copy(autoPolymorphic = value)
+                        if (p.autoPolymorphic != value) {
+                            policy = p.copy { autoPolymorphic = value }
+                        }
                     }
                 }
             }
@@ -381,7 +383,7 @@ private constructor(
          * Note that this function has no guarantee of stability.
          */
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            recommended_0_86_3(configurePolicy)
+            recommended_0_87_0(configurePolicy)
         }
 
         /**
@@ -408,9 +410,30 @@ private constructor(
             }
         }
 
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        public fun recommended_0_87_0() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            recommended_0_87_0 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        public inline fun recommended_0_87_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            recommended_0_86_3 {
+                isStrictOtherAttributes = true
+                configurePolicy()
+            }
+        }
+
         @OptIn(ExperimentalXmlUtilApi::class)
         public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            policy = policyBuilder().apply(configure).build()
+            val defaultPolicy = policyBuilder().apply(configure).build()
+            policy = defaultPolicy
+            if (autoPolymorphic != null) autoPolymorphic = defaultPolicy.autoPolymorphic
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
@@ -418,7 +441,7 @@ private constructor(
         internal fun policyBuilder(): DefaultXmlSerializationPolicy.Builder = when (val p = policy) {
             is DefaultXmlSerializationPolicy -> p.builder()
             else -> DefaultXmlSerializationPolicy.Builder()
-        }
+        }.also { autoPolymorphic?.let { ap -> it.autoPolymorphic = ap } }
     }
 
     public companion object {
