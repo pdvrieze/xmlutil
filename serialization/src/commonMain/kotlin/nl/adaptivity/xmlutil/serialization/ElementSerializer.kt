@@ -52,7 +52,7 @@ public object ElementSerializer : XmlSerializer<Element> {
     }
 
     override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Element?, isValueChild: Boolean): Element {
-        val document = createDocument(input.name)
+        val document = previousValue?.ownerDocument ?: createDocument(input.name)
         val fragment = document.createDocumentFragment()
         val out = DomWriter(fragment)
         out.writeElement(null, input)
