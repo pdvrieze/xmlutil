@@ -296,8 +296,9 @@ public class XML constructor(
 
             for (childDescriptor in childrenToCollect) {
                 // Only check if we haven't seen a dynamic name yet.
-                if (!hasSeenDynamicQname && childDescriptor.overriddenSerializer in DYNAMIC_QNAME_SERIALIZERS) {
+                if (!hasSeenDynamicQname && childDescriptor.overriddenSerializer.let { it is XmlSerializationStrategy<*> }) {
                     hasSeenDynamicQname = true
+                    return
                 }
                 if (childDescriptor !in seenDescriptors) {
                     seenDescriptors.add(childDescriptor)
@@ -664,12 +665,6 @@ public class XML constructor(
     }
 
     public companion object : StringFormat {
-        private val DYNAMIC_QNAME_SERIALIZERS = arrayOf(
-            XmlQNameSerializer,
-            NodeSerializer,
-            ElementSerializer,
-            CompactFragmentSerializer
-        )
 
         public val defaultInstance: XML = XML {}
         override val serializersModule: SerializersModule

@@ -28,7 +28,6 @@ import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 internal open class XmlEncoderBase internal constructor(
@@ -173,7 +172,6 @@ internal open class XmlEncoderBase internal constructor(
 
             when (val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)) {
                 is XmlSerializationStrategy -> effectiveSerializer.serializeXML(this, target, value)
-                XmlQNameSerializer -> encodeQName(value as QName)
                 else -> effectiveSerializer.serialize(this, value)
             }
         }
@@ -278,7 +276,6 @@ internal open class XmlEncoderBase internal constructor(
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
             when (val s = xmlDescriptor.effectiveSerializationStrategy(serializer)) {
                 is XmlSerializationStrategy -> s.serializeXML(this, target, value)
-                XmlQNameSerializer -> XmlQNameSerializer.serialize(this, ensureNamespace(value as QName))
                 else -> super.encodeSerializableValue(serializer, value)
             }
         }
@@ -377,15 +374,11 @@ internal open class XmlEncoderBase internal constructor(
         StructureKind.MAP -> when (xmlDescriptor.outputKind) {
             OutputKind.Attribute -> {
                 val valueType = xmlDescriptor.getElementDescriptor(1)
-                if (!valueType.effectiveOutputKind.isTextual &&
-                    valueType.overriddenSerializer != XmlQNameSerializer
-                ) {
+                if (!valueType.effectiveOutputKind.isTextual) {
                     throw XmlSerialException("Values of an attribute map must be textual or a qname")
                 }
                 val keyType = xmlDescriptor.getElementDescriptor(0)
-                if (keyType.overriddenSerializer != XmlQNameSerializer &&
-                    !keyType.effectiveOutputKind.isTextual
-                ) {
+                if (!keyType.effectiveOutputKind.isTextual) {
                     throw XmlSerialException("The keys of an attribute map must be string or qname")
                 }
                 AttributeMapEncoder(xmlDescriptor)
@@ -1036,7 +1029,7 @@ internal open class XmlEncoderBase internal constructor(
 
                 entryKey = when {
                     value is String -> QName(value)
-//                    value is QName -> value
+                    value is QName -> value // this should work as long as the serializer doesn't transform the value
                     effectiveSerializer is XmlSerializationStrategy -> {
                         val primitiveEncoder = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
                             effectiveSerializer.serializeXML(this, target, value)
@@ -1052,8 +1045,6 @@ internal open class XmlEncoderBase internal constructor(
                             }
                         }
                     }
-
-                    effectiveSerializer == XmlQNameSerializer -> value as QName
 
                     else -> QName(PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
                         encodeSerializableValue(effectiveSerializer, value)

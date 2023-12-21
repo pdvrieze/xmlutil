@@ -11,7 +11,8 @@ Features:
 Fixes:
 - Using an attribute map wouldn't work when the key was a string rather than
   a qname. Fixes #190.
-- Properly require `@XmlOtherAttributes`
+- Properly require `@XmlOtherAttributes` for maps of "remaining"
+  attributes.
 
 # 0.86.3
 *(December 14, 2023)
