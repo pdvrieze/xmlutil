@@ -20,10 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.SerializationException
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
@@ -625,10 +622,15 @@ internal open class XmlDecoderBase internal constructor(
                     ?: NullDecoder(childXmlDescriptor)
             }
 
-            val result: T = if (effectiveDeserializer is AbstractCollectionSerializer<*, T, *>) {
-                effectiveDeserializer.merge(decoder, previousValue)
-            } else {
-                effectiveDeserializer.deserialize(decoder)
+            val result: T = when (effectiveDeserializer) {
+                is XmlDeserializationStrategy -> effectiveDeserializer
+                    .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
+
+                is AbstractCollectionSerializer<*, T, *> ->
+                    effectiveDeserializer.merge(decoder, previousValue)
+
+                else ->
+                    effectiveDeserializer.deserialize(decoder)
             }
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
@@ -665,10 +667,14 @@ internal open class XmlDecoderBase internal constructor(
                 .effectiveDeserializationStrategy(deserializer)
 
             // TODO make merging more reliable
-            val result: T? = if (effectiveDeserializer is AbstractCollectionSerializer<*, T?, *>) {
-                effectiveDeserializer.merge(decoder, previousValue)
-            } else {
-                effectiveDeserializer.deserialize(decoder)
+            val result: T? = when (effectiveDeserializer) {
+                is XmlDeserializationStrategy -> effectiveDeserializer
+                    .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
+
+                is AbstractCollectionSerializer<*, T?, *> ->
+                    effectiveDeserializer.merge(decoder, previousValue)
+
+                else -> effectiveDeserializer.deserialize(decoder)
             }
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
@@ -688,6 +694,7 @@ internal open class XmlDecoderBase internal constructor(
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
             return when (descriptor.kind) {
                 is PrimitiveKind -> XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+
                 else -> SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex, typeDiscriminatorName)
             }
         }
@@ -752,16 +759,32 @@ internal open class XmlDecoderBase internal constructor(
                 otherAttrIndex.takeIf { it >= 0 }?.let { return it }
             } else {
                 xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
+                    return valueChildIdx.checkRepeat()
+/*
+                    var isListOrMap = false
                     var valChildDesc: XmlDescriptor = xmlDescriptor.getElementDescriptor(valueChildIdx)
-                    while ((valChildDesc is XmlListDescriptor && valChildDesc.isListEluded) ||
-                        valChildDesc is XmlInlineDescriptor
-                    ) {
-                        valChildDesc = valChildDesc.getElementDescriptor(0)
-                    }
 
-                    if (valChildDesc.serialDescriptor == CompactFragmentSerializer.descriptor) {
+                    do {
+                        when {
+                            valChildDesc is XmlListDescriptor && valChildDesc.isListEluded ->
+                                isListOrMap = true
+
+                            valChildDesc is XmlMapDescriptor && valChildDesc.isListEluded ->
+                                isListOrMap = true
+
+                            valChildDesc is XmlInlineDescriptor ->
+                                valChildDesc = valChildDesc.getElementDescriptor(0)
+
+                            else -> break
+                        }
+                    } while (!isListOrMap)
+
+
+
+                    if (isListOrMap || valChildDesc.serialDescriptor in SPECIAL_VALUE_SERIALDESCS) {
                         return valueChildIdx.checkRepeat()
                     }
+*/
                 }
             }
 
@@ -772,11 +795,7 @@ internal open class XmlDecoderBase internal constructor(
                 xmlDescriptor,
                 name,
                 (nameMap.map { (k, v) ->
-                    PolyInfo(
-                        k,
-                        v,
-                        xmlDescriptor.getElementDescriptor(v)
-                    )
+                    PolyInfo(k, v, xmlDescriptor.getElementDescriptor(v))
                 } + polyMap.values)
             ).let {
                 val singleParsed = it.singleOrNull()
@@ -1156,7 +1175,6 @@ internal open class XmlDecoderBase internal constructor(
         fun ignoreAttribute(attrName: QName) {
             ignoredAttributes.add(attrName)
         }
-
 
     }
 

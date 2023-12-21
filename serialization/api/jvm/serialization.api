@@ -1,15 +1,27 @@
+public abstract class nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer : nl/adaptivity/xmlutil/XmlSerializer {
+	public fun <init> ()V
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public abstract fun deserializeNonXML (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public abstract fun serializeNonXML (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+}
+
 public final class nl/adaptivity/xmlutil/serialization/AnnotationsKt {
 	public static final fun getNamespaces (Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec;)Ljava/util/List;
 }
 
-public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer : kotlinx/serialization/KSerializer {
+public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/CompactFragmentSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/util/CompactFragment;
+	public synthetic fun deserializeNonXML (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserializeNonXML (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/util/CompactFragment;
+	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/util/CompactFragment;Z)Lnl/adaptivity/xmlutil/util/CompactFragment;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/CompactFragment;)V
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
+	public synthetic fun serializeNonXML (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serializeNonXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/CompactFragment;)V
+	public synthetic fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
+	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/util/CompactFragment;Z)V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializerKt {
@@ -108,13 +120,17 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun setVerifyElementOrder (Z)V
 }
 
-public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : kotlinx/serialization/KSerializer {
+public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : nl/adaptivity/xmlutil/XmlSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/ElementSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lorg/w3c/dom/Element;
+	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lorg/w3c/dom/Element;Z)Lorg/w3c/dom/Element;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Element;)V
+	public synthetic fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
+	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Element;Z)V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : kotlinx/serialization/KSerializer {
@@ -142,14 +158,18 @@ public final class nl/adaptivity/xmlutil/serialization/KotlinxSerializationProvi
 	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
 }
 
-public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : kotlinx/serialization/KSerializer {
+public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : nl/adaptivity/xmlutil/XmlSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/NodeSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lorg/w3c/dom/Node;
+	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lorg/w3c/dom/Node;Z)Lorg/w3c/dom/Node;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public final fun getEd ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Node;)V
+	public synthetic fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
+	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Node;Z)V
 }
 
 public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
@@ -738,12 +758,14 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMap
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAttrMapChild ()I
 	public final fun getChildConstraints ()Ljava/util/Collection;
 	public final fun getChildReorderMap ()[I
 	public fun getDoInline ()Z
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
+	public final fun getValueChild ()I
 	public fun hashCode ()I
 	public fun isIdAttr ()Z
 }

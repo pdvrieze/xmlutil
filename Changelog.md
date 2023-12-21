@@ -1,4 +1,13 @@
-# 0.86.4-SNAPSHOT
+# 0.87.0-SNAPSHOT
+Features:
+- Extend applicability of `@XmlValue` on a list/map to capture any serializer.
+  Note that the specific serializer will need to be able to handle the xml
+  content (will need to be )
+- Generalize support for "special" serializers that treat XML
+  specially. This is implemented through `XmlSerializationStrategy`,
+  `XmlDeserializationStrategy` and `XmlSerializer`. Implementing these
+  interfaces allows the format to treat the data specially.
+
 Fixes:
 - Using an attribute map wouldn't work when the key was a string rather than
   a qname. Fixes #190.

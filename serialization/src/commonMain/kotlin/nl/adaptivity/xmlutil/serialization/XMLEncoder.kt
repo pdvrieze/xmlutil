@@ -498,6 +498,10 @@ internal open class XmlEncoderBase internal constructor(
 
             when (effectiveSerializer) {
                 XmlQNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
+                is XmlSerializationStrategy -> defer(index){
+                    effectiveSerializer.serializeXML(encoder, target, value, xmlDescriptor.getValueChild() == index)
+                }
+/*
                 CompactFragmentSerializer -> if (xmlDescriptor.getValueChild() == index) {
                     defer(index) {
                         CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
@@ -505,6 +509,7 @@ internal open class XmlEncoderBase internal constructor(
                 } else {
                     defer(index) { effectiveSerializer.serialize(encoder, value) }
                 }
+*/
 
                 else -> defer(index) { effectiveSerializer.serialize(encoder, value) }
             }
@@ -1076,15 +1081,13 @@ internal open class XmlEncoderBase internal constructor(
             value: T
         ) {
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
+            val childEncoder = XmlEncoder(childDescriptor, index)
 
-            when (elementDescriptor.effectiveSerializationStrategy(serializer)) {
-                CompactFragmentSerializer -> if (parentXmlDescriptor.getValueChild() == listChildIdx) {
-                    CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
-                } else {
-                    serializer.serialize(XmlEncoder(childDescriptor, index), value)
-                }
+            when (val elemSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)) {
+                is XmlSerializationStrategy ->
+                    elemSerializer.serializeXML(childEncoder, target, value, parentXmlDescriptor.getValueChild() == listChildIdx)
 
-                else -> serializer.serialize(XmlEncoder(childDescriptor, index), value)
+                else -> serializer.serialize(childEncoder, value)
             }
         }
 

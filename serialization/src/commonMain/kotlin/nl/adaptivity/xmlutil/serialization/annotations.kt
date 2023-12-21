@@ -45,7 +45,7 @@ public annotation class XmlSerialName(
  * Annotation allowing to specify namespaces specifications to be generated upon the element.
  * As multiple annotations are not supported by the plugin this uses a single string. The string
  * separates the namespaces using a semicolon (`;`). Each declaration is of the form
- * <prefix>==<namespace>. To specify the default namespace it is valid to omit the equals sign.
+ * (prefix)=(namespace). To specify the default namespace it is valid to omit the equals sign.
  *
  * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`
  */

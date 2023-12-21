@@ -720,6 +720,26 @@ internal constructor(
     override val doInline: Boolean
         get() = false
 
+    @ExperimentalXmlUtilApi
+    public val valueChild: Int = serialDescriptor.getValueChild()
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @ExperimentalXmlUtilApi
+    public val attrMapChild: Int by lazy { //uses elementDescriptor, so needs to be lazy
+        var fallbackIdx = -1
+        for (i in 0 until elementsCount) {
+            if (getElementDescriptor(i) is XmlAttributeMapDescriptor) {
+                if (serialDescriptor.getElementAnnotations(i).firstOrNull<XmlOtherAttributes>() != null) {
+                    fallbackIdx = i
+                    break
+                }
+                if (fallbackIdx < 0) fallbackIdx = i
+            }
+        }
+
+        fallbackIdx // fallbacks for old behaviour.
+    }
+
     override val outputKind: OutputKind get() = OutputKind.Element
     private val initialChildReorderInfo: Collection<XmlOrderConstraint>? =
         config.policy.initialChildReorderMap(serialDescriptor)

@@ -22,23 +22,22 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.ICompactFragment
 
-@Suppress("NOTHING_TO_INLINE")
 public inline fun CompactFragment.Companion.serializer(): KSerializer<CompactFragment> = CompactFragmentSerializer
 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-@Serializer(forClass = CompactFragment::class)
-public object CompactFragmentSerializer : KSerializer<CompactFragment> {
+public object CompactFragmentSerializer : AbstractXmlSerializer<CompactFragment>() {
     private val namespacesSerializer = ListSerializer(Namespace)
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("compactFragment") {
@@ -46,69 +45,87 @@ public object CompactFragmentSerializer : KSerializer<CompactFragment> {
         element("content", serialDescriptor<String>())
     }
 
-    override fun deserialize(decoder: Decoder): CompactFragment {
+    override fun deserializeXML(
+        decoder: Decoder,
+        input: XmlReader,
+        previousValue: CompactFragment?,
+        isValueChild: Boolean
+    ): CompactFragment {
+        return decoder.decodeStructure(descriptor) {
+            input.next()
+            input.siblingsToFragment()
+        }
+    }
+
+    override fun deserializeNonXML(decoder: Decoder): CompactFragment {
         return decoder.decodeStructure(descriptor) {
             readCompactFragmentContent(this)
         }
     }
 
     private fun readCompactFragmentContent(input: CompositeDecoder): CompactFragment {
-        return if (input is XML.XmlInput) {
+        var namespaces: List<Namespace> = mutableListOf()
+        var content = ""
 
-            input.input.run {
-                next()
-                siblingsToFragment()
+        var index = input.decodeElementIndex(descriptor)
+
+        while (index >= 0) {
+            when (index) {
+                0 -> namespaces = input.decodeSerializableElement(descriptor, index, namespacesSerializer)
+                1 -> content = input.decodeStringElement(descriptor, index)
             }
-        } else {
-            var namespaces: List<Namespace> = mutableListOf()
-            var content = ""
+            index = input.decodeElementIndex(descriptor)
+        }
 
-            var index = input.decodeElementIndex(descriptor)
+        return CompactFragment(namespaces, content)
+    }
 
-            while (index >= 0) {
-                when (index) {
-                    0 -> namespaces = input.decodeSerializableElement(descriptor, index, namespacesSerializer)
-                    1 -> content = input.decodeStringElement(descriptor, index)
+    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: CompactFragment, isValueChild: Boolean) {
+        when {
+            isValueChild -> writeCompactFragmentContent(output, value)
+
+            else ->
+                encoder.encodeStructure(descriptor) {
+                    writeCompactFragmentContent(output, value)
                 }
-                index = input.decodeElementIndex(descriptor)
-            }
-            CompactFragment(namespaces, content)
         }
     }
 
-    override fun serialize(encoder: Encoder, value: CompactFragment) {
-        serialize(encoder, value as ICompactFragment)
-    }
-
-    public fun serialize(output: Encoder, value: ICompactFragment) {
-        output.encodeStructure(descriptor) {
-            writeCompactFragmentContent(this, value)
+    override fun serializeNonXML(encoder: Encoder, value: CompactFragment) {
+        encoder.encodeStructure(descriptor) {
+            serializeNonXML(this, value)
         }
     }
 
-    internal fun writeCompactFragmentContent(
-        encoder: CompositeEncoder,
+    public fun serialize(encoder: Encoder, value: ICompactFragment): Unit = when (encoder) {
+        is XML.XmlOutput -> encoder.encodeStructure(descriptor) {
+            writeCompactFragmentContent(encoder.target, value)
+        }
+
+        else -> encoder.encodeStructure(descriptor) {
+            serializeNonXML(this, value)
+        }
+    }
+
+    private fun serializeNonXML(encoder: CompositeEncoder, value: ICompactFragment) {
+        encoder.encodeSerializableElement(
+            descriptor, 0,
+            namespacesSerializer, value.namespaces.toList()
+        )
+        encoder.encodeStringElement(descriptor, 1, value.contentString)
+    }
+
+    private fun writeCompactFragmentContent(
+        writer: XmlWriter,
         value: ICompactFragment
     ) {
-
-        val xmlOutput = encoder as? XML.XmlOutput
-
-        if (xmlOutput != null) {
-            val writer = xmlOutput.target
-            for (namespace in value.namespaces) {
-                if (writer.getPrefix(namespace.namespaceURI) == null) {
-                    writer.namespaceAttr(namespace)
-                }
+        for (namespace in value.namespaces) {
+            if (writer.getPrefix(namespace.namespaceURI) == null) {
+                writer.namespaceAttr(namespace)
             }
-
-            value.serialize(writer)
-        } else {
-            encoder.encodeSerializableElement(
-                descriptor, 0,
-                namespacesSerializer, value.namespaces.toList()
-            )
-            encoder.encodeStringElement(descriptor, 1, value.contentString)
         }
+
+        value.serialize(writer)
     }
 
 

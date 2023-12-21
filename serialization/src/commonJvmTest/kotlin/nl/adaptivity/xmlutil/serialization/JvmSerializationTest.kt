@@ -102,7 +102,7 @@ class JvmSerializationTest {
 
     @Test
     fun `serialize DOM content to json`() {
-        val expected = "{\"localname\":\"tag\",\"attributes\":{},\"content\":[[\"text\",\"some text \"],[\"element\",{\"localname\":\"b\",\"attributes\":{},\"content\":[[\"text\",\"some bold text\"],[\"element\",{\"localname\":\"i\",\"attributes\":{},\"content\":[[\"text\",\"some bold italic text\"]]}]]}]]}"
+        val expected = "{\"localname\":\"tag\",\"content\":[[\"text\",\"some text \"],[\"element\",{\"localname\":\"b\",\"content\":[[\"text\",\"some bold text\"],[\"element\",{\"localname\":\"i\",\"content\":[[\"text\",\"some bold italic text\"]]}]]}]]}"
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
         val element = doc.createElement("tag").apply {
             appendChild(doc.createTextNode("some text "))

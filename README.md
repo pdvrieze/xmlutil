@@ -81,19 +81,19 @@ repositories {
 ### Core
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core:0.87.0-SNAPSHOT")
 ```
 #### JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.87.0-SNAPSHOT")
 ```
 #### Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.87.0-SNAPSHOT")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.87.0-SNAPSHOT")
 ```
 
 #### Native
@@ -104,19 +104,19 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.87.0-SNAPSHOT")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.87.0-SNAPSHOT")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.87.0-SNAPSHOT")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.86.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.87.0-SNAPSHOT")
 ```
 
 ### -Ktor- (Deprecated)

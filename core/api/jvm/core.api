@@ -471,6 +471,14 @@ public abstract class nl/adaptivity/xmlutil/XmlDelegatingWriter : nl/adaptivity/
 	public fun text (Ljava/lang/String;)V
 }
 
+public abstract interface class nl/adaptivity/xmlutil/XmlDeserializationStrategy : kotlinx/serialization/DeserializationStrategy {
+	public abstract fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
+}
+
+public final class nl/adaptivity/xmlutil/XmlDeserializationStrategy$DefaultImpls {
+	public static synthetic fun deserializeXML$default (Lnl/adaptivity/xmlutil/XmlDeserializationStrategy;Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;ZILjava/lang/Object;)Ljava/lang/Object;
+}
+
 public abstract interface class nl/adaptivity/xmlutil/XmlDeserializerFactory {
 	public abstract fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
 }
@@ -679,6 +687,17 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 
 public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
 	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlSerializationStrategy : kotlinx/serialization/SerializationStrategy {
+	public abstract fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
+}
+
+public final class nl/adaptivity/xmlutil/XmlSerializationStrategy$DefaultImpls {
+	public static synthetic fun serializeXML$default (Lnl/adaptivity/xmlutil/XmlSerializationStrategy;Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;ZILjava/lang/Object;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/XmlSerializer : kotlinx/serialization/KSerializer, nl/adaptivity/xmlutil/XmlDeserializationStrategy, nl/adaptivity/xmlutil/XmlSerializationStrategy {
 }
 
 public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon, nl/adaptivity/xmlutil/IXmlStreaming {

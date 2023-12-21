@@ -1122,26 +1122,12 @@ internal fun SerialDescriptor.getValueChild(): Int {
     return CompositeDecoder.UNKNOWN_NAME
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun XmlDescriptor.getValueChild(): Int {
-    for (i in 0 until elementsCount) {
-        if (serialDescriptor.getElementAnnotations(i).any { it is XmlValue }) return i
-    }
-    return -1
+    return (this as? XmlCompositeDescriptor)?.valueChild ?: -1
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun XmlDescriptor.getAttrMap(): Int {
-    var fallbackIdx = -1
-    for (i in 0 until elementsCount) {
-        if (getElementDescriptor(i) is XmlAttributeMapDescriptor) {
-            if (serialDescriptor.getElementAnnotations(i).firstOrNull<XmlOtherAttributes>() != null) {
-                return i
-            }
-            if (fallbackIdx<0) fallbackIdx = i
-        }
-    }
-    return fallbackIdx // fallbacks for old behaviour.
+    return (this as? XmlCompositeDescriptor)?.attrMapChild ?: -1
 }
 
 /** Straightforward copy function */

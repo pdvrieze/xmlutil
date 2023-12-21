@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.SerializersModule
@@ -78,6 +79,17 @@ internal abstract class XmlCodecBase internal constructor(
                 return substring(parentPkg.length) // include starting . to signal relative type
             }
             return this
+        }
+
+        internal val SPECIAL_VALUE_SERIALIZER: Array<DeserializationStrategy<*>> = arrayOf(
+            CompactFragmentSerializer,
+            NodeSerializer,
+            ElementSerializer,
+            // TODO FragmentSerializer,
+        )
+
+        internal val SPECIAL_VALUE_SERIALDESCS: Array<SerialDescriptor> = Array(SPECIAL_VALUE_SERIALIZER.size) {
+            SPECIAL_VALUE_SERIALIZER[it].descriptor
         }
     }
 
