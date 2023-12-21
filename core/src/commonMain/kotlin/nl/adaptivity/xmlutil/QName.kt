@@ -20,13 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
+import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
 public expect class QName {
@@ -55,12 +51,49 @@ public fun QName.toNamespace(): Namespace {
 public typealias SerializableQName = @Serializable(QNameSerializer::class) QName
 
 @OptIn(ExperimentalSerializationApi::class)
-public object QNameSerializer : KSerializer<QName> {
+public object QNameSerializer : XmlSerializer<QName> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("javax.xml.namespace.QName") {
         val stringSerializer = String.serializer()
         element("namespace", stringSerializer.descriptor, isOptional = true)
         element("localPart", stringSerializer.descriptor)
         element("prefix", stringSerializer.descriptor, isOptional = true)
+    }.xml(
+        PrimitiveSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING),
+        QName(XMLConstants.XSD_NS_URI, "QName", XMLConstants.XSD_PREFIX)
+    )
+
+    override fun deserializeXML(
+        decoder: Decoder,
+        input: XmlReader,
+        previousValue: QName?,
+        isValueChild: Boolean
+    ): QName {
+        // This needs to be done here as the namespace attribute may have disappeared later. After reading the value
+        // the cursor may be at an end tag (and the context no longer present)
+        val namespaceContext = input.namespaceContext.freeze()
+
+        val prefixedName = decoder.decodeString().trim()
+        val cIndex = prefixedName.indexOf(':')
+
+        val prefix:String
+        val namespace:String
+        val localPart: String
+
+        when {
+            cIndex < 0 -> {
+                prefix = ""
+                localPart = prefixedName
+                namespace = namespaceContext.getNamespaceURI("") ?: ""
+            }
+            else       -> {
+                prefix = prefixedName.substring(0, cIndex)
+                localPart = prefixedName.substring(cIndex + 1)
+                namespace = namespaceContext.getNamespaceURI(prefix)
+                    ?: throw SerializationException("Missing namespace for prefix $prefix in QName value")
+            }
+        }
+
+        return QName(namespace, localPart, prefix)
     }
 
     override fun deserialize(decoder: Decoder): QName = decoder.decodeStructure(descriptor) {
@@ -77,6 +110,25 @@ public object QNameSerializer : KSerializer<QName> {
             }
         }
         QName(namespace, localPart, prefix)
+    }
+
+    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: QName, isValueChild: Boolean) {
+        var effectivePrefix = when (value.namespaceURI) {
+            output.getNamespaceUri(value.prefix) -> value.prefix
+            else -> output.getPrefix(value.namespaceURI)
+        }
+
+        if (effectivePrefix == null) {
+            effectivePrefix = if (value.prefix.isNotEmpty() && output.getNamespaceUri(value.prefix) == null) {
+                checkNotNull(value.prefix)
+            } else {
+                IntRange(1, Int.MAX_VALUE).asSequence()
+                    .map { "ns$it" }
+                    .first { output.getNamespaceUri(it) == null }
+            }
+            output.namespaceAttr(effectivePrefix, value.namespaceURI)
+        }
+        encoder.encodeString("$effectivePrefix:${value.localPart}")
     }
 
     @OptIn(ExperimentalSerializationApi::class)

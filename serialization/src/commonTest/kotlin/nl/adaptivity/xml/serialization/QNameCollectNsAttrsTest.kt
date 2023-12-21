@@ -41,7 +41,7 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
     baseJsonFormat = Json { encodeDefaults = false }
 ) {
     override val expectedXML: String =
-        "<container xmlns=\"urn:example.org\" xmlns:prefix2=\"urn:example.org/3\" xmlns:prefix3=\"urn:example.org/4\" xmlns:baz=\"urn:foo\"><prefix2:child1><prefix3:child2><prefix3:child>baz:bar</prefix3:child></prefix3:child2></prefix2:child1></container>"
+        """<container xmlns="urn:example.org" xmlns:prefix2="urn:example.org/3" xmlns:prefix3="urn:example.org/4" xmlns:baz="urn:foo"><prefix2:child1><prefix3:child2><prefix3:child>baz:bar</prefix3:child></prefix3:child2></prefix2:child1></container>"""
     override val expectedJson: String =
         "{\"child\":{\"child\":{\"child\":{\"namespace\":\"urn:foo\",\"localPart\":\"bar\",\"prefix\":\"baz\"}}}}"
 

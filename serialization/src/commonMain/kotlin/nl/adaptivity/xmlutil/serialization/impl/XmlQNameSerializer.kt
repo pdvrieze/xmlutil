@@ -20,66 +20,38 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.prefix
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlWriter
+import nl.adaptivity.xmlutil.serialization.AbstractXmlSerializer
 
-internal object XmlQNameSerializer : KSerializer<QName> {
-    @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor =
-        buildSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING) {
-            annotations = listOf(XmlSerialName("QName", XMLConstants.XSD_NS_URI, XMLConstants.XSD_PREFIX))
-        }
+internal object XmlQNameSerializer : AbstractXmlSerializer<QName>() {
+    override val descriptor: SerialDescriptor
+        get() = QNameSerializer.descriptor
+//        get() = XmlQNameSerializerOld.descriptor
 
-    override fun deserialize(decoder: Decoder): QName {
-        if(decoder !is  XML.XmlInput) throw SerializationException("QNameXmlSerializer only makes sense in an XML context")
-
-        // This needs to be done here as the namespace attribute may have disappeared later. After reading the value
-        // the cursor may be at an end tag (and the context no longer present)
-        val namespaceContext = decoder.input.namespaceContext.freeze()
-
-        val prefixedName = decoder.decodeString().trim()
-        val cIndex = prefixedName.indexOf(':')
-
-        val prefix:String
-        val namespace:String
-        val localPart: String
-
-        when {
-            cIndex < 0 -> {
-                prefix = ""
-                localPart = prefixedName
-                namespace = namespaceContext.getNamespaceURI("") ?: ""
-            }
-            else       -> {
-                prefix = prefixedName.substring(0, cIndex)
-                localPart = prefixedName.substring(cIndex + 1)
-                namespace = namespaceContext.getNamespaceURI(prefix)
-                    ?: throw SerializationException("Missing namespace for prefix $prefix in QName value")
-            }
-        }
-
-        return QName(namespace, localPart, prefix)
+    override fun deserializeXML(
+        decoder: Decoder,
+        input: XmlReader,
+        previousValue: QName?,
+        isValueChild: Boolean
+    ): QName {
+        return QNameSerializer.deserializeXML(decoder, input, previousValue, isValueChild)
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun serialize(encoder: Encoder, value: QName) {
-        if(encoder !is XML.XmlOutput) throw SerializationException("QNameXmlSerializer only makes sense in an XML context")
-//        val registeredNs = encoder.target.namespaceContext.getNamespaceURI(value.prefix)
-//        if (registeredNs!=value.namespaceURI) throw SerializationException("No namespace registered for prefix ${value.prefix}")
+    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: QName, isValueChild: Boolean) {
+        QNameSerializer.serializeXML(encoder, output, value, isValueChild)
+    }
 
-        encoder.encodeString("${value.prefix}:${value.localPart}")
+    override fun serializeNonXML(encoder: Encoder, value: QName) {
+        QNameSerializer.serialize(encoder, value)
+    }
+
+    override fun deserializeNonXML(decoder: Decoder): QName {
+        return QNameSerializer.deserialize(decoder)
     }
 }

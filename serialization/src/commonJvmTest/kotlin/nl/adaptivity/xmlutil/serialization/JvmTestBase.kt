@@ -36,7 +36,7 @@ import kotlin.test.assertEquals
 private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     val writer = DomWriter()
     baseXmlFormat.encodeToWriter(writer, serializer, value)
-    writer.target
+
     val expectedDom: Document = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }

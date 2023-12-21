@@ -227,7 +227,7 @@ public sealed class XmlDescriptor(
                 }
 
                 else -> {
-                    elementSerialDescriptor = overridenSerializer.descriptor
+                    elementSerialDescriptor = overridenSerializer.descriptor.getXmlOverride()
                     effectiveSerializerParent = serializerParent.copy(overriddenSerializer = overridenSerializer)
                     effectiveTagParent = tagParent.copy(overriddenSerializer = overridenSerializer)
                 }
@@ -330,7 +330,7 @@ public class XmlRootDescriptor internal constructor(
         config: XmlConfig,
         serializersModule: SerializersModule,
         descriptor: SerialDescriptor,
-    ) : this(config, serializersModule, descriptor, DeclaredNameInfo(descriptor.serialName), false)
+    ) : this(config, serializersModule, descriptor, DeclaredNameInfo(descriptor), false)
 
     private val element: XmlDescriptor by lazy {
         from(config, serializersModule, tagParent, canBeAttribute = false)
@@ -1058,7 +1058,8 @@ internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): Declared
         else -> capturedKClass?.maybeSerialName ?: serialName
     }
     val annotation = annotations.firstOrNull<XmlSerialName>() ?: capturedKClass?.maybeAnnotations?.firstOrNull<XmlSerialName>()
-    val qName = annotation?.toQName(realSerialName, parentNamespace)
+
+    val qName = annotation?.toQName(realSerialName, parentNamespace) ?: (this as? XmlSerialDescriptor)?.serialQName
     return DeclaredNameInfo(realSerialName, qName, annotation?.namespace == UNSET_ANNOTATION_VALUE)
 }
 
@@ -1370,7 +1371,7 @@ internal class InjectedParentTag(
 }
 
 private class DetachedParent(
-    private val serialDescriptor: SerialDescriptor,
+    serialDescriptor: SerialDescriptor,
     override val elementUseNameInfo: DeclaredNameInfo,
     val isDocumentRoot: Boolean,
     outputKind: OutputKind? = null,
@@ -1440,6 +1441,8 @@ private class DetachedParent(
         return result
     }
 
+    private val serialDescriptor = serialDescriptor.getXmlOverride()
+
     override val index: Int get() = -1
 
     override val descriptor: SafeXmlDescriptor? get() = null
@@ -1447,11 +1450,11 @@ private class DetachedParent(
     override val parentIsInline: Boolean get() = serialDescriptor.isInline
 
     override val elementTypeDescriptor
-        get() = XmlTypeDescriptor(overriddenSerializer?.descriptor ?: serialDescriptor, namespace)
+        get() = XmlTypeDescriptor(overriddenSerializer?.descriptor?.getXmlOverride() ?: serialDescriptor, namespace)
 
     override val elementUseAnnotations: Collection<Annotation> get() = emptyList()
 
-    override val elementSerialDescriptor get() = overriddenSerializer?.descriptor ?: serialDescriptor
+    override val elementSerialDescriptor get() = overriddenSerializer?.descriptor?.getXmlOverride() ?: serialDescriptor
 
     override val elementUseOutputKind: OutputKind? = outputKind
 
@@ -1512,7 +1515,7 @@ public class ParentInfo(
     override val elementTypeDescriptor: XmlTypeDescriptor
         get() = when {
             overriddenSerializer != null -> XmlTypeDescriptor(
-                overriddenSerializer.descriptor,
+                overriddenSerializer.descriptor.getXmlOverride(),
                 descriptor.tagName.toNamespace()
             )
 
@@ -1540,14 +1543,14 @@ public class ParentInfo(
     override val elementSerialDescriptor: SerialDescriptor
         get() {
             return when {
-                overriddenSerializer != null -> overriddenSerializer.descriptor
+                overriddenSerializer != null -> overriddenSerializer.descriptor.getXmlOverride()
 
                 descriptor.serialKind == SerialKind.CONTEXTUAL ->
                     descriptor.serialDescriptor
 
                 index == -1 -> descriptor.serialDescriptor
 
-                else -> descriptor.serialDescriptor.getElementDescriptor(index)
+                else -> descriptor.serialDescriptor.getElementDescriptor(index).getXmlOverride()
             }
         }
 
@@ -1636,3 +1639,5 @@ internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
         append(' ')
     }
 }
+
+internal fun SerialDescriptor.getXmlOverride() = (this as? XmlSerialDescriptor)?.xmlDescriptor ?: this

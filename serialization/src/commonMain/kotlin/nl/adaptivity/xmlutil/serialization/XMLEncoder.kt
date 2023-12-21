@@ -30,7 +30,6 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
-import nl.adaptivity.xmlutil.util.ICompactFragment
 
 internal open class XmlEncoderBase internal constructor(
     context: SerializersModule,
@@ -100,7 +99,7 @@ internal open class XmlEncoderBase internal constructor(
         private fun encodeQName(value: QName) {
             val effectiveQName: QName = ensureNamespace(value, false)
 
-            XmlQNameSerializer.serialize(this, effectiveQName)
+            QNameSerializer.serialize(this, effectiveQName)
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
@@ -173,6 +172,7 @@ internal open class XmlEncoderBase internal constructor(
         ) {
 
             when (val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)) {
+                is XmlSerializationStrategy -> effectiveSerializer.serializeXML(this, target, value)
                 XmlQNameSerializer -> encodeQName(value as QName)
                 else -> effectiveSerializer.serialize(this, value)
             }
@@ -214,7 +214,7 @@ internal open class XmlEncoderBase internal constructor(
         val output = StringBuilder()
         override val config: XmlConfig get() = this@XmlEncoderBase.config
         override val serialName: QName get() = xmlDescriptor.tagName
-        override val target: XmlWriter get() = this@XmlEncoderBase.target
+        override val target: XmlWriter = XmlStringWriter(output, this@XmlEncoderBase.target)
 
         override fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
             return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
@@ -276,10 +276,92 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-            when (xmlDescriptor.effectiveSerializationStrategy(serializer)) {
+            when (val s = xmlDescriptor.effectiveSerializationStrategy(serializer)) {
+                is XmlSerializationStrategy -> s.serializeXML(this, target, value)
                 XmlQNameSerializer -> XmlQNameSerializer.serialize(this, ensureNamespace(value as QName))
                 else -> super.encodeSerializableValue(serializer, value)
             }
+        }
+    }
+
+    private class XmlStringWriter(val a: Appendable, val delegate: XmlWriter) : XmlWriter {
+        override val depth: Int get() = 0
+
+        override var indentString: String
+            get() = delegate.indentString
+            set(value) {
+                delegate.indentString = value
+            }
+
+        override fun setPrefix(prefix: String, namespaceUri: String) {
+            delegate.setPrefix(prefix, namespaceUri)
+        }
+
+        override fun namespaceAttr(namespacePrefix: String, namespaceUri: String) {
+            delegate.namespaceAttr(namespacePrefix, namespaceUri)
+        }
+
+        override fun close() {}
+
+        override fun flush() {}
+
+        override fun startTag(namespace: String?, localName: String, prefix: String?) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun comment(text: String) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun text(text: String) {
+            a.append(text)
+        }
+
+        override fun cdsect(text: String) {
+            a.append(text)
+        }
+
+        override fun entityRef(text: String) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun processingInstruction(text: String) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun ignorableWhitespace(text: String) {
+            a.append(text)
+        }
+
+        override fun attribute(namespace: String?, name: String, prefix: String?, value: String) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun docdecl(text: String) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun startDocument(version: String?, encoding: String?, standalone: Boolean?) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun endDocument() {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override fun endTag(namespace: String?, localName: String, prefix: String?) {
+            throw UnsupportedOperationException("Only writing strings is possible")
+        }
+
+        override val namespaceContext: NamespaceContext
+            get() = delegate.namespaceContext
+
+        override fun getNamespaceUri(prefix: String): String? {
+            return delegate.getNamespaceUri(prefix)
+        }
+
+        override fun getPrefix(namespaceUri: String?): String? {
+            return delegate.getPrefix(namespaceUri)
         }
     }
 
@@ -497,19 +579,19 @@ internal open class XmlEncoderBase internal constructor(
                 xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
 
             when (effectiveSerializer) {
-                XmlQNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
                 is XmlSerializationStrategy -> defer(index){
                     effectiveSerializer.serializeXML(encoder, target, value, xmlDescriptor.getValueChild() == index)
                 }
-/*
-                CompactFragmentSerializer -> if (xmlDescriptor.getValueChild() == index) {
-                    defer(index) {
-                        CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
-                    }
-                } else {
-                    defer(index) { effectiveSerializer.serialize(encoder, value) }
-                }
-*/
+                QNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
+                /*
+                                CompactFragmentSerializer -> if (xmlDescriptor.getValueChild() == index) {
+                                    defer(index) {
+                                        CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
+                                    }
+                                } else {
+                                    defer(index) { effectiveSerializer.serialize(encoder, value) }
+                                }
+                */
 
                 else -> defer(index) { effectiveSerializer.serialize(encoder, value) }
             }
@@ -617,7 +699,7 @@ internal open class XmlEncoderBase internal constructor(
             val effectiveQName: QName = ensureNamespace(value, false)
 
             val encoder = XmlEncoder(elementDescriptor, index)
-            defer(index) { XmlQNameSerializer.serialize(encoder, effectiveQName) }
+            defer(index) { QNameSerializer.serialize(encoder, effectiveQName) }
         }
 
         final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
@@ -952,8 +1034,27 @@ internal open class XmlEncoderBase internal constructor(
             if (index % 2 == 0) {
                 val effectiveSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)
 
-                entryKey = when (effectiveSerializer) {
-                    XmlQNameSerializer -> value as QName
+                entryKey = when {
+                    value is String -> QName(value)
+//                    value is QName -> value
+                    effectiveSerializer is XmlSerializationStrategy -> {
+                        val primitiveEncoder = PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
+                            effectiveSerializer.serializeXML(this, target, value)
+                        }
+                        val str = primitiveEncoder.output.toString()
+                        val cPos = str.indexOf(':')
+                        when {
+                            cPos < 0 -> QName(str)
+                            else -> {
+                                val prefix = str.substring(0, cPos)
+                                val ns = target.getNamespaceUri(prefix)
+                                if (ns == null) QName(str) else QName(ns, str.substring(cPos+1), prefix)
+                            }
+                        }
+                    }
+
+                    effectiveSerializer == XmlQNameSerializer -> value as QName
+
                     else -> QName(PrimitiveEncoder(serializersModule, xmlDescriptor).apply {
                         encodeSerializableValue(effectiveSerializer, value)
                     }.output.toString())

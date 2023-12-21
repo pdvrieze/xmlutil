@@ -36,10 +36,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.impl.*
-import nl.adaptivity.xmlutil.serialization.impl.ChildCollector
-import nl.adaptivity.xmlutil.serialization.impl.NamespaceCollectingXmlWriter
-import nl.adaptivity.xmlutil.serialization.impl.PrefixWrappingPolicy
-import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.jvm.JvmOverloads
@@ -204,8 +200,10 @@ public class XML constructor(
 
         val safeSerialName = serializer.descriptor.run { capturedKClass?.maybeSerialName ?: serialName }
 
+        val declNameInfo = DeclaredNameInfo(safeSerialName, (serializer as? XmlSerialDescriptor)?.serialQName, false)
+
         val policyDerivedName =
-            config.policy.serialTypeNameToQName(DeclaredNameInfo(safeSerialName), DEFAULT_NAMESPACE)
+            config.policy.serialTypeNameToQName(declNameInfo, DEFAULT_NAMESPACE)
 
         val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
         val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo, false)

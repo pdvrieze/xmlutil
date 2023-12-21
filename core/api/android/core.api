@@ -260,13 +260,17 @@ public final class nl/adaptivity/xmlutil/QNameKt {
 	public static final fun toNamespace (Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/Namespace;
 }
 
-public final class nl/adaptivity/xmlutil/QNameSerializer : kotlinx/serialization/KSerializer {
+public final class nl/adaptivity/xmlutil/QNameSerializer : nl/adaptivity/xmlutil/XmlSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/QNameSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljavax/xml/namespace/QName;
+	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;Z)Ljavax/xml/namespace/QName;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljavax/xml/namespace/QName;)V
+	public synthetic fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
+	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;Z)V
 }
 
 public final class nl/adaptivity/xmlutil/XMLConstants {
@@ -667,6 +671,34 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 	public static final fun writeCurrent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
+public abstract interface class nl/adaptivity/xmlutil/XmlSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor {
+	public abstract fun getDelegate ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun getElementAnnotations (I)Ljava/util/List;
+	public abstract fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun getElementIndex (Ljava/lang/String;)I
+	public abstract fun getElementName (I)Ljava/lang/String;
+	public abstract fun getElementsCount ()I
+	public abstract fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public abstract fun getSerialName ()Ljava/lang/String;
+	public abstract fun getSerialQName ()Ljavax/xml/namespace/QName;
+	public abstract fun getXmlDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public abstract fun isElementOptional (I)Z
+}
+
+public final class nl/adaptivity/xmlutil/XmlSerialDescriptor$DefaultImpls {
+	public static fun getAnnotations (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;)Ljava/util/List;
+	public static fun getElementAnnotations (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;I)Ljava/util/List;
+	public static fun getElementDescriptor (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;I)Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public static fun getElementIndex (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;Ljava/lang/String;)I
+	public static fun getElementName (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;I)Ljava/lang/String;
+	public static fun getElementsCount (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;)I
+	public static fun getKind (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;)Lkotlinx/serialization/descriptors/SerialKind;
+	public static fun getSerialName (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;)Ljava/lang/String;
+	public static fun isElementOptional (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;I)Z
+	public static fun isInline (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;)Z
+	public static fun isNullable (Lnl/adaptivity/xmlutil/XmlSerialDescriptor;)Z
+}
+
 public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
 	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
@@ -680,6 +712,11 @@ public final class nl/adaptivity/xmlutil/XmlSerializationStrategy$DefaultImpls {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/XmlSerializer : kotlinx/serialization/KSerializer, nl/adaptivity/xmlutil/XmlDeserializationStrategy, nl/adaptivity/xmlutil/XmlSerializationStrategy {
+}
+
+public final class nl/adaptivity/xmlutil/XmlSerializerKt {
+	public static final fun xml (Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/XmlSerialDescriptor;
+	public static synthetic fun xml$default (Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlSerialDescriptor;
 }
 
 public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon, nl/adaptivity/xmlutil/IXmlStreaming {

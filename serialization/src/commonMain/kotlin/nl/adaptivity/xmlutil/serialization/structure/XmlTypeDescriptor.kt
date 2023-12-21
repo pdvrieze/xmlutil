@@ -65,7 +65,7 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     private val children by lazy {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) { idx ->
-            XmlTypeDescriptor(serialDescriptor.getElementDescriptor(idx), typeQname?.toNamespace() ?: parentNamespace)
+            XmlTypeDescriptor(serialDescriptor.getElementDescriptor(idx).getXmlOverride(), typeQname?.toNamespace() ?: parentNamespace)
         }
     }
 

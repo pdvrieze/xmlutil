@@ -22,14 +22,12 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
-import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 
@@ -108,6 +106,9 @@ public interface XmlSerializationPolicy {
         val isDefaultNamespace: Boolean/* = false*/
     ) {
         internal constructor(serialName: String) : this(serialName, null, false)
+
+        @OptIn(ExperimentalSerializationApi::class)
+        internal constructor(descriptor: SerialDescriptor) : this(descriptor.serialName, (descriptor as? XmlSerialDescriptor)?.serialQName, false)
 
         init {
             check(!(isDefaultNamespace && annotatedName == null)) { "Default namespace requires there to be an annotated name" }
@@ -466,6 +467,7 @@ private constructor(
         canBeAttribute: Boolean
     ): OutputKind {
         val serialDescriptor = overrideSerializerOrNull(serializerParent, tagParent)?.descriptor
+            ?.getXmlOverride()
             ?: serializerParent.elementSerialDescriptor
 
         return when (val overrideOutputKind =
@@ -631,11 +633,13 @@ private constructor(
         tagParent: SafeParentInfo
     ): KSerializer<*>? =
         when (serializerParent.elementSerialDescriptor.serialName) {
+/*
             "javax.xml.namespace.QName?",
             "javax.xml.namespace.QName" -> when {
-                serializerParent.elementSerialDescriptor.isNullable -> XmlQNameSerializer.nullable
-                else -> XmlQNameSerializer
+                serializerParent.elementSerialDescriptor.isNullable -> QNameSerializer.nullable
+                else -> QNameSerializer
             }
+*/
 
             else -> null
         }
@@ -772,7 +776,7 @@ private constructor(
     @ExperimentalXmlUtilApi
     override fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> {
         val annotations = (serializerParent.elementUseAnnotations.asSequence() +
-                serializerParent.elementTypeDescriptor.serialDescriptor.annotations)
+                serializerParent.elementSerialDescriptor.annotations)
         return annotations
             .filterIsInstance<XmlNamespaceDeclSpec>()
             .flatMap { decl ->

@@ -20,7 +20,10 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
@@ -36,9 +39,6 @@ import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.impl.*
-import nl.adaptivity.xmlutil.serialization.impl.XmlQNameSerializer
-import nl.adaptivity.xmlutil.serialization.impl.consumeChunksFromString
-import nl.adaptivity.xmlutil.serialization.impl.readSimpleElementChunked
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
@@ -280,11 +280,99 @@ internal open class XmlDecoderBase internal constructor(
             return stringValue
         }
 
-        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            val deser: DeserializationStrategy<T> = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
-
-            return deser.deserialize(this)
+        fun getInputWrapper(): XmlReader {
+            return XmlStringReader(stringValue)
         }
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            return when(val deser = xmlDescriptor.effectiveDeserializationStrategy(deserializer)) {
+                is XmlDeserializationStrategy -> deser.deserializeXML(this, getInputWrapper())
+                else -> deser.deserialize(this)
+            }
+        }
+    }
+
+    private inner class XmlStringReader(private val stringValue: String) : XmlReader {
+        private var pos = -1
+
+        override val depth: Int get() = if (pos == 0) 0 else -1
+
+        override fun hasNext(): Boolean = pos < 0
+
+        override fun next(): EventType {
+            if (pos >= 0) throw XmlSerialException("Reading beyond string")
+            ++pos
+            return EventType.TEXT
+        }
+
+        override val namespaceURI: String get() = throw XmlSerialException("Strings have no namespace uri")
+
+        override val localName: String get() = throw XmlSerialException("Strings have no localname")
+
+        override val prefix: String get() = throw XmlSerialException("Strings have no prefix")
+
+        override val isStarted: Boolean get() = pos>=0
+
+        override val text: String
+            get() {
+                if (pos != 0) throw XmlSerialException("Not in text position")
+                return stringValue
+            }
+
+        override val piTarget: String get() = throw XmlSerialException("Strings have no pi targets")
+
+        override val piData: String get() = throw XmlSerialException("Strings have no pi data")
+        override val attributeCount: Int
+            get() = throw XmlSerialException("Strings have no attributes")
+
+        override fun getAttributeNamespace(index: Int): String =
+            throw XmlSerialException("Strings have no attributes")
+
+        override fun getAttributePrefix(index: Int): String =
+            throw XmlSerialException("Strings have no attributes")
+
+        override fun getAttributeLocalName(index: Int): String =
+            throw XmlSerialException("Strings have no attributes")
+
+        override fun getAttributeValue(index: Int): String =
+            throw XmlSerialException("Strings have no attributes")
+
+        override val eventType: EventType
+            get() {
+                if (pos!=0) throw  XmlSerialException("Not in text position")
+                return EventType.TEXT
+            }
+
+        override fun getAttributeValue(nsUri: String?, localName: String): String? {
+            throw XmlSerialException("Strings have no attributes")
+        }
+
+        override fun getNamespacePrefix(namespaceUri: String): String? =
+            input.getNamespacePrefix(namespaceUri)
+
+        override fun close() {}
+
+        override fun getNamespaceURI(prefix: String): String? =
+            input.getNamespaceURI(prefix)
+
+        override val namespaceDecls: List<Namespace>
+            get() = input.namespaceDecls
+
+        override val locationInfo: String?
+            get() = input.locationInfo
+
+        override val namespaceContext: IterableNamespaceContext
+            get() = input.namespaceContext
+
+        override val encoding: String?
+            get() = throw XmlSerialException("Strings have no document declarations")
+
+
+        override val standalone: Boolean?
+            get() = throw XmlSerialException("Strings have no document declarations")
+
+        override val version: String?
+            get() = throw XmlSerialException("Strings have no document declarations")
     }
 
     internal interface TagIdHolder {
@@ -760,31 +848,31 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
                     return valueChildIdx.checkRepeat()
-/*
-                    var isListOrMap = false
-                    var valChildDesc: XmlDescriptor = xmlDescriptor.getElementDescriptor(valueChildIdx)
+                    /*
+                                        var isListOrMap = false
+                                        var valChildDesc: XmlDescriptor = xmlDescriptor.getElementDescriptor(valueChildIdx)
 
-                    do {
-                        when {
-                            valChildDesc is XmlListDescriptor && valChildDesc.isListEluded ->
-                                isListOrMap = true
+                                        do {
+                                            when {
+                                                valChildDesc is XmlListDescriptor && valChildDesc.isListEluded ->
+                                                    isListOrMap = true
 
-                            valChildDesc is XmlMapDescriptor && valChildDesc.isListEluded ->
-                                isListOrMap = true
+                                                valChildDesc is XmlMapDescriptor && valChildDesc.isListEluded ->
+                                                    isListOrMap = true
 
-                            valChildDesc is XmlInlineDescriptor ->
-                                valChildDesc = valChildDesc.getElementDescriptor(0)
+                                                valChildDesc is XmlInlineDescriptor ->
+                                                    valChildDesc = valChildDesc.getElementDescriptor(0)
 
-                            else -> break
-                        }
-                    } while (!isListOrMap)
+                                                else -> break
+                                            }
+                                        } while (!isListOrMap)
 
 
 
-                    if (isListOrMap || valChildDesc.serialDescriptor in SPECIAL_VALUE_SERIALDESCS) {
-                        return valueChildIdx.checkRepeat()
-                    }
-*/
+                                        if (isListOrMap || valChildDesc.serialDescriptor in SPECIAL_VALUE_SERIALDESCS) {
+                                            return valueChildIdx.checkRepeat()
+                                        }
+                    */
                 }
             }
 
@@ -1143,7 +1231,14 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
             val stringValue = decodeStringElement(descriptor, index)
             return when {
-                config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(StringDecoder(xmlDescriptor.getElementDescriptor(index), stringValue))
+                config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(
+                    StringDecoder(
+                        xmlDescriptor.getElementDescriptor(
+                            index
+                        ), stringValue
+                    )
+                )
+
                 else -> stringValue.toBoolean()
             }
         }
@@ -1207,7 +1302,7 @@ internal open class XmlDecoderBase internal constructor(
                 .getElementDescriptor(fixedIndex)
                 .effectiveDeserializationStrategy(deserializer)
 
-            if (fixedIndex == 0 && effectiveDeserializer == XmlQNameSerializer) {
+            if (fixedIndex == 0 && effectiveDeserializer == QNameSerializer) {
                 @Suppress("UNCHECKED_CAST")
                 return input.getAttributeName(attrIndex) as T
             }
@@ -1617,7 +1712,7 @@ internal open class XmlDecoderBase internal constructor(
                                     xmlDescriptor.getElementDescriptor(0),
                                     input.getAttributeValue(i)
                                 )
-                                val typeQName = XmlQNameSerializer.deserialize(sdec)
+                                val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true)
 
                                 val childQnames = xmlDescriptor.polyInfo.map { (childSerialName, childDesc) ->
                                     childSerialName to config.policy.typeQName(childDesc)
