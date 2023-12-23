@@ -1610,12 +1610,25 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
 
             if (!xmlDescriptor.isValueCollapsed) {
-                // TODO - This is broken
-                if (lastIndex.mod(2) == 1 && input.peek()?.eventType == EventType.START_ELEMENT) {
-                    input.nextTag() // Get out of the parent tag
-                }
-                if (super.decodeElementIndex(descriptor) < 0) {
-                    return CompositeDecoder.DECODE_DONE // should be the value
+                while (input.peek()?.eventType == EventType.IGNORABLE_WHITESPACE) { input.next() }
+                if (lastIndex.mod(2) == 1) {
+                    when (input.peek()?.eventType) {
+                        EventType.START_ELEMENT -> {
+                            input.next()
+                            require(input.name.isEquivalent(xmlDescriptor.entryName))
+                            return super.decodeElementIndex(descriptor).also {
+                                require(it>=0) { "Map entry must contain a (key) child"}
+                            }
+                        }
+                        else -> {
+                            check(super.decodeElementIndex(descriptor) == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
+                            return CompositeDecoder.DECODE_DONE // should be the value
+                        }
+                    }
+                } else { // value (is inside entry)
+                    return super.decodeElementIndex(descriptor).also {
+                        require(it>=0) { "Map entry must contain a value child"}
+                    }
                 }
             } else {
 
