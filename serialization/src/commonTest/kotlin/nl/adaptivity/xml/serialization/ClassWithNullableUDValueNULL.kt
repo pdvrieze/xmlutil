@@ -38,7 +38,7 @@ class ClassWithNullableUDValueNULL : PlatformTestBase<ClassWithNullableUDValueNU
 
     @Test
     fun testSerializeXmlWithXSINil() {
-        val xml = baseXmlFormat.copy { nilAttribute = NIL_ATTRIBUTE_NAME to "true"}
+        val xml = baseXmlFormat.copy { nilAttribute = NIL_ATTRIBUTE_NAME to "true"; indentString = "" }
         val serialized = xml.encodeToString(serializer, value).replace(" />", "/>")
         assertEquals(expectedXMLNil, serialized)
     }

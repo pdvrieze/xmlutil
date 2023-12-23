@@ -155,7 +155,9 @@ class TestBooleanSerialization {
 
     @Test
     fun testDeserializeBooleanStrictEmpty() {
-        val xml = XML { recommended { isStrictBoolean = true } }
+        val xml = XML { recommended {
+            isStrictBoolean = true
+        } }
         assertFailsWith<NumberFormatException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder></BooleanHolder>")
             assertEquals(BooleanHolder(false), decoded)

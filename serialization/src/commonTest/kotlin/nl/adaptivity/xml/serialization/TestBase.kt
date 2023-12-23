@@ -90,11 +90,12 @@ private fun assertStartElementEquals(
     assertContentEquals(expectedAttrs, actualAttrs)
 }
 
-internal fun defaultXmlFormat(serializersModule: SerializersModule) = XML(serializersModule) {
-    policy = DefaultXmlSerializationPolicy(
-        pedantic = true,
-        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
-    )
+internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerializersModule()) = XML(serializersModule) {
+    recommended {
+        autoPolymorphic = false
+        typeDiscriminatorName = null
+        pedantic = true
+    }
 }
 
 internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
@@ -105,19 +106,20 @@ internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
 expect abstract class PlatformXmlTestBase<T> constructor(
     value: T,
     serializer: KSerializer<T>,
-    serializersModule: SerializersModule = EmptySerializersModule,
+    serializersModule: SerializersModule = EmptySerializersModule(),
     baseXmlFormat: XML = defaultXmlFormat(serializersModule)
 ) : XmlTestBase<T>
 
 abstract class XmlTestBase<T>(
     val value: T,
     val serializer: KSerializer<T>,
-    val serializersModule: SerializersModule = EmptySerializersModule,
+    val serializersModule: SerializersModule = EmptySerializersModule(),
     protected val baseXmlFormat: XML = XML(serializersModule) {
-        policy = DefaultXmlSerializationPolicy(
-            pedantic = true,
-            encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
-        )
+        recommended {
+            pedantic = true
+            autoPolymorphic = false
+            typeDiscriminatorName = null
+        }
     }
 ) {
     abstract val expectedXML: String
@@ -153,7 +155,7 @@ abstract class XmlTestBase<T>(
 expect abstract class PlatformTestBase<T>(
     value: T,
     serializer: KSerializer<T>,
-    serializersModule: SerializersModule = EmptySerializersModule,
+    serializersModule: SerializersModule = EmptySerializersModule(),
     baseXmlFormat: XML = defaultXmlFormat(serializersModule),
     baseJsonFormat: Json = defaultJsonFormat(serializersModule)
 ) : TestBase<T>
@@ -161,12 +163,12 @@ expect abstract class PlatformTestBase<T>(
 abstract class TestBase<T> constructor(
     value: T,
     serializer: KSerializer<T>,
-    serializersModule: SerializersModule = EmptySerializersModule,
+    serializersModule: SerializersModule = EmptySerializersModule(),
     baseXmlFormat: XML = XML(serializersModule) {
-        policy = DefaultXmlSerializationPolicy(
-            pedantic = true,
-            encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
-        )
+        recommended {
+            autoPolymorphic = true
+            typeDiscriminatorName = null
+        }
     },
     private val baseJsonFormat: Json = Json {
         defaultJsonTestConfiguration()
@@ -192,7 +194,7 @@ abstract class TestBase<T> constructor(
 expect abstract class PlatformTestPolymorphicBase<T>(
     value: T,
     serializer: KSerializer<T>,
-    serializersModule: SerializersModule = EmptySerializersModule,
+    serializersModule: SerializersModule = EmptySerializersModule(),
     baseJsonFormat: Json = defaultJsonFormat(serializersModule)
 ) : TestPolymorphicBase<T>
 
@@ -208,7 +210,11 @@ abstract class TestPolymorphicBase<T>(
     value,
     serializer,
     serializersModule,
-    XML(serializersModule) { autoPolymorphic = true },
+    XML(serializersModule) {
+        recommended {
+            typeDiscriminatorName = null
+        }
+    },
     baseJsonFormat
 ) {
 
@@ -216,17 +222,22 @@ abstract class TestPolymorphicBase<T>(
 
     abstract val expectedXSIPolymorphicXML: String
 
+    val nonAutoPolymorphicXml = baseXmlFormat.copy {
+        defaultPolicy {
+            autoPolymorphic = false
+        }
+    }
+
     @Test
     open fun nonAutoPolymorphic_serialization_should_work() {
-        val serialized =
-            XML(serializersModule = serializersModule) { autoPolymorphic = false }.encodeToString(serializer, value)
-                .normalizeXml()
+        val serialized = nonAutoPolymorphicXml.encodeToString(serializer, value).normalizeXml()
+
         assertXmlEquals(expectedNonAutoPolymorphicXML, serialized)
     }
 
     @Test
     open fun nonAutoPolymorphic_deserialization_should_work() {
-        val actualValue = XML(serializersModule = serializersModule) { autoPolymorphic = false }
+        val actualValue = nonAutoPolymorphicXml
             .decodeFromString(serializer, expectedNonAutoPolymorphicXML)
 
         assertEquals(value, actualValue)
@@ -235,8 +246,11 @@ abstract class TestPolymorphicBase<T>(
     @Test
     open fun xsi_serialization_should_work() {
         val xml = XML(serializersModule = serializersModule) {
-            autoPolymorphic = false
-            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+            recommended {
+                autoPolymorphic = false
+                pedantic = false
+                typeDiscriminatorName = xsiType
+            }
         }
         val serialized = xml.encodeToString(serializer, value)
             .normalizeXml()
@@ -246,8 +260,11 @@ abstract class TestPolymorphicBase<T>(
     @Test
     open fun xsi_deserialization_should_work() {
         val actualValue = XML(serializersModule = serializersModule) {
-            autoPolymorphic = false
-            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+            recommended {
+                autoPolymorphic = false
+                pedantic = false
+                typeDiscriminatorName = xsiType
+            }
         }.decodeFromString(serializer, expectedXSIPolymorphicXML)
 
         assertEquals(value, actualValue)
@@ -257,11 +274,11 @@ abstract class TestPolymorphicBase<T>(
     open fun attribute_discriminator_deserialization_should_work() {
         val modifiedXml = expectedXSIPolymorphicXML.replace(XMLConstants.XSI_NS_URI, "urn:notquitexsi")
         val actualValue = XML(serializersModule = serializersModule) {
-            autoPolymorphic = false
-            policy = DefaultXmlSerializationPolicy(
-                false,
+            recommended {
+                autoPolymorphic = false
+                pedantic = false
                 typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi")
-            )
+            }
         }.decodeFromString(serializer, modifiedXml)
 
         assertEquals(value, actualValue)
@@ -270,8 +287,11 @@ abstract class TestPolymorphicBase<T>(
     @Test
     open fun xsi_deserialization_should_work_implicitly() {
         val actualValue = XML(serializersModule = serializersModule) {
-            autoPolymorphic = false
-            policy = DefaultXmlSerializationPolicy(false, typeDiscriminatorName = xsiType)
+            recommended {
+                autoPolymorphic = false
+                pedantic = false
+                typeDiscriminatorName = xsiType
+            }
         }.decodeFromString(serializer, expectedXSIPolymorphicXML)
 
         assertEquals(value, actualValue)

@@ -25,6 +25,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.modules.EmptySerializersModule
 import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -40,7 +41,8 @@ class WhitespaceTest : PlatformTestBase<WhitespaceTest.WhitespaceContainers>(
         WhitespaceContainer(" "),
         WhitespaceContainer("a b"),
     ),
-    WhitespaceContainers.serializer()
+    WhitespaceContainers.serializer(),
+    baseXmlFormat = defaultXmlFormat().copy { indentString = "" }
 ) {
     override val expectedXML: String =
         "<WhitespaceContainers><WhitespaceContainer>A </WhitespaceContainer><WhitespaceContainer> </WhitespaceContainer><WhitespaceContainer>a b</WhitespaceContainer></WhitespaceContainers>"

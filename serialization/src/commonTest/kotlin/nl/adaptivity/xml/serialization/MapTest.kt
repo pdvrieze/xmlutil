@@ -101,6 +101,8 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
     @Test
     fun testSerializeMaxChildMap() {
         val xml = baseXmlFormat.copy {
+            autoPolymorphic = false
+            defaultPolicy { autoPolymorphic = false }
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun isListEluded(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
                     if (serializerParent.elementSerialDescriptor.kind == StructureKind.MAP) return false
