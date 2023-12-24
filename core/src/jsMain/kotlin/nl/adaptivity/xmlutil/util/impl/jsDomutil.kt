@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.toCName
 
 @XmlUtilInternal
 public actual fun createDocument(rootElementName: QName): Document {
-    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "USELESS_ELVIS")
     return document.implementation.createDocument(
         rootElementName.getNamespaceURI() ?: "",
         rootElementName.toCName()

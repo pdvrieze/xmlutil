@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
  *
  * Created by pdvrieze on 04/11/15.
  */
-public actual class XMLFragmentStreamReader private constructor(delegate: XmlReader):
+public actual class XMLFragmentStreamReader private constructor(delegate: XmlReader) :
     XmlDelegatingReader(delegate) {
 
     override val delegate: XmlReader get() = super.delegate
@@ -48,21 +48,22 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
     override fun getNamespaceURI(prefix: String): String? {
         if (WRAPPERPPREFIX.contentEquals(prefix)) return null
 
-        return super<XmlDelegatingReader>.getNamespaceURI(prefix)
+        return super.getNamespaceURI(prefix)
     }
 
     override fun getNamespacePrefix(namespaceUri: String): String? {
         if (WRAPPERNAMESPACE.contentEquals(namespaceUri)) return null
 
-        return super<XmlDelegatingReader>.getNamespacePrefix(namespaceUri)
+        return super.getNamespacePrefix(namespaceUri)
     }
 
     override fun next(): EventType {
         return when (val delegateNext = delegate.next()) {
-            EventType.END_DOCUMENT  -> delegateNext
+            EventType.END_DOCUMENT -> delegateNext
             EventType.START_DOCUMENT,
             EventType.PROCESSING_INSTRUCTION,
-            EventType.DOCDECL       -> next()
+            EventType.DOCDECL -> next()
+
             EventType.START_ELEMENT -> {
                 if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
                     // Special case the wrapping namespace, dropping the element.
@@ -72,14 +73,16 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
                     delegateNext
                 }
             }
-            EventType.END_ELEMENT   -> if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
+
+            EventType.END_ELEMENT -> if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
                 // Drop the closing tag of the wrapper as well
                 delegate.next()
             } else {
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
                 delegateNext
             }
-            else                    -> delegateNext
+
+            else -> delegateNext
         }
     }
 
@@ -126,7 +129,7 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
         }
     }
 
-    internal fun extendNamespace() {
+    private fun extendNamespace() {
         val namespaceDecls = delegate.namespaceDecls
         val nscount = namespaceDecls.size
         val prefixes = Array(nscount) { idx -> namespaceDecls[idx].prefix }

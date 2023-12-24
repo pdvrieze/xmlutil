@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.dom.*
 /**
  * Writer that uses the DOM for the underlying storage (rather than writing to some string).
  */
-public class DomWriter constructor(
+public class DomWriter(
     current: Node?,
     public val isAppend: Boolean = false,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
@@ -291,12 +291,21 @@ public class DomWriter constructor(
         }
     }
 
+    /**
+     * The requested version of the document. This is set through [startDocument] and `null` if left default.
+     */
     public var requestedVersion: String? = null
         private set
 
+    /**
+     * The requested encoding for the document. This is set through [startDocument] and `null` if left default.
+     */
     public var requestedEncoding: String? = null
         private set
 
+    /**
+     * Whether this document is requested to be standalone. This is set through [startDocument] and `null` if left default.
+     */
     public var requestedStandalone: Boolean? = null
         private set
 
@@ -351,9 +360,4 @@ public class DomWriter constructor(
         private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
     }
 
-}
-
-private fun qname(prefix: String?, localName: String) = when {
-    prefix.isNullOrEmpty() -> localName
-    else -> "$prefix:$localName"
 }

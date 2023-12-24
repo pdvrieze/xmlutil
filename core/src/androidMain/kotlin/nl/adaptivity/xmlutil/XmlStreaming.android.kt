@@ -21,18 +21,20 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.XmlStreaming.deSerialize
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import nl.adaptivity.xmlutil.util.SerializationProvider
-import java.io.Writer as JavaIoWriter
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Reader
+import java.io.StringReader
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
+import java.io.Writer as JavaIoWriter
 
 
 @Deprecated(
@@ -78,6 +80,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         repairNamespaces: Boolean, /*= false*/
         xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
     ): XmlWriter {
+        @Suppress("DEPRECATION")
         return newWriter(writer.delegate, repairNamespaces, xmlDeclMode)
     }
 
@@ -100,7 +103,9 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
 
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
+    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING,
+        replaceWith = ReplaceWith("xmlStreaming.newGenericWriter(output, isRepairNamespaces, xmlDeclMode)")
+    )
     public actual fun newGenericWriter(
         output: Appendable,
         isRepairNamespaces: Boolean, /*= false*/
@@ -202,13 +207,13 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
 
 @Suppress("DEPRECATION")
-public inline fun <reified T : Any> deserialize(input: InputStream): T = deSerialize(input, T::class.java)
+public inline fun <reified T : Any> deserialize(input: InputStream): T = XmlStreaming.deSerialize(input, T::class.java)
 
 @Suppress("DEPRECATION")
-public inline fun <reified T : Any> deserialize(input: Reader): T = deSerialize(input, T::class.java)
+public inline fun <reified T : Any> deserialize(input: Reader): T = XmlStreaming.deSerialize(input, T::class.java)
 
 @Suppress("DEPRECATION")
-public inline fun <reified T : Any> deserialize(input: String): T = deSerialize(input, T::class.java)
+public inline fun <reified T : Any> deserialize(input: String): T = XmlStreaming.deSerialize(input, T::class.java)
 
 @Suppress("DEPRECATION")
 public actual val xmlStreaming: IXmlStreaming
@@ -228,7 +233,7 @@ public actual fun IXmlStreaming.newWriter(
     xmlDeclMode: XmlDeclMode,
 ): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "UnusedReceiverParameter")
 public fun IXmlStreaming.newWriter(
     writer: JavaIoWriter,
     repairNamespaces: Boolean = false,

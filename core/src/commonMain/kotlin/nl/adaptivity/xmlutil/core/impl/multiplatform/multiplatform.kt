@@ -64,7 +64,7 @@ public expect abstract class OutputStream : Closeable {
 
     public open fun write(b: ByteArray, off: Int, len: Int)
 
-    public open override fun close()
+    public override fun close()
 }
 
 public expect abstract class Reader {
@@ -77,7 +77,7 @@ public expect abstract class InputStream : Closeable {
 
     public fun read(b: ByteArray): Int
     public abstract fun read(): Int
-    public open override fun close()
+    public override fun close()
 }
 
 public expect open class StringReader(source: String) : Reader

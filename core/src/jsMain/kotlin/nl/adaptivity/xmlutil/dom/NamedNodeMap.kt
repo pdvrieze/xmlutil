@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual external interface NamedNodeMap {
-    public val length: Int
 
     public actual fun item(index: Int): Node?
     public actual fun getNamedItem(qualifiedName: String): Node?
@@ -33,4 +32,4 @@ public actual external interface NamedNodeMap {
 
 }
 
-public actual inline fun NamedNodeMap.getLength(): Int = length
+public actual inline fun NamedNodeMap.getLength(): Int = asDynamic().length as Int

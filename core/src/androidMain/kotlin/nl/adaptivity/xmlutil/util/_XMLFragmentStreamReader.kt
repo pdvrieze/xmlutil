@@ -35,7 +35,7 @@ import javax.xml.XMLConstants
 
  * Created by pdvrieze on 04/11/15.
  */
-public actual class XMLFragmentStreamReader constructor(reader: Reader, namespaces: Iterable<Namespace>) :
+public actual class XMLFragmentStreamReader(reader: Reader, namespaces: Iterable<Namespace>) :
     XmlDelegatingReader(getDelegate(reader, namespaces)), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
@@ -51,13 +51,13 @@ public actual class XMLFragmentStreamReader constructor(reader: Reader, namespac
     override fun getNamespaceURI(prefix: String): String? {
         if (WRAPPERPPREFIX.contentEquals(prefix)) return null
 
-        return super<XmlDelegatingReader>.getNamespaceURI(prefix)
+        return super.getNamespaceURI(prefix)
     }
 
     override fun getNamespacePrefix(namespaceUri: String): String? {
         if (WRAPPERNAMESPACE.contentEquals(namespaceUri)) return null
 
-        return super<XmlDelegatingReader>.getNamespacePrefix(namespaceUri)
+        return super.getNamespacePrefix(namespaceUri)
     }
 
     override fun next(): EventType = super<XMLFragmentStreamReaderJava>.next()

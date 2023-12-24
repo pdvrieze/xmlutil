@@ -30,6 +30,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
+import java.util.*
 
 @Suppress("LocalVariableName")
 fun Project.doPublish(
@@ -55,7 +56,7 @@ fun Project.doPublish(
                 name = "OSS_registry"
                 val repositoryId = project.properties["xmlutil.repositoryId"] as String?
                 url = when {
-                    "SNAPSHOT" in version.toString().toUpperCase() ->
+                    "SNAPSHOT" in version.toString().uppercase(Locale.getDefault()) ->
                         uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
                     repositoryId != null ->
                         uri("https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")

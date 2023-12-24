@@ -25,7 +25,7 @@ package nl.adaptivity.xmlutil
  * this class does not do any validation of the xml. If injecting/removing elements into/from the buffer you can create
  * invalid XML.
  */
-public open class XmlBufferedReader constructor(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
+public open class XmlBufferedReader(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
 
     private val peekBuffer = ArrayDeque<XmlEvent>()
 

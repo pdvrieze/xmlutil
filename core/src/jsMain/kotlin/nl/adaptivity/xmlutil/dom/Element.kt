@@ -21,12 +21,6 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual external interface Element : Node {
-    public val namespaceURI: String?
-    public val prefix: String?
-    public val localName: String
-    public val tagName: String
-    public val attributes: NamedNodeMap
-
     public actual fun getAttribute(qualifiedName: String): String?
     public actual fun getAttributeNS(namespace: String?, localName: String): String?
     public actual fun setAttribute(qualifiedName: String, value: String)
@@ -44,9 +38,11 @@ public actual external interface Element : Node {
     public actual fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 }
 
-public actual fun Element.getNamespaceURI(): String? = namespaceURI
-public actual fun Element.getPrefix(): String? = prefix
-public actual fun Element.getLocalName(): String? = localName
-public actual fun Element.getTagName(): String = tagName
-public actual fun Element.getAttributes(): NamedNodeMap = attributes
+public actual fun Element.getNamespaceURI(): String? = asDynamic().namespaceURI as String?
+public actual fun Element.getPrefix(): String? = asDynamic().prefix as String?
+public actual fun Element.getLocalName(): String? = asDynamic().localName as String?
+public actual fun Element.getTagName(): String = asDynamic().tagName as String
+
+@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+public actual fun Element.getAttributes(): NamedNodeMap = asDynamic().attributes as NamedNodeMap
 

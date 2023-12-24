@@ -362,7 +362,7 @@ public class StAXWriter(
         }
     }
 
-    override public fun processingInstruction(target: String, data: String) {
+    public override fun processingInstruction(target: String, data: String) {
         assert(pendingWrites.isEmpty())
         writeIndent(TAG_DEPTH_FORCE_INDENT_NEXT)
         try {

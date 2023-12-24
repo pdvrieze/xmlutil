@@ -192,8 +192,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         }
 
         internal fun getNamespaceURI(prefix: String): String? {
-            val decl = namespaceHolder.getNamespaceURI(prefix)
-            return when (decl) {
+            return when (val decl = namespaceHolder.getNamespaceURI(prefix)) {
                 null -> parentNamespaceContext.getNamespaceURI(prefix)
                 else -> decl
             }
@@ -269,6 +268,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
             else -> "{$namespaceUri}$prefix:$localName=\"$value\""
         }
 
+        @Suppress("DuplicatedCode")
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false

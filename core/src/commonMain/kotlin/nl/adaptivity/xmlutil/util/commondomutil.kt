@@ -40,7 +40,7 @@ internal val Node.isText: Boolean
 
 /** Implement forEach with a built-in cast to attr. */
 internal inline fun NamedNodeMap.forEachAttr(body: (Attr) -> Unit) {
-    val l = this.length
+    val l = this.getLength()
     for (idx in 0 until l) {
         body(item(idx) as Attr)
     }
@@ -76,7 +76,7 @@ internal fun Node.myLookupPrefix(namespaceUri: String): String? {
 }
 
 private fun Element.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: MutableSet<String>): String? {
-    this.attributes?.forEachAttr { attr ->
+    this.attributes.forEachAttr { attr ->
         when {
             attr.getPrefix() == XMLConstants.XMLNS_ATTRIBUTE ->
                 if (attr.getValue() == namespaceUri && attr.getLocalName() !in seenPrefixes) {
@@ -93,11 +93,15 @@ private fun Element.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: Mutab
                 }
         }
     }
-    return (parentNode as? Element)?.myLookupPrefixImpl(namespaceUri, seenPrefixes)
+    return when (parentNode?.nodeType) {
+        NodeConsts.ELEMENT_NODE -> (parentNode as Element).myLookupPrefixImpl(namespaceUri, seenPrefixes)
+
+        else -> null
+    }
 }
 
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when {
-    nodeType!=NodeConsts.ELEMENT_NODE -> null
+    nodeType != NodeConsts.ELEMENT_NODE -> null
     else -> {
         (this as Element).attributes.filterTyped {
             (prefix == "" && it.getLocalName() == "xmlns") ||

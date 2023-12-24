@@ -51,13 +51,13 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
     override fun getNamespaceURI(prefix: String): String? {
         if (WRAPPERPPREFIX.contentEquals(prefix)) return null
 
-        return super<XmlDelegatingReader>.getNamespaceURI(prefix)
+        return super.getNamespaceURI(prefix)
     }
 
     override fun getNamespacePrefix(namespaceUri: String): String? {
         if (WRAPPERNAMESPACE.contentEquals(namespaceUri)) return null
 
-        return super<XmlDelegatingReader>.getNamespacePrefix(namespaceUri)
+        return super.getNamespacePrefix(namespaceUri)
     }
 
     override fun next(): EventType = super<XMLFragmentStreamReaderJava>.next()

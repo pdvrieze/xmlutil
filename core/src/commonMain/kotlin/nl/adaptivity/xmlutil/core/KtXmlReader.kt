@@ -26,7 +26,6 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import kotlin.jvm.JvmInline
-import kotlin.jvm.JvmStatic
 
 @ExperimentalXmlUtilApi
 public class KtXmlReader internal constructor(
@@ -134,7 +133,7 @@ public class KtXmlReader internal constructor(
 
     init {
         val firstChar = peek(0)
-        if (firstChar == 0x0feff) { /* drop BOM */ peekCount=0; }
+        if (firstChar == 0x0feff) { /* drop BOM */ peekCount = 0; }
     }
 
     override fun close() {
@@ -269,27 +268,31 @@ public class KtXmlReader internal constructor(
                     pushEntity()
                     return
                 }
+
                 START_ELEMENT -> {
                     parseStartTag(false)
                     return
                 }
+
                 END_ELEMENT -> {
                     parseEndTag()
                     return
                 }
+
                 END_DOCUMENT -> return
                 TEXT -> {
                     pushText('<'.code, !token)
                     if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
-/*
-                    if (depth == 0) {
-                        // make exception switchable for instances.chg... !!!!
-                        //	else
-                        //    exception ("text '"+getText ()+"' not allowed outside root element");
-                    }
-*/
+                    /*
+                                        if (depth == 0) {
+                                            // make exception switchable for instances.chg... !!!!
+                                            //	else
+                                            //    exception ("text '"+getText ()+"' not allowed outside root element");
+                                        }
+                    */
                     return
                 }
+
                 else -> {
                     _eventType = parseLegacy(token)
                     if (_eventType != START_DOCUMENT) return
@@ -328,8 +331,7 @@ public class KtXmlReader internal constructor(
                     }
                     if (pos < attributeCount && "standalone" == attributes[pos].localName
                     ) {
-                        val st = attributes[pos].value
-                        when (st) {
+                        when (val st = attributes[pos].value) {
                             "yes" -> standalone = true
                             "no" -> standalone = false
                             else -> error("illegal standalone value: $st")
@@ -403,6 +405,7 @@ public class KtXmlReader internal constructor(
                     error(UNEXPECTED_EOF)
                     return
                 }
+
                 '\''.code -> quoted = !quoted
                 '<'.code -> if (!quoted) nesting++
                 '>'.code -> if (!quoted) {
@@ -443,7 +446,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun peekType(): EventType {
-        if (_eventType==null) return START_DOCUMENT
+        if (_eventType == null) return START_DOCUMENT
         return when (peek(0)) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
@@ -453,6 +456,7 @@ public class KtXmlReader internal constructor(
                 '!'.code -> COMMENT
                 else -> START_ELEMENT
             }
+
             else -> TEXT
         }
     }
@@ -591,12 +595,12 @@ public class KtXmlReader internal constructor(
             push(c)
             return
         }
-        val result = entityMap.get(code)
+        val result = entityMap[code]
         unresolved = result == null
         if (result == null) {
             if (!token) error("unresolved: &$code;")
         } else {
-            for (i in 0 until result.length) push(result[i].code)
+            for (element in result) push(element.code)
         }
     }
 
@@ -731,11 +735,13 @@ public class KtXmlReader internal constructor(
 
                 buf.append('>')
             }
+
             et == IGNORABLE_WHITESPACE -> {}
             et != TEXT -> buf.append(text)
             isWhitespace -> buf.append(
                 "(whitespace)"
             )
+
             else -> {
                 var textCpy = text
                 if (textCpy.length > 16) textCpy = textCpy.substring(0, 16) + "..."
@@ -839,8 +845,8 @@ public class KtXmlReader internal constructor(
     }
 
     override fun require(type: EventType, namespace: String?, name: String?) {
-        if (type != this._eventType || (namespace != null && namespace != elementStack[depth-1].namespace)
-            || (name != null && name != elementStack[depth-1].localName)
+        if (type != this._eventType || (namespace != null && namespace != elementStack[depth - 1].namespace)
+            || (name != null && name != elementStack[depth - 1].localName)
         ) {
             exception("expected: $type {$namespace}$name, found: $_eventType {$namespaceURI}$localName")
         }

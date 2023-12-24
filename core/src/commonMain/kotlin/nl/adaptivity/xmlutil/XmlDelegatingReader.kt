@@ -45,6 +45,6 @@ public open class XmlDelegatingReader protected constructor(protected open val d
         if (eventType != EventType.START_ELEMENT && eventType != EventType.END_ELEMENT) {
             throw XmlException("expected start or end tag")
         }
-        return eventType;
+        return eventType
     }
 }

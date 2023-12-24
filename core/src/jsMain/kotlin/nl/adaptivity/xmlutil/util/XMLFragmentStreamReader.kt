@@ -31,7 +31,7 @@ import org.w3c.dom.parsing.DOMParser
 
  * Created by pdvrieze on 04/11/15.
  */
-public actual class XMLFragmentStreamReader constructor(
+public actual class XMLFragmentStreamReader(
     text: String,
     wrapperNamespaceContext: Iterable<Namespace>
 ) : XmlDelegatingReader(getDelegate(text, wrapperNamespaceContext)) {
@@ -135,8 +135,7 @@ public actual class XMLFragmentStreamReader constructor(
                 }
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
             }
-            else -> {
-            } // Ignore others
+            else -> {} // Ignore others
         }
         return result
     }

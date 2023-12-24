@@ -18,8 +18,6 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-
 package nl.adaptivity.xmlutil.dom
 
 public expect interface CharacterData : Node {
@@ -34,8 +32,10 @@ public expect interface CharacterData : Node {
 
     public fun replaceData(offset: Int, count: Int, data: String)
 }
-expect public inline fun CharacterData.getData(): String
-expect public inline fun CharacterData.setData(value: String)
 
-public inline var CharacterData.data: String get() = getData()
+public expect inline fun CharacterData.getData(): String
+public expect inline fun CharacterData.setData(value: String)
+
+public inline var CharacterData.data: String
+    get() = getData()
     set(value) = setData(value)

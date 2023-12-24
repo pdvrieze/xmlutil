@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.InputStreamReader
@@ -84,7 +85,7 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                             if (i == -1) break
                             srcBuf[srcBufCount++] = i.toChar()
                             if (i == '>'.code) {
-                                val xmlDeclContent = String(srcBuf, 0, srcBufCount)
+                                val xmlDeclContent = srcBuf.concatToString(0, 0 + srcBufCount)
                                 var encAttrOffset = -1
                                 do {
                                     encAttrOffset = xmlDeclContent.indexOf("encoding", encAttrOffset + 1)
@@ -141,15 +142,19 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                         }
                     }
 
-                    else -> if (chk and -0x10000 == -0x1010000) {
-                        enc = "UTF-16BE"
-                        srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
-                    } else if (chk and -0x10000 == -0x20000) {
-                        enc = "UTF-16LE"
-                        srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
-                    } else if (chk and -0x100 == -0x10444100) {
-                        enc = "UTF-8"
-                        srcBuf[0] = srcBuf[3]
+                    else -> when {
+                        chk and -0x10000 == -0x1010000 -> {
+                            enc = "UTF-16BE"
+                            srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
+                        }
+                        chk and -0x10000 == -0x20000 -> {
+                            enc = "UTF-16LE"
+                            srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
+                        }
+                        chk and -0x100 == -0x10444100 -> {
+                            enc = "UTF-8"
+                            srcBuf[0] = srcBuf[3]
+                        }
                     }
                 }
             }
