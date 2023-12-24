@@ -56,10 +56,10 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream
         write(byteArrayOf(b.toByte()))
     }
 
-    public override fun write(buffer: ByteArray, begin: Int, end: Int): Unit {
-        var loopBegin: Int = begin
-        var remaining = MPSizeT((end - loopBegin).toULong())
-        buffer.usePinned { buf ->
+    public override fun write(b: ByteArray, off: Int, len: Int): Unit {
+        var loopBegin: Int = off
+        var remaining = MPSizeT((len - loopBegin).toULong())
+        b.usePinned { buf ->
             while (remaining.value > 0uL) {
                 val bufStart = buf.addressOf(loopBegin)
                 val written = writePtr(bufStart, remaining)

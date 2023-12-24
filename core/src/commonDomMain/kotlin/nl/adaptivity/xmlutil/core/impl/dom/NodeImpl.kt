@@ -35,8 +35,8 @@ internal abstract class NodeImpl(
     override val previousSibling: Node?
         get() {
             val siblings = (parentNode ?: return null).childNodes
-            if (siblings.item(0) == this || siblings.length <= 1) return null
-            for (idx in 1 until siblings.length) {
+            if (siblings.item(0) == this || siblings.size <= 1) return null
+            for (idx in 1 until siblings.size) {
                 if (siblings.item(idx) == this) {
                     return siblings.item(idx - 1)
                 }
@@ -47,8 +47,8 @@ internal abstract class NodeImpl(
     override val nextSibling: Node?
         get() {
             val siblings = (parentNode ?: return null).childNodes
-            if (siblings.item(siblings.length - 1) == this || siblings.length <= 1) return null
-            for (idx in 0 until (siblings.length-1)) {
+            if (siblings.item(siblings.size - 1) == this || siblings.size <= 1) return null
+            for (idx in 0 until (siblings.size -1)) {
                 if (siblings.item(idx) == this) {
                     return siblings.item(idx + 1)
                 }

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+@Suppress("DEPRECATION")
 public actual interface Element : Node {
     public val namespaceURI: String?
     public val prefix: String?

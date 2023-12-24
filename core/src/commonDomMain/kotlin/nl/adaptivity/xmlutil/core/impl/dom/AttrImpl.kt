@@ -51,7 +51,7 @@ internal class AttrImpl(
     override val nodeType: Short
         get() = Node.ATTRIBUTE_NODE
 
-    override val childNodes: NodeList get() = EmptyNodeList
+    override val childNodes: DOMNodeList get() = EmptyNodeList
 
     override val firstChild: Nothing? get() = null
 

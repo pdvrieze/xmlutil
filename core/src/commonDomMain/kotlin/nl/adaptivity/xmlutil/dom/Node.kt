@@ -18,7 +18,10 @@
  * under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package nl.adaptivity.xmlutil.dom
+
 
 public actual interface Node {
     public val nodeType: Short
@@ -31,7 +34,7 @@ public actual interface Node {
 
     public val parentElement: Element? get() = parentNode as? Element?
 
-    public val childNodes: NodeList
+    public val childNodes: DOMNodeList
 
     public val firstChild: Node?
 

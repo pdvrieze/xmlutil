@@ -20,14 +20,14 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.dom.DOMNodeList
 import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.dom.NodeList
 
 internal class NodeListImpl(
     internal val elements: MutableList<NodeImpl> = mutableListOf()
-) : NodeList, Iterable<Node> {
+) : DOMNodeList, Iterable<Node> {
 
-    override val length: Int get() = elements.size
+    override val size: Int get() = elements.size
 
     override fun item(index: Int): Node? = when (index) {
         in 0 until elements.size -> elements[index]

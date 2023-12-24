@@ -45,7 +45,7 @@ internal class DocumentImpl(override val doctype: DocumentType?) : Document {
 
     private val _childNodes: NodeListImpl = NodeListImpl()
 
-    override val childNodes: NodeList
+    override val childNodes: DOMNodeList
         get() = _childNodes
 
     override val firstChild: Node? get() = _childNodes.elements.firstOrNull()
@@ -73,12 +73,12 @@ internal class DocumentImpl(override val doctype: DocumentType?) : Document {
         is Document -> throw DOMException("Documents cannot be imported")
         is DocumentFragment -> DocumentFragmentImpl(this).also { cpy ->
             if (deep) {
-                node.childNodes.forEach { child -> cpy.appendChild(importNode(child, deep)) }
+                for (child in node.childNodes) { cpy.appendChild(importNode(child, deep)) }
             }
         }
         is Element -> ElementImpl(this, node).also { cpy ->
             if (deep) {
-                node.childNodes.forEach { child -> cpy.appendChild(importNode(child, deep)) }
+                for (child in node.childNodes) { cpy.appendChild(importNode(child, deep)) }
             }
         }
         is ProcessingInstruction -> ProcessingInstructionImpl(this, node)

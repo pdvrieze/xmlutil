@@ -32,5 +32,5 @@ public typealias URI = java.net.URI
 public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()
 
 internal actual fun Writer.appendable(): Appendable {
-    return delegate as Appendable
+    return delegate
 }

@@ -50,7 +50,7 @@ internal class ElementImpl(
 
     private val _childNodes: NodeListImpl = NodeListImpl()
 
-    override val childNodes: NodeList
+    override val childNodes: DOMNodeList
         get() = _childNodes
 
     private val _attributes: MutableList<AttrImpl> = mutableListOf()
@@ -68,14 +68,14 @@ internal class ElementImpl(
             }
         }
 
-    override fun getElementsByTagName(qualifiedName: String): NodeList {
+    override fun getElementsByTagName(qualifiedName: String): DOMNodeList {
         val elems = _childNodes.elements
             .filter { it is Element && it.tagName == qualifiedName }
             .toMutableList()
         return NodeListImpl(elems)
     }
 
-    override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList {
+    override fun getElementsByTagNameNS(namespace: String?, localName: String): DOMNodeList {
         val elems = _childNodes.elements
             .filter {
                 it is Element &&
@@ -294,7 +294,7 @@ internal class ElementImpl(
 
             _attributes.joinTo(this, " ")
 
-            if (_childNodes.length == 0) {
+            if (_childNodes.isEmpty()) {
                 append("/>")
             } else {
                 append(">")
@@ -304,8 +304,8 @@ internal class ElementImpl(
         }
     }
 
-    inner class AttrMap : NamedNodeMap {
-        override val length: Int get() = _attributes.size
+    inner class AttrMap : NativeNamedNodeMap {
+        override val size: Int get() = _attributes.size
 
         override fun item(index: Int): Attr? = when (index) {
             in 0 until _attributes.size -> _attributes[index]

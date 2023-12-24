@@ -34,7 +34,7 @@ internal class DocumentTypeImpl(
 
     override val nodeName: String get() = name
 
-    override val childNodes: NodeList get() = EmptyNodeList
+    override val childNodes: DOMNodeList get() = EmptyNodeList
 
     override val firstChild: Nothing? get() = null
 

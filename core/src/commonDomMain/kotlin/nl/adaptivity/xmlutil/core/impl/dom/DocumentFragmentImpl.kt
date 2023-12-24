@@ -33,7 +33,7 @@ internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDoc
         }
 
     internal val _childNodes: NodeListImpl = NodeListImpl()
-    override val childNodes: NodeList get() = _childNodes
+    override val childNodes: DOMNodeList get() = _childNodes
 
     override val nodeType: Short get() = Node.DOCUMENT_FRAGMENT_NODE
 

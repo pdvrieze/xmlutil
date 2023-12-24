@@ -31,7 +31,7 @@ internal abstract class CharacterDataImpl(
 
     final override val firstChild: Nothing? get() = null
     final override val lastChild: Nothing? get() = null
-    final override val childNodes: NodeList get() = EmptyNodeList
+    final override val childNodes: DOMNodeList get() = EmptyNodeList
 
     override val textContent: String?
         get() = data
@@ -77,8 +77,8 @@ internal abstract class CharacterDataImpl(
     }
 }
 
-internal object EmptyNodeList: NodeList {
-    override val length: Int get() = 0
+internal object EmptyNodeList: DOMNodeList {
+    override val size: Int get() = 0
 
     override fun item(index: Int): Nothing? = null
 }

@@ -51,6 +51,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                         val namespaceForPrefix = out.getNamespaceUri(prefix)
                         writeCurrent(out) // writes the start tag
                         if (namespaceForPrefix != namespaceURI) {
+                            @Suppress("DEPRECATION")
                             out.addUndeclaredNamespaces(this, missingNamespaces)
                         }
                         out.writeElementContent(missingNamespaces, this) // writes the children and end tag

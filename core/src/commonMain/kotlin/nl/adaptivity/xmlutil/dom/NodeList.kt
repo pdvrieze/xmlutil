@@ -38,7 +38,7 @@ public operator fun NodeList.iterator(): Iterator<Node> {
     return NodeListIterator(this)
 }
 
-private class NodeListIterator(private val nodeList: NodeList) : Iterator<Node> {
+internal class NodeListIterator(private val nodeList: NodeList) : Iterator<Node> {
     private var pos: Int = 0
 
     override fun hasNext(): Boolean {
