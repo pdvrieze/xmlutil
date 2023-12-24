@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.KSerializer
@@ -45,7 +47,7 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     assertDomEquals(expectedDom, writer.target)
 }
 
-private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {
+private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: XML) {
     val expectedDom: Document = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }

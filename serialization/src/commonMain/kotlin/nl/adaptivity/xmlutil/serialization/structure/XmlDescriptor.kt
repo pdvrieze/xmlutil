@@ -322,7 +322,6 @@ public class XmlRootDescriptor internal constructor(
     serializersModule: SerializersModule,
     descriptor: SerialDescriptor,
     tagName: DeclaredNameInfo,
-    isDefaultNamespace: Boolean,
 ) : XmlDescriptor(config.policy, DetachedParent(descriptor, tagName, true, outputKind = null)) {
 
     internal constructor(
@@ -330,7 +329,7 @@ public class XmlRootDescriptor internal constructor(
         config: XmlConfig,
         serializersModule: SerializersModule,
         descriptor: SerialDescriptor,
-    ) : this(config, serializersModule, descriptor, DeclaredNameInfo(descriptor), false)
+    ) : this(config, serializersModule, descriptor, DeclaredNameInfo(descriptor))
 
     private val element: XmlDescriptor by lazy {
         from(config, serializersModule, tagParent, canBeAttribute = false)
@@ -478,11 +477,7 @@ internal constructor(
     @ExperimentalXmlUtilApi override val preserveSpace: Boolean
 ) : XmlValueDescriptor(policy, serializerParent, tagParent) {
 
-    override val isIdAttr: Boolean
-
-    init {
-        isIdAttr = serializerParent.elementUseAnnotations.any { it is XmlId }
-    }
+    override val isIdAttr: Boolean = serializerParent.elementUseAnnotations.any { it is XmlId }
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
@@ -726,7 +721,7 @@ internal constructor(
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     public val attrMapChild: Int by lazy { //uses elementDescriptor, so needs to be lazy
-        var fallbackIdx = if(config.policy.isStrictOtherAttributes) Int.MAX_VALUE else -1
+        var fallbackIdx = if (config.policy.isStrictOtherAttributes) Int.MAX_VALUE else -1
         for (i in 0 until elementsCount) {
             if (getElementDescriptor(i) is XmlAttributeMapDescriptor) {
                 if (serialDescriptor.getElementAnnotations(i).firstOrNull<XmlOtherAttributes>() != null) {
@@ -736,7 +731,7 @@ internal constructor(
                 if (fallbackIdx < 0) fallbackIdx = i
             }
         }
-        if (fallbackIdx==Int.MAX_VALUE) -1 else fallbackIdx // fallbacks for old behaviour.
+        if (fallbackIdx == Int.MAX_VALUE) -1 else fallbackIdx // fallbacks for old behaviour.
     }
 
     override val outputKind: OutputKind get() = OutputKind.Element
@@ -847,9 +842,7 @@ internal constructor(
 
         other as XmlCompositeDescriptor
 
-        if (initialChildReorderInfo != other.initialChildReorderInfo) return false
-
-        return true
+        return initialChildReorderInfo == other.initialChildReorderInfo
     }
 
     override fun hashCode(): Int {
@@ -860,9 +853,9 @@ internal constructor(
 }
 
 public sealed class PolymorphicMode {
-    public object TRANSPARENT : PolymorphicMode()
-    public object TAG : PolymorphicMode()
-    public class ATTR(public val name: QName) : PolymorphicMode()
+    public data object TRANSPARENT : PolymorphicMode()
+    public data object TAG : PolymorphicMode()
+    public data class ATTR(public val name: QName) : PolymorphicMode()
 }
 
 public class XmlPolymorphicDescriptor internal constructor(
@@ -1015,6 +1008,7 @@ public class XmlPolymorphicDescriptor internal constructor(
         }
     }
 
+    @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -1056,7 +1050,8 @@ internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): Declared
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
         else -> capturedKClass?.maybeSerialName ?: serialName
     }
-    val annotation = annotations.firstOrNull<XmlSerialName>() ?: capturedKClass?.maybeAnnotations?.firstOrNull<XmlSerialName>()
+    val annotation = annotations.firstOrNull<XmlSerialName>()
+        ?: capturedKClass?.maybeAnnotations?.firstOrNull<XmlSerialName>()
 
     val qName = annotation?.toQName(realSerialName, parentNamespace) ?: (this as? XmlSerialDescriptor)?.serialQName
     return DeclaredNameInfo(realSerialName, qName, annotation?.namespace == UNSET_ANNOTATION_VALUE)
@@ -1214,11 +1209,13 @@ public class XmlListDescriptor internal constructor(
                     ParentInfo(this, 0, useNameInfo, outputKind),
                     tagParent
                 )
+
             OutputKind.Text ->
                 config.policy.textListDelimiters(
                     ParentInfo(this, 0, useNameInfo, outputKind),
                     tagParent
                 )
+
             else -> emptyArray()
         }
     }
@@ -1230,7 +1227,7 @@ public class XmlListDescriptor internal constructor(
             childrenNameAnnotation != null -> DeclaredNameInfo(
                 childrenNameAnnotation.value,
                 childrenNameAnnotation.toQName(),
-                childrenNameAnnotation?.namespace == UNSET_ANNOTATION_VALUE
+                childrenNameAnnotation.namespace == UNSET_ANNOTATION_VALUE
             )
 
             !isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
@@ -1388,9 +1385,11 @@ private class DetachedParent(
         serialDescriptor,
 
         DeclaredNameInfo(
-            serialDescriptor.run { capturedKClass?.maybeSerialName ?: serialDescriptor.getNameInfo(DEFAULT_NAMESPACE).serialName },
-            useName,
-            isDefaultNamespace
+            serialName = serialDescriptor.run {
+                capturedKClass?.maybeSerialName ?: serialDescriptor.getNameInfo(DEFAULT_NAMESPACE).serialName
+            },
+            annotatedName = useName,
+            isDefaultNamespace = isDefaultNamespace
         ),
         isDocumentRoot,
         outputKind
@@ -1403,7 +1402,13 @@ private class DetachedParent(
         outputKind: OutputKind? = null,
     ) : this(
         serialDescriptor,
-        DeclaredNameInfo(serialDescriptor.run { capturedKClass?.maybeSerialName ?: serialDescriptor.getNameInfo(DEFAULT_NAMESPACE).serialName }, null, false),
+        DeclaredNameInfo(
+            serialName = serialDescriptor.run {
+                capturedKClass?.maybeSerialName ?: serialDescriptor.getNameInfo(DEFAULT_NAMESPACE).serialName
+            },
+            annotatedName = null,
+            isDefaultNamespace = false
+        ),
         isDocumentRoot,
         outputKind
     )
@@ -1464,7 +1469,7 @@ private class DetachedParent(
 
 }
 
-internal val DEFAULT_NAMESPACE=XmlEvent.NamespaceImpl("", "")
+internal val DEFAULT_NAMESPACE = XmlEvent.NamespaceImpl("", "")
 
 @WillBePrivate // 2021-07-05 Should not have been public.
 public class ParentInfo(

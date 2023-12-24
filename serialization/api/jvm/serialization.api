@@ -700,15 +700,27 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/PolymorphicM
 
 public final class nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$ATTR : nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode {
 	public fun <init> (Ljavax/xml/namespace/QName;)V
+	public final fun component1 ()Ljavax/xml/namespace/QName;
+	public final fun copy (Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$ATTR;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$ATTR;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$ATTR;
+	public fun equals (Ljava/lang/Object;)Z
 	public final fun getName ()Ljavax/xml/namespace/QName;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$TAG : nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$TAG;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$TRANSPARENT : nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode$TRANSPARENT;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo {

@@ -22,10 +22,10 @@ package nl.adaptivity.xmlutil.serialization
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
-import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.xmlStreaming
+import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.dom.DOMSource
@@ -53,8 +53,8 @@ class JvmSerializationTest {
         }
         val deserialized = xml.decodeFromString(ElementSerializer, contentText)
 
-        val expected:String = XmlStreaming.toString(DOMSource(expectedObj))
-        val actual:String = XmlStreaming.toString(DOMSource(deserialized))
+        val expected:String = (xmlStreaming as XmlStreamingJavaCommon).toString(DOMSource(expectedObj))
+        val actual:String = (xmlStreaming as XmlStreamingJavaCommon).toString(DOMSource(deserialized))
         try {
             assertXmlEquals(expected, actual)
 
@@ -70,7 +70,7 @@ class JvmSerializationTest {
      */
     @Test
     fun `update dom node with additional attribute`() {
-        val xml: XML = XML {}
+        val xml = XML {}
         val rootNode: Element = xml.decodeFromString(ElementSerializer, "<root></root>")
         rootNode.setAttribute("test", "value")
         assertEquals("<root test=\"value\"/>", xml.encodeToString(ElementSerializer, rootNode))
@@ -91,7 +91,7 @@ class JvmSerializationTest {
             })
         }
 
-        val xml = XML() {
+        val xml = XML {
             indentString = ""
             autoPolymorphic = true
         }
@@ -102,7 +102,10 @@ class JvmSerializationTest {
 
     @Test
     fun `serialize DOM content to json`() {
-        val expected = "{\"localname\":\"tag\",\"content\":[[\"text\",\"some text \"],[\"element\",{\"localname\":\"b\",\"content\":[[\"text\",\"some bold text\"],[\"element\",{\"localname\":\"i\",\"content\":[[\"text\",\"some bold italic text\"]]}]]}]]}"
+        @Language("JSON")
+        val expected =
+            """{"localname":"tag","content":[["text","some text "],["element",{"localname":"b","content":[["text","some bold text"],["element",{"localname":"i","content":[["text","some bold italic text"]]}]]}]]}"""
+
         val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
         val element = doc.createElement("tag").apply {
             appendChild(doc.createTextNode("some text "))
@@ -120,9 +123,12 @@ class JvmSerializationTest {
         assertEquals(expected, serialized)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `deserialize DOM node from json`() {
-        val contentText = "{\"localname\":\"tag\",\"attributes\":{},\"content\":[[\"text\",\"some text \"],[\"element\",{\"localname\":\"b\",\"attributes\":{},\"content\":[[\"text\",\"some bold text\"],[\"element\",{\"localname\":\"i\",\"attributes\":{},\"content\":[[\"text\",\"some bold italic text\"]]}]]}]]}"
+        val contentText =
+            """{"localname":"tag","attributes":{},"content":[["text","some text "],["element",{"localname":"b","attributes":{},"content":[["text","some bold text"],["element",{"localname":"i","attributes":{},"content":[["text","some bold italic text"]]}]]}]]}"""
+
         val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder().newDocument()
         val expectedObj = doc.createElementNS("", "tag").apply {
             appendChild(doc.createTextNode("some text "))

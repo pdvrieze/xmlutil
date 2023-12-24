@@ -189,14 +189,14 @@ private class CompositeHashEncoder(val elementEncoder: AbstractHashEncoder) : Co
  * A format that allows for using serialization to create a hash code of a data structure.
  */
 @OptIn(ExperimentalSerializationApi::class)
-class HashFormat constructor(override val serializersModule: SerializersModule) : SerialFormat {
+class HashFormat(override val serializersModule: SerializersModule) : SerialFormat {
 
     fun <T> hashCode(serializer: KSerializer<T>, obj: T): Int {
         return HashEncoder(serializersModule).also { enc -> serializer.serialize(enc, obj) }.hash
     }
 
     companion object : SerialFormat {
-        private val defaultFormat = HashFormat(EmptySerializersModule)
+        private val defaultFormat = HashFormat(EmptySerializersModule())
         override val serializersModule: SerializersModule get() = defaultFormat.serializersModule
 
         /**

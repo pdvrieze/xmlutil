@@ -74,7 +74,7 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
  * @property config The configuration of the various options that may apply.
  */
 @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
-public class XML constructor(
+public class XML(
     public val config: XmlConfig,
     serializersModule: SerializersModule = EmptySerializersModule()
 ) : StringFormat {
@@ -194,7 +194,7 @@ public class XML constructor(
                 }
 
                 XmlDeclMode.None,
-                XmlDeclMode.Auto -> {} // no implementation needed
+                XmlDeclMode.Auto -> Unit // no implementation needed
             }
         }
 
@@ -206,7 +206,7 @@ public class XML constructor(
             config.policy.serialTypeNameToQName(declNameInfo, DEFAULT_NAMESPACE)
 
         val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
-        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo, false)
+        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -221,7 +221,7 @@ public class XML constructor(
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
                 val newRootName = rootNameInfo.remapPrefix(prefixMap)
 
-                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName, false)
+                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName)
                 val newDescriptor = newRoot.getElementDescriptor(0)
 
 
@@ -387,7 +387,7 @@ public class XML constructor(
         }
 
         val tmpRoot =
-            XmlRootDescriptor(config, serializersModule, descriptor, DeclaredNameInfo(localName.localPart), false)
+            XmlRootDescriptor(config, serializersModule, descriptor, DeclaredNameInfo(localName.localPart))
 
         val realName = tmpRoot.typeDescriptor.typeQname ?: localName
 
@@ -415,7 +415,7 @@ public class XML constructor(
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
         val rootNameInfo = rootNameInfo(deserializer.descriptor, rootName, reader.name)
-        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, rootNameInfo, false)
+        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, rootNameInfo)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
 
@@ -456,17 +456,9 @@ public class XML constructor(
     }
 
     private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
-        val serialName = rootName
-            ?: serialDescriptor.annotations.firstOrNull<XmlSerialName>()
-                ?.toQName(serialDescriptor.serialName, null)
-            ?: config.policy.serialTypeNameToQName(
-                DeclaredNameInfo(serialDescriptor.serialName),
-                XmlEvent.NamespaceImpl(XMLConstants.DEFAULT_NS_PREFIX, XMLConstants.NULL_NS_URI)
-            )
-
         val nameInfo = DeclaredNameInfo(rootName?.localPart ?: serialDescriptor.serialName, rootName, false)
 
-        return XmlRootDescriptor(config, serializersModule, serialDescriptor, nameInfo, false)
+        return XmlRootDescriptor(config, serializersModule, serialDescriptor, nameInfo)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)
@@ -503,7 +495,11 @@ public class XML constructor(
     public constructor(config: XmlConfig.Builder, serializersModule: SerializersModule = EmptySerializersModule()) :
             this(XmlConfig(config), serializersModule)
 
-    @Deprecated("This version of the copy function has limits in future compatibility. Use the version that takes a configuration lambda", level = DeprecationLevel.ERROR)
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated(
+        "This version of the copy function has limits in future compatibility. Use the version that takes a configuration lambda",
+        level = DeprecationLevel.ERROR
+    )
     @ExperimentalXmlUtilApi
     public fun copy(
         config: XmlConfig = this.config,
@@ -564,7 +560,11 @@ public class XML constructor(
      * @param serializer The serializer/saver to use to write
      * @param prefix The prefix (if any) to use for the namespace
      */
-    @Deprecated("Renamed to encodeToWriter", ReplaceWith("encodeToWriter(target, serializer, value, prefix)"), DeprecationLevel.ERROR)
+    @Deprecated(
+        "Renamed to encodeToWriter",
+        ReplaceWith("encodeToWriter(target, serializer, value, prefix)"),
+        DeprecationLevel.ERROR
+    )
     public fun <T> toXml(
         target: XmlWriter,
         serializer: SerializationStrategy<T>,
@@ -581,12 +581,20 @@ public class XML constructor(
      * @param target The [XmlWriter] to append the object to
      * @param prefix The prefix (if any) to use for the namespace
      */
-    @Deprecated("Use new naming scheme: encodeToWriter", ReplaceWith("encodeToWriter(target, obj, prefix)"), DeprecationLevel.ERROR)
+    @Deprecated(
+        "Use new naming scheme: encodeToWriter",
+        ReplaceWith("encodeToWriter(target, obj, prefix)"),
+        DeprecationLevel.ERROR
+    )
     public inline fun <reified T : Any> toXml(target: XmlWriter, obj: T, prefix: String? = null) {
         encodeToWriter(target, obj, prefix)
     }
 
-    @Deprecated("Replaced by version with consistent parameter order", ReplaceWith("toXml(target, obj, prefix)"), DeprecationLevel.ERROR)
+    @Deprecated(
+        "Replaced by version with consistent parameter order",
+        ReplaceWith("toXml(target, obj, prefix)"),
+        DeprecationLevel.ERROR
+    )
     public inline fun <reified T : Any> toXml(obj: T, target: XmlWriter, prefix: String? = null) {
         encodeToWriter(target, obj, prefix)
     }
@@ -605,7 +613,11 @@ public class XML constructor(
      * @param reader An [XmlReader] that contains the XML from which to read the object
      * @param deserializer The loader to use to read the object
      */
-    @Deprecated("Renamed to decodeFromReader", ReplaceWith("decodeFromReader(deserializer, reader)"), DeprecationLevel.ERROR)
+    @Deprecated(
+        "Renamed to decodeFromReader",
+        ReplaceWith("decodeFromReader(deserializer, reader)"),
+        DeprecationLevel.ERROR
+    )
     public fun <T> parse(deserializer: DeserializationStrategy<T>, reader: XmlReader): T {
         return decodeFromReader(deserializer, reader)
     }
@@ -1074,7 +1086,7 @@ public class XML constructor(
 
 
     @ExperimentalXmlUtilApi
-    public data class ParsedData<T>(public val elementIndex: Int, public val value: T, val unParsed: Boolean=false)
+    public data class ParsedData<T>(public val elementIndex: Int, public val value: T, val unParsed: Boolean = false)
 
 }
 
@@ -1144,6 +1156,7 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
  * @param out The writer to use for writing the XML
  * @param serializer The serializer to use. Often `T.Companion.serializer()`
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("Use the XML object that allows configuration", level = DeprecationLevel.ERROR)
 public fun <T : Any> T.writeAsXml(out: XmlWriter, serializer: SerializationStrategy<T>) {
     XML.defaultInstance.encodeToWriter(out, serializer, this)

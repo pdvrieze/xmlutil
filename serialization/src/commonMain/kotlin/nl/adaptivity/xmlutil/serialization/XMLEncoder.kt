@@ -95,12 +95,6 @@ internal open class XmlEncoderBase internal constructor(
         override fun encodeChar(value: Char) =
             encodeString(value.toString())
 
-        private fun encodeQName(value: QName) {
-            val effectiveQName: QName = ensureNamespace(value, false)
-
-            QNameSerializer.serialize(this, effectiveQName)
-        }
-
         @OptIn(ExperimentalXmlUtilApi::class)
         override fun encodeString(value: String) {
             // string doesn't need parsing so take a shortcut
@@ -572,19 +566,11 @@ internal open class XmlEncoderBase internal constructor(
                 xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
 
             when (effectiveSerializer) {
-                is XmlSerializationStrategy -> defer(index){
+                is XmlSerializationStrategy -> defer(index) {
                     effectiveSerializer.serializeXML(encoder, target, value, xmlDescriptor.getValueChild() == index)
                 }
+
                 QNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
-                /*
-                                CompactFragmentSerializer -> if (xmlDescriptor.getValueChild() == index) {
-                                    defer(index) {
-                                        CompactFragmentSerializer.writeCompactFragmentContent(this, value as ICompactFragment)
-                                    }
-                                } else {
-                                    defer(index) { effectiveSerializer.serialize(encoder, value) }
-                                }
-                */
 
                 else -> defer(index) { effectiveSerializer.serialize(encoder, value) }
             }
@@ -883,19 +869,14 @@ internal open class XmlEncoderBase internal constructor(
 
         val effectiveQName: QName = when {
             name.namespaceURI.isEmpty() -> QName(name.localPart)
-            argPrefix.isEmpty() -> when (name.namespaceURI) {
-//                defaultNamespace -> name
-                else -> ensureNamespace(name, true)
-            }
+
+            // handle case with qname with default prefix but not default namespace (illegal for args)
+            argPrefix.isEmpty() -> ensureNamespace(name, true)
 
             resolvedNamespace != null -> name
 
             else -> ensureNamespace(name, true)
         }
-
-//        if (effectiveQName.prefix != "" && target.getNamespaceUri(effectiveQName.prefix) == null) {
-//            target.namespaceAttr(effectiveQName.toNamespace())
-//        }
 
         target.writeAttribute(effectiveQName, value)
     }
@@ -915,7 +896,7 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         override fun writeBegin() {
-            // write the if we're in tag mode
+            // write the container if we're in tag mode (not type attribute/transparent)
             if (xmlDescriptor.polymorphicMode == PolymorphicMode.TAG) super.writeBegin()
         }
 
@@ -1041,7 +1022,7 @@ internal open class XmlEncoderBase internal constructor(
                             else -> {
                                 val prefix = str.substring(0, cPos)
                                 val ns = target.getNamespaceUri(prefix)
-                                if (ns == null) QName(str) else QName(ns, str.substring(cPos+1), prefix)
+                                if (ns == null) QName(str) else QName(ns, str.substring(cPos + 1), prefix)
                             }
                         }
                     }
@@ -1106,7 +1087,7 @@ internal open class XmlEncoderBase internal constructor(
             valueBuilder.append(value)
         }
 
-        override abstract fun endStructure(descriptor: SerialDescriptor)
+        abstract override fun endStructure(descriptor: SerialDescriptor)
     }
 
     internal inner class AttributeListEncoder(xmlDescriptor: XmlListDescriptor, private val elementIndex: Int) :
@@ -1176,8 +1157,12 @@ internal open class XmlEncoderBase internal constructor(
             val childEncoder = XmlEncoder(childDescriptor, index)
 
             when (val elemSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)) {
-                is XmlSerializationStrategy ->
-                    elemSerializer.serializeXML(childEncoder, target, value, parentXmlDescriptor.getValueChild() == listChildIdx)
+                is XmlSerializationStrategy -> elemSerializer.serializeXML(
+                    childEncoder,
+                    target,
+                    value,
+                    parentXmlDescriptor.getValueChild() == listChildIdx
+                )
 
                 else -> serializer.serialize(childEncoder, value)
             }

@@ -52,7 +52,6 @@ public annotation class XmlSerialName(
 @ExperimentalXmlUtilApi
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-//@Repeatable
 public annotation class XmlNamespaceDeclSpec(
     val value: String,
 )
@@ -95,7 +94,9 @@ public annotation class XmlChildrenName(
 public annotation class XmlElement(val value: Boolean = true)
 
 /**
- * Force a property to be text element content
+ * Force a property to be content of the tag. This is both for text content, but if the type is
+ * a list of tag-like types (`Node`, `Element`, `CompactFragment` it will also allow mixed content)
+ * of tags not supported by the base type.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -106,20 +107,26 @@ public annotation class XmlValue(val value: Boolean = true)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-public annotation class XmlId()
+public annotation class XmlId
 
-@SerialInfo
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-public annotation class XmlIgnoreWhitespace(val value: Boolean = true)
 /**
  * Determine whether whitespace should be ignored or preserved for the tag.
  *
  * @property value `true` if whitespace is to be ignored, `false` if preserved.
  */
+@SerialInfo
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+public annotation class XmlIgnoreWhitespace(val value: Boolean = true)
 
+/**
+ * This annotation allows handling wildcard attributes. The key is preferred to be a QName,
+ * alternatively it must convert to String (this could be "prefix:localName"). The value must be
+ * a String type. **Note** that if the key runtime type is a `QName` the value is directly used as
+ * attribute name without using the key serializer.
+ */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-public annotation class XmlOtherAttributes()
+public annotation class XmlOtherAttributes
 
 /**
  * Mark the property for serialization as CData, rather than text (where appropriate). It also means

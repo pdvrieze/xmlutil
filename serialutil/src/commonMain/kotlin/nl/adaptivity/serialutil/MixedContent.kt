@@ -113,8 +113,7 @@ sealed class MixedContent<out T> {
         override val descriptor: SerialDescriptor get() = delegate.descriptor
 
         fun decodeSequentially(compositeDecoder: CompositeDecoder): MixedContent<Any> {
-            val klassName = compositeDecoder.decodeStringElement(descriptor, 0)
-            val value: Any = when (klassName) {
+            val value: Any = when (val klassName = compositeDecoder.decodeStringElement(descriptor, 0)) {
                 "kotlin.String" -> compositeDecoder.decodeStringElement(descriptor, 1)
                 else            -> {
                     val serializer =

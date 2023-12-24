@@ -31,6 +31,6 @@ public data class XmlOrderConstraint(val before: Int, val after: Int) {
     public inline fun <R> map(transform: (Int) -> R): Pair<R, R> = Pair(transform(before), transform(after))
 
     public companion object {
-        public const val OTHERS: Int = -2;
+        public const val OTHERS: Int = -2
     }
 }

@@ -28,7 +28,7 @@ import kotlinx.serialization.modules.SerializersModuleCollector
 import kotlin.reflect.KClass
 
 @OptIn(ExperimentalSerializationApi::class)
-internal class ChildCollector constructor(private val wantedBaseClass: KClass<*>? = null) : SerializersModuleCollector {
+internal class ChildCollector(private val wantedBaseClass: KClass<*>? = null) : SerializersModuleCollector {
     internal val children = mutableListOf<KSerializer<*>>()
 
     @ExperimentalSerializationApi

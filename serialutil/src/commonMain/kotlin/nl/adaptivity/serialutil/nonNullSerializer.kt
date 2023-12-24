@@ -148,5 +148,5 @@ private class SerializerCanary : Decoder {
         return super.decodeSerializableValue(deserializer)
     }
 
-    internal class FinishedException() : RuntimeException()
+    class FinishedException : RuntimeException()
 }

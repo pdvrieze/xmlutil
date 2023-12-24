@@ -18,8 +18,6 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-
 package nl.adaptivity.xmlutil.dom
 
 public expect interface Element : Node {
@@ -57,9 +55,9 @@ public inline val Element.namespaceURI: String? get(): String? = getNamespaceURI
 
 public inline val Element.prefix: String? get(): String? = getPrefix()
 
-public inline val Element.localName: String get(): String = getLocalName() ?: tagName
+public val Element.localName: String get(): String = getLocalName() ?: getTagName()
 
-public inline val Element.tagName: String get(): String = getTagName()
+public val Element.tagName: String get(): String = getTagName()
 
-public inline val Element.attributes: NamedNodeMap get(): NamedNodeMap = getAttributes()
+public val Element.attributes: NamedNodeMap get(): NamedNodeMap = getAttributes()
 

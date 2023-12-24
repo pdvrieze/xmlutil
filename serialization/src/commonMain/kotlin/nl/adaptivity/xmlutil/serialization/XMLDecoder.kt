@@ -57,8 +57,6 @@ internal open class XmlDecoderBase internal constructor(
 
     private val _idMap = mutableMapOf<String, Any>()
 
-    val idMap: Map<String, Any> get() = _idMap
-
     fun hasNullMark(): Boolean {
         if (input.eventType == EventType.START_ELEMENT) {
             val hasNilAttr = (0 until input.attributeCount).any { i ->
@@ -206,7 +204,7 @@ internal open class XmlDecoderBase internal constructor(
                 consumeChunksFromString(input.getAttributeValue(attrIndex), consumeChunk)
                 return
             } else {
-                when (val descOutputKind = xmlDescriptor.outputKind) {
+                when (xmlDescriptor.outputKind) {
                     OutputKind.Element -> {
                         input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElementChunked(consumeChunk)
@@ -285,7 +283,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            return when(val deser = xmlDescriptor.effectiveDeserializationStrategy(deserializer)) {
+            return when (val deser = xmlDescriptor.effectiveDeserializationStrategy(deserializer)) {
                 is XmlDeserializationStrategy -> deser.deserializeXML(this, getInputWrapper())
                 else -> deser.deserialize(this)
             }
@@ -305,13 +303,13 @@ internal open class XmlDecoderBase internal constructor(
             return EventType.TEXT
         }
 
-        override val namespaceURI: String get() = throw XmlSerialException("Strings have no namespace uri")
+        override val namespaceURI: Nothing get() = throw XmlSerialException("Strings have no namespace uri")
 
-        override val localName: String get() = throw XmlSerialException("Strings have no localname")
+        override val localName: Nothing get() = throw XmlSerialException("Strings have no localname")
 
-        override val prefix: String get() = throw XmlSerialException("Strings have no prefix")
+        override val prefix: Nothing get() = throw XmlSerialException("Strings have no prefix")
 
-        override val isStarted: Boolean get() = pos>=0
+        override val isStarted: Boolean get() = pos >= 0
 
         override val text: String
             get() {
@@ -319,31 +317,31 @@ internal open class XmlDecoderBase internal constructor(
                 return stringValue
             }
 
-        override val piTarget: String get() = throw XmlSerialException("Strings have no pi targets")
+        override val piTarget: Nothing get() = throw XmlSerialException("Strings have no pi targets")
 
-        override val piData: String get() = throw XmlSerialException("Strings have no pi data")
-        override val attributeCount: Int
+        override val piData: Nothing get() = throw XmlSerialException("Strings have no pi data")
+        override val attributeCount: Nothing
             get() = throw XmlSerialException("Strings have no attributes")
 
-        override fun getAttributeNamespace(index: Int): String =
+        override fun getAttributeNamespace(index: Int): Nothing =
             throw XmlSerialException("Strings have no attributes")
 
-        override fun getAttributePrefix(index: Int): String =
+        override fun getAttributePrefix(index: Int): Nothing =
             throw XmlSerialException("Strings have no attributes")
 
-        override fun getAttributeLocalName(index: Int): String =
+        override fun getAttributeLocalName(index: Int): Nothing =
             throw XmlSerialException("Strings have no attributes")
 
-        override fun getAttributeValue(index: Int): String =
+        override fun getAttributeValue(index: Int): Nothing =
             throw XmlSerialException("Strings have no attributes")
 
         override val eventType: EventType
             get() {
-                if (pos!=0) throw  XmlSerialException("Not in text position")
+                if (pos != 0) throw XmlSerialException("Not in text position")
                 return EventType.TEXT
             }
 
-        override fun getAttributeValue(nsUri: String?, localName: String): String? {
+        override fun getAttributeValue(nsUri: String?, localName: String): Nothing {
             throw XmlSerialException("Strings have no attributes")
         }
 
@@ -364,14 +362,14 @@ internal open class XmlDecoderBase internal constructor(
         override val namespaceContext: IterableNamespaceContext
             get() = input.namespaceContext
 
-        override val encoding: String?
+        override val encoding: Nothing
             get() = throw XmlSerialException("Strings have no document declarations")
 
 
-        override val standalone: Boolean?
+        override val standalone: Nothing
             get() = throw XmlSerialException("Strings have no document declarations")
 
-        override val version: String?
+        override val version: Nothing
             get() = throw XmlSerialException("Strings have no document declarations")
     }
 
@@ -391,7 +389,7 @@ internal open class XmlDecoderBase internal constructor(
     ) : XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
         private var notNullChecked = false
 
-        public var tagIdHolder: TagIdHolder? = null
+        var tagIdHolder: TagIdHolder? = null
 
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
 
@@ -580,7 +578,7 @@ internal open class XmlDecoderBase internal constructor(
         protected val typeDiscriminatorName: QName?
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput, TagIdHolder {
 
-        public override var tagId: String? = null
+        override var tagId: String? = null
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
         private val nameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
@@ -694,6 +692,7 @@ internal open class XmlDecoderBase internal constructor(
                 (xmlDescriptor.getValueChild() == index)
             ) {
                 // handle missing compact fragments
+                @Suppress("UNCHECKED_CAST")
                 if (nulledItemsIdx >= 0) return (CompactFragment("") as T)
 //                input.require(EventType.START_ELEMENT, null)
                 return input.siblingsToFragment().let {
@@ -871,7 +870,7 @@ internal open class XmlDecoderBase internal constructor(
             return CompositeDecoder.UNKNOWN_NAME // Special value to indicate the element is unknown (but possibly ignored)
         }
 
-        open protected fun Int.checkRepeat(): Int = also { idx ->
+        protected open fun Int.checkRepeat(): Int = also { idx ->
             if (idx >= 0 && seenItems[idx]) {
                 val desc = xmlDescriptor.getElementDescriptor(idx)
                 if (desc !is XmlListLikeDescriptor || !desc.isListEluded) {
@@ -880,7 +879,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        open protected fun Int.checkRepeatAndOrder(inputType: InputKind): Int = also { idx ->
+        protected open fun Int.checkRepeatAndOrder(inputType: InputKind): Int = also { idx ->
             checkRepeat()
             if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
                 if (xmlDescriptor is XmlCompositeDescriptor) {
@@ -1248,11 +1247,11 @@ internal open class XmlDecoderBase internal constructor(
 
     }
 
-    internal inner class AttributeMapDecoder(xmlDescriptor: XmlAttributeMapDescriptor, val attrIndex: Int) :
+    internal inner class AttributeMapDecoder(xmlDescriptor: XmlAttributeMapDescriptor, private val attrIndex: Int) :
         TagDecoderBase<XmlAttributeMapDescriptor>(xmlDescriptor, null), Decoder {
 
-        var correctStartIndex = -1
-        var nextIndex: Int = 0
+        private var correctStartIndex = -1
+        private var nextIndex: Int = 0
 
         @ExperimentalSerializationApi
         override fun decodeSequentially(): Boolean = true
@@ -1610,16 +1609,18 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
 
             if (!xmlDescriptor.isValueCollapsed) {
-                while (input.peek()?.eventType == EventType.IGNORABLE_WHITESPACE) { input.next() }
+                while (input.peek()?.eventType == EventType.IGNORABLE_WHITESPACE) input.next()
+
                 if (lastIndex.mod(2) == 1) {
                     when (input.peek()?.eventType) {
                         EventType.START_ELEMENT -> {
                             input.next()
                             require(input.name.isEquivalent(xmlDescriptor.entryName))
                             return super.decodeElementIndex(descriptor).also {
-                                require(it>=0) { "Map entry must contain a (key) child"}
+                                require(it >= 0) { "Map entry must contain a (key) child" }
                             }
                         }
+
                         else -> {
                             check(super.decodeElementIndex(descriptor) == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
                             return CompositeDecoder.DECODE_DONE // should be the value
@@ -1627,7 +1628,7 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 } else { // value (is inside entry)
                     return super.decodeElementIndex(descriptor).also {
-                        require(it>=0) { "Map entry must contain a value child"}
+                        require(it >= 0) { "Map entry must contain a value child" }
                     }
                 }
             } else {
