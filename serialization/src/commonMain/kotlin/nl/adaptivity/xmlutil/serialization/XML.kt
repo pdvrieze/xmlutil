@@ -1085,11 +1085,12 @@ public fun XmlSerialName.toQName(serialName: String, parentNamespace: Namespace?
     }
 
     value == UNSET_ANNOTATION_VALUE -> when (prefix) {
-        UNSET_ANNOTATION_VALUE -> QName(serialName, namespace)
+        UNSET_ANNOTATION_VALUE -> QName(namespace, serialName)
         else -> QName(serialName, namespace, prefix)
     }
 
     prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
+
     else -> QName(namespace, value, prefix)
 }
 
