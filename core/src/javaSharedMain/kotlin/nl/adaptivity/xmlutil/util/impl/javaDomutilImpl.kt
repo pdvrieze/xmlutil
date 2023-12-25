@@ -23,20 +23,8 @@ package nl.adaptivity.xmlutil.util.impl
 import nl.adaptivity.xmlutil.util.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom.*
+import java.lang.IndexOutOfBoundsException
 import javax.xml.parsers.DocumentBuilderFactory
-
-@XmlUtilInternal
-public actual fun createDocument(rootElementName: QName): Document {
-    return DocumentBuilderFactory
-        .newInstance()
-        .apply { isNamespaceAware = true }
-        .newDocumentBuilder()
-        .newDocument()
-        .also { doc ->
-            val rootElement = doc.createElement(rootElementName)
-            doc.appendChild(rootElement)
-        }
-}
 
 internal val Document.firstElementChild: Element?
     get() {
@@ -66,7 +54,7 @@ internal fun NodeList.asList(): List<Node> {
         override val size: Int
             get() = delegate.getLength()
 
-        override fun get(index: Int): Node = delegate.item(index)
+        override fun get(index: Int): Node = delegate.item(index) ?: throw IndexOutOfBoundsException(index)
     }
 }
 
@@ -123,7 +111,7 @@ internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceCo
                 if (attr.getValue() == knownUri) {
                     toRemove.add(attr)
                 } else {
-                    knownNamespaces.addNamespace(attr.getLocalName(), attr.getValue())
+                    knownNamespaces.addNamespace(attr.getLocalName()!!, attr.getValue())
                 }
             } else if (attr.getPrefix() == "" && attr.getLocalName() == "xmlns") {
                 val knownUri = knownNamespaces.parent.getNamespaceURI("")

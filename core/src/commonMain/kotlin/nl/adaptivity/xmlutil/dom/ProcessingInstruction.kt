@@ -18,8 +18,14 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.ProcessingInstruction", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface ProcessingInstruction : Node
 
 public expect inline fun ProcessingInstruction.getTarget(): String

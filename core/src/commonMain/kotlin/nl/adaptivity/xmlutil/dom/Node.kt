@@ -18,10 +18,14 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER", "DEPRECATION")
 
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.Node", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface Node {
 
     public fun lookupPrefix(namespace: String): String?

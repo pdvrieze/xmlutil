@@ -18,8 +18,14 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.DOMImplementation", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface DOMImplementation {
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
     public fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document

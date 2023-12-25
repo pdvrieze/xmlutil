@@ -18,8 +18,14 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.Element", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface Element : Node {
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?

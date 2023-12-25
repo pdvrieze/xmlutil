@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,10 +18,10 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.dom
+package nl.adaptivity.xmlutil.core.impl.dom
 
-@Deprecated(
-    "No longer supported, use dom2 instead",
-    ReplaceWith("nl.adaptivity.xmlutil.dom2.DocumentType", "nl.adaptivity.xmlutil.dom2")
-)
-public expect interface DocumentType : Node
+import nl.adaptivity.xmlutil.core.impl.idom.IDocumentFragment
+import org.w3c.dom.DocumentFragment
+
+internal class DocumentFragmentImpl(delegate: DocumentFragment) :
+    NodeImpl<DocumentFragment>(delegate), IDocumentFragment

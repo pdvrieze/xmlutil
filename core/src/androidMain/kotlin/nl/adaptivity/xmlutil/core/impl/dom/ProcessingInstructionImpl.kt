@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -17,11 +17,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package nl.adaptivity.xmlutil.core.impl.dom
 
-package nl.adaptivity.xmlutil.dom
+import nl.adaptivity.xmlutil.core.impl.idom.IProcessingInstruction
+import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 
-@Deprecated(
-    "No longer supported, use dom2 instead",
-    ReplaceWith("nl.adaptivity.xmlutil.dom2.DocumentType", "nl.adaptivity.xmlutil.dom2")
-)
-public expect interface DocumentType : Node
+internal class ProcessingInstructionImpl(delegate: DomProcessingInstruction) :
+    NodeImpl<DomProcessingInstruction>(delegate), IProcessingInstruction {
+    override fun getTarget(): String = delegate.target
+
+    override fun getData(): String = delegate.data
+
+    override fun setData(data: String?) {
+        delegate.data = data
+    }
+}

@@ -22,6 +22,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.Document", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface Document : Node {
 
     public fun importNode(node: Node, deep: Boolean): Node

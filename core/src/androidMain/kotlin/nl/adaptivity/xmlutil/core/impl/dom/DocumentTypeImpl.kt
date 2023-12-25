@@ -20,16 +20,22 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.core.impl.idom.INode
-import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import org.w3c.dom.NodeList as DomNodeList
+import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
+import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
+import org.w3c.dom.DocumentType
 
-internal class WrappingNodeList(val delegate: DomNodeList) : INodeList {
-    override val size: Int
-        get() = delegate.length
+internal class DocumentTypeImpl(delegate: DocumentType) : NodeImpl<DocumentType>(delegate), IDocumentType {
+    override fun getName(): String = delegate.name
 
-    override fun item(index: Int): INode = delegate.item(index).wrap()
+    override fun getEntities(): INamedNodeMap = WrappingNamedNodeMap(delegate.entities)
 
-    @Deprecated("Use size", replaceWith = ReplaceWith("size"))
-    override fun getLength(): Int = delegate.length
+    override fun getNotations(): INamedNodeMap {
+        return WrappingNamedNodeMap(delegate.notations)
+    }
+
+    override fun getPublicId(): String = delegate.publicId
+
+    override fun getSystemId(): String = delegate.systemId
+
+    override fun getInternalSubset(): String = delegate.internalSubset
 }

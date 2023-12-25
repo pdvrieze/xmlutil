@@ -35,6 +35,7 @@ import javax.xml.XMLConstants
 /**
  * @suppress
  */
+@Deprecated("No longer supported as it is not used internally")
 public class BetterXmlSerializer : XmlSerializer {
 
     private lateinit var writer: Writer

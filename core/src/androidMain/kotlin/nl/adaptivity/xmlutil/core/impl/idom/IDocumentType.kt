@@ -20,7 +20,12 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
+import org.w3c.dom.NamedNodeMap
 import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
 import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
 
-public interface IDocumentType : INode, DocumentType1, DocumentType2
+public interface IDocumentType : INode, DocumentType1, DocumentType2 {
+    override fun getEntities(): INamedNodeMap
+
+    override fun getNotations(): INamedNodeMap
+}

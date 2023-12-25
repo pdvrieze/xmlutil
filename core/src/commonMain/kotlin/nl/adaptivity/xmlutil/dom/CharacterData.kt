@@ -18,8 +18,14 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.CharacterData", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface CharacterData : Node {
 
     public fun substringData(offset: Int, count: Int): String

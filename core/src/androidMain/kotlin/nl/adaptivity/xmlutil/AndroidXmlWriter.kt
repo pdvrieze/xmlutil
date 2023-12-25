@@ -38,7 +38,7 @@ public actual typealias PlatformXmlWriter = KtXmlWriter
  * An android implementation of XmlWriter.
  * Created by pdvrieze on 15/11/15.
  */
-@Deprecated("Use PlatformXmlWriter instead", ReplaceWith("PlatformXmlWriter"))
+@Deprecated("Use PlatformXmlWriter instead", ReplaceWith("PlatformXmlWriter"), level = DeprecationLevel.ERROR)
 public class AndroidXmlWriter : PlatformXmlWriterBase, XmlWriter {
 
     private val namespaceHolder = NamespaceHolder()

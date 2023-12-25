@@ -36,7 +36,7 @@ public interface NodeList {
 
 public inline fun NodeList.getLength(): Int = getLength()
 
-internal class NodeListIterator<L:NodeList, N: Node>(private val nodeList: L) : Iterator<N> {
+internal class NodeListIterator<L : NodeList, N : Node>(private val nodeList: L) : Iterator<N> {
     private var pos: Int = 0
 
     override fun hasNext(): Boolean {

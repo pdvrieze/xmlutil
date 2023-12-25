@@ -18,10 +18,14 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER", "DEPRECATION")
 
 package nl.adaptivity.xmlutil.dom
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.NodeList", "nl.adaptivity.xmlutil.dom2")
+)
 public expect interface NodeList {
     public fun item(index: Int): Node?
 
@@ -38,6 +42,10 @@ public operator fun NodeList.iterator(): Iterator<Node> {
     return NodeListIterator(this)
 }
 
+@Deprecated(
+    "No longer supported, use dom2 instead",
+    ReplaceWith("nl.adaptivity.xmlutil.dom2.NodeListIterator", "nl.adaptivity.xmlutil.dom2")
+)
 internal class NodeListIterator(private val nodeList: NodeList) : Iterator<Node> {
     private var pos: Int = 0
 
