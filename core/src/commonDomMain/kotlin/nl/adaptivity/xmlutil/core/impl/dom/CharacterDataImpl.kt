@@ -20,24 +20,35 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.core.impl.idom.ICharacterData
+import nl.adaptivity.xmlutil.core.impl.idom.INode
+import nl.adaptivity.xmlutil.core.impl.idom.INodeList
 import nl.adaptivity.xmlutil.dom.*
 
 internal abstract class CharacterDataImpl(
-    ownerDocument: Document,
+    ownerDocument: DocumentImpl,
     final override var data: String
-): NodeImpl(ownerDocument), CharacterData {
+) : NodeImpl(ownerDocument), ICharacterData {
 
-    final override var parentNode: Node? = null
+    final override var parentNode: INode? = null
+        internal set
 
-    final override val firstChild: Nothing? get() = null
-    final override val lastChild: Nothing? get() = null
-    final override val childNodes: DOMNodeList get() = EmptyNodeList
+    override fun getData(): String {
+        return data
+    }
 
-    override val textContent: String?
-        get() = data
+    override fun setData(value: String) {
+        data = value
+    }
+
+    final override fun getFirstChild(): Nothing? = null
+    final override fun getLastChild(): Nothing? = null
+    final override fun getChildNodes(): INodeList = EmptyNodeList
+
+    override fun getTextContent(): String? = getData()
 
     final override fun substringData(offset: Int, count: Int): String {
-        return data.substring(offset, offset+count)
+        return getData().substring(offset, offset + count)
     }
 
     final override fun appendData(data: String) {
@@ -45,39 +56,39 @@ internal abstract class CharacterDataImpl(
     }
 
     final override fun insertData(offset: Int, data: String) {
-        this.data = this.data.replaceRange(offset, offset, data)
+        this.data = this.getData().replaceRange(offset, offset, data)
     }
 
     final override fun deleteData(offset: Int, count: Int) {
-        this.data = data.removeRange(offset, offset + count)
+        this.data = getData().removeRange(offset, offset + count)
     }
 
     final override fun replaceData(offset: Int, count: Int, data: String) {
-        this.data = this.data.replaceRange(offset, offset+count, data)
+        this.data = this.getData().replaceRange(offset, offset + count, data)
     }
 
-    final override fun appendChild(node: Node): Node {
+    final override fun appendChild(node: INode): Nothing {
         throw DOMException("Character nodes have no children")
     }
 
-    final override fun replaceChild(oldChild: Node, newChild: Node): Node {
+    final override fun replaceChild(oldChild: INode, newChild: INode): Nothing {
         throw DOMException("Character nodes have no children")
     }
 
-    final override fun removeChild(node: Node): Node {
+    final override fun removeChild(node: INode): Nothing {
         throw DOMException("Character nodes have no children")
     }
 
-    override fun lookupPrefix(namespace: String?): String? {
-        return parentNode?.lookupPrefix(namespace)
+    override fun lookupPrefix(namespace: String): String? {
+        return getParentNode()?.lookupPrefix(namespace)
     }
 
-    override fun lookupNamespaceURI(prefix: String?): String? {
-        return parentNode?.lookupNamespaceURI(prefix)
+    override fun lookupNamespaceURI(prefix: String): String? {
+        return getParentNode()?.lookupNamespaceURI(prefix)
     }
 }
 
-internal object EmptyNodeList: DOMNodeList {
+internal object EmptyNodeList : INodeList {
     override val size: Int get() = 0
 
     override fun item(index: Int): Nothing? = null

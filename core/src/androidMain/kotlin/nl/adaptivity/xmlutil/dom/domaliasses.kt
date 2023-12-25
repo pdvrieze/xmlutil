@@ -18,7 +18,10 @@
  * under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "EXTENSION_SHADOWED_BY_MEMBER")
+@file:Suppress("NOTHING_TO_INLINE", "EXTENSION_SHADOWED_BY_MEMBER",
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING"
+)
 
 package nl.adaptivity.xmlutil.dom
 
@@ -73,11 +76,18 @@ public actual inline fun Attr.getPrefix(): String? = prefix
 public actual inline fun Attr.getLocalName(): String? = localName
 public actual inline fun Attr.getName(): String = name
 public actual inline fun Attr.getValue(): String = value
-public actual inline fun Attr.setValue(value: String) { this.value = value }
+
+public actual inline fun Attr.setValue(value: String) {
+    this.value = value
+}
+
 public actual inline fun Attr.getOwnerElement(): Element? = ownerElement
 
 public actual inline fun CharacterData.getData(): String = data
-public actual inline fun CharacterData.setData(value: String) { data = value }
+
+public actual inline fun CharacterData.setData(value: String) {
+    data = value
+}
 
 public actual inline fun Document.getImplementation(): DOMImplementation = implementation
 public actual inline fun Document.getDoctype(): DocumentType? = doctype
@@ -95,7 +105,11 @@ public actual inline fun NodeList.getLength(): Int = length
 
 public actual inline fun ProcessingInstruction.getTarget(): String = target
 public actual inline fun ProcessingInstruction.getData(): String = data
-public actual inline fun ProcessingInstruction.setData(data: String) { this.data = data }
+
+public actual inline fun ProcessingInstruction.setData(data: String) {
+    this.data = data
+}
+
 public actual val Document.supportsWhitespaceAtToplevel: Boolean
     get() = true
 

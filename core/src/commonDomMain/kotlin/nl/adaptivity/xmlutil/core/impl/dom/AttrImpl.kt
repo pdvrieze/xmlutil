@@ -20,18 +20,24 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.core.impl.idom.IAttr
+import nl.adaptivity.xmlutil.core.impl.idom.IElement
+import nl.adaptivity.xmlutil.core.impl.idom.INode
+import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom.Attr as Attr1
+import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 
 internal class AttrImpl(
-    ownerDocument: Document,
+    ownerDocument: DocumentImpl,
     override val namespaceURI: String?,
     override val localName: String,
     override val prefix: String?,
     override var value: String
-) : NodeImpl(ownerDocument), Attr {
+) : NodeImpl(ownerDocument), IAttr {
 
-    constructor(ownerDocument: DocumentImpl, original: Attr) : this(
+    constructor(ownerDocument: DocumentImpl, original: Attr1) : this(
         ownerDocument,
         original.namespaceURI,
         original.localName,
@@ -39,61 +45,85 @@ internal class AttrImpl(
         original.value
     )
 
-    override val name: String
-        get() = when {
-            prefix.isNullOrEmpty() -> localName
-            else -> "$prefix:$localName"
-        }
-
-    override val nodeName: String
-        get() = name
+    constructor(ownerDocument: DocumentImpl, original: Attr2) : this(
+        ownerDocument,
+        original.getNamespaceURI(),
+        original.getLocalName() ?: original.getName(),
+        original.getPrefix(),
+        original.getValue()
+    )
 
     override val nodeType: Short
-        get() = Node.ATTRIBUTE_NODE
+        get() = nodetype.value
 
-    override val childNodes: DOMNodeList get() = EmptyNodeList
+    override val name: String get() = getName()
 
-    override val firstChild: Nothing? get() = null
+    override fun getName(): String = when {
+        getPrefix().isNullOrEmpty() -> localName
+        else -> "${getPrefix()}:${getLocalName()}"
+    }
 
-    override val lastChild: Nothing? get() = null
+    override fun getNamespaceURI(): String? = namespaceURI
 
-    override var ownerElement: Element? = null
+    override fun getPrefix(): String? = prefix
+
+    override fun getLocalName(): String = localName
+
+    override fun getValue(): String = value
+
+    override fun setValue(value: String) {
+        this.value = value
+    }
+
+    override fun getNodeName(): String = getName()
+
+    override val nodetype: NodeType
+        get() = NodeType.ATTRIBUTE_NODE
+
+    override fun getChildNodes(): INodeList = EmptyNodeList
+
+    override fun getFirstChild(): Nothing? = null
+
+    override fun getLastChild(): Nothing? = null
+
+    override var ownerElement: IElement? = null
         internal set
 
-    override var parentNode: Node?
+    override fun getOwnerElement(): IElement? = ownerElement
+
+    override var parentNode: INode?
         get() = null
         set(_) {
             throw UnsupportedOperationException()
         }
 
-    override val textContent: String
-        get() = value
+    override fun getTextContent(): String = getValue()
 
-    override fun appendChild(node: Node): Node {
+    override fun appendChild(node: INode): Nothing {
         throw DOMException("Attributes have no children")
     }
 
-    override fun replaceChild(oldChild: Node, newChild: Node): Node {
+    override fun replaceChild(oldChild: INode, newChild: INode): Nothing {
         throw DOMException("Attributes have no children")
     }
 
-    override fun removeChild(node: Node): Node {
+    override fun removeChild(node: INode): Nothing {
         throw DOMException("Attributes have no children")
     }
 
-    override fun lookupPrefix(namespace: String?): String? {
-        return ownerElement?.lookupPrefix(namespace)
+    override fun lookupPrefix(namespace: String): String? {
+        return getOwnerElement()?.lookupPrefix(namespace)
     }
 
-    override fun lookupNamespaceURI(prefix: String?): String? {
-        return ownerElement?.lookupNamespaceURI(prefix)
+    override fun lookupNamespaceURI(prefix: String): String? {
+        return getOwnerElement()?.lookupNamespaceURI(prefix)
     }
 
     override fun toString(): String {
-        val attrName = when (prefix.isNullOrBlank()) {
-            true -> localName
-            else -> "$prefix:$localName"
+        val attrName = when (getPrefix().isNullOrBlank()) {
+            true -> getLocalName()
+            else -> "${getPrefix()}:${getLocalName()}"
         }
-        return "$attrName=\"$value\""
+        return "$attrName=\"${getValue()}\""
     }
 }

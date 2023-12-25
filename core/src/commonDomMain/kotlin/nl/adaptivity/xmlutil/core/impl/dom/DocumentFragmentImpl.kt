@@ -20,44 +20,49 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.core.impl.idom.IDocumentFragment
+import nl.adaptivity.xmlutil.core.impl.idom.INode
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom2.NodeType
 
-internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDocument), DocumentFragment {
-    override val previousSibling: Nothing? get() = null
-    override val nextSibling: Nothing? get() = null
+internal class DocumentFragmentImpl(ownerDocument: DocumentImpl) : NodeImpl(ownerDocument), IDocumentFragment {
+    override fun getPreviousSibling(): Nothing? = null
+    override fun getNextSibling(): Nothing? = null
 
-    override var parentNode: Node?
+    override var parentNode: INode?
         get() = null
         set(_) {
             throw UnsupportedOperationException()
         }
 
+    @Suppress("PropertyName")
     internal val _childNodes: NodeListImpl = NodeListImpl()
-    override val childNodes: DOMNodeList get() = _childNodes
 
-    override val nodeType: Short get() = Node.DOCUMENT_FRAGMENT_NODE
+    override fun getChildNodes(): INodeList = _childNodes
 
-    override val nodeName: String get() = "#document-fragment"
+    override val nodetype: NodeType get() = NodeType.DOCUMENT_FRAGMENT_NODE
 
-    override val firstChild: Node?
-        get() = _childNodes.elements.firstOrNull()
+    override fun getNodeName(): String = "#document-fragment"
 
-    override val lastChild: Node?
-        get() = _childNodes.elements.lastOrNull()
+    override fun getFirstChild(): INode? = _childNodes.elements.firstOrNull()
 
-    override val textContent: String
-        get() = buildString {
-            for(n in childNodes) { appendTextContent(n) }
+    override fun getLastChild(): INode? = _childNodes.elements.lastOrNull()
+
+    override fun getTextContent(): String = buildString {
+        for (n in getChildNodes()) {
+            appendTextContent(n)
         }
+    }
 
-    override fun appendChild(node: Node): Node {
-        val n = checkNode(node)
+    override fun appendChild(node: INode): INode {
+        val n = checkNode(node) as NodeImpl
         _childNodes.elements.add(n)
         n.parentNode = this
         return node
     }
 
-    override fun replaceChild(oldChild: Node, newChild: Node): Node {
+    override fun replaceChild(oldChild: INode, newChild: INode): INode {
         val oldIdx = _childNodes.elements.indexOf(checkNode(oldChild))
         if (oldIdx < 0) throw DOMException("Old child not found")
 
@@ -69,7 +74,7 @@ internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDoc
         return oldChild
     }
 
-    override fun removeChild(node: Node): Node {
+    override fun removeChild(node: INode): INode {
         val c = checkNode(node)
 
         if (!_childNodes.elements.remove(c)) throw DOMException("Node not found")
@@ -78,7 +83,7 @@ internal class DocumentFragmentImpl(ownerDocument: Document) : NodeImpl(ownerDoc
         return c
     }
 
-    override fun lookupPrefix(namespace: String?): String? = null
+    override fun lookupPrefix(namespace: String): String? = null
 
-    override fun lookupNamespaceURI(prefix: String?): String? = null
+    override fun lookupNamespaceURI(prefix: String): String? = null
 }

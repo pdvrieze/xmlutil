@@ -1138,6 +1138,291 @@ public final class nl/adaptivity/xmlutil/dom/NodeListKt {
 	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
+public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun getLocalName ()Ljava/lang/String;
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun getNamespaceURI ()Ljava/lang/String;
+	public abstract fun getOwnerElement ()Lnl/adaptivity/xmlutil/dom2/Element;
+	public abstract fun getPrefix ()Ljava/lang/String;
+	public abstract fun getValue ()Ljava/lang/String;
+	public abstract fun setValue (Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Attr$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Attr;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/AttrKt {
+	public static final fun getLocalName (Lnl/adaptivity/xmlutil/dom2/Attr;)Ljava/lang/String;
+	public static final fun getName (Lnl/adaptivity/xmlutil/dom2/Attr;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lnl/adaptivity/xmlutil/dom2/Attr;)Ljava/lang/String;
+	public static final fun getOwnerElement (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Element;
+	public static final fun getPrefix (Lnl/adaptivity/xmlutil/dom2/Attr;)Ljava/lang/String;
+	public static final fun getValue (Lnl/adaptivity/xmlutil/dom2/Attr;)Ljava/lang/String;
+	public static final fun setValue (Lnl/adaptivity/xmlutil/dom2/Attr;Ljava/lang/String;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/CDATASection : nl/adaptivity/xmlutil/dom2/Text {
+}
+
+public final class nl/adaptivity/xmlutil/dom2/CDATASection$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/CDATASection;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/CDATASection;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/CharacterData : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun appendData (Ljava/lang/String;)V
+	public abstract fun deleteData (II)V
+	public abstract fun getData ()Ljava/lang/String;
+	public abstract fun insertData (ILjava/lang/String;)V
+	public abstract fun replaceData (IILjava/lang/String;)V
+	public abstract fun setData (Ljava/lang/String;)V
+	public abstract fun substringData (II)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/CharacterData$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/CharacterData;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/CharacterData;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/CharacterDataKt {
+	public static final fun getData (Lnl/adaptivity/xmlutil/dom2/CharacterData;)Ljava/lang/String;
+	public static final fun setData (Lnl/adaptivity/xmlutil/dom2/CharacterData;Ljava/lang/String;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/Comment : nl/adaptivity/xmlutil/dom2/CharacterData {
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Comment$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Comment;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/Comment;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/DOMImplementation {
+	public abstract fun createDocument (Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/dom2/DocumentType;)Lnl/adaptivity/xmlutil/dom2/Document;
+	public abstract fun createDocumentType (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/DocumentType;
+	public abstract fun getSupportsWhitespaceAtToplevel ()Z
+}
+
+public final class nl/adaptivity/xmlutil/dom2/DOMImplementationKt {
+	public static final fun createDocument (Lnl/adaptivity/xmlutil/dom2/DOMImplementation;Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Document;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/Document : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun adoptNode (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun createAttribute (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun createAttributeNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun createCDATASection (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/CDATASection;
+	public abstract fun createComment (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Comment;
+	public abstract fun createDocumentFragment ()Lnl/adaptivity/xmlutil/dom2/DocumentFragment;
+	public abstract fun createElement (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Element;
+	public abstract fun createElementNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Element;
+	public abstract fun createProcessingInstruction (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;
+	public abstract fun createTextNode (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Text;
+	public abstract fun getDoctype ()Lnl/adaptivity/xmlutil/dom2/DocumentType;
+	public abstract fun getDocumentElement ()Lnl/adaptivity/xmlutil/dom2/Element;
+	public abstract fun getImplementation ()Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
+	public abstract fun getInputEncoding ()Ljava/lang/String;
+	public abstract fun importNode (Lnl/adaptivity/xmlutil/dom2/Node;Z)Lnl/adaptivity/xmlutil/dom2/Node;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Document$DefaultImpls {
+	public static fun getDoctype (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/DocumentType;
+	public static fun getDocumentElement (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/Element;
+	public static fun getImplementation (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
+	public static fun getInputEncoding (Lnl/adaptivity/xmlutil/dom2/Document;)Ljava/lang/String;
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Document;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/Element;
+	public static synthetic fun importNode$default (Lnl/adaptivity/xmlutil/dom2/Document;Lnl/adaptivity/xmlutil/dom2/Node;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/dom2/Node;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/DocumentFragment : nl/adaptivity/xmlutil/dom2/Node {
+}
+
+public final class nl/adaptivity/xmlutil/dom2/DocumentFragment$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/DocumentFragment;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/DocumentFragment;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/DocumentKt {
+	public static final fun getCharacterSet (Lnl/adaptivity/xmlutil/dom2/Document;)Ljava/lang/String;
+	public static final fun getDoctype (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/DocumentType;
+	public static final fun getDocumentElement (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/Element;
+	public static final fun getImplementation (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
+	public static final fun getInputEncoding (Lnl/adaptivity/xmlutil/dom2/Document;)Ljava/lang/String;
+	public static final fun getSupportsWhitespaceAtToplevel (Lnl/adaptivity/xmlutil/dom2/Document;)Z
+	public static final fun importNode (Lnl/adaptivity/xmlutil/dom2/Document;Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/DocumentType : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun getName ()Ljava/lang/String;
+	public abstract fun getPublicId ()Ljava/lang/String;
+	public abstract fun getSystemId ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/DocumentType$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/DocumentType;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/DocumentType;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/Element : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun getAttribute (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getAttributeNS (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getAttributeNode (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getAttributeNodeNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public abstract fun getElementsByTagName (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/NodeList;
+	public abstract fun getElementsByTagNameNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/NodeList;
+	public abstract fun getLocalName ()Ljava/lang/String;
+	public abstract fun getNamespaceURI ()Ljava/lang/String;
+	public abstract fun getPrefix ()Ljava/lang/String;
+	public abstract fun getTagName ()Ljava/lang/String;
+	public abstract fun hasAttribute (Ljava/lang/String;)Z
+	public abstract fun hasAttributeNS (Ljava/lang/String;Ljava/lang/String;)Z
+	public abstract fun removeAttribute (Ljava/lang/String;)V
+	public abstract fun removeAttributeNS (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun removeAttributeNode (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun setAttribute (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun setAttributeNS (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun setAttributeNode (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun setAttributeNodeNS (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Attr;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Element$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Element;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/Element;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/ElementKt {
+	public static final fun getAttributes (Lnl/adaptivity/xmlutil/dom2/Element;)Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public static final fun getLocalName (Lnl/adaptivity/xmlutil/dom2/Element;)Ljava/lang/String;
+	public static final fun getNamespaceURI (Lnl/adaptivity/xmlutil/dom2/Element;)Ljava/lang/String;
+	public static final fun getPrefix (Lnl/adaptivity/xmlutil/dom2/Element;)Ljava/lang/String;
+	public static final fun getTagName (Lnl/adaptivity/xmlutil/dom2/Element;)Ljava/lang/String;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/NamedNodeMap {
+	public abstract fun get (I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getLength ()I
+	public abstract fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun item (I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun iterator ()Ljava/util/Iterator;
+	public abstract fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun setNamedItem (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun setNamedItemNS (Lnl/adaptivity/xmlutil/dom2/Attr;)Lnl/adaptivity/xmlutil/dom2/Attr;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/NamedNodeMap$DefaultImpls {
+	public static fun get (Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public static fun iterator (Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;)Ljava/util/Iterator;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun appendChild (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/NodeList;
+	public abstract fun getFirstChild ()Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getLastChild ()Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getNextSibling ()Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getNodeName ()Ljava/lang/String;
+	public abstract fun getNodeType ()S
+	public abstract fun getNodetype ()Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
+	public abstract fun getParentElement ()Lnl/adaptivity/xmlutil/dom2/Element;
+	public abstract fun getParentNode ()Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getPreviousSibling ()Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getTextContent ()Ljava/lang/String;
+	public abstract fun lookupNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun lookupPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun removeChild (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun replaceChild (Lnl/adaptivity/xmlutil/dom2/Node;Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Node$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Node;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/NodeKt {
+	public static final fun getChildNodes (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/NodeList;
+	public static final fun getFirstChild (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun getLastChild (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun getNextSibling (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun getNodeName (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/String;
+	public static final fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Node;)S
+	public static final fun getOwnerDocument (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Document;
+	public static final fun getParentNode (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun getPreviousSibling (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun getTextContent (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/String;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/NodeList {
+	public abstract fun get (I)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getLength ()I
+	public abstract fun item (I)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun iterator ()Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/NodeList$DefaultImpls {
+	public static fun get (Lnl/adaptivity/xmlutil/dom2/NodeList;I)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static fun iterator (Lnl/adaptivity/xmlutil/dom2/NodeList;)Ljava/util/Iterator;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/NodeListKt {
+	public static final fun getLength (Lnl/adaptivity/xmlutil/dom2/NodeList;)I
+}
+
+public final class nl/adaptivity/xmlutil/dom2/NodeType : java/lang/Enum {
+	public static final field ATTRIBUTE_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field CDATA_SECTION_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field COMMENT_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field Companion Lnl/adaptivity/xmlutil/dom2/NodeType$Companion;
+	public static final field DOCUMENT_FRAGMENT_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field DOCUMENT_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field DOCUMENT_TYPE_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field ELEMENT_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field ENTITY_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field ENTITY_REFERENCE_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field NOTATION_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field PROCESSING_INSTRUCTION_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static final field TEXT_NODE Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()S
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public static fun values ()[Lnl/adaptivity/xmlutil/dom2/NodeType;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/NodeType$Companion {
+	public final fun invoke (S)Lnl/adaptivity/xmlutil/dom2/NodeType;
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/ProcessingInstruction : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun getData ()Ljava/lang/String;
+	public abstract fun getTarget ()Ljava/lang/String;
+	public abstract fun setData (Ljava/lang/String;)V
+}
+
+public final class nl/adaptivity/xmlutil/dom2/ProcessingInstruction$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/ProcessingInstructionKt {
+	public static final fun getData (Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;)Ljava/lang/String;
+	public static final fun getTarget (Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;)Ljava/lang/String;
+	public static final fun setData (Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;Ljava/lang/String;)V
+}
+
+public abstract interface class nl/adaptivity/xmlutil/dom2/Text : nl/adaptivity/xmlutil/dom2/CharacterData {
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Text$DefaultImpls {
+	public static fun getNodeType (Lnl/adaptivity/xmlutil/dom2/Text;)S
+	public static fun getParentElement (Lnl/adaptivity/xmlutil/dom2/Text;)Lnl/adaptivity/xmlutil/dom2/Element;
+}
+
 public final class nl/adaptivity/xmlutil/util/CombiningReader : java/io/Reader {
 	public fun <init> ([Ljava/io/Reader;)V
 	public fun close ()V

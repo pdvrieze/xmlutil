@@ -20,16 +20,18 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.DOMImplementation
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.DocumentType
+import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
+import nl.adaptivity.xmlutil.core.impl.idom.IDocument
+import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
 
-internal object SimpleDOMImplementation: DOMImplementation {
-    override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType {
+internal object SimpleDOMImplementation: IDOMImplementation {
+    override val supportsWhitespaceAtToplevel: Boolean get() = true
+
+    override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): IDocumentType {
         return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)
     }
 
-    override fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document {
+    override fun createDocument(namespace: String?, qualifiedName: String, documentType: IDocumentType?): IDocument {
         return DocumentImpl(documentType).also {
             (documentType as DocumentTypeImpl?)?.ownerDocument = it
             val elem = when (namespace) {

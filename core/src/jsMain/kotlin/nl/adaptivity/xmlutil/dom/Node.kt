@@ -35,8 +35,8 @@ public actual external interface Node {
     public var nodeValue: String?
     public var textContent: String?
     
-    public actual fun lookupPrefix(namespace: String?): String?
-    public actual fun lookupNamespaceURI(prefix: String?): String?
+    public actual fun lookupPrefix(namespace: String): String?
+    public actual fun lookupNamespaceURI(prefix: String): String?
     public actual fun appendChild(node: Node): Node
     public actual fun replaceChild(oldChild: Node, newChild: Node): Node
     public actual fun removeChild(node: Node): Node

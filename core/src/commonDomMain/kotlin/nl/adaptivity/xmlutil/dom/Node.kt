@@ -22,6 +22,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+
 
 public actual interface Node {
     public val nodeType: Short
@@ -34,7 +36,7 @@ public actual interface Node {
 
     public val parentElement: Element? get() = parentNode as? Element?
 
-    public val childNodes: DOMNodeList
+    public val childNodes: INodeList
 
     public val firstChild: Node?
 
@@ -46,9 +48,9 @@ public actual interface Node {
 
     public val textContent: String?
 
-    public actual fun lookupPrefix(namespace: String?): String?
+    public actual fun lookupPrefix(namespace: String): String?
 
-    public actual fun lookupNamespaceURI(prefix: String?): String?
+    public actual fun lookupNamespaceURI(prefix: String): String?
 
     public actual fun appendChild(node: Node): Node
 

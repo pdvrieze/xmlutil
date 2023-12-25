@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
+
 public actual interface NamedNodeMap {
     public actual fun item(index: Int): Node?
 
@@ -36,26 +38,5 @@ public actual interface NamedNodeMap {
     public actual fun removeNamedItemNS(namespace: String?, localName: String): Node?
 }
 
-public actual inline fun NamedNodeMap.getLength(): Int = (this as NativeNamedNodeMap).size
+public actual inline fun NamedNodeMap.getLength(): Int = (this as INamedNodeMap).size
 
-public interface NativeNamedNodeMap : NamedNodeMap, Collection<Attr> {
-
-    public operator fun get(index:Int): Attr? = item((index)) as Attr?
-
-    @Deprecated("Use size instead", ReplaceWith("size"))
-    public val length: Int get() = size
-
-    override val size: Int
-
-    override fun contains(element: Attr): Boolean {
-        return asSequence().contains(element)
-    }
-
-    override fun containsAll(elements: Collection<Attr>): Boolean {
-        return elements.all { contains(it) } // This is far from optimized
-    }
-
-    override fun isEmpty(): Boolean {
-        return size == 0
-    }
-}

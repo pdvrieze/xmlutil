@@ -20,34 +20,16 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom.NodeList as NodeList1
+
 @Deprecated(
-    "Use DOMNodeList that contains extended functions",
-    ReplaceWith("DOMNodeList", "nl.adaptivity.xmlutil.dom.DOMNodeList")
+    "Use INodeList that contains extended functions",
+    ReplaceWith("INodeList", "nl.adaptivity.xmlutil.core.impl.idom.INodeList")
 )
 public actual interface NodeList {
     public actual fun item(index: Int): Node?
 }
 
-@Suppress("DEPRECATION")
-public interface DOMNodeList : NodeList, Collection<Node> {
-    @Deprecated("Use size", ReplaceWith("size"))
-    public val length: Int get() = size
-
-    override fun iterator(): Iterator<Node> {
-        return NodeListIterator(this)
-    }
-
-    override fun contains(element: Node): Boolean {
-        return asSequence().contains(element)
-    }
-
-    override fun containsAll(elements: Collection<Node>): Boolean {
-        return elements.all { contains(it) } // inefficient
-    }
-
-    @Suppress("ReplaceSizeZeroCheckWithIsEmpty")
-    override fun isEmpty(): Boolean = size == 0
-}
-
 @Suppress("NOTHING_TO_INLINE", "DEPRECATION")
-public actual inline fun NodeList.getLength(): Int = (this as DOMNodeList).size
+public actual inline fun NodeList1.getLength(): Int = (this as INodeList).size

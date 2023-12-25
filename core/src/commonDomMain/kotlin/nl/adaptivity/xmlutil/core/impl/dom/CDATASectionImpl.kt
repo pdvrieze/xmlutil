@@ -20,15 +20,19 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.CDATASection
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.core.impl.idom.ICDATASection
+import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom.CDATASection as CDATASection1
+import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
 
-internal class CDATASectionImpl(ownerDocument: Document, data: String) : TextImpl(ownerDocument, data), CDATASection {
+internal class CDATASectionImpl(ownerDocument: DocumentImpl, data: String) : TextImpl(ownerDocument, data),
+    ICDATASection {
 
-    constructor(ownerDocument: DocumentImpl, original: CDATASection) : this(ownerDocument, original.data)
+    constructor(ownerDocument: DocumentImpl, original: CDATASection1) : this(ownerDocument, original.data)
 
-    override val nodeType: Short get() = Node.CDATA_SECTION_NODE
+    constructor(ownerDocument: DocumentImpl, original: CDATASection2) : this(ownerDocument, original.getData())
 
-    override val nodeName: String get() = "#cdata-section"
+    override val nodetype: NodeType get() = NodeType.CDATA_SECTION_NODE
+
+    override fun getNodeName(): String = "#cdata-section"
 }

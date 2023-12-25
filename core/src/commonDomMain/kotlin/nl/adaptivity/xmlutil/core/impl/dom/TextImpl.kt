@@ -20,19 +20,23 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.dom.Text
+import nl.adaptivity.xmlutil.core.impl.idom.IText
+import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom.Text as Text1
+import nl.adaptivity.xmlutil.dom2.Text as Text2
 
-internal open class TextImpl(ownerDocument: Document, data: String) : CharacterDataImpl(ownerDocument, data), Text {
+internal open class TextImpl(ownerDocument: DocumentImpl, data: String) : CharacterDataImpl(ownerDocument, data),
+    IText {
 
-    constructor(ownerDocument: DocumentImpl, original: Text) : this(ownerDocument, original.data)
+    constructor(ownerDocument: DocumentImpl, original: Text1) : this(ownerDocument, original.data)
 
-    override val nodeType: Short get() = Node.TEXT_NODE
+    constructor(ownerDocument: DocumentImpl, original: Text2) : this(ownerDocument, original.getData())
 
-    override val nodeName: String get() = "#text"
+    override val nodetype: NodeType get() = NodeType.TEXT_NODE
+
+    override fun getNodeName(): String = "#text"
 
     override fun toString(): String {
-        return data
+        return getData()
     }
 }

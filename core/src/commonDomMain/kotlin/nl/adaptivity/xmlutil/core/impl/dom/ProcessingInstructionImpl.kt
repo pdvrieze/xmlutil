@@ -20,22 +20,23 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.dom.ProcessingInstruction
+import nl.adaptivity.xmlutil.core.impl.idom.IProcessingInstruction
+import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom.ProcessingInstruction as ProcessingInstruction1
+import nl.adaptivity.xmlutil.dom2.ProcessingInstruction as ProcessingInstruction2
 
 internal class ProcessingInstructionImpl(
-    ownerDocument: Document,
+    ownerDocument: DocumentImpl,
     override val target: String,
     data: String
-) : CharacterDataImpl(ownerDocument, data), ProcessingInstruction {
-    constructor(ownerDocument: DocumentImpl, original: ProcessingInstruction) : this(
-        ownerDocument,
-        original.nodeName,
-        original.data
-    )
+) : CharacterDataImpl(ownerDocument, data), IProcessingInstruction {
+    constructor(ownerDocument: DocumentImpl, original: ProcessingInstruction1) :
+            this(ownerDocument, original.nodeName, original.data)
 
-    override val nodeType: Short get() = Node.PROCESSING_INSTRUCTION_NODE
+    constructor(ownerDocument: DocumentImpl, original: ProcessingInstruction2) :
+            this(ownerDocument, original.getNodeName(), original.getData())
 
-    override val nodeName: String get() = target
+    override val nodetype: NodeType get() = NodeType.PROCESSING_INSTRUCTION_NODE
+
+    override fun getNodeName(): String = getTarget()
 }

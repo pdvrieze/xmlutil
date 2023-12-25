@@ -20,50 +20,50 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.core.impl.idom.*
 
 internal abstract class NodeImpl(
-    ownerDocument: Document
-) : Node {
-
+    ownerDocument: DocumentImpl
+) : INode {
     final override var ownerDocument = ownerDocument
         internal set
 
-    abstract override var parentNode: Node?
+    abstract override var parentNode: INode?
         internal set
 
-    override val previousSibling: Node?
-        get() {
-            val siblings = (parentNode ?: return null).childNodes
-            if (siblings.item(0) == this || siblings.size <= 1) return null
-            for (idx in 1 until siblings.size) {
-                if (siblings.item(idx) == this) {
-                    return siblings.item(idx - 1)
-                }
-            }
-            return null
-        }
+    final override fun getOwnerDocument(): DocumentImpl = ownerDocument
 
-    override val nextSibling: Node?
-        get() {
-            val siblings = (parentNode ?: return null).childNodes
-            if (siblings.item(siblings.size - 1) == this || siblings.size <= 1) return null
-            for (idx in 0 until (siblings.size -1)) {
-                if (siblings.item(idx) == this) {
-                    return siblings.item(idx + 1)
-                }
+    override fun getPreviousSibling(): INode? {
+        val siblings = (getParentNode() ?: return null).childNodes
+        if (siblings.item(0) == this || siblings.size <= 1) return null
+        for (idx in 1 until siblings.size) {
+            if (siblings.item(idx) == this) {
+                return siblings.item(idx - 1)
             }
-            return null
         }
+        return null
+    }
+
+    override fun getNextSibling(): INode? {
+        val siblings = (getParentNode() ?: return null).childNodes
+        if (siblings.item(siblings.size - 1) == this || siblings.size <= 1) return null
+        for (idx in 0 until (siblings.size - 1)) {
+            if (siblings.item(idx) == this) {
+                return siblings.item(idx + 1)
+            }
+        }
+        return null
+    }
+
 }
 
-internal fun Appendable.appendTextContent(node: Node){
+internal fun Appendable.appendTextContent(node: INode){
     when(node) {
-        is DocumentFragment,
-        is Element -> for(n in node.childNodes) {
+        is IDocumentFragment,
+        is IElement -> for(n in node.getChildNodes()) {
             appendTextContent(n)
         }
-        is Attr -> append(node.value)
-        is CharacterData -> append(node.data)
+        is IAttr -> append(node.getValue())
+        is ICharacterData -> append(node.getData())
     }
 }

@@ -24,9 +24,9 @@ package nl.adaptivity.xmlutil.dom
 
 public expect interface Node {
 
-    public fun lookupPrefix(namespace: String?): String?
+    public fun lookupPrefix(namespace: String): String?
 
-    public fun lookupNamespaceURI(prefix: String?): String?
+    public fun lookupNamespaceURI(prefix: String): String?
 
     public fun appendChild(node: Node): Node
 
