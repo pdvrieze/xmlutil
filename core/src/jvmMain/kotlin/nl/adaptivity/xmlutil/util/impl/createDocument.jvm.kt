@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
 import nl.adaptivity.xmlutil.dom.Document
 import nl.adaptivity.xmlutil.dom.createElementNS
 import javax.xml.parsers.DocumentBuilderFactory
@@ -42,5 +43,5 @@ public actual fun createDocument(rootElementName: QName): Document {
             val rootElement = doc.createElementNS(rootElementName.namespaceURI, qname)
             doc.appendChild(rootElement)
         }
-    return nativeDoc
+    return DocumentImpl(nativeDoc)
 }
