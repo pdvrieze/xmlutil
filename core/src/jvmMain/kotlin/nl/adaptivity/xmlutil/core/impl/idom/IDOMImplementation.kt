@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
+import nl.adaptivity.xmlutil.core.impl.dom.DocumentTypeImpl
 import nl.adaptivity.xmlutil.dom.DOMImplementation as DOMImplementation1
 import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
 import nl.adaptivity.xmlutil.dom2.DOMImplementation as DOMImplementation2
@@ -29,12 +30,13 @@ public interface IDOMImplementation : DOMImplementation1, DOMImplementation2 {
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): IDocumentType
 
     override fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType1?): IDocument =
-        TODO()
-//        createDocument(namespace, qualifiedName, documentType?.let(DocumentTypeImpl.Companion::coerce))
+        createDocument(namespace, qualifiedName, documentType?.let { DocumentTypeImpl(documentType) })
 
     override fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType2?): IDocument =
-        TODO()
-//        createDocument(namespace, qualifiedName, documentType?.let(DocumentTypeImpl.Companion::coerce))
+        createDocument(
+            namespace,
+            qualifiedName,
+            documentType?.let { createDocumentType(it.getName(), it.getPublicId(), it.getSystemId()) })
 
     public fun createDocument(namespace: String?, qualifiedName: String, documentType: IDocumentType?): IDocument
 }

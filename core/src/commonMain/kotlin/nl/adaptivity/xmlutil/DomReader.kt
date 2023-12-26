@@ -21,14 +21,26 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
-import nl.adaptivity.xmlutil.dom.*
-import nl.adaptivity.xmlutil.util.*
+import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom.adoptNode
+import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.util.filterTyped
+import nl.adaptivity.xmlutil.util.forEachAttr
+import nl.adaptivity.xmlutil.util.impl.createDocument
+import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
+import nl.adaptivity.xmlutil.util.myLookupPrefix
+import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**
  * Created by pdvrieze on 22/03/17.
  */
-public class DomReader(public val delegate: Node) : XmlReader {
-    private var current: Node? = null
+public class DomReader(public val delegate: Node2) : XmlReader {
+
+    public constructor(delegate: Node1) :
+            this((delegate as? Node2) ?: createDocument(QName("XX")).adoptNode(delegate))
+
+    private var current: Node2? = null
 
     override val namespaceURI: String
         get() = currentElement?.run { getNamespaceURI() ?: "" }
@@ -36,11 +48,11 @@ public class DomReader(public val delegate: Node) : XmlReader {
 
     override val localName: String
         // allow localName to be null for non-namespace aware nodes
-        get() = currentElement?.let { it.getLocalName() ?: it.tagName }
+        get() = currentElement?.getLocalName()
             ?: throw XmlException("Only elements have a local name")
 
     override val prefix: String
-        get() = currentElement?.run { prefix ?: "" }
+        get() = currentElement?.let { it.getPrefix() ?: "" }
             ?: throw XmlException("Only elements have a prefix")
 
 
@@ -73,13 +85,13 @@ public class DomReader(public val delegate: Node) : XmlReader {
             NodeConsts.COMMENT_NODE,
             NodeConsts.TEXT_NODE,
             NodeConsts.CDATA_SECTION_NODE -> (current as CharacterData).data
+
             NodeConsts.PROCESSING_INSTRUCTION_NODE -> (current as CharacterData).let { "${it.nodeName} ${it.getData()}" }
 
             else -> throw XmlException("Node is not a text node")
         }
 
-    @Suppress("UNCHECKED_CAST")
-    override val attributeCount: Int get() = (current as Element?)?.attributes?.length ?: 0
+    override val attributeCount: Int get() = (current as Element?)?.getAttributes()?.getLength() ?: 0
 
     override val eventType: EventType
         get() = when (val c = current) {
@@ -91,7 +103,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
     private val namespaceAttrs: List<Attr>
         get() {
             return _namespaceAttrs ?: (
-                    requireCurrentElem.attributes.filterTyped {
+                    requireCurrentElem.getAttributes().filterTyped {
                         (it.getNamespaceURI() == null || it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) &&
                                 (it.getPrefix() == "xmlns" || (it.getPrefix()
                                     .isNullOrEmpty() && it.getLocalName() == "xmlns")) &&
@@ -105,15 +117,14 @@ public class DomReader(public val delegate: Node) : XmlReader {
     override val locationInfo: String
         get() {
 
-            fun <A : Appendable> helper(node: Node?, result: A): A = when {
-                node == null ||
-                        node.nodeType == NodeConsts.DOCUMENT_NODE
+            fun <A : Appendable> helper(node: Node2?, result: A): A = when (node?.nodetype) {
+                null, NodeType.DOCUMENT_NODE
                 -> result
 
-                node.isElement
+                NodeType.ELEMENT_NODE
                 -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
 
-                node.isText
+                NodeType.TEXT_NODE
                 -> helper(node.parentNode, result).apply { append("/text()") }
 
                 else -> helper(node.parentNode, result).apply { append("/.") }
@@ -149,16 +160,21 @@ public class DomReader(public val delegate: Node) : XmlReader {
                 return sequence<Namespace> {
                     var c: Element? = currentElement
                     while (c != null) {
-                        c.attributes.forEachAttr { attr ->
+                        c.getAttributes().forEachAttr { attr ->
                             when {
                                 attr.getPrefix() == "xmlns" ->
-                                    yield(XmlEvent.NamespaceImpl(attr.getLocalName() ?: attr.getName(), attr.getValue()))
+                                    yield(
+                                        XmlEvent.NamespaceImpl(
+                                            attr.getLocalName() ?: attr.getName(),
+                                            attr.getValue()
+                                        )
+                                    )
 
                                 attr.getPrefix().isNullOrEmpty() && attr.getLocalName() == "xmlns" ->
                                     yield(XmlEvent.NamespaceImpl("", attr.getValue()))
                             }
                         }
-                        c = c.parentElement
+                        c = c.getParentElement()
                     }
                 }.iterator()
             }
@@ -199,7 +215,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
     override val version: String get() = "1.0"
 
     override fun hasNext(): Boolean {
-        return !(atEndOfElement && current?.parentNode==null) || current != delegate
+        return !(atEndOfElement && current?.parentNode == null) || current != delegate
     }
 
     override fun next(): EventType {
@@ -248,23 +264,26 @@ public class DomReader(public val delegate: Node) : XmlReader {
         }
     }
 
+    @Deprecated("Provided for compatibility.")
+    public fun getDelegate(): Node1? = delegate as? Node1
+
     override fun getAttributeNamespace(index: Int): String {
-        val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
         return attr.getNamespaceURI() ?: ""
     }
 
     override fun getAttributePrefix(index: Int): String {
-        val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
         return attr.getPrefix() ?: ""
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
         return attr.getLocalName() ?: attr.getName()
     }
 
     override fun getAttributeValue(index: Int): String {
-        val attr: Attr = requireCurrentElem.attributes.get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
         return attr.getValue()
     }
 
@@ -286,7 +305,7 @@ public class DomReader(public val delegate: Node) : XmlReader {
 }
 
 
-private fun Node.toEventType(endOfElement: Boolean): EventType {
+private fun Node2.toEventType(endOfElement: Boolean): EventType {
     @Suppress("DEPRECATION")
     return when (nodeType) {
         NodeConsts.ATTRIBUTE_NODE -> EventType.ATTRIBUTE

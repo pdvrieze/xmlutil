@@ -20,9 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.DOMImplementation
-import nl.adaptivity.xmlutil.dom.DocumentType
-import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.dom.Document as Document1
 import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Document as Document2

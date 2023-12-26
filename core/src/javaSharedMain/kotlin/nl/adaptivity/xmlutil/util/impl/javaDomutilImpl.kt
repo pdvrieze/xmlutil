@@ -20,11 +20,14 @@
 
 package nl.adaptivity.xmlutil.util.impl
 
-import nl.adaptivity.xmlutil.util.*
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.dom.*
-import java.lang.IndexOutOfBoundsException
-import javax.xml.parsers.DocumentBuilderFactory
+import nl.adaptivity.xmlutil.util.forEachAttr
+import nl.adaptivity.xmlutil.util.isElement
+import nl.adaptivity.xmlutil.util.isText
 
 internal val Document.firstElementChild: Element?
     get() {

@@ -41,8 +41,8 @@ public actual external interface Element : Node {
 public actual fun Element.getNamespaceURI(): String? = asDynamic().namespaceURI as String?
 public actual fun Element.getPrefix(): String? = asDynamic().prefix as String?
 public actual fun Element.getLocalName(): String? = asDynamic().localName as String?
-public actual fun Element.getTagName(): String = asDynamic().tagName as String
+public actual fun Element.getTagName(): String = (asDynamic().tagName as String?) ?: nodeName
 
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-public actual fun Element.getAttributes(): NamedNodeMap = asDynamic().attributes as NamedNodeMap
+public actual fun Element.getAttributes(): NamedNodeMap = asDynamic().attributes
 

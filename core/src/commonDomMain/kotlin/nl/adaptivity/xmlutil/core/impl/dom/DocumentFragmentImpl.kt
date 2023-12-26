@@ -22,8 +22,8 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentFragment
 import nl.adaptivity.xmlutil.core.impl.idom.INode
-import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
 
 internal class DocumentFragmentImpl(ownerDocument: DocumentImpl) : NodeImpl(ownerDocument), IDocumentFragment {
@@ -53,6 +53,11 @@ internal class DocumentFragmentImpl(ownerDocument: DocumentImpl) : NodeImpl(owne
         for (n in getChildNodes()) {
             appendTextContent(n)
         }
+    }
+
+    override fun setTextContent(value: String) {
+        _childNodes.elements.clear()
+        appendChild(ownerDocument.createTextNode(value))
     }
 
     override fun appendChild(node: INode): INode {

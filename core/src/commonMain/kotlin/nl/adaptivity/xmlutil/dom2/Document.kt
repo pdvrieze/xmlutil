@@ -20,6 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
+
 public interface Document : Node {
 
     public fun getImplementation(): DOMImplementation = getImplementation()
@@ -41,6 +46,11 @@ public interface Document : Node {
     public fun createElement(localName: String): Element
 
     public fun createElementNS(namespaceURI: String, qualifiedName: String): Element
+
+    public fun createElementNS(qName: QName): Element = when {
+        qName.prefix.isEmpty() -> createElementNS(qName.namespaceURI, qName.localPart)
+        else -> createElementNS(qName.namespaceURI, "${qName.prefix}:${qName.localPart}")
+    }
 
     public fun createDocumentFragment(): DocumentFragment
 

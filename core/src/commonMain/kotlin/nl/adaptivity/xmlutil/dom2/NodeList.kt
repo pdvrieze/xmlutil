@@ -22,14 +22,14 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public interface NodeList {
+public interface NodeList : Iterable<Node> {
     public fun getLength(): Int
 
     public fun item(index: Int): Node?
 
     public operator fun get(index: Int): Node? = item(index)
 
-    public operator fun iterator(): Iterator<Node> {
+    public override operator fun iterator(): Iterator<Node> {
         return NodeListIterator(this)
     }
 }

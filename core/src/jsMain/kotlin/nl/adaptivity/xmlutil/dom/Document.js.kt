@@ -20,6 +20,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.core.impl.dom.wrap
+import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+
 public actual external interface Document: Node {
     public val implementation: DOMImplementation
     public val doctype: DocumentType?
@@ -81,3 +85,4 @@ public actual fun Document.createComment(data: String): Comment =
 public actual fun Document.createProcessingInstruction(target: String, data: String): ProcessingInstruction =
     createProcessingInstruction(target, data)
 
+public actual fun Document2.adoptNode(node: Node): Node2 = node.wrap()

@@ -23,14 +23,15 @@ package nl.adaptivity.xmlutil.util.impl
 import kotlinx.browser.document
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
 import nl.adaptivity.xmlutil.toCName
+import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 @XmlUtilInternal
-public actual fun createDocument(rootElementName: QName): Document {
-    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "USELESS_ELVIS")
-    return document.implementation.createDocument(
+public actual fun createDocument(rootElementName: QName): Document2 {
+    val delegate = document.implementation.createDocument(
         rootElementName.getNamespaceURI() ?: "",
         rootElementName.toCName()
-    ) as Document
+    )
+    return DocumentImpl(delegate)
 }

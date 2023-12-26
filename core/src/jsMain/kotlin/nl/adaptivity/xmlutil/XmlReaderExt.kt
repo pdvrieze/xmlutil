@@ -20,12 +20,13 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.util.CompactFragment
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.Element
-import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
+import nl.adaptivity.xmlutil.core.impl.idom.IElement
 import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.util.CompactFragment
 import org.w3c.dom.parsing.XMLSerializer
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+import org.w3c.dom.Document as DomDocument
 
 /**
  * Read the current element (and content) and all its siblings into a fragment.
@@ -37,13 +38,14 @@ import org.w3c.dom.parsing.XMLSerializer
  */
 public actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val d = (this as? DomReader)?.delegate
-    val doc: Document = when (d?.nodeType) {
-        NodeConsts.DOCUMENT_NODE -> d as Document
-        null -> org.w3c.dom.Document() as Document
-        else -> d.ownerDocument ?: org.w3c.dom.Document() as Document
+    val doc: DocumentImpl = when {
+        d == null -> DocumentImpl(DomDocument())
+        d is DocumentImpl -> d
+        d.getNodeType() == NodeConsts.DOCUMENT_NODE -> DocumentImpl(d as DomDocument)
+        else -> DocumentImpl((d.getOwnerDocument() as? DomDocument) ?: DomDocument())
     }
     val frag = doc.createDocumentFragment()
-    val wrapperElement: Element = doc.createElementNS(WRAPPERNAMESPACE, WRAPPERQNAME)
+    val wrapperElement: IElement = doc.createElementNS(WRAPPERNAMESPACE, WRAPPERQNAME)
     frag.appendChild(wrapperElement)
     if (!isStarted) {
         if (hasNext()) {
@@ -57,15 +59,6 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
     try {
 
         val missingNamespaces = mutableMapOf<String, String>()
-/*
-        currentElement.parentElement?.attributes?.forEach { attr ->
-            if (attr.prefix=="xmlns") {
-                missingNamespaces[localName] = attr.value
-            } else if (attr.prefix=="" && attr.localName=="prefix") {
-                missingNamespaces[""] = attr.value
-            }
-        }
-*/
 
         // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
         val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
@@ -73,7 +66,8 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
             when (type) {
                 EventType.START_ELEMENT -> {
-                    val out = DomWriter(wrapperElement, true)
+                    val out = DomWriter(wrapperElement as Node2, true)
+                    @Suppress("DEPRECATION")
                     out.addUndeclaredNamespaces(this, missingNamespaces)
                     writeCurrent(out) // writes the start tag
                     out.writeElementContent(missingNamespaces, this) // writes the children and end tag
@@ -81,11 +75,11 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 }
 
                 EventType.IGNORABLE_WHITESPACE,
-                EventType.TEXT -> wrapperElement.appendChild(wrapperElement.ownerDocument!!.createTextNode(text))
+                EventType.TEXT -> wrapperElement.appendChild(wrapperElement.getOwnerDocument().createTextNode(text))
 
-                EventType.CDSECT -> wrapperElement.appendChild(wrapperElement.ownerDocument!!.createCDATASection(text))
+                EventType.CDSECT -> wrapperElement.appendChild(wrapperElement.getOwnerDocument().createCDATASection(text))
 
-                EventType.COMMENT -> wrapperElement.appendChild(wrapperElement.ownerDocument!!.createComment(text))
+                EventType.COMMENT -> wrapperElement.appendChild(wrapperElement.getOwnerDocument().createComment(text))
 
                 EventType.ENTITY_REF -> throw XmlException("Entity references are not expected here")
 
@@ -109,7 +103,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 XmlEvent.NamespaceImpl(prefix, uri)
             }.toList()
 
-        val wrappedString = XMLSerializer().serializeToString(wrapperElement as org.w3c.dom.Node)
+        val wrappedString = XMLSerializer().serializeToString(wrapperElement.delegate)
         val unwrappedString = wrappedString.substring(
             wrappedString.indexOf('>', WRAPPERQNAME.length) + 1,
             wrappedString.length - WRAPPERQNAME.length - 3

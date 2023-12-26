@@ -23,34 +23,40 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.DomWriter
 import nl.adaptivity.xmlutil.DomReader
+import nl.adaptivity.xmlutil.DomWriter
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.util.impl.createDocument
 import org.junit.jupiter.api.Test
-import org.w3c.dom.Document
+import org.w3c.dom.Node
 import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.assertEquals
+import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     val writer = DomWriter()
     baseXmlFormat.encodeToWriter(writer, serializer, value)
     writer.target
-    val expectedDom: Document = DocumentBuilderFactory
+    val expectedDom: Document2 = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
+        .let { createDocument(QName("XX")).adoptNode(it as Node) as Document2 }
     assertDomEquals(expectedDom, writer.target)
 }
 
 private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: nl.adaptivity.xmlutil.serialization.XML) {
-    val expectedDom: Document = DocumentBuilderFactory
+    val expectedDom: Document2 = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
+        .let { createDocument(QName("XX")).adoptNode(it as Node) as Document2 }
 
     val actualReader = DomReader(expectedDom)
 

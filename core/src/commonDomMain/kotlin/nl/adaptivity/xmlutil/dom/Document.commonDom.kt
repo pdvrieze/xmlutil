@@ -20,7 +20,14 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface Document : Node {
+import nl.adaptivity.xmlutil.core.impl.idom.INode
+import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.implementation
+import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+
+public actual interface Document : Node1 {
 
     public val implementation: DOMImplementation
 
@@ -49,10 +56,10 @@ public actual interface Document : Node {
 
     public fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
 
-    public fun importNode(node: Node): Node = importNode(node, false)
-    public actual fun importNode(node: Node, deep: Boolean): Node
+    public fun importNode(node: Node1): Node1 = importNode(node, false)
+    public actual fun importNode(node: Node1, deep: Boolean): Node1
 
-    public actual fun adoptNode(node: Node): Node
+    public actual fun adoptNode(node: Node1): Node1
 
     public actual fun createAttribute(localName: String): Attr
 
@@ -62,12 +69,16 @@ public actual interface Document : Node {
 
 @Suppress("NOTHING_TO_INLINE")
 public actual inline fun Document.getImplementation(): DOMImplementation = implementation
+
 @Suppress("NOTHING_TO_INLINE")
 public actual inline fun Document.getDoctype(): DocumentType? = doctype
+
 @Suppress("NOTHING_TO_INLINE")
 public actual inline fun Document.getDocumentElement(): Element? = documentElement
+
 @Suppress("NOTHING_TO_INLINE")
 public actual inline fun Document.getInputEncoding(): String? = inputEncoding
+
 @Suppress("NOTHING_TO_INLINE")
 public actual inline val Document.supportsWhitespaceAtToplevel: Boolean get() = true
 
@@ -98,3 +109,35 @@ public actual fun Document.createComment(data: String): Comment =
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public actual fun Document.createProcessingInstruction(target: String, data: String): ProcessingInstruction =
     createProcessingInstruction(target, data)
+
+public actual fun Document2.adoptNode(node: Node1): Node2 = when (node) {
+    is INode -> adoptNode(node)
+    is Attr -> createAttributeNS(node.namespaceURI, node.name)
+    is CDATASection -> createCDATASection(node.data)
+    is Comment -> createComment(node.data)
+    is Document -> {
+        val newDt = node.doctype?.let { dt -> implementation.createDocumentType(dt.name, dt.publicId, dt.systemId) }
+        implementation.createDocument(null, getNodeName(), newDt)
+    }
+
+    is DocumentFragment -> createDocumentFragment().also { f ->
+        for (n in node.childNodes) {
+            f.appendChild(adoptNode(n))
+        }
+    }
+
+    is DocumentType -> implementation.createDocumentType(node.name, node.publicId, node.systemId)
+    is Element -> createElementNS(node.namespaceURI ?: "", node.tagName).also { e ->
+        for (a in node.getAttributes()) {
+            e.setAttributeNS(a.namespaceURI, a.name, a.value)
+        }
+        for (n in node.getChildNodes()) {
+            e.appendChild(adoptNode(n))
+        }
+    }
+
+    is ProcessingInstruction -> createProcessingInstruction(node.target, node.data)
+    is Text -> createTextNode(node.data)
+    else -> error("Node type ${NodeType(node.nodeType)} not supported")
+
+}

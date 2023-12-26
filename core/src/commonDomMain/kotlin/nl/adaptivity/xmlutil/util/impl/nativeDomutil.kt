@@ -24,9 +24,9 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.toCName
-import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 @XmlUtilInternal
-public actual fun createDocument(rootElementName: QName): Document {
+public actual fun createDocument(rootElementName: QName): Document2 {
     return SimpleDOMImplementation.createDocument(rootElementName.getNamespaceURI(), rootElementName.toCName())
 }

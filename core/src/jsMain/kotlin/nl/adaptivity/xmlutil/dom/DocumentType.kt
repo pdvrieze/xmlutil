@@ -20,4 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual external interface DocumentType: Node
+public actual external interface DocumentType: Node {
+    public val name: String
+    public val publicId: String
+    public val systemId: String
+}

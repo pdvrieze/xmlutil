@@ -20,12 +20,13 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.dom.NodeList
 import nl.adaptivity.xmlutil.dom2.NodeListIterator
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+import nl.adaptivity.xmlutil.dom2.NodeList as NodeList2
 
 @Suppress("DEPRECATION")
-public interface INodeList : NodeList, nl.adaptivity.xmlutil.dom2.NodeList, Collection<Node> {
+public interface INodeList : NodeList, NodeList2, Collection<Node2> {
     @Deprecated("Use size", ReplaceWith("size"))
     public override fun getLength(): Int = size
 
@@ -35,11 +36,11 @@ public interface INodeList : NodeList, nl.adaptivity.xmlutil.dom2.NodeList, Coll
         return NodeListIterator(this)
     }
 
-    override fun contains(element: Node): Boolean {
+    override fun contains(element: Node2): Boolean {
         return asSequence().contains(element)
     }
 
-    override fun containsAll(elements: Collection<Node>): Boolean {
+    override fun containsAll(elements: Collection<Node2>): Boolean {
         return elements.all { contains(it) } // inefficient
     }
 

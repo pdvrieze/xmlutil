@@ -21,10 +21,9 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
-import nl.adaptivity.xmlutil.core.impl.idom.IElement
 import nl.adaptivity.xmlutil.core.impl.idom.INode
-import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
 import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
@@ -62,6 +61,10 @@ internal class DocumentTypeImpl(
     override fun getLastChild(): Nothing? = null
 
     override fun getTextContent(): String? = null
+
+    override fun setTextContent(value: String) {
+        throw UnsupportedOperationException("Documents have no (direct) text content")
+    }
 
     override fun lookupPrefix(namespace: String): String? {
         return getParentNode()?.lookupPrefix(namespace)

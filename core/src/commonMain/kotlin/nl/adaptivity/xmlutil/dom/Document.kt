@@ -22,6 +22,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.Document", "nl.adaptivity.xmlutil.dom2")
@@ -71,3 +74,5 @@ public inline val Document.documentElement: Element? get() = getDocumentElement(
 public inline val Document.inputEncoding: String? get() = getInputEncoding()
 
 public expect val Document.supportsWhitespaceAtToplevel: Boolean
+
+public expect fun Document2.adoptNode(node: Node): Node2

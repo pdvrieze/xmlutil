@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom2.Node
 
 /**
  * This class is the entry point for creating [XmlReader] and [XmlWriter]
@@ -59,6 +60,11 @@ public actual object XmlStreaming : IXmlStreaming {
         newGenericReader(StringReader(input.toString()))
 
     public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+
+
+    override fun newWriter(): DomWriter = DomWriter()
+
+    override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     public fun newWriter(
         output: Appendable,

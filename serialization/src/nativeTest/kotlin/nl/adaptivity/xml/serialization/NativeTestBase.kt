@@ -24,8 +24,9 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.Element
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.ownerDocument
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
@@ -39,7 +40,7 @@ private fun parseToDocument(xmlReader: XmlReader): Document {
 
     val document = createDocument(xmlReader.name)
 
-    parseToElementChildren(document.documentElement!!, xmlReader)
+    parseToElementChildren(document.getDocumentElement()!!, xmlReader)
     return document
 }
 
@@ -73,7 +74,7 @@ private fun parseToElementChildren(parent: Element, xmlReader: XmlReader) {
     while (xmlReader.hasNext() && xmlReader.next() != EventType.END_ELEMENT) {
         when (xmlReader.eventType) {
             EventType.START_ELEMENT -> {
-                val newChild = parent.ownerDocument.createElementNS(xmlReader.namespaceURI, xmlReader.name.toCName())
+                val newChild = parent.getOwnerDocument().createElementNS(xmlReader.namespaceURI, xmlReader.name.toCName())
 
                 parent.appendChild(newChild)
                 parseToElementChildren(newChild, xmlReader)

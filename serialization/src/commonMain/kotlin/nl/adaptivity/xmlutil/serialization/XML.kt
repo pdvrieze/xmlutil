@@ -235,7 +235,7 @@ public class XML(
             else -> xmlEncoderBase.XmlEncoder(xmlDescriptor, -1)
         }
 
-        serializer.serialize(encoder, value)
+        encoder.encodeSerializableValue(serializer, value)
     }
 
     private fun <T> collectNamespaces(
@@ -360,7 +360,11 @@ public class XML(
      * @param rootName The QName to use for the root tag
      * @param string The string input
      */
-    public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String, rootName: QName?): T {
+    public fun <T> decodeFromString(
+        deserializer: DeserializationStrategy<T>,
+        @Language("XML") string: String,
+        rootName: QName?
+    ): T {
         return decodeFromReader(deserializer, xmlStreaming.newReader(string), rootName)
     }
 
@@ -434,9 +438,7 @@ public class XML(
             null
         }
 
-        val decoder = xmlDecoderBase.XmlDecoder(
-            elementDescriptor, polyInfo
-        )
+        val decoder = xmlDecoderBase.XmlDecoder(elementDescriptor, polyInfo)
         return decoder.decodeSerializableValue(deserializer)
     }
 

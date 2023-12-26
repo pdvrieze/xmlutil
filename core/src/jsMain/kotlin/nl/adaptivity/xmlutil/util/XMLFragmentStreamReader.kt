@@ -22,8 +22,9 @@ package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XmlDelegatingReader
-import nl.adaptivity.xmlutil.dom.Node
+import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import org.w3c.dom.parsing.DOMParser
+import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 
 /**
@@ -194,7 +195,7 @@ public actual class XMLFragmentStreamReader(
 
             val actualInput = "$wrapper$text</$WRAPPERPPREFIX:wrapper>"
             val parser = DOMParser()
-            return DomReader(parser.parseFromString(actualInput, "text/xml") as Node)
+            return DomReader(parser.parseFromString(actualInput, "text/xml").wrap() as Node2)
         }
 
 

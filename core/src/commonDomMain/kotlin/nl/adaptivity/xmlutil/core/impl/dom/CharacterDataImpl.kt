@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.ICharacterData
 import nl.adaptivity.xmlutil.core.impl.idom.INode
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom.DOMException
 
 internal abstract class CharacterDataImpl(
     ownerDocument: DocumentImpl,
@@ -45,7 +45,11 @@ internal abstract class CharacterDataImpl(
     final override fun getLastChild(): Nothing? = null
     final override fun getChildNodes(): INodeList = EmptyNodeList
 
-    override fun getTextContent(): String? = getData()
+    override fun getTextContent(): String? = data
+
+    override fun setTextContent(value: String) {
+        data = value
+    }
 
     final override fun substringData(offset: Int, count: Int): String {
         return getData().substring(offset, offset + count)

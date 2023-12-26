@@ -21,17 +21,13 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlStreaming
-import nl.adaptivity.xmlutil.dom.Document
-import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.dom.createElement
-import nl.adaptivity.xmlutil.dom.createTextNode
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.impl.createDocument
-import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -69,14 +65,14 @@ class NodeContainerTest : PlatformTestBase<NodeContainerTest.NodeContainer>(
 
     @Serializable
     @XmlSerialName("c")
-    data class NodeContainer(@XmlValue val content: List<SerializableNode>) {
+    data class NodeContainer(@XmlValue val content: List<Node>) {
         override fun equals(other: Any?): Boolean {
             if (other == null || other::class != NodeContainer::class) return false
             other as NodeContainer
             assertEquals(content.size, other.content.size)
             for (idx in content.indices) {
-                val thisJson = Json.encodeToString(NodeSerializer, content[idx])
-                val otherJson = Json.encodeToString(NodeSerializer, other.content[idx])
+                val thisJson = Json.encodeToString(Node.serializer(), content[idx])
+                val otherJson = Json.encodeToString(Node.serializer(), other.content[idx])
                 assertEquals(thisJson, otherJson)
             }
             return true

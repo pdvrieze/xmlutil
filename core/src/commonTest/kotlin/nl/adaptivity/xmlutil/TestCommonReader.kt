@@ -21,7 +21,8 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom2.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -246,7 +247,7 @@ abstract class TestCommonReader {
         val doc = writer.target
 
         // whitespace outside of document element is ignored by DomWriter as the jvm dom implementation fails on it
-        var c: Node? = doc.firstChild
+        var c: Node? = doc.getFirstChild()
         assertEquals(NodeConsts.COMMENT_NODE, c?.nodeType)
         assertEquals(" Problem: Doubled child entries ", (c as Comment).data)
 

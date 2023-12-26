@@ -23,12 +23,12 @@ package nl.adaptivity.xmlutil.util.impl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
-import nl.adaptivity.xmlutil.dom.Document
 import javax.xml.parsers.DocumentBuilderFactory
+import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 @XmlUtilInternal
 
-public actual fun createDocument(rootElementName: QName): Document {
+public actual fun createDocument(rootElementName: QName): Document2 {
     val nativeDoc = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }

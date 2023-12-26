@@ -97,7 +97,11 @@ internal class AttrImpl(
             throw UnsupportedOperationException()
         }
 
-    override fun getTextContent(): String = getValue()
+    override fun getTextContent(): String = value
+
+    override fun setTextContent(value: String) {
+        this.value = value
+    }
 
     override fun appendChild(node: INode): Nothing {
         throw DOMException("Attributes have no children")

@@ -22,11 +22,10 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.INode
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import nl.adaptivity.xmlutil.dom.Node
 
 internal class NodeListImpl(
     internal val elements: MutableList<NodeImpl> = mutableListOf()
-) : INodeList, Iterable<Node> {
+) : INodeList {
 
     override val size: Int get() = elements.size
 
@@ -36,7 +35,7 @@ internal class NodeListImpl(
         else -> null
     }
 
-    override fun iterator(): Iterator<INode> {
+    override fun iterator(): Iterator<NodeImpl> {
         return elements.iterator()
     }
 }

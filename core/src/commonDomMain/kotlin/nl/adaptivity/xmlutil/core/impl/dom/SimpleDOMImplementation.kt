@@ -27,6 +27,9 @@ import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
 internal object SimpleDOMImplementation: IDOMImplementation {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
+    override fun createDocument(namespace: String?, qualifiedName: String): IDocument =
+        createDocument(namespace, qualifiedName, null)
+
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): IDocumentType {
         return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)
     }

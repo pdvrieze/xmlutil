@@ -20,6 +20,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.core.impl.dom.wrap
+import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+
 public actual typealias Document = org.w3c.dom.Document
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
@@ -48,3 +52,5 @@ public actual fun Document.createComment(data: String): Comment =
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public actual fun Document.createProcessingInstruction(target: String, data: String): ProcessingInstruction =
     createProcessingInstruction(target, data)
+
+public actual fun Document2.adoptNode(node: Node): Node2 = node.wrap()

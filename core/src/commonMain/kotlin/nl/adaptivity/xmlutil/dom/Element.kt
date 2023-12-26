@@ -57,13 +57,18 @@ public expect fun Element.getTagName(): String
 public expect fun Element.getAttributes(): NamedNodeMap
 
 
+@Deprecated("Use accessor method", ReplaceWith("getNamespaceURI()"))
 public inline val Element.namespaceURI: String? get(): String? = getNamespaceURI()
 
+@Deprecated("Use accessor method", ReplaceWith("getPrefix()"))
 public inline val Element.prefix: String? get(): String? = getPrefix()
 
+@Deprecated("Use accessor method", ReplaceWith("getLocalName() ?: getTagName()"))
 public val Element.localName: String get(): String = getLocalName() ?: getTagName()
 
+@Deprecated("Use accessor method", ReplaceWith("getTagName()"))
 public val Element.tagName: String get(): String = getTagName()
 
+@Deprecated("Use accessor method", ReplaceWith("getAttributes()"))
 public val Element.attributes: NamedNodeMap get(): NamedNodeMap = getAttributes()
 

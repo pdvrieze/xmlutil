@@ -22,8 +22,8 @@ package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.Document
+import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 
 @XmlUtilInternal
-public expect fun createDocument(rootElementName: QName): Document
+public expect fun createDocument(rootElementName: QName): Document2

@@ -22,14 +22,19 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.dom.unWrap
+import nl.adaptivity.xmlutil.core.impl.dom.wrap
+import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import org.w3c.dom.Node
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
 import org.w3c.dom.parsing.XMLSerializer
 import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom2.Node as Node2
+import org.w3c.dom.Node as DomNode
 
 public actual interface XmlStreamingFactory
 
@@ -42,17 +47,19 @@ public actual interface XmlStreamingFactory
 public actual object XmlStreaming: IXmlStreaming {
 
 
-    internal fun newWriter(): DomWriter {
+    override fun newWriter(): DomWriter {
         return DomWriter()
     }
 
     internal fun newWriter(dest: ParentNode): DomWriter {
-        return DomWriter(dest as nl.adaptivity.xmlutil.dom.Node)
+        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "DEPRECATION")
+        return DomWriter(dest as Node1)
     }
 
+    override fun newWriter(dest: Node2): DomWriter = DomWriter(dest)
 
-    internal fun newReader(delegate: Node): DomReader {
-        return DomReader(delegate as nl.adaptivity.xmlutil.dom.Node)
+    internal fun newReader(node: DomNode): DomReader {
+        return DomReader(node.wrap() as Node2)
     }
 
     @Deprecated("Does not work on Javascript except for setting null", level = DeprecationLevel.ERROR)
@@ -79,7 +86,8 @@ public actual object XmlStreaming: IXmlStreaming {
             input.get(0) == '\ufeff' -> input.subSequence(1, input.length)
             else -> input
         }.toString()
-        return DomReader(DOMParser().parseFromString(str, "text/xml") as nl.adaptivity.xmlutil.dom.Node)
+
+        return DomReader(DOMParser().parseFromString(str, "text/xml").wrap() as Node2)
     }
 
     public override fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
@@ -141,7 +149,7 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
     override fun close() {
         try {
             val xmls = XMLSerializer()
-            val domText = xmls.serializeToString(delegate.target as Node)
+            val domText = xmls.serializeToString(delegate.target.unWrap())
             target.append(domText)
         } finally {
             delegate.close()
@@ -157,7 +165,7 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
     override fun close() {
         try {
             val xmls = XMLSerializer()
-            val domText = xmls.serializeToString(delegate.target as Node)
+            val domText = xmls.serializeToString((delegate.target as IDocument).delegate)
 
             val xmlDeclMode = delegate.xmlDeclMode
             if (xmlDeclMode != XmlDeclMode.None) {
@@ -204,7 +212,7 @@ public fun IXmlStreaming.newWriter(): DomWriter = XmlStreaming.newWriter()
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = xmlStreaming.newWriter(dest)
 @Suppress("UnusedReceiverParameter")
-public fun IXmlStreaming.newReader(delegate: Node): DomReader = xmlStreaming.newReader(delegate)
+public fun IXmlStreaming.newReader(delegate: DomNode): DomReader = xmlStreaming.newReader(delegate)
 
 
 @Suppress("DEPRECATION")

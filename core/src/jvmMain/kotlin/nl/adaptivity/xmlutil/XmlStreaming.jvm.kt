@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.InputStream
 import java.io.OutputStream
@@ -65,6 +66,10 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     public fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
+
+    override fun newWriter(): DomWriter = DomWriter()
+
+    override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
     public actual fun newWriter(

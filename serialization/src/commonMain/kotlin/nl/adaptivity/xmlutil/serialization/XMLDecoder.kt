@@ -71,6 +71,15 @@ internal open class XmlDecoderBase internal constructor(
         return false
     }
 
+    fun <T> DeserializationStrategy<T>.deserializeSafe(
+        decoder: Decoder,
+        previousValue: T? = null,
+        isValueChild: Boolean = false
+    ): T = when (this) {
+        is XmlDeserializationStrategy -> deserializeXML(decoder, input, previousValue, isValueChild)
+        else -> deserialize(decoder)
+    }
+
     abstract inner class DecodeCommons(
         xmlDescriptor: XmlDescriptor,
     ) : XmlCodec<XmlDescriptor>(xmlDescriptor), XML.XmlInput, Decoder {
@@ -246,10 +255,8 @@ internal open class XmlDecoderBase internal constructor(
 
             }
             val serialValueDecoder = SerialValueDecoder(desc, polyInfo, attrIndex, typeDiscriminatorName)
-            val value = when (deser) {
-                is XmlDeserializationStrategy -> deser.deserializeXML(serialValueDecoder, input, null)
-                else -> deser.deserialize(serialValueDecoder)
-            }
+            val value = deser.deserializeSafe(serialValueDecoder)
+
             val tagId = serialValueDecoder.tagIdHolder?.tagId
             if (tagId != null) {
                 checkNotNull(value) // only a non-null value can have an id
@@ -286,9 +293,12 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            return when (val deser = xmlDescriptor.effectiveDeserializationStrategy(deserializer)) {
-                is XmlDeserializationStrategy -> deser.deserializeXML(this, getInputWrapper())
-                else -> deser.deserialize(this)
+            val effectiveDeserializationStrategy = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
+            return when (effectiveDeserializationStrategy) {
+                is XmlDeserializationStrategy ->
+                    effectiveDeserializationStrategy.deserializeXML(this, getInputWrapper())
+
+                else -> effectiveDeserializationStrategy.deserialize(this)
             }
         }
     }
@@ -413,14 +423,9 @@ internal open class XmlDecoderBase internal constructor(
             return super.decodeNotNullMark()
         }
 
-        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-            return when {
-                ! notNullChecked -> super.decodeSerializableValue(deserializer)
-                deserializer is XmlDeserializationStrategy ->
-                    deserializer.deserializeXML(this, input)
-                else -> deserializer.deserialize(this)
-            }
-            //return deserializer.deserialize(this) // Revert to default
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
+            !notNullChecked -> super.decodeSerializableValue(deserializer)
+            else -> deserializer.deserializeSafe(this)
         }
 
         @ExperimentalSerializationApi
@@ -724,6 +729,7 @@ internal open class XmlDecoderBase internal constructor(
                 else ->
                     effectiveDeserializer.deserialize(decoder)
             }
+
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
                 checkNotNull(result) // only a non-null value can have an id
@@ -1211,12 +1217,7 @@ internal open class XmlDecoderBase internal constructor(
             val stringValue = decodeStringElement(descriptor, index)
             return when {
                 config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(
-                    StringDecoder(
-                        xmlDescriptor.getElementDescriptor(
-                            index
-                        ), stringValue
-                    )
-                )
+                    StringDecoder(xmlDescriptor.getElementDescriptor(index), stringValue))
 
                 else -> stringValue.toBoolean()
             }
@@ -1445,10 +1446,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val decoder = SerialValueDecoder(childXmlDescriptor, polyInfo, Int.MIN_VALUE, typeDiscriminatorName)
 
-            val result = when (deserializer) {
-                is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input, null)
-                else -> deserializer.deserialize(decoder)
-            }
+            val result = deserializer.deserializeSafe(decoder, previousValue)
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
@@ -1535,10 +1533,8 @@ internal open class XmlDecoderBase internal constructor(
 
                     val decoder = StringDecoder(keyDescriptor, key)
 
-                    return when (deserializer) {
-                        is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input)
-                        else -> deserializer.deserialize(decoder)
-                    }
+                    return deserializer.deserializeSafe(decoder, previousValue)
+
                 } else { // Only attributes collapse, so not collapsed, tag instead. doIndex should handle that
                     assert(!xmlDescriptor.isValueCollapsed)
                     check(input.name isEquivalent keyDescriptor.tagName) { "${input.name} != ${xmlDescriptor.entryName}" }
@@ -1553,10 +1549,7 @@ internal open class XmlDecoderBase internal constructor(
                 decoder.ignoreAttribute(keyDescriptor.tagName)
             }
 
-            val result = when (deserializer) {
-                is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input)
-                else -> deserializer.deserialize(decoder)
-            }
+            val result = deserializer.deserializeSafe(decoder, previousValue)
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {

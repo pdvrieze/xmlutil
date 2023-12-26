@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.core.impl.idom.*
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.Attr as Attr1
 import nl.adaptivity.xmlutil.dom.Element as Element1
@@ -80,6 +80,11 @@ internal class ElementImpl(
         for (n in getChildNodes()) {
             appendTextContent(n)
         }
+    }
+
+    override fun setTextContent(value: String) {
+        _childNodes.elements.clear()
+        appendChild(ownerDocument.createTextNode(value?:""))
     }
 
     override fun getElementsByTagName(qualifiedName: String): INodeList {

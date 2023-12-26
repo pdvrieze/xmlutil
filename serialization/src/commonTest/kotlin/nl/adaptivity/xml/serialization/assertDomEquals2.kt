@@ -21,8 +21,8 @@
 package nl.adaptivity.xml.serialization
 
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom2.*
 import kotlin.test.assertEquals
 
 private val Node.isElement: Boolean get() = this.nodeType == NodeConsts.ELEMENT_NODE
@@ -40,7 +40,7 @@ private val Node.isCharacterData: Boolean
 
 private fun NamedNodeMap.asSequence(): Sequence<Attr> {
     return sequence {
-        for (i in 0 until length) {
+        for (i in 0 until getLength()) {
             yield(item(i) as Attr)
         }
     }
@@ -48,7 +48,7 @@ private fun NamedNodeMap.asSequence(): Sequence<Attr> {
 
 private fun NodeList.asSequence(): Sequence<Node> {
     return sequence {
-        for (i in 0 until length) {
+        for (i in 0 until getLength()) {
             yield(item(i)!!)
         }
     }
@@ -70,10 +70,10 @@ fun assertDomEquals(expected: Node, actual: Node): Unit = when {
 }
 
 private fun assertElementEquals(expected: Element, actual: Element) {
-    val expectedAttrsSorted = expected.attributes.asSequence()
+    val expectedAttrsSorted = expected.getAttributes().asSequence()
         .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
-    val actualAttrsSorted = actual.attributes.asSequence()
+    val actualAttrsSorted = actual.getAttributes().asSequence()
         .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
 

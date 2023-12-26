@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import kotlinx.serialization.Serializable
+
+@Serializable(NodeSerializer::class)
 public interface Node {
     public val nodetype : NodeType
     public fun getNodeType(): Short = nodetype.value
@@ -27,6 +30,7 @@ public interface Node {
     public fun getOwnerDocument(): Document
     public fun getParentNode(): Node?
     public fun getTextContent(): String?
+    public fun setTextContent(value: String)
     public fun getChildNodes(): NodeList
     public fun getFirstChild(): Node?
     public fun getLastChild(): Node?

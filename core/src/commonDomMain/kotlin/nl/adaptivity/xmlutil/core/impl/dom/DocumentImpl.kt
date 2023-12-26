@@ -23,9 +23,6 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.*
 import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import nl.adaptivity.xmlutil.dom.DocumentType
-import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.Attr as Attr1
 import nl.adaptivity.xmlutil.dom.CDATASection as CDATASection1
@@ -90,6 +87,10 @@ internal class DocumentImpl(doctype: DocumentTypeImpl?) : IDocument {
     override fun getNextSibling(): INode? = null
 
     override fun getTextContent(): String? = null
+
+    override fun setTextContent(value: String) {
+        throw UnsupportedOperationException("Documents have no (direct) text content")
+    }
 
     override fun getInputEncoding(): String? = null
 

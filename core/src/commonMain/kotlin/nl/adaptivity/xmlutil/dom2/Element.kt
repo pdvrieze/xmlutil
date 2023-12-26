@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import kotlinx.serialization.Serializable
+
+@Serializable(ElementSerializer::class)
 public interface Element : Node {
 
     public fun getNamespaceURI(): String?

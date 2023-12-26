@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 public interface IXmlStreaming {
 
@@ -35,6 +36,10 @@ public interface IXmlStreaming {
     public fun newGenericReader(input: CharSequence): XmlReader
 
     public fun newGenericReader(reader: Reader): XmlReader
+
+    public fun newWriter(): DomWriter
+
+    public fun newWriter(dest: Node2): DomWriter
 }
 
 

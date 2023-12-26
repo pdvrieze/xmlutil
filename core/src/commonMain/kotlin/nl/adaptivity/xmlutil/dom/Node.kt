@@ -51,15 +51,25 @@ public expect inline fun Node.getLastChild(): Node?
 public expect inline fun Node.getPreviousSibling(): Node?
 public expect inline fun Node.getNextSibling(): Node?
 
+@Deprecated("Use accessor method", ReplaceWith("getNodeType()"))
 public inline val Node.nodeType: Short get() = getNodeType()
+@Deprecated("Use accessor method", ReplaceWith("getNodeName()"))
 public inline val Node.nodeName: String get() = getNodeName()
+@Deprecated("Use accessor method", ReplaceWith("getOwnerDocument()"))
 public inline val Node.ownerDocument: Document get() = getOwnerDocument()
+@Deprecated("Use accessor method", ReplaceWith("getParentNode()"))
 public inline val Node.parentNode: Node? get() = getParentNode()
+@Deprecated("Use accessor method", ReplaceWith("getTextContent()"))
 public inline val Node.textContent: String? get() = getTextContent()
+@Deprecated("Use accessor method", ReplaceWith("getChildNodes()"))
 public inline val Node.childNodes: NodeList get() = getChildNodes()
+@Deprecated("Use accessor method", ReplaceWith("getFirstChild()"))
 public inline val Node.firstChild: Node? get() = getFirstChild()
+@Deprecated("Use accessor method", ReplaceWith("getLastChild()"))
 public inline val Node.lastChild: Node? get() = getLastChild()
+@Deprecated("Use accessor method", ReplaceWith("getPreviousSibling()"))
 public inline val Node.previousSibling: Node? get() = getPreviousSibling()
+@Deprecated("Use accessor method", ReplaceWith("getNextSibling()"))
 public inline val Node.nextSibling: Node? get() = getNextSibling()
 
 

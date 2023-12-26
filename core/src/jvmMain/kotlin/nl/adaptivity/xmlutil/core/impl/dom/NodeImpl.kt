@@ -22,7 +22,8 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.*
 import nl.adaptivity.xmlutil.dom2.NodeType
-import org.w3c.dom.*
+import org.w3c.dom.Text
+import org.w3c.dom.UserDataHandler
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Attr as DomAttr
@@ -58,7 +59,7 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
 
     final override fun getTextContent(): String? = delegate.textContent
 
-    final override fun setTextContent(textContent: String?) {
+    final override fun setTextContent(textContent: String) {
         delegate.textContent = textContent
     }
 

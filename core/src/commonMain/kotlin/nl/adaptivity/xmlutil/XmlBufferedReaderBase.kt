@@ -22,14 +22,10 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import nl.adaptivity.xmlutil.dom.CharacterData
-import nl.adaptivity.xmlutil.dom.data
-import nl.adaptivity.xmlutil.dom.getData
-import nl.adaptivity.xmlutil.dom.nodeName
 
 
 @XmlUtilInternal
-public abstract class XmlBufferedReaderBase(private val delegate: XmlReader) : XmlReader {
+public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
     init { // Record also for the first element

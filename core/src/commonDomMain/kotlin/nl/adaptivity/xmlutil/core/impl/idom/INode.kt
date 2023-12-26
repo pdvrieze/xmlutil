@@ -20,9 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
-import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.dom2.NodeList
 import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
@@ -67,5 +64,7 @@ public interface INode : Node1, Node2 {
     override fun removeChild(node: Node2): INode = removeChild(node as INode)
 
     public fun removeChild(node: INode): INode
+
+    public fun getTextContext(): String? = textContent
 }
 
