@@ -246,7 +246,10 @@ internal open class XmlDecoderBase internal constructor(
 
             }
             val serialValueDecoder = SerialValueDecoder(desc, polyInfo, attrIndex, typeDiscriminatorName)
-            val value = deser.deserialize(serialValueDecoder)
+            val value = when (deser) {
+                is XmlDeserializationStrategy -> deser.deserializeXML(serialValueDecoder, input, null)
+                else -> deser.deserialize(serialValueDecoder)
+            }
             val tagId = serialValueDecoder.tagIdHolder?.tagId
             if (tagId != null) {
                 checkNotNull(value) // only a non-null value can have an id
@@ -412,8 +415,10 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             return when {
-                notNullChecked -> deserializer.deserialize(this)
-                else -> super.decodeSerializableValue(deserializer)
+                ! notNullChecked -> super.decodeSerializableValue(deserializer)
+                deserializer is XmlDeserializationStrategy ->
+                    deserializer.deserializeXML(this, input)
+                else -> deserializer.deserialize(this)
             }
             //return deserializer.deserialize(this) // Revert to default
         }
@@ -1283,9 +1288,12 @@ internal open class XmlDecoderBase internal constructor(
 
             val value = decodeStringElement(descriptor, index)
 
-            return effectiveDeserializer.deserialize(
-                StringDecoder(xmlDescriptor.valueDescriptor, value)
-            )
+            val decoder = StringDecoder(xmlDescriptor.valueDescriptor, value)
+            return when (effectiveDeserializer) {
+                is XmlDeserializationStrategy -> effectiveDeserializer.deserializeXML(decoder, XmlStringReader(value))
+
+                else -> effectiveDeserializer.deserialize(decoder)
+            }
         }
 
         override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String = when (index % 2) {
@@ -1437,7 +1445,10 @@ internal open class XmlDecoderBase internal constructor(
 
             val decoder = SerialValueDecoder(childXmlDescriptor, polyInfo, Int.MIN_VALUE, typeDiscriminatorName)
 
-            val result = deserializer.deserialize(decoder)
+            val result = when (deserializer) {
+                is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input, null)
+                else -> deserializer.deserialize(decoder)
+            }
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
@@ -1484,6 +1495,7 @@ internal open class XmlDecoderBase internal constructor(
             // TODO make merging more reliable
 
             val result = when (deserializer) {
+                is XmlDeserializationStrategy<T> -> deserializer.deserializeXML(decoder, input, previousValue)
                 is AbstractCollectionSerializer<*, T, *> -> deserializer.merge(decoder, previousValue)
                 else -> deserializer.deserialize(decoder)
             }
@@ -1520,7 +1532,13 @@ internal open class XmlDecoderBase internal constructor(
                     // When the key is an attribute it is always on the outer tag (either an entry tag or collapsed)
                     val key = input.getAttributeValue(keyDescriptor.tagName)
                         ?: throw XmlSerialException("Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.locationInfo}")
-                    return deserializer.deserialize(StringDecoder(keyDescriptor, key))
+
+                    val decoder = StringDecoder(keyDescriptor, key)
+
+                    return when (deserializer) {
+                        is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input)
+                        else -> deserializer.deserialize(decoder)
+                    }
                 } else { // Only attributes collapse, so not collapsed, tag instead. doIndex should handle that
                     assert(!xmlDescriptor.isValueCollapsed)
                     check(input.name isEquivalent keyDescriptor.tagName) { "${input.name} != ${xmlDescriptor.entryName}" }
@@ -1535,7 +1553,10 @@ internal open class XmlDecoderBase internal constructor(
                 decoder.ignoreAttribute(keyDescriptor.tagName)
             }
 
-            val result = deserializer.deserialize(decoder)
+            val result = when (deserializer) {
+                is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input)
+                else -> deserializer.deserialize(decoder)
+            }
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
@@ -1779,7 +1800,10 @@ internal open class XmlDecoderBase internal constructor(
 
                 val decoder = SerialValueDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex, polyTypeAttrname)
                 nextIndex = 2
-                val result = deserializer.deserialize(decoder)
+                val result = when (deserializer) {
+                    is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input)
+                    else -> deserializer.deserialize(decoder)
+                }
 
                 val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
                 if (tagId != null) {
