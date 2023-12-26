@@ -40,6 +40,15 @@ internal open class XmlEncoderBase internal constructor(
     override val namespaceContext: NamespaceContext
         get() = target.namespaceContext
 
+    fun <T> SerializationStrategy<T>.serializeSafe(
+        encoder: Encoder,
+        value: T,
+        isValueChild: Boolean = false
+    ) = when (this) {
+        is XmlSerializationStrategy -> serializeXML(encoder, target, value, isValueChild)
+        else -> serialize(encoder, value)
+    }
+
     /**
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not
      * implement XmlOutput as
@@ -163,11 +172,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
         ) {
-
-            when (val effectiveSerializer = xmlDescriptor.effectiveSerializationStrategy(serializer)) {
-                is XmlSerializationStrategy -> effectiveSerializer.serializeXML(this, target, value)
-                else -> effectiveSerializer.serialize(this, value)
-            }
+            xmlDescriptor.effectiveSerializationStrategy(serializer).serializeSafe(this, value)
         }
 
         @ExperimentalSerializationApi
@@ -565,6 +570,8 @@ internal open class XmlEncoderBase internal constructor(
             val effectiveSerializer =
                 xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
 
+            defer(index) { effectiveSerializer.serializeSafe(encoder, value, isValueChild(index)) }
+/*
             when (effectiveSerializer) {
                 is XmlSerializationStrategy -> defer(index) {
                     effectiveSerializer.serializeXML(encoder, target, value, xmlDescriptor.getValueChild() == index)
@@ -572,8 +579,11 @@ internal open class XmlEncoderBase internal constructor(
 
                 QNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
 
-                else -> defer(index) { effectiveSerializer.serialize(encoder, value) }
+                else -> defer(index) {
+                    effectiveSerializer.serialize(encoder, value)
+                }
             }
+*/
         }
 
         @ExperimentalSerializationApi
@@ -661,7 +671,7 @@ internal open class XmlEncoderBase internal constructor(
                 // indirectly.
                 @Suppress("UNCHECKED_CAST")
                 defer(index) {
-                    (serializer as SerializationStrategy<T?>).serialize(encoder, null)
+                    (serializer as SerializationStrategy<T?>).serializeSafe(encoder, null, isValueChild(index))
                 }
             } else if (nilAttr != null && elemDescriptor.effectiveOutputKind == OutputKind.Element) {
                 defer(index) {
@@ -678,8 +688,10 @@ internal open class XmlEncoderBase internal constructor(
             val effectiveQName: QName = ensureNamespace(value, false)
 
             val encoder = XmlEncoder(elementDescriptor, index)
-            defer(index) { QNameSerializer.serialize(encoder, effectiveQName) }
+            defer(index) { QNameSerializer.serializeXML(encoder, target, effectiveQName, isValueChild(index)) }
         }
+
+        protected fun isValueChild(index: Int) = xmlDescriptor.getValueChild() == index
 
         final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
             val elementDescriptor = xmlDescriptor.getElementDescriptor(index)
@@ -972,7 +984,7 @@ internal open class XmlEncoderBase internal constructor(
 
             val discriminatorName = (xmlDescriptor.polymorphicMode as? PolymorphicMode.ATTR)?.name
             val encoder = XmlEncoder(childXmlDescriptor, index, discriminatorName)
-            serializer.serialize(encoder, value)
+            serializer.serializeSafe(encoder, value, isValueChild(index))
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
@@ -1117,7 +1129,7 @@ internal open class XmlEncoderBase internal constructor(
         discriminatorName: QName?
     ) : TagEncoder<XmlListDescriptor>(xmlDescriptor, discriminatorName, deferring = false), XML.XmlOutput {
 
-        private val parentXmlDescriptor: XmlDescriptor get() = xmlDescriptor.tagParent.descriptor as XmlDescriptor
+        private val parentXmlDescriptor: XmlDescriptor? get() = xmlDescriptor.tagParent.descriptor as? XmlDescriptor
 
         override fun defer(
             index: Int,
@@ -1156,16 +1168,7 @@ internal open class XmlEncoderBase internal constructor(
             val childDescriptor = xmlDescriptor.getElementDescriptor(0)
             val childEncoder = XmlEncoder(childDescriptor, index)
 
-            when (val elemSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)) {
-                is XmlSerializationStrategy -> elemSerializer.serializeXML(
-                    childEncoder,
-                    target,
-                    value,
-                    parentXmlDescriptor.getValueChild() == listChildIdx
-                )
-
-                else -> serializer.serialize(childEncoder, value)
-            }
+            serializer.serializeSafe(childEncoder, value, parentXmlDescriptor?.getValueChild() == listChildIdx)
         }
 
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
@@ -1241,7 +1244,7 @@ internal open class XmlEncoderBase internal constructor(
                             smartWriteAttribute(keyDescriptor.tagName, serializedKey)
 
                             // Use an inline encoder here as we write the outer tag manually (to add the key attribute)
-                            effectiveSerializer.serialize(InlineEncoder(this@MapEncoder, 1), value)
+                            effectiveSerializer.serializeSafe(InlineEncoder(this@MapEncoder, 1), value)
                         }
                     }
 
@@ -1251,7 +1254,7 @@ internal open class XmlEncoderBase internal constructor(
                         @Suppress("UNCHECKED_CAST") // it has been stored so cannot be typed
                         keyEncoder.encodeSerializableValue(keySerializer as SerializationStrategy<Any?>, keyValue)
 
-                        effectiveSerializer.serialize(XmlEncoder(valueDescriptor, index), value)
+                        effectiveSerializer.serializeSafe(XmlEncoder(valueDescriptor, index), value)
                     }
 
                 }
