@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap as NamedNodeMap2
 
-public interface INamedNodeMap : NamedNodeMap1, NamedNodeMap2, Collection<IAttr> {
+public interface INamedNodeMap : NamedNodeMap1, NamedNodeMap2, Collection<Attr2> {
     @Deprecated("Use size instead", ReplaceWith("size"))
     public override fun getLength(): Int = size
 
@@ -53,11 +53,11 @@ public interface INamedNodeMap : NamedNodeMap1, NamedNodeMap2, Collection<IAttr>
 
     override fun iterator(): Iterator<IAttr>
 
-    override fun contains(element: IAttr): Boolean {
+    override fun contains(element: Attr2): Boolean {
         return asSequence().contains(element)
     }
 
-    override fun containsAll(elements: Collection<IAttr>): Boolean {
+    override fun containsAll(elements: Collection<Attr2>): Boolean {
         return elements.all { contains(it) } // This is far from optimized
     }
 

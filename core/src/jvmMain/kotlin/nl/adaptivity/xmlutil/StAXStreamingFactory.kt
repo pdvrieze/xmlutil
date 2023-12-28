@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.KtXmlReader
 import java.io.*
 import javax.xml.stream.XMLStreamException
 import javax.xml.transform.Result
@@ -97,6 +96,10 @@ public class StAXStreamingFactory : XmlStreamingFactory {
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
+    }
+
+    internal companion object {
+        internal val DEFAULT_OBJECT = StAXStreamingFactory()
     }
 
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -25,10 +25,12 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 
 /**
  * Interface that represents a namespace with prefix and uri.
  */
+@MpJvmDefaultWithCompatibility
 public interface Namespace {
 
     /**
@@ -78,11 +80,3 @@ public interface Namespace {
 
     }
 }
-
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use the property version", ReplaceWith("this.prefix"))
-public inline fun Namespace.getPrefix(): String = prefix
-
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use the property version", ReplaceWith("this.namespaceURI"))
-public inline fun Namespace.getNamespaceURI(): String = namespaceURI

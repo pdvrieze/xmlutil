@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -59,8 +59,8 @@ public interface Element : Node {
     public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 }
 
-public fun Element.getNamespaceURI(): String? = getNamespaceURI()
-public fun Element.getPrefix(): String? = getPrefix()
-public fun Element.getLocalName(): String? = getLocalName()
-public fun Element.getTagName(): String = getTagName()
-public fun Element.getAttributes(): NamedNodeMap = getAttributes()
+public val Element.namespaceURI: String? get() = getNamespaceURI()
+public val Element.prefix: String? get() = getPrefix()
+public val Element.localName: String get() = getLocalName()
+public val Element.tagName: String get() = getTagName()
+public val Element.attributes: NamedNodeMap get() = getAttributes()

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -49,7 +49,7 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
 
 public expect fun XmlReader.siblingsToFragment(): CompactFragment
 
-@Suppress("DeprecatedCallableAddReplaceWith", "deprecation")
+@Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("This is inefficient in Javascript")
 public fun XmlReader.siblingsToCharArray(): CharArray = siblingsToFragment().content
 

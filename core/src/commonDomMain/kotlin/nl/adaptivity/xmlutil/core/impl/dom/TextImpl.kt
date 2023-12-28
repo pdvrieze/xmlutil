@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -25,8 +25,8 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.Text as Text1
 import nl.adaptivity.xmlutil.dom2.Text as Text2
 
-internal open class TextImpl(ownerDocument: DocumentImpl, data: String) : CharacterDataImpl(ownerDocument, data),
-    IText {
+internal open class TextImpl(ownerDocument: DocumentImpl, data: String)
+    : CharacterDataImpl(ownerDocument, data), IText {
 
     constructor(ownerDocument: DocumentImpl, original: Text1) : this(ownerDocument, original.data)
 

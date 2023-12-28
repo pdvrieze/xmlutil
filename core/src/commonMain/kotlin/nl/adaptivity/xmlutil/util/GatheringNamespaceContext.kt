@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,12 +23,14 @@ import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 
 /**
  * Class that gathers namespace queries and records them in the given map (prefix, namespace uri).
- * Created by pdvrieze on 20/10/15.
+ * @author Created by pdvrieze on 20/10/15.
  */
+@XmlUtilInternal
 public class GatheringNamespaceContext(
     private val parentContext: NamespaceContext?,
     private val resultMap: MutableMap<String, String>

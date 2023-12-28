@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -21,6 +21,7 @@
 @file:JvmName("_actualAliassesKt")
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import kotlin.jvm.JvmName
 
 /** Interface that provides access to namespace queries */
@@ -31,24 +32,16 @@ public expect interface NamespaceContext {
 }
 
 @Deprecated("Just use NamespaceContext", ReplaceWith("NamespaceContext", "nl.adaptivity.xmlutil.NamespaceContext"))
-public interface NamespaceContextImpl: NamespaceContext
-
-///** Helper interface for implementation.
-// * @suppress
-// */
-//@XmlUtilInternal
-//public expect interface NamespaceContextImpl : NamespaceContext {
-//    @Deprecated("Don't use as unsafe", ReplaceWith("prefixesFor(namespaceURI)", "nl.adaptivity.xmlutil.prefixesFor"))
-//    public fun getPrefixesCompat(namespaceURI: String): Iterator<String>
-//}
+@XmlUtilInternal
+public interface NamespaceContextImpl : NamespaceContext
 
 /** Namespace context that allows iterating over the namespaces. */
 @Suppress("DEPRECATION")
+@MpJvmDefaultWithCompatibility
 public interface IterableNamespaceContext : NamespaceContextImpl, Iterable<Namespace> {
     public fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this)
 
 
-    @Suppress("DEPRECATION")
     public operator fun plus(secondary: IterableNamespaceContext): IterableNamespaceContext =
         SimpleNamespaceContext((asSequence() + secondary.asSequence()).toList())
 

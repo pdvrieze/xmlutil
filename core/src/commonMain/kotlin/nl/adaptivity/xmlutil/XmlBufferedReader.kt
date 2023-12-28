@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -24,6 +24,8 @@ package nl.adaptivity.xmlutil
  * An xml reader that has a buffer that allows peeking events as well as injecting events into the stream. Note that
  * this class does not do any validation of the xml. If injecting/removing elements into/from the buffer you can create
  * invalid XML.
+ *
+ * @param delegate The underlying reader to read from.
  */
 public open class XmlBufferedReader(delegate: XmlReader) : XmlBufferedReaderBase(delegate) {
 

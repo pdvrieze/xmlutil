@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,14 +18,9 @@
  * under the License.
  */
 
+import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.envAndroid
-import net.devrieze.gradle.ext.envJvm
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -57,6 +52,9 @@ val cleanTestTask = tasks.create("cleanTest") {
 }
 
 kotlin {
+    explicitApi()
+    applyDefaultXmlUtilHierarchyTemplate()
+
     jvm {
         compilations.all {
             tasks.named<Test>("${target.name}Test") {
@@ -114,17 +112,8 @@ kotlin {
             }
         }
 
-        val javaShared by creating {
-            dependsOn(commonMain)
-        }
-
-        val jvmMain by getting {
-            dependsOn(javaShared)
-        }
-
         val jvmTest by getting {
             dependencies {
-                dependsOn(commonTest)
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
 
@@ -134,8 +123,6 @@ kotlin {
         }
 
         val androidMain by getting {
-            dependsOn(javaShared)
-
             dependencies {
                 compileOnly(libs.kxml2)
             }
@@ -143,8 +130,6 @@ kotlin {
 
         val androidTest by getting {
             dependencies {
-                dependsOn(commonTest)
-
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
 
@@ -153,12 +138,7 @@ kotlin {
             }
         }
 
-        val jsMain by getting {
-            dependsOn(commonMain)
-        }
-
         val jsTest by getting {
-            dependsOn(commonTest)
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -168,6 +148,7 @@ kotlin {
     sourceSets.all {
         languageSettings {
             optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
+            optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
         }
     }
 

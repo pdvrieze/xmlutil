@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.util
 
+import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.*
 import org.w3c.dom.DocumentFragment
 import org.w3c.dom.Node
@@ -32,6 +33,7 @@ public typealias JSCompactFragment = CompactFragment
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.
  */
+@Serializable(CompactFragmentSerializer::class)
 public actual class CompactFragment : ICompactFragment {
 
     @Suppress("DEPRECATION")

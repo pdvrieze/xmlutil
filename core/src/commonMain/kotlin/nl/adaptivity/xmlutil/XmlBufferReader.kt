@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
 /**
  * A reader that presents a list of events as an xml reader. This is designed to work together with
- * [XmlBufferedWriter]
+ * [XmlBufferedWriter].
  */
 public class XmlBufferReader(private val buffer: List<XmlEvent>) : XmlReader {
     private var currentPos = -1
@@ -94,8 +94,10 @@ public class XmlBufferReader(private val buffer: List<XmlEvent>) : XmlReader {
                     namespaceHolder.addPrefixToContext(ns)
                 }
             }
+
             is EndElementEvent -> namespaceHolder.decDepth()
-            else -> {
+
+            else -> { // ignore
             }
         }
 

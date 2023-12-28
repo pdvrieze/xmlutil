@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -24,12 +24,12 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.*
 import kotlin.test.assertEquals
 
-private val Node.isElement: Boolean get() = this.nodeType == NodeConsts.ELEMENT_NODE
+@Suppress("DEPRECATION")
+private val Node.isElement: Boolean get() = this.getNodeType() == NodeConsts.ELEMENT_NODE
 
-private val Node.isText: Boolean get() = this.nodeType == NodeConsts.TEXT_NODE
-
+@Suppress("DEPRECATION")
 private val Node.isCharacterData: Boolean
-    get() = when (nodeType) {
+    get() = when (getNodeType()) {
         NodeConsts.TEXT_NODE,
         NodeConsts.CDATA_SECTION_NODE,
         NodeConsts.COMMENT_NODE -> true
@@ -37,49 +37,47 @@ private val Node.isCharacterData: Boolean
         else -> false
     }
 
+@Suppress("DEPRECATION")
 private fun NamedNodeMap.asSequence(): Sequence<Attr> {
     return sequence {
-        for (i in 0 until length) {
+        for (i in 0 until getLength()) {
             yield(item(i) as Attr)
         }
     }
 }
 
+@Suppress("DEPRECATION")
 private fun NodeList.asSequence(): Sequence<Node> {
     return sequence {
-        for (i in 0 until length) {
+        for (i in 0 until getLength()) {
             yield(item(i)!!)
         }
     }
 }
 
+@Suppress("DEPRECATION")
 fun assertDomEquals(expected: Node, actual: Node): Unit = when {
-    expected.nodeType != actual.nodeType
+    expected.getNodeType() != actual.getNodeType()
     -> throw AssertionError("Node types for $expected and $actual are not the same")
 
-    expected.nodeType == NodeConsts.DOCUMENT_NODE
+    expected.getNodeType() == NodeConsts.DOCUMENT_NODE
     -> assertDomEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
 
     expected.isElement -> assertElementEquals(expected as Element, actual as Element)
-    expected.isCharacterData -> assertEquals(expected.textContent, actual.textContent)
+    expected.isCharacterData -> assertEquals(expected.getTextContent(), actual.getTextContent())
 
-//    !expected.isEqualNode(actual)
-//         -> throw AssertionError("Nodes $expected and $actual are not equal")
-    else -> Unit // println("Asserting equality for node ${expected} of type ${expected.nodeType}")
+    else -> Unit
 }
 
+@Suppress("DEPRECATION")
 private fun assertElementEquals(expected: Element, actual: Element) {
-    val expectedAttrsSorted = expected.attributes.asSequence()
+    val expectedAttrsSorted = expected.getAttributes().asSequence()
         .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
-    val actualAttrsSorted = actual.attributes.asSequence()
+    val actualAttrsSorted = actual.getAttributes().asSequence()
         .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
 
-//    val expectedString = expected.outerHTML
-//    val actualString = actual.outerHTML
-
-//    assertEquals(expectedAttrsSorted.size, actualAttrsSorted.size, "Sorted attribute counts should match: ${expectedString} & ${actualString}")
     assertEquals(
         expectedAttrsSorted.size,
         actualAttrsSorted.size,
@@ -103,11 +101,13 @@ private fun assertElementEquals(expected: Element, actual: Element) {
     }
 
     val expectedChildren =
-        expected.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent?.trim() != "" }
+        expected.getChildNodes().asSequence()
+            .filter { it.getNodeType() != NodeConsts.TEXT_NODE || it.getTextContent()?.trim() != "" }
             .mergeText().toList()
 
     val actualChildren =
-        actual.childNodes.asSequence().filter { it.nodeType != NodeConsts.TEXT_NODE || it.textContent?.trim() != "" }
+        actual.getChildNodes().asSequence().filter {
+            it.getNodeType() != NodeConsts.TEXT_NODE || it.getTextContent()?.trim() != "" }
             .mergeText().toList()
 
     assertEquals(expectedChildren.size, actualChildren.size, "Different child count")
@@ -117,15 +117,16 @@ private fun assertElementEquals(expected: Element, actual: Element) {
     }
 }
 
+@Suppress("DEPRECATION")
 private fun Sequence<Node>.mergeText(): Sequence<Node> {
     return sequence {
         val pendingString = StringBuilder()
         var document: Document? = null
         for (n in this@mergeText) {
-            when (n.nodeType) {
+            when (n.getNodeType()) {
                 NodeConsts.TEXT_NODE -> {
-                    pendingString.append((n as Text).data)
-                    document = n.ownerDocument
+                    pendingString.append((n as Text).getData())
+                    document = n.getOwnerDocument()
                 }
 
                 else -> {

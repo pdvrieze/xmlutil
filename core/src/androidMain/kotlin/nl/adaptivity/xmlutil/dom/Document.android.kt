@@ -18,12 +18,16 @@
  * under the License.
  */
 
+
+@file:Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING")
+
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
+@Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING")
 public actual typealias Document = org.w3c.dom.Document
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

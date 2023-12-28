@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,10 +21,9 @@
 package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.XmlException
-import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import java.io.InputStream
+import nl.adaptivity.xmlutil.isXmlWhitespace
 import java.io.BufferedInputStream
+import java.io.InputStream
 import java.io.InputStreamReader
 
 public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boolean = false): KtXmlReader {
@@ -90,12 +89,12 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                                 do {
                                     encAttrOffset = xmlDeclContent.indexOf("encoding", encAttrOffset + 1)
                                     // TODO handle xml 1.1 whitespace
-                                } while (!(encAttrOffset == 0 || xmlDeclContent[encAttrOffset - 1].isXmlWhitespace()))
+                                } while (!(encAttrOffset == 0 || isXmlWhitespace(xmlDeclContent[encAttrOffset - 1])))
 
                                 if (encAttrOffset >= 0) {
                                     var eqPos = encAttrOffset + 8
                                     if (relaxed) {
-                                        while (eqPos < xmlDeclContent.length && xmlDeclContent[eqPos].isXmlWhitespace()) {
+                                        while (eqPos < xmlDeclContent.length && isXmlWhitespace(xmlDeclContent[eqPos])) {
                                             eqPos++
                                         }
                                     }
@@ -104,7 +103,7 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                                     }
                                     var openQuotPos = eqPos + 1
                                     if (relaxed) {
-                                        while (openQuotPos < xmlDeclContent.length && xmlDeclContent[openQuotPos].isXmlWhitespace()) {
+                                        while (openQuotPos < xmlDeclContent.length && isXmlWhitespace(xmlDeclContent[openQuotPos])) {
                                             openQuotPos++
                                         }
 

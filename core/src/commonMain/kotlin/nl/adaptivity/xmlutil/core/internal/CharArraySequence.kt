@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,7 @@ internal class CharArraySequence(
     private val data: CharArray,
     private val offset: Int = 0,
     override val length: Int = data.size - offset
-                                ) : CharSequence {
+) : CharSequence {
 
     override fun get(index: Int): Char {
         if (index < 0 || index >= (offset + length)) throw IndexOutOfBoundsException("$index")

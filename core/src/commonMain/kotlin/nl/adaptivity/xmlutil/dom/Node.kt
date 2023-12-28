@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,9 +18,11 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER", "DEPRECATION")
+@file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil.dom
+
+import kotlin.jvm.JvmName
 
 @Deprecated(
     "No longer supported, use dom2 instead",
@@ -140,5 +142,8 @@ public object NodeConsts {
 
 }
 
-@Suppress("UNCHECKED_CAST")
-public val Node.parentElement: Element? get() = getParentNode() as? Element?
+public fun Node.getParentElement(): Element? = getParentNode() as? Element?
+
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getParentElement()"))
+@get:JvmName("parentElement")
+public val Node.parentElement: Element? get() = getParentElement()

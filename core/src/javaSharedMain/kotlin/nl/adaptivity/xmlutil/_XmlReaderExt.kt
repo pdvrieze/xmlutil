@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -28,8 +28,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.util.CompactFragment
 import java.io.CharArrayWriter
 import java.util.*
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 
 /*
  * Functions that work on both js/jvm but have different implementations
@@ -100,8 +98,6 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 
 }
 
-
-internal expect fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter
 
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     return CharArrayWriter().also {

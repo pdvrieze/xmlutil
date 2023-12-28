@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,9 +20,15 @@
 
 package nl.adaptivity.xmlutil.core
 
+/**
+ * Enum with supported XML versions.
+ *
+ * @property versionString String representation of the version.
+ */
 public enum class XmlVersion(public val versionString: String) {
-
+    /** XML 1.0 */
     XML10("1.0"),
+    /** XML 1.1 */
     XML11("1.1");
 
 }

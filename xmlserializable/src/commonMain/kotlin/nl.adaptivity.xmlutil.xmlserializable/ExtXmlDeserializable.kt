@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -28,12 +28,12 @@ import nl.adaptivity.xmlutil.XmlReader
  * Interface that allows more customization on child deserialization than [SimpleXmlDeserializable].
  * Created by pdvrieze on 04/11/15.
  */
-interface ExtXmlDeserializable : XmlDeserializable {
+public interface ExtXmlDeserializable : XmlDeserializable {
 
     /**
      * Called to have all children of the current node deserialized. The attributes have already been parsed. The expected
      * end state is that the streamreader is at the corresponding endElement.
-     * @param `in` The streamreader that is the source of the events.
+     * @param reader The streamreader that is the source of the events.
      */
-    fun deserializeChildren(reader: XmlReader)
+    public fun deserializeChildren(reader: XmlReader)
 }

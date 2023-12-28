@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,16 +21,14 @@
 package nl.adaptivity.xmlutil.xmlserializable
 
 import nl.adaptivity.xmlutil.IXmlStreaming
-import nl.adaptivity.xmlutil.XmlSerializable
-import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.xmlStreaming
 
-actual fun CompactFragment(content: XmlSerializable): CompactFragment {
+public actual fun CompactFragment(content: XmlSerializable): CompactFragment {
     return CompactFragment(emptyList(), content.toString())
 }
 
-actual fun IXmlStreaming.toString(value: XmlSerializable): String {
+public actual fun IXmlStreaming.toString(value: XmlSerializable): String {
     val w = xmlStreaming.newWriter()
     try {
         value.serialize(w)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,9 +18,10 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
@@ -33,10 +34,14 @@ import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**
- * Created by pdvrieze on 22/03/17.
+ * [XmlReader] that reads from DOM.
+ *
+ * @author Created by pdvrieze on 22/03/17.
  */
+@Deprecated("Don't use directly. Instead create an instance through xmlStreaming")
 public class DomReader(public val delegate: Node2) : XmlReader {
 
+    @Suppress("DEPRECATION")
     public constructor(delegate: Node1) :
             this((delegate as? Node2) ?: createDocument(QName("XX")).adoptNode(delegate))
 
@@ -78,7 +83,7 @@ public class DomReader(public val delegate: Node2) : XmlReader {
             return (c as ProcessingInstruction).getData()
         }
 
-    @Suppress("DEPRECATION", "UNCHECKED_CAST")
+    @Suppress("DEPRECATION")
     override val text: String
         get() = when (current?.nodeType) {
             NodeConsts.ENTITY_REFERENCE_NODE,
@@ -135,15 +140,15 @@ public class DomReader(public val delegate: Node2) : XmlReader {
 
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
     private val requireCurrentElem get() = currentElement ?: throw IllegalStateException("No current element")
-    internal val currentElement: Element?
+
+    private val currentElement: Element?
         get() = when (current?.nodeType) {
-            NodeConsts.ELEMENT_NODE -> @Suppress("UNCHECKED_CAST") current as Element
+            NodeConsts.ELEMENT_NODE -> current as Element
             else -> null
         }
 
     override val namespaceContext: IterableNamespaceContext
         get() = object : IterableNamespaceContext {
-            @Suppress("UNCHECKED_CAST")
             private val currentElement: Element? = (requireCurrent as? Element) ?: requireCurrent.parentNode as? Element
 
             override fun getNamespaceURI(prefix: String): String? {
@@ -264,26 +269,27 @@ public class DomReader(public val delegate: Node2) : XmlReader {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Deprecated("Provided for compatibility.")
     public fun getDelegate(): Node1? = delegate as? Node1
 
     override fun getAttributeNamespace(index: Int): String {
-        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
         return attr.getNamespaceURI() ?: ""
     }
 
     override fun getAttributePrefix(index: Int): String {
-        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
         return attr.getPrefix() ?: ""
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
         return attr.getLocalName() ?: attr.getName()
     }
 
     override fun getAttributeValue(index: Int): String {
-        val attr: Attr = requireCurrentElem.getAttributes().get(index) ?: throw IndexOutOfBoundsException()
+        val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
         return attr.getValue()
     }
 
@@ -318,7 +324,7 @@ private fun Node2.toEventType(endOfElement: Boolean): EventType {
 //    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
         NodeConsts.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
         NodeConsts.TEXT_NODE -> when {
-            textContent!!.isXmlWhitespace() -> EventType.IGNORABLE_WHITESPACE
+            isXmlWhitespace(textContent!!) -> EventType.IGNORABLE_WHITESPACE
             else -> EventType.TEXT
         }
 

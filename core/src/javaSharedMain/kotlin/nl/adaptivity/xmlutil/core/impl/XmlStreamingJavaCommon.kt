@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -21,15 +21,18 @@
 package nl.adaptivity.xmlutil.core.impl
 
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import nl.adaptivity.xmlutil.util.SerializationProvider.XmlDeserializerFun
 import nl.adaptivity.xmlutil.util.SerializationProvider.XmlSerializerFun
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Reader
+import java.io.StringReader
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
 import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import java.io.Writer as JavaWriter
 
 
@@ -86,7 +89,7 @@ public abstract class XmlStreamingJavaCommon: IXmlStreaming {
     @Suppress("DEPRECATION")
     @Deprecated("Use version that takes XmlDeclMode")
     public fun newWriter(writer: MPWriter, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
-        newWriter(writer.delegate, repairNamespaces, omitXmlDecl)
+        newWriter(writer as Appendable, repairNamespaces, omitXmlDecl)
 
     @Deprecated("Use version that takes XmlDeclMode")
     public fun newWriter(writer: JavaWriter, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter =
@@ -94,7 +97,7 @@ public abstract class XmlStreamingJavaCommon: IXmlStreaming {
 
     @Deprecated("Use extension functions on IXmlStreaming")
     public fun newWriter(writer: MPWriter, repairNamespaces: Boolean): XmlWriter =
-        newWriter(writer.delegate, repairNamespaces)
+        newWriter(writer as Appendable, repairNamespaces)
 
     public fun newWriter(writer: JavaWriter, repairNamespaces: Boolean): XmlWriter =
         newWriter(writer as Appendable, repairNamespaces, XmlDeclMode.None)
@@ -109,6 +112,7 @@ public abstract class XmlStreamingJavaCommon: IXmlStreaming {
     @Deprecated("Use extension functions on IXmlStreaming")
     public abstract fun newReader(source: Source): XmlReader
 
+    @Suppress("DEPRECATION")
     @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
     public abstract fun <T : Any> deserializerFor(type: Class<T>): XmlDeserializerFun?
 

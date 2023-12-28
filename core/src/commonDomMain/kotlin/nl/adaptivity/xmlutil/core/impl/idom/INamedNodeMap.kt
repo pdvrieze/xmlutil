@@ -21,10 +21,11 @@
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom.NamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 
-public interface INamedNodeMap : NamedNodeMap, nl.adaptivity.xmlutil.dom2.NamedNodeMap, Collection<IAttr> {
+public interface INamedNodeMap : NamedNodeMap, nl.adaptivity.xmlutil.dom2.NamedNodeMap, Collection<Attr> {
     @Deprecated("Use size instead", ReplaceWith("size"))
     public override fun getLength(): Int = size
 
@@ -32,7 +33,7 @@ public interface INamedNodeMap : NamedNodeMap, nl.adaptivity.xmlutil.dom2.NamedN
 
     override fun item(index: Int): IAttr?
 
-    public override operator fun get(index:Int): IAttr? = item((index))
+    public override operator fun get(index: Int): IAttr? = item((index))
 
     override fun getNamedItem(qualifiedName: String): IAttr?
 
@@ -52,14 +53,15 @@ public interface INamedNodeMap : NamedNodeMap, nl.adaptivity.xmlutil.dom2.NamedN
 
     override fun iterator(): Iterator<IAttr>
 
-    override fun contains(element: IAttr): Boolean {
+    override fun contains(element: Attr): Boolean {
         return asSequence().contains(element)
     }
 
-    override fun containsAll(elements: Collection<IAttr>): Boolean {
+    override fun containsAll(elements: Collection<Attr>): Boolean {
         return elements.all { contains(it) } // This is far from optimized
     }
 
+    @Suppress("ReplaceSizeZeroCheckWithIsEmpty")
     override fun isEmpty(): Boolean {
         return size == 0
     }

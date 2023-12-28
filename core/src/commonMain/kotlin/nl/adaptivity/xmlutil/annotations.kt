@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -29,6 +29,9 @@ package nl.adaptivity.xmlutil
 @RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)
 public annotation class XmlUtilInternal
 
+/**
+ * Annotation to signify that the annotated code is experimental, with limited compatibility support.
+ */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR)
 @RequiresOptIn("This XML Serialization code is not stable and may be subject to binary and source incompatible changes", RequiresOptIn.Level.WARNING)
 public annotation class ExperimentalXmlUtilApi

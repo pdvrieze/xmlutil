@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,7 +18,7 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil.dom
 
@@ -65,12 +65,16 @@ public inline val Document.characterSet: String? get() = getInputEncoding()
 
 public fun Document.importNode(node: Node): Node = importNode(node, false)
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getImplementation()"))
 public inline val Document.implementation: DOMImplementation get() = getImplementation()
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getDoctype()"))
 public inline val Document.doctype: DocumentType? get() = getDoctype()
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getDocumentElement()"))
 public inline val Document.documentElement: Element? get() = getDocumentElement()
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getInputEncoding()"))
 public inline val Document.inputEncoding: String? get() = getInputEncoding()
 
 public expect val Document.supportsWhitespaceAtToplevel: Boolean

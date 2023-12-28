@@ -24,15 +24,19 @@ import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
 import org.w3c.dom.DOMImplementation
+import javax.xml.parsers.DocumentBuilderFactory
 
-internal class DOMImplementationImpl(val delegate: DOMImplementation): IDOMImplementation {
+internal object DOMImplementationImpl : IDOMImplementation {
+    val delegate: DOMImplementation =
+        DocumentBuilderFactory.newDefaultNSInstance().newDocumentBuilder().domImplementation
+
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): IDocumentType {
         return delegate.createDocumentType(qualifiedName, publicId, systemId).wrap()
     }
 
-    override fun createDocument(namespace: String?, qualifiedName: String, documentType: IDocumentType?): IDocument {
+    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument {
         return delegate.createDocument(namespace, qualifiedName, documentType).wrap()
     }
 

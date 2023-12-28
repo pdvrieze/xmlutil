@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -30,8 +30,14 @@ import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import kotlin.jvm.JvmName
 
 /** Determine whether the character is xml whitespace. */
-public fun isXmlWhitespace(char: Char): Boolean =
-    char == '\u000A' || char == '\u0009' || char == '\u000d' || char == ' '
+public fun isXmlWhitespace(char: Char): Boolean = when(char) {
+    '\u000A',
+    '\u0009',
+    '\u000d',
+    ' ' -> true
+
+    else -> false
+}
 
 public fun isXmlWhitespace(data: CharArray): Boolean = data.all { isXmlWhitespace(it) }
 

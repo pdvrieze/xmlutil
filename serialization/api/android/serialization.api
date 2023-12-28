@@ -137,13 +137,17 @@ public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : nl/ad
 	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Element;Z)V
 }
 
-public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : kotlinx/serialization/KSerializer {
+public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
+	public synthetic fun deserializeNonXML (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserializeNonXML (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/util/ICompactFragment;
+	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/util/ICompactFragment;Z)Lnl/adaptivity/xmlutil/util/ICompactFragment;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
+	public synthetic fun serializeNonXML (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serializeNonXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
+	public synthetic fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
+	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/util/ICompactFragment;Z)V
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/InputKind : java/lang/Enum {

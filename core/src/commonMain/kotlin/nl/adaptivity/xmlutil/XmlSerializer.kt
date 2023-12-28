@@ -20,33 +20,27 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 
-@ExperimentalXmlUtilApi
-public interface XmlDeserializationStrategy<out T> : DeserializationStrategy<T> {
-    public fun deserializeXML(
-        decoder: Decoder,
-        input: XmlReader,
-        previousValue: @UnsafeVariance T? = null,
-        isValueChild: Boolean = false
-    ): T
-}
-
-@ExperimentalXmlUtilApi
-public interface XmlSerializationStrategy<in T> : SerializationStrategy<T> {
-    public fun serializeXML(encoder: Encoder, output: XmlWriter, value: T, isValueChild: Boolean = false)
-}
-
+/**
+ * Combined interface for custom serializers that support special casing by the XML Format.
+ */
 @ExperimentalXmlUtilApi
 public interface XmlSerializer<T> : KSerializer<T>, XmlSerializationStrategy<T>, XmlDeserializationStrategy<T>
 
+/**
+ * Helper function that allows the XML format to use a different descriptor for the given type. This
+ * is intended for use with custom serializers implementing [XmlSerializer] to handle xml
+ * serialization specially.
+ * @receiver The "normal"/default descriptor
+ * @param xmlDescriptor The descriptor to use in case of XML (not overridden by default).
+ * @param serialQName The name of the type as if specified by annotation. By default `null` (no name given)
+ * @return A subtype of the serializer that is recognized by the xml format and allows dynamic
+ *          descriptions dependent on the format.
+ */
 @ExperimentalXmlUtilApi
 public fun SerialDescriptor.xml(
     xmlDescriptor: SerialDescriptor = this,
@@ -55,12 +49,16 @@ public fun SerialDescriptor.xml(
     return XmlSerialDescriptorImpl(this, xmlDescriptor, serialQName)
 }
 
+/**
+ * Serial Descriptor delegate that supports special casing by the XML format. This means
+ * that the descriptor can be different for non-xml and xml serialization. (Used by the QName
+ * serializer).
+ */
 @ExperimentalXmlUtilApi
 public interface XmlSerialDescriptor : SerialDescriptor {
     public val delegate: SerialDescriptor
     public val xmlDescriptor: SerialDescriptor
-    public val serialQName: QName?
-
+    public val serialQName: QName? get() = null
 
     @ExperimentalSerializationApi
     override val elementsCount: Int get() = delegate.elementsCount
@@ -87,10 +85,17 @@ public interface XmlSerialDescriptor : SerialDescriptor {
     override fun isElementOptional(index: Int): Boolean {
         return delegate.isElementOptional(index)
     }
+
+    @ExperimentalSerializationApi
+    override val annotations: List<Annotation> get() = delegate.annotations
+
+    override val isInline: Boolean get() = delegate.isInline
+
+    @ExperimentalSerializationApi
+    override val isNullable: Boolean get() = delegate.isNullable
 }
 
-@ExperimentalXmlUtilApi
-internal class XmlSerialDescriptorImpl internal constructor(
+private class XmlSerialDescriptorImpl(
     override val delegate: SerialDescriptor,
     xmlDescriptor: SerialDescriptor = delegate,
     serialQName: QName? = null

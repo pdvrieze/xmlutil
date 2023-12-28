@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -57,13 +57,15 @@ internal abstract class NodeImpl(
 
 }
 
-internal fun Appendable.appendTextContent(node: INode){
-    when(node) {
+internal fun Appendable.appendTextContent(node: INode) {
+    when (node) {
         is IDocumentFragment,
-        is IElement -> for(n in node.getChildNodes()) {
+        is IElement -> for (n in node.getChildNodes()) {
             appendTextContent(n)
         }
+
         is IAttr -> append(node.getValue())
+
         is ICharacterData -> append(node.getData())
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,13 +20,23 @@
 
 package nl.adaptivity.xmlutil.util.impl
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 
+/**
+ * Helper reader that presents a reader that reads the given sources in order.
+ */
+@XmlUtilInternal
 public class CombiningReader(private vararg val sources: Reader) : Reader(), Closeable {
 
     private var currentSource: Int = 0
 
+    /**
+     * Read data into the buffer. Note that this will only ever read from one of the sources. As
+     * such the buffer may not be filled up to [len] size, even in the middle of the stream. Make
+     * sure to use a **negative** return value to determine the end of the reader.
+     */
     public override fun read(buf: CharArray, offset: Int, len: Int): Int {
         if (currentSource >= sources.size) return -1
 

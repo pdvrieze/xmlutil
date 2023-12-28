@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -21,14 +21,28 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.XmlWriter
 import kotlin.reflect.KClass
 
+@Deprecated(
+    "This doesn't really belong in this library.",
+    ReplaceWith("nl.adaptivity.xmlutil.xmlserializable.util.SerializationProvider")
+)
 public interface SerializationProvider {
+
+    @Deprecated(
+        "This doesn't really belong in this library.",
+        ReplaceWith("nl.adaptivity.xmlutil.xmlserializable.util.SerializationProvider.XmlSerializerFun<T>")
+    )
     public interface XmlSerializerFun<in T : Any> {
         public operator fun invoke(output: XmlWriter, value: T)
     }
 
+    @Deprecated(
+        "This doesn't really belong in this library.",
+        ReplaceWith("nl.adaptivity.xmlutil.xmlserializable.util.SerializationProvider.XmlDeserializerFun")
+    )
     public interface XmlDeserializerFun {
         public operator fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T
     }
@@ -36,3 +50,12 @@ public interface SerializationProvider {
     public fun <T : Any> serializer(type: KClass<T>): XmlSerializerFun<T>?
     public fun <T : Any> deSerializer(type: KClass<T>): XmlDeserializerFun?
 }
+
+/**
+ * Helper interface for marking default providers to be ignored in lieu of their replacements
+ */
+@XmlUtilInternal
+@Deprecated(
+    "Just present to allow for detecting the old version",
+)
+public interface CoreCompatSerializationProvider : SerializationProvider

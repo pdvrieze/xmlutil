@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -31,7 +31,6 @@ internal abstract class CharacterDataImpl(
 ) : NodeImpl(ownerDocument), ICharacterData {
 
     final override var parentNode: INode? = null
-        internal set
 
     override fun getData(): String {
         return data

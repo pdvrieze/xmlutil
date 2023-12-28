@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -22,8 +22,12 @@ package nl.adaptivity.xmlutil.util.impl
 
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.toCName
+import nl.adaptivity.xmlutil.xmlStreaming
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 
 @XmlUtilInternal
-public expect fun createDocument(rootElementName: QName): Document2
+public fun createDocument(rootElementName: QName): Document2 =
+    xmlStreaming.genericDomImplementation
+        .createDocument(rootElementName.getNamespaceURI(), rootElementName.toCName(), null)

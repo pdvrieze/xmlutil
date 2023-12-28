@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,5 +23,5 @@ package nl.adaptivity.xmlutil.dom
 public actual external interface DOMImplementation {
     public actual fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
 
-    public actual fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document
+    public actual fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
 }

@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.IText
 import org.w3c.dom.Text
 
-internal open class TextImpl(delegate: Text): CharacterDataImpl<Text>(delegate), IText {
+internal open class TextImpl(delegate: Text) : CharacterDataImpl<Text>(delegate), IText {
 
     override fun splitText(offset: Int): IText = delegate.splitText(offset).wrap()
 

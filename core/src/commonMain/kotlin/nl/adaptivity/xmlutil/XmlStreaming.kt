@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -21,26 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.dom2.Node as Node2
-
-public interface IXmlStreaming {
-
-    public fun setFactory(factory: XmlStreamingFactory?)
-
-    public fun newReader(input: CharSequence): XmlReader
-
-    public fun newReader(reader: Reader): XmlReader
-
-    public fun newGenericReader(input: CharSequence): XmlReader
-
-    public fun newGenericReader(reader: Reader): XmlReader
-
-    public fun newWriter(): DomWriter
-
-    public fun newWriter(dest: Node2): DomWriter
-}
 
 
 public expect fun IXmlStreaming.newWriter(
@@ -56,6 +37,7 @@ public expect fun IXmlStreaming.newWriter(
 ): XmlWriter
 
 
+@Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newGenericWriter(
     output: Appendable,
     isRepairNamespaces: Boolean = false,
@@ -70,11 +52,15 @@ public expect val xmlStreaming: IXmlStreaming
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-@Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
-    "nl.adaptivity.xmlutil.xmlStreaming",
-    "nl.adaptivity.xmlutil.newWriter",
-    "nl.adaptivity.xmlutil.newGenericWriter",
-))
+@Deprecated(
+    "Don't use directly",
+    ReplaceWith(
+        "xmlStreaming",
+        "nl.adaptivity.xmlutil.xmlStreaming",
+        "nl.adaptivity.xmlutil.newWriter",
+        "nl.adaptivity.xmlutil.newGenericWriter",
+    )
+)
 public expect object XmlStreaming : IXmlStreaming {
     public fun newGenericWriter(
         output: Appendable,

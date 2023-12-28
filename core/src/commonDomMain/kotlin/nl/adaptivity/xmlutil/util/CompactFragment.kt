@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.util
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
@@ -28,13 +29,13 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.use
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
+@Serializable(CompactFragmentSerializer::class)
 public actual class CompactFragment : ICompactFragment {
 
     @Suppress("DEPRECATION")
     public actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
         override fun deserialize(reader: XmlReader): CompactFragment {
-            @Suppress("RedundantCompanionReference")
             return Companion.deserialize(reader)
         }
     }
@@ -103,6 +104,7 @@ public actual class CompactFragment : ICompactFragment {
     public actual companion object {
 
         @Suppress("DEPRECATION")
+        @XmlUtilInternal
         public val FACTORY: XmlDeserializerFactory<CompactFragment> = Factory()
 
         @Throws(XmlException::class)

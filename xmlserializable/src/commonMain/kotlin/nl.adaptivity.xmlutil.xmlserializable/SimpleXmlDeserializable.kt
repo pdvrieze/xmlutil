@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
  * to parse the content whatever way desired.
  * Created by pdvrieze on 04/11/15.
  */
-interface SimpleXmlDeserializable : XmlDeserializable {
+public interface SimpleXmlDeserializable : XmlDeserializable {
 
 
     /**
@@ -42,7 +42,7 @@ interface SimpleXmlDeserializable : XmlDeserializable {
      *
      * @throws XmlException If something else failed.
      */
-    fun deserializeChild(reader: XmlReader): Boolean = false
+    public fun deserializeChild(reader: XmlReader): Boolean = false
 
     /**
      * Handle text content in the node. This may be called multiple times in a single element if there are tags in between
@@ -51,5 +51,5 @@ interface SimpleXmlDeserializable : XmlDeserializable {
      *
      * @return true if handled, false if not (whitespace will be ignored later on though, other text will trigger a failure)
      */
-    fun deserializeChildText(elementText: CharSequence): Boolean = false
+    public fun deserializeChildText(elementText: CharSequence): Boolean = false
 }

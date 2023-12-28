@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil.core
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import kotlin.jvm.JvmInline
 
@@ -466,7 +465,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun push(c: Int) {
-        isWhitespace = isWhitespace and c.isXmlWhitespace()
+        isWhitespace = isWhitespace and isXmlWhitespace(c.toChar())
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf(txtBufPos * 4 / 3 + 4)
         }
@@ -549,7 +548,7 @@ public class KtXmlReader internal constructor(
 
         elementStack[d].fullName = fullName
 
-        if (processNsp) {
+        if (PROCESS_NAMESPACES) {
             adjustNsp(fullName)
         } else {
             elementStack[d].namespace = ""
@@ -613,7 +612,7 @@ public class KtXmlReader internal constructor(
         var next = peek(0)
         var cbrCount = 0
         while (next != -1 && next != delimiter) { // covers eof, '<', '"'
-            if (delimiter == ' '.code) if (next.isXmlWhitespace() || next == '>'.code) break
+            if (delimiter == ' '.code) if (isXmlWhitespace(next.toChar()) || next == '>'.code) break
             if (next == '&'.code) {
                 if (!resolveEntities) break
                 pushEntity()
@@ -856,7 +855,7 @@ public class KtXmlReader internal constructor(
         const val UNEXPECTED_EOF = "Unexpected EOF"
         const val ILLEGAL_TYPE = "Wrong event type"
 
-        const val processNsp = true
+        const val PROCESS_NAMESPACES = true
     }
 
     private class ElementStack {

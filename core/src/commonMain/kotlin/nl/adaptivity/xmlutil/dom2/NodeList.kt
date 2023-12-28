@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,8 +18,6 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-
 package nl.adaptivity.xmlutil.dom2
 
 public interface NodeList : Iterable<Node> {
@@ -34,7 +32,7 @@ public interface NodeList : Iterable<Node> {
     }
 }
 
-public inline fun NodeList.getLength(): Int = getLength()
+public inline val NodeList.length: Int get() = getLength()
 
 internal class NodeListIterator<L : NodeList, N : Node>(private val nodeList: L) : Iterator<N> {
     private var pos: Int = 0

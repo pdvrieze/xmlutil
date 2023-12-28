@@ -62,16 +62,16 @@ public actual inline fun <T : Closeable?, R> T.use(block: (T) -> R): R {
 public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList()
 
 public actual abstract class Writer : Appendable {
-    public open fun write(text: String) {
+    public actual open fun write(text: String) {
         append(text)
     }
 
-    override fun append(value: CharSequence?): Appendable {
+    actual override fun append(value: CharSequence?): Appendable {
         return append(value, 0, value?.length ?: 0)
     }
 
     /** Write buffers to the underlying file (where valid). */
-    public open fun flush() {}
+    public actual open fun flush() {}
 }
 
 public actual open class StringWriter : Writer() {
@@ -80,7 +80,7 @@ public actual open class StringWriter : Writer() {
         buffer.append(text)
     }
 
-    override fun toString(): String {
+    actual override fun toString(): String {
         return buffer.toString()
     }
 
@@ -141,4 +141,10 @@ public actual annotation class Language actual constructor(
     actual val suffix: String
 )
 
-internal actual fun Writer.appendable(): Appendable = this
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+public actual annotation class MpJvmDefaultWithoutCompatibility
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+public actual annotation class MpJvmDefaultWithCompatibility

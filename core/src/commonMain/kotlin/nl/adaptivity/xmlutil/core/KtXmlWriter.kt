@@ -1,25 +1,21 @@
 /*
- * This file is based/adapted from kxml2
+ * Copyright (c) 2023.
  *
- * Copyright (c) 2002,2003, Stefan Haustein, Oberhausen, Rhld., Germany
+ * This file is part of xmlutil.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * This file is licenced to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You should have received a copy of the license with the source distribution.
+ * Alternatively, you may obtain a copy of the License at
  *
- * The  above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package nl.adaptivity.xmlutil.core
@@ -30,7 +26,6 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.core.impl.multiplatform.appendable
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
 /**
@@ -52,11 +47,17 @@ public class KtXmlWriter(
         isRepairNamespaces: Boolean = true,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         xmlVersion: XmlVersion = XmlVersion.XML11
-    ): this(writer.appendable(), isRepairNamespaces, xmlDeclMode, xmlVersion)
+    ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
 
+    /**
+     * The version of XML to generate. By default XML 1.1.
+     */
     public var xmlVersion: XmlVersion = xmlVersion
         private set
 
+    /**
+     * Determine whether a trailing space is used before the end of a self-closing tag.
+     */
     public var addTrailingSpaceBeforeEnd: Boolean = true
 
     private var isPartiallyOpenTag: Boolean = false
@@ -69,6 +70,9 @@ public class KtXmlWriter(
 
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
+    /**
+     * The namespace context in the **current** position.
+     */
     override val namespaceContext: NamespaceContext
         get() = namespaceHolder.namespaceContext
 
@@ -136,40 +140,39 @@ public class KtXmlWriter(
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
-        val c = codepoint
         val ch = when (codepoint) {
-            0x9u, 0xAu, 0xDu, in (0x20u..0xd7ffu), in (0xe000u .. 0xfffdu)
+            0x9u, 0xAu, 0xDu, in (0x20u..0xd7ffu), in (0xe000u..0xfffdu)
             -> Char(codepoint.toUShort())
 
             else -> Char(0x0u)
         }
 
         when {
-            c == 0u -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
+            codepoint == 0u -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
             ch == '&' -> append("&amp;")
             ch == '<' && mode != EscapeMode.MINIMAL -> append("&lt;")
             ch == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
             ch == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
             ch == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
 
-            c in 0x1u..0x8u ||
-                    c == 0xBu || c == 0xCu ||
-                    c in 0xEu..0x1Fu -> when (xmlVersion) {
-                XmlVersion.XML10 -> throwInvalid(c)
+            codepoint in 0x1u..0x8u ||
+                    codepoint == 0xBu || codepoint == 0xCu ||
+                    codepoint in 0xEu..0x1Fu -> when (xmlVersion) {
+                XmlVersion.XML10 -> throwInvalid(codepoint)
                 XmlVersion.XML11 -> {
-                    appendNumCharRef(c)
+                    appendNumCharRef(codepoint)
                 }
             }
 
-            c in 0x7fu..0x84u || c in 0x86u..0x9fu -> when (xmlVersion) {
+            codepoint in 0x7fu..0x84u || codepoint in 0x86u..0x9fu -> when (xmlVersion) {
                 XmlVersion.XML10 -> append(ch)
-                XmlVersion.XML11 -> appendNumCharRef(c)
+                XmlVersion.XML11 -> appendNumCharRef(codepoint)
             }
 
-            c in 0xD800u..0xDFFFu || c == 0xFFFEu || c == 0xFFFFu -> throwInvalid(c)
+            codepoint in 0xD800u..0xDFFFu || codepoint == 0xFFFEu || codepoint == 0xFFFFu -> throwInvalid(codepoint)
 
-            c > 0xffffu -> {
-                val down = c - 0x10000u
+            codepoint > 0xffffu -> {
+                val down = codepoint - 0x10000u
                 val highSurogate = (down shr 10) + 0xd800u
                 val lowSurogate = (down and 0x3ffu) + 0xdc00u
                 append(Char(highSurogate.toUShort()))
@@ -220,7 +223,7 @@ public class KtXmlWriter(
 
 
     private fun ensureNamespaceIfRepairing(namespace: String?, prefix: String?) {
-        if (isRepairNamespaces && namespace != null && namespace.isNotEmpty() && prefix != null) {
+        if (isRepairNamespaces && !namespace.isNullOrEmpty() && prefix != null) {
             // TODO fix more cases than missing namespaces with given prefix and uri
             if (namespaceHolder.getNamespaceUri(prefix) != namespace) {
                 namespaceAttr(prefix, namespace)
@@ -300,7 +303,7 @@ public class KtXmlWriter(
         triggerStartDocument()
         writer.append("<?")
         writer.append(target)
-        if(data.isNotEmpty()) { writer.append(' ').append(data) }
+        if (data.isNotEmpty()) writer.append(' ').append(data)
         writer.append("?>")
     }
 
@@ -454,7 +457,7 @@ public class KtXmlWriter(
 
         // TODO streamline the way namespaces are handled, including the case where the prefix is
         //  already declared on this tag with a different name.
-        if (prefix != null && prefix.isNotEmpty() && namespace != null && namespace.isNotEmpty()) {
+        if (!(prefix.isNullOrEmpty() || namespace.isNullOrEmpty())) {
             setPrefix(prefix, namespace)
             ensureNamespaceIfRepairing(namespace, prefix)
         }

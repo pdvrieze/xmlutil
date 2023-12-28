@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,9 +20,13 @@
 
 package nl.adaptivity.xmlutil.util
 
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.IterableNamespaceContext
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
 
+@MpJvmDefaultWithCompatibility
 public interface XMLFragmentStreamReaderJava : XmlReader {
     public var localNamespaceContext: FragmentNamespaceContext
     public val delegate: XmlReader

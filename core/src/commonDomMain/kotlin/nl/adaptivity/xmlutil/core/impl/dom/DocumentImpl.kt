@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -21,9 +21,9 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.*
-import nl.adaptivity.xmlutil.core.impl.isXmlWhitespace
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.isXmlWhitespace
 import nl.adaptivity.xmlutil.dom.Attr as Attr1
 import nl.adaptivity.xmlutil.dom.CDATASection as CDATASection1
 import nl.adaptivity.xmlutil.dom.Comment as Comment1
@@ -178,9 +178,9 @@ internal class DocumentImpl(doctype: DocumentTypeImpl?) : IDocument {
             }
 
             is Comment1,
-            is ProcessingInstructionImpl -> {}// fine
+            is ProcessingInstructionImpl -> Unit // fine
 
-            is TextImpl -> require(n.getData().isXmlWhitespace()) { "Non-whitespace nodes cannot be added directly to a document" }
+            is TextImpl -> require(isXmlWhitespace(n.getData())) { "Non-whitespace nodes cannot be added directly to a document" }
             else -> throw IllegalArgumentException("Attempting to add node ${n.getNodeType()} where not permitted")
         }
         n.parentNode = this

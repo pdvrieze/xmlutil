@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -23,6 +23,8 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
+import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.InputStream
@@ -43,6 +45,7 @@ import java.io.Writer as JavaIoWriter
 ))
 public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
+    @Suppress("DEPRECATION")
     @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
     override val serializationLoader: ServiceLoader<SerializationProvider> by lazy {
         val service = SerializationProvider::class.java
@@ -54,10 +57,10 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         ServiceLoader.load(service, service.classLoader)
     }
 
-    private var _factory: XmlStreamingFactory? = StAXStreamingFactory()
+    private var _factory: XmlStreamingFactory? = null
 
     private val factory: XmlStreamingFactory
-        get() = _factory ?: serviceLoader.first().also { _factory = it }
+        get() = _factory ?: serviceLoader.firstOrNull()?.also { _factory = it }?: StAXStreamingFactory.DEFAULT_OBJECT
 
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
@@ -69,6 +72,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     override fun newWriter(): DomWriter = DomWriter()
 
+    @Suppress("DEPRECATION")
     override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
@@ -77,7 +81,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
-        return factory.newWriter(writer.delegate, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
+        return factory.newWriter(writer as Appendable, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
     }
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
@@ -105,6 +109,15 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): KtXmlWriter {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
+    }
+
+    override val genericDomImplementation: DOMImplementation
+        get() = DOMImplementationImpl
+
+    @Suppress("DEPRECATION")
+    @ExperimentalXmlUtilApi
+    override fun newReader(source: Node): XmlReader {
+        return DomReader(source)
     }
 
     @Deprecated("Use extension functions on IXmlStreaming")
@@ -217,7 +230,7 @@ public actual fun IXmlStreaming.newWriter(
     xmlDeclMode: XmlDeclMode,
 ): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "UnusedReceiverParameter")
 public fun IXmlStreaming.newWriter(
     writer: JavaIoWriter,
     repairNamespaces: Boolean = false,

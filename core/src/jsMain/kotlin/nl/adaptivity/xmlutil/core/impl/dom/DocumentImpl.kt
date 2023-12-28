@@ -27,7 +27,7 @@ import org.w3c.dom.Node as DomNode
 internal class DocumentImpl(delegate: DomDocument) : NodeImpl<DomDocument>(delegate), IDocument {
     override val inputEncoding: String get() = delegate.inputEncoding
 
-    override val implementation: IDOMImplementation get() = DOMImplementationImpl(delegate.implementation)
+    override val implementation: IDOMImplementation get() = DOMImplementationImpl
 
     override val documentURI: String = delegate.documentURI
 

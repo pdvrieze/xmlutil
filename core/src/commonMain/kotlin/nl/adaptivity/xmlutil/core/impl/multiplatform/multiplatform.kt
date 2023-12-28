@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -40,23 +40,34 @@ public expect fun assert(value: Boolean, lazyMessage: () -> String)
 @XmlUtilInternal
 public expect fun assert(value: Boolean)
 
+@XmlUtilInternal
 public expect interface AutoCloseable {
     public fun close()
 }
 
+@XmlUtilInternal
 public expect interface Closeable : AutoCloseable
 
+@XmlUtilInternal
 public expect inline fun <T : Closeable?, R> T.use(block: (T) -> R): R
 
 @XmlUtilInternal
 public expect val KClass<*>.maybeAnnotations: List<Annotation>
 
 
-public expect abstract class Writer
-public expect open class StringWriter() : Writer
+@XmlUtilInternal
+public expect abstract class Writer : Appendable {
+    public open fun write(text: String)
+    override fun append(value: CharSequence?): Appendable
+    public open fun flush()
+}
 
-internal expect fun Writer.appendable(): Appendable
+@XmlUtilInternal
+public expect open class StringWriter() : Writer {
+    override fun toString(): String
+}
 
+@XmlUtilInternal
 public expect abstract class OutputStream : Closeable {
     public abstract fun write(b: Int)
 
@@ -67,11 +78,13 @@ public expect abstract class OutputStream : Closeable {
     public override fun close()
 }
 
+@XmlUtilInternal
 public expect abstract class Reader {
     public open fun read(): Int
     public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
+@XmlUtilInternal
 public expect abstract class InputStream : Closeable {
     public open fun read(b: ByteArray, off: Int, len: Int): Int
 
@@ -80,6 +93,23 @@ public expect abstract class InputStream : Closeable {
     public override fun close()
 }
 
+@XmlUtilInternal
 public expect open class StringReader(source: String) : Reader
 
-public expect annotation class Language(val value: String, val prefix: String = "", val suffix: String = "")
+@XmlUtilInternal
+@MpJvmDefaultWithoutCompatibility
+public expect annotation class Language(
+    val value: String,
+    val prefix: String = "",
+    val suffix: String = ""
+)
+
+@XmlUtilInternal
+@Retention(AnnotationRetention.SOURCE)
+@Target(AnnotationTarget.CLASS)
+expect public annotation class MpJvmDefaultWithoutCompatibility()
+
+@XmlUtilInternal
+@Retention(AnnotationRetention.SOURCE)
+@Target(AnnotationTarget.CLASS)
+expect public annotation class MpJvmDefaultWithCompatibility()

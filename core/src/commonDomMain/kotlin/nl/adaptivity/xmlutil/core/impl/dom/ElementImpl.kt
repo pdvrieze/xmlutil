@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -84,7 +84,7 @@ internal class ElementImpl(
 
     override fun setTextContent(value: String) {
         _childNodes.elements.clear()
-        appendChild(ownerDocument.createTextNode(value?:""))
+        appendChild(ownerDocument.createTextNode(value))
     }
 
     override fun getElementsByTagName(qualifiedName: String): INodeList {
@@ -299,7 +299,7 @@ internal class ElementImpl(
     override fun lookupNamespaceURI(prefix: String): String? {
         if (getNamespaceURI() != null && this.getPrefix() == prefix) return getNamespaceURI()
 
-        if (prefix.isNullOrBlank()) {
+        if (prefix.isBlank()) {
             _attributes.firstOrNull {
                 it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI &&
                         it.getPrefix().isNullOrBlank() &&

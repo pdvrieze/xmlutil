@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -34,11 +34,11 @@ import kotlin.jvm.JvmOverloads
  * Created by pdvrieze on 04/11/15.
  */
 @Deprecated("Use kotlinx.serialization instead")
-interface XmlDeserializable {
+public interface XmlDeserializable {
 
     /**
      * Handle the given attribute.
-     * @param attributeNamespace The namespace of the the attribute.
+     * @param attributeNamespace The namespace of the attribute.
      *
      * @param attributeLocalName The local name of the attribute
      *
@@ -46,36 +46,36 @@ interface XmlDeserializable {
      *
      * @return `true` if handled, `false` if not. (The caller may use this for errors)
      */
-    fun deserializeAttribute(
+    public fun deserializeAttribute(
         attributeNamespace: String?,
         attributeLocalName: String,
         attributeValue: String
-                            ): Boolean = false
+    ): Boolean = false
 
     /** Listener called just before the children are deserialized. After attributes have been processed.  */
-    fun onBeforeDeserializeChildren(reader: XmlReader) {}
+    public fun onBeforeDeserializeChildren(reader: XmlReader) {}
 
     /** The name of the element, needed for the automated validation */
     @Transient
-    val elementName: QName
+    public val elementName: QName
 }
 
 
 @Suppress("DEPRECATION")
 @Deprecated("Use kotlinx.serialization instead")
-fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
+public fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     reader.skipPreamble()
 
     val elementName = elementName
     assert(
         reader.isElement(elementName)
-          ) { "Expected $elementName but found ${reader.localName}" }
+    ) { "Expected $elementName but found ${reader.localName}" }
 
     for (i in reader.attributeIndices.reversed()) {
         deserializeAttribute(
             reader.getAttributeNamespace(i), reader.getAttributeLocalName(i),
             reader.getAttributeValue(i)
-                            )
+        )
     }
 
     onBeforeDeserializeChildren(reader)
@@ -83,10 +83,10 @@ fun <T : XmlDeserializable> T.deserializeHelper(reader: XmlReader): T {
     if (this is SimpleXmlDeserializable) {
         loop@ while (reader.hasNext() && reader.next() !== EventType.END_ELEMENT) {
             when (reader.eventType) {
-                EventType.START_ELEMENT          -> if (!deserializeChild(reader)) reader.unhandledEvent()
+                EventType.START_ELEMENT -> if (!deserializeChild(reader)) reader.unhandledEvent()
                 EventType.TEXT, EventType.CDSECT -> if (!deserializeChildText(reader.text)) reader.unhandledEvent()
                 // If the text was not deserialized, then just fall through
-                else                             -> reader.unhandledEvent()
+                else -> reader.unhandledEvent()
             }
         }
     } else if (this is ExtXmlDeserializable) {
@@ -108,11 +108,16 @@ internal fun XmlReader.unhandledEvent(message: String? = null) {
     val actualMessage = when (eventType) {
         EventType.ENTITY_REF,
         EventType.CDSECT,
-        EventType.TEXT          -> if (!isWhitespace()) message
-            ?: "Content found where not expected [$locationInfo] Text:'$text'" else null
+        EventType.TEXT -> when {
+            !isWhitespace() -> message ?: "Content found where not expected [$locationInfo] Text:'$text'"
+            else -> null
+        }
+
         EventType.START_ELEMENT -> message ?: "Element found where not expected [$locationInfo]: $name"
-        EventType.END_DOCUMENT  -> message ?: "End of document found where not expected"
-        else                    -> null
+
+        EventType.END_DOCUMENT -> message ?: "End of document found where not expected"
+
+        else -> null
     }// ignore
 
     actualMessage?.let { throw XmlException(it) }

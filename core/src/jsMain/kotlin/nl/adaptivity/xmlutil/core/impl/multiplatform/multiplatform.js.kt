@@ -20,4 +20,14 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-internal actual fun Writer.appendable(): Appendable = this
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+@XmlUtilInternal
+public actual annotation class MpJvmDefaultWithoutCompatibility
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
+@XmlUtilInternal
+public actual annotation class MpJvmDefaultWithCompatibility

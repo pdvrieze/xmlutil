@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,8 +18,11 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.util
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import nl.adaptivity.xmlutil.IterableNamespaceContext
 import nl.adaptivity.xmlutil.XmlReader
@@ -28,6 +31,7 @@ import nl.adaptivity.xmlutil.XmlSerializable
 /**
  * Base interface for CompactFragment implementations.
  */
+@Serializable(ICompactFragmentSerializer::class)
 public interface ICompactFragment : XmlSerializable {
     @Transient
     public val isEmpty: Boolean

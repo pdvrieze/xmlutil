@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,24 +23,47 @@
 package nl.adaptivity.xmlutil.xmlserializable
 
 import nl.adaptivity.xmlutil.IXmlStreaming
-import nl.adaptivity.xmlutil.XmlSerializable
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.util.CompactFragment
+import kotlin.jvm.JvmName
+import nl.adaptivity.xmlutil.XmlSerializable as XmlSerializableCompat
 
-expect fun CompactFragment(content: XmlSerializable): CompactFragment
+public expect fun CompactFragment(content: XmlSerializable): CompactFragment
 
-expect fun IXmlStreaming.toString(value: XmlSerializable): String
+@Deprecated("Use the version using the new serializable")
+public fun  CompactFragment(content: XmlSerializableCompat): CompactFragment {
+    return CompactFragment(content.wrap())
+}
+
+public expect fun IXmlStreaming.toString(value: XmlSerializable): String
 
 @Suppress("DEPRECATION")
 @Deprecated("Use IXmlStreaming.toString", level = DeprecationLevel.HIDDEN)
-fun XmlStreaming.toString(value: XmlSerializable): String = (this as IXmlStreaming).toString(value)
+public fun XmlStreaming.toString(value: XmlSerializable): String = (this as IXmlStreaming).toString(value)
 
+@Deprecated("Use the version using the new serializable")
+public fun XmlStreaming.toString(value: XmlSerializableCompat): String {
+    return (this as IXmlStreaming).toString(value.wrap())
+}
 
-fun XmlWriter.writeChild(child: XmlSerializable?) {
+public fun XmlWriter.writeChild(child: XmlSerializable?) {
     child?.serialize(this)
 }
 
-fun XmlWriter.writeChildren(children: Iterable<XmlSerializable>?) {
+@Deprecated("Use the version using the new serializable")
+public fun XmlWriter.writeChild(child: XmlSerializableCompat?) {
+    writeChild(child?.wrap())
+}
+
+@JvmName("writeChildren2")
+public fun XmlWriter.writeChildren(children: Iterable<XmlSerializable>?) {
     children?.forEach { writeChild(it) }
 }
+
+@Deprecated("Use the version using the new serializable")
+public fun XmlWriter.writeChildren(children: Iterable<XmlSerializableCompat>?) {
+    children?.forEach { writeChild(it.wrap()) }
+}
+
+

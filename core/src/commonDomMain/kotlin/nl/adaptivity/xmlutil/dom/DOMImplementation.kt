@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -24,5 +24,5 @@ public actual interface DOMImplementation {
     public actual fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
     public fun createDocument(namespace: String?, qualifiedName: String): Document =
         createDocument(namespace, qualifiedName, null)
-    public actual fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document
+    public actual fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018. 
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -27,6 +27,10 @@ import nl.adaptivity.xmlutil.XmlReader
  * Simple baseclass for a delating XmlReader.
  * It merely functions as a delegate With Kotlin it's not really needed, but nice.
  */
-@Deprecated("This has moved to the main package", ReplaceWith("XmlDelegatingReader", "nl.adaptivity.xmlutil"))
+@Deprecated(
+    "This has moved to the main package",
+    ReplaceWith("XmlDelegatingReader", "nl.adaptivity.xmlutil"),
+    DeprecationLevel.HIDDEN
+)
 public open class XmlDelegatingReader protected constructor(delegate: XmlReader) :
     nl.adaptivity.xmlutil.XmlDelegatingReader(delegate)

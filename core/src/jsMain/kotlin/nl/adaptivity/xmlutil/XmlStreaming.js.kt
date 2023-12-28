@@ -22,12 +22,15 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.core.impl.dom.unWrap
 import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithoutCompatibility
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
 import org.w3c.dom.parsing.XMLSerializer
@@ -36,6 +39,7 @@ import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Node as DomNode
 
+@MpJvmDefaultWithoutCompatibility
 public actual interface XmlStreamingFactory
 
 
@@ -45,7 +49,10 @@ public actual interface XmlStreamingFactory
     "nl.adaptivity.xmlutil.newGenericWriter",
 ))
 public actual object XmlStreaming: IXmlStreaming {
-
+    @ExperimentalXmlUtilApi
+    override fun newReader(source: Node2): XmlReader {
+        return DomReader(source)
+    }
 
     override fun newWriter(): DomWriter {
         return DomWriter()
@@ -132,6 +139,9 @@ public actual object XmlStreaming: IXmlStreaming {
     ): XmlWriter {
         return WriterXmlWriter(writer, DomWriter(xmlDeclMode))
     }
+
+    override val genericDomImplementation: DOMImplementation
+        get() = DOMImplementationImpl
 }
 
 /*

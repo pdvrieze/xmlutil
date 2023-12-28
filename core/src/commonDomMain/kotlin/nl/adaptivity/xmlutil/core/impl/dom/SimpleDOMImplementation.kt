@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
 
-internal object SimpleDOMImplementation: IDOMImplementation {
+internal object SimpleDOMImplementation : IDOMImplementation {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
     override fun createDocument(namespace: String?, qualifiedName: String): IDocument =
@@ -34,14 +34,18 @@ internal object SimpleDOMImplementation: IDOMImplementation {
         return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)
     }
 
-    override fun createDocument(namespace: String?, qualifiedName: String, documentType: IDocumentType?): IDocument {
+    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument {
         return DocumentImpl(documentType).also {
             (documentType as DocumentTypeImpl?)?.ownerDocument = it
-            val elem = when (namespace) {
-                null -> it.createElement(qualifiedName)
-                else -> it.createElementNS(namespace, qualifiedName)
+            if (qualifiedName != null) {
+                val elem = when (namespace) {
+                    null -> it.createElement(qualifiedName)
+                    else -> it.createElementNS(namespace, qualifiedName)
+                }
+                it.appendChild(elem)
+            } else {
+                require(namespace.isNullOrEmpty()) { "Creating documents with a namespace but no qualified name is not possible" }
             }
-            it.appendChild(elem)
         }
     }
 }

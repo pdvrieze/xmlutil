@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -24,6 +24,8 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
+import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.InputStream
@@ -60,12 +62,12 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         ServiceLoader.load(service, service.classLoader)
     }
 
-    private var _factory: XmlStreamingFactory? = AndroidStreamingFactory()
+    private var _factory: XmlStreamingFactory? = null
 
     private val factory: XmlStreamingFactory
-        get() {
-            return _factory ?: serviceLoader.first().apply { _factory = this }
-        }
+        get() = _factory
+            ?: serviceLoader.firstOrNull()?.also { _factory = it }
+            ?: AndroidStreamingFactory.DEFAULT_INSTANCE
 
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
@@ -73,6 +75,11 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     public fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
+    }
+
+    @ExperimentalXmlUtilApi
+    override fun newReader(source: Node): XmlReader {
+        return DomReader(source)
     }
 
     override fun newWriter(): DomWriter = DomWriter()
@@ -86,7 +93,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
     ): XmlWriter {
         @Suppress("DEPRECATION")
-        return newWriter(writer.delegate, repairNamespaces, xmlDeclMode)
+        return newWriter(writer as Appendable, repairNamespaces, xmlDeclMode)
     }
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
@@ -95,7 +102,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     ): XmlWriter {
-        return factory.newWriter(writer, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
+        return factory.newWriter(writer as Appendable, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
     }
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
@@ -107,6 +114,8 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newWriter(output, repairNamespaces, xmlDeclMode)
     }
 
+    override val genericDomImplementation: DOMImplementation
+        get() = DOMImplementationImpl
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING,
         replaceWith = ReplaceWith("xmlStreaming.newGenericWriter(output, isRepairNamespaces, xmlDeclMode)")
@@ -199,12 +208,18 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deserializerFor(type)", "nl.adaptivity.xmlutil.xmlserializable.deserializerFor")
+    )
     override fun <T : Any> deserializerFor(type: Class<T>): SerializationProvider.XmlDeserializerFun? =
         deserializerFor(type.kotlin)
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deserializerFor(type)", "nl.adaptivity.xmlutil.xmlserializable.serializerFor")
+    )
     override fun <T : Any> serializerFor(type: Class<T>): SerializationProvider.XmlSerializerFun<T>? =
         serializerFor(type.kotlin)
 

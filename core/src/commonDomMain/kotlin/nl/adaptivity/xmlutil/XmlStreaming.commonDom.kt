@@ -22,9 +22,11 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
 /**
@@ -61,6 +63,10 @@ public actual object XmlStreaming : IXmlStreaming {
 
     public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
+    @ExperimentalXmlUtilApi
+    override fun newReader(source: Node): XmlReader {
+        return DomReader(source)
+    }
 
     override fun newWriter(): DomWriter = DomWriter()
 
@@ -106,6 +112,8 @@ public actual object XmlStreaming : IXmlStreaming {
         return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
+    override val genericDomImplementation: DOMImplementation
+        get() = SimpleDOMImplementation
 }
 
 @Suppress("DEPRECATION")

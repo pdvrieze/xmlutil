@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -31,5 +31,9 @@ import nl.adaptivity.xmlutil.XmlWriter
  * Created by pdvrieze on 17/11/15.
  *
  */
-@Deprecated("Use main package version", ReplaceWith("nl.adaptivity.xmlutil.XmlDelegatingWriter"))
+@Deprecated(
+    "Use main package version",
+    ReplaceWith("nl.adaptivity.xmlutil.XmlDelegatingWriter"),
+    DeprecationLevel.HIDDEN
+)
 public abstract class XmlDelegatingWriter(delegate: XmlWriter) : nl.adaptivity.xmlutil.XmlDelegatingWriter(delegate)

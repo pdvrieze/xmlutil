@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -42,6 +42,7 @@ public expect interface CharacterData : Node {
 public expect inline fun CharacterData.getData(): String
 public expect inline fun CharacterData.setData(value: String)
 
+@Deprecated("Use accessor methods for dom2 compatibility")
 public inline var CharacterData.data: String
     get() = getData()
     set(value) = setData(value)

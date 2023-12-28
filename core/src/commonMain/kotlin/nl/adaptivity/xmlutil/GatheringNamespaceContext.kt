@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -24,5 +24,9 @@ package nl.adaptivity.xmlutil
  * Class that gathers namespace queries and records them in the given map (prefix, namespace uri).
  * Created by pdvrieze on 20/10/15.
  */
-@Deprecated("Use actual class", ReplaceWith("nl.adaptivity.xmlutil.util.GatheringNamespaceContext"))
+@Deprecated(
+    "Use actual class",
+    ReplaceWith("nl.adaptivity.xmlutil.util.GatheringNamespaceContext"),
+    DeprecationLevel.HIDDEN
+)
 public typealias GatheringNamespaceContext = nl.adaptivity.xmlutil.util.GatheringNamespaceContext

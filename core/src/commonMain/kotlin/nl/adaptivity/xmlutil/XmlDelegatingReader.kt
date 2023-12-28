@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,10 +23,14 @@ package nl.adaptivity.xmlutil
 
 /**
  * Simple baseclass for a delating XmlReader.
- * It merely functions as a delegate With Kotlin it's not really needed, but nice.
+ * It merely functions as a delegate. With Kotlin it's not really needed, but nice.
  */
 public open class XmlDelegatingReader protected constructor(protected open val delegate: XmlReader) :
     XmlReader by delegate {
+
+    /**
+     * Overridden such that it will be valid, even when overriding [next].
+     */
     override fun nextTag(): EventType {
         /*
          * Needs to be overridden here so that when next is overridden it remains valid.

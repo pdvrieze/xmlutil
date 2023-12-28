@@ -23,16 +23,19 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.*
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom2.NodeType
-import org.w3c.dom.*
+import org.w3c.dom.DocumentFragment
 import nl.adaptivity.xmlutil.dom.Attr as Attr1
 import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Attr as DomAttr
+import org.w3c.dom.CDATASection as DomCDATASection
+import org.w3c.dom.Comment as DomComment
 import org.w3c.dom.Document as DomDocument
 import org.w3c.dom.DocumentType as DomDocumentType
 import org.w3c.dom.Element as DomElement
 import org.w3c.dom.Node as DomNode
+import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 import org.w3c.dom.Text as DomText
 
 internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
@@ -167,15 +170,15 @@ internal fun Node2.unWrap(): DomNode = when (this) {
 internal fun DomNode.wrap(): INode = when (this) {
     is INode -> this
     else -> when (nodeType) {
-        NodeConsts.ATTRIBUTE_NODE -> AttrImpl(this as Attr)
-        NodeConsts.CDATA_SECTION_NODE -> CDATASectionImpl(this as CDATASection)
-        NodeConsts.COMMENT_NODE -> CommentImpl(this as Comment)
-        NodeConsts.DOCUMENT_NODE -> DocumentImpl(this as Document)
+        NodeConsts.ATTRIBUTE_NODE -> AttrImpl(this as DomAttr)
+        NodeConsts.CDATA_SECTION_NODE -> CDATASectionImpl(this as DomCDATASection)
+        NodeConsts.COMMENT_NODE -> CommentImpl(this as DomComment)
+        NodeConsts.DOCUMENT_NODE -> DocumentImpl(this as DomDocument)
         NodeConsts.DOCUMENT_FRAGMENT_NODE -> DocumentFragmentImpl(this as DocumentFragment)
-        NodeConsts.DOCUMENT_TYPE_NODE -> DocumentTypeImpl(this as DocumentType)
-        NodeConsts.ELEMENT_NODE -> ElementImpl(this as Element)
-        NodeConsts.PROCESSING_INSTRUCTION_NODE -> ProcessingInstructionImpl(this as ProcessingInstruction)
-        NodeConsts.TEXT_NODE -> TextImpl(this as Text)
+        NodeConsts.DOCUMENT_TYPE_NODE -> DocumentTypeImpl(this as DomDocumentType)
+        NodeConsts.ELEMENT_NODE -> ElementImpl(this as DomElement)
+        NodeConsts.PROCESSING_INSTRUCTION_NODE -> ProcessingInstructionImpl(this as DomProcessingInstruction)
+        NodeConsts.TEXT_NODE -> TextImpl(this as DomText)
         else -> error("Node type ${NodeType(nodeType)} not supported")
     }
 }
@@ -183,15 +186,15 @@ internal fun DomNode.wrap(): INode = when (this) {
 internal fun Node1.wrap(): INode = when (this) {
     is INode -> this
     else -> when (nodeType) {
-        NodeConsts.ATTRIBUTE_NODE -> AttrImpl(this as Attr)
-        NodeConsts.CDATA_SECTION_NODE -> CDATASectionImpl(this as CDATASection)
-        NodeConsts.COMMENT_NODE -> CommentImpl(this as Comment)
-        NodeConsts.DOCUMENT_NODE -> DocumentImpl(this as Document)
+        NodeConsts.ATTRIBUTE_NODE -> AttrImpl(this as DomAttr)
+        NodeConsts.CDATA_SECTION_NODE -> CDATASectionImpl(this as DomCDATASection)
+        NodeConsts.COMMENT_NODE -> CommentImpl(this as DomComment)
+        NodeConsts.DOCUMENT_NODE -> DocumentImpl(this as DomDocument)
         NodeConsts.DOCUMENT_FRAGMENT_NODE -> DocumentFragmentImpl(this as DocumentFragment)
-        NodeConsts.DOCUMENT_TYPE_NODE -> DocumentTypeImpl(this as DocumentType)
-        NodeConsts.ELEMENT_NODE -> ElementImpl(this as Element)
-        NodeConsts.PROCESSING_INSTRUCTION_NODE -> ProcessingInstructionImpl(this as ProcessingInstruction)
-        NodeConsts.TEXT_NODE -> TextImpl(this as Text)
+        NodeConsts.DOCUMENT_TYPE_NODE -> DocumentTypeImpl(this as DomDocumentType)
+        NodeConsts.ELEMENT_NODE -> ElementImpl(this as DomElement)
+        NodeConsts.PROCESSING_INSTRUCTION_NODE -> ProcessingInstructionImpl(this as DomProcessingInstruction)
+        NodeConsts.TEXT_NODE -> TextImpl(this as DomText)
         else -> error("Node type ${NodeType(nodeType)} not supported")
     }
 }

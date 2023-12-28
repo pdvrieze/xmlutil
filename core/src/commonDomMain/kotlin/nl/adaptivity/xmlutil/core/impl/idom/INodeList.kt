@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.length
 import nl.adaptivity.xmlutil.dom2.NodeListIterator
 import nl.adaptivity.xmlutil.dom.NodeList as NodeList1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
@@ -49,5 +48,5 @@ public interface INodeList : NodeList1, NodeList2, Collection<Node2> {
         return elements.all { contains(it) } // inefficient
     }
 
-    public override fun isEmpty(): Boolean = length == 0
+    public override fun isEmpty(): Boolean = getLength() == 0
 }

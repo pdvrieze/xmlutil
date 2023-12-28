@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -22,7 +22,6 @@ package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
@@ -37,8 +36,6 @@ import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
-
-public typealias SerializableElement2=@Serializable(ElementSerializer::class) Element
 
 internal object ElementSerializer : XmlSerializer<Element> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())

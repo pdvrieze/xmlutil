@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,31 +18,46 @@
  * under the License.
  */
 
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import kotlin.reflect.KClass
 import java.io.StringWriter as JavaStringWriter
-import java.io.Writer as JavaWriter
-import kotlin.io.use as ktUse
-
-public actual fun assert(value: Boolean, lazyMessage: () -> String) {
-    kotlin.assert(value, lazyMessage)
-}
-
-public actual fun assert(value: Boolean): Unit = kotlin.assert(value)
 
 public actual typealias AutoCloseable = java.lang.AutoCloseable
 
-public actual inline fun <T : Closeable?, R> T.use(block: (T) -> R): R {
-    return this.ktUse(block)
-}
-
 public actual typealias Closeable = java.io.Closeable
 
-public actual abstract class Writer(internal val delegate: JavaWriter) {
-    override fun toString(): String = delegate.toString()
+public actual abstract class Writer : Appendable {
+    public actual open fun write(text: String) {
+        append(text)
+    }
+
+    actual override fun append(value: CharSequence?): Appendable {
+        return append(value, 0, value?.length ?: 0)
+    }
+
+    public actual open fun flush() {
+    }
 }
 
-public actual open class StringWriter actual constructor() : Writer(JavaStringWriter())
+public actual open class StringWriter actual constructor() : Writer() {
+    private val delegate = JavaStringWriter()
+    override fun append(value: Char): Appendable {
+        delegate.append(value)
+        return this
+    }
+
+    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable {
+        delegate.append(value, startIndex, endIndex)
+        return this
+    }
+
+    actual override fun toString(): String {
+        return delegate.toString()
+    }
+}
 
 public actual typealias Reader = java.io.Reader
 public actual typealias StringReader = java.io.StringReader
@@ -50,4 +65,6 @@ public actual typealias StringReader = java.io.StringReader
 public actual typealias InputStream = java.io.InputStream
 public actual typealias OutputStream = java.io.OutputStream
 
-public actual typealias Language = org.intellij.lang.annotations.Language
+internal expect val <T : Any> KClass<T>.javaCompat: Class<T>
+
+internal expect val <T : Any> T.javaClassCompat: Class<T>

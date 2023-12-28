@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -22,15 +22,19 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
-public class XmlBufferedWriter @XmlUtilInternal constructor(
+/**
+ * Class that writes xml to a linear buffer of xml events.
+ */
+public class XmlBufferedWriter private constructor(
     buffer: MutableList<XmlEvent> = mutableListOf(),
-    delegateNamespaceContext: FreezableNamespaceContext?
+    delegateNamespaceContext: IterableNamespaceContext?
 ) : XmlWriter {
 
     public constructor(buffer: MutableList<XmlEvent> = mutableListOf()) : this(buffer, null)
 
     private val _buffer = buffer
 
+    /** The buffer of all written events. */
     public val buffer: List<XmlEvent> get() = _buffer
 
     private val namespaceHolder = NamespaceHolder()

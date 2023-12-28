@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -349,7 +349,7 @@ public class XML(
      * @param deserializer The deserializer to use.
      * @param string The string input
      */
-    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String): T {
+    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML", "", "") string: String): T {
         return decodeFromReader(deserializer, xmlStreaming.newReader(string))
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. 
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -61,7 +61,7 @@ internal class DocumentFragmentImpl(ownerDocument: DocumentImpl) : NodeImpl(owne
     }
 
     override fun appendChild(node: INode): INode {
-        val n = checkNode(node) as NodeImpl
+        val n = checkNode(node)
         _childNodes.elements.add(n)
         n.parentNode = this
         return node

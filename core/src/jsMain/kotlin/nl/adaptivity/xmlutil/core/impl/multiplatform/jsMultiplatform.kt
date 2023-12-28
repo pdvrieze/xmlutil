@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -73,7 +73,14 @@ public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = emptyList
 
 
 public actual abstract class Writer : Appendable {
-    public abstract fun write(text: String)
+    public actual open fun write(text: String) { append(text) }
+
+    actual override fun append(value: CharSequence?): Appendable {
+        return append(value, 0, value?.length ?: 0)
+    }
+
+    public actual open fun flush() {
+    }
 }
 
 public actual open class StringWriter : Writer() {
@@ -82,7 +89,7 @@ public actual open class StringWriter : Writer() {
         buffer.append(text)
     }
 
-    override fun toString(): String {
+    actual override fun toString(): String {
         return buffer.toString()
     }
 

@@ -28,17 +28,17 @@ import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
 public interface IDOMImplementation : DOMImplementation1, DOMImplementation2 {
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): IDocumentType
 
-    override fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType1?): IDocument =
+    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType1?): IDocument =
         createDocument(
             namespace,
             qualifiedName,
             documentType?.let { createDocumentType(it.name, it.publicId, it.systemId) })
 
-    override fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType2?): IDocument =
+    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType2?): IDocument =
         createDocument(
             namespace,
             qualifiedName,
             documentType?.let { createDocumentType(it.getName(), it.getPublicId(), it.getSystemId()) })
 
-    public fun createDocument(namespace: String?, qualifiedName: String, documentType: IDocumentType?): IDocument
+    public fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument
 }

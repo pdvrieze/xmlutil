@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -64,8 +64,8 @@ public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.Te
             fun sbToTextEvent() {
                 if (sb.isNotEmpty()) {
                     val text = sb.toString()
-                    if (!text.isXmlWhitespace()) {
-                        throw XmlException("Indents can only be whitespace or comments: ${text}")
+                    if (!isXmlWhitespace(text)) {
+                        throw XmlException("Indents can only be whitespace or comments: $text")
                     }
                     result.add(XmlEvent.TextEvent(null, EventType.IGNORABLE_WHITESPACE, text))
                     sb.clear()
@@ -79,43 +79,54 @@ public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.Te
                         0 -> ++commentPos
                         else -> sb.append(ch)
                     }
+
                     '!' -> when (commentPos) {
                         1 -> ++commentPos
                         else -> sb.append(ch)
                     }
+
                     '-' -> when (commentPos) {
                         2 -> ++commentPos
                         3 -> { // Now in comment
                             ++commentPos
                             sbToTextEvent()
                         }
+
                         4, 5 -> ++commentPos
+
                         6 -> throw XmlException("-- is not allowed to occur inside xml comment text")
                         else -> sb.append(ch)
                     }
+
                     '>' -> when (commentPos) {
                         6 -> {
                             commentPos = 0
                             result.add(XmlEvent.TextEvent(null, EventType.COMMENT, sb.toString()))
                             sb.clear()
                         }
+
                         5 -> {
                             commentPos = 4
                             sb.append("->")
                         }
+
                         else -> sb.append(ch)
                     }
+
                     else -> when (commentPos) {
                         1, 2, 3 -> { // Reset comment position, add string
                             sb.append(COMMENT, 0, commentPos)
                             commentPos = 0
                             sb.append(ch)
                         }
+
                         0, 4 -> sb.append(ch) // Not in comment transition, just append
+
                         5 -> { // single - in comment
                             commentPos = 4
                             sb.append('-').append(ch)
                         }
+
                         6 -> throw XmlException("-- is not allowed to occur inside xml comment text")
                     }
                 }

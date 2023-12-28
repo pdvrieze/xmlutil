@@ -26,7 +26,7 @@ import org.w3c.dom.Node
 import org.w3c.dom.TypeInfo
 import org.w3c.dom.Attr as DomAttr
 
-internal class AttrImpl(delegate: DomAttr): NodeImpl<DomAttr>(delegate), IAttr {
+internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), IAttr {
     override fun getOwnerElement(): IElement? = delegate.ownerElement?.wrap()
 
     override fun getName(): String = delegate.name
@@ -44,6 +44,6 @@ internal class AttrImpl(delegate: DomAttr): NodeImpl<DomAttr>(delegate), IAttr {
     override fun isId(): Boolean = delegate.isId
 }
 
-internal fun Node.wrapAttr():IAttr {
+internal fun Node.wrapAttr(): IAttr {
     return (this as DomAttr).wrap()
 }

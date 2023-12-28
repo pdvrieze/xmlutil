@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -37,13 +37,14 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 /**
  * Writer that uses the DOM for the underlying storage (rather than writing to some string).
  */
-public class DomWriter(
+public class DomWriter @Deprecated("Don't use directly. Instead create an instance through xmlStreaming") constructor(
     current: Node2?,
     public val isAppend: Boolean = false,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ) : PlatformXmlWriterBase(), XmlWriter {
 
-    @Deprecated("Compatibility constructor, use new Node2 instead")
+    @Suppress("DEPRECATION")
+    @Deprecated("Compatibility constructor, create through xmlStreaming")
     public constructor(
         current: Node1,
         isAppend: Boolean = false,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -22,9 +22,7 @@
 
 package nl.adaptivity.xmlutil.xmlserializable
 
-import nl.adaptivity.xmlutil.XmlDeserializerFactory
 import kotlin.reflect.KClass
-
 
 /**
  * Annotation that specifies the Deserializer for this type.
@@ -33,4 +31,4 @@ import kotlin.reflect.KClass
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
-annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)
+public annotation class XmlDeserializer(val value: KClass<out XmlDeserializerFactory<*>>)

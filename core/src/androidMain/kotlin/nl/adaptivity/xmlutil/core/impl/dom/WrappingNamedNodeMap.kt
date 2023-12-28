@@ -25,7 +25,6 @@ import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
 import org.w3c.dom.NamedNodeMap
 import org.w3c.dom.Node
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
-import org.w3c.dom.Attr as DomAttr
 
 internal class WrappingNamedNodeMap(val delegate: NamedNodeMap) : INamedNodeMap {
     override val size: Int get() = delegate.length

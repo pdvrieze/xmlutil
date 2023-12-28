@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -36,7 +36,7 @@ internal class AppendableWriter(private val appendable: Appendable) : Writer() {
     }
 
     override fun write(str: String, off: Int, len: Int): Unit = lock {
-        appendable.append(str, off, len)
+        appendable.append(str, off, off + len)
     }
 
     override fun append(c: Char) = apply {

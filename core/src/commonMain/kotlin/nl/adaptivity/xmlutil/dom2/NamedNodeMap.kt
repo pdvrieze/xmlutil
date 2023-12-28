@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,11 +18,9 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-
 package nl.adaptivity.xmlutil.dom2
 
-public interface NamedNodeMap {
+public interface NamedNodeMap : Iterable<Attr> {
 
     public fun getLength(): Int
 
@@ -42,13 +40,13 @@ public interface NamedNodeMap {
 
     public fun removeNamedItemNS(namespace: String?, localName: String): Attr?
 
-    public operator fun iterator(): Iterator<Attr> {
+    public override operator fun iterator(): Iterator<Attr> {
         return NamedNodeMapIterator(this)
     }
 
 }
 
-private class NamedNodeMapIterator(private val map: NamedNodeMap): Iterator<Attr> {
+private class NamedNodeMapIterator(private val map: NamedNodeMap) : Iterator<Attr> {
 
     private var pos = 0
 

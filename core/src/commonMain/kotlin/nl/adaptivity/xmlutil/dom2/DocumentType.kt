@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -25,3 +25,7 @@ public interface DocumentType : Node {
     public fun getPublicId(): String
     public fun getSystemId(): String
 }
+
+public val DocumentType.name: String get() = getName()
+public val DocumentType.publicId: String get() = getPublicId()
+public val DocumentType.systemId: String get() = getSystemId()

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,16 +18,20 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.util
 
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlSerializable
+import nl.adaptivity.xmlutil.XmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.javaClassCompat
+import nl.adaptivity.xmlutil.core.impl.multiplatform.javaCompat
 import kotlin.reflect.KClass
-import java.lang.ClassNotFoundException
-import java.lang.NoSuchMethodException
 
-public class DefaultSerializationProvider : SerializationProvider {
+public class DefaultSerializationProvider : CoreCompatSerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
-        if (XmlSerializable::class.java.isAssignableFrom(type.java) == true) {
+        if (XmlSerializable::class.javaCompat.isAssignableFrom(type.javaCompat)) {
             @Suppress("UNCHECKED_CAST") // the system isn't smart enough that this means T is a subtype
             return (SerializableSerializer as SerializationProvider.XmlSerializerFun<T>)
         } else {
@@ -36,18 +40,20 @@ public class DefaultSerializationProvider : SerializationProvider {
     }
 
     override fun <T : Any> deSerializer(type: KClass<T>): SerializationProvider.XmlDeserializerFun? {
-        val a = type.java.annotations.firstOrNull { it.javaClass.name=="nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer" }
+        val a =
+            type.javaCompat.annotations.firstOrNull { it.javaClassCompat.name == "nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer" }
         return a?.let { DeserializerFun }
     }
 
     private object DeserializerFun : SerializationProvider.XmlDeserializerFun {
         override fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T {
-            val a = type.java.annotations.first { it.javaClass.name=="nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer" }
-            val factoryClass = a.javaClass.getMethod("value").invoke(a) as Class<*>
+            val a =
+                type.javaCompat.annotations.first { it.javaClassCompat.name == "nl.adaptivity.xmlutil.xmlserializable.XmlDeserializer" }
+            val factoryClass = a.javaClassCompat.getMethod("value").invoke(a) as Class<*>
             val factory = factoryClass.getConstructor().newInstance()
 
             @Suppress("UNCHECKED_CAST")
-            return factoryClass.getMethod("deserialize", XmlReader::class.java).invoke(factory, input) as T
+            return factoryClass.getMethod("deserialize", XmlReader::class.javaCompat).invoke(factory, input) as T
         }
     }
 

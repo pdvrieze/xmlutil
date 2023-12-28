@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -16,8 +16,6 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
- * -- This file is derived from kXML (Copyright (c) 2002,2003, Stefan Haustein, Oberhausen, Rhld., Germany)
  */
 
 package nl.adaptivity.xmlutil.core.impl
@@ -31,6 +29,9 @@ import java.io.OutputStreamWriter
 import java.io.Writer
 import java.util.*
 import javax.xml.XMLConstants
+
+@Suppress("DEPRECATION")
+private typealias NonDeprBetterXmlSerializer = BetterXmlSerializer
 
 /**
  * @suppress
@@ -109,11 +110,13 @@ public class BetterXmlSerializer : XmlSerializer {
                         writer.write(c.code)
                     }
                 }
+
                 '\n', '\r', '\t' -> if (escapeAggressive && quot != -1) {
                     writer.write("&#${c.code};")
                 } else {
                     writer.write(c.code)
                 }
+
                 else ->
                     //if(c < ' ')
                     //	throw new IllegalArgumentException("Illegal control code:"+((int) c));
@@ -127,7 +130,6 @@ public class BetterXmlSerializer : XmlSerializer {
     }
 
     override fun docdecl(dd: String) {
-        @Suppress("NON_EXHAUSTIVE_WHEN")
         when (state) {
             WriteState.BeforeDocument -> {
                 if (xmlDeclMode != XmlDeclMode.None) {
@@ -135,8 +137,10 @@ public class BetterXmlSerializer : XmlSerializer {
                 }
                 state = WriteState.AfterXmlDecl
             }
+
             WriteState.AfterXmlDecl -> {
             }
+
             else ->
                 throw XmlException("Writing a DTD is only allowed once, in the prolog")
         }
@@ -166,6 +170,7 @@ public class BetterXmlSerializer : XmlSerializer {
 
     override fun getFeature(name: String): Boolean {
         //return false;
+        @Suppress("HttpUrlsUsage")
         return if ("http://xmlpull.org/v1/doc/features.html#indent-output" == name)
             indent[depth]
         else
@@ -258,6 +263,7 @@ public class BetterXmlSerializer : XmlSerializer {
     }
 
     override fun setFeature(name: String, value: Boolean) {
+        @Suppress("HttpUrlsUsage")
         if ("http://xmlpull.org/v1/doc/features.html#indent-output" == name) {
             indent[depth] = value
         } else {
@@ -383,16 +389,19 @@ public class BetterXmlSerializer : XmlSerializer {
         }
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    override fun startTag(namespace: String?, name: String): BetterXmlSerializer {
+    override fun startTag(namespace: String?, name: String): NonDeprBetterXmlSerializer {
         when (state) {
             WriteState.BeforeDocument -> {
                 if (xmlDeclMode != XmlDeclMode.None) {
                     startDocument(null, null)
                 }
             }
+
             WriteState.Finished ->
                 throw XmlException("Attempting to write tag after the document finished")
+
             else -> {}
         }
         state = WriteState.InTagContent
@@ -444,11 +453,10 @@ public class BetterXmlSerializer : XmlSerializer {
         return this
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    override fun attribute(namespace: String?, name: String, value: String): BetterXmlSerializer {
-        if (!pending) {
-            throw IllegalStateException("illegal position for attribute")
-        }
+    override fun attribute(namespace: String?, name: String, value: String): NonDeprBetterXmlSerializer {
+        check(pending) { throw IllegalStateException("illegal position for attribute") }
 
         val ns = namespace ?: ""
 
@@ -481,11 +489,10 @@ public class BetterXmlSerializer : XmlSerializer {
         return this
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    public fun attribute(namespace: String?, prefix: String, name: String, value: String): BetterXmlSerializer {
-        if (!pending) {
-            throw IllegalStateException("illegal position for attribute")
-        }
+    public fun attribute(namespace: String?, prefix: String, name: String, value: String): NonDeprBetterXmlSerializer {
+        check (pending) { throw IllegalStateException("illegal position for attribute") }
 
         val ns = namespace ?: ""
 
@@ -521,8 +528,9 @@ public class BetterXmlSerializer : XmlSerializer {
         return this
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    public fun namespace(prefix: String, namespace: String?): BetterXmlSerializer {
+    public fun namespace(prefix: String, namespace: String?): NonDeprBetterXmlSerializer {
 
         if (!pending) {
             throw IllegalStateException("illegal position for attribute")
@@ -578,8 +586,9 @@ public class BetterXmlSerializer : XmlSerializer {
         writer.flush()
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    override fun endTag(namespace: String?, name: String): BetterXmlSerializer {
+    override fun endTag(namespace: String?, name: String): NonDeprBetterXmlSerializer {
 
         if (!pending) {
             depth--
@@ -633,16 +642,18 @@ public class BetterXmlSerializer : XmlSerializer {
         return if (pending) depth + 1 else depth
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    override fun text(text: String): BetterXmlSerializer {
+    override fun text(text: String): NonDeprBetterXmlSerializer {
         checkPending(false)
         indent[depth] = false
         writeEscaped(text, -1)
         return this
     }
 
+    @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
     @Throws(IOException::class)
-    override fun text(text: CharArray, start: Int, len: Int): BetterXmlSerializer {
+    override fun text(text: CharArray, start: Int, len: Int): NonDeprBetterXmlSerializer {
         text(String(text, start, len))
         return this
     }

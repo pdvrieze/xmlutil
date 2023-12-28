@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -36,21 +36,27 @@ public expect inline fun Attr.getValue(): String
 public expect inline fun Attr.setValue(value: String)
 public expect inline fun Attr.getOwnerElement(): Element?
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getNamespaceURI()"))
 public inline val Attr.namespaceURI: String?
     get() = getNamespaceURI()
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getPrefix()"))
 public inline val Attr.prefix: String?
     get() = getPrefix()
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getLocalName()"))
 public inline val Attr.localName: String?
     get() = getLocalName()
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getName()"))
 public inline val Attr.name: String
     get() = getName()
 
+@Deprecated("Use accessor methods for dom2 compatibility")
 public inline var Attr.value: String
     get() = getValue()
     set(value) = setValue(value)
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getOwnerElement()"))
 public inline val Attr.ownerElement: Element?
     get() = getOwnerElement()

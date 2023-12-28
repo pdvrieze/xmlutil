@@ -21,8 +21,6 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.ICDATASection
-import nl.adaptivity.xmlutil.core.impl.idom.ICharacterData
 import org.w3c.dom.CDATASection
 
-internal class CDATASectionImpl(delegate: CDATASection): TextImpl(delegate), ICDATASection {
-}
+internal class CDATASectionImpl(delegate: CDATASection) : TextImpl(delegate), ICDATASection

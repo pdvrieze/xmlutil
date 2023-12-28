@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,16 +20,22 @@
 
 package nl.adaptivity.xmlutil
 
+/**
+ * Various namespace constants and their corresponding default prefixes.
+ */
 public object XMLConstants {
     public const val DEFAULT_NS_PREFIX: String = ""
     public const val NULL_NS_URI: String = ""
-    public const val XMLNS_ATTRIBUTE_NS_URI: String = "http://www.w3.org/2000/xmlns/"
+
     public const val XMLNS_ATTRIBUTE: String = "xmlns"
+    public const val XMLNS_ATTRIBUTE_NS_URI: String = "http://www.w3.org/2000/xmlns/"
+
     public const val XML_NS_PREFIX: String = "xml"
     public const val XML_NS_URI: String = "http://www.w3.org/XML/1998/namespace"
+
     public const val XSI_PREFIX: String = "xsi"
     public const val XSI_NS_URI: String = "http://www.w3.org/2001/XMLSchema-instance"
+
     public const val XSD_PREFIX: String = "xsd"
     public const val XSD_NS_URI: String = "http://www.w3.org/2001/XMLSchema"
-
 }

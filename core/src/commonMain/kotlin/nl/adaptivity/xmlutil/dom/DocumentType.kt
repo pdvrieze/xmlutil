@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+@Suppress("DEPRECATION")
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.DocumentType", "nl.adaptivity.xmlutil.dom2")

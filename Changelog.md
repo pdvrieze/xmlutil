@@ -1,4 +1,9 @@
 # 0.87.0-SNAPSHOT
+Changes:
+- The core module has been changed to use default implementations for
+  Java interfaces. This could cause binary compatibility issues in
+  rare cases (when called from Java).
+
 Features:
 - Extend applicability of `@XmlValue` on a list/map to capture any serializer.
   Note that the specific serializer will need to be able to handle the xml

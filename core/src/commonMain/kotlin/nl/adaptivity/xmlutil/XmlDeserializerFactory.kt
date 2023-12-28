@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -24,10 +24,13 @@ package nl.adaptivity.xmlutil
 /**
  * Interface that factories need to implement to handle be deserialization in a "shared"
  * non-reflective approach.
-
+ *
  * Created by pdvrieze on 27/08/15.
  */
-@Deprecated("This should be replaced by kotlinx.serialization")
+@Deprecated(
+    "This should be replaced by kotlinx.serialization or the xmlserializable module",
+    ReplaceWith("nl.adaptivity.xmlutil.xmlserializable.XmlDeserializerFactory")
+)
 public interface XmlDeserializerFactory<T> {
 
     /** Deserialize the object */

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
+@XmlUtilInternal
 public expect open class IOException : Exception {
     public constructor()
     public constructor(message: String?)

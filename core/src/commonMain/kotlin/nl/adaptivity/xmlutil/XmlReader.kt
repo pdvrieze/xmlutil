@@ -24,6 +24,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Closeable
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Throws
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
@@ -33,6 +34,7 @@ import kotlin.jvm.JvmOverloads
  * Interface that is the entry point to the xml parsing. All implementations implement this
  * interface, generally by delegating to a platform specific parser.
  */
+@MpJvmDefaultWithCompatibility
 public interface XmlReader : Closeable, Iterator<EventType> {
 
     /** Get the next tag. This must call next, not use the underlying stream.  */
@@ -295,7 +297,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
  *
  * The function will move to the containing end tag.
  *
- * @return   The text found
+ * @return The text found
  *
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
@@ -310,8 +312,7 @@ public fun XmlBufferedReader.allConsecutiveTextContent(): String {
         loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
             when (event?.eventType) {
                 EventType.PROCESSING_INSTRUCTION,
-                EventType.COMMENT
-                -> {
+                EventType.COMMENT -> {
                     t.next();Unit
                 } // ignore
 
@@ -319,13 +320,12 @@ public fun XmlBufferedReader.allConsecutiveTextContent(): String {
                 EventType.IGNORABLE_WHITESPACE,
                 EventType.TEXT,
                 EventType.ENTITY_REF,
-                EventType.CDSECT
-                -> {
+                EventType.CDSECT -> {
                     t.next()
                     append(t.text)
                 }
-                EventType.START_ELEMENT
-                -> {
+
+                EventType.START_ELEMENT -> {
                     // don't progress the event either
                     break@loop
                 }
@@ -365,13 +365,13 @@ public fun XmlReader.readSimpleElement(): String {
                 EventType.COMMENT,
                 EventType.PROCESSING_INSTRUCTION -> {
                 }
+
                 EventType.IGNORABLE_WHITESPACE,
                 EventType.TEXT,
                 EventType.ENTITY_REF,
                 EventType.CDSECT -> append(t.text)
-                else -> throw XmlException(
-                    "Expected text content or end tag, found: ${t.eventType}"
-                )
+
+                else -> throw XmlException("Expected text content or end tag, found: ${t.eventType}")
             }/* Ignore */
         }
 

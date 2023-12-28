@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,5 @@
 
 package nl.adaptivity.xmlutil
 
+@Deprecated("Use IterableNamespaceContext", ReplaceWith("nl.adaptivity.xmlutil.IterableNamespaceContext"))
 public typealias FreezableNamespaceContext = IterableNamespaceContext

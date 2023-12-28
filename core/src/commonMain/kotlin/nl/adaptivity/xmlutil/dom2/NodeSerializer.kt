@@ -36,7 +36,7 @@ internal object NodeSerializer : XmlSerializer<Node> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())
 
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
-    public val ed: SerialDescriptor =
+    private val elemDescr: SerialDescriptor =
         buildSerialDescriptor("org.w3c.dom.Node", SerialKind.CONTEXTUAL) {
             element("text", serialDescriptor<String>())
             // don't use ElementSerializer to break initialization loop
@@ -45,11 +45,8 @@ internal object NodeSerializer : XmlSerializer<Node> {
 
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = buildSerialDescriptor("node", PolymorphicKind.SEALED) {
-
         element("type", serialDescriptor<String>())
-        element("value", ed)
-
-
+        element("value", elemDescr)
     }
 
 
@@ -89,14 +86,18 @@ internal object NodeSerializer : XmlSerializer<Node> {
                         when (type) {
                             null -> throw SerializationException("Missing type")
                             "element" -> result = decodeSerializableElement(descriptor, 1, ElementSerializer)
+
                             "attr" -> {
                                 val map = decodeSerializableElement(descriptor, 1, attrSerializer)
                                 if (map.size != 1) throw SerializationException("Only a single attribute pair expected")
                                 result = decoder.document.createAttribute(map.keys.single())
                                     .also { it.setValue(map.values.single()) }
                             }
+
                             "text" -> result = decoder.document.createTextNode(decodeStringElement(descriptor, 1))
+
                             "comment" -> result = decoder.document.createComment(decodeStringElement(descriptor, 1))
+
                             else -> throw SerializationException("unsupported type: $type")
                         }
                     }
@@ -124,26 +125,33 @@ internal object NodeSerializer : XmlSerializer<Node> {
                     val children = value.childNodes.iterator().asSequence().toList()
                     encodeSerializableElement(descriptor, 1, ListSerializer(NodeSerializer), children)
                 }
+
                 NodeConsts.ELEMENT_NODE -> {
                     encodeStringElement(descriptor, 0, "element")
                     encodeSerializableElement(descriptor, 1, ElementSerializer, value as Element)
                 }
+
                 NodeConsts.ATTRIBUTE_NODE -> {
                     encodeStringElement(descriptor, 0, "attr")
-                    encodeSerializableElement(descriptor, 1, attrSerializer,
+                    encodeSerializableElement(
+                        descriptor, 1, attrSerializer,
                         mapOf((value as Attr).getName() to value.getValue())
                     )
                 }
+
                 NodeConsts.TEXT_NODE,
                 NodeConsts.CDATA_SECTION_NODE -> {
                     encodeStringElement(descriptor, 0, "text")
                     encodeStringElement(descriptor, 1, value.textContent ?: "")
                 }
+
                 NodeConsts.COMMENT_NODE -> {
                     encodeStringElement(descriptor, 0, "comment")
                     encodeStringElement(descriptor, 1, value.textContent ?: "")
                 } // ignore comments
+
                 NodeConsts.PROCESSING_INSTRUCTION_NODE -> throw SerializationException("Processing instructions can not be serialized")
+
                 else -> throw SerializationException("Cannot serialize: $value")
             }
 

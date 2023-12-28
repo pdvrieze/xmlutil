@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,7 +18,7 @@
  * under the License.
  */
 
-@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER", "DEPRECATION")
+@file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil.dom
 
@@ -33,10 +33,10 @@ public expect interface NodeList {
 
 public expect inline fun NodeList.getLength(): Int
 
+@Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getLength()"))
 public inline val NodeList.length: Int get() = getLength()
 
-@Suppress("UNCHECKED_CAST")
-public operator fun NodeList.get(index: Int): Attr? = item((index)) as Attr?
+public operator fun NodeList.get(index: Int): Node? = item(index)
 
 public operator fun NodeList.iterator(): Iterator<Node> {
     return NodeListIterator(this)

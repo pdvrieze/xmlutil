@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -58,6 +58,10 @@ kotlin {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
         }
         compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
+
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
@@ -81,6 +85,9 @@ kotlin {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
         }
         compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
@@ -138,7 +145,7 @@ kotlin {
         }
         compilations.all {
             kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + "-Xexpect-actual-classes"
+                freeCompilerArgs += "-Xexpect-actual-classes"
             }
         }
     }

@@ -20,17 +20,3 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import java.io.CharArrayWriter
-
-internal actual fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter {
-    return CharArrayWriter().also {
-        @Suppress("DEPRECATION")
-        XmlStreaming.newWriter(it as Appendable).use { out ->
-            while (hasNext()) {
-                next()
-                writeCurrent(out)
-            }
-        }
-    }
-}

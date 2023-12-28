@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.XmlReader
  * A class representing an xml fragment compactly.
  * Created by pdvrieze on 06/11/15.2
  */
+@Serializable(CompactFragmentSerializer::class)
 public expect class CompactFragment : ICompactFragment {
     public constructor(content: String)
     public constructor(orig: ICompactFragment)

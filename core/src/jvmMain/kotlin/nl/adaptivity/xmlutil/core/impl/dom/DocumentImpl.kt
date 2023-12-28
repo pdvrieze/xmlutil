@@ -31,7 +31,7 @@ import org.w3c.dom.Node as DomNode
 internal class DocumentImpl(delegate: DomDocument) : NodeImpl<DomDocument>(delegate), IDocument {
     override fun getInputEncoding(): String? = delegate.inputEncoding
 
-    override fun getImplementation(): IDOMImplementation = DOMImplementationImpl(delegate.implementation)
+    override fun getImplementation(): IDOMImplementation = DOMImplementationImpl
 
     override fun getDoctype(): IDocumentType? = delegate.doctype?.let(::DocumentTypeImpl)
 

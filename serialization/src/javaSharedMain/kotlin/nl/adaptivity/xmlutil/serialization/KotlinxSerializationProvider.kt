@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
@@ -27,6 +29,9 @@ import nl.adaptivity.xmlutil.serialization.XML.Companion.decodeFromReader
 import nl.adaptivity.xmlutil.util.SerializationProvider
 import kotlin.reflect.KClass
 
+/**
+ * This class is still here to stop breaking functionality.
+ */
 @InternalSerializationApi
 public class KotlinxSerializationProvider : SerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {

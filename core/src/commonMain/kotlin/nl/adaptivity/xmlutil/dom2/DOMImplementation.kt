@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -24,8 +24,39 @@ public interface DOMImplementation {
     public val supportsWhitespaceAtToplevel: Boolean
 
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
-    public fun createDocument(namespace: String?, qualifiedName: String, documentType: DocumentType?): Document
-}
+    public fun createDocument(namespace: String? = null, qualifiedName: String? = null, documentType: DocumentType? = null): Document
 
-public fun DOMImplementation.createDocument(namespace: String?, qualifiedName: String): Document =
-    createDocument(namespace, qualifiedName, null)
+    @OptIn(ExperimentalStdlibApi::class)
+    public fun hasFeature(feature: String, version:String?): Boolean {
+        val f = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
+        val v = when {
+            version.isNullOrEmpty() -> null
+            else -> DOMVersion.entries.firstOrNull { it.strName == version } ?: return false
+        }
+        return hasFeature(f, v)
+    }
+
+    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean {
+        return version == null || feature.isSupportedVersion(version)
+    }
+
+    public enum class SupportedFeatures(public val strName: String) {
+        CORE("Core") {
+            override fun isSupportedVersion(version: DOMVersion): Boolean = true
+        },
+
+        XML("XML") {
+            override fun isSupportedVersion(version: DOMVersion): Boolean = true
+        }
+        ;
+
+        public abstract fun isSupportedVersion(version: DOMVersion): Boolean
+    }
+
+    public enum class DOMVersion(public val strName: String) {
+        V1("1.0"),
+        V2("2.0"),
+        V3("3.0"),
+    }
+
+}

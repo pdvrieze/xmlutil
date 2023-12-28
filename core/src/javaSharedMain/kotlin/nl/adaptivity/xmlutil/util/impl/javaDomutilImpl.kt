@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2017.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -102,7 +102,7 @@ internal inline fun NamedNodeMap.count(predicate: (Node) -> Boolean): Int {
 
 /** Remove namespaces attributes from a tree that have already been declared by a parent. */
 internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceContext = ExtendingNamespaceContext()) {
-    if (nodeType == NodeConsts.ELEMENT_NODE) {
+    if (getNodeType() == NodeConsts.ELEMENT_NODE) {
         @Suppress("UnsafeCastFromDynamic")
         val elem: Element = this as Element
 
@@ -128,7 +128,7 @@ internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceCo
         for (attr in toRemove) {
             elem.removeAttributeNode(attr)
         }
-        for (child in elem.childNodes.asList()) {
+        for (child in elem.getChildNodes().asList()) {
             child.removeUnneededNamespaces(knownNamespaces.extend())
         }
     }

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018. 
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 
 /**
  * Simple exception for xml related things.
- * Created by pdvrieze on 15/11/15.
+ * @author Created by pdvrieze on 15/11/15.
  */
 public open class XmlException : IOException {
 

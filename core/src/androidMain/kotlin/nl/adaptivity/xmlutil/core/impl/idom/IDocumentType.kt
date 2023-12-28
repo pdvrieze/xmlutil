@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import org.w3c.dom.NamedNodeMap
 import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
 import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
 

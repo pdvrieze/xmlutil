@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithoutCompatibility
+
+@MpJvmDefaultWithoutCompatibility
 public actual interface XmlStreamingFactory
