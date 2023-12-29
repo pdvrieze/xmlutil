@@ -183,21 +183,8 @@ internal fun DomNode.wrap(): INode = when (this) {
     }
 }
 
-internal fun Node1.wrap(): INode = when (this) {
-    is INode -> this
-    else -> when (nodeType) {
-        NodeConsts.ATTRIBUTE_NODE -> AttrImpl(this as DomAttr)
-        NodeConsts.CDATA_SECTION_NODE -> CDATASectionImpl(this as DomCDATASection)
-        NodeConsts.COMMENT_NODE -> CommentImpl(this as DomComment)
-        NodeConsts.DOCUMENT_NODE -> DocumentImpl(this as DomDocument)
-        NodeConsts.DOCUMENT_FRAGMENT_NODE -> DocumentFragmentImpl(this as DocumentFragment)
-        NodeConsts.DOCUMENT_TYPE_NODE -> DocumentTypeImpl(this as DomDocumentType)
-        NodeConsts.ELEMENT_NODE -> ElementImpl(this as DomElement)
-        NodeConsts.PROCESSING_INSTRUCTION_NODE -> ProcessingInstructionImpl(this as DomProcessingInstruction)
-        NodeConsts.TEXT_NODE -> TextImpl(this as DomText)
-        else -> error("Node type ${NodeType(nodeType)} not supported")
-    }
-}
+internal fun Node1.wrap(): INode =
+    (this as DomNode).wrap()
 
 internal fun Node2.wrap(): INode = when (this) {
     is INode -> this

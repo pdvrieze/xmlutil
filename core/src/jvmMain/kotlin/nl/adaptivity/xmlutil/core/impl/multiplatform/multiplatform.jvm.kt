@@ -40,3 +40,6 @@ public actual typealias MpJvmDefaultWithoutCompatibility = JvmDefaultWithoutComp
 
 @XmlUtilInternal
 public actual typealias MpJvmDefaultWithCompatibility = JvmDefaultWithCompatibility
+
+public actual typealias Throws = kotlin.jvm.Throws
+

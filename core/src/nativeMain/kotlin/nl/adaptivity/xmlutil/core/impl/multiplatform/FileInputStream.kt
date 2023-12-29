@@ -23,28 +23,53 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.*
 import platform.posix.*
 
-@OptIn(ExperimentalForeignApi::class, UnsafeNumber::class)
+/**
+ * Implementation of a FileInputStream based upon native file access.
+ * @property filePtr A pointer to the underlying file.
+ *
+ * @constructor Directly wrap (and take ownership of) the file pointer given.
+ */
+@OptIn(ExperimentalForeignApi::class)
 public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream() {
 
+    /**
+     * Create an input stream for a file handle. Will create the needed file pointer.
+     * @param fileHandle The file handle to use
+     * @param mode The mode to use to open the file.
+     */
     public constructor(fileHandle: Int, mode: FileMode = Mode.READ) : this(
-        fdopen(fileHandle, mode.modeString) ?: kotlin.run {
-            throw IOException.fromErrno()
-        })
+        fdopen(fileHandle, mode.modeString) ?: throw IOException.fromErrno())
 
+    /**
+     * Create an input stream for a file name. Will create the needed file pointer.
+     * @param pathName The name of the file to open. If relative depends on the current working directory.
+     * @param mode The mode to use to open the file.
+     */
     public constructor(pathName: String, mode: FileMode = Mode.READ) : this(
-        fopen(pathName, mode.modeString) ?: kotlin.run {
-            throw IOException.fromErrno()
-        })
+        fopen(pathName, mode.modeString) ?: throw IOException.fromErrno())
 
+    /**
+     * Close the file (neither this object is valid afterwards, nor the pointer.
+     */
     override fun close() {
         if (fclose(filePtr) != 0) {
             throw IOException.fromErrno()
         }
     }
 
+    /**
+     * Determine whether the end of the file has been reached.
+     */
     public override val eof: Boolean
         get() = feof(filePtr) != 0
 
+    /**
+     * Read into the given native buffer. It will check for errors, but does not indicate end of file.
+     *
+     * @param buffer The buffer to read into
+     * @param size The size of individual items (in bytes)
+     * @param bufferSize The maximum amount of items to be read.
+     */
     public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: MPSizeT, bufferSize: MPSizeT): MPSizeT {
         clearerr(filePtr)
         val itemsRead = MPSizeT(fread(buffer, size.value.convert<size_t>(), bufferSize.value.convert<size_t>(), filePtr))
@@ -57,6 +82,10 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         return itemsRead
     }
 
+    /**
+     * Read a single byte value. This is not buffered in any way, and possibly slow.
+     * @return -1 if end of file, otherwise the byte value
+     */
     public override fun read(): Int {
         clearerr(filePtr)
         memScoped {
@@ -74,23 +103,51 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
         }
     }
 
-    override fun read(b: ByteArray, off: Int, len: Int): Int {
-        val endIdx = off + len
-        require(off in b.indices) { "Offset before start of array" }
-        require(endIdx <= b.size) { "Range size beyond buffer size" }
-        return b.usePinned { buf ->
-            read(buf.addressOf(off), MPSizeT(sizeOf<ByteVar>().toULong()), MPSizeT(len.toULong())).value.toInt()
+    /**
+     * Read an array of bytes from the file.
+     * @param buffer The buffer to read into
+     * @param offset The starting point in the buffer to start reading
+     * @param len The amount of data to read.
+     * @return The amount of bytes read or -1 if end of file.
+     */
+    override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
+        val endIdx = offset + len
+        require(offset in buffer.indices) { "Offset before start of array" }
+        require(endIdx <= buffer.size) { "Range size beyond buffer size" }
+        val result = buffer.usePinned { buf ->
+            read(buf.addressOf(offset), MPSizeT(sizeOf<ByteVar>().toULong()), MPSizeT(len.toULong())).value.toInt()
         }
+        if (result == 0 && eof) return -1
+        return result
     }
 
+    /**
+     * Read an array of bytes from the file.
+     * @param buffer The buffer to read into
+     * @param offset The starting point in the buffer to start reading
+     * @param len The amount of data to read.
+     * @return The amount of bytes read or -1 if end of file.
+     */
     public fun read(buffer: UByteArray, offset: Int = 0, len: Int = buffer.size - offset): Int {
-        buffer.usePinned { buf ->
-            return read(buf.addressOf(offset), MPSizeT(1u), MPSizeT(len.toULong())).value.toInt()
+        val result = buffer.usePinned { buf ->
+            read(buf.addressOf(offset), MPSizeT(1u), MPSizeT(len.toULong())).value.toInt()
         }
+        if (result == 0 && eof) return -1
+        return result
     }
 
+    /**
+     * Supported read modes.
+     */
     public enum class Mode(public override val modeString: String) : FileMode {
+        /**
+         * Support reading only
+         */
         READ("r"),
+
+        /**
+         * By default read, but also support writing (this requires unsafe access to the file pointer).
+         */
         READWRITE("r+");
     }
 

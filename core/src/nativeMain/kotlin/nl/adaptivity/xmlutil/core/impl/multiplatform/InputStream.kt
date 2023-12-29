@@ -23,21 +23,25 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.ExperimentalForeignApi
-import platform.posix.uint64_t
 
+@Suppress(
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+    "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING"
+)
 public actual abstract class InputStream : Closeable {
+    @Suppress("NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING")
     public abstract val eof: Boolean
 
-    public actual open fun read(b: ByteArray, off: Int, len: Int): Int {
-        require(off in 0 until b.size) { "Offset before start of array" }
-        require(off + len <= b.size) { "Range size beyond buffer size" }
+    public actual open fun read(buffer: ByteArray, offset: Int, len: Int): Int {
+        require(offset in buffer.indices) { "Offset before start of array" }
+        require(offset + len <= buffer.size) { "Range size beyond buffer size" }
 
-        for (i in off until (off + len)) {
+        for (i in offset until (offset + len)) {
             val byte = read()
             if (byte < 0) {
                 return i
             }
-            b[i] = byte.toByte()
+            buffer[i] = byte.toByte()
         }
         return len
     }
@@ -53,6 +57,9 @@ public actual abstract class InputStream : Closeable {
     actual override fun close() {}
 }
 
+/**
+ * Wrapper type to stand in for `size_t` as that type has inconsistent sizes in different architectures.
+ */
 public value class MPSizeT(public val value: ULong) {
     public constructor(value: UInt): this(value.toULong())
     public operator fun minus(other: MPSizeT): MPSizeT = MPSizeT(value - other.value)

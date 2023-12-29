@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase

@@ -27,8 +27,8 @@ import kotlin.test.*
 @OptIn(ExperimentalForeignApi::class)
 class FileIOTest {
 
-    lateinit var testFile: CPointer<FILE>
-    lateinit var writer: OutputStreamWriter
+    private lateinit var testFile: CPointer<FILE>
+    private lateinit var writer: OutputStreamWriter
 
     @BeforeTest
     fun createTestTmpFile() {

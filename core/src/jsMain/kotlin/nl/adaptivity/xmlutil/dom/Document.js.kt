@@ -24,7 +24,11 @@ import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
-public actual external interface Document: Node {
+@Suppress(
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
+)
+public actual external interface Document : Node {
     public val implementation: DOMImplementation
     public val doctype: DocumentType?
     public val documentElement: Element?

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,13 +18,17 @@
  * under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
 
 
+@Suppress(
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
+)
 public actual interface Node {
     public val nodeType: Short
 
@@ -140,6 +144,7 @@ public actual inline fun Node.getParentNode(): Node? = parentNode
 
 public actual inline fun Node.getTextContent(): String? = textContent
 
+@Suppress("DEPRECATION")
 public actual inline fun Node.getChildNodes(): NodeList = childNodes
 
 public actual inline fun Node.getFirstChild(): Node? = firstChild

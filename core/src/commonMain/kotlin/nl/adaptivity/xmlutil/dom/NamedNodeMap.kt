@@ -18,8 +18,7 @@
  * under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
+@file:Suppress("DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER")
 package nl.adaptivity.xmlutil.dom
 
 @Deprecated(
@@ -47,7 +46,7 @@ public expect inline fun NamedNodeMap.getLength(): Int
 @Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getLength()"))
 public inline val NamedNodeMap.length: Int get() = getLength()
 
-public operator fun NamedNodeMap.get(index: Int): Attr? = item(index) as Attr?
+public operator fun NamedNodeMap.get(index: Int): Attr? = item(index)?.asAttr()
 
 public operator fun NamedNodeMap.iterator(): Iterator<Attr> {
     return NamedNodeMapIterator(this)
@@ -59,5 +58,5 @@ private class NamedNodeMapIterator(private val map: NamedNodeMap) : Iterator<Att
 
     override fun hasNext(): Boolean = pos < map.getLength()
 
-    override fun next(): Attr = map[pos++] as Attr
+    override fun next(): Attr = map[pos++]!!.asAttr()
 }

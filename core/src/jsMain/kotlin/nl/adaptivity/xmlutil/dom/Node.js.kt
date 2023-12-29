@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,15 +18,16 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.multiplatform
+package nl.adaptivity.xmlutil.dom
 
+internal actual fun Node.asAttr(): Attr {
+    check(getNodeType() == NodeConsts.ATTRIBUTE_NODE)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    return this as Attr
+}
 
-public actual open class IOException : Exception {
-    public actual constructor() : super()
-
-    public actual constructor(message: String?) : super(message)
-
-    public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
-
-    public actual constructor(cause: Throwable?) : super(cause)
+internal actual fun Node.asElement(): Element {
+    check(getNodeType() == NodeConsts.ELEMENT_NODE)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    return this as Element
 }

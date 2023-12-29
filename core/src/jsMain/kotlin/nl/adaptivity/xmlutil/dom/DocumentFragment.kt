@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,4 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual external interface DocumentFragment: Node
+public actual external interface DocumentFragment : Node

@@ -782,6 +782,9 @@ public final class nl/adaptivity/xmlutil/XmlUtil {
 	public static final fun xmlEncode (Ljava/lang/CharSequence;)Ljava/lang/String;
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/XmlUtilDeprecatedInternal : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class nl/adaptivity/xmlutil/XmlUtilInternal : java/lang/annotation/Annotation {
 }
 

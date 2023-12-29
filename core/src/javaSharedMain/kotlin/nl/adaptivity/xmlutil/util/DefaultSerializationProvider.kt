@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.javaClassCompat
 import nl.adaptivity.xmlutil.core.impl.multiplatform.javaCompat
 import kotlin.reflect.KClass
 
+@Deprecated("This should be done in the xmlserializable module")
 public class DefaultSerializationProvider : CoreCompatSerializationProvider {
     override fun <T : Any> serializer(type: KClass<T>): SerializationProvider.XmlSerializerFun<T>? {
         if (XmlSerializable::class.javaCompat.isAssignableFrom(type.javaCompat)) {

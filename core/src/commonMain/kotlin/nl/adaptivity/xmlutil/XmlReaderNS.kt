@@ -49,7 +49,7 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
 
 public expect fun XmlReader.siblingsToFragment(): CompactFragment
 
-@Suppress("DeprecatedCallableAddReplaceWith")
+@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "KotlinRedundantDiagnosticSuppress")
 @Deprecated("This is inefficient in Javascript")
 public fun XmlReader.siblingsToCharArray(): CharArray = siblingsToFragment().content
 

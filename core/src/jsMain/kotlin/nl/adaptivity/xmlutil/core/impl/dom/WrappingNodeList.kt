@@ -29,7 +29,7 @@ internal class WrappingNodeList(val delegate: Any) : INodeList {
         get() = delegate.asDynamic().length as Int
 
     override fun item(index: Int): INode {
-        val node: DomNode = delegate.asDynamic().item(index) ?: throw IndexOutOfBoundsException("$index")
+        val node: DomNode = delegate.asDynamic().item(index) as DomNode? ?: throw IndexOutOfBoundsException("$index")
         return node.wrap()
     }
 }

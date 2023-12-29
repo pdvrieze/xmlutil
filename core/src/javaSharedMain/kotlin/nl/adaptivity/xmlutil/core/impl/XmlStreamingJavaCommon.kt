@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.core.impl
 
 import nl.adaptivity.xmlutil.*
@@ -39,7 +41,11 @@ import java.io.Writer as JavaWriter
 public fun IXmlStreaming.newWriter(result: Result, repairNamespaces: Boolean = false): XmlWriter =
     (this as XmlStreamingJavaCommon).newWriter(result, repairNamespaces)
 
-public fun IXmlStreaming.newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean = false): XmlWriter =
+public fun IXmlStreaming.newWriter(
+    outputStream: OutputStream,
+    encoding: String,
+    repairNamespaces: Boolean = false
+): XmlWriter =
     (this as XmlStreamingJavaCommon).newWriter(outputStream, encoding, repairNamespaces)
 
 public fun IXmlStreaming.newWriter(
@@ -64,7 +70,8 @@ public fun IXmlStreaming.newReader(source: Source): XmlReader =
  * jvm platforms that work with Java library types such as [OutputStream],
  * [MPWriter], [Reader], [InputStream], etc..
  */
-public abstract class XmlStreamingJavaCommon: IXmlStreaming {
+@Suppress("DeprecatedCallableAddReplaceWith")
+public abstract class XmlStreamingJavaCommon : IXmlStreaming {
 
     @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
     protected abstract val serializationLoader: ServiceLoader<SerializationProvider>
@@ -126,6 +133,7 @@ public abstract class XmlStreamingJavaCommon: IXmlStreaming {
         return null
     }
 
+    @Suppress("DEPRECATION")
     @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
     public abstract fun <T : Any> serializerFor(type: Class<T>): XmlSerializerFun<T>?
 

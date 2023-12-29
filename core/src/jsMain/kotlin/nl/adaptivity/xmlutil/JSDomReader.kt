@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,29 +20,9 @@
 
 package nl.adaptivity.xmlutil
 
-import kotlinx.dom.isElement
-import kotlinx.dom.isText
-import nl.adaptivity.js.util.*
-import org.w3c.dom.*
-
+@Suppress("DEPRECATION")
 public actual typealias PlatformXmlReader = DomReader
 
+@Suppress("DEPRECATION")
 @Deprecated("Just use DomReader", ReplaceWith("DomReader"))
 public typealias JSDomReader = DomReader
-
-private fun Short.toEventType(endOfElement: Boolean): EventType {
-    return when (this) {
-        Node.ATTRIBUTE_NODE              -> EventType.ATTRIBUTE
-        Node.CDATA_SECTION_NODE          -> EventType.CDSECT
-        Node.COMMENT_NODE                -> EventType.COMMENT
-        Node.DOCUMENT_TYPE_NODE          -> EventType.DOCDECL
-        Node.ENTITY_REFERENCE_NODE       -> EventType.ENTITY_REF
-        Node.DOCUMENT_NODE               -> if (endOfElement) EventType.START_DOCUMENT else EventType.END_DOCUMENT
-//    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
-        Node.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
-        Node.TEXT_NODE                   -> EventType.TEXT
-        Node.ELEMENT_NODE                -> if (endOfElement) EventType.END_ELEMENT else EventType.START_ELEMENT
-//    Node.ELEMENT_NODE -> EventType.END_ELEMENT
-        else                             -> throw XmlException("Unsupported event type")
-    }
-}

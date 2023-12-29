@@ -18,7 +18,11 @@
  * under the License.
  */
 
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@file:Suppress(
+    "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING",
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING"
+)
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
@@ -34,6 +38,11 @@ public actual abstract class Writer : Appendable {
         append(text)
     }
 
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE", "KotlinRedundantDiagnosticSuppress")
+    actual abstract override fun append(value: Char): Appendable
+
+    actual abstract override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
+
     actual override fun append(value: CharSequence?): Appendable {
         return append(value, 0, value?.length ?: 0)
     }
@@ -44,11 +53,13 @@ public actual abstract class Writer : Appendable {
 
 public actual open class StringWriter actual constructor() : Writer() {
     private val delegate = JavaStringWriter()
+
     override fun append(value: Char): Appendable {
         delegate.append(value)
         return this
     }
 
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE", "KotlinRedundantDiagnosticSuppress")
     override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable {
         delegate.append(value, startIndex, endIndex)
         return this

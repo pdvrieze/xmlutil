@@ -34,8 +34,6 @@ import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
 import org.w3c.dom.parsing.XMLSerializer
-import kotlin.reflect.KClass
-import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Node as DomNode
 
@@ -43,14 +41,18 @@ import org.w3c.dom.Node as DomNode
 public actual interface XmlStreamingFactory
 
 
-@Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
-    "nl.adaptivity.xmlutil.xmlStreaming",
-    "nl.adaptivity.xmlutil.newWriter",
-    "nl.adaptivity.xmlutil.newGenericWriter",
-))
-public actual object XmlStreaming: IXmlStreaming {
+@Deprecated(
+    "Don't use directly", ReplaceWith(
+        "xmlStreaming",
+        "nl.adaptivity.xmlutil.xmlStreaming",
+        "nl.adaptivity.xmlutil.newWriter",
+        "nl.adaptivity.xmlutil.newGenericWriter",
+    )
+)
+public actual object XmlStreaming : IXmlStreaming {
     @ExperimentalXmlUtilApi
     override fun newReader(source: Node2): XmlReader {
+        @Suppress("DEPRECATION")
         return DomReader(source)
     }
 
@@ -58,16 +60,8 @@ public actual object XmlStreaming: IXmlStreaming {
         return DomWriter()
     }
 
-    internal fun newWriter(dest: ParentNode): DomWriter {
-        @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "DEPRECATION")
-        return DomWriter(dest as Node1)
-    }
-
+    @Suppress("DEPRECATION")
     override fun newWriter(dest: Node2): DomWriter = DomWriter(dest)
-
-    internal fun newReader(node: DomNode): DomReader {
-        return DomReader(node.wrap() as Node2)
-    }
 
     @Deprecated("Does not work on Javascript except for setting null", level = DeprecationLevel.ERROR)
     public override fun setFactory(factory: XmlStreamingFactory?) {
@@ -75,25 +69,13 @@ public actual object XmlStreaming: IXmlStreaming {
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
-    @Deprecated("Does not work", level = DeprecationLevel.ERROR)
-    @Suppress("UNUSED_PARAMETER")
-    public fun <T : Any> deSerialize(input: String, type: KClass<T>): Nothing = TODO("JS does not support annotations")
-    /*: T {
-        return newReader(input).deSerialize(type)
-    }*/
-
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0. Not MP compatible", level = DeprecationLevel.ERROR)
-    public inline fun <reified T : Any> deSerialize(input: String): T = TODO("JS does not support annotations")
-    /*: T {
-        return deSerialize(input, T::class)
-    }*/
-
     public override fun newReader(input: CharSequence): XmlReader {
         val str = when { // Ignore initial BOM (it parses incorrectly without exception)
-            input.get(0) == '\ufeff' -> input.subSequence(1, input.length)
+            input[0] == '\ufeff' -> input.subSequence(1, input.length)
             else -> input
         }.toString()
 
+        @Suppress("DEPRECATION")
         return DomReader(DOMParser().parseFromString(str, "text/xml").wrap() as Node2)
     }
 
@@ -144,16 +126,6 @@ public actual object XmlStreaming: IXmlStreaming {
         get() = DOMImplementationImpl
 }
 
-/*
-fun <T:Any> DomReader.deSerialize(type: KClass<T>): T {
-    TODO("Kotlin JS does not support annotations yet so no way to determine the deserializer")
-    val an = type.annotations.firstOrNull { jsTypeOf(it) == kotlin.js.jsClass<XmlDeserializer>().name }
-    val deserializer = type.getAnnotation(XmlDeserializer::class.java) ?: throw IllegalArgumentException("Types must be annotated with " + XmlDeserializer::class.java.name + " to be deserialized automatically")
-
-    return type.cast(deserializer.value.java.newInstance().deserialize(this))
-}
- */
-
 internal class AppendingWriter(private val target: Appendable, private val delegate: DomWriter) :
     XmlWriter by delegate {
     override fun close() {
@@ -168,6 +140,38 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
 
     override fun flush() {
         delegate.flush()
+    }
+
+    override var indent: Int
+        get() = delegate.indent
+        set(value) {
+            delegate.indent = value
+        }
+
+    @Deprecated(
+        "Use the version that takes strings",
+        replaceWith = ReplaceWith("namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())")
+    )
+    override fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) {
+        @Suppress("DEPRECATION")
+        delegate.namespaceAttr(namespacePrefix, namespaceUri)
+    }
+
+    override fun namespaceAttr(namespace: Namespace) {
+        delegate.namespaceAttr(namespace)
+    }
+
+    override fun processingInstruction(target: String, data: String) {
+        delegate.processingInstruction(target, data)
+    }
+
+    @Deprecated(
+        "Use the version that takes strings",
+        replaceWith = ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())")
+    )
+    override fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence) {
+        @Suppress("DEPRECATION")
+        delegate.setPrefix(prefix, namespaceUri)
     }
 }
 
@@ -212,16 +216,50 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
     override fun flush() {
         delegate.flush()
     }
+
+    override var indent: Int
+        get() = delegate.indent
+        set(value) {
+            delegate.indent = value
+        }
+
+    @Deprecated(
+        "Use the version that takes strings",
+        replaceWith = ReplaceWith("namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())")
+    )
+    override fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) {
+        @Suppress("DEPRECATION")
+        delegate.namespaceAttr(namespacePrefix, namespaceUri)
+    }
+
+    override fun namespaceAttr(namespace: Namespace) {
+        delegate.namespaceAttr(namespace)
+    }
+
+    override fun processingInstruction(target: String, data: String) {
+        delegate.processingInstruction(target, data)
+    }
+
+    @Deprecated(
+        "Use the version that takes strings",
+        replaceWith = ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())")
+    )
+    override fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence) {
+        @Suppress("DEPRECATION")
+        delegate.setPrefix(prefix, namespaceUri)
+    }
 }
 
 @Suppress("DEPRECATION")
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
-@Suppress("UnusedReceiverParameter", "DEPRECATION")
+@Suppress("UnusedReceiverParameter", "DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER")
 public fun IXmlStreaming.newWriter(): DomWriter = XmlStreaming.newWriter()
+
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = xmlStreaming.newWriter(dest)
-@Suppress("UnusedReceiverParameter")
+
+@Suppress("UnusedReceiverParameter", "DEPRECATION")
 public fun IXmlStreaming.newReader(delegate: DomNode): DomReader = xmlStreaming.newReader(delegate)
 
 

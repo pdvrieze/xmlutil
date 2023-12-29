@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,8 +18,7 @@
  * under the License.
  */
 
-@file:JvmName("QNameJvmKt")
+package nl.adaptivity.xmlutil.dom
 
-package nl.adaptivity.xmlutil
-
-public actual typealias QName = javax.xml.namespace.QName
+internal actual fun Node.asAttr(): Attr = this as Attr
+internal actual fun Node.asElement(): Element = this as Element

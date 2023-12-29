@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,11 +18,13 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.util
 
+import nl.adaptivity.xmlutil.dom.NamedNodeMap
 import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.dom.NodeList
-import nl.adaptivity.xmlutil.dom.NamedNodeMap
 import nl.adaptivity.xmlutil.dom.iterator as actualIteratorImpl
 
 @Deprecated("Use the implementation in the dom package", ReplaceWith("iterator", "nl.adaptivity.xmlutil.dom.iterator"), DeprecationLevel.HIDDEN)

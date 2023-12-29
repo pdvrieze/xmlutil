@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -25,6 +25,7 @@ import kotlinx.cinterop.toKString
 import platform.posix.posix_errno
 import platform.posix.strerror
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual open class IOException : Exception {
     public actual constructor() : super()
 

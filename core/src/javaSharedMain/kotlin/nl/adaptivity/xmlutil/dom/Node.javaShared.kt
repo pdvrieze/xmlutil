@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -18,7 +18,10 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.multiplatform
+package nl.adaptivity.xmlutil.dom
 
-public actual typealias IOException = java.io.IOException
+@Suppress("DEPRECATION")
+internal actual fun Node.asAttr(): Attr = this as Attr
 
+@Suppress("DEPRECATION")
+internal actual fun Node.asElement(): Element = this as Element

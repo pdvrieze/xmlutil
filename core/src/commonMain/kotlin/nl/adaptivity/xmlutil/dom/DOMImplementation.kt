@@ -30,6 +30,6 @@ public expect interface DOMImplementation {
     public fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
 }
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER", "KotlinRedundantDiagnosticSuppress")
 public fun DOMImplementation.createDocument(namespace: String?, qualifiedName: String): Document =
     createDocument(namespace, qualifiedName, null)

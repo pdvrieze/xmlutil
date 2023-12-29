@@ -24,7 +24,7 @@ import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileOutputStream.Mode
 import platform.posix.FILE
 
-public class OutputStreamWriter(public val outStream: OutputStream) : Writer(), Closeable {
+public class OutputStreamWriter(public val outStream: NativeOutputStream) : Writer(), Closeable {
 
     @OptIn(ExperimentalForeignApi::class)
     public constructor(filePtr: CPointer<FILE>) : this(FileOutputStream(filePtr))

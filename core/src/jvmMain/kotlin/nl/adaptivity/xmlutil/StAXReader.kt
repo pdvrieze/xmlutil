@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -197,10 +197,12 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
             eventType
         }
+
         EventType.END_ELEMENT -> {
             namespaceHolder.decDepth()
             eventType
         }
+
         else -> eventType
     }
 
@@ -294,22 +296,5 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
 
         }
 
-        private val LOCAL_TO_DELEGATE = IntArray(12) { i ->
-            when (i) {
-                EventType.CDSECT.ordinal -> XMLStreamConstants.CDATA
-                EventType.COMMENT.ordinal -> XMLStreamConstants.COMMENT
-                EventType.DOCDECL.ordinal -> XMLStreamConstants.DTD
-                EventType.END_DOCUMENT.ordinal -> XMLStreamConstants.END_DOCUMENT
-                EventType.END_ELEMENT.ordinal -> XMLStreamConstants.END_ELEMENT
-                EventType.ENTITY_REF.ordinal -> XMLStreamConstants.ENTITY_REFERENCE
-                EventType.IGNORABLE_WHITESPACE.ordinal -> XMLStreamConstants.SPACE
-                EventType.PROCESSING_INSTRUCTION.ordinal -> XMLStreamConstants.PROCESSING_INSTRUCTION
-                EventType.START_DOCUMENT.ordinal -> XMLStreamConstants.START_DOCUMENT
-                EventType.START_ELEMENT.ordinal -> XMLStreamConstants.START_ELEMENT
-                EventType.TEXT.ordinal -> XMLStreamConstants.CHARACTERS
-                EventType.ATTRIBUTE.ordinal -> XMLStreamConstants.ATTRIBUTE
-                else -> -1
-            }
-        }
     }
 }

@@ -18,7 +18,7 @@
  * under the License.
  */
 
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER")
 
 package nl.adaptivity.xmlutil.dom
 

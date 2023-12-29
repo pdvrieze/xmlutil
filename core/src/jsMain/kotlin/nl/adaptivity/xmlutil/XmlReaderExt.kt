@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -37,6 +37,7 @@ import org.w3c.dom.Document as DomDocument
  * @throws XmlException parsing failed
  */
 public actual fun XmlReader.siblingsToFragment(): CompactFragment {
+    @Suppress("DEPRECATION")
     val d = (this as? DomReader)?.delegate
     val doc: DocumentImpl = when {
         d == null -> DocumentImpl(DomDocument())
@@ -66,6 +67,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
             when (type) {
                 EventType.START_ELEMENT -> {
+                    @Suppress("DEPRECATION")
                     val out = DomWriter(wrapperElement as Node2, true)
                     @Suppress("DEPRECATION")
                     out.addUndeclaredNamespaces(this, missingNamespaces)
@@ -77,7 +79,9 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 EventType.IGNORABLE_WHITESPACE,
                 EventType.TEXT -> wrapperElement.appendChild(wrapperElement.getOwnerDocument().createTextNode(text))
 
-                EventType.CDSECT -> wrapperElement.appendChild(wrapperElement.getOwnerDocument().createCDATASection(text))
+                EventType.CDSECT -> wrapperElement.appendChild(
+                    wrapperElement.getOwnerDocument().createCDATASection(text)
+                )
 
                 EventType.COMMENT -> wrapperElement.appendChild(wrapperElement.getOwnerDocument().createComment(text))
 

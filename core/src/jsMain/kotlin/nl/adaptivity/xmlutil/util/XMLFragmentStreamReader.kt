@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -70,7 +70,6 @@ public actual class XMLFragmentStreamReader(
 
         }
 
-        @Suppress("DEPRECATION")
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             if (parent == null) {
                 return super.getPrefixes(namespaceURI)
@@ -194,7 +193,9 @@ public actual class XMLFragmentStreamReader(
             }
 
             val actualInput = "$wrapper$text</$WRAPPERPPREFIX:wrapper>"
+
             val parser = DOMParser()
+            @Suppress("DEPRECATION")
             return DomReader(parser.parseFromString(actualInput, "text/xml").wrap() as Node2)
         }
 

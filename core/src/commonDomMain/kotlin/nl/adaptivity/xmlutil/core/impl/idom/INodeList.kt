@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom2.NodeListIterator
@@ -25,7 +27,6 @@ import nl.adaptivity.xmlutil.dom.NodeList as NodeList1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import nl.adaptivity.xmlutil.dom2.NodeList as NodeList2
 
-@Suppress("DEPRECATION")
 public interface INodeList : NodeList1, NodeList2, Collection<Node2> {
     @Deprecated("Use size", ReplaceWith("size"))
     public override fun getLength(): Int = size

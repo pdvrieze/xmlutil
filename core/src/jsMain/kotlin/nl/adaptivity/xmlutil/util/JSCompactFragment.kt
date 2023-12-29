@@ -64,9 +64,7 @@ public actual class CompactFragment : ICompactFragment {
     /** Convenience constructor for content without namespaces.  */
     public actual constructor(content: String) : this(emptyList(), content)
 
-    public constructor(documentFragment: DocumentFragment) : this(
-        XMLSerializer().serializeToString(documentFragment)
-                                                          )
+    public constructor(documentFragment: DocumentFragment) : this(XMLSerializer().serializeToString(documentFragment))
 
     public constructor(node: Node) : this(XMLSerializer().serializeToString(node))
 
@@ -91,7 +89,6 @@ public actual class CompactFragment : ICompactFragment {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        @Suppress("UnsafeCastFromDynamic")
         if (other == null || prototype != other.prototype) return false
 
         val that = other as ICompactFragment?

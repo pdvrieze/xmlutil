@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2017.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,10 +20,9 @@
 
 package nl.adaptivity.js.util
 
-import nl.adaptivity.xmlutil.*
-import org.w3c.dom.*
 import kotlinx.dom.isElement
 import kotlinx.dom.isText
+import org.w3c.dom.*
 
 /** Allow access to the node as [Element] if it is an element, otherwise it is null. */
 public fun Node.asElement(): Element? = if (isElement) this as Element else null
@@ -107,91 +106,3 @@ public inline fun NamedNodeMap.count(predicate: (Attr) -> Boolean): Int {
 }
 
 
-internal fun Node.myLookupPrefix(namespaceUri: String): String? {
-    if (this !is Element) return null
-    for (attr in attributes) {
-        when {
-            attr.prefix == XMLConstants.XMLNS_ATTRIBUTE &&
-                    attr.value == namespaceUri
-            -> return attr.localName
-
-            attr.prefix.isNullOrBlank() && attr.localName == XMLConstants.XMLNS_ATTRIBUTE &&
-                    attr.value == namespaceUri
-            -> return ""
-        }
-    }
-    return parentNode?.myLookupPrefix(namespaceUri)
-}
-
-internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
-    !is Element -> null
-    else -> {
-        attributes.filter {
-            (prefix == "" && it.localName == "xmlns") ||
-                    (it.prefix == "xmlns" && it.localName == prefix)
-        }.firstOrNull()?.value ?: parentNode?.myLookupNamespaceURI(prefix)
-    }
-}
-
-/** Remove namespaces attributes from a tree that have already been declared by a parent. */
-internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceContext = ExtendingNamespaceContext()) {
-    if (nodeType == Node.ELEMENT_NODE) {
-        @Suppress("UnsafeCastFromDynamic")
-        val elem: Element = asDynamic()
-
-        val toRemove = mutableListOf<Attr>()
-
-        elem.attributes.forEach { attr ->
-            if (attr.prefix == "xmlns") {
-                val knownUri = knownNamespaces.parent.getNamespaceURI(attr.localName)
-                if (attr.value == knownUri) {
-                    toRemove.add(attr)
-                } else {
-                    knownNamespaces.addNamespace(attr.localName, attr.value)
-                }
-            } else if (attr.prefix == "" && attr.localName == "xmlns") {
-                val knownUri = knownNamespaces.parent.getNamespaceURI("")
-                if (attr.value == knownUri) {
-                    toRemove.add(attr)
-                } else {
-                    knownNamespaces.addNamespace("", attr.value)
-                }
-            }
-        }
-        for (attr in toRemove) {
-            elem.removeAttributeNode(attr)
-        }
-        for (child in elem.childNodes.asList()) {
-            child.removeUnneededNamespaces(knownNamespaces.extend())
-        }
-    }
-}
-
-internal class ExtendingNamespaceContext(val parent: NamespaceContext = SimpleNamespaceContext("", "")) :
-    NamespaceContext {
-
-    private val localNamespaces = mutableListOf<Namespace>()
-
-    override fun getNamespaceURI(prefix: String): String? {
-        return localNamespaces.firstOrNull { it.prefix == prefix }?.namespaceURI ?: parent.getNamespaceURI(prefix)
-    }
-
-    override fun getPrefix(namespaceURI: String): String? {
-        return localNamespaces.firstOrNull { it.namespaceURI == namespaceURI }?.prefix ?: parent.getPrefix(namespaceURI)
-    }
-
-    override fun getPrefixes(namespaceURI: String): Iterator<String> {
-        return buildSet {
-            localNamespaces.asSequence()
-                .filter { it.namespaceURI == namespaceURI }
-                .mapTo(this) { it.prefix }
-            parent.getPrefixes(namespaceURI).forEach { add(it) }
-        }.iterator()
-    }
-
-    fun addNamespace(prefix: String, namespaceURI: String) {
-        localNamespaces.add(XmlEvent.NamespaceImpl(prefix, namespaceURI))
-    }
-
-    fun extend() = ExtendingNamespaceContext(this)
-}

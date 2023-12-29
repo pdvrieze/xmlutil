@@ -36,7 +36,7 @@ import javax.xml.XMLConstants
  *
  * Created by pdvrieze on 04/11/15.
  */
-public actual class XMLFragmentStreamReader private constructor(delegate: XmlReader):
+public actual class XMLFragmentStreamReader private constructor(delegate: XmlReader) :
     XmlDelegatingReader(delegate), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate

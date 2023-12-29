@@ -18,9 +18,12 @@
  * under the License.
  */
 
+@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION", "DEPRECATION")
+
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
+import nl.adaptivity.xmlutil.util.CombiningNamespaceContext
 
 /**
  * Class that writes xml to a linear buffer of xml events.
@@ -49,11 +52,8 @@ public class XmlBufferedWriter private constructor(
         namespaceHolder.namespaceContext
     } else {
         // Don't use the plus operato here as we don't know that the contexts are not mutable.
-        @Suppress("DEPRECATION")
-        (nl.adaptivity.xmlutil.util.CombiningNamespaceContext(
-            namespaceHolder.namespaceContext,
-            delegateNamespaceContext
-        ))
+        @Suppress("DEPRECATION", "TYPEALIAS_EXPANSION_DEPRECATION")
+        CombiningNamespaceContext(namespaceHolder.namespaceContext, delegateNamespaceContext)
     }
 
     override fun setPrefix(prefix: String, namespaceUri: String) {

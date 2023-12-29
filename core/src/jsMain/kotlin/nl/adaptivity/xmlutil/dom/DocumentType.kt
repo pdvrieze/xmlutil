@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual external interface DocumentType: Node {
+@Suppress(
+    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING"
+)
+public actual external interface DocumentType : Node {
     public val name: String
     public val publicId: String
     public val systemId: String

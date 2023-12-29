@@ -64,7 +64,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
         while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
             when (type) {
                 EventType.START_ELEMENT ->
-                    KtXmlWriter(caw, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
+                    KtXmlWriter(caw as Appendable, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
                         out.indentString = "" // disable indents
                         val namespaceForPrefix = out.getNamespaceUri(prefix)
                         writeCurrent(out) // writes the start tag
@@ -101,7 +101,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     return CharArrayWriter().also {
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION", "KotlinConstantConditions")
         XmlStreaming.newWriter(it as Appendable).use { out ->
             while (hasNext()) {
                 next()

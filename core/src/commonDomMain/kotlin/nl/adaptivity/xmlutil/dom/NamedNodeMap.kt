@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -38,5 +38,6 @@ public actual interface NamedNodeMap {
     public actual fun removeNamedItemNS(namespace: String?, localName: String): Node?
 }
 
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public actual inline fun NamedNodeMap.getLength(): Int = (this as INamedNodeMap).size
 

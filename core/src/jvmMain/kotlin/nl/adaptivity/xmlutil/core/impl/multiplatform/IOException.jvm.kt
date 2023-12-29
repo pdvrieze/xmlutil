@@ -18,20 +18,11 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl
 
-@Deprecated("Don't use, just use string comparison")
-internal fun CharSequence?.contentEquals(other: CharSequence?): Boolean {
-    if (this == null) return other == null
-    if (other == null) return false
-    if (length != other.length) return false
-    for (i in indices) {
-        if (this[i] != other[i]) return false
-    }
-    return true
-}
+package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-@Deprecated("Use string equals", ReplaceWith("this == other"))
-internal fun String?.contentEquals(other: String?): Boolean {
-    return this == other
-}
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
+@XmlUtilInternal
+@Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING")
+public actual typealias IOException = java.io.IOException

@@ -60,7 +60,7 @@ internal class WrappingNamedNodeMap(val delegate: NamedNodeMap) : INamedNodeMap 
         return IteratorImpl(delegate)
     }
 
-    private class IteratorImpl(private val delegate: NamedNodeMap): Iterator<IAttr> {
+    private class IteratorImpl(private val delegate: NamedNodeMap) : Iterator<IAttr> {
         private var next: Int = 0
         override fun next(): IAttr {
             return delegate.item(next++)!!.wrapAttr()

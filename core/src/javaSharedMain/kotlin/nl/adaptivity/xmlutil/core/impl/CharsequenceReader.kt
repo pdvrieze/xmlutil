@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -28,14 +28,13 @@ import java.util.concurrent.locks.ReentrantLock
 @Suppress("FunctionName")
 internal fun CharsequenceReader(sequence: CharSequence): Reader = when (sequence) {
     is String -> StringReader(sequence)
-    else      -> CharsequenceReader(sequence, 0)
+    else -> CharsequenceReader(sequence, 0)
 }
 
 internal class CharsequenceReader(
     private val sequence: CharSequence,
     @Suppress("UNUSED_PARAMETER") dummy: Int
-                                 ) :
-    Reader() {
+) : Reader() {
     private var pos: Int = 0
     private var mark: Int = 0
 
@@ -47,9 +46,9 @@ internal class CharsequenceReader(
 
     override fun read(): Int = lock {
         when {
-            pos < 0                -> throw IllegalStateException("Reader closed")
+            pos < 0 -> throw IllegalStateException("Reader closed")
             pos >= sequence.length -> -1
-            else                   -> sequence[pos].code.apply { pos++ }
+            else -> sequence[pos].code.apply { pos++ }
         }
     }
 
@@ -63,7 +62,7 @@ internal class CharsequenceReader(
 
     override fun ready(): Boolean {
         lock {
-            return pos in 0 until sequence.length
+            return pos in sequence.indices
         }
     }
 

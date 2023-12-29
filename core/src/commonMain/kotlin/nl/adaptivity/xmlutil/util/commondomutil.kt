@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.QName
@@ -54,7 +56,7 @@ internal val Node1.isText: Boolean
 internal inline fun NamedNodeMap1.forEachAttr(body: (Attr1) -> Unit) {
     val l = this.getLength()
     for (idx in 0 until l) {
-        body(item(idx) as Attr1)
+        body(item(idx)!!.asAttr())
     }
 }
 
@@ -106,7 +108,7 @@ internal inline fun NamedNodeMap2.filterTyped(predicate: (Attr2) -> Boolean): Li
 @Suppress("DEPRECATION")
 internal fun Node1.myLookupPrefix(namespaceUri: String): String? {
     if (getNodeType() != NodeConsts.ELEMENT_NODE) return null
-    return (this as Element1).myLookupPrefixImpl(namespaceUri, mutableSetOf())
+    return (this.asElement()).myLookupPrefixImpl(namespaceUri, mutableSetOf())
 }
 
 internal fun Node2.myLookupPrefix(namespaceUri: String): String? {
@@ -133,7 +135,7 @@ private fun Element1.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: Muta
         }
     }
     return when (getParentNode()?.getNodeType()) {
-        NodeConsts.ELEMENT_NODE -> (getParentNode() as Element1).myLookupPrefixImpl(namespaceUri, seenPrefixes)
+        NodeConsts.ELEMENT_NODE -> (getParentNode()!!.asElement()).myLookupPrefixImpl(namespaceUri, seenPrefixes)
 
         else -> null
     }
@@ -164,7 +166,7 @@ private fun Element2.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: Muta
 internal fun Node1.myLookupNamespaceURI(prefix: String): String? = when {
     getNodeType() != NodeConsts.ELEMENT_NODE -> null
     else -> {
-        (this as Element1).getAttributes().filterTyped {
+        asElement().getAttributes().filterTyped {
             (prefix == "" && it.getLocalName() == "xmlns") ||
                     (it.getPrefix() == "xmlns" && it.getLocalName() == prefix)
         }.firstOrNull()?.getValue() ?: getParentNode()?.myLookupNamespaceURI(prefix)

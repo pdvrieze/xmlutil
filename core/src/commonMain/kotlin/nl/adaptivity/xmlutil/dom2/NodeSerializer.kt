@@ -58,6 +58,8 @@ internal object NodeSerializer : XmlSerializer<Node> {
     override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Node?, isValueChild: Boolean): Node {
         val document = previousValue?.ownerDocument ?: createDocument(QName("DummyDoc"))
         val fragment = document.createDocumentFragment()
+
+        @Suppress("DEPRECATION")
         val out = DomWriter(fragment)
         when {
             input.eventType == EventType.START_ELEMENT ->

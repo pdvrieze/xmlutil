@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
@@ -31,5 +33,5 @@ public actual interface NodeList {
     public actual fun item(index: Int): Node?
 }
 
-@Suppress("NOTHING_TO_INLINE", "DEPRECATION")
+@Suppress("NOTHING_TO_INLINE", "DEPRECATION", "KotlinRedundantDiagnosticSuppress")
 public actual inline fun NodeList1.getLength(): Int = (this as INodeList).size

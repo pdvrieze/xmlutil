@@ -207,6 +207,7 @@ kotlin {
     sourceSets.all {
         languageSettings.apply {
             optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
+            optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
         }
     }
 

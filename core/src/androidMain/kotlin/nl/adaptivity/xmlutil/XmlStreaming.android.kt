@@ -18,6 +18,7 @@
  * under the License.
  */
 @file:JvmName("XmlStreamingAndroidKt")
+@file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil
 
@@ -117,7 +118,8 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     override val genericDomImplementation: DOMImplementation
         get() = DOMImplementationImpl
 
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING,
+    @Deprecated(
+        "Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING,
         replaceWith = ReplaceWith("xmlStreaming.newGenericWriter(output, isRepairNamespaces, xmlDeclMode)")
     )
     public actual fun newGenericWriter(

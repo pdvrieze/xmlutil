@@ -28,7 +28,9 @@ import org.w3c.dom.Node as DomNode
 internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), IAttr {
     override var value: String
         get() = delegate.value
-        set(value) { delegate.value = value }
+        set(value) {
+            delegate.value = value
+        }
 
     override val namespaceURI: String? get() = delegate.namespaceURI
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
+@Suppress(
+    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
+)
 public actual external interface Node {
     public val nodeType: Short
     public val nodeName: String
@@ -34,7 +38,7 @@ public actual external interface Node {
     public val nextSibling: Node?
     public var nodeValue: String?
     public var textContent: String?
-    
+
     public actual fun lookupPrefix(namespace: String): String?
     public actual fun lookupNamespaceURI(prefix: String): String?
     public actual fun appendChild(node: Node): Node

@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.reflect.KClass
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
@@ -37,7 +38,7 @@ public actual val KClass<*>.name: String
 
 @XmlUtilInternal
 public actual fun assert(value: Boolean, lazyMessage: () -> String) {
-    if(!value) { throw AssertionError(lazyMessage()) }
+    if (!value) throw AssertionError(lazyMessage())
 }
 
 @XmlUtilInternal
@@ -45,6 +46,7 @@ public actual fun assert(value: Boolean) {
     if (!value) throw AssertionError()
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual abstract class OutputStream : Closeable {
     public actual abstract fun write(b: Int)
 
@@ -54,7 +56,7 @@ public actual abstract class OutputStream : Closeable {
 
     public actual open fun write(b: ByteArray, off: Int, len: Int) {
         val endIdx = off + len
-        require(off in 0 until b.size) { "Offset before start of array" }
+        require(off in b.indices) { "Offset before start of array" }
         require(endIdx <= b.size) { "Range size beyond buffer size" }
         for (idx in off until endIdx) {
             write(b[idx].toInt())
@@ -64,18 +66,19 @@ public actual abstract class OutputStream : Closeable {
     public actual override fun close() {}
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual abstract class InputStream : Closeable {
-    public actual open fun read(b: ByteArray, off: Int, len: Int): Int {
-        val endIdx = off + len
-        require(off in 0 until b.size) { "Offset before start of array" }
-        require(endIdx <= b.size) { "Range size beyond buffer size" }
+    public actual open fun read(buffer: ByteArray, offset: Int, len: Int): Int {
+        val endIdx = offset + len
+        require(offset in buffer.indices) { "Offset before start of array" }
+        require(endIdx <= buffer.size) { "Range size beyond buffer size" }
 
-        for (i in off until endIdx) {
+        for (i in offset until endIdx) {
             val byte = read()
             if (byte < 0) {
                 return i
             }
-            b[i] = byte.toByte()
+            buffer[i] = byte.toByte()
         }
         return len
     }

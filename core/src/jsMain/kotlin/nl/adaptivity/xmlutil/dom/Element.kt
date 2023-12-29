@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -42,7 +42,5 @@ public actual fun Element.getNamespaceURI(): String? = asDynamic().namespaceURI 
 public actual fun Element.getPrefix(): String? = asDynamic().prefix as String?
 public actual fun Element.getLocalName(): String? = asDynamic().localName as String?
 public actual fun Element.getTagName(): String = (asDynamic().tagName as String?) ?: nodeName
-
-@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
 public actual fun Element.getAttributes(): NamedNodeMap = asDynamic().attributes
 

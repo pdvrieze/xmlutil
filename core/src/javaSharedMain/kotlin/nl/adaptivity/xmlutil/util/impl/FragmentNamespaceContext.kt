@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,8 +20,15 @@
 
 package nl.adaptivity.xmlutil.util.impl
 
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.IterableNamespaceContext
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal
 
+/**
+ * Namespace context used in compact fragments. Intended for internal use.
+ */
+@XmlUtilDeprecatedInternal
 public class FragmentNamespaceContext(
     public val parent: FragmentNamespaceContext?,
     prefixes: Array<String>,

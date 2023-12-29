@@ -18,10 +18,11 @@
  * under the License.
  */
 
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER", "KotlinRedundantDiagnosticSuppress")
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.util.isElement
 import kotlin.jvm.JvmName
 
 @Deprecated(
@@ -74,6 +75,8 @@ public inline val Node.previousSibling: Node? get() = getPreviousSibling()
 @Deprecated("Use accessor method", ReplaceWith("getNextSibling()"))
 public inline val Node.nextSibling: Node? get() = getNextSibling()
 
+internal expect fun Node.asAttr(): Attr
+internal expect fun Node.asElement(): Element
 
 public object NodeConsts {
     // NodeType
@@ -142,7 +145,7 @@ public object NodeConsts {
 
 }
 
-public fun Node.getParentElement(): Element? = getParentNode() as? Element?
+public fun Node.getParentElement(): Element? = getParentNode()?.takeIf(Node::isElement)?.asElement()
 
 @Deprecated("Use accessor methods for dom2 compatibility", ReplaceWith("getParentElement()"))
 @get:JvmName("parentElement")

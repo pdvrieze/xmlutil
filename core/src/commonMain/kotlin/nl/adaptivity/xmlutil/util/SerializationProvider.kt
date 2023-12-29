@@ -47,7 +47,10 @@ public interface SerializationProvider {
         public operator fun <T : Any> invoke(input: XmlReader, type: KClass<T>): T
     }
 
+    @Suppress("DEPRECATION")
     public fun <T : Any> serializer(type: KClass<T>): XmlSerializerFun<T>?
+
+    @Suppress("DEPRECATION")
     public fun <T : Any> deSerializer(type: KClass<T>): XmlDeserializerFun?
 }
 
@@ -58,4 +61,5 @@ public interface SerializationProvider {
 @Deprecated(
     "Just present to allow for detecting the old version",
 )
+@Suppress("DEPRECATION")
 public interface CoreCompatSerializationProvider : SerializationProvider

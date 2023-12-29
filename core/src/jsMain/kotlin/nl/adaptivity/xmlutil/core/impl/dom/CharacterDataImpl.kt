@@ -26,7 +26,9 @@ import org.w3c.dom.CharacterData
 internal abstract class CharacterDataImpl<N : CharacterData>(delegate: N) : NodeImpl<N>(delegate), ICharacterData {
     override var data: String
         get() = delegate.data
-        set(value) { delegate.data = value }
+        set(value) {
+            delegate.data = value
+        }
 
 //    override fun getLength(): Int = delegate.length
 

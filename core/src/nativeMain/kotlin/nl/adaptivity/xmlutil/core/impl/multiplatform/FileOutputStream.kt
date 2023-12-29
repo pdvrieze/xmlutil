@@ -26,8 +26,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import platform.posix.*
 
 @ExperimentalXmlUtilApi
-@OptIn(UnsafeNumber::class)
-public class FileOutputStream(public val filePtr: CPointer<FILE>) : OutputStream() {
+public class FileOutputStream(public val filePtr: CPointer<FILE>) : NativeOutputStream() {
 
     public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) : this(
         fopen(pathName, mode.modeString) ?: kotlin.run {

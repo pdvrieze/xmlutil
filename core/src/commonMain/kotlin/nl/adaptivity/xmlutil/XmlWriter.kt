@@ -19,6 +19,7 @@
  */
 @file:JvmMultifileClass
 @file:JvmName("XmlWriterUtil")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package nl.adaptivity.xmlutil
 

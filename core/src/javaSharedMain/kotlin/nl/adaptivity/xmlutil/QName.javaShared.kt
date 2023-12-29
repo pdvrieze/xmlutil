@@ -18,5 +18,9 @@
  * under the License.
  */
 
+@file:JvmName("QNameJvmKt")
+
 package nl.adaptivity.xmlutil
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+public actual typealias QName = javax.xml.namespace.QName

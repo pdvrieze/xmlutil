@@ -38,3 +38,5 @@ public actual typealias Language = org.intellij.lang.annotations.Language
 public actual typealias MpJvmDefaultWithoutCompatibility = JvmDefaultWithoutCompatibility
 
 public actual typealias MpJvmDefaultWithCompatibility = JvmDefaultWithCompatibility
+
+public actual typealias Throws = kotlin.jvm.Throws

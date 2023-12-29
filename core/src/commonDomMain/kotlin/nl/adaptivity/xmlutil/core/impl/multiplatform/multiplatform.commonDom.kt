@@ -66,6 +66,8 @@ public actual abstract class Writer : Appendable {
         append(text)
     }
 
+    actual abstract override fun append(value: Char): Appendable
+
     actual override fun append(value: CharSequence?): Appendable {
         return append(value, 0, value?.length ?: 0)
     }
@@ -135,6 +137,7 @@ public actual open class StringReader(private val source: CharSequence) : Reader
     }
 }
 
+@MpJvmDefaultWithoutCompatibility
 public actual annotation class Language actual constructor(
     actual val value: String,
     actual val prefix: String,

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual open class IOException : Exception {
     public actual constructor() : super()
 

@@ -26,6 +26,9 @@ import java.io.BufferedInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 
+/**
+ * Helper factory for xml reading that autodetects encodings.
+ */
 public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boolean = false): KtXmlReader {
     val bufferedInput = when {
         inputStream is BufferedInputStream && inputStream.markSupported() -> inputStream
@@ -39,46 +42,42 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
     try {
         if (enc == null) {
             // read four bytes
-            var chk = 0
+            var chk = 0u
             while (srcBufCount < 4) {
                 val i: Int = bufferedInput.read()
-                if (i == -1) break
-                chk = chk shl 8 or i
+                if (i < 0) break // don't accidentally handle other negative values
+                chk = chk shl 8 or i.toUInt()
                 srcBuf[srcBufCount++] = i.toChar()
             }
             if (srcBufCount == 4) {
                 when (chk) {
-                    0x00000FEFF -> {
-                        enc = "UTF-32BE"
-                    }
+                    0x00000FEFFu -> enc = "UTF-32BE"
 
-                    -0x20000 -> {
-                        enc = "UTF-32LE"
-                    }
+                    0xFFFE_0000u -> enc = "UTF-32LE"
 
-                    0x03c -> {
+                    0x0000_003Cu -> {
                         enc = "UTF-32BE"
                         srcBuf[0] = '<'
                     }
 
-                    0x03c000000 -> {
+                    0x3C00_0000u -> {
                         enc = "UTF-32LE"
                         srcBuf[0] = '<'
                     }
 
-                    0x0003c003f -> {
+                    0x003C_003Fu -> {
                         enc = "UTF-16BE"
                         srcBuf[0] = '<'
                         srcBuf[1] = '?'
                     }
 
-                    0x03c003f00 -> {
+                    0x3c00_3f00u -> {
                         enc = "UTF-16LE"
                         srcBuf[0] = '<'
                         srcBuf[1] = '?'
                     }
 
-                    0x03c3f786d -> {
+                    0x3C3F_786Du -> { // starts with 8-bit "<?xm"
                         while (true) {
                             val i: Int = bufferedInput.read()
                             if (i == -1) break
@@ -89,7 +88,7 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                                 do {
                                     encAttrOffset = xmlDeclContent.indexOf("encoding", encAttrOffset + 1)
                                     // TODO handle xml 1.1 whitespace
-                                } while (!(encAttrOffset == 0 || isXmlWhitespace(xmlDeclContent[encAttrOffset - 1])))
+                                } while (encAttrOffset > 0 && !isXmlWhitespace(xmlDeclContent[encAttrOffset - 1]))
 
                                 if (encAttrOffset >= 0) {
                                     var eqPos = encAttrOffset + 8
@@ -129,28 +128,20 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
                                 break
                             }
                         }
-                        if (chk and -0x10000 == -0x1010000) {
-                            enc = "UTF-16BE"
-                            srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
-                        } else if (chk and -0x10000 == -0x20000) {
-                            enc = "UTF-16LE"
-                            srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
-                        } else if (chk and -0x100 == -0x10444100) {
-                            enc = "UTF-8"
-                            srcBuf[0] = srcBuf[3]
-                        }
                     }
 
                     else -> when {
-                        chk and -0x10000 == -0x1010000 -> {
+                        chk and 0xFFFF_0000u == 0xFEFF_0000u -> {
                             enc = "UTF-16BE"
                             srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
                         }
-                        chk and -0x10000 == -0x20000 -> {
+
+                        chk and 0xFFFF_0000u == 0xFFFE_0000u -> {
                             enc = "UTF-16LE"
                             srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
                         }
-                        chk and -0x100 == -0x10444100 -> {
+
+                        chk and 0xFFFF_FF00u == 0xEFBBBF00u -> {
                             enc = "UTF-8"
                             srcBuf[0] = srcBuf[3]
                         }
@@ -163,6 +154,6 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boo
         bufferedInput.reset()
         return KtXmlReader(InputStreamReader(bufferedInput, enc), enc, relaxed = relaxed)
     } catch (e: Exception) {
-        throw XmlException("Invalid stream or encoding: " + e.toString(), e)
+        throw (e as? XmlException) ?: XmlException("Invalid stream or encoding: $e", e)
     }
 }

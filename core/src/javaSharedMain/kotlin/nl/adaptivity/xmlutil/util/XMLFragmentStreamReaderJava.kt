@@ -23,10 +23,12 @@ package nl.adaptivity.xmlutil.util
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.IterableNamespaceContext
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
 
 @MpJvmDefaultWithCompatibility
+@XmlUtilDeprecatedInternal
 public interface XMLFragmentStreamReaderJava : XmlReader {
     public var localNamespaceContext: FragmentNamespaceContext
     public val delegate: XmlReader
@@ -34,10 +36,12 @@ public interface XMLFragmentStreamReaderJava : XmlReader {
 
     override fun next(): EventType {
         return when (val delegateNext = delegate.next()) {
-            EventType.END_DOCUMENT  -> delegateNext
+            EventType.END_DOCUMENT -> delegateNext
+
             EventType.START_DOCUMENT,
             EventType.PROCESSING_INSTRUCTION,
-            EventType.DOCDECL       -> next()
+            EventType.DOCDECL -> next()
+
             EventType.START_ELEMENT -> {
                 if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
                     // Special case the wrapping namespace, dropping the element.
@@ -47,14 +51,16 @@ public interface XMLFragmentStreamReaderJava : XmlReader {
                     delegateNext
                 }
             }
-            EventType.END_ELEMENT   -> if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
+
+            EventType.END_ELEMENT -> if (WRAPPERNAMESPACE.contentEquals(delegate.namespaceURI)) {
                 // Drop the closing tag of the wrapper as well
                 delegate.next()
             } else {
                 localNamespaceContext = localNamespaceContext.parent ?: localNamespaceContext
                 delegateNext
             }
-            else                    -> delegateNext
+
+            else -> delegateNext
         }
     }
 

@@ -39,6 +39,7 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
  * @author Created by pdvrieze on 22/03/17.
  */
 @Deprecated("Don't use directly. Instead create an instance through xmlStreaming")
+@XmlUtilDeprecatedInternal
 public class DomReader(public val delegate: Node2) : XmlReader {
 
     @Suppress("DEPRECATION")
@@ -269,7 +270,7 @@ public class DomReader(public val delegate: Node2) : XmlReader {
         }
     }
 
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "KotlinRedundantDiagnosticSuppress")
     @Deprecated("Provided for compatibility.")
     public fun getDelegate(): Node1? = delegate as? Node1
 

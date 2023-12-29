@@ -30,6 +30,14 @@ package nl.adaptivity.xmlutil
 public annotation class XmlUtilInternal
 
 /**
+ * Annotation to signify that the annotated code is internal to the XmlUtil module, and no API
+ * stability is guaranteed.
+ */
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER)
+@RequiresOptIn("This function/type should have been internal to the XmlUtil modules. Its use is deprecated", RequiresOptIn.Level.WARNING)
+public annotation class XmlUtilDeprecatedInternal
+
+/**
  * Annotation to signify that the annotated code is experimental, with limited compatibility support.
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR)

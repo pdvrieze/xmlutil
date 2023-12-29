@@ -55,6 +55,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
     override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Element?, isValueChild: Boolean): Element {
         val document = previousValue?.ownerDocument ?: createDocument(input.name)
         val fragment = document.createDocumentFragment()
+        @Suppress("DEPRECATION")
         val out = DomWriter(fragment)
         out.writeElement(null, input)
         var e = fragment.firstChild

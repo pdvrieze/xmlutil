@@ -58,10 +58,13 @@ public interface INode : Node1, Node2 {
 
     override fun replaceChild(oldChild: Node1, newChild: Node1): INode =
         replaceChild(oldChild.unWrap(), newChild.unWrap())
+
     override fun replaceChild(oldChild: Node2, newChild: Node2): INode =
         replaceChild(oldChild.unWrap(), newChild.unWrap())
+
     public fun replaceChild(oldChild: INode, newChild: INode): INode =
         replaceChild(oldChild.delegate, newChild.delegate)
+
     public fun replaceChild(newChild: DomNode, oldChild: DomNode): INode
 
     override fun removeChild(node: Node2): INode = removeChild(node.unWrap())
@@ -70,10 +73,16 @@ public interface INode : Node1, Node2 {
     public fun removeChild(oldChild: DomNode): INode
 
     public override fun getTextContent(): String? = textContent
-    public override fun setTextContent(value: String) { textContent = value }
+    public override fun setTextContent(value: String) {
+        textContent = value
+    }
+
     public fun insertBefore(newChild: DomNode?, refChild: DomNode?): INode
     public fun getNodeValue(): String? = nodeValue
-    public fun setNodeValue(nodeValue: String?) { this.nodeValue = nodeValue }
+    public fun setNodeValue(nodeValue: String?) {
+        this.nodeValue = nodeValue
+    }
+
     public fun hasChildNodes(): Boolean
     public fun cloneNode(deep: Boolean): INode
     public fun normalize()

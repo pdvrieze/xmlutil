@@ -27,6 +27,8 @@ public interface ICharacterData : INode, CharacterData1, CharacterData2 {
 
     override fun getData(): String = data
 
-    override fun setData(value: String) { data = value }
+    override fun setData(value: String) {
+        data = value
+    }
 
 }

@@ -28,7 +28,7 @@ import org.w3c.dom.DOMImplementation
 import nl.adaptivity.xmlutil.dom.DOMImplementation as DOMImplementation1
 import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
 
-internal object DOMImplementationImpl: IDOMImplementation {
+internal object DOMImplementationImpl : IDOMImplementation {
     val delegate: DOMImplementation get() = document.implementation
 
     override val supportsWhitespaceAtToplevel: Boolean get() = true
@@ -40,7 +40,8 @@ internal object DOMImplementationImpl: IDOMImplementation {
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument {
         val documentType1 = documentType?.unWrap() as? DocumentType1
-        return (delegate as DOMImplementation1).createDocument(namespace, qualifiedName, documentType1).wrap() as IDocument
+        return (delegate as DOMImplementation1).createDocument(namespace, qualifiedName, documentType1)
+            .wrap() as IDocument
     }
 
 }

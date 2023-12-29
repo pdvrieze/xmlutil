@@ -27,7 +27,9 @@ internal class ProcessingInstructionImpl(delegate: DomProcessingInstruction) :
 
     override var data: String
         get() = delegate.data
-        set(value) { delegate.data = value }
+        set(value) {
+            delegate.data = value
+        }
 
     override val target: String
         get() = delegate.target

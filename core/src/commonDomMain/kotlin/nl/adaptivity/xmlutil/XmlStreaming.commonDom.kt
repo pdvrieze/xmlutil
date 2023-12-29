@@ -34,11 +34,14 @@ import nl.adaptivity.xmlutil.dom2.Node
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-@Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
-    "nl.adaptivity.xmlutil.xmlStreaming",
-    "nl.adaptivity.xmlutil.newWriter",
-    "nl.adaptivity.xmlutil.newGenericWriter",
-))
+@Deprecated(
+    "Don't use directly", ReplaceWith(
+        "xmlStreaming",
+        "nl.adaptivity.xmlutil.xmlStreaming",
+        "nl.adaptivity.xmlutil.newWriter",
+        "nl.adaptivity.xmlutil.newGenericWriter",
+    )
+)
 public actual object XmlStreaming : IXmlStreaming {
 
     public override fun setFactory(factory: XmlStreamingFactory?) {
@@ -65,11 +68,13 @@ public actual object XmlStreaming : IXmlStreaming {
 
     @ExperimentalXmlUtilApi
     override fun newReader(source: Node): XmlReader {
+        @Suppress("DEPRECATION")
         return DomReader(source)
     }
 
     override fun newWriter(): DomWriter = DomWriter()
 
+    @Suppress("DEPRECATION")
     override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     public fun newWriter(

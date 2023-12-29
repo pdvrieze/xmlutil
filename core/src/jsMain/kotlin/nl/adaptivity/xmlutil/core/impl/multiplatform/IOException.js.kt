@@ -18,20 +18,15 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl
+package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-@Deprecated("Don't use, just use string comparison")
-internal fun CharSequence?.contentEquals(other: CharSequence?): Boolean {
-    if (this == null) return other == null
-    if (other == null) return false
-    if (length != other.length) return false
-    for (i in indices) {
-        if (this[i] != other[i]) return false
-    }
-    return true
-}
 
-@Deprecated("Use string equals", ReplaceWith("this == other"))
-internal fun String?.contentEquals(other: String?): Boolean {
-    return this == other
+public actual open class IOException : Exception {
+    public actual constructor() : super()
+
+    public actual constructor(message: String?) : super(message)
+
+    public actual constructor(message: String?, cause: Throwable?) : super(message, cause)
+
+    public actual constructor(cause: Throwable?) : super(cause)
 }

@@ -25,7 +25,6 @@ import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
 import org.w3c.dom.NamedNodeMap
 import org.w3c.dom.Node
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
-import org.w3c.dom.Attr as DomAttr
 
 internal class WrappingNamedNodeMap(val delegate: NamedNodeMap) : INamedNodeMap {
     override val size: Int get() = delegate.length
@@ -70,7 +69,7 @@ internal class WrappingNamedNodeMap(val delegate: NamedNodeMap) : INamedNodeMap 
         return IteratorImpl(delegate)
     }
 
-    private class IteratorImpl(private val delegate: NamedNodeMap): Iterator<IAttr> {
+    private class IteratorImpl(private val delegate: NamedNodeMap) : Iterator<IAttr> {
         private var next: Int = 0
         override fun next(): IAttr {
             return delegate.item(next++).wrapAttr()

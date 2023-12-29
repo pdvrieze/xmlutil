@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
@@ -38,11 +40,14 @@ import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import java.io.Writer as JavaIoWriter
 
-@Deprecated("Don't use directly", ReplaceWith("xmlStreaming",
-    "nl.adaptivity.xmlutil.xmlStreaming",
-    "nl.adaptivity.xmlutil.newWriter",
-    "nl.adaptivity.xmlutil.newGenericWriter",
-))
+@Deprecated(
+    "Don't use directly", ReplaceWith(
+        "xmlStreaming",
+        "nl.adaptivity.xmlutil.xmlStreaming",
+        "nl.adaptivity.xmlutil.newWriter",
+        "nl.adaptivity.xmlutil.newGenericWriter",
+    )
+)
 public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     @Suppress("DEPRECATION")
@@ -60,7 +65,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     private var _factory: XmlStreamingFactory? = null
 
     private val factory: XmlStreamingFactory
-        get() = _factory ?: serviceLoader.firstOrNull()?.also { _factory = it }?: StAXStreamingFactory.DEFAULT_OBJECT
+        get() = _factory ?: serviceLoader.firstOrNull()?.also { _factory = it } ?: StAXStreamingFactory.DEFAULT_OBJECT
 
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)
@@ -102,7 +107,12 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newWriter(output, repairNamespaces, xmlDeclMode)
     }
 
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
+    @Deprecated(
+        "Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING, replaceWith = ReplaceWith(
+            "KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)",
+            "nl.adaptivity.xmlutil.core.KtXmlWriter"
+        )
+    )
     public actual fun newGenericWriter(
         output: Appendable,
         isRepairNamespaces: Boolean /*= false*/,
@@ -138,8 +148,11 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newReader(input)
     }
 
-    @Deprecated("Use the version taking a CharSequence")
-    public override fun newReader(input: String) : XmlReader = newReader(input as CharSequence)
+    @Deprecated(
+        "Use the version taking a CharSequence",
+        ReplaceWith("newReader(input as CharSequence)", "nl.adaptivity.xmlutil.XmlStreaming.newReader")
+    )
+    public override fun newReader(input: String): XmlReader = newReader(input as CharSequence)
 
     public override fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input.toString()))
@@ -157,23 +170,39 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
     @Suppress("DEPRECATION")
-    @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
+    @Deprecated(
+        "Note that sources are inefficient and poorly designed, relying on runtime types", ReplaceWith(
+            "newReader(content).toCharArrayWriter().toCharArray()",
+            "nl.adaptivity.xmlutil.XmlStreaming.newReader"
+        )
+    )
     override fun toCharArray(content: Source): CharArray {
         return newReader(content).toCharArrayWriter().toCharArray()
     }
 
     @Suppress("DEPRECATION")
-    @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
+    @Deprecated(
+        "Note that sources are inefficient and poorly designed, relying on runtime types", ReplaceWith(
+            "newReader(source).toCharArrayWriter().toString()",
+            "nl.adaptivity.xmlutil.XmlStreaming.newReader"
+        )
+    )
     override fun toString(source: Source): String {
         return newReader(source).toCharArrayWriter().toString()
     }
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deSerialize(input, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
+    )
     override fun <T : Any> deSerialize(input: InputStream, type: Class<T>): T = deSerialize(input, type.kotlin)
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deSerialize(input, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
+    )
     override fun <T : Any> deSerialize(input: Reader, type: Class<T>): T = deSerialize(input, type.kotlin)
 
     @Suppress("DEPRECATION")
@@ -186,27 +215,42 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deSerialize(input, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
+    )
     override fun <T : Any> deSerialize(input: String, type: Class<T>): T = deSerialize(input, type.kotlin)
 
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deSerialize(inputs, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
+    )
     @Suppress("DEPRECATION")
     override fun <T : Any> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T> =
         deSerialize(inputs, type.kotlin)
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deSerialize(reader, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
+    )
     override fun <T : Any> deSerialize(reader: Source, type: Class<T>): T {
         return deSerialize(reader, type.kotlin)
     }
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("deserializerFor(type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deserializerFor")
+    )
     override fun <T : Any> deserializerFor(type: Class<T>): SerializationProvider.XmlDeserializerFun? =
         deserializerFor(type.kotlin)
 
     @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
+    @Deprecated(
+        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
+        ReplaceWith("serializerFor(type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.serializerFor")
+    )
     override fun <T : Any> serializerFor(type: Class<T>): SerializationProvider.XmlSerializerFun<T>? =
         serializerFor(type.kotlin)
 
