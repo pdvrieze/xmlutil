@@ -39,8 +39,7 @@ class ResolvedSchema(
     resolver: Resolver,
     defaultVersion: SchemaVersion = SchemaVersion.V1_1,
     builtin: Boolean = false
-) :
-    ResolvedSchemaLike() {
+) : ResolvedSchemaLike() {
 
     private val nestedData: MutableMap<String, SchemaElementResolver> = mutableMapOf()
     private val visibleNamespaces: Set<String>
@@ -68,6 +67,7 @@ class ResolvedSchema(
         // Use getOrPut to ensure uniqueness
         nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
         nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
+
         if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
             XMLConstants.XML_NS_URI in allNeededNamespaces
         ) {
