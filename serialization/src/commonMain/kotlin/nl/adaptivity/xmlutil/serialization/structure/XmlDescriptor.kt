@@ -26,6 +26,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.EmptySerializersModule
@@ -134,13 +135,15 @@ public sealed class XmlDescriptor(
         policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
     }
 
+    @Suppress("UNCHECKED_CAST")
     internal fun <V> effectiveSerializationStrategy(fallback: SerializationStrategy<V>): SerializationStrategy<V> {
-        @Suppress("UNCHECKED_CAST")
+        if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
         return (overriddenSerializer ?: fallback) as SerializationStrategy<V>
     }
 
+    @Suppress("UNCHECKED_CAST")
     internal fun <V> effectiveDeserializationStrategy(fallback: DeserializationStrategy<V>): DeserializationStrategy<V> {
-        @Suppress("UNCHECKED_CAST")
+        if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
         return (overriddenSerializer ?: fallback) as DeserializationStrategy<V>
     }
 
