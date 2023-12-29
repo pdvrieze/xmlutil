@@ -35,7 +35,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id("org.jetbrains.dokka")
+    id(libs.plugins.dokka.get().pluginId)
     idea
     alias(libs.plugins.binaryValidator)
 }
@@ -63,15 +63,15 @@ kotlin {
             }
         }
 
-        val woodstoxCompilation = compilations.register("woodstoxTest") {
+        val woodstoxCompilation = compilations.create("woodstoxTest") {
             // This needs to be specified explicitly in 1.9.20
             compilerOptions.options.moduleName = "woodstoxTest"
             defaultSourceSet { }
         }
-        val woodstoxTestRun = testRuns.register("woodstoxTest") {
+        testRuns.register("woodstoxTest") {
             setExecutionSourceFrom(
                 listOf(compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)),
-                listOf(woodstoxCompilation.get())
+                listOf(woodstoxCompilation)
             )
         }
 
@@ -150,35 +150,14 @@ kotlin {
             }
         }
 
-//        val inlineSupportTest by creating {
-//            dependsOn(commonMain)
-//            dependsOn(commonTest)
-//            dependencies {
-//                implementation(kotlin("test-common"))
-//                implementation(kotlin("test-annotations-common"))
-//            }
-//        }
-
-/*
-        val jvmCommonTest by creating {
-//            dependsOn(javaSharedTest)
-
-            dependencies {
-//                implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
-
-                runtimeOnly(libs.junit5.engine)
-                implementation(libs.kotlin.reflect)
-            }
-        }
-*/
 
         val jvmTest by getting {
-//            dependsOn(jvmTestCommon)
             dependencies {
                 implementation(kotlin("test-junit5"))
             }
         }
+
+        val jvmMain by getting {}
         val commonJvmTest by getting {}
         val commonJvmMain by getting {}
         val jvmWoodstoxTest by getting {

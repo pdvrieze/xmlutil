@@ -37,13 +37,9 @@ pluginManagement {
                     def ver = requested.version!=null ? requested.version : "8.0.2"
                     useModule("com.android.tools.build:gradle:${ver}");
                     break
-                case "org.jetbrains.dokka-android" :
-                    def ver = requested.version!=null ? requested.version : dokkaVersion
-                    useVersion(ver)
-                    break
-//                case "org.jetbrains.kotlinx.binary-compatibility-validator" :
-//                    def ver = requested.version!=null ? requested.version : validatorVersion
-//                    useModule("org.jetbrains.kotlinx:binary-compatibility-validator")
+//                case "org.jetbrains.dokka-android" :
+//                    def ver = requested.version!=null ? requested.version : dokkaVersion
+//                    useVersion(ver)
 //                    break
             }
         }

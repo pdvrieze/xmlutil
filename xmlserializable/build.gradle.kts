@@ -27,7 +27,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id("org.jetbrains.dokka")
+    id(libs.plugins.dokka.get().pluginId)
     idea
     alias(libs.plugins.binaryValidator)
 }

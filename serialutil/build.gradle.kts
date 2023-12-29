@@ -32,7 +32,7 @@ plugins {
     id("maven-publish")
     signing
     idea
-    id("org.jetbrains.dokka")
+    id(libs.plugins.dokka.get().pluginId)
     alias(libs.plugins.binaryValidator)
 }
 
