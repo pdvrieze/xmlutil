@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,11 +20,11 @@
 
 @file:Suppress("PropertyName")
 
-import net.devrieze.gradle.ext.*
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
+import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -47,8 +47,20 @@ val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
-    jvm()
-    jvm("android")
+    jvm {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
+        }
+    }
+    jvm("android") {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
+        }
+    }
     js {
         browser()
         nodejs()
@@ -75,7 +87,7 @@ kotlin {
         nodejs()
         browser {
             testTask {
-                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
+                isEnabled = !System.getenv().containsKey("GITHUB_ACTION")
             }
         }
     }
@@ -86,7 +98,6 @@ kotlin {
         }
     }
 
-    @Suppress("UNUSED_VARIABLE")
     sourceSets {
         val commonMain by getting {
             dependencies {
