@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.parseQName
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedComplexType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -36,6 +37,14 @@ import nl.adaptivity.xmlutil.serialization.XML
 @Serializable(VAttrQNameList.Serializer::class)
 class VAttrQNameList(values: List<AttrElem>): VQNameListBase<VQNameListBase.AttrElem>(values) {
     val DEFINED: VQNameListBase.DEFINED get() = VQNameListBase.DEFINED
+
+    override fun check(version: SchemaVersion) {
+        if (version == SchemaVersion.V1_0) {
+            for (v in values) {
+                require(v != DEFINED) { "##defined is not supported in version 1.0" }
+            }
+        }
+    }
 
     override fun union(other: VQNameListBase<AttrElem>): VAttrQNameList {
 
