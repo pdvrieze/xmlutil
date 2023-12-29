@@ -683,7 +683,11 @@ internal class SchemaData(
                         else -> {
 
                             when (val parsed = resolver.tryReadSchema(importLocation)) {
-                                null -> null
+                                null -> {
+                                    import.namespace?.value?.let { b.importedNamespaces.add(it) }
+                                    null
+                                }
+
                                 else -> {
                                     val delegateResolver = resolver.delegate(importLocation)
                                     val actualNamespace = when (val ins = import.namespace) {
