@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.types
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.parseQName
 import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -41,6 +42,7 @@ abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : L
 
     abstract fun union(other: VQNameListBase<E>): VQNameListBase<E>
     abstract fun intersection(other: VQNameListBase<E>): VQNameListBase<E>
+    abstract fun check(version: SchemaVersion)
 
     interface IElem {
         fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean
@@ -88,6 +90,15 @@ class VQNameList(values: List<Elem>) : VQNameListBase<VQNameListBase.Elem>(value
     val DEFINED: DEFINED get() = VQNameListBase.DEFINED
 
     val DEFINEDSIBLING: DEFINEDSIBLING get() = VQNameListBase.DEFINEDSIBLING
+
+    override fun check(version: SchemaVersion) {
+        if (version == SchemaVersion.V1_0) {
+            for (v in values) {
+                require(v != DEFINED) { "##defined is not supported in version 1.0" }
+                require(v != DEFINEDSIBLING) { "##defined is not supported in version 1.0" }
+            }
+        }
+    }
 
     object Serializer : KSerializer<VQNameList> {
         override val descriptor: SerialDescriptor =
