@@ -50,6 +50,13 @@ public fun SerialDescriptor.xml(
 }
 
 /**
+ * Marker to signify that the descriptor is an xmlSerialDescriptor and the delegate
+ * can be retrieved through getElementDescriptor with negative value.
+ */
+@XmlUtilInternal
+public annotation class XmlSerialDescriptorMarker
+
+/**
  * Serial Descriptor delegate that supports special casing by the XML format. This means
  * that the descriptor can be different for non-xml and xml serialization. (Used by the QName
  * serializer).
@@ -73,7 +80,10 @@ public interface XmlSerialDescriptor : SerialDescriptor {
     override fun getElementAnnotations(index: Int): List<Annotation> = delegate.getElementAnnotations(index)
 
     @ExperimentalSerializationApi
-    override fun getElementDescriptor(index: Int): SerialDescriptor = delegate.getElementDescriptor(index)
+    override fun getElementDescriptor(index: Int): SerialDescriptor = when {
+        index < 0 -> xmlDescriptor
+        else -> delegate.getElementDescriptor(index)
+    }
 
     @ExperimentalSerializationApi
     override fun getElementIndex(name: String): Int = delegate.getElementIndex(name)
@@ -87,7 +97,8 @@ public interface XmlSerialDescriptor : SerialDescriptor {
     }
 
     @ExperimentalSerializationApi
-    override val annotations: List<Annotation> get() = delegate.annotations
+    override val annotations: List<Annotation> get() =
+        listOf(XmlSerialDescriptorMarker()) + delegate.annotations
 
     override val isInline: Boolean get() = delegate.isInline
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
@@ -654,13 +655,11 @@ private constructor(
         tagParent: SafeParentInfo
     ): KSerializer<*>? =
         when (serializerParent.elementSerialDescriptor.serialName) {
-/*
             "javax.xml.namespace.QName?",
             "javax.xml.namespace.QName" -> when {
                 serializerParent.elementSerialDescriptor.isNullable -> QNameSerializer.nullable
                 else -> QNameSerializer
             }
-*/
 
             else -> null
         }

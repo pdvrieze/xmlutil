@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -53,7 +53,7 @@ class QNameContentContainerTest : PlatformTestBase<QNameContentContainerTest.Con
         val name: QName,
         @XmlElement
         @XmlSerialName("value", namespace = "urn:example.org", prefix = "otherns")
-        val value: QName
+        val value: QName?
     )
 
 }

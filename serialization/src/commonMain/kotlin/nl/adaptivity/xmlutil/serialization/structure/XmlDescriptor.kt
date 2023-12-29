@@ -1653,4 +1653,8 @@ internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
     }
 }
 
-internal fun SerialDescriptor.getXmlOverride() = (this as? XmlSerialDescriptor)?.xmlDescriptor ?: this
+internal fun SerialDescriptor.getXmlOverride() = when {
+    this is XmlSerialDescriptor -> xmlDescriptor
+    isNullable && annotations.any { it is XmlSerialDescriptorMarker } -> getElementDescriptor(-1).nullable
+    else -> this
+}
