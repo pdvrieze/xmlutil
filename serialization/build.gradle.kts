@@ -25,7 +25,6 @@ import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
@@ -66,6 +65,7 @@ kotlin {
             }
         }
 
+/*
         val woodstoxCompilation = compilations.create("woodstoxTest") {
             // This needs to be specified explicitly in 1.9.20
             compilerOptions.options.moduleName = "woodstoxTest"
@@ -77,6 +77,7 @@ kotlin {
                 listOf(woodstoxCompilation)
             )
         }
+*/
 
     }
 //        androidTarget("actualAndroid")
@@ -169,6 +170,7 @@ kotlin {
         val jvmMain by getting {}
         val commonJvmTest by getting {}
         val commonJvmMain by getting {}
+/*
         val jvmWoodstoxTest by getting {
             dependsOn(commonJvmTest)
             dependsOn(commonJvmMain)
@@ -178,6 +180,7 @@ kotlin {
                 runtimeOnly(libs.woodstox)
             }
         }
+*/
 
         val androidMain by getting {
             dependencies {
