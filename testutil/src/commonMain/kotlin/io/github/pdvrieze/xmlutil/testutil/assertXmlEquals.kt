@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -120,7 +120,6 @@ internal fun assertStartElementEquals(
     messageProvider: () -> String? = { null }
 ) {
     assertQNameEquivalent(expectedEvent.name, actualEvent.name, messageProvider)
-    val elementNamespace = expectedEvent.namespaceUri
 
     val expectedAttributes = expectedEvent.attributes.filter { it.namespaceUri != XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .map { XmlEvent.Attribute(it.namespaceUri, it.localName, "", it.value) }

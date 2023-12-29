@@ -61,6 +61,9 @@ kotlin {
                     attributes("Automatic-Module-Name" to autoModuleName)
                 }
             }
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
         }
 
         val woodstoxCompilation = compilations.create("woodstoxTest") {
@@ -78,7 +81,13 @@ kotlin {
     }
 //        androidTarget("actualAndroid")
 
-    jvm("android")
+    jvm("android") {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
+        }
+    }
     js {
         browser()
         compilations.all {

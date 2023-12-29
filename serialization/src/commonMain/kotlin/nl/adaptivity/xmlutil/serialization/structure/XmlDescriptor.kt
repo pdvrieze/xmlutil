@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -31,6 +31,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import nl.adaptivity.xmlutil.core.impl.multiplatform.maybeAnnotations
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedName
@@ -66,6 +67,7 @@ internal fun SerialDescriptor.declOutputKind(): OutputKind? {
 /**
  * Interface describing a type without providing access to child xml descriptors
  */
+@MpJvmDefaultWithCompatibility
 public interface SafeXmlDescriptor {
     @ExperimentalSerializationApi
     public val isNullable: Boolean
@@ -1288,6 +1290,7 @@ public class XmlListDescriptor internal constructor(
  * Interface that provides parent info that does provide actual access to the child. As such it is safe to
  * be used to determine properties of the child.
  */
+@MpJvmDefaultWithCompatibility
 public interface SafeParentInfo {
     /** Is the parent type an inline class. */
     public val parentIsInline: Boolean

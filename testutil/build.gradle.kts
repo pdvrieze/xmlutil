@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -20,11 +20,10 @@
 
 @file:Suppress("PropertyName")
 
-import net.devrieze.gradle.ext.*
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -49,7 +48,14 @@ base {
 val moduleName = "io.github.pdvrieze.testutil"
 
 kotlin {
-    jvm()
+    jvm {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
+        }
+
+    }
     js {
         browser()
         nodejs()
@@ -81,7 +87,6 @@ kotlin {
         }
     }
 
-    @Suppress("UNUSED_VARIABLE")
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -95,6 +100,7 @@ kotlin {
         all {
             languageSettings.apply {
                 optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
+                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
         }
     }

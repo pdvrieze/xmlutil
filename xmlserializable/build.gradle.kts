@@ -57,6 +57,9 @@ kotlin {
 
     jvm {
         compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
@@ -70,6 +73,9 @@ kotlin {
     }
     jvm("android") {
         compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xjvm-default=all"
+            }
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }

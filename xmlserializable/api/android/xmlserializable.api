@@ -30,11 +30,6 @@ public abstract interface class nl/adaptivity/xmlutil/xmlserializable/ExtXmlDese
 	public abstract fun deserializeChildren (Lnl/adaptivity/xmlutil/XmlReader;)V
 }
 
-public final class nl/adaptivity/xmlutil/xmlserializable/ExtXmlDeserializable$DefaultImpls {
-	public static fun deserializeAttribute (Lnl/adaptivity/xmlutil/xmlserializable/ExtXmlDeserializable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
-	public static fun onBeforeDeserializeChildren (Lnl/adaptivity/xmlutil/xmlserializable/ExtXmlDeserializable;Lnl/adaptivity/xmlutil/XmlReader;)V
-}
-
 public final class nl/adaptivity/xmlutil/xmlserializable/SerializableCollection : nl/adaptivity/xmlutil/xmlserializable/BaseSerializableContainer, java/util/Collection, kotlin/jvm/internal/markers/KMappedMarker {
 	public fun <init> (Ljavax/xml/namespace/QName;Ljava/util/Collection;)V
 	public synthetic fun add (Ljava/lang/Object;)Z
@@ -113,26 +108,14 @@ public final class nl/adaptivity/xmlutil/xmlserializable/SerializableList : nl/a
 }
 
 public abstract interface class nl/adaptivity/xmlutil/xmlserializable/SimpleXmlDeserializable : nl/adaptivity/xmlutil/xmlserializable/XmlDeserializable {
-	public abstract fun deserializeChild (Lnl/adaptivity/xmlutil/XmlReader;)Z
-	public abstract fun deserializeChildText (Ljava/lang/CharSequence;)Z
-}
-
-public final class nl/adaptivity/xmlutil/xmlserializable/SimpleXmlDeserializable$DefaultImpls {
-	public static fun deserializeAttribute (Lnl/adaptivity/xmlutil/xmlserializable/SimpleXmlDeserializable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
-	public static fun deserializeChild (Lnl/adaptivity/xmlutil/xmlserializable/SimpleXmlDeserializable;Lnl/adaptivity/xmlutil/XmlReader;)Z
-	public static fun deserializeChildText (Lnl/adaptivity/xmlutil/xmlserializable/SimpleXmlDeserializable;Ljava/lang/CharSequence;)Z
-	public static fun onBeforeDeserializeChildren (Lnl/adaptivity/xmlutil/xmlserializable/SimpleXmlDeserializable;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public fun deserializeChild (Lnl/adaptivity/xmlutil/XmlReader;)Z
+	public fun deserializeChildText (Ljava/lang/CharSequence;)Z
 }
 
 public abstract interface class nl/adaptivity/xmlutil/xmlserializable/XmlDeserializable {
-	public abstract fun deserializeAttribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
+	public fun deserializeAttribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
 	public abstract fun getElementName ()Ljavax/xml/namespace/QName;
-	public abstract fun onBeforeDeserializeChildren (Lnl/adaptivity/xmlutil/XmlReader;)V
-}
-
-public final class nl/adaptivity/xmlutil/xmlserializable/XmlDeserializable$DefaultImpls {
-	public static fun deserializeAttribute (Lnl/adaptivity/xmlutil/xmlserializable/XmlDeserializable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
-	public static fun onBeforeDeserializeChildren (Lnl/adaptivity/xmlutil/xmlserializable/XmlDeserializable;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public fun onBeforeDeserializeChildren (Lnl/adaptivity/xmlutil/XmlReader;)V
 }
 
 public abstract interface annotation class nl/adaptivity/xmlutil/xmlserializable/XmlDeserializer : java/lang/annotation/Annotation {

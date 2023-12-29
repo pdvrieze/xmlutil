@@ -31,6 +31,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
+import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML.Companion.encodeToWriter
@@ -1012,6 +1013,7 @@ public class XML(
             decodeFromReader(loader, reader)
     }
 
+    @MpJvmDefaultWithCompatibility
     public interface XmlCodecConfig {
         /**
          * The currently active serialization context
@@ -1034,6 +1036,7 @@ public class XML(
      * [XmlWriter]. This is used for example by [CompactFragment] to make the fragment transparent when serializing to
      * XML.
      */
+    @MpJvmDefaultWithCompatibility
     public interface XmlOutput : XmlCodecConfig {
         /**
          * The name for the current tag
@@ -1077,6 +1080,7 @@ public class XML(
      * [XmlReader]. This is used for example by [CompactFragment] to read arbitrary XML from the stream and store it inside
      * the buffer (without attempting to use the serializer/decoder for it.
      */
+    @MpJvmDefaultWithCompatibility
     public interface XmlInput : XmlCodecConfig {
         /**
          * The reader used. Can be used directly by serializers
