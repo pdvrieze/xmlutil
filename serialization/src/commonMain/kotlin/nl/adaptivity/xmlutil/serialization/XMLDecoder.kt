@@ -920,12 +920,14 @@ internal open class XmlDecoderBase internal constructor(
                                         )
                                     }
                                 } else if (seenItems[after]) {
+                                    val thisName = when (xmlDescriptor) {
+                                        is XmlPolymorphicDescriptor -> ""
+                                        else -> xmlDescriptor.tagName
+                                    }
+
                                     throw XmlSerialException(
-                                        "Found element ${xmlDescriptor.getElementDescriptor(after).tagName} before ${
-                                            xmlDescriptor.getElementDescriptor(
-                                                idx
-                                            ).tagName
-                                        } in conflict with ordering constraints"
+                                        "Found element ${xmlDescriptor.childName(after)} before ${
+                                            xmlDescriptor.childName(idx)} in conflict with ordering constraints"
                                     )
                                 }
                             }
@@ -934,10 +936,8 @@ internal open class XmlDecoderBase internal constructor(
                                     seenItems.indices.indexOfFirst { seenItems[it] && orderedAfter[it] }
                                 if (alreadySeenTrailingIndex > 0) {
                                     throw XmlSerialException(
-                                        "Found element ${xmlDescriptor.getElementDescriptor(idx).tagName} after ${
-                                            xmlDescriptor.getElementDescriptor(
-                                                alreadySeenTrailingIndex
-                                            )
+                                        "Found element ${xmlDescriptor.childName(idx)} after ${
+                                            xmlDescriptor.childName(alreadySeenTrailingIndex)
                                         } in conflict with ordering constraints"
                                     )
                                 }
@@ -948,6 +948,11 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 }
             }
+        }
+
+        private fun XmlDescriptor.childName(idx: Int): String = when(val c = getElementDescriptor(idx)) {
+            is XmlPolymorphicDescriptor -> c.polyInfo.values.joinToString(separator = " | ", prefix = "${serialDescriptor.getElementName(idx)}(", postfix = ")") { it.tagName.toString() }
+            else -> c.tagName.toString()
         }
 
         private inline fun Int.markSeenOrHandleUnknown(body: () -> Int): Int {

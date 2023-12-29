@@ -88,7 +88,8 @@ internal fun Iterable<XmlOrderConstraint>.sequenceStarts(childCount: Int): Colle
     val afterAny = BooleanArray(childCount)
     val nodes = Array(childCount) { XmlOrderNode(it) }
 
-    forEach { constraint ->
+    // Make contraints reflexive
+    for(constraint in this) {
         if (constraint.after == XmlOrderConstraint.OTHERS) {
             hasWildCard = true
             beforeAny[constraint.before] = true
@@ -156,6 +157,7 @@ internal fun Iterable<XmlOrderConstraint>.sequenceStarts(childCount: Int): Colle
                 }
         */
     }
+    // If a node has predecessors it doesn't start a sequence
     return nodes.filter { it.predecessors.isEmpty() }
 }
 
@@ -201,8 +203,11 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
 ): Pair<Collection<XmlOrderConstraint>, IntArray> {
     val originalOrderNodes = arrayOfNulls<XmlOrderNode>(serialDescriptor.elementsCount)
 
+    val allNodes = mutableListOf<XmlOrderNode>()
+
     fun addTransitive(node: XmlOrderNode) {
         if (originalOrderNodes[node.elementIdx] == null) {
+            allNodes.add(node)
             originalOrderNodes[node.elementIdx] = node
 
             for (next in node.successors) {
@@ -210,12 +215,10 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
             }
         }
     }
-
-    val allNodes = mutableListOf<XmlOrderNode>()
-
+    // Order all nodes such that they are in constraint order
     for (node in asSequence().filter { it.predecessors.isEmpty() }) {
         addTransitive(node)
-        allNodes.add(node)
+//        allNodes.add(node)
     }
 
     for (i in originalOrderNodes.indices) {
@@ -226,7 +229,6 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
         }
     }
 
-//    val (attributeHeadNodes, memberHeadNodes) = headNodes.partition { children[it.elementIdx].outputKind == OutputKind.Attribute }
     val (attributes, members) = allNodes.partition { children[it.elementIdx].outputKind == OutputKind.Attribute }
 
     val finalToDeclMap =
@@ -235,7 +237,10 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
         IntArray(serialDescriptor.elementsCount) { -1 }
     var nextElemIdx = 0
 
+    // The list of constraints to remember (they are the "valid" constraints) that don't cross
+    // partition boundaries (attrs vs elements), (before, general, after)
     val constraints = mutableListOf<XmlOrderConstraint>()
+    // first attributes, then elements
     for (attrOrMembers in arrayOf(attributes, members)) {
         // After having split into different output kinds, then split by wildcard.
         val before = mutableListOf<XmlOrderNode>()
@@ -255,9 +260,10 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
             constraints.add(XmlOrderConstraint(XmlOrderConstraint.OTHERS, node.elementIdx))
         }
 
-        for (base in arrayOf(before, general, after)) {
+        //now flatten the list for the before/general/after partitions (in order)
+        for (partitionElements in arrayOf(before, general, after)) {
 
-            val queue = base.toMutableList()
+            val queue = partitionElements.toMutableList()
             //                .apply { sortBy { it.child } }
             while (queue.isNotEmpty()) {
                 val nextIdx = queue.indexOfMinBy { node ->
@@ -273,11 +279,12 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
                 declToOrderMap[next.elementIdx] = nextElemIdx
                 nextElemIdx++
                 for (successor in next.successors) {
-                    if (successor in base) { // This ensures 2*3 independent partitions
+                    // Check that the successor is actually within this partition, otherwise just ignore it (it will be in a later one)
+                    if (partitionElements.any { it.elementIdx == successor.elementIdx }) { // This ensures 2*3 independent partitions
                         constraints.add(XmlOrderConstraint(next.elementIdx, successor.elementIdx))
-                    }
-                    if (successor !in queue) {
-                        queue.add(successor)
+                        if (successor !in queue) { // and isn't queued
+                            queue.add(successor)
+                        }
                     }
                 }
             }
@@ -285,7 +292,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
     }
 
 
-    return constraints to declToOrderMap
+    return Pair(constraints, declToOrderMap)
 }
 
 private inline fun <E, R : Comparable<R>> List<E>.indexOfMinBy(selector: (E) -> R): Int {

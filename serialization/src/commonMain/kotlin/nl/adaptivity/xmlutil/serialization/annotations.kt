@@ -150,6 +150,7 @@ public annotation class XmlDefault(val value: String)
  * over the properties.
  */
 @SerialInfo
+@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlBefore(vararg val value: String)
 
@@ -159,6 +160,7 @@ public annotation class XmlBefore(vararg val value: String)
  * XML names).
  */
 @SerialInfo
+@Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlAfter(vararg val value: String)
 

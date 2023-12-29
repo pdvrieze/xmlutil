@@ -788,7 +788,9 @@ internal constructor(
             }
         }
 
-        for (orderedSequence in initialChildReorderInfo.sequenceStarts(elementsCount)) {
+        // sequence starts should be independent values that can be ordered in any way
+        val sequenceStarts = initialChildReorderInfo.sequenceStarts(elementsCount)
+        for (orderedSequence in sequenceStarts) {
             for (element in orderedSequence.flatten()) {
                 element.ensureDescriptor()
             }
