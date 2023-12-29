@@ -88,7 +88,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
         @JvmStatic
         protected fun XSAny.toConstraint(schemaLike: ResolvedSchemaLike): VNamespaceConstraint<VQNameListBase.Elem> {
             val p = toConstraintHelper(schemaLike)
-
+            notQName?.check(schemaLike.version)
             return VNamespaceConstraint(p.first, p.second, notQName ?: VQNameList())
         }
 
@@ -97,6 +97,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
 
             val (variety, nsSet) = toConstraintHelper(schemaLike)
 
+            notQName?.check(schemaLike.version)
             return VNamespaceConstraint(variety, nsSet, notQName ?: VAttrQNameList())
         }
 
