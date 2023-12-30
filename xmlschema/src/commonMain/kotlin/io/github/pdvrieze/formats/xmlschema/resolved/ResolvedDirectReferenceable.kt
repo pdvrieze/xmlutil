@@ -23,10 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.impl.*
-import io.github.pdvrieze.formats.xpath.impl.BinaryExpr
-import io.github.pdvrieze.formats.xpath.impl.LocationPath
-import io.github.pdvrieze.formats.xpath.impl.NodeTest
-import io.github.pdvrieze.formats.xpath.impl.Step
 
 @OptIn(XPathInternal::class)
 sealed class ResolvedDirectReferenceable(
@@ -56,22 +52,23 @@ sealed class ResolvedDirectReferenceable(
 
             is LocationPath -> {
                 if (expr.rooted || expr.steps.size==0) return false
-                val firstStep = expr.steps.first()
+                val firstStep = requireNotNull(expr.steps.first() as? AxisStep) { "XPath doesn't support most expressions" }
                 val stepIndices: IntRange = if (firstStep.axis == Axis.SELF && expr.steps.size>1 &&
-                    expr.steps[1].let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTest.NodeTypeTest(NodeType.NODE) }) {
+                    (expr.steps[1] as AxisStep).let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTest.NodeTypeTest(NodeType.NODE) }) {
                     2 until expr.steps.size
                 } else {
                     expr.steps.indices
                 }
                 return stepIndices.all {
-                    isXsdSubset(expr.steps[it], isTrailingAttrAllowed && it + 1 == expr.steps.size)
+                    isXsdSubset(expr.steps[it] as AxisStep, isTrailingAttrAllowed && it + 1 == expr.steps.size)
                 }
             }
+
             else -> false
         }
     }
 
-    private fun isXsdSubset(step: Step, canBeAttr: Boolean = false): Boolean = step.predicates.size == 0 && when(step.axis) {
+    private fun isXsdSubset(step: AxisStep, canBeAttr: Boolean = false): Boolean = step.predicates.size == 0 && when(step.axis) {
         Axis.SELF -> step.test == NodeTest.NodeTypeTest(NodeType.NODE)
         Axis.ATTRIBUTE -> canBeAttr && step.test is NodeTest.NameTest
         Axis.CHILD -> step.test is NodeTest.NameTest

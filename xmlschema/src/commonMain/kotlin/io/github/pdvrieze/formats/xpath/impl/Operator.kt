@@ -43,7 +43,6 @@ enum class Operator(val literal: String, val priority: Int) {
     DIV("div", 6),
     IDIV("idiv", 6),
     MOD("mod", 6),
-    RANGE("to", 1),
     PRECEDES("<<", 1),
     FOLLOWS(">>", 1),
     IS("is", 1),

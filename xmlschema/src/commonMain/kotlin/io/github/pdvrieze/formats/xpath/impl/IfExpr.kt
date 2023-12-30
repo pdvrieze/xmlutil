@@ -20,31 +20,5 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-@XPathInternal
-internal class Step(
-    val axis: Axis,
-    val test: NodeTest,
-    val predicates: List<Expr>
-) : PrimaryOrStep() {
-    constructor(test: NodeTest) : this(Axis.CHILD, test, emptyList())
-
-    constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
-
-    override fun toString(): String = buildString {
-        when (axis) {
-            Axis.ATTRIBUTE -> append('@')
-            Axis.CHILD -> {}
-            else -> append(axis.literal).append("::")
-        }
-        append(test.toString())
-        for (p in predicates) {
-            append("[").append(p).append("]")
-        }
-    }
-}
-
-@XPathInternal
-internal sealed class PrimaryOrStep
-
-@XPathInternal
-internal class Primary(val expr: Expr) : PrimaryOrStep()
+@OptIn(XPathInternal::class)
+data class IfExpr(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : Expr()

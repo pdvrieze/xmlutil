@@ -21,4 +21,9 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class ParenExpr(val expr: Expr): Expr()
+internal class ParenExpr(val expr: Expr): Expr() {
+    override fun toString(): String {
+        return "($expr)"
+    }
+}
+

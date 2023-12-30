@@ -22,5 +22,16 @@ package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
 class SequenceExpr(elements: List<Expr>) : Expr() {
+    constructor(vararg elements: Expr): this(elements.toList())
+
     val elements = elements.toList()
+
+    operator fun plus(expr: Expr): SequenceExpr = when (expr) {
+        is SequenceExpr -> SequenceExpr(elements + expr.elements)
+        else -> SequenceExpr(elements + expr)
+    }
+
+    override fun toString(): String {
+        return elements.joinToString()
+    }
 }

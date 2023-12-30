@@ -49,11 +49,11 @@ class ResolvedLocalAttribute private constructor(
         require(rawPart.targetNamespace == null || rawPart.form == null) { "3.2.3(6.2) - When an attribute has a target namespace it may not have a form" }
 
         if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
-            error("XXX. Canary. Remove once verified")
+//            error("XXX. Canary. Remove once verified")
             check(parent is ResolvedComplexType) { "3.2.3(6.3.1) - Attribute with non-matching namespace must have complex type ancestor"}
             check(parent.mdlDerivationMethod == VDerivationControl.RESTRICTION)
             val contentType = parent.mdlContentType
-            check(contentType is ResolvedComplexType.ElementContentType)
+            check(contentType is ResolvedComplexType.ElementContentType) { "content type not elementContent, but ${contentType::class}" }
             check(parent.mdlBaseTypeDefinition != AnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
         }
 
