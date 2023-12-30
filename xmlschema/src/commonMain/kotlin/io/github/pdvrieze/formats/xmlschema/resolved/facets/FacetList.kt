@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExplicitTimezone
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
@@ -94,8 +95,20 @@ class FacetList(
             }
         }
 
-        val explicitTimezone: ResolvedExplicitTimezone? =
-            newList.explicitTimezone?.checkNotFixed(this.explicitTimezone) ?: this.explicitTimezone
+        val explicitTimezone: ResolvedExplicitTimezone? = when (val net = newList.explicitTimezone?.value) {
+            explicitTimezone?.value,
+            null -> this.explicitTimezone
+
+            else -> {
+                check(
+                    explicitTimezone == null || net == explicitTimezone.value
+                            || explicitTimezone.value == XSExplicitTimezone.Value.OPTIONAL
+                ) {
+                    "By the time zone valid restriction, the explicit timezone can only be modified"
+                }
+                newList.explicitTimezone.checkNotFixed(this.explicitTimezone)
+            }
+        }
         val fractionDigits: ResolvedFractionDigits? = when {
             newList.fractionDigits == null -> this.fractionDigits
             this.fractionDigits == null -> newList.fractionDigits
@@ -158,7 +171,9 @@ class FacetList(
     fun check(simpleType: ResolvedSimpleType, version: SchemaVersion) {
         val primitiveType = simpleType.mdlPrimitiveTypeDefinition
         if (primitiveType != null) {
-            for (p in patterns) { p.checkFacetValid(primitiveType, version) }
+            for (p in patterns) {
+                p.checkFacetValid(primitiveType, version)
+            }
         }
         for (e in enumeration) {
             e.checkFacetValid(simpleType, version)
@@ -191,9 +206,9 @@ class FacetList(
                     primitiveType.validateValue(maxConstraint.value, version)
                 }
                 if (totalDigits != null) {
-                    check(totalDigits.value >0uL) { "Decimals must have at least 1 digit" }
-                    if (fractionDigits!=null) {
-                        check(fractionDigits.value<=totalDigits.value) { "Fraction digits must be less or equal to total digits" }
+                    check(totalDigits.value > 0uL) { "Decimals must have at least 1 digit" }
+                    if (fractionDigits != null) {
+                        check(fractionDigits.value <= totalDigits.value) { "Fraction digits must be less or equal to total digits" }
                     }
                 }
                 check(primitiveType == DecimalType || fractionDigits == null || fractionDigits.value.toInt() == 0) { "Only decimal type primitives can have fraction digits (${fractionDigits?.value} - ${primitiveType} instances can not)" }
@@ -238,7 +253,7 @@ class FacetList(
             is DurationType -> {
                 val minDuration = minConstraint?.let { primitiveType.value(it.value) }
                 val maxDuration = maxConstraint?.let { primitiveType.value(it.value) }
-                if (minDuration!=null && maxDuration!=null) {
+                if (minDuration != null && maxDuration != null) {
                     check(minDuration <= maxDuration) { "Duration values not in range" }
                 }
             }
@@ -310,23 +325,28 @@ class FacetList(
         if (enumeration.isNotEmpty()) {
 
             check(enumeration.any { actualValue == it.value }) {
-                "Value: '${actualValue}' is not in ${enumeration.joinToString { "'${it.value}'"}}"
+                "Value: '${actualValue}' is not in ${enumeration.joinToString { "'${it.value}'" }}"
             }
         }
 
 
         when (actualValue) {
             is List<*> -> {
-                minLength?.let { check(actualValue.size.toULong()>=it.value) {
-                    "Invalid List size (min) ($actualValue < ${it.value})}"
-                } }
-                maxLength?.let { check(actualValue.size.toULong()<=it.value) {
-                    "Invalid List size (max) ($actualValue > ${it.value})}"
-                } }
+                minLength?.let {
+                    check(actualValue.size.toULong() >= it.value) {
+                        "Invalid List size (min) ($actualValue < ${it.value})}"
+                    }
+                }
+                maxLength?.let {
+                    check(actualValue.size.toULong() <= it.value) {
+                        "Invalid List size (max) ($actualValue > ${it.value})}"
+                    }
+                }
             }
+
             is VString -> {
-                minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) { "Value |$actualValue| < ${minLength.value}"} }
-                maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) { "Value |$actualValue| > ${maxLength.value}"} }
+                minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) { "Value |$actualValue| < ${minLength.value}" } }
+                maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) { "Value |$actualValue| > ${maxLength.value}" } }
             }
 
             is VDecimal -> {
@@ -352,13 +372,13 @@ class FacetList(
     }
 
     internal fun checkList(type: ResolvedSimpleType, version: SchemaVersion) {
-        if (version== SchemaVersion.V1_0) check(assertions.isEmpty())
+        if (version == SchemaVersion.V1_0) check(assertions.isEmpty())
         check(explicitTimezone == null) { "lists don't have a timezone facet" }
         check(fractionDigits == null) { "lists don't have a fractionDigits facet" }
         check(minConstraint == null) { "lists don't have a minConstraint facet" }
         check(maxConstraint == null) { "lists don't have a maxConstraint facet" }
         check(totalDigits == null) { "lists don't have a totalDigits facet" }
-        if (minLength!=null && maxLength!=null) {
+        if (minLength != null && maxLength != null) {
             check(minLength.value <= maxLength.value) { "Inverted min/max lengths in list" }
         }
         for (e in enumeration) {
@@ -375,7 +395,8 @@ class FacetList(
             schemaLike: ResolvedSchemaLike,
             baseType: ResolvedSimpleType,
             relaxedLength: Boolean
-        ): FacetList = FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, baseType) }, relaxedLength, schemaLike.version)
+        ): FacetList =
+            FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, baseType) }, relaxedLength, schemaLike.version)
 
         fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList {
             val relaxedLength = baseType is IDRefsType || baseType is NMTokensType
@@ -396,7 +417,11 @@ class FacetList(
             }
         }
 
-        operator fun invoke(facets: Iterable<ResolvedFacet>, relaxedLength: Boolean, version: SchemaVersion): FacetList {
+        operator fun invoke(
+            facets: Iterable<ResolvedFacet>,
+            relaxedLength: Boolean,
+            version: SchemaVersion
+        ): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()
             val assertions: MutableList<ResolvedAssertionFacet> = mutableListOf()
             val enumeration: MutableList<ResolvedEnumeration<out Any>> = mutableListOf()
@@ -431,12 +456,13 @@ class FacetList(
                             facet
 
                     is ResolvedFractionDigits ->
-                        if (fractionDigits != null) error("3.4.3(2) - multiple fractionDigits facets") else fractionDigits = facet
+                        if (fractionDigits != null) error("3.4.3(2) - multiple fractionDigits facets") else fractionDigits =
+                            facet
 
                     // use instances to allow for min/max lengths https://www.w3.org/Bugs/Public/show_bug.cgi?id=6446
                     is ResolvedLength -> {
                         when {
-                            relaxedLength && minLength is ResolvedMinLength -> check(minLength.value== 1uL && facet.value>=1uL) { "minLength > length" }
+                            relaxedLength && minLength is ResolvedMinLength -> check(minLength.value == 1uL && facet.value >= 1uL) { "minLength > length" }
                             minLength != null || maxLength != null -> error("3.4.3(2) - multiple length facets")
                         }
                         // outside of when, always override using the length
@@ -450,8 +476,8 @@ class FacetList(
                     }
 
                     is ResolvedMinLength -> when {
-                    // use instance check to both length and minimum https://www.w3.org/Bugs/Public/show_bug.cgi?id=6446
-                        relaxedLength && minLength is ResolvedLength -> check(facet.value == 1uL && minLength.value>=1uL) { "MaxLength < length" }
+                        // use instance check to both length and minimum https://www.w3.org/Bugs/Public/show_bug.cgi?id=6446
+                        relaxedLength && minLength is ResolvedLength -> check(facet.value == 1uL && minLength.value >= 1uL) { "MaxLength < length" }
                         minLength != null -> error("3.4.3(2) - multiple maxLength facets")
                         else -> minLength = facet
                     }
@@ -463,7 +489,8 @@ class FacetList(
                     }
 
                     is ResolvedTotalDigits ->
-                        if (totalDigits != null) error("3.4.3(2) - multiple totalDigits facets") else totalDigits = facet
+                        if (totalDigits != null) error("3.4.3(2) - multiple totalDigits facets") else totalDigits =
+                            facet
 
                     is ResolvedWhiteSpace ->
                         if (whiteSpace != null) error("3.4.3(2) - multiple whiteSpace facets") else whiteSpace = facet
@@ -499,7 +526,7 @@ private fun CharSequence.leadingZeros(): Int {
 
 private fun CharSequence.trailingZeros(): Int {
     for (i in indices) {
-        if (get(length -1 - i) != '0') {
+        if (get(length - 1 - i) != '0') {
             return i
         }
     }
