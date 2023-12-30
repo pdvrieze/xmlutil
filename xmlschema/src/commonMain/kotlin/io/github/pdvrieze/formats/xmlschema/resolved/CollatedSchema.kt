@@ -30,9 +30,9 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 
-internal open class NamespaceHolder(val namespace: String)
+internal open class NamespaceHolder(val namespace: String, var loading: Boolean)
 
-internal class RecursiveRedefine(val schemaLocation: VAnyURI, namespace: String) : NamespaceHolder(namespace)
+internal class RecursiveRedefine(val schemaLocation: VAnyURI, namespace: String) : NamespaceHolder(namespace, false)
 
 internal class SchemaData(
     namespace: String,
@@ -47,7 +47,7 @@ internal class SchemaData(
     val includedNamespaceToUris: Map<String, List<VAnyURI>>,
     val knownNested: Map<String, NamespaceHolder>,
     val importedNamespaces: Set<String>,
-) : NamespaceHolder(namespace) {
+) : NamespaceHolder(namespace, false) {
     val elementFormDefault: VFormChoice? get() = rawSchema.elementFormDefault
     val attributeFormDefault: VFormChoice? get() = rawSchema.attributeFormDefault
 
@@ -517,7 +517,7 @@ internal class SchemaData(
             val lastLocation = schemaLocations.last()
             val b = DataBuilder(lastLocation, alreadyProcessed)
             val ns: String = (targetNamespace?.toAnyUri() ?: sourceSchema.targetNamespace)?.value ?: ""
-            b.newProcessed.put(lastLocation, NamespaceHolder(ns))
+            b.newProcessed.put(lastLocation, NamespaceHolder(ns, true))
 
             b.addFromSchema(sourceSchema, lastLocation, targetNamespace, builtin)
 
@@ -528,8 +528,9 @@ internal class SchemaData(
                     includeLocation.value in b.newProcessed -> continue@includeLoop
 
                     includeLocation.value in alreadyProcessed -> {
-                        val processed = alreadyProcessed[includeLocation.value]
-                        requireNotNull(processed as? SchemaData) { "Recursive includes: $includeLocation" }
+                        val processed = alreadyProcessed[includeLocation.value]!!
+                        require(! processed.loading) { "Recursive includes: $includeLocation" }
+                        processed as? SchemaData
                     }
 
                     else -> when (val parsed = resolver.tryReadSchema(includeLocation)) {
@@ -553,7 +554,7 @@ internal class SchemaData(
                     b.addInclude(includeData, targetNamespace)
                 } else if (includeLocation.value.isNotEmpty()) {
                     b.newProcessed[includeLocation.value] =
-                        NamespaceHolder(targetNamespace ?: "") // add entry for this being processed
+                        NamespaceHolder(targetNamespace ?: "", false) // add entry for this being processed
                 }
             }
 
@@ -565,7 +566,7 @@ internal class SchemaData(
 
                     is NamespaceHolder -> {
 
-                        require(redefineLocation.value !in schemaLocations) { "Redefines can not refer to documents themselves" }
+                        require(! processed.loading && redefineLocation.value !in schemaLocations) { "Redefines can not refer to documents themselves" }
                         RecursiveRedefine(redefineLocation, processed.namespace)
                     }
 
@@ -598,7 +599,7 @@ internal class SchemaData(
 
                 if (redefineData !is SchemaData) {
                     if (redefineLocation.value.isNotEmpty())
-                        b.newProcessed[redefineLocation.value] = NamespaceHolder(targetNamespace ?: "")
+                        b.newProcessed[redefineLocation.value] = NamespaceHolder(targetNamespace ?: "", false)
                 } else {
                     b.addInclude(redefineData, targetNamespace)
 
@@ -671,13 +672,13 @@ internal class SchemaData(
                     val actualImport: SchemaData? = when {
                         // imports can be delayed in parsing
                         importLocation.value in alreadyProcessed -> {
-                            val existing = alreadyProcessed[importLocation.value]!!
+                            val processed = alreadyProcessed[importLocation.value]!!
                             val importNS = import.namespace?.value
-                            require(existing.namespace.let { it.isEmpty() || importNS==null || it == importNS }) {
-                                "Imported schema's namespace (${existing.namespace}) is not null and does not match specified namespace ($importNS)"
+                            require(processed.namespace.let { it.isEmpty() || importNS==null || it == importNS }) {
+                                "Imported schema's namespace (${processed.namespace}) is not null and does not match specified namespace ($importNS)"
                             }
-                            b.importedNamespaces.add(importNS ?: existing.namespace)
-                            existing as? SchemaData
+                            b.importedNamespaces.add(importNS ?: processed.namespace)
+                            processed as? SchemaData
                         }
 
                         else -> {
@@ -1112,11 +1113,8 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             schema.targetNamespace != rawSchema.targetNamespace ||
                     schema.elementFormDefault != rawSchema.elementFormDefault ||
-                    schema.attributeFormDefault != rawSchema.attributeFormDefault -> OwnerWrapper(
-                schema,
-                rawSchema,
-                importedNamespaces
-            )
+                    schema.attributeFormDefault != rawSchema.attributeFormDefault ->
+                        OwnerWrapper(schema, rawSchema, importedNamespaces)
 
             else -> schema
         }
