@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -70,10 +70,12 @@ class TestXSTestSuite {
 //                .filter { it.href.contains("sunMeta/suntest") }
 //                .filter { it.href.contains("msMeta/Additional") }
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
-                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/")
-                    .none { m -> it.href.contains(m) } }
-//                .filter { (it.href.contains("msMeta/IdentityConstraint")) }
-                .filter { it.href.contains("wgMeta/subst") }
+                .filter { arrayOf("sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/",
+                    "wgMeta").any { m -> it.href.contains(m) } }
+//                .filter { arrayOf("msMeta/Notation", "msMeta/Schema", "msMeta/SimpleType",
+//                    "msMeta/Wildcards").any { m -> it.href.contains(m) } }
+                .filter { (it.href.contains("msMeta/")) }
+//                .filter { (it.href.contains("wgMeta/")) }
                 .map { setRef ->
 
                     val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
@@ -85,7 +87,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (false || group.name.contains("sg-abstract-edc")) {
+                            if (true || group.name.equals("sg-abstract-edc")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group, testSet.schemaVersion?.let(::listOf))
                                 }
