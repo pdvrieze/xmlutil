@@ -19,8 +19,11 @@
   -->
 
 <overrides xmlns="http://pdvrieze.github.io/xmlutil/testoverride">
+  <test path="anyAttribute/s3_10_6si02/s3_10_6si02s">
+    <expected version="1.0" validity="indeterminate"/>
+  </test>
   <test path="MS-Schema2006-07-15/schU1/schU1">
-    <expected validity="indeterminate" annotation="Recursive redefines are problematic"/>
+    <expected validity="implementation-dependent" annotation="Recursive redefines are problematic"/>
   </test>
   <test path="MS-Additional2006-07-15/addB194/addB194">
     <expected validity="invalid" annotation="This contains a non-deterministic choice group"/>

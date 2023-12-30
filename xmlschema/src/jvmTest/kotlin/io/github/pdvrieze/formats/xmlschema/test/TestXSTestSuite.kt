@@ -508,6 +508,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 
         val expectedValidity = expected.validity
         when (expectedValidity) {
+            TSValidityOutcome.INVALID_LATENT,
             TSValidityOutcome.INVALID -> {
                 if (true) {
                     dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
@@ -571,6 +572,8 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 }
             }
 
+            TSValidityOutcome.IMPLEMENTATION_DEFINED,
+            TSValidityOutcome.IMPLEMENTATION_DEPENDENT,
             TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)
                 val schemaLocation = schemaDoc.href.toAnyUri()
                 dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
@@ -579,6 +582,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 }
             }
 
+            TSValidityOutcome.RUNTIME_SCHEMA_ERROR,
             TSValidityOutcome.NOTKNOWN -> {} // ignore unknown
         }
     }
