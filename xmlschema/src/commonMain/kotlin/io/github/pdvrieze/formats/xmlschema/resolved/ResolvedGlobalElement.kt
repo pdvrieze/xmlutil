@@ -70,13 +70,13 @@ class ResolvedGlobalElement private constructor(
         }
     }
 
-    fun fullSubstitutionGroup(schemaVersion: SchemaVersion): List<ResolvedGlobalElement> {
+    fun fullSubstitutionGroup(version: SchemaVersion): List<ResolvedGlobalElement> {
         val map = mutableMapOf<QName, ResolvedGlobalElement>()
         fullSubstitutionGroup(map)
-        if (schemaVersion==SchemaVersion.V1_0) {
-            return map.values.filter { !it.mdlAbstract } //abstract members are not part of the substitution group
-        } else {
-            return map.values.toList() // in version 1.1 they are part of the substitution group (but not legal for use)
+        return when(version) {
+            //abstract members are not part of the substitution group (in 1.0)
+            SchemaVersion.V1_0 -> map.values.filter { ! it.mdlAbstract }
+            else -> map.values.toList()
         }
     }
 
