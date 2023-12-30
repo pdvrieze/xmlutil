@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2023.
  *
  * This file is part of xmlutil.
  *
@@ -36,5 +36,17 @@ enum class TSValidityOutcome {
 
     @SerialName("indeterminate")
     INDETERMINATE,
+
+    @SerialName("implementation-defined")
+    IMPLEMENTATION_DEFINED,
+
+    @SerialName("implementation-dependent")
+    IMPLEMENTATION_DEPENDENT,
+
+    @SerialName("invalid-latent")
+    INVALID_LATENT,
+
+    @SerialName("runtime-schema-error")
+    RUNTIME_SCHEMA_ERROR,
 }
 
