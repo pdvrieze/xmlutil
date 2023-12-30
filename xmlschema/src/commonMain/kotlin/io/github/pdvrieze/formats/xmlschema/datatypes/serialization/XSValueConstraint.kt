@@ -23,11 +23,13 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("valueConstraint", XSD_NS_URI, XSD_PREFIX)
 class XSValueConstraint private constructor(
+    @XmlElement(false)
     val variety: XSValueConstraintVariety,
     val value: String,
     val lexicalForm: String
