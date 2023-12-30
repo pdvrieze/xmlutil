@@ -690,23 +690,19 @@ internal class SchemaData(
 
                                 else -> {
                                     val delegateResolver = resolver.delegate(importLocation)
-                                    val actualNamespace = when (importNS) {
-                                        null -> {
-                                            if (targetNamespace.isNullOrEmpty()) requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
-                                            "".toAnyUri()
-                                        }
 
-                                        else -> {
-                                            require(parsed.targetNamespace == null || parsed.targetNamespace == importNS) {
-                                                "Imports cannot change source namespace from ${parsed.targetNamespace} to $importNS"
-                                            }
-                                            importNS
+                                    require(parsed.targetNamespace == null || parsed.targetNamespace == importNS) {
+                                        "Imports cannot change source namespace from ${parsed.targetNamespace} to $importNS"
+                                    }
+
+                                    if (importNS.value.isNotEmpty()) {
+                                        require(importNS == parsed.targetNamespace) {
+                                            "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'"
                                         }
                                     }
 
-                                    require(parsed.targetNamespace.let { it == null || it == importNS }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
-                                    b.importedNamespaces.add(actualNamespace.value)
-                                    b.includedNamespaceToUris.getOrPut(actualNamespace.value, { mutableListOf() })
+                                    b.importedNamespaces.add(importNS.value)
+                                    b.includedNamespaceToUris.getOrPut(importNS.value, { mutableListOf() })
                                         .also {
                                             require(importLocation !in it) { "Duplicate import of location ${importLocation}" }
                                             it.add(importLocation)
