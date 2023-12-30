@@ -665,6 +665,7 @@ sealed class ResolvedComplexType(
                         b == AnySimpleType -> ResolvedSimpleType.Variety.NIL
                         else -> b.mdlVariety.notNil()
                     }
+
                     mdlSimpleTypeDefinition = SyntheticSimpleType(
                         context,
                         b,
@@ -779,11 +780,7 @@ sealed class ResolvedComplexType(
                 when (term) {
                     is ResolvedGlobalElement -> {
                         target.add(term)
-                        for (m in term.mdlSubstitutionGroupMembers) {
-                            if (checkHelper.version != SchemaVersion.V1_0 || !m.mdlAbstract) {
-                                target.add(m)
-                            }
-                        }
+                        target.addAll(term.fullSubstitutionGroup(checkHelper.version))
                     }
 
                     is ResolvedElement -> target.add(term)
@@ -803,14 +800,19 @@ sealed class ResolvedComplexType(
                 return target
             }
 
-            val elements = mutableMapOf<QName, ResolvedType>()
+            val elements = mutableMapOf<QName, ResolvedElement>()
             mdlParticle.checkParticle(checkHelper)
+
+            // Checks v1.1 3.8.6.3 ElementDeclarations Consistent
             val memberElements = collectElements(mdlParticle.mdlTerm)
             for (particle in memberElements) {
                 val qName = particle.mdlQName
-                val old = elements.put(qName, particle.mdlTypeDefinition)
-                if (old != null) require(particle.mdlTypeDefinition == old) {
-                    "If an element is repeated in a group it must have identical types"
+                val old = elements.put(qName, particle)
+                if (old != null) {
+                    val oldTypeTable = (old as? ResolvedGlobalElement)?.mdlTypeTable
+                    require(particle.mdlTypeDefinition == old.mdlTypeDefinition && particle.mdlTypeTable.isEquivalent(oldTypeTable)) {
+                        "If an element is repeated in a group it must have identical types"
+                    }
                 }
             }
 
@@ -825,11 +827,8 @@ sealed class ResolvedComplexType(
     ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(
-            mdlParticle.range,
-            isSiblingName,
-            schema
-        )
+        override val flattened: FlattenedParticle =
+            mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, schema)
     }
 
     class ElementOnlyContentType(
@@ -840,11 +839,8 @@ sealed class ResolvedComplexType(
     ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedParticle = mdlParticle.mdlTerm.flatten(
-            mdlParticle.range,
-            isSiblingName,
-            schema
-        )
+        override val flattened: FlattenedParticle =
+            mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, schema)
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,

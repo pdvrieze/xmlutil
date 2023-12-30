@@ -31,3 +31,9 @@ interface ITypeTable {
     val mdlAlternatives: List<TypeAlternativeModel>
     val mdlDefault: TypeAlternativeModel
 }
+
+fun ITypeTable?.isEquivalent(other: ITypeTable?): Boolean = when {
+    this == null -> other == null
+    other == null -> false
+    else -> isEquivalent(other)
+}
