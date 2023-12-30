@@ -29,7 +29,9 @@ class ResolvedNotation(
     rawPart: XSNotation,
     val schema: ResolvedSchemaLike,
     val location: String,
-) : NamedPart {
+) : ResolvedAnnotated, NamedPart {
+    override val model: ResolvedAnnotated.IModel = ResolvedAnnotated.Model(rawPart)
+
     init {
         require(rawPart.public != null || rawPart.system != null) {
             "Notation must have either specified public attribute, or a system attribute"
