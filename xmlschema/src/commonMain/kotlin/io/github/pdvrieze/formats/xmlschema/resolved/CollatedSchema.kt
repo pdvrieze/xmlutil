@@ -643,7 +643,6 @@ internal class SchemaData(
             }
 
             for (import in sourceSchema.imports) {
-/*
                 val importNS = when (val i = import.namespace) {
                     null -> {
                         require(!targetNamespace.isNullOrEmpty()) { "4.2.6.2 1.1) Import with empty namespace inside a schema without target namespace" }
@@ -657,15 +656,13 @@ internal class SchemaData(
                     }
                 }
                 b.importedNamespaces.add(importNS.value)
-*/
 
                 val il = import.schemaLocation
                 if (il == null) {
-                    val ns = requireNotNull(import.namespace) { "import must specify at least namespace or location" }
-                    b.includedNamespaceToUris.getOrPut(ns.value, { mutableListOf() }).let {
+                    b.includedNamespaceToUris.getOrPut(importNS.value, { mutableListOf() }).let {
                         if (VAnyURI.EMPTY !in it) it.add(VAnyURI.EMPTY) // Don't duplicate "missing" uris
                     }
-                    b.importedNamespaces.add(ns.value)
+                    b.importedNamespaces.add(importNS.value)
                 } else {
                     val importLocation = resolver.resolve(il)
 
@@ -673,11 +670,13 @@ internal class SchemaData(
                         // imports can be delayed in parsing
                         importLocation.value in alreadyProcessed -> {
                             val processed = alreadyProcessed[importLocation.value]!!
-                            val importNS = import.namespace?.value
-                            require(processed.namespace.let { it.isEmpty() || importNS==null || it == importNS }) {
-                                "Imported schema's namespace (${processed.namespace}) is not null and does not match specified namespace ($importNS)"
+                            val importNSval = importNS.value
+                            if (processed is SchemaData) {
+                                require(processed.namespace.let { it.isEmpty() || it == importNSval }) {
+                                    "Imported schema's namespace (${processed.namespace}) is not null and does not match specified namespace ($importNSval)"
+                                }
+                                b.importedNamespaces.add(importNSval)
                             }
-                            b.importedNamespaces.add(importNS ?: processed.namespace)
                             processed as? SchemaData
                         }
 
@@ -685,32 +684,33 @@ internal class SchemaData(
 
                             when (val parsed = resolver.tryReadSchema(importLocation)) {
                                 null -> {
-                                    import.namespace?.value?.let { b.importedNamespaces.add(it) }
+                                    importNS.value.let { b.importedNamespaces.add(it) }
                                     null
                                 }
 
                                 else -> {
                                     val delegateResolver = resolver.delegate(importLocation)
-                                    val actualNamespace = when (val ins = import.namespace) {
+                                    val actualNamespace = when (importNS) {
                                         null -> {
                                             if (targetNamespace.isNullOrEmpty()) requireNotNull(parsed.targetNamespace) { "Missing namespace for import" }
                                             "".toAnyUri()
                                         }
 
                                         else -> {
-                                            require(parsed.targetNamespace == null || parsed.targetNamespace == ins) {
-                                                "Imports cannot change source namespace from ${parsed.targetNamespace} to $ins"
+                                            require(parsed.targetNamespace == null || parsed.targetNamespace == importNS) {
+                                                "Imports cannot change source namespace from ${parsed.targetNamespace} to $importNS"
                                             }
-                                            ins
+                                            importNS
                                         }
                                     }
 
-                                    require(parsed.targetNamespace.let { it == null || it == import.namespace }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
+                                    require(parsed.targetNamespace.let { it == null || it == importNS }) { "import namespaces must meet requirements '$targetNamespace' ← '${parsed.targetNamespace}'" }
                                     b.importedNamespaces.add(actualNamespace.value)
-                                    b.includedNamespaceToUris.getOrPut(actualNamespace.value, { mutableListOf() }).also {
-                                        require(importLocation !in it) { "Duplicate import of location ${importLocation}" }
-                                        it.add(importLocation)
-                                    }
+                                    b.includedNamespaceToUris.getOrPut(actualNamespace.value, { mutableListOf() })
+                                        .also {
+                                            require(importLocation !in it) { "Duplicate import of location ${importLocation}" }
+                                            it.add(importLocation)
+                                        }
 
                                     SchemaData(
                                         parsed,
