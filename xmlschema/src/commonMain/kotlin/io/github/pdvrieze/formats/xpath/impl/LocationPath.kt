@@ -23,19 +23,14 @@ package io.github.pdvrieze.formats.xpath.impl
 @OptIn(XPathInternal::class)
 internal class LocationPath(
     val rooted: Boolean,
-    val primaryExpr: Expr?,
-    val steps: List<Step>,
+    val steps: List<PrimaryOrStep>,
 ) : Expr() {
-    constructor(step: Step) : this(false, null, listOf(step))
+    constructor(step: AxisStep) : this(false, listOf(step))
 
-    constructor(rooted: Boolean, primaryExpr: Expr?, step: Step) : this(rooted, primaryExpr, listOf(step))
+    constructor(rooted: Boolean, step: AxisStep) : this(rooted, listOf(step))
 
     override fun toString(): String = buildString {
         if (rooted) append('/')
-        if (primaryExpr!=null) {
-            append(primaryExpr)
-            if (steps.isNotEmpty()) append('/')
-        }
         steps.joinTo(this, "/")
     }
 }

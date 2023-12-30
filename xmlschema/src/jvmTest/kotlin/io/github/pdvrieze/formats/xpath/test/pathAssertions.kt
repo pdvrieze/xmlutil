@@ -53,13 +53,13 @@ interface ExprContext<T: Expr>: TestContext {
 @OptIn(XPathInternal::class)
 @PathTestDsl
 internal class PathContext(val path: LocationPath) {
-    private fun getStep(): Step {
+    private fun getStep(): PrimaryOrStep {
         assertTrue(stepCount < path.steps.size, "Expected at least $stepCount steps, but found only ${path.steps.size}")
         return path.steps[stepCount++]
     }
 
     fun assertStepSelf() {
-        val step = getStep()
+        val step = assertIs<AxisStep>(getStep())
         assertEquals(Axis.SELF, step.axis)
         assertEquals(NodeTest.NodeTypeTest(NodeType.NODE), step.test)
         assertEquals(0, step.predicates.size)
@@ -88,7 +88,7 @@ internal class PathContext(val path: LocationPath) {
     }
 
     inline fun assertStep(axis: Axis, qName: QName, test: StepContext.() -> Unit) {
-        val step = getStep()
+        val step = assertIs<AxisStep>(getStep())
         assertEquals(axis, step.axis)
         val t = assertIs<NodeTest.QNameTest>(step.test)
         assertEquals(qName, t.qName)
@@ -98,7 +98,7 @@ internal class PathContext(val path: LocationPath) {
     }
 
     inline fun assertStep(axis: Axis, nodeType: NodeType, test: StepContext.() -> Unit) {
-        val step = getStep()
+        val step = assertIs<AxisStep>(getStep())
         assertEquals(axis, step.axis)
         val t = assertIs<NodeTest.NodeTypeTest>(step.test)
         assertEquals(nodeType, t.type)
@@ -109,7 +109,7 @@ internal class PathContext(val path: LocationPath) {
     }
 
     inline fun <reified T: NodeTest> assertStep(axis: Axis, test: StepContext.(T) -> Unit) {
-        val step = getStep()
+        val step = assertIs<AxisStep>(getStep())
         assertEquals(axis, step.axis)
         val ctx = StepContext(step)
         ctx.test(assertIs<T>(step.test))
@@ -130,7 +130,7 @@ internal class PathContext(val path: LocationPath) {
 }
 
 @OptIn(XPathInternal::class)
-internal class StepContext(val step: Step) {
+internal class StepContext(val step: AxisStep) {
     private fun getPredicate(): ExprContext<Expr> {
         assertTrue(predicateCount < step.predicates.size, "Expected at least $predicateCount steps, but found only ${step.predicates.size}")
         return ExprContextImpl(step.predicates[predicateCount++])
@@ -189,7 +189,13 @@ internal fun TestContext.assertPath(test: PathContext.() -> Unit) {
 
 @OptIn(XPathInternal::class)
 internal fun TestContext.assertNumber(value: Long) {
-    val n = assertIs<NumberLiteral>(expr)
+    val n = assertIs<IntLiteral>(expr)
+    assertEquals(value, n.value)
+}
+
+@OptIn(XPathInternal::class)
+internal fun TestContext.assertNumber(value: Double) {
+    val n = assertIs<DoubleLiteral>(expr)
     assertEquals(value, n.value)
 }
 

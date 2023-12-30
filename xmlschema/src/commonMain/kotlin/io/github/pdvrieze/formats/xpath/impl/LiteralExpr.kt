@@ -21,4 +21,4 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal open class LiteralExpr<T : Any>(val value: T) : Expr()
+internal open class LiteralExpr<out T : Any>(val value: T) : Expr()

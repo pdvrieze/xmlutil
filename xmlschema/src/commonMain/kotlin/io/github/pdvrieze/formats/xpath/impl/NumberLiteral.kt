@@ -21,6 +21,17 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NumberLiteral(value: Long) : LiteralExpr<Long>(value) {
+internal abstract class NumberLiteral<out T: Number>(value: T) : LiteralExpr<T>(value) {
     override fun toString(): String = value.toString()
 }
+
+@XPathInternal
+internal class IntLiteral(value: Long) : NumberLiteral<Long>(value) {
+    override fun toString(): String = value.toString()
+}
+
+@XPathInternal
+internal class DoubleLiteral(value: Double) : NumberLiteral<Double>(value) {
+    override fun toString(): String = value.toString()
+}
+

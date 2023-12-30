@@ -20,13 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.QName
-
-@XPathInternal
-internal class FunctionCall(val name: QName, val args: List<Expr>): Expr() {
-    override fun toString(): String = buildString {
-        append(name).append('(')
-        args.joinTo(this)
-        append(')')
-    }
+@OptIn(XPathInternal::class)
+class RangeExpr(val from: Expr, val to: Expr) : Expr() {
+    override fun toString(): String = "$from to $to"
 }
