@@ -28,12 +28,15 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("explicitTimezone", XSD_NS_URI, XSD_PREFIX)
 class XSExplicitTimezone : XSFacet.Fixed {
 
+    @Serializable
+    @XmlElement(false)
     override val value: Value
 
     constructor(
@@ -50,8 +53,10 @@ class XSExplicitTimezone : XSFacet.Fixed {
     enum class Value {
         @SerialName("optional")
         OPTIONAL,
+
         @SerialName("required")
         REQUIRED,
+
         @SerialName("prohibited")
         PROHIBITED
     }
