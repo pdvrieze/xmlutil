@@ -28,7 +28,7 @@ class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owne
     ResolvedIndirectIdentityConstraint<ResolvedDirectKeyRef>(rawPart, schema, owner), ResolvedKeyRef {
 
     init {
-        checkNotNull(rawPart.name)
+        check(rawPart.name == null)
     }
 
     override val constraint: ResolvedIndirectKeyRef get() = this
