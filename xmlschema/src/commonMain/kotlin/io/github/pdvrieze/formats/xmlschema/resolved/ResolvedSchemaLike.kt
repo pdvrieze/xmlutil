@@ -71,7 +71,7 @@ abstract class ResolvedSchemaLike {
 
         XSD_NS_URI -> BuiltinSchemaXmlschema.maybeType(typeName)
         else -> maybeType(typeName)
-    } ?: throw NoSuchElementException("No type with name $typeName found")
+    } ?: throw NoSuchElementException("No type with name '$typeName' found")
 
     fun attributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup {
         return maybeAttributeGroup(attributeGroupName)

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.impl
 
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 /**
@@ -76,3 +77,13 @@ inline fun <T : Any> invariantNotNull(value: T?): T {
     return invariantNotNull<T>(value) { "Check failed." }
 }
 
+@OptIn(ExperimentalContracts::class)
+internal inline fun <R, T> Result<T>.flatMap(transform: (value: T) -> Result<R>): Result<R> {
+    contract {
+        callsInPlace(transform, InvocationKind.AT_MOST_ONCE)
+    }
+    return fold(
+        onSuccess = { v -> transform(v) },
+        onFailure = { e -> Result.failure(e) }
+    )
+}

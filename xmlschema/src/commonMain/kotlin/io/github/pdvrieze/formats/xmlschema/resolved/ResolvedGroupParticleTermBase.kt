@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -44,8 +45,8 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
 
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
-        return super<ResolvedGroupParticle>.flatten(schema)
+    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
+        return super<ResolvedGroupParticle>.flatten(checkHelper)
     }
 
     override fun isSiblingName(name: QName): Boolean {

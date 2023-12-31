@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
+import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -50,10 +51,14 @@ class ResolvedSequence internal constructor(
 
         for (term in terms) {
             val old = existing.put(term.mdlQName, term)
-            if (old != null) {
-                require(old==term || old.mdlTypeDefinition == term.mdlTypeDefinition) {
-                    "Multiple occurence of a term in a sequence must be equal"
-                }
+            if (old != null && old!=term) {
+                old.model.mdlTypeDefinition.flatMap { otd ->
+                    term.model.mdlTypeDefinition.map { td ->
+                        require(otd == td) {
+                            "Multiple occurence of a term in a sequence must be equal"
+                        }
+                    }
+                }.onFailure(checkHelper::checkLax)
             }
         }
     }
