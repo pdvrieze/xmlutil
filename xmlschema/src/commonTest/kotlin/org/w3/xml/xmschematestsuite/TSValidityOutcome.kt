@@ -39,6 +39,13 @@ enum class TSValidityOutcome {
     INVALID,
 
     /**
+     * The schema is not valid (check fails or fails to parse) or instance is not valid according to
+     * the schema.
+     */
+    @SerialName("invalidlax")
+    INVALID_LAX,
+
+    /**
      * The validity is not known
      */
     @SerialName("notknown")

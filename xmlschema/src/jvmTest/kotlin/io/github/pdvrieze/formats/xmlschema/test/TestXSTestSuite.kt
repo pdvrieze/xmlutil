@@ -511,6 +511,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         val expectedValidity = expected.validity
         when (expectedValidity) {
             TSValidityOutcome.INVALID_LATENT,
+            TSValidityOutcome.INVALID_LAX,
             TSValidityOutcome.INVALID -> {
                 if (true) {
                     dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
@@ -518,7 +519,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                             val schemaLocation = schemaDoc.href.toAnyUri()
                             val schema = resolver.readSchema(schemaLocation)
                             val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation), version)
-                            resolvedSchema.check()
+                            resolvedSchema.check(isLax = expectedValidity == TSValidityOutcome.INVALID_LAX)
                         }
                         if (e is Error) throw e
 
@@ -559,7 +560,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 }
             }
 
-            null,
+            TSValidityOutcome.LAX,
             TSValidityOutcome.VALID -> {
                 val schemaLocation = schemaDoc.href.toAnyUri()
                 dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
@@ -569,21 +570,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} resolves and checks$versionLabel") {
                     val resolvedSchema =
                         resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), version)
-                    resolvedSchema.check()
-                    assertNotNull(resolvedSchema)
-                }
-            }
-
-            TSValidityOutcome.LAX -> {
-                val schemaLocation = schemaDoc.href.toAnyUri()
-                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
-                    val schema = resolver.readSchema(schemaLocation)
-                    assertNotNull(schema)
-                }
-                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} resolves and checks in lax mode$versionLabel") {
-                    val resolvedSchema =
-                        resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), version)
-                    resolvedSchema.check(isLax = true)
+                    resolvedSchema.check(expectedValidity == TSValidityOutcome.LAX)
                     assertNotNull(resolvedSchema)
                 }
             }
