@@ -20,13 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
 import nl.adaptivity.xmlutil.QName
 
 interface IResolvedAll : ResolvedModelGroup {
@@ -40,7 +38,7 @@ interface IResolvedAll : ResolvedModelGroup {
         for (particle in mdlParticles) {
             if (particle is ResolvedAny) {
                 for (seen in seenWildcards) {
-                    require(! seen.intersects(particle,::isSiblingName, checkHelper.schema)) {
+                    require(!seen.intersects(particle, ::isSiblingName, checkHelper.schema)) {
                         "Intersecting wildcards in all group: $particle and $seen"
                     }
                 }
@@ -68,22 +66,22 @@ interface IResolvedAll : ResolvedModelGroup {
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAll(this)
 
-    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle {
+    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
         val particles = mutableListOf<FlattenedParticle>()
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName, schema)
+            val f = p.flatten(::isSiblingName, checkHelper)
             if (f.maxOccurs == VAllNNI.ZERO) continue // skip it
             particles.add(f)
             for(startElem in f.startingTerms()) {
                 when (startElem) { // allow repetition
                     is FlattenedParticle.Element -> require(seenNames.add(startElem.term.mdlQName)) {
-                        "Non-deterministic all group (${schema.version}): all{${mdlParticles.joinToString()}}"
+                        "Non-deterministic all group (${checkHelper.version}): all{${mdlParticles.joinToString()}}"
                     }
 
                     is FlattenedParticle.Wildcard -> {
-                        require(seenWildcards.none { it.intersects(startElem.term, isSiblingName, schema) }) {
+                        require(seenWildcards.none { it.intersects(startElem.term, isSiblingName, checkHelper.schema) }) {
                             "Non-deterministic all group: all${mdlParticles.joinToString()}"
                         }
                         seenWildcards.add(startElem.term)
@@ -96,7 +94,7 @@ interface IResolvedAll : ResolvedModelGroup {
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY
             particles.size == 1 -> when {
-                schema.version != SchemaVersion.V1_0 ->
+                checkHelper.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
 
                 range.isSimple -> particles.single()
@@ -106,7 +104,7 @@ interface IResolvedAll : ResolvedModelGroup {
 
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
-        } ?: FlattenedGroup.All(range, particles, schema.version)
+        } ?: FlattenedGroup.All(range, particles, checkHelper.version)
     }
 
 }

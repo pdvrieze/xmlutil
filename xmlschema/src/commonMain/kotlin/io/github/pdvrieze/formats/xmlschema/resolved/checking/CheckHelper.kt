@@ -24,99 +24,33 @@ import io.github.pdvrieze.formats.xmlschema.resolved.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 
-class CheckHelper(internal val schema: ResolvedSchemaLike) {
-    private val checkedTypes: MutableSet<ResolvedType> = HashSet()
-    private val checkedElements: MutableSet<ResolvedGlobalElement> = HashSet()
-    private val checkedAttributes: MutableSet<ResolvedGlobalAttribute> = HashSet()
-    private val checkedAttributeGroups: MutableSet<ResolvedGlobalAttributeGroup> = HashSet()
-    private val checkedConstraints: MutableSet<ResolvedIdentityConstraint> = HashSet()
-    private val checkedGroups: MutableSet<ResolvedGlobalGroup> = HashSet()
-    private val checkedNotations: MutableSet<ResolvedNotation> = HashSet()
+fun CheckHelper(schema: ResolvedSchemaLike, isLax: Boolean): CheckHelper =
+    CheckHelperImpl(schema, isLax)
 
+abstract class CheckHelper protected constructor(
+    internal val schema: ResolvedSchemaLike
+) {
+    internal abstract val isLax: Boolean
     val version: SchemaVersion get() = schema.version
-
-    private val checkHelper get() = this
-
-    fun checkType(name: QName) {
-        checkType(schema.type(name))
-    }
-
-    fun checkType(type: ResolvedType) {
-        when (type) {
-            is ResolvedGlobalType -> {
-                if (checkedTypes.add(type)) {
-                    type.checkType(this)
-                }
-            }
-
-            else -> type.checkType(this)
-        }
-    }
-
-    fun checkElement(name: QName) {
-        val element = schema.element(name)
-        if (checkedElements.add(element)) {
-            element.checkTerm(this)
-        }
-    }
-
-    fun checkElement(element: ResolvedElement) {
-        if (element !is ResolvedGlobalElement || checkedElements.add(element)) {
-            element.checkTerm(this)
-        }
-    }
-
-    fun checkAttribute(name: QName) {
-        val attribute = schema.attribute(name)
-        if (checkedAttributes.add(attribute)) {
-            attribute.checkAttribute(this)
-        }
-    }
-
-    fun checkAttribute(attribute: ResolvedAttributeDef) {
-        if (attribute !is ResolvedGlobalAttribute || (!attribute.builtin && checkedAttributes.add(attribute))) {
-            attribute.checkAttribute(this)
-        }
-    }
-
-    fun checkAttributeGroup(
+    abstract fun checkType(name: QName)
+    abstract fun checkType(type: ResolvedType)
+    abstract fun checkElement(name: QName)
+    abstract fun checkElement(element: ResolvedElement)
+    abstract fun checkAttribute(name: QName)
+    abstract fun checkAttribute(attribute: ResolvedAttributeDef)
+    abstract fun checkAttributeGroup(
         attributeGroup: ResolvedGlobalAttributeGroup,
         seen: MutableSet<ResolvedGlobalAttributeGroup> = mutableSetOf()
-    ) {
-        if (version == SchemaVersion.V1_0 && attributeGroup in seen) {
-            throw IllegalStateException("Circular attribute group (in 1.0 mode): ${attributeGroup.mdlQName}")
-        } else {
-            seen.add(attributeGroup)
-        }
-        if (checkedAttributeGroups.add(attributeGroup)) {
-            attributeGroup.checkAttributeGroup(this, seen)
-        }
-    }
+    )
 
-    fun checkConstraint(name: QName) {
-        checkConstraint(schema.identityConstraint(name))
-    }
+    abstract fun checkConstraint(name: QName)
+    abstract fun checkConstraint(constraint: ResolvedIdentityConstraint)
+    abstract fun checkGroup(group: ResolvedGlobalGroup)
+    abstract fun checkGroup(name: QName)
+    abstract fun checkNotation(name: SerializableQName)
 
-    fun checkConstraint(constraint: ResolvedIdentityConstraint) {
-        if (checkedConstraints.add(constraint)) {
-            constraint.checkConstraint(this)
-        }
-    }
-
-    fun checkGroup(group: ResolvedGlobalGroup) {
-        if (checkedGroups.add(group)) {
-            group.checkGroup(this)
-        }
-    }
-
-    fun checkGroup(name: QName) {
-        checkGroup(schema.modelGroup(name))
-    }
-
-    fun checkNotation(name: SerializableQName) {
-        val notation = schema.notation(name)
-        if (checkedNotations.add(notation)) {
-            notation.check()
-        }
+    fun checkLax(t: Throwable): Unit {
+        if (!isLax) throw t
     }
 }
+

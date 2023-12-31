@@ -49,8 +49,8 @@ class ResolvedGroupRef(
         // global references should not collect
     }
 
-    override fun flatten(isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle {
-        return super.flatten(::isSiblingName, schema)
+    override fun flatten(isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
+        return super.flatten(::isSiblingName, checkHelper)
     }
 
     override fun checkParticle(checkHelper: CheckHelper) {

@@ -574,6 +574,20 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
                 }
             }
 
+            TSValidityOutcome.LAX -> {
+                val schemaLocation = schemaDoc.href.toAnyUri()
+                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
+                    val schema = resolver.readSchema(schemaLocation)
+                    assertNotNull(schema)
+                }
+                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} resolves and checks in lax mode$versionLabel") {
+                    val resolvedSchema =
+                        resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), version)
+                    resolvedSchema.check(isLax = true)
+                    assertNotNull(resolvedSchema)
+                }
+            }
+
             TSValidityOutcome.IMPLEMENTATION_DEFINED,
             TSValidityOutcome.IMPLEMENTATION_DEPENDENT,
             TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)

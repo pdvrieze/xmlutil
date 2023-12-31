@@ -166,8 +166,8 @@ class ResolvedSchema(
     }
 
 
-    fun check() {
-        val checkHelper = CheckHelper(this)
+    fun check(isLax: Boolean = false) {
+        val checkHelper = CheckHelper(this, isLax)
 
         val icNames = HashSet<QName>()
         for (data in nestedData.values) {
