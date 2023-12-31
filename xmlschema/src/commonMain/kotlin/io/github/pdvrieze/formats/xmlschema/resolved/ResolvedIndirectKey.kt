@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023.
  *
- * This file is part of xmlutil.
+ * This file is part of XmlUtil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -27,7 +27,7 @@ class ResolvedIndirectKey(
     rawPart: XSKey,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedKey {
+): ResolvedIndirectIdentityConstraint<ResolvedDirectKey>(rawPart, schema, owner), ResolvedKey {
 
     init {
         check(rawPart.name == null)
@@ -35,10 +35,12 @@ class ResolvedIndirectKey(
 
     override val mdlIdentityConstraintCategory: ResolvedIdentityConstraint.Category get() = super.mdlIdentityConstraintCategory
 
-    override val ref: ResolvedDirectKey = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
-        is ResolvedDirectKey -> r
-        is ResolvedIndirectKey -> r.ref
-        else -> throw IllegalArgumentException("Key's ref property ${rawPart.ref} does not refer to a key")
+    override val _ref: Lazy<ResolvedDirectKey> = lazy {
+        when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
+            is ResolvedDirectKey -> r
+            is ResolvedIndirectKey -> r.ref
+            else -> throw IllegalArgumentException("Key's ref property ${rawPart.ref} does not refer to a key")
+        }
     }
 
     override val mdlQName: QName? = rawPart.name?.toQname(schema.targetNamespace)

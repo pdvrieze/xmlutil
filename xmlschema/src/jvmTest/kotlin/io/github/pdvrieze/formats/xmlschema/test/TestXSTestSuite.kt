@@ -23,13 +23,15 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
@@ -87,7 +89,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.equals("sg-abstract-edc")) {
+                            if (true || group.name.equals("id040")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group, testSet.schemaVersion?.let(::listOf))
                                 }
@@ -597,12 +599,12 @@ internal fun buildDynamicContainer(
     return DynamicContainer.dynamicContainer(displayName, sequence(block).asIterable())
 }
 
-internal suspend fun SequenceScope<in DynamicTest>.dynamicTest(displayName: String, testBody: () -> Unit) {
+internal suspend fun SequenceScope<DynamicTest>.dynamicTest(displayName: String, testBody: () -> Unit) {
     yield(DynamicTest.dynamicTest(displayName, testBody))
 }
 
 @OptIn(ExperimentalTypeInference::class)
-internal suspend fun SequenceScope<in DynamicContainer>.dynamicContainer(
+internal suspend fun SequenceScope<DynamicContainer>.dynamicContainer(
     displayName: String,
     @BuilderInference block: suspend SequenceScope<DynamicNode>.() -> Unit
 ) {

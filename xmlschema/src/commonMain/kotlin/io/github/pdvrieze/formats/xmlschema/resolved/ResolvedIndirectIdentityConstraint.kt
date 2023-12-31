@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023.
  *
- * This file is part of xmlutil.
+ * This file is part of XmlUtil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,18 +20,24 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
+import io.github.pdvrieze.formats.xpath.XPathExpression
 
-sealed class ResolvedIndirectIdentityConstraint(
+sealed class ResolvedIndirectIdentityConstraint<T: ResolvedNamedIdentityConstraint>(
     rawPart: XSIdentityConstraint,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement
 ) : ResolvedIdentityConstraintBase(rawPart, schema, owner), ResolvedIdentityConstraint {
 
-    abstract val ref: ResolvedNamedIdentityConstraint
+    protected  abstract val _ref: Lazy<T>
+
+    val ref: T //by _ref
+        get() {
+            val r = _ref.value
+            return r
+        }
 
     final override val selector: XSSelector
         get() = ref.selector
