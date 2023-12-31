@@ -351,19 +351,26 @@ public class KtXmlReader internal constructor(
             result = PROCESSING_INSTRUCTION
             expected = ""
         } else if (c == '!'.code) {
-            if (peek(0) == '-'.code) {
-                result = COMMENT
-                expected = "--"
-                term = '-'.code
-            } else if (peek(0) == '['.code) {
-                result = CDSECT
-                expected = "[CDATA["
-                term = ']'.code
-                localPush = true
-            } else {
-                result = DOCDECL
-                expected = "DOCTYPE"
-                term = -1
+
+            when (peek(0)) {
+                '-'.code -> {
+                    result = COMMENT
+                    expected = "--"
+                    term = '-'.code
+                }
+
+                '['.code -> {
+                    result = CDSECT
+                    expected = "[CDATA["
+                    term = ']'.code
+                    localPush = true
+                }
+
+                else -> {
+                    result = DOCDECL
+                    expected = "DOCTYPE"
+                    term = -1
+                }
             }
         } else {
             error("illegal: <$c")
@@ -394,21 +401,66 @@ public class KtXmlReader internal constructor(
     /** precondition: &lt! consumed  */
     private fun parseDoctype(push: Boolean) {
         var nesting = 1
-        var quoted = false
+        var quote: Char? = null
 
         // read();
         while (true) {
             val i = read()
             when (i) {
-                -1 -> {
-                    error(UNEXPECTED_EOF)
+                '\''.code,
+                '"'.code -> when(quote) {
+                    null -> quote = i.toChar()
+                    i.toChar() -> quote = null
+                }
+
+                '-'.code -> if (quote == '!') {
+                    if (push) push(i)
+
+                    var c = read()
+                    if (push) push(c)
+                    if (c != '-'.code) continue
+
+                    c = read()
+                    if (push) push(c)
+                    if (c != '>'.code) continue
+
+                    quote = null
+                }
+
+                '['.code -> if (quote == null && nesting == 1) ++nesting
+
+                ']'.code -> if (quote == null) {
+                    if (push) push(i)
+                    val c = read()
+                    if (push) push(i)
+                    if (c != '>'.code) continue
+                    if (nesting != 2) error("Invalid nesting of document type declaration: $nesting")
                     return
                 }
 
-                '\''.code -> quoted = !quoted
-                '<'.code -> if (!quoted) nesting++
-                '>'.code -> if (!quoted) {
-                    if (--nesting == 0) return
+                '<'.code -> if (quote == null) {
+                    if (nesting < 2) error("Doctype with internal subset must have an opening '['")
+
+                    if (push) push(i)
+                    var c = read()
+                    if (push) push(c)
+                    if (c != '!'.code) { nesting++; continue }
+
+                    c = read()
+                    if (push) push(c)
+                    if (c != '-'.code) { nesting++; continue }
+
+                    c = read()
+                    if (push) push(c)
+                    if (c != '-'.code) { nesting++; continue }
+                    quote = '!' // marker for comment
+                }
+
+                '>'.code -> if (quote == null) {
+                    when (--nesting) {
+                        1 -> error("Missing closing ']' for doctype")
+                        0 -> return
+                    }
                 }
             }
             if (push) push(i)
@@ -465,6 +517,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun push(c: Int) {
+        if (c < 0) error("UNEXPECTED EOF")
         isWhitespace = isWhitespace and isXmlWhitespace(c.toChar())
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf(txtBufPos * 4 / 3 + 4)
