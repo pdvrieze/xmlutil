@@ -88,7 +88,7 @@ internal class SchemaData(
         importedNamespaces = builder.importedNamespaces,
     )
 
-    fun findElement(elementName: QName): Pair<SchemaData, SchemaElement<XSGlobalElement>> {
+    fun tryFindElement(elementName: QName): Pair<SchemaData, SchemaElement<XSGlobalElement>>? {
         if (namespace == elementName.namespaceURI) {
             elements[elementName.localPart]?.let { return Pair(this, it) }
         }
@@ -103,7 +103,12 @@ internal class SchemaData(
                 }
             }
         }
-        throw IllegalArgumentException("No element with name $elementName found in schema")
+        return null
+    }
+
+    fun findElement(elementName: QName): Pair<SchemaData, SchemaElement<XSGlobalElement>> {
+        return tryFindElement(elementName)
+            ?: throw IllegalArgumentException("No element with name $elementName found in schema")
     }
 
     fun findType(typeName: QName): SchemaElement<XSGlobalType>? {
@@ -149,9 +154,9 @@ internal class SchemaData(
         fun followChain(
             elementName: QName,
             seen: SingleLinkedList<QName>,
-            elementInfo: SchemaElement<XSGlobalElement> = findElement(elementName).second
+            elementInfo: SchemaElement<XSGlobalElement>? = tryFindElement(elementName)?.second
         ) {
-            val element = elementInfo.elem
+            val element = elementInfo?.elem ?: return // ignore non-existing elements (they are not recursive)
             val newSeen = seen + elementName
             val sg = (element.substitutionGroup ?: run { verifiedHeads.addAll(newSeen); return })
 
