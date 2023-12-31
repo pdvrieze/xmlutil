@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023.
  *
- * This file is part of xmlutil.
+ * This file is part of XmlUtil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -27,7 +27,7 @@ class ResolvedIndirectUnique(
     rawPart: XSUnique,
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
-): ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedUnique {
+): ResolvedIndirectIdentityConstraint<ResolvedDirectUnique>(rawPart, schema, owner), ResolvedUnique {
     init {
         check(rawPart.name == null)
     }
@@ -36,10 +36,12 @@ class ResolvedIndirectUnique(
 
     override val mdlQName: QName? = rawPart.name?.toQname(schema.targetNamespace)
 
-    override val ref: ResolvedDirectUnique = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
-        is ResolvedDirectUnique -> r
-        is ResolvedIndirectUnique -> r.ref
-        else -> throw IllegalArgumentException("Unique's ref property ${rawPart.ref} does not refer to a unique")
+    override val _ref: Lazy<ResolvedDirectUnique> = lazy {
+        when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
+            is ResolvedDirectUnique -> r
+            is ResolvedIndirectUnique -> r.ref
+            else -> throw IllegalArgumentException("Unique's ref property ${rawPart.ref} does not refer to a unique")
+        }
     }
 
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023.
  *
- * This file is part of xmlutil.
+ * This file is part of XmlUtil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -31,8 +31,8 @@ interface ResolvedTerm : ResolvedAnnotated {
 
     fun <R> visit(visitor: Visitor<R>): R
 
-    fun <T: MutableCollection<ResolvedIdentityConstraint>> collectConstraints(collector: T): T {
-        visit(object : ElementVisitor() {
+    fun <T : MutableCollection<ResolvedIdentityConstraint>> collectConstraints(collector: T): T {
+        class ConstraintCollector(val visitorCollector: T) : ElementVisitor() {
             override fun visitModelGroup(group: ResolvedModelGroup) {
                 for (p in group.mdlParticles) {
                     when (p) {
@@ -46,12 +46,17 @@ interface ResolvedTerm : ResolvedAnnotated {
             }
 
             override fun visitElement(element: ResolvedElement) {
-                collector.addAll(element.mdlIdentityConstraints)
-                (element.mdlTypeDefinition as? ResolvedLocalComplexType)?.collectConstraints(collector)
+                visitorCollector.addAll(element.mdlIdentityConstraints)
+                val localContentType = (element.mdlTypeDefinition as? ResolvedLocalComplexType)?.mdlContentType
+                if (localContentType is ResolvedComplexType.ElementContentType) {
+                    localContentType.mdlParticle.mdlTerm.visit(this)
+                }
             }
 
             override fun visitAny(any: ResolvedAny) {} // no constraints
-        })
+        }
+
+        visit(ConstraintCollector(collector))
         return collector
     }
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023.
  *
- * This file is part of xmlutil.
+ * This file is part of XmlUtil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
-    ResolvedIndirectIdentityConstraint(rawPart, schema, owner), ResolvedKeyRef {
+    ResolvedIndirectIdentityConstraint<ResolvedDirectKeyRef>(rawPart, schema, owner), ResolvedKeyRef {
 
     init {
         checkNotNull(rawPart.name)
@@ -33,10 +33,12 @@ class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owne
 
     override val constraint: ResolvedIndirectKeyRef get() = this
 
-    override val ref: ResolvedDirectKeyRef = when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
-        is ResolvedDirectKeyRef -> r
-        is ResolvedIndirectKeyRef -> r.ref
-        else -> throw IllegalArgumentException("Keyref's ref property ${rawPart.ref} does not refer to a keyref")
+    override val _ref: Lazy<ResolvedDirectKeyRef> = lazy {
+        when (val r = schema.identityConstraint(requireNotNull(rawPart.ref))) {
+            is ResolvedDirectKeyRef -> r
+            is ResolvedIndirectKeyRef -> r.ref
+            else -> throw IllegalArgumentException("Keyref's ref property ${rawPart.ref} does not refer to a keyref")
+        }
     }
 
     override val mdlQName: QName? = rawPart.name?.toQname(schema.targetNamespace)
