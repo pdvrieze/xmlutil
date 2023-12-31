@@ -523,7 +523,6 @@ class XPathExpression private constructor(
 //                    c == ' ' -> ++i // ignore
 
                     c == '.' -> { // TODO can use step parsing
-                        require(steps.isEmpty())
                         ++i
                         val axis = when {
                             tryCurrent('.') -> Axis.PARENT
