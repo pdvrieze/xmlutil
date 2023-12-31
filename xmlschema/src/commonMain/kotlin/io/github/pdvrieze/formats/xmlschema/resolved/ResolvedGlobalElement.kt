@@ -40,7 +40,9 @@ class ResolvedGlobalElement private constructor(
 ) : ResolvedElement(elemPart.elem, schema), NamedPart {
 
     val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement>
-        get() = model.mdlSubstitutionGroupAffiliations
+        get() = model.mdlSubstitutionGroupAffiliations.map {
+            it.getOrElse { e-> throw IllegalStateException("Non-existing element in substitution group", e) }
+        }
 
     override val model: Model by lazy { Model(elemPart, schema, this) }
 
@@ -83,7 +85,7 @@ class ResolvedGlobalElement private constructor(
 
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
-        checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
+        checkSubstitutionGroupChain(SingleLinkedList(mdlQName), checkHelper)
         model.mdlTypeDefinition
             .onFailure(checkHelper::checkLax)
             .onSuccess { checkHelper.checkType(it) }
@@ -133,12 +135,14 @@ class ResolvedGlobalElement private constructor(
             .getOrDefault(false)
     }
 
-    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
-        for (substitutionGroupHead in mdlSubstitutionGroupAffiliations) {
-            require(substitutionGroupHead.mdlQName !in seenElements) {
-                "Recursive subsitution group: $mdlQName"
-            }
-            substitutionGroupHead.checkSubstitutionGroupChain(seenElements + mdlQName)
+    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>, checkHelper: CheckHelper) {
+        for (substitutionGroupHead in model.mdlSubstitutionGroupAffiliations) {
+            substitutionGroupHead.map { h ->
+                require(h.mdlQName !in seenElements) {
+                    "Recursive subsitution group: $mdlQName"
+                }
+                h.checkSubstitutionGroupChain(seenElements + mdlQName, checkHelper)
+            }.onFailure(checkHelper::checkLax)
         }
     }
 
@@ -184,8 +188,8 @@ class ResolvedGlobalElement private constructor(
 
         val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
 
-        val mdlSubstitutionGroupAffiliations: List<ResolvedGlobalElement> =
-            elemPart.elem.substitutionGroup?.map { schema.element(it) } ?: emptyList()
+        val mdlSubstitutionGroupAffiliations: List<Result<ResolvedGlobalElement>> =
+            elemPart.elem.substitutionGroup?.map { kotlin.runCatching { schema.element(it) } } ?: emptyList()
 
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> by lazy {
             // Has to be lazy due to initialization loop
@@ -225,9 +229,12 @@ class ResolvedGlobalElement private constructor(
                 }
 
                 // Then the type of the first member of the substitution group (or AnyType in other cases)
-                else -> when (val sgFirst = elemPart.elem.substitutionGroup?.firstOrNull()) {
+                else -> when (val sgFirstName = elemPart.elem.substitutionGroup?.firstOrNull()) {
                     null -> Result.success(AnyType)
-                    else -> schema.element(sgFirst).model.mdlTypeDefinition
+                    else -> when (val e = schema.maybeElement(sgFirstName)) {
+                        null -> Result.failure(NoSuchElementException("No element with name $sgFirstName found"))
+                        else -> e.model.mdlTypeDefinition
+                    }
                 }
             }
         }
