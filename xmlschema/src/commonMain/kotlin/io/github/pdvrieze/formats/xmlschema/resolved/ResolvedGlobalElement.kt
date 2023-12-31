@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
+import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
@@ -83,7 +84,9 @@ class ResolvedGlobalElement private constructor(
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
-        checkHelper.checkType(mdlTypeDefinition)
+        model.mdlTypeDefinition
+            .onFailure(checkHelper::checkLax)
+            .onSuccess { checkHelper.checkType(it) }
 
         if (SUBSTITUTION in mdlSubstitutionGroupExclusions) {
             check(mdlSubstitutionGroupMembers.isEmpty()) { "Element blocks substitution but is used as head of a substitution group" }
@@ -91,36 +94,43 @@ class ResolvedGlobalElement private constructor(
 
         val otherExcluded = mdlSubstitutionGroupExclusions.toDerivationSet()
         for (member in mdlSubstitutionGroupMembers) {
-            require(member.isSubstitutableFor(this)) {
+            require(member.isSubstitutableFor(this, checkHelper)) {
                 "Element ${member.mdlQName} is not not substitutable for ${this.mdlQName} but in its substitution group"
             }
         }
 
         if (mdlSubstitutionGroupMembers.isNotEmpty() && otherExcluded.isNotEmpty()) {
             for (substGroupMember in mdlSubstitutionGroupMembers) {
-                val derivType = substGroupMember.mdlTypeDefinition
-                val derivMethod = when (derivType) {
-                    is ResolvedComplexType -> derivType.mdlDerivationMethod
-                    is ResolvedSimpleType -> when (derivType.mdlVariety) {
-                        ResolvedSimpleType.Variety.ATOMIC -> VDerivationControl.RESTRICTION
-                        ResolvedSimpleType.Variety.LIST -> VDerivationControl.LIST
-                        ResolvedSimpleType.Variety.UNION -> VDerivationControl.UNION
-                        ResolvedSimpleType.Variety.NIL -> null
+                substGroupMember.model.mdlTypeDefinition.map { derivType ->
+                    val derivMethod = when (derivType) {
+                        is ResolvedComplexType -> derivType.mdlDerivationMethod
+                        is ResolvedSimpleType -> when (derivType.mdlVariety) {
+                            ResolvedSimpleType.Variety.ATOMIC -> VDerivationControl.RESTRICTION
+                            ResolvedSimpleType.Variety.LIST -> VDerivationControl.LIST
+                            ResolvedSimpleType.Variety.UNION -> VDerivationControl.UNION
+                            ResolvedSimpleType.Variety.NIL -> null
+                        }
+
+                        else -> null // shouldn't happen
                     }
 
-                    else -> null // shouldn't happen
-                }
-                if (derivMethod != null) {
-                    check(derivMethod !in otherExcluded)
-                }
+                    if (derivMethod != null) {
+                        check(derivMethod !in otherExcluded)
+                    }
+                }.onFailure(checkHelper::checkLax)
             }
         }
 
     }
 
     /** Implements substitutable as define in 3.3.6.3 */
-    private fun isSubstitutableFor(head: ResolvedGlobalElement): Boolean {
-        return mdlTypeDefinition.isValidSubtitutionFor(head.mdlTypeDefinition, false)
+    private fun isSubstitutableFor(head: ResolvedGlobalElement, checkHelper: CheckHelper): Boolean {
+        return model.mdlTypeDefinition.flatMap { td ->
+            head.model.mdlTypeDefinition.map { htd ->
+                td.isValidSubtitutionFor(htd, false)
+            }
+        }.onFailure(checkHelper::checkLax)
+            .getOrDefault(false)
     }
 
     private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
@@ -135,14 +145,14 @@ class ResolvedGlobalElement private constructor(
     override fun flatten(
         range: AllNNIRange,
         isSiblingName: (QName) -> Boolean,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle {
         // this factory handles substitution groups
-        return FlattenedParticle.elementOrSubstitution(range, this, schema.version)
+        return FlattenedParticle.elementOrSubstitution(range, this, checkHelper.version)
     }
 
     override fun toString(): String {
-        return "ResolvedGlobalElement($mdlQName, type=${mdlTypeDefinition})"
+        return "ResolvedGlobalElement($mdlQName, type=${model.mdlTypeDefinition.getOrDefault("<missing type>")})"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -199,12 +209,28 @@ class ResolvedGlobalElement private constructor(
 
         override val mdlTypeTable: ITypeTable? get() = null
 
-        override val mdlTypeDefinition: ResolvedType =
-            (elemPart.wrap { localType }.let { if(it.elem!=null) ResolvedLocalType(it.cast<XSLocalType>(), schema, context) else null }
-                ?: elemPart.elem.type?.let { schema.type(it) }
-                ?: elemPart.elem.substitutionGroup?.firstOrNull()
-                    ?.let { schema.element(it).mdlTypeDefinition }
-                ?: AnyType) as ResolvedType
+        override val mdlTypeDefinition: Result<ResolvedType>
+
+        init {
+            val localType: SchemaElement<XSLocalType?> = elemPart.wrap { localType }
+
+            mdlTypeDefinition = when {
+                localType.elem != null -> { // local element first
+                    Result.success(ResolvedLocalType(localType.cast<XSLocalType>(), schema, context))
+                }
+
+                elemPart.elem.type != null -> when (val t = schema.maybeType(elemPart.elem.type)) { // otherwise look up the type
+                    null -> Result.failure(NoSuchElementException("No type with name '$elemPart.elem.type' found"))
+                    else -> Result.success(t)
+                }
+
+                // Then the type of the first member of the substitution group (or AnyType in other cases)
+                else -> when (val sgFirst = elemPart.elem.substitutionGroup?.firstOrNull()) {
+                    null -> Result.success(AnyType)
+                    else -> schema.element(sgFirst).model.mdlTypeDefinition
+                }
+            }
+        }
 
 
         private fun checkSubstitutionGroupChainRecursion(

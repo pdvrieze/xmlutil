@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
+import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Element
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
@@ -57,6 +59,8 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     val mdlNillable: Boolean = rawPart.nillable ?: false
 
     val mdlTypeDefinition: ResolvedType get() = model.mdlTypeDefinition
+        .onFailure { e -> throw IllegalStateException("No type definition found", e) }
+        .getOrThrow()
 
     val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
 
@@ -77,19 +81,24 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     override fun flatten(
         range: AllNNIRange,
         isSiblingName: (QName) -> Boolean,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle {
         return Element(range, this, true)
     }
 
-    fun subsumes(specific: ResolvedElement): Boolean { // subsume 4 (elements)
+    fun subsumes(specific: ResolvedElement, isLax: Boolean): Boolean { // subsume 4 (elements)
         if (!mdlNillable && specific.mdlNillable) return false // subsume 4.1
 
         val bvc = mdlValueConstraint // subsume 4.2
         val svc = specific.mdlValueConstraint
         if (bvc is ValueConstraint.Fixed) {
             if (svc !is ValueConstraint.Fixed) return false
-            val t = (mdlTypeDefinition as? ResolvedSimpleType ?: return false)
+
+            val t = model.mdlTypeDefinition.map {
+                it as? ResolvedSimpleType ?: return false
+            }.onFailure { if (!isLax) throw it }
+                .getOrElse { AnySimpleType }
+
             val bVal = t.value(bvc.value)
             val sVal = t.value(svc.value)
             if (bVal != sVal) return false
@@ -103,7 +112,11 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         ) return false
 
         // subsume 4.5
-        if (!specific.mdlTypeDefinition.isValidRestrictionOf(mdlTypeDefinition)) return false
+        specific.model.mdlTypeDefinition.flatMap { std ->
+            model.mdlTypeDefinition.onSuccess { btd ->
+                if (!std.isValidRestrictionOf(btd)) return false
+            }
+        }.onFailure { if (!isLax) throw it }
 
         // subsume 4.6
         val gtt = mdlTypeTable
@@ -123,15 +136,21 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         for (constraint in mdlIdentityConstraints) {
             checkHelper.checkConstraint(constraint)
         }
-        mdlValueConstraint?.let {
-            mdlTypeDefinition.validate(it.value, checkHelper.version)
-            if (checkHelper.version == SchemaVersion.V1_0) {
-                check((mdlTypeDefinition as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
-                    "ID types can not have fixed values"
+
+        model.mdlTypeDefinition
+            .onFailure(checkHelper::checkLax)
+            .onSuccess { td ->
+                mdlValueConstraint?.let {
+                    td.validate(it.value, checkHelper.version)
+                    if (checkHelper.version == SchemaVersion.V1_0) {
+                        check((td as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
+                            "ID types can not have fixed values"
+                        }
+                    }
                 }
+
+                checkHelper.checkType(td)
             }
-        }
-        checkHelper.checkType(mdlTypeDefinition)
     }
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitElement(this)
@@ -171,7 +190,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         context: ResolvedElement
     ) : ResolvedAnnotated.Model(rawPart) {
 
-        abstract val mdlTypeDefinition: ResolvedType
+        abstract val mdlTypeDefinition: Result<ResolvedType>
 
         abstract val mdlTypeTable: ITypeTable?
 

@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalEleme
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -97,8 +98,8 @@ class ResolvedLocalElement private constructor(
         return super<ResolvedElement>.isSiblingName(name)
     }
 
-    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
-        return super<ResolvedElement>.flatten(schema)
+    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
+        return super<ResolvedElement>.flatten(checkHelper)
     }
 
     override fun toString(): String {
@@ -106,7 +107,7 @@ class ResolvedLocalElement private constructor(
             append("localElement(")
             append(mdlQName)
             if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
-            append(", type=${this@ResolvedLocalElement.mdlTypeDefinition}")
+            append(", type=${this@ResolvedLocalElement.model.mdlTypeDefinition.getOrDefault("<missing type>")}")
             append(")")
         }
     }
@@ -148,11 +149,16 @@ class ResolvedLocalElement private constructor(
         override val mdlTypeTable: ITypeTable?
             get() = null
 
-        override val mdlTypeDefinition: ResolvedType =
-            elemPart.wrap { localType }
-                .let { if (it.elem != null) ResolvedLocalType(it.cast<XSLocalType>(), schema, context) else null }
-                ?: elemPart.elem.type?.let { schema.type(it) }
-                ?: AnyType
+        override val mdlTypeDefinition: Result<ResolvedType>
+
+        init {
+            val localType = elemPart.wrap { localType }
+            mdlTypeDefinition = when {
+                localType.elem != null -> Result.success(ResolvedLocalType(localType.cast<XSLocalType>(), schema, context))
+                elemPart.elem.type != null -> runCatching { schema.type(elemPart.elem.type) }
+                else -> Result.success(AnyType)
+            }
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

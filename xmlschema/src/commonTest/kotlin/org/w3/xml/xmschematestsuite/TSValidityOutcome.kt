@@ -25,14 +25,30 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class TSValidityOutcome {
+    /**
+     * The schema is valid, or the document is valid according to the schema.
+     */
     @SerialName("valid")
     VALID,
 
+    /**
+     * The schema is not valid (check fails or fails to parse) or instance is not valid according to
+     * the schema.
+     */
     @SerialName("invalid")
     INVALID,
 
+    /**
+     * The validity is not known
+     */
     @SerialName("notknown")
     NOTKNOWN,
+
+    /**
+     * The schema can only validate/check according to lax checks (ignoring missing elements).
+     */
+    @SerialName("lax")
+    LAX,
 
     @SerialName("indeterminate")
     INDETERMINATE,

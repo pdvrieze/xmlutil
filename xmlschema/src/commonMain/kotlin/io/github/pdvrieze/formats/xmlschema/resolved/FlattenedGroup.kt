@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.*
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
@@ -46,7 +47,7 @@ sealed class FlattenedGroup(
         override fun restricts(
             reference: FlattenedParticle,
             isSiblingName: (QName) -> Boolean,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
             return reference.isEmptiable
         }
@@ -63,16 +64,16 @@ sealed class FlattenedGroup(
     protected fun restrictsRecurse(
         base: FlattenedGroup,
         context: ContextT,
-        schema: ResolvedSchemaLike
-    ): Boolean = when (schema.version) {
-        SchemaVersion.V1_0 -> restrictsRecurse10(base, context, schema)
-        else -> restrictsRecurse11(base, context, schema)
+        checkHelper: CheckHelper
+    ): Boolean = when (checkHelper.version) {
+        SchemaVersion.V1_0 -> restrictsRecurse10(base, context, checkHelper)
+        else -> restrictsRecurse11(base, context, checkHelper)
     }
 
     private fun restrictsRecurse10(
         base: FlattenedGroup,
         isSiblingName: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): Boolean {
         // 1
         if (!base.range.contains(range)) return false
@@ -86,7 +87,7 @@ sealed class FlattenedGroup(
                 val basePart = baseIt.next()
 
                 // 2.1
-                if (p.restricts(basePart, isSiblingName, schema)) break
+                if (p.restricts(basePart, isSiblingName, checkHelper)) break
 
                 // otherwise skip 2.2
                 if (!basePart.isEmptiable) return false
@@ -102,30 +103,30 @@ sealed class FlattenedGroup(
     private fun restrictsRecurse11(
         base: FlattenedGroup,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): Boolean {
-        return (base.remove(this, context, schema) ?: return false).isEmptiable
+        return (base.remove(this, context, checkHelper) ?: return false).isEmptiable
     }
 
     // implements NSRecurse-CheckCardinality
     override fun restrictsWildcard(
         base: Wildcard,
         isSiblingName: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): Boolean {
         // NSRecurse-CheckCardinality 2
         if (!base.effectiveTotalRange().contains(effectiveTotalRange())) return false
 
         // NSRecurse-CheckCardinality 1 // ignore count here as it will not match
-        return particles.all { it.single().restricts(base.single(), isSiblingName, schema) }
+        return particles.all { it.single().restricts(base.single(), isSiblingName, checkHelper) }
     }
 
     override fun removeFromWildcard(
         reference: Wildcard,
         isSiblingName: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle? {
-        if (particles.any { !it.single().restricts(reference.single(), isSiblingName, schema) }) return null
+        if (particles.any { !it.single().restricts(reference.single(), isSiblingName, checkHelper) }) return null
         return reference - effectiveTotalRange() // this should already cause range checking
     }
 
@@ -160,8 +161,8 @@ sealed class FlattenedGroup(
         override fun isRestrictedBy(
             other: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
-        ): Boolean = other.restrictsAll(this, context, schema)
+            checkHelper: CheckHelper
+        ): Boolean = other.restrictsAll(this, context, checkHelper)
 
         override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return other.extendsAll(this, context, schema)
@@ -201,22 +202,22 @@ sealed class FlattenedGroup(
         /**
          * Recurse
          */
-        override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return restrictsRecurse(base, context, schema)
+        override fun restrictsAll(base: All, context: ContextT, checkHelper: CheckHelper): Boolean {
+            return restrictsRecurse(base, context, checkHelper)
         }
 
         override fun remove(
             reference: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            return reference.removeFromAll(this, context, schema)
+            return reference.removeFromAll(this, context, checkHelper)
         }
 
         override fun removeFromAll(
             base: All,
             isSiblingName: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             if (minOccurs > base.maxOccurs) return null
 
@@ -224,7 +225,7 @@ sealed class FlattenedGroup(
 
             for (p in particles) {
                 val matchIdx = baseParts.indexOfFirst {
-                    it != null && p.single().restricts(it.single(), isSiblingName, schema)
+                    it != null && p.single().restricts(it.single(), isSiblingName, checkHelper)
                 }
                 if (matchIdx < 0) return null
 
@@ -235,7 +236,7 @@ sealed class FlattenedGroup(
             for (b in baseParts) {
                 if (b != null && !b.isEmptiable) return null
             }
-            return All(base.range, baseParts.filterNotNull(), schema.version)
+            return All(base.range, baseParts.filterNotNull(), checkHelper.version)
         }
 
         override fun single(): All {
@@ -299,8 +300,8 @@ sealed class FlattenedGroup(
         override fun isRestrictedBy(
             other: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
-        ): Boolean = other.restrictsChoice(this, context, schema)
+            checkHelper: CheckHelper
+        ): Boolean = other.restrictsChoice(this, context, checkHelper)
 
         override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return other.extendsChoice(this, context, schema)
@@ -316,7 +317,7 @@ sealed class FlattenedGroup(
         }
 
         // Recurse lax
-        override fun restrictsChoice(base: Choice, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun restrictsChoice(base: Choice, isSiblingName: ContextT, checkHelper: CheckHelper): Boolean {
             if (!base.range.contains(range)) return false
 
             val baseIt = base.particles.iterator()
@@ -324,33 +325,33 @@ sealed class FlattenedGroup(
             for (p in particles) {
                 while (true) {
                     if (!baseIt.hasNext()) return false
-                    if (p.restricts(baseIt.next(), isSiblingName, schema)) break
+                    if (p.restricts(baseIt.next(), isSiblingName, checkHelper)) break
                 }
             } // this doesn't need to check emptiability
 
             return true
         }
 
-        override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            if (schema.version == SchemaVersion.V1_0) return false
+        override fun restrictsAll(base: All, context: ContextT, checkHelper: CheckHelper): Boolean {
+            if (checkHelper.version == SchemaVersion.V1_0) return false
             return particles.all {
                 val reRanged = it * range
-                reRanged != null && reRanged.restrictsAll(base, context, schema)
+                reRanged != null && reRanged.restrictsAll(base, context, checkHelper)
             }
         }
 
         override fun remove(
             reference: FlattenedParticle,
             isSiblingName: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            return reference.removeFromChoice(this, isSiblingName, schema)
+            return reference.removeFromChoice(this, isSiblingName, checkHelper)
         }
 
         override fun removeFromChoice(
             base: Choice,
             isSiblingName: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             if (!base.effectiveTotalRange().contains(effectiveTotalRange())) return null
 
@@ -361,7 +362,7 @@ sealed class FlattenedGroup(
                 while (!match) {
                     if (!baseIt.hasNext()) return null
                     val basePart = baseIt.next()
-                    if (p.restricts(basePart, isSiblingName, schema)) {
+                    if (p.restricts(basePart, isSiblingName, checkHelper)) {
                         match = true
                     }
                 }
@@ -444,8 +445,8 @@ sealed class FlattenedGroup(
         override fun isRestrictedBy(
             other: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
-        ): Boolean = other.restrictsSequence(this, context, schema)
+            checkHelper: CheckHelper
+        ): Boolean = other.restrictsSequence(this, context, checkHelper)
 
         override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return other.extendsSequence(this, context, schema)
@@ -490,14 +491,14 @@ sealed class FlattenedGroup(
         }
 
         // Restrict recurseUnordered
-        override fun restrictsAll(base: All, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun restrictsAll(base: All, isSiblingName: ContextT, checkHelper: CheckHelper): Boolean {
             if (!base.range.contains(range)) return false // 1
 
             val unprocessed = base.particles.toMutableList<FlattenedParticle?>() // 2.1
 
             val pendingChoiceParticles = mutableListOf<Choice>()
             for (p in particles) { // 2.2
-                val matchIdx = unprocessed.indexOfFirst { it != null && p.restricts(it, isSiblingName, schema) }
+                val matchIdx = unprocessed.indexOfFirst { it != null && p.restricts(it, isSiblingName, checkHelper) }
                 when {
                     matchIdx >= 0 -> {
                         val newMatch = (unprocessed[matchIdx]!! - p.range)?.takeIf { it.maxOccurs > VAllNNI.ZERO }
@@ -523,7 +524,7 @@ sealed class FlattenedGroup(
             for (choice in pendingChoiceParticles) {
 
                 for (e in choice.particles) {
-                    if (unprocessed.none { it != null && e.restricts(it, isSiblingName, schema) }) return false
+                    if (unprocessed.none { it != null && e.restricts(it, isSiblingName, checkHelper) }) return false
                 }
             }
 
@@ -533,18 +534,18 @@ sealed class FlattenedGroup(
         /**
          * MapAndSum
          */
-        override fun restrictsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return restrictsChoice_1_0(base, context, schema) ||
-                    (schema.version == SchemaVersion.V1_1 && Choice(
+        override fun restrictsChoice(base: Choice, context: ContextT, checkHelper: CheckHelper): Boolean {
+            return restrictsChoice_1_0(base, context, checkHelper) ||
+                    (checkHelper.version == SchemaVersion.V1_1 && Choice(
                         AllNNIRange.SINGLERANGE,
                         listOf(this)
-                    ).restrictsChoice(base, context, schema))
+                    ).restrictsChoice(base, context, checkHelper))
         }
 
         private fun restrictsChoice_1_0(
             base: Choice,
             isSiblingName: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
             // MapAndSum 2
             val partSize = VAllNNI.Value(particles.size.toUInt())
@@ -555,7 +556,11 @@ sealed class FlattenedGroup(
 
             // TODO implement "unfolding"
             for (p in particles) {
-                val matchIdx = base.particles.indexOfFirst { p.single().restricts(it.single(), isSiblingName, schema) }
+                val matchIdx = base.particles.indexOfFirst { p.single().restricts(
+                    it.single(),
+                    isSiblingName,
+                    checkHelper
+                ) }
                 if (matchIdx < 0) return false
                 val newConsumed = maxValues[matchIdx] + (p.maxOccurs * maxOccurs)
                 val match = base.particles[matchIdx]
@@ -580,11 +585,11 @@ sealed class FlattenedGroup(
         override fun removeFromChoice(
             base: Choice,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             // try to match the sequence to a single element in the sequence
             if (base.maxOccurs > VAllNNI.ONE) {
-                val reduced = base.particles.asSequence().mapNotNull { it.remove(this, context, schema) }.firstOrNull()
+                val reduced = base.particles.asSequence().mapNotNull { it.remove(this, context, checkHelper) }.firstOrNull()
                 if (reduced != null) {
                     val tail = base - AllNNIRange.SINGLERANGE
                     return when {
@@ -595,7 +600,7 @@ sealed class FlattenedGroup(
                 }
             } else {
                 val reduced = base.particles.asSequence().mapNotNull {
-                    it.remove(this, context, schema)
+                    it.remove(this, context, checkHelper)
                 }.firstOrNull()
                 if (reduced != null) return reduced
             }
@@ -604,7 +609,7 @@ sealed class FlattenedGroup(
 
             var reduced: FlattenedParticle = base
             for (p in particles) {
-                reduced = reduced.remove(p, context, schema) ?: return null
+                reduced = reduced.remove(p, context, checkHelper) ?: return null
             }
             return reduced
         }
@@ -612,40 +617,40 @@ sealed class FlattenedGroup(
         override fun restrictsSequence(
             base: Sequence,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
-            return restrictsRecurse(base, context, schema)
+            return restrictsRecurse(base, context, checkHelper)
         }
 
         override fun remove(
             reference: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            return reference.removeFromSequence(this, context, schema)
+            return reference.removeFromSequence(this, context, checkHelper)
         }
 
         override fun removeFromSequence(
             base: Sequence,
             isSiblingName: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             if (base.maxOccurs > VAllNNI.ONE) {
-                val singleReduction = single().removeFromSequence(base.single(), isSiblingName, schema)
+                val singleReduction = single().removeFromSequence(base.single(), isSiblingName, checkHelper)
                 if (singleReduction != null && singleReduction.isEmptiable) {
                     // The sequences "match"
                     return base - range
                 }
                 val head = Sequence(base.minOccurs..VAllNNI.ONE, base.particles)
                 val tail = (base - AllNNIRange.SINGLERANGE)!!
-                val reducedHead = removeFromSequence(head, isSiblingName, schema) ?: return null
+                val reducedHead = removeFromSequence(head, isSiblingName, checkHelper) ?: return null
                 return Sequence(AllNNIRange.SINGLERANGE, listOf(reducedHead, tail))
             } else { //base is optional or simple
                 if (maxOccurs > VAllNNI.ONE) {
                     return Sequence(AllNNIRange.SINGLERANGE, listOf(this)).removeFromSequence(
                         base,
                         isSiblingName,
-                        schema
+                        checkHelper
                     )
                 }
                 if (minOccurs == VAllNNI.ZERO && base.effectiveTotalRange().start != VAllNNI.ZERO) return null
@@ -655,7 +660,7 @@ sealed class FlattenedGroup(
                     while (true) {
                         val bp = pending ?: if (baseIt.hasNext()) baseIt.next() else return null
                         pending = null
-                        val reduced = bp.remove(p, isSiblingName, schema)
+                        val reduced = bp.remove(p, isSiblingName, checkHelper)
                         if (reduced == null) {
                             if (!bp.isEmptiable) return null
                             if (p is Choice) {
@@ -670,13 +675,13 @@ sealed class FlattenedGroup(
                                         it != null && it.restricts(
                                             bp2,
                                             isSiblingName,
-                                            schema
+                                            checkHelper
                                         )
                                     }
                                     if (i < 0) {
                                         if (!bp.isEmptiable) return null
                                     } else {
-                                        pending = bp2.remove(choiceMembers[i]!!, isSiblingName, schema)
+                                        pending = bp2.remove(choiceMembers[i]!!, isSiblingName, checkHelper)
                                         choiceMembers[i] = null
                                         choiceCount++
                                     }
@@ -747,7 +752,7 @@ sealed class FlattenedGroup(
         internal fun checkSequence(
             particles: List<FlattenedParticle>,
             isSiblingName: (QName) -> Boolean,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ) {
             var lastOptionals: MutableList<QName> = mutableListOf()
             var lastAnys: MutableList<ResolvedAny> = mutableListOf()
@@ -759,20 +764,20 @@ sealed class FlattenedGroup(
                             require(startName !in lastOptionals) {
                                 "Non-deterministic sequence: sequence${particles.joinToString()}"
                             }
-                            if (schema.version == SchemaVersion.V1_0) {
+                            if (checkHelper.version == SchemaVersion.V1_0) {
                                 // In version 1.1 resolving prioritises explicit elements, wildcards can omit
-                                require(lastAnys.none { it.matches(startName, isSiblingName, schema) }) {
+                                require(lastAnys.none { it.matches(startName, isSiblingName, checkHelper.schema) }) {
                                     "Ambiguous sequence $startName - ${lastAnys}"
                                 }
                             }
                         }
 
                         is Wildcard -> {
-                            require(lastAnys.none { it.intersects(startTerm.term, isSiblingName, schema) }) {
+                            require(lastAnys.none { it.intersects(startTerm.term, isSiblingName, checkHelper.schema) }) {
                                 "Non-deterministic sequence group: ${particles.joinToString()}"
                             }
-                            if (schema.version == SchemaVersion.V1_0) {
-                                require(lastOptionals.none { startTerm.term.matches(it, isSiblingName, schema) }) {
+                            if (checkHelper.version == SchemaVersion.V1_0) {
+                                require(lastOptionals.none { startTerm.term.matches(it, isSiblingName, checkHelper.schema) }) {
                                     "Non-deterministic sequence group (wildcards): ${particles.joinToString()}"
                                 }
                             }
@@ -837,15 +842,15 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     protected abstract fun isRestrictedBy(
         other: FlattenedParticle,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): Boolean
 
     open fun restricts(
         reference: FlattenedParticle,
         isSiblingName: (QName) -> Boolean,
-        schema: ResolvedSchemaLike,
+        checkHelper: CheckHelper,
     ): Boolean {
-        return reference.isRestrictedBy(this, isSiblingName, schema)
+        return reference.isRestrictedBy(this, isSiblingName, checkHelper)
     }
 
     open fun extends(base: FlattenedParticle, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): Boolean {
@@ -870,16 +875,16 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     open fun extendsSequence(base: Sequence, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): Boolean =
         false
 
-    open fun restrictsElement(base: Element, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
+    open fun restrictsElement(base: Element, context: ContextT, checkHelper: CheckHelper): Boolean = false
 
-    open fun restrictsWildcard(base: Wildcard, context: ContextT, schema: ResolvedSchemaLike): Boolean =
+    open fun restrictsWildcard(base: Wildcard, context: ContextT, checkHelper: CheckHelper): Boolean =
         false
 
-    open fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
+    open fun restrictsAll(base: All, context: ContextT, checkHelper: CheckHelper): Boolean = false
 
-    open fun restrictsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
+    open fun restrictsChoice(base: Choice, context: ContextT, checkHelper: CheckHelper): Boolean = false
 
-    open fun restrictsSequence(base: Sequence, context: ContextT, schema: ResolvedSchemaLike): Boolean =
+    open fun restrictsSequence(base: Sequence, context: ContextT, checkHelper: CheckHelper): Boolean =
         false
 
     abstract operator fun times(range: AllNNIRange): FlattenedParticle?
@@ -887,37 +892,37 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
     abstract fun remove(
         reference: FlattenedParticle,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle?
 
     open fun removeFromElement(
         reference: Element,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle? = null
 
     open fun removeFromWildcard(
         reference: Wildcard,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle? = null
 
     open fun removeFromAll(
         reference: All,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle? = null
 
     open fun removeFromChoice(
         reference: Choice,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle? = null
 
     open fun removeFromSequence(
         reference: Sequence,
         context: ContextT,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle? = null
 
     sealed class Term(range: AllNNIRange) : FlattenedParticle(range) {
@@ -958,8 +963,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun isRestrictedBy(
             other: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
-        ): Boolean = other.restrictsElement(this, context, schema)
+            checkHelper: CheckHelper
+        ): Boolean = other.restrictsElement(this, context, checkHelper)
 
         override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return other.extendsElement(this, context, schema)
@@ -972,64 +977,64 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun restrictsElement(
             base: Element,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
             if (!base.range.contains(range)) return false
 
             if (!base.term.mdlQName.isEquivalent(term.mdlQName)) return false
 
-            return base.term.subsumes(term)
+            return base.term.subsumes(term, checkHelper.isLax)
         }
 
         // Implements NSCompat
         override fun restrictsWildcard(
             base: Wildcard,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
             // NSCompat 2
             if (!base.range.contains(range)) return false
 
             // NSCompat 1
-            return base.term.matches(term.mdlQName, context, schema)
+            return base.term.matches(term.mdlQName, context, checkHelper.schema)
 
         }
 
-        override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return All(AllNNIRange.SINGLERANGE, listOf(this)).restrictsAll(base, context, schema)
+        override fun restrictsAll(base: All, context: ContextT, checkHelper: CheckHelper): Boolean {
+            return All(AllNNIRange.SINGLERANGE, listOf(this)).restrictsAll(base, context, checkHelper)
         }
 
-        override fun restrictsChoice(base: Choice, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun restrictsChoice(base: Choice, isSiblingName: ContextT, checkHelper: CheckHelper): Boolean {
             // The option to do it either way is valid for 1.1
-            return Choice(AllNNIRange.SINGLERANGE, listOf(this)).restrictsChoice(base, isSiblingName, schema) ||
-                    (schema.version == SchemaVersion.V1_1 &&
-                            Choice(range, listOf(single())).restricts(base, isSiblingName, schema))
+            return Choice(AllNNIRange.SINGLERANGE, listOf(this)).restrictsChoice(base, isSiblingName, checkHelper) ||
+                    (checkHelper.version == SchemaVersion.V1_1 &&
+                            Choice(range, listOf(single())).restricts(base, isSiblingName, checkHelper))
         }
 
         override fun restrictsSequence(
             base: Sequence,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
-            return Sequence(AllNNIRange.SINGLERANGE, listOf(this)).restrictsSequence(base, context, schema)
+            return Sequence(AllNNIRange.SINGLERANGE, listOf(this)).restrictsSequence(base, context, checkHelper)
         }
 
         override fun remove(
             reference: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            return reference.removeFromElement(this, context, schema)
+            return reference.removeFromElement(this, context, checkHelper)
         }
 
         override fun removeFromElement(
             reference: Element,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             if (!reference.term.mdlQName.isEquivalent(term.mdlQName)) return null
 
-            if (!reference.term.subsumes(term)) return null
+            if (!reference.term.subsumes(term, checkHelper.isLax)) return null
 
             return reference.minus(range)
         }
@@ -1037,9 +1042,9 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun removeFromWildcard(
             reference: Wildcard,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            if (!reference.term.matches(term.mdlQName, context, schema)) return null
+            if (!reference.term.matches(term.mdlQName, context, checkHelper.schema)) return null
 
             return reference - range
         }
@@ -1047,31 +1052,31 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun removeFromAll(
             reference: All,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            return super.removeFromAll(reference, context, schema)
+            return super.removeFromAll(reference, context, checkHelper)
         }
 
         override fun removeFromChoice(
             reference: Choice,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            val matchIdx = reference.particles.indexOfFirst { it.single().isRestrictedBy(single(), context, schema) }
+            val matchIdx = reference.particles.indexOfFirst { it.single().isRestrictedBy(single(), context, checkHelper) }
             if (matchIdx < 0) return null
             val match = reference.particles[matchIdx]
             return if (maxOccurs == VAllNNI.UNBOUNDED) {
                 when {
                     match.maxOccurs == VAllNNI.UNBOUNDED -> reference - AllNNIRange.SINGLERANGE
                     reference.maxOccurs == VAllNNI.UNBOUNDED -> EMPTY
-                    else -> match.remove(this, context, schema) // perhaps inside the match it is possible
+                    else -> match.remove(this, context, checkHelper) // perhaps inside the match it is possible
                 }
             } else { // consider further options
                 when {
                     match.minOccurs * reference.minOccurs > minOccurs -> (match * reference.range)?.minus(range)
                     match.range.contains(range) -> reference - AllNNIRange.SINGLERANGE
                     match.range.isSimple -> reference - range
-                    else -> match.remove(this, context, schema) // TODO a bit more options
+                    else -> match.remove(this, context, checkHelper) // TODO a bit more options
                 }
             }
         }
@@ -1079,12 +1084,12 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun removeFromSequence(
             reference: Sequence,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             if (reference.maxOccurs > VAllNNI.ONE) { // handle the case that there is more than 1 iteration
                 val head = Sequence(reference.minOccurs..VAllNNI.ONE, reference.particles)
                 val tail = (reference - AllNNIRange.SINGLERANGE) ?: error("Should not happen because maxOccurs>0")
-                val trimmedHead = removeFromSequence(head, context, schema) ?: return null
+                val trimmedHead = removeFromSequence(head, context, checkHelper) ?: return null
                 if (trimmedHead.maxOccurs == VAllNNI.ZERO) return tail
                 return Sequence(AllNNIRange.SINGLERANGE, listOf(trimmedHead, tail))
             }
@@ -1092,7 +1097,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             val newParticles = mutableListOf<FlattenedParticle>()
             while (partIt.hasNext()) {
                 val part = partIt.next()
-                val removed = part.remove(this, context, schema)
+                val removed = part.remove(this, context, checkHelper)
                 when {
                     removed == null -> if (!part.isEmptiable) return null
 
@@ -1175,8 +1180,8 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun isRestrictedBy(
             other: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
-        ): Boolean = other.restrictsWildcard(this, context, schema)
+            checkHelper: CheckHelper
+        ): Boolean = other.restrictsWildcard(this, context, checkHelper)
 
         override fun isExtendedBy(other: FlattenedParticle, context: ContextT, schema: ResolvedSchemaLike): Boolean {
             return other.extendsWildcard(this, context, schema)
@@ -1192,41 +1197,45 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun restrictsWildcard(
             base: Wildcard,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): Boolean {
             // NSSubset 1
             if (!base.range.contains(range)) return false
 
             // NSSubset 2, subset per Schema 1 - 3.10.6
-            if (!term.mdlNamespaceConstraint.isSubsetOf(base.term.mdlNamespaceConstraint, schema.version)) return false
+            if (!term.mdlNamespaceConstraint.isSubsetOf(base.term.mdlNamespaceConstraint, checkHelper.version)) return false
 
             // NSSubset 3, (exception for the ur-wildcard is needed - although a shortcut may apply by just always
             // restricting AnyType)
             return base.term === AnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
         }
 
-        override fun restrictsAll(base: All, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return when (schema.version) {
+        override fun restrictsAll(base: All, context: ContextT, checkHelper: CheckHelper): Boolean {
+            return when (checkHelper.version) {
                 SchemaVersion.V1_0 -> false
-                else -> All(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsAll(base, context, schema)
-            }
-        }
-
-        override fun restrictsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return when (schema.version) {
-                SchemaVersion.V1_0 -> false
-                else -> Choice(AllNNIRange.SINGLERANGE, listOf(this), schema.version).restrictsChoice(
+                else -> All(AllNNIRange.SINGLERANGE, listOf(this), checkHelper.version).restrictsAll(
                     base,
                     context,
-                    schema
+                    checkHelper
                 )
             }
         }
 
-        override fun restrictsSequence(base: Sequence, context: ContextT, schema: ResolvedSchemaLike): Boolean {
-            return when (schema.version) {
+        override fun restrictsChoice(base: Choice, context: ContextT, checkHelper: CheckHelper): Boolean {
+            return when (checkHelper.version) {
                 SchemaVersion.V1_0 -> false
-                else -> Sequence(AllNNIRange.SINGLERANGE, listOf(this)).restrictsSequence(base, context, schema)
+                else -> Choice(AllNNIRange.SINGLERANGE, listOf(this), checkHelper.version).restrictsChoice(
+                    base,
+                    context,
+                    checkHelper
+                )
+            }
+        }
+
+        override fun restrictsSequence(base: Sequence, context: ContextT, checkHelper: CheckHelper): Boolean {
+            return when (checkHelper.version) {
+                SchemaVersion.V1_0 -> false
+                else -> Sequence(AllNNIRange.SINGLERANGE, listOf(this)).restrictsSequence(base, context, checkHelper)
             }
         }
 
@@ -1244,20 +1253,20 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
         override fun remove(
             reference: FlattenedParticle,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
-            return reference.removeFromWildcard(this, context, schema)
+            return reference.removeFromWildcard(this, context, checkHelper)
         }
 
         override fun removeFromWildcard(
             reference: Wildcard,
             context: ContextT,
-            schema: ResolvedSchemaLike
+            checkHelper: CheckHelper
         ): FlattenedParticle? {
             if (!reference.range.contains(range)) return null
             if (!term.mdlNamespaceConstraint.isSubsetOf(
                     reference.term.mdlNamespaceConstraint,
-                    schema.version
+                    checkHelper.version
                 )
             ) return null
             if (reference.term !== AnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) return null

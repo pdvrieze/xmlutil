@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
+import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -36,11 +37,11 @@ interface IResolvedSequence : ResolvedModelGroup {
     override fun flatten(
         range: AllNNIRange,
         isSiblingName: (QName) -> Boolean,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle {
 
         val particles = mdlParticles.flatMap {
-            val f = it.flatten(::isSiblingName, schema)
+            val f = it.flatten(::isSiblingName, checkHelper)
             when {
                 f is FlattenedGroup.Sequence && f.range.isSimple -> f.particles
                 f.maxOccurs == VAllNNI.ZERO -> emptyList()
@@ -49,12 +50,12 @@ interface IResolvedSequence : ResolvedModelGroup {
         }
 
         // TODO move to this class
-        FlattenedGroup.checkSequence(particles, isSiblingName, schema)
+        FlattenedGroup.checkSequence(particles, isSiblingName, checkHelper)
 
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY
             particles.size == 1 -> when {
-                schema.version != SchemaVersion.V1_0 ->
+                checkHelper.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
 
                 range.isSimple -> particles.single()

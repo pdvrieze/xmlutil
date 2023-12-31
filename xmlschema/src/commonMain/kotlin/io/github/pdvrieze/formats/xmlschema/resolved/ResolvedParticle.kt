@@ -98,14 +98,14 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     fun <R> visitTerm(visitor: ResolvedTerm.Visitor<R>): R = mdlTerm.visit(visitor)
 
-    fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
-        return flatten(::isSiblingName, schema)
+    fun flatten(checkHelper: CheckHelper): FlattenedParticle {
+        return flatten(::isSiblingName, checkHelper)
     }
 
-    fun flatten(isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle {
+    fun flatten(isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
         return when (mdlMaxOccurs) {
             VAllNNI.ZERO -> FlattenedGroup.EMPTY
-            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName, schema)
+            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName, checkHelper)
         }
     }
 

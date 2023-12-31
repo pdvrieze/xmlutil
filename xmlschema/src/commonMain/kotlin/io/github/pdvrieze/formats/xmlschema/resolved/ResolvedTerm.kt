@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -47,9 +47,11 @@ interface ResolvedTerm : ResolvedAnnotated {
 
             override fun visitElement(element: ResolvedElement) {
                 visitorCollector.addAll(element.mdlIdentityConstraints)
-                val localContentType = (element.mdlTypeDefinition as? ResolvedLocalComplexType)?.mdlContentType
-                if (localContentType is ResolvedComplexType.ElementContentType) {
-                    localContentType.mdlParticle.mdlTerm.visit(this)
+                val localContentType = element.model.mdlTypeDefinition.map { (it as? ResolvedLocalComplexType)?.mdlContentType }
+                localContentType.onSuccess {
+                    if (it is ResolvedComplexType.ElementContentType) {
+                        it.mdlParticle.mdlTerm.visit(this)
+                    }
                 }
             }
 
@@ -60,14 +62,14 @@ interface ResolvedTerm : ResolvedAnnotated {
         return collector
     }
 
-    fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle
+    fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle
 
     fun isSiblingName(name: QName): Boolean {
         return visit(IsSiblingNameVisitor(name))
     }
 
-    fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
-        return flatten(AllNNIRange.SINGLERANGE, ::isSiblingName, schema)
+    fun flatten(checkHelper: CheckHelper): FlattenedParticle {
+        return flatten(AllNNIRange.SINGLERANGE, ::isSiblingName, checkHelper)
     }
 
     abstract class Visitor<R> {

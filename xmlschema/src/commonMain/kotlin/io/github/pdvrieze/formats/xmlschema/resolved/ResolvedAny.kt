@@ -67,12 +67,12 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override val mdlTerm: ResolvedAny get() = this
 
-    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): FlattenedParticle.Wildcard {
+    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle.Wildcard {
         return FlattenedParticle.Wildcard(range, this)
     }
 
-    override fun flatten(schema: ResolvedSchemaLike): FlattenedParticle {
-        return super<ResolvedParticle>.flatten(schema)
+    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
+        return super<ResolvedParticle>.flatten(checkHelper)
     }
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAny(this)

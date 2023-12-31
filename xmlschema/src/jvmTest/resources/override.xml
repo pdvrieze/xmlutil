@@ -19,6 +19,9 @@
   -->
 
 <overrides xmlns="http://pdvrieze.github.io/xmlutil/testoverride">
+  <test path="Missing/missing001/missing001">
+    <expected validity="lax" annotation="Allow missing types"/>
+  </test>
   <test path="anyAttribute/s3_10_6si02/s3_10_6si02s">
     <expected version="1.0" validity="indeterminate"/>
   </test>

@@ -39,14 +39,14 @@ interface IResolvedChoice : ResolvedModelGroup {
     override fun flatten(
         range: AllNNIRange,
         isSiblingName: (QName) -> Boolean,
-        schema: ResolvedSchemaLike
+        checkHelper: CheckHelper
     ): FlattenedParticle {
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
 
         val particles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName, schema)
+            val f = p.flatten(::isSiblingName, checkHelper)
 
             when {
                 f is FlattenedGroup.Choice && f.range.isSimple -> particles.addAll(f.particles)
@@ -64,7 +64,7 @@ interface IResolvedChoice : ResolvedModelGroup {
                     is FlattenedParticle.Wildcard -> {
                         if (startElem.term.mdlNamespaceConstraint.namespaces.singleOrNull()?.value?.isNotEmpty() ?: true) {
                             for (wc in seenWildcards) {
-                                require(! wc.intersects(startElem.term, isSiblingName, schema)) {
+                                require(! wc.intersects(startElem.term, isSiblingName, checkHelper.schema)) {
                                     "Non-deterministic choice group (conflicting wildcards): $wc and $startElem in choice(${mdlParticles.joinToString()})"
                                 }
                             }
@@ -80,7 +80,7 @@ interface IResolvedChoice : ResolvedModelGroup {
         return when {
             particles.isEmpty() -> FlattenedGroup.EMPTY
             particles.size == 1 -> when {
-                schema.version != SchemaVersion.V1_0 ->
+                checkHelper.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
 
                 range.isSimple -> particles.single()
@@ -90,12 +90,12 @@ interface IResolvedChoice : ResolvedModelGroup {
 
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
-        } ?: FlattenedGroup.Choice(range, particles, schema.version)
+        } ?: FlattenedGroup.Choice(range, particles, checkHelper.version)
     }
 
     override fun checkTerm(checkHelper: CheckHelper) {
         super.checkTerm(checkHelper)
         // Trigger flatten check
-        flatten(checkHelper.schema)
+        flatten(checkHelper)
     }
 }
