@@ -29,7 +29,6 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
@@ -413,16 +412,39 @@ public sealed class XmlValueDescriptor(
     private var defaultValue: Any? = UNSET
 
     @Deprecated("This is not safe anymore. This should have been internal.")
+    @XmlUtilDeprecatedInternal
     public fun <T> defaultValue(deserializer: DeserializationStrategy<T>): T {
-        return defaultValue(EmptySerializersModule(), XmlConfig(), deserializer)
+        val codec = XmlDecoderBase(getPlatformDefaultModule(), XmlConfig(), CompactFragment(default ?: "").getXmlReader())
+
+        return defaultValue(codec, deserializer)
     }
 
     internal fun <T> defaultValue(
         xmlCodecBase: XmlCodecBase,
         deserializer: DeserializationStrategy<T>
     ): T {
+        defaultValue.let { d ->
+            @Suppress("UNCHECKED_CAST")
+            if (d != UNSET) return d as T
+        }
 
-        return defaultValue(xmlCodecBase.serializersModule, xmlCodecBase.config, deserializer)
+        @Suppress("UNCHECKED_CAST")
+        if (default == null) return null as T
+
+        return when {
+            effectiveOutputKind.let { it != OutputKind.Text && it != OutputKind.Text } ->
+                defaultValue(xmlCodecBase.serializersModule, xmlCodecBase.config, deserializer)
+
+            xmlCodecBase is XmlDecoderBase ->
+                deserializer.deserialize(xmlCodecBase.StringDecoder(this, default))
+
+            else -> xmlCodecBase.run {
+                val dec = XmlDecoderBase(serializersModule, config, CompactFragment("").getXmlReader())
+                    .StringDecoder(this@XmlValueDescriptor, default)
+
+                deserializer.deserialize(dec)
+            }
+        }
     }
 
     private fun <T> defaultValue(
@@ -434,8 +456,16 @@ public sealed class XmlValueDescriptor(
             @Suppress("UNCHECKED_CAST")
             if (d != UNSET) return d as T
         }
-        val d = when (default) {
-            null -> null
+        val d = when {
+            default == null -> null
+
+            effectiveOutputKind.let { it == OutputKind.Attribute || it == OutputKind.Text } -> {
+                val xmlDecoderBase: XmlDecoderBase = XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader())
+                val dec = xmlDecoderBase
+                    .StringDecoder(this, default)
+                deserializer.deserialize(dec)
+            }
+
             else -> {
                 val defaultDecoder =
                     XmlDecoderBase(

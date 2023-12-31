@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2023.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -83,7 +83,7 @@ internal abstract class XmlCodecBase internal constructor(
     }
 
     @Suppress("RedundantInnerClassModifier") // The actual children must be inner
-    abstract inner class XmlCodec<out D : SafeXmlDescriptor>(
+    abstract class XmlCodec<out D : SafeXmlDescriptor>(
         protected val xmlDescriptor: D
     ) {
         val serialName: QName get() = xmlDescriptor.tagName

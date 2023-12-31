@@ -24,6 +24,7 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
@@ -174,7 +175,6 @@ internal open class XmlDecoderBase internal constructor(
 
         @OptIn(ExperimentalXmlUtilApi::class)
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
-            val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default
             val descOutputKind = xmlDescriptor.outputKind
 
             val stringValue = if (attrIndex >= 0) {
@@ -200,7 +200,12 @@ internal open class XmlDecoderBase internal constructor(
                 }
             }
             return when {
-                defaultOverEmpty && stringValue.isEmpty() && defaultString != null -> defaultString
+                defaultOverEmpty && stringValue.isEmpty() ->
+                    when (val defaultString = (xmlDescriptor as? XmlValueDescriptor)?.default) {
+                        null -> stringValue
+                        else -> defaultString
+                    }
+
                 else -> stringValue
             }
         }
@@ -267,7 +272,7 @@ internal open class XmlDecoderBase internal constructor(
 
     }
 
-    private inner class StringDecoder(xmlDescriptor: XmlDescriptor, private val stringValue: String) :
+    internal inner class StringDecoder(xmlDescriptor: XmlDescriptor, private val stringValue: String) :
         Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -490,7 +495,18 @@ internal open class XmlDecoderBase internal constructor(
     private inner class NullDecoder(xmlDescriptor: XmlDescriptor) :
         XmlDecoder(xmlDescriptor), CompositeDecoder {
 
-        override fun decodeNotNullMark() = false
+        override fun decodeNotNullMark() = (xmlDescriptor as? XmlValueDescriptor)?.default != null
+
+        override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
+            val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, String.serializer())
+            return default as String
+        }
+
+        override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+            val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, deserializer)
+            @Suppress("UNCHECKED_CAST")
+            return default as T
+        }
 
         override fun <T> decodeSerializableElement(
             descriptor: SerialDescriptor,

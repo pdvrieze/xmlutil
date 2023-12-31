@@ -14,6 +14,9 @@ Features:
   interfaces allows the format to treat the data specially.
 
 Fixes:
+- Fix parsing of `XmlDefault` attributes if the (effective) type is an
+  attribute and it is parsed using as serializable value (rather than)
+  directly as primitive.
 - Using an attribute map wouldn't work when the key was a string rather than
   a qname. Fixes #190.
 - Properly require `@XmlOtherAttributes` for maps of "remaining"
