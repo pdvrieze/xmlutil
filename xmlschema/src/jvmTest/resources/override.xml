@@ -22,6 +22,21 @@
   <test path="Missing/missing001/missing001">
     <expected validity="lax" annotation="Allow missing types"/>
   </test>
+  <test path="Missing/missing002/missing002">
+    <expected validity="lax" annotation="Allow missing substitution group heads"/>
+  </test>
+  <test path="Missing/missing003/missing003">
+    <expected validity="lax" annotation="Allow missing substitution group heads"/>
+  </test>
+  <test path="Missing/missing004/missing004">
+    <expected validity="invalidlax" annotation="Don't allow missing base in lax mode"/>
+  </test>
+  <test path="Missing/missing005/missing005">
+    <expected validity="invalidlax" annotation="Don't allow missing base in lax mode"/>
+  </test>
+  <test path="Missing/missing006/missing006">
+    <expected validity="invalidlax" annotation="Allow missing item type"/>
+  </test>
   <test path="anyAttribute/s3_10_6si02/s3_10_6si02s">
     <expected version="1.0" validity="indeterminate"/>
   </test>
