@@ -534,10 +534,6 @@ sealed class ResolvedComplexType(
                             )
                         }
                     }
-                    val nameContext = buildList {
-//                        addAll(mdlAttributeUses.keys)
-                        part.collectElementNames(this)
-                    }
                     when {
                         effectiveMixed -> MixedContentType(part, part::isSiblingName, schema, openContent)
                         else -> ElementOnlyContentType(part, part::isSiblingName, schema, openContent)
@@ -570,11 +566,6 @@ sealed class ResolvedComplexType(
                         any = w
                     ), schema, particle.mdlTerm.hasLocalNsInContext()
                 )
-
-                val nameContext = buildList {
-                    addAll(mdlAttributeUses.keys)
-                    particle.collectElementNames(this)
-                }
 
                 mdlContentType = when {
                     effectiveMixed -> MixedContentType(
@@ -897,7 +888,7 @@ sealed class ResolvedComplexType(
         internal fun calculateAttributeUses(
             schema: ResolvedSchemaLike,
             elem: SchemaElement<XSIComplexType>,
-            parent: ResolvedComplexType
+            ownerType: ResolvedComplexType
         ): AttributeModel {
             val rawPart = elem.elem
 
@@ -909,14 +900,14 @@ sealed class ResolvedComplexType(
 
             val prohibitedAttrNames = mutableSetOf<QName>()
 
-            val baseType = parent.mdlBaseTypeDefinition as? ResolvedComplexType
+            val baseType = ownerType.mdlBaseTypeDefinition as? ResolvedComplexType
 
             val attributes = buildMap<QName, IResolvedAttributeUse> {
                 // Defined attributes
                 for (attr in rawPart.content.derivation.attributes) {
-                    val resolvedAttribute = ResolvedLocalAttribute(parent, elem.wrap(attr), schema, schema.attributeFormDefault)
+                    val resolvedAttribute = ResolvedLocalAttribute(ownerType, elem.wrap(attr), schema, schema.attributeFormDefault)
                     require(put(resolvedAttribute.mdlQName, resolvedAttribute) == null) {
-                        "Duplicate attribute ${resolvedAttribute.mdlQName} on type $parent"
+                        "Duplicate attribute ${resolvedAttribute.mdlQName} on type $ownerType"
                     }
                     if (resolvedAttribute is ResolvedProhibitedAttribute) prohibitedAttrNames.add(resolvedAttribute.mdlQName)
                 }
@@ -1016,7 +1007,7 @@ sealed class ResolvedComplexType(
                 }
             }
 
-            val attributeWildcard = when (parent.mdlDerivationMethod) {
+            val attributeWildcard = when (ownerType.mdlDerivationMethod) {
                 !is VDerivationControl.EXTENSION -> completeWildcard
                 else -> {
                     val baseWildcard = baseType?.mdlAttributeWildcard // 2.2.1.*
