@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -28,12 +28,14 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
+import nl.adaptivity.xmlutil.serialization.XmlDefault
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("defaultOpenContent", XSD_NS_URI, XSD_PREFIX)
 class XSDefaultOpenContent : XSOpenContentBase {
     @SerialName("appliesToEmpty")
+    @XmlDefault("false")
     private val _appliesToEmpty: VBoolean
 
     val appliesToEmpty: Boolean get() = _appliesToEmpty.value

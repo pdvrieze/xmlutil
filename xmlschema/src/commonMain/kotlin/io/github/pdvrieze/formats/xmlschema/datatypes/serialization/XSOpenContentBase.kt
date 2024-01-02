@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -24,10 +24,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.serialization.XmlDefault
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
 @Serializable
 abstract class XSOpenContentBase: XSAnnotatedBase {
+    @XmlDefault("interleave")
     @XmlElement(false)
     val mode: VContentMode
     val any: XSAny?
