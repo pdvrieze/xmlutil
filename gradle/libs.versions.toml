@@ -1,7 +1,7 @@
 [versions]
 junit5-jupiter = "5.10.1"
 kotlinx-serialization = "1.6.2"
-kotlin = "1.9.21"
+kotlin = "1.9.22"
 dokka = "1.9.10"
 binaryValidator = "0.13.2"
 woodstox = "6.5.1"
