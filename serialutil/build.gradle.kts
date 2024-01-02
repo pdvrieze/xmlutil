@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,6 @@ import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
@@ -73,21 +72,6 @@ kotlin {
                 metaInfo = true
                 moduleKind = "umd"
                 main = "call"
-            }
-        }
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmWasi {
-        nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        nodejs()
-        browser {
-            testTask {
-                isEnabled = !System.getenv().containsKey("GITHUB_ACTION")
             }
         }
     }
