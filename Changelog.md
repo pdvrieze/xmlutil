@@ -14,6 +14,9 @@ Features:
   interfaces allows the format to treat the data specially.
 
 Fixes:
+- Fix handling of empty `@XmlValue` members of string-like type. Also
+  collapse whitespace when parsing non-string primitives (per xml
+  schema). Strings never ignore whitespace.
 - Fix parsing of `XmlDefault` attributes if the (effective) type is an
   attribute and it is parsed using as serializable value (rather than)
   directly as primitive.

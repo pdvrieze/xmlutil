@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -95,40 +95,42 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeBoolean(): Boolean = when {
             config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(this)
-            else -> decodeStringImpl().toBoolean()
+            else -> decodeStringCollapsed().toBoolean()
         }
 
         override fun decodeByte(): Byte = when {
-            xmlDescriptor.isUnsigned -> decodeStringImpl().toUByte().toByte()
-            else -> decodeStringImpl().toByte()
+            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toUByte().toByte()
+            else -> decodeStringCollapsed().toByte()
         }
 
         override fun decodeShort(): Short = when {
-            xmlDescriptor.isUnsigned -> decodeStringImpl().toUShort().toShort()
-            else -> decodeStringImpl().toShort()
+            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toUShort().toShort()
+            else -> decodeStringCollapsed().toShort()
         }
 
         override fun decodeInt(): Int = when {
-            xmlDescriptor.isUnsigned -> decodeStringImpl().toUInt().toInt()
-            else -> decodeStringImpl().toInt()
+            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toUInt().toInt()
+            else -> decodeStringCollapsed().toInt()
         }
 
         override fun decodeLong(): Long = when {
-            xmlDescriptor.isUnsigned -> decodeStringImpl().toULong().toLong()
-            else -> decodeStringImpl().toLong()
+            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toULong().toLong()
+            else -> decodeStringCollapsed().toLong()
         }
 
-        override fun decodeFloat(): Float = decodeStringImpl().toFloat()
-        override fun decodeDouble(): Double = decodeStringImpl().toDouble()
-        override fun decodeChar(): Char = decodeStringImpl().single()
+        override fun decodeFloat(): Float = decodeStringCollapsed().toFloat()
+        override fun decodeDouble(): Double = decodeStringCollapsed().toDouble()
+        override fun decodeChar(): Char = decodeStringCollapsed().single()
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-            val stringName = decodeStringImpl()
+            val stringName = decodeStringCollapsed()
             for (i in 0 until enumDescriptor.elementsCount) {
                 if (stringName == config.policy.enumEncoding(enumDescriptor, i)) return i
             }
             throw SerializationException("No enum constant found for name $stringName in ${enumDescriptor.serialName}")
         }
 
+        fun decodeStringCollapsed(defaultOverEmpty: Boolean = true): String=
+            xmlCollapseWhitespace(decodeStringImpl(defaultOverEmpty))
         abstract fun decodeStringImpl(defaultOverEmpty: Boolean = true): String
         override fun decodeString(): String = decodeStringImpl(false)
     }
@@ -498,8 +500,9 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeNotNullMark() = (xmlDescriptor as? XmlValueDescriptor)?.default != null
 
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
+            if (!defaultOverEmpty) return ""
             val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, String.serializer())
-            return default as String
+            return default ?: ""
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
@@ -1007,9 +1010,19 @@ internal open class XmlDecoderBase internal constructor(
             }
             lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
 
+            val valueChild = descriptor.getValueChild()
+            // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
+            // treated as such).
+            if (valueChild >= 0 && input.peek() is XmlEvent.EndElementEvent && !seenItems[valueChild]) {
+                // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
+                seenItems[valueChild] = true
+                return valueChild
+            }
             for (eventType in input) {
                 when (eventType) {
-                    EventType.END_ELEMENT -> return readElementEnd(descriptor)
+                    EventType.END_ELEMENT -> {
+                        return readElementEnd(descriptor)
+                    }
 
                     EventType.START_DOCUMENT,
                     EventType.COMMENT,
@@ -1022,14 +1035,13 @@ internal open class XmlDecoderBase internal constructor(
                     EventType.IGNORABLE_WHITESPACE,
                     EventType.TEXT -> {
                         // The android reader doesn't check whitespaceness. This code should throw
-                        val valueChild = descriptor.getValueChild()
                         if (input.isWhitespace()) {
                             if (valueChild != CompositeDecoder.UNKNOWN_NAME &&
                                 preserveWhitespace
                             ) {
                                 val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
-                                if (valueKind == StructureKind.LIST || valueKind == PrimitiveKind.STRING
-                                ) {
+                                if (valueKind == StructureKind.LIST || valueKind is PrimitiveKind
+                                ) { // this allows all primitives (
                                     seenItems[valueChild] = true
                                     return valueChild // We can handle whitespace
                                 }
@@ -1143,6 +1155,10 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
+        fun decodeStringElementCollapsed(descriptor: SerialDescriptor, index: Int): String {
+            return xmlCollapseWhitespace(decodeStringElement(descriptor, index))
+        }
+
         override fun decodeStringElement(descriptor: SerialDescriptor, index: Int): String {
             handleRecovery<String>(index) { return it }
 
@@ -1188,11 +1204,11 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int {
-            return decodeStringElement(descriptor, index).toInt()
+            return decodeStringElementCollapsed(descriptor, index).toInt()
         }
 
         override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
-            val stringValue = decodeStringElement(descriptor, index)
+            val stringValue = decodeStringElementCollapsed(descriptor, index)
             return when {
                 config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(
                     StringDecoder(xmlDescriptor.getElementDescriptor(index), stringValue))
@@ -1202,27 +1218,27 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte {
-            return decodeStringElement(descriptor, index).toByte()
+            return decodeStringElementCollapsed(descriptor, index).toByte()
         }
 
         override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short {
-            return decodeStringElement(descriptor, index).toShort()
+            return decodeStringElementCollapsed(descriptor, index).toShort()
         }
 
         override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long {
-            return decodeStringElement(descriptor, index).toLong()
+            return decodeStringElementCollapsed(descriptor, index).toLong()
         }
 
         override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float {
-            return decodeStringElement(descriptor, index).toFloat()
+            return decodeStringElementCollapsed(descriptor, index).toFloat()
         }
 
         override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double {
-            return decodeStringElement(descriptor, index).toDouble()
+            return decodeStringElementCollapsed(descriptor, index).toDouble()
         }
 
         override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char {
-            return decodeStringElement(descriptor, index).single()
+            return decodeStringElementCollapsed(descriptor, index).single()
         }
 
         fun ignoreAttribute(attrName: QName) {

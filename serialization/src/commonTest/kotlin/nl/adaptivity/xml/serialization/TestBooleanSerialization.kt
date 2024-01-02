@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -49,6 +49,13 @@ class TestBooleanSerialization {
     fun testSerializeBooleanStrict() {
         val xml = XML { recommended { isStrictBoolean = true } }
         assertXmlEquals("<BooleanHolder>true</BooleanHolder>", xml.encodeToString(BooleanHolder(true)))
+    }
+
+    @Test
+    fun testSerializeBooleanStrictWithSpaces() {
+        val xml = XML { recommended { isStrictBoolean = true } }
+        val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>   true   </BooleanHolder>")
+        assertEquals(BooleanHolder(true), decoded)
     }
 
     @Test
@@ -160,6 +167,17 @@ class TestBooleanSerialization {
         } }
         assertFailsWith<NumberFormatException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder></BooleanHolder>")
+            assertEquals(BooleanHolder(false), decoded)
+        }
+    }
+
+    @Test
+    fun testDeserializeBooleanStrictSpaces() {
+        val xml = XML { recommended {
+            isStrictBoolean = true
+        } }
+        assertFailsWith<NumberFormatException> {
+            val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>    </BooleanHolder>")
             assertEquals(BooleanHolder(false), decoded)
         }
     }
