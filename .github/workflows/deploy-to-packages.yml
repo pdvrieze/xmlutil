@@ -60,7 +60,7 @@ jobs:
             # Linux / JVM / JS
             -   name: Check (ubuntu)
                 if: matrix.os == 'ubuntu-latest'
-                run: ./gradlew check --stacktrace --info
+                run: ./gradlew check --stacktrace
                 shell: bash
             -   name: Store reports
                 if: failure()
