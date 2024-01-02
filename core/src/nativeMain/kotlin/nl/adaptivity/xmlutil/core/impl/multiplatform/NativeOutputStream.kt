@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -28,19 +28,19 @@ public abstract class NativeOutputStream : OutputStream() {
      * Write the buffer with the given amount of elements. It gets the element size from the type parameter.
      */
     @ExperimentalForeignApi
-    public inline fun <reified T : CVariable> writePtr(buffer: CArrayPointer<T>, count: MPSizeT): MPSizeT {
-        return writePtr(buffer, MPSizeT(sizeOf<T>().convert<uint64_t>()), count)
+    public inline fun <reified T : CVariable> writePtr(buffer: CArrayPointer<T>, count: SizeT): SizeT {
+        return writePtr(buffer, sizeT(sizeOf<T>().convert<uint64_t>()), count)
     }
 
     /**
      * Write the buffer to the underlying stream. Effectively wrapping fwrite.
      */
     @ExperimentalForeignApi
-    public abstract fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: MPSizeT, count: MPSizeT): MPSizeT
+    public abstract fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: SizeT, count: SizeT): SizeT
 
     @ExperimentalForeignApi
     public inline fun <reified T : CVariable> writeAllPtr(buffer: CArrayPointer<T>, count: Int) {
-        writeAllPtr(buffer, MPSizeT(sizeOf<T>().convert<uint64_t>()), MPSizeT(count.toULong()))
+        writeAllPtr(buffer, sizeT(sizeOf<T>().convert<uint64_t>()), sizeT(count.toULong()))
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -49,11 +49,11 @@ public abstract class NativeOutputStream : OutputStream() {
         require(off in 0 until b.size) { "Offset before start of array" }
         require(endIdx <= b.size) { "Range size beyond buffer size" }
 
-        b.usePinned { writePtr(it.addressOf(off), MPSizeT(sizeOf<ByteVar>().convert<uint64_t>()), MPSizeT(len.toULong())) }
+        b.usePinned { writePtr(it.addressOf(off), sizeT(sizeOf<ByteVar>().convert<uint64_t>()), sizeT(len.toULong())) }
     }
 
 
     @ExperimentalForeignApi
-    public abstract fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: MPSizeT, count: MPSizeT)
+    public abstract fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: SizeT, count: SizeT)
 
 }

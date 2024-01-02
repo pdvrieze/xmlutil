@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,8 @@ import kotlin.test.*
 @OptIn(ExperimentalForeignApi::class)
 class FileIOTest {
 
-    private lateinit var testFile: CPointer<FILE>
+    private var _testFile: FilePtr? = null
+    private val testFile: FilePtr get() = _testFile!!
     private lateinit var writer: OutputStreamWriter
 
     @BeforeTest
@@ -36,7 +37,7 @@ class FileIOTest {
             val fileName: CPointer<ByteVar> = "FILEIOTEST.XXXXXX".cstr.ptr
             val fileDescriptor = mkstemp(fileName).takeIf { it >= 0 } ?: throw IOException.fromErrno()
             unlink(fileName.toKString())
-            testFile = fdopen(fileDescriptor, "w+") ?: throw IOException.fromErrno()
+            _testFile = FilePtr(fdopen(fileDescriptor, "w+") ?: throw IOException.fromErrno())
             writer = OutputStreamWriter(FileOutputStream(testFile))
 
         }
@@ -44,16 +45,17 @@ class FileIOTest {
 
     @AfterTest
     fun closeFileAfterTest() {
-        fclose(testFile)
+        fclose(testFile.value)
+        _testFile = null
     }
 
     @Test
     fun testAppend() {
         writer.append('5')
-        rewind(testFile)
+        rewind(testFile.value)
         memScoped {
             val readBuffer = allocArray<UByteVar>(10)
-            val bytesRead = fread(readBuffer.getPointer(this), 1u, 10u, testFile)
+            val bytesRead = fread(readBuffer.getPointer(this), 1u, 10u, testFile.value)
             assertEquals(1u, bytesRead)
             assertEquals('5'.code, readBuffer[0].toInt())
         }
@@ -67,7 +69,7 @@ class FileIOTest {
             flush()
         }
 
-        rewind(testFile)
+        rewind(testFile.value)
 
 
         val actualLines = InputStreamReader(FileInputStream(testFile)).lines().toList()
@@ -86,7 +88,7 @@ class FileIOTest {
             lines.forEach(::appendLine)
             flush()
         }
-        rewind(testFile)
+        rewind(testFile.value)
 
         val actualLines = InputStreamReader(FileInputStream(testFile)).lines().toList()
         assertContentEquals(lines, actualLines)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -26,26 +26,27 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import platform.posix.*
 
 @ExperimentalXmlUtilApi
-public class FileOutputStream(public val filePtr: CPointer<FILE>) : NativeOutputStream() {
+public class FileOutputStream(public val filePtr: FilePtr) : NativeOutputStream() {
 
     public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) : this(
-        fopen(pathName, mode.modeString) ?: kotlin.run {
+        FilePtr(fopen(pathName, mode.modeString) ?: kotlin.run {
             throw IOException.fromErrno()
-        })
+        }))
 
     public constructor(fileHandle: Int, mode: FileMode = Mode.TRUNCATED) : this(
-        fdopen(fileHandle, mode.modeString) ?: kotlin.run {
+        FilePtr(fdopen(fileHandle, mode.modeString) ?: kotlin.run {
             throw IOException.fromErrno()
-        })
+        }))
 
-    public fun write(buffer: UByteArray, begin: Int = 0, end: Int = buffer.size - begin): Unit {
+    @OptIn(ExperimentalForeignApi::class)
+    public fun write(buffer: UByteArray, begin: Int = 0, end: Int = buffer.size - begin) {
         var loopBegin: Int = begin
-        var remaining = MPSizeT((end - loopBegin).toULong())
+        var remaining = sizeT((end - loopBegin).toULong())
         buffer.usePinned { buf ->
-            while (remaining.value > 0uL) {
+            while (remaining.toULong() > 0uL) {
                 val bufferPtr = buf.addressOf(loopBegin)
                 val written = writePtr(bufferPtr, remaining)
-                loopBegin += written.value.toInt()
+                loopBegin += written.toInt()
                 remaining -= written
             }
         }
@@ -55,14 +56,14 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : NativeOutput
         write(byteArrayOf(b.toByte()))
     }
 
-    public override fun write(b: ByteArray, off: Int, len: Int): Unit {
+    public override fun write(b: ByteArray, off: Int, len: Int) {
         var loopBegin: Int = off
-        var remaining = MPSizeT((len - loopBegin).toULong())
+        var remaining = sizeT((len - loopBegin).toULong())
         b.usePinned { buf ->
-            while (remaining.value > 0uL) {
+            while (remaining.toULong() > 0uL) {
                 val bufStart = buf.addressOf(loopBegin)
                 val written = writePtr(bufStart, remaining)
-                loopBegin += written.value.toInt()
+                loopBegin += written.toInt()
                 remaining -= written
             }
         }
@@ -71,30 +72,32 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : NativeOutput
     /** Write buffers to the underlying file (where valid). */
     @OptIn(ExperimentalForeignApi::class)
     public fun flush() {
-        if (fflush(filePtr) != 0) {
+        if (fflush(filePtr.value) != 0) {
             throw IOException.fromErrno()
         }
     }
 
-    public override fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: MPSizeT, count: MPSizeT): MPSizeT {
-        clearerr(filePtr)
-        val elemsWritten = MPSizeT(fwrite(buffer, size.value.convert(), count.value.convert(), filePtr))
-        if (elemsWritten.value == 0uL && count.value != 0uL) {
-            val e = ferror(filePtr)
+    @OptIn(UnsafeNumber::class)
+    public override fun <T : CPointed> writePtr(buffer: CArrayPointer<T>, size: SizeT, count: SizeT): SizeT {
+        clearerr(filePtr.value)
+        val elemsWritten = SizeT(fwrite(buffer, size.value.convert(), count.value.convert(), filePtr.value))
+        if (elemsWritten.toULong() == 0uL && count.toULong() != 0uL) {
+            val e = ferror(filePtr.value)
             throw IOException.fromErrno(e)
         }
         return elemsWritten
     }
 
-    public override fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: MPSizeT, count: MPSizeT) {
+    @OptIn(UnsafeNumber::class)
+    public override fun <T : CPointed> writeAllPtr(buffer: CArrayPointer<T>, size: SizeT, count: SizeT) {
 
-        clearerr(filePtr)
-        var elemsRemaining: ULong = count.value
+        clearerr(filePtr.value)
+        var elemsRemaining: ULong = count.toULong()
         var currentBufferPointer = buffer
         while (elemsRemaining > 0u) {
-            val elemsWritten: ULong = fwrite(currentBufferPointer, size.value.convert(), count.value.convert(), filePtr).convert()
+            val elemsWritten: ULong = fwrite(currentBufferPointer, size.value.convert(), count.value.convert(), filePtr.value).convert()
             if (elemsWritten == 0uL) {
-                val e = ferror(filePtr)
+                val e = ferror(filePtr.value)
                 throw IOException.fromErrno(e)
             }
             elemsRemaining -= elemsWritten
@@ -105,7 +108,7 @@ public class FileOutputStream(public val filePtr: CPointer<FILE>) : NativeOutput
     }
 
     override fun close() {
-        if (fclose(filePtr) != 0) {
+        if (fclose(filePtr.value) != 0) {
             throw IOException.fromErrno()
         }
     }

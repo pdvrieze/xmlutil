@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -53,15 +53,7 @@ public actual abstract class InputStream : Closeable {
     public actual abstract fun read(): Int
 
     @ExperimentalForeignApi
-    public abstract fun <T : CPointed> read(buffer: CArrayPointer<T>, size: MPSizeT, bufferSize: MPSizeT): MPSizeT
+    public abstract fun <T : CPointed> read(buffer: CArrayPointer<T>, size: SizeT, bufferSize: SizeT): SizeT
     actual override fun close() {}
 }
 
-/**
- * Wrapper type to stand in for `size_t` as that type has inconsistent sizes in different architectures.
- */
-public value class MPSizeT(public val value: ULong) {
-    public constructor(value: UInt): this(value.toULong())
-    public operator fun minus(other: MPSizeT): MPSizeT = MPSizeT(value - other.value)
-    public operator fun plus(other: MPSizeT): MPSizeT = MPSizeT(value + other.value)
-}

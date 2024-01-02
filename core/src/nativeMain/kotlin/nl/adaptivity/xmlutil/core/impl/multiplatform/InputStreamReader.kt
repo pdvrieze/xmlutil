@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,12 +20,10 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileInputStream.Mode
-import platform.posix.FILE
 
 /**
  * An implementation of a reader that reads (UTF-8 only) input streams.
@@ -37,7 +35,7 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
     private var inputBufferEnd = 0
     private var pendingLowSurrogate: Char = '\u0000'
 
-    public constructor(filePtr: CPointer<FILE>) : this(FileInputStream(filePtr))
+    public constructor(filePtr: FilePtr) : this(FileInputStream(filePtr))
 
     public constructor(pathName: String, mode: FileMode = Mode.READ) :
             this(FileInputStream(pathName, mode))
@@ -54,9 +52,9 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
             inputBufferEnd = inputBuffer.usePinned { b ->
                 inputStream.read(
                     b.addressOf(inputBufferOffset),
-                    MPSizeT(1u),
-                    MPSizeT((inputBuffer.size - inputBufferOffset).toULong())
-                ).value.toInt() + inputBufferOffset
+                    SizeT(1u),
+                    sizeT((inputBuffer.size - inputBufferOffset).toULong())
+                ).toInt() + inputBufferOffset
             }
         }
     }

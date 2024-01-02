@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -22,12 +22,11 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileOutputStream.Mode
-import platform.posix.FILE
 
 public class OutputStreamWriter(public val outStream: NativeOutputStream) : Writer(), Closeable {
 
     @OptIn(ExperimentalForeignApi::class)
-    public constructor(filePtr: CPointer<FILE>) : this(FileOutputStream(filePtr))
+    public constructor(filePtr: FilePtr) : this(FileOutputStream(filePtr))
 
     public constructor(pathName: String, mode: FileMode = Mode.TRUNCATED) :
             this(FileOutputStream (pathName, mode))
@@ -41,7 +40,7 @@ public class OutputStreamWriter(public val outStream: NativeOutputStream) : Writ
         memScoped {
             val buffer = allocArray<UByteVar>(4)
 
-            val byteCount: MPSizeT = addCodepointToBuffer(buffer, codepoint)
+            val byteCount: SizeT = addCodepointToBuffer(buffer, codepoint)
             if (outStream.writePtr(buffer, byteCount) != byteCount) error("Failure to write full character")
         }
         return this
@@ -51,7 +50,7 @@ public class OutputStreamWriter(public val outStream: NativeOutputStream) : Writ
     private fun addCodepointToBuffer(
         buffer: CArrayPointer<UByteVar>,
         codepoint: Int
-    ): MPSizeT {
+    ): SizeT {
         val byteCount: ULong
         when {
             codepoint <= 0x7f -> {
@@ -80,7 +79,7 @@ public class OutputStreamWriter(public val outStream: NativeOutputStream) : Writ
                 byteCount = 4u
             }
         }
-        return MPSizeT(byteCount)
+        return sizeT(byteCount)
     }
 
 
@@ -115,7 +114,7 @@ public class OutputStreamWriter(public val outStream: NativeOutputStream) : Writ
                     inPos++
                 }
                 val bytes = addCodepointToBuffer((outBuffer + outPos)!!, codepoint)
-                outPos += bytes.value.toInt()
+                outPos += bytes.toInt()
             }
 
             if (outPos > 0) {

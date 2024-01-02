@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -30,7 +30,10 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.kpm.external.ExternalVariantApi
 import org.jetbrains.kotlin.gradle.kpm.external.project
-import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyTemplate
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -122,9 +125,14 @@ fun Project.addNativeTargets() {
         "all", "true" -> NativeState.ALL
         "host" -> NativeState.HOST
         "disabled" -> NativeState.DISABLED
-        else -> NativeState.SINGLE
+        "single" -> NativeState.SINGLE
+        else -> {
+            logger.lifecycle("set the native.deploy=[all|host|disabled|single] property to specify the native mode." +
+                    "Defaulting to single")
+            NativeState.SINGLE
+        }
     }
-    val singleTargetMode = ideaActive || nativeState == NativeState.SINGLE
+    val singleTargetMode = /*ideaActive || */nativeState == NativeState.SINGLE
 
     val ext = extensions.getByName<ExtraPropertiesExtension>("ext")
     val manager = HostManager()//ext["hostManager"] as HostManager

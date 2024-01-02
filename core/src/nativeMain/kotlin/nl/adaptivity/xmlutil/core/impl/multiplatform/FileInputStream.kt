@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -30,7 +30,7 @@ import platform.posix.*
  * @constructor Directly wrap (and take ownership of) the file pointer given.
  */
 @OptIn(ExperimentalForeignApi::class)
-public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream() {
+public class FileInputStream(public val filePtr: FilePtr) : InputStream() {
 
     /**
      * Create an input stream for a file handle. Will create the needed file pointer.
@@ -38,7 +38,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      * @param mode The mode to use to open the file.
      */
     public constructor(fileHandle: Int, mode: FileMode = Mode.READ) : this(
-        fdopen(fileHandle, mode.modeString) ?: throw IOException.fromErrno())
+        FilePtr(fdopen(fileHandle, mode.modeString) ?: throw IOException.fromErrno()))
 
     /**
      * Create an input stream for a file name. Will create the needed file pointer.
@@ -46,13 +46,13 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      * @param mode The mode to use to open the file.
      */
     public constructor(pathName: String, mode: FileMode = Mode.READ) : this(
-        fopen(pathName, mode.modeString) ?: throw IOException.fromErrno())
+        FilePtr(fopen(pathName, mode.modeString) ?: throw IOException.fromErrno()))
 
     /**
      * Close the file (neither this object is valid afterwards, nor the pointer.
      */
     override fun close() {
-        if (fclose(filePtr) != 0) {
+        if (fclose(filePtr.value) != 0) {
             throw IOException.fromErrno()
         }
     }
@@ -61,7 +61,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      * Determine whether the end of the file has been reached.
      */
     public override val eof: Boolean
-        get() = feof(filePtr) != 0
+        get() = feof(filePtr.value) != 0
 
     /**
      * Read into the given native buffer. It will check for errors, but does not indicate end of file.
@@ -70,11 +70,13 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      * @param size The size of individual items (in bytes)
      * @param bufferSize The maximum amount of items to be read.
      */
-    public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: MPSizeT, bufferSize: MPSizeT): MPSizeT {
-        clearerr(filePtr)
-        val itemsRead = MPSizeT(fread(buffer, size.value.convert<size_t>(), bufferSize.value.convert<size_t>(), filePtr))
-        if (itemsRead.value == 0uL) {
-            val error = ferror(filePtr)
+    @OptIn(UnsafeNumber::class)
+    public override fun <T : CPointed> read(buffer: CArrayPointer<T>, size: SizeT, bufferSize: SizeT): SizeT {
+        clearerr(filePtr.value)
+        val itemsRead = SizeT(
+            fread(buffer, size.value.convert<size_t>(), bufferSize.value.convert<size_t>(), filePtr.value))
+        if (itemsRead.toULong() == 0uL) {
+            val error = ferror(filePtr.value)
             if (error != 0) {
                 throw IOException.fromErrno(error)
             }
@@ -86,16 +88,17 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      * Read a single byte value. This is not buffered in any way, and possibly slow.
      * @return -1 if end of file, otherwise the byte value
      */
+    @OptIn(UnsafeNumber::class)
     public override fun read(): Int {
-        clearerr(filePtr)
+        clearerr(filePtr.value)
         memScoped {
             val bytePtr = alloc<UByteVar>()
-            val itemsRead: ULong = fread(bytePtr.ptr, 1u.convert(), 1u.convert(), filePtr).convert()
+            val itemsRead: ULong = fread(bytePtr.ptr, 1u.convert(), 1u.convert(), filePtr.value).convert()
             if (itemsRead == 0uL) {
-                val error = ferror(filePtr)
+                val error = ferror(filePtr.value)
                 if (error != 0) {
                     throw IOException.fromErrno(error)
-                } else if (feof(filePtr) != 0) {
+                } else if (feof(filePtr.value) != 0) {
                     return -1
                 }
             }
@@ -110,12 +113,13 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      * @param len The amount of data to read.
      * @return The amount of bytes read or -1 if end of file.
      */
+    @OptIn(UnsafeNumber::class)
     override fun read(buffer: ByteArray, offset: Int, len: Int): Int {
         val endIdx = offset + len
         require(offset in buffer.indices) { "Offset before start of array" }
         require(endIdx <= buffer.size) { "Range size beyond buffer size" }
         val result = buffer.usePinned { buf ->
-            read(buf.addressOf(offset), MPSizeT(sizeOf<ByteVar>().toULong()), MPSizeT(len.toULong())).value.toInt()
+            read(buf.addressOf(offset), sizeT(sizeOf<ByteVar>()), sizeT(len)).toInt()
         }
         if (result == 0 && eof) return -1
         return result
@@ -130,7 +134,7 @@ public class FileInputStream(public val filePtr: CPointer<FILE>) : InputStream()
      */
     public fun read(buffer: UByteArray, offset: Int = 0, len: Int = buffer.size - offset): Int {
         val result = buffer.usePinned { buf ->
-            read(buf.addressOf(offset), MPSizeT(1u), MPSizeT(len.toULong())).value.toInt()
+            read(buf.addressOf(offset), sizeT(1), sizeT(len)).toInt()
         }
         if (result == 0 && eof) return -1
         return result
