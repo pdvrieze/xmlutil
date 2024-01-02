@@ -28,7 +28,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 internal object DOMImplementationImpl : IDOMImplementation {
     val delegate: DOMImplementation =
-        DocumentBuilderFactory.newDefaultNSInstance().newDocumentBuilder().domImplementation
+        DocumentBuilderFactory.newInstance().apply {
+            isNamespaceAware = true
+        }.newDocumentBuilder().domImplementation
 
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
