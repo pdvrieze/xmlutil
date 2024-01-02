@@ -52,8 +52,8 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
             inputBufferEnd = inputBuffer.usePinned { b ->
                 inputStream.read(
                     b.addressOf(inputBufferOffset),
-                    SizeT(1u),
-                    sizeT((inputBuffer.size - inputBufferOffset).toULong())
+                    sizeT(1),
+                    sizeT((inputBuffer.size - inputBufferOffset))
                 ).toInt() + inputBufferOffset
             }
         }

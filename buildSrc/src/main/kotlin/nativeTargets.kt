@@ -20,6 +20,7 @@
 
 package net.devrieze.gradle.ext
 
+import gradle.kotlin.dsl.accessors._b43a41b3a2c24e7f863347686afebb31.ext
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -34,6 +35,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyTemplate
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -45,7 +47,19 @@ enum class Host {
 }
 
 enum class NativeState {
-    ALL, HOST, SINGLE, DISABLED
+    ALL{
+        override val hasWasm: Boolean get() = true
+    },
+    HOST_WASM {
+        override val hasWasm: Boolean get() = true
+    },
+    SINGLE {
+        override val hasWasm: Boolean get() = true
+    },
+    HOST,
+    DISABLED;
+
+    open val hasWasm: Boolean get() = false
 }
 
 private typealias TargetFun = KotlinMultiplatformExtension.() -> Unit
@@ -119,19 +133,26 @@ private val defaultXmlUtilHierarchyTemplate  = KotlinHierarchyTemplate {
     }
 }
 
-fun Project.addNativeTargets() {
+val Project.nativeState: NativeState
+    get() = rootProject.ext["nativeTargets"] as NativeState
+
+@OptIn(ExperimentalWasmDsl::class)
+fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean = true) {
     val ideaActive = System.getProperty("idea.active") == "true"
     val nativeState = when(property("native.deploy")?.toString()?.lowercase()) {
         "all", "true" -> NativeState.ALL
         "host" -> NativeState.HOST
+        "hostWasm" -> NativeState.HOST
         "disabled" -> NativeState.DISABLED
         "single" -> NativeState.SINGLE
         else -> {
-            logger.lifecycle("set the native.deploy=[all|host|disabled|single] property to specify the native mode." +
-                    "Defaulting to single")
+            logger.lifecycle("set the native.deploy=[all|host|hostWasm|disabled|single] property to specify the native mode.\n" +
+                    "  -- Defaulting to single mode")
             NativeState.SINGLE
         }
     }
+    rootProject.ext.set("nativeTargets", nativeState)
+
     val singleTargetMode = /*ideaActive || */nativeState == NativeState.SINGLE
 
     val ext = extensions.getByName<ExtraPropertiesExtension>("ext")
@@ -154,12 +175,34 @@ fun Project.addNativeTargets() {
 
     if (nativeState != NativeState.DISABLED) {
         with(kotlin) {
+            if (nativeState.hasWasm) {
+                if (includeWasm) {
+                    logger.lifecycle("Adding WASM support")
+                    wasmJs() {
+                        nodejs()
+                        browser {
+                            testTask {
+                                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
+                            }
+                        }
+                    }
+                }
+                if (includeWasi) {
+                    logger.lifecycle("Adding WASI support")
+                    wasmWasi {
+                        nodejs()
+                    }
+                }
+            }
+
             if (singleTargetMode) {
+                logger.lifecycle("Single target mode: $host")
                 @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
                 targetFun()
             } else {
                 if(true) {
                     if (nativeState != NativeState.HOST || host == Host.Linux) {
+                        logger.lifecycle("Adding Linux targets")
                         linuxX64()
                         linuxArm64()
                         @Suppress("DEPRECATION")
@@ -167,6 +210,7 @@ fun Project.addNativeTargets() {
                     }
 
                     if (nativeState != NativeState.HOST || host == Host.Macos) {
+                        logger.lifecycle("Adding Mac(ish) targets")
                         macosX64()
                         macosArm64()
                         iosArm64()
@@ -184,6 +228,7 @@ fun Project.addNativeTargets() {
                     }
 
                     if (nativeState != NativeState.HOST || host == Host.Windows) {
+                        logger.lifecycle("Adding Windows x64 target")
                         mingwX64 { }
                     }
                 }
@@ -192,7 +237,8 @@ fun Project.addNativeTargets() {
             @OptIn(ExternalVariantApi::class)
             project.logger.debug("Registering :${project.name}:nativeTest")
             @OptIn(ExternalVariantApi::class)
-            val nativeTest = project.tasks.register("nativeTest") {
+            project.tasks.register("nativeTest") {
+                group = "verification"
                 val testTasks = tasks.withType<KotlinNativeTest>().filter {
                     it is KotlinNativeHostTest &&
                             hostTarget.family.name in it.targetName!!.uppercase() &&
