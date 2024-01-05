@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolea
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -35,7 +35,8 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 @XmlSerialName("element", XSD_NS_URI, XSD_PREFIX)
@@ -96,6 +97,16 @@ class XSGlobalElement : XSElement {
         result = 31 * result + (final?.hashCode() ?: 0)
         result = 31 * result + (substitutionGroup?.hashCode() ?: 0)
         return result
+    }
+
+    override fun toString(): String {
+        return buildString {
+            append("XSGlobalElement(name=").append(name)
+            if (_abstract != null) append(", abstract=").append(_abstract)
+            if (final !=null) append(", final=").append(final)
+            if (! substitutionGroup.isNullOrEmpty()) append(", substitutionGroup=").append(substitutionGroup)
+            append(")")
+        }
     }
 
 }
