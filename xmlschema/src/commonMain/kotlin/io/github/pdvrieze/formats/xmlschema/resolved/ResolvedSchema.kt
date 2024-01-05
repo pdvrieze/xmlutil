@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
-import io.github.pdvrieze.formats.xmlschema.impl.updateOrPut
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -67,15 +66,15 @@ class ResolvedSchema(
 
         if (!builtin) {
             // Use getOrPut to ensure uniqueness
-            nestedData.updateOrPut(
+            nestedData.getOrPut(
                 key = BuiltinSchemaXmlschema.targetNamespace.value,
-                update = { BuiltinSchemaXmlschema.resolver + it },
+//                update = { BuiltinSchemaXmlschema.resolver + it },
                 defaultValue = { BuiltinSchemaXmlschema.resolver }
             )
 
-            nestedData.updateOrPut(
+            nestedData.getOrPut(
                 key = BuiltinSchemaXmlInstance.targetNamespace.value,
-                update = { BuiltinSchemaXmlInstance.resolver + it },
+//                update = { BuiltinSchemaXmlInstance.resolver + it },
                 defaultValue = { BuiltinSchemaXmlInstance.resolver }
             )
 
@@ -130,12 +129,22 @@ class ResolvedSchema(
         return data.action(name.localPart)
     }
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = withQName(typeName) {
-        maybeSimpleType(it)
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+        if (typeName.namespaceURI == BuiltinSchemaXmlschema.targetNamespace.value) {
+            BuiltinSchemaXmlschema.maybeSimpleType(typeName)?.let { return it }
+        }
+        return withQName(typeName) {
+            maybeSimpleType(it)
+        }
     }
 
-    override fun maybeType(typeName: QName): ResolvedGlobalType? = withQName(typeName) {
-        maybeType(it)
+    override fun maybeType(typeName: QName): ResolvedGlobalType? {
+        if (typeName.namespaceURI == BuiltinSchemaXmlschema.targetNamespace.value) {
+            BuiltinSchemaXmlschema.maybeType(typeName)?.let { return it }
+        }
+        return withQName(typeName) {
+            maybeType(it)
+        }
     }
 
     override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? =
@@ -151,8 +160,11 @@ class ResolvedSchema(
         maybeElement(it)
     }
 
-    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? = withQName(attributeName) {
-        maybeAttribute(it)
+    override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
+        return when (attributeName.namespaceURI) {
+            BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.attribute(attributeName)
+            else -> withQName(attributeName) { maybeAttribute(it) }
+        }
     }
 
     override fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint? =
@@ -269,48 +281,6 @@ class ResolvedSchema(
 
         fun substitutionGroupMembers(headName: String): Set<ResolvedGlobalElement> = emptySet()
 
-        operator fun plus(overlay: SchemaElementResolver): SchemaElementResolver {
-            return OverlayResolver(this, overlay)
-        }
-
-    }
-
-    private class OverlayResolver(
-        private val base: SchemaElementResolver,
-        private val overlay: SchemaElementResolver
-    ) : SchemaElementResolver {
-        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
-            return overlay.maybeSimpleType(typeName) ?: base.maybeSimpleType(typeName)
-        }
-
-        override fun maybeType(typeName: String): ResolvedGlobalType? {
-            return overlay.maybeType(typeName) ?: base.maybeType(typeName)
-        }
-
-        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
-            return overlay.maybeAttributeGroup(attributeGroupName) ?: base.maybeAttributeGroup(attributeGroupName)
-        }
-
-        override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
-            return overlay.maybeGroup(groupName) ?: base.maybeGroup(groupName)
-        }
-
-        override fun maybeElement(elementName: String): ResolvedGlobalElement? {
-            return overlay.maybeElement(elementName) ?: base.maybeElement(elementName)
-        }
-
-        override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
-            return overlay.maybeAttribute(attributeName) ?: base.maybeAttribute(attributeName)
-        }
-
-        override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
-            return overlay.maybeIdentityConstraint(constraintName)
-                ?: base.maybeIdentityConstraint(constraintName)
-        }
-
-        override fun maybeNotation(notationName: String): ResolvedNotation? {
-            return overlay.maybeNotation(notationName) ?: base.maybeNotation(notationName)
-        }
     }
 
     private inner class NestedData : SchemaElementResolver {
