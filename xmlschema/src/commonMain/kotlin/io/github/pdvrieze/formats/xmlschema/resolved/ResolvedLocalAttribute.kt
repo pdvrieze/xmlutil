@@ -56,7 +56,7 @@ class ResolvedLocalAttribute private constructor(
             check(parent is ResolvedComplexType) { "3.2.3(6.3.1) - Attribute with non-matching namespace must have complex type ancestor"}
             check(parent.mdlDerivationMethod == VDerivationControl.RESTRICTION)
             val contentType = parent.mdlContentType
-            check(contentType is ResolvedComplexType.ElementContentType) { "content type not elementContent, but ${contentType::class}" }
+            check(contentType !is ResolvedComplexType.EmptyContentType) { "Restricting an empty content type is not possible" }
             check(parent.mdlBaseTypeDefinition != AnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
         }
 
@@ -68,7 +68,7 @@ class ResolvedLocalAttribute private constructor(
                 else -> null
             }
         )
-        if (rawPart.targetNamespace!=null) {
+        if (rawPart.targetNamespace != null) {
             check(builtin || mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
                 "Attributes can not be declared into the XSI namespace"
             }
