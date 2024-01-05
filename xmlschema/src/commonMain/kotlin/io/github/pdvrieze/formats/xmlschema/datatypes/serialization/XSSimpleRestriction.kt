@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -39,8 +39,10 @@ class XSSimpleRestriction : XSSimpleDerivation, XSI_Annotated {
 
     @XmlElement(false)
     val base: SerializableQName?
+
     @XmlBefore("facets")
     val simpleType: XSLocalSimpleType?
+
     val facets: List<XSFacet>
 
     @XmlValue(true)

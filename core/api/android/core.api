@@ -266,6 +266,8 @@ public final class nl/adaptivity/xmlutil/XMLConstants {
 	public static final field XSD_PREFIX Ljava/lang/String;
 	public static final field XSI_NS_URI Ljava/lang/String;
 	public static final field XSI_PREFIX Ljava/lang/String;
+	public static final field XSVER_NS_URI Ljava/lang/String;
+	public static final field XSVER_PREFIX Ljava/lang/String;
 }
 
 public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil/XmlReader {

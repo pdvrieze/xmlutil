@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -23,10 +23,12 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 
 class XSGlobalComplexTypeShorthand(
     name: VNCName,
@@ -43,6 +45,12 @@ class XSGlobalComplexTypeShorthand(
     override val openContent: XSOpenContent?,
     id: VID? = null,
     annotation: XSAnnotation? = null,
+    override val vcMinVersion: SchemaVersion?,
+    override val vcMaxVersion: SchemaVersion?,
+    override val vcTypeAvailable: List<SerializableQName>?,
+    override val vcTypeUnAvailable: List<SerializableQName>?,
+    override val vcFacetAvailable: List<SerializableQName>?,
+    override val vcFacetUnAvailable: List<SerializableQName>?,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSGlobalComplexType(
     name,

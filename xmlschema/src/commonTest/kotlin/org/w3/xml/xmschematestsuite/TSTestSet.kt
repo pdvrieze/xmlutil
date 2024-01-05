@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -32,7 +32,8 @@ class TSTestSet(
     val contributor: String,
     val name: String,
     @SerialName("version")
-    val schemaVersion : SchemaVersion? = null,
+    @XmlElement(false)
+    val schemaVersions: List<SchemaVersion>? = null,
     @XmlElement(true)
     val annotation: TSAnnotation? = null,
     @XmlElement(true)

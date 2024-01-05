@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -49,7 +49,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         annotation: XSAnnotation? = null,
         otherContents: List<CompactFragment> = emptyList(),
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs) {
+    ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs = otherAttrs) {
         this.base = base
         this.simpleType = simpleType
         this.facets = facets

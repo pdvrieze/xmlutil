@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBigDecimalImpl
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -31,41 +33,42 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(SchemaVersion.Companion::class)
-enum class SchemaVersion {
-    V1_0, V1_1;
+sealed class SchemaVersion {
+
+    object V1_0: SchemaVersion()
+
+    object V1_1: SchemaVersion()
+
+    class Unknown(val ver: VDecimal): SchemaVersion()
 
     @OptIn(ExperimentalSerializationApi::class)
-    companion object : KSerializer<SchemaVersion?> {
+    companion object : KSerializer<SchemaVersion> {
+
+        val entries: List<SchemaVersion> = listOf(V1_0, V1_1)
+
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
                 "io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion",
             PrimitiveKind.STRING
         ).nullable
 
-        override fun serialize(encoder: Encoder, value: SchemaVersion?) {
+        override fun serialize(encoder: Encoder, value: SchemaVersion) {
             when(value) {
-                V1_0 -> {
-                    encoder.encodeNotNullMark()
-                    encoder.encodeString("1.0")
-                }
-                V1_1 -> {
-                    encoder.encodeNotNullMark()
-                    encoder.encodeString("1.1")
-                }
-                null -> encoder.encodeNull()
+                V1_0 -> encoder.encodeString("1.0")
+
+                V1_1 -> encoder.encodeString("1.1")
+
+                is Unknown -> encoder.encodeString(value.ver.xmlString)
             }
         }
 
-        override fun deserialize(decoder: Decoder): SchemaVersion? {
-            return when {
-                decoder.decodeNotNullMark() -> fromXml(decoder.decodeString())
-                else -> null
-            }
+        override fun deserialize(decoder: Decoder): SchemaVersion {
+            return fromXml(decoder.decodeString())
         }
 
-        fun fromXml(xml: String): SchemaVersion? = when (xml) {
-            "1.0" -> SchemaVersion.V1_0
-            "1.1" -> SchemaVersion.V1_1
-            else -> null
+        fun fromXml(xml: String): SchemaVersion = when (xml) {
+            "1.0" -> V1_0
+            "1.1" -> V1_1
+            else -> Unknown(VBigDecimalImpl(xml))
         }
     }
 }

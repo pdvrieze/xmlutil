@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -120,7 +120,8 @@ private fun XSLocalSimpleType.filterUnionFacets(): XSLocalSimpleType {
                 base, simpleType, filteredFacets, otherContents, id, annotation, otherAttrs
             )
         }
+
         else -> return this
     }
-    return XSLocalSimpleType(newDerivation, id, annotation, otherAttrs)
+    return XSLocalSimpleType(newDerivation, id, annotation, otherAttrs = otherAttrs)
 }

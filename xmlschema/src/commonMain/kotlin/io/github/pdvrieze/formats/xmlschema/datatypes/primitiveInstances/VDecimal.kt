@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -60,7 +60,7 @@ internal class VBigDecimalImpl(override val xmlString: String) : VBigDecimal {
         ++next
         while (next < len) {
             if (xmlString[next] !in '0'..'9') { // sign
-                throw NumberFormatException("Decimal digits (after dot) must only be  digits")
+                throw NumberFormatException("Decimal digits (after dot) must only be  digits ($xmlString)")
             }
             ++next
         }

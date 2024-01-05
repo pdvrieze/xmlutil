@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAny : XSAnyBase, XSI_AllParticle {
     override val maxOccurs: VAllNNI?
     override val minOccurs: VNonNegativeInteger?
-    
+
     @XmlElement(false)
     override val notQName: VQNameList?
 

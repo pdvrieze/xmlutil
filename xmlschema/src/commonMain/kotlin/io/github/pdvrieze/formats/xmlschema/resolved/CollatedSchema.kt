@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -1057,7 +1057,7 @@ private inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateTo
 ): M {
     for (element in this) {
         val (key, value) = keySelector(element)
-        require(key !in destination) { "Duplicate key on unique association" }
+        require(key !in destination) { "Duplicate key ($key) on unique association" }
         destination.put(key, value)
     }
     return destination
@@ -1067,7 +1067,7 @@ private inline fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
     destination: M
 ): M {
     for ((key, value) in this) {
-        require(key !in destination) { "Duplicate key on unique association" }
+        require(key !in destination) { "Duplicate key ($key) on unique association" }
         destination.put(key, value)
     }
     return destination

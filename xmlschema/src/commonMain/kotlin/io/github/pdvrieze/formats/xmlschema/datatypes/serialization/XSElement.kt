@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,15 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
-import nl.adaptivity.xmlutil.serialization.XmlBefore
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.serialization.*
 
 @Serializable
 sealed class XSElement : XSI_Annotated {
@@ -57,6 +59,24 @@ sealed class XSElement : XSI_Annotated {
 
     @XmlBefore("identityConstraints")
     val alternatives: List<XSAlternative>// get() = emptyList()
+
+    @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcMinVersion: SchemaVersion? = null
+
+    @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcMaxVersion: SchemaVersion? = null
+
+    @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcTypeAvailable: List<SerializableQName>? = null
+
+    @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcTypeUnAvailable: List<SerializableQName>? = null
+
+    @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcFacetAvailable: List<SerializableQName>? = null
+
+    @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcFacetUnAvailable: List<SerializableQName>? = null
 
     @XmlOtherAttributes
     final override val otherAttrs: Map<SerializableQName, String>

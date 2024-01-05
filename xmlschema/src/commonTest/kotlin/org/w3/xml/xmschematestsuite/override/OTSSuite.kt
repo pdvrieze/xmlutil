@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -116,7 +116,7 @@ data class OTSTestSet(val name: String, val groups: List<OTSTestGroup> = emptyLi
         return TSTestSet(
             original.contributor,
             original.name,
-            original.schemaVersion,
+            original.schemaVersions,
             original.annotation,
             newGroups
         )

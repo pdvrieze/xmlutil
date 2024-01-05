@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -22,9 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 class XSLocalComplexTypeShorthand(
     mixed: Boolean? = null,
@@ -37,6 +41,18 @@ class XSLocalComplexTypeShorthand(
     override val openContent: XSOpenContent? = null,
     id: VID? = null,
     annotation: XSAnnotation? = null,
+    @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcMinVersion: SchemaVersion? = null,
+    @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcMaxVersion: SchemaVersion? = null,
+    @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcTypeAvailable: List<SerializableQName>? = null,
+    @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcTypeUnAvailable: List<SerializableQName>? = null,
+    @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcFacetAvailable: List<SerializableQName>? = null,
+    @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcFacetUnAvailable: List<SerializableQName>? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) : XSLocalComplexType(
     mixed,

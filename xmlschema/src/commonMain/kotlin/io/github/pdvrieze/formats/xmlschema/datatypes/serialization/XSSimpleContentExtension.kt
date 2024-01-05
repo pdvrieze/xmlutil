@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -42,7 +42,15 @@ class XSSimpleContentExtension : XSSimpleContentDerivation {
         asserts: List<XSAssert> = emptyList(),
         annotation: XSAnnotation? = null,
         otherAttrs: Map<QName, String> = emptyMap()
-    ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs) {
+    ) : super(
+        id,
+        attributes,
+        attributeGroups,
+        anyAttribute,
+        asserts,
+        annotation,
+        otherAttrs = otherAttrs
+    ) {
         this.base = base
     }
 

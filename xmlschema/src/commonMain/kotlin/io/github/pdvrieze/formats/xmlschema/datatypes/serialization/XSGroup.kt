@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -24,10 +24,13 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.XmlBefore
@@ -44,6 +47,18 @@ class XSGroup(
     val content: XSGroupElement,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
+    @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcMinVersion: SchemaVersion? = null,
+    @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcMaxVersion: SchemaVersion? = null,
+    @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcTypeAvailable: List<SerializableQName>? = null,
+    @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcTypeUnAvailable: List<SerializableQName>? = null,
+    @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcFacetAvailable: List<SerializableQName>? = null,
+    @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+    override val vcFacetUnAvailable: List<SerializableQName>? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<QName, String> = emptyMap()
 ) : XSI_Annotated {
@@ -61,6 +76,18 @@ class XSGroup(
         override val annotation: XSAnnotation? = null,
         @XmlId
         override val id: VID? = null,
+        @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcMinVersion: SchemaVersion? = null,
+        @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcMaxVersion: SchemaVersion? = null,
+        @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcTypeAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcTypeUnAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcFacetAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcFacetUnAvailable: List<SerializableQName>? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSGroupElement()
@@ -73,6 +100,18 @@ class XSGroup(
         override val annotation: XSAnnotation? = null,
         @XmlId
         override val id: VID? = null,
+        @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcMinVersion: SchemaVersion? = null,
+        @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcMaxVersion: SchemaVersion? = null,
+        @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcTypeAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcTypeUnAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcFacetAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcFacetUnAvailable: List<SerializableQName>? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSGroupElement()
@@ -85,6 +124,18 @@ class XSGroup(
         override val annotation: XSAnnotation? = null,
         @XmlId
         override val id: VID? = null,
+        @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcMinVersion: SchemaVersion? = null,
+        @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcMaxVersion: SchemaVersion? = null,
+        @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcTypeAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcTypeUnAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcFacetAvailable: List<SerializableQName>? = null,
+        @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
+        override val vcFacetUnAvailable: List<SerializableQName>? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<QName, String> = emptyMap()
     ) : XSGroupElement()
