@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -48,8 +48,7 @@ class ResolvedGlobalAttribute internal constructor(
     override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
 
     init {
-        require(schema.targetNamespace?.value == XMLConstants.XSI_NS_URI ||
-                mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
+        require(builtin || mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
             "Attributes can not be declared into the XSI namespace"
         }
     }

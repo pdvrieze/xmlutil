@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -30,12 +30,15 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.namespaceURI
 
 class ResolvedLocalAttribute private constructor(
     parent: VAttributeScope.Member,
     elem: SchemaElement<XSLocalAttribute>,
     localAttributeFormDefault: VFormChoice,
-    unresolvedSchema: ResolvedSchemaLike
+    unresolvedSchema: ResolvedSchemaLike,
+    builtin: Boolean
 ) : ResolvedAttributeDef(elem, elem.effectiveSchema(unresolvedSchema)), IResolvedAttributeUse {
 
     override val mdlQName: QName
@@ -65,6 +68,11 @@ class ResolvedLocalAttribute private constructor(
                 else -> null
             }
         )
+        if (rawPart.targetNamespace!=null) {
+            check(builtin || mdlQName.namespaceURI != XMLConstants.XSI_NS_URI) {
+                "Attributes can not be declared into the XSI namespace"
+            }
+        }
     }
 
 
@@ -109,13 +117,13 @@ class ResolvedLocalAttribute private constructor(
             parent: VAttributeScope.Member,
             elem: SchemaElement<XSLocalAttribute>,
             schema: ResolvedSchemaLike,
-            localAttributeFormDefault: VFormChoice
+            localAttributeFormDefault: VFormChoice,
         ): IResolvedAttributeUse {
             val rawPart = elem.elem
             return when (rawPart.use) {
                 XSAttrUse.PROHIBITED -> ResolvedProhibitedAttribute(rawPart, schema)
                 else -> when (rawPart.ref) {
-                    null -> ResolvedLocalAttribute(parent, elem, localAttributeFormDefault, schema)
+                    null -> ResolvedLocalAttribute(parent, elem, localAttributeFormDefault, schema, elem.builtin)
                     else -> ResolvedAttributeRef(parent, rawPart, schema)
                 }
             }
