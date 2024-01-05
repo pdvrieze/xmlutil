@@ -33,13 +33,35 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(SchemaVersion.Companion::class)
-sealed class SchemaVersion {
+sealed class SchemaVersion : Comparable<SchemaVersion> {
 
-    object V1_0: SchemaVersion()
+    object V1_0: SchemaVersion() {
+        internal val decimal = VBigDecimalImpl("1.0")
 
-    object V1_1: SchemaVersion()
+        override fun compareTo(other: SchemaVersion): Int = when(other) {
+            is Unknown -> decimal.compareTo(other.ver)
+            V1_0 -> 0
+            V1_1 -> -1
+        }
+    }
 
-    class Unknown(val ver: VDecimal): SchemaVersion()
+    object V1_1: SchemaVersion() {
+        internal val decimal = VBigDecimalImpl("1.0")
+
+        override fun compareTo(other: SchemaVersion): Int = when(other) {
+            is Unknown -> decimal.compareTo(other.ver)
+            V1_0 -> 1
+            V1_1 -> 0
+        }
+    }
+
+    class Unknown(val ver: VDecimal): SchemaVersion() {
+        override fun compareTo(other: SchemaVersion): Int = when(other) {
+            is Unknown -> ver.compareTo(other.ver)
+            V1_0 -> ver.compareTo(V1_0.decimal)
+            V1_1 -> ver.compareTo(V1_1.decimal)
+        }
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
     companion object : KSerializer<SchemaVersion> {
