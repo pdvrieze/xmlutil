@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.impl.updateOrPut
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -64,16 +65,27 @@ class ResolvedSchema(
             this.nestedData[importNs] = past?.mergeWith(nestedData) ?: nestedData
         }
 
-        // Use getOrPut to ensure uniqueness
-        nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
-        nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
+        if (!builtin) {
+            // Use getOrPut to ensure uniqueness
+            nestedData.updateOrPut(
+                key = BuiltinSchemaXmlschema.targetNamespace.value,
+                update = { BuiltinSchemaXmlschema.resolver + it },
+                defaultValue = { BuiltinSchemaXmlschema.resolver }
+            )
 
-        if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
-            XMLConstants.XML_NS_URI in allNeededNamespaces
-        ) {
-            val old = nestedData.getOrPut(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
+            nestedData.updateOrPut(
+                key = BuiltinSchemaXmlInstance.targetNamespace.value,
+                update = { BuiltinSchemaXmlInstance.resolver + it },
+                defaultValue = { BuiltinSchemaXmlInstance.resolver }
+            )
+
+            if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
+                XMLConstants.XML_NS_URI in allNeededNamespaces
+            ) {
+                val old =
+                    nestedData.getOrPut(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
+            }
         }
-
         visibleNamespaces = rootData.importedNamespaces.toSet()
 
     }
@@ -257,6 +269,48 @@ class ResolvedSchema(
 
         fun substitutionGroupMembers(headName: String): Set<ResolvedGlobalElement> = emptySet()
 
+        operator fun plus(overlay: SchemaElementResolver): SchemaElementResolver {
+            return OverlayResolver(this, overlay)
+        }
+
+    }
+
+    private class OverlayResolver(
+        private val base: SchemaElementResolver,
+        private val overlay: SchemaElementResolver
+    ) : SchemaElementResolver {
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+            return overlay.maybeSimpleType(typeName) ?: base.maybeSimpleType(typeName)
+        }
+
+        override fun maybeType(typeName: String): ResolvedGlobalType? {
+            return overlay.maybeType(typeName) ?: base.maybeType(typeName)
+        }
+
+        override fun maybeAttributeGroup(attributeGroupName: String): ResolvedGlobalAttributeGroup? {
+            return overlay.maybeAttributeGroup(attributeGroupName) ?: base.maybeAttributeGroup(attributeGroupName)
+        }
+
+        override fun maybeGroup(groupName: String): ResolvedGlobalGroup? {
+            return overlay.maybeGroup(groupName) ?: base.maybeGroup(groupName)
+        }
+
+        override fun maybeElement(elementName: String): ResolvedGlobalElement? {
+            return overlay.maybeElement(elementName) ?: base.maybeElement(elementName)
+        }
+
+        override fun maybeAttribute(attributeName: String): ResolvedGlobalAttribute? {
+            return overlay.maybeAttribute(attributeName) ?: base.maybeAttribute(attributeName)
+        }
+
+        override fun maybeIdentityConstraint(constraintName: String): ResolvedIdentityConstraint? {
+            return overlay.maybeIdentityConstraint(constraintName)
+                ?: base.maybeIdentityConstraint(constraintName)
+        }
+
+        override fun maybeNotation(notationName: String): ResolvedNotation? {
+            return overlay.maybeNotation(notationName) ?: base.maybeNotation(notationName)
+        }
     }
 
     private inner class NestedData : SchemaElementResolver {

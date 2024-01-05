@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -86,4 +86,14 @@ internal inline fun <R, T> Result<T>.flatMap(transform: (value: T) -> Result<R>)
         onSuccess = { v -> transform(v) },
         onFailure = { e -> Result.failure(e) }
     )
+}
+
+internal fun <K, V> MutableMap<K, V>.updateOrPut(key: K, update: (V) -> V, defaultValue: () -> V): V {
+    val v = get(key)
+    val newValue = when (v) {
+        null -> defaultValue()
+        else -> update(v)
+    }
+    set(key, newValue)
+    return newValue
 }
