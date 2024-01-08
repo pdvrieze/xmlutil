@@ -28,11 +28,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
-import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 @Serializable
 sealed class XSFacet : XSI_Annotated {
@@ -48,24 +46,6 @@ sealed class XSFacet : XSI_Annotated {
     @XmlBefore("*")
     final override val annotation: XSAnnotation?
 
-    @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-    override val vcMinVersion: SchemaVersion? = null
-
-    @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-    override val vcMaxVersion: SchemaVersion? = null
-
-    @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-    override val vcTypeAvailable: List<SerializableQName>? = null
-
-    @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-    override val vcTypeUnAvailable: List<SerializableQName>? = null
-
-    @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-    override val vcFacetAvailable: List<SerializableQName>? = null
-
-    @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-    override val vcFacetUnAvailable: List<SerializableQName>? = null
-
     @XmlOtherAttributes
     final override val otherAttrs: Map<SerializableQName, String>
 
@@ -77,7 +57,11 @@ sealed class XSFacet : XSI_Annotated {
 
     @Serializable
     sealed class NotFixed : XSFacet {
-        constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs)
+        constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(
+            id,
+            annotation,
+            otherAttrs
+        )
 
         final override val fixed: Nothing? get() = null
     }
@@ -88,7 +72,12 @@ sealed class XSFacet : XSI_Annotated {
         private val _fixed: VBoolean?
         final override val fixed: Boolean? get() = _fixed?.value
 
-        constructor(fixed: Boolean?, id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs) {
+        constructor(
+            fixed: Boolean?,
+            id: VID?,
+            annotation: XSAnnotation?,
+            otherAttrs: Map<SerializableQName, String>
+        ) : super(id, annotation, otherAttrs) {
             this._fixed = fixed?.let(::VBoolean)
         }
     }

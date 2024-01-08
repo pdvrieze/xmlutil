@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -34,8 +33,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.SerializableQName
-import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.*
@@ -92,18 +89,6 @@ sealed class XSGlobalComplexType(
         val id: VID? = null,
         @XmlBefore("*")
         val annotation: XSAnnotation? = null,
-        @XmlSerialName("minVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-        val vcMinVersion: SchemaVersion? = null,
-        @XmlSerialName("maxVersion", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-        val vcMaxVersion: SchemaVersion? = null,
-        @XmlSerialName("typeAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-        val vcTypeAvailable: List<SerializableQName>? = null,
-        @XmlSerialName("typeUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-        val vcTypeUnAvailable: List<SerializableQName>? = null,
-        @XmlSerialName("facetAvailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-        val vcFacetAvailable: List<SerializableQName>? = null,
-        @XmlSerialName("facetUnavailable", XMLConstants.XSVER_NS_URI, XMLConstants.XSVER_PREFIX)
-        val vcFacetUnAvailable: List<SerializableQName>? = null,
         @XmlOtherAttributes
         val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) {
@@ -111,13 +96,15 @@ sealed class XSGlobalComplexType(
             // TODO verify
             return when {
                 simpleContent != null -> {
-                    require(complexContent == null &&
-                            openContent == null &&
-                            term == null &&
-                            attributes.isEmpty() &&
-                            attributeGroups.isEmpty()
-                            && anyAttribute == null
-                            && asserts.isEmpty()) {
+                    require(
+                        complexContent == null &&
+                                openContent == null &&
+                                term == null &&
+                                attributes.isEmpty() &&
+                                attributeGroups.isEmpty()
+                                && anyAttribute == null
+                                && asserts.isEmpty()
+                    ) {
                         "No shorthand content allowed if simple content is specified"
                     }
 
@@ -131,24 +118,20 @@ sealed class XSGlobalComplexType(
                         content = simpleContent,
                         id = id,
                         annotation = annotation,
-                        vcMinVersion = vcMinVersion,
-                        vcMaxVersion = vcMaxVersion,
-                        vcTypeAvailable = vcTypeAvailable,
-                        vcTypeUnAvailable = vcTypeUnAvailable,
-                        vcFacetAvailable = vcFacetAvailable,
-                        vcFacetUnAvailable = vcFacetUnAvailable,
                         otherAttrs = otherAttrs,
                     )
                 }
 
                 complexContent != null -> {
                     // simpleContent is null by inference
-                    require(openContent == null &&
-                            term == null &&
-                            attributes.isEmpty() &&
-                            attributeGroups.isEmpty()
-                            && anyAttribute == null
-                            && asserts.isEmpty()) {
+                    require(
+                        openContent == null &&
+                                term == null &&
+                                attributes.isEmpty() &&
+                                attributeGroups.isEmpty()
+                                && anyAttribute == null
+                                && asserts.isEmpty()
+                    ) {
                         "No shorthand content allowed if simple content is specified"
                     }
                     XSGlobalComplexTypeComplex(
@@ -161,12 +144,6 @@ sealed class XSGlobalComplexType(
                         content = complexContent,
                         id = id,
                         annotation = annotation,
-                        vcMinVersion = vcMinVersion,
-                        vcMaxVersion = vcMaxVersion,
-                        vcTypeAvailable = vcTypeAvailable,
-                        vcTypeUnAvailable = vcTypeUnAvailable,
-                        vcFacetAvailable = vcFacetAvailable,
-                        vcFacetUnAvailable = vcFacetUnAvailable,
                         otherAttrs = otherAttrs,
                     )
                 }
@@ -186,12 +163,6 @@ sealed class XSGlobalComplexType(
                     openContent = openContent,
                     id = id,
                     annotation = annotation,
-                    vcMinVersion = vcMinVersion,
-                    vcMaxVersion = vcMaxVersion,
-                    vcTypeAvailable = vcTypeAvailable,
-                    vcTypeUnAvailable = vcTypeUnAvailable,
-                    vcFacetAvailable = vcFacetAvailable,
-                    vcFacetUnAvailable = vcFacetUnAvailable,
                     otherAttrs = otherAttrs,
                 )
             }
@@ -205,7 +176,10 @@ sealed class XSGlobalComplexType(
 
         @OptIn(ExperimentalSerializationApi::class)
         override val descriptor: SerialDescriptor =
-            SerialDescriptor("io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalComplexType", delegateSerializer.descriptor)
+            SerialDescriptor(
+                "io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalComplexType",
+                delegateSerializer.descriptor
+            )
 
         override fun serialize(encoder: Encoder, value: XSGlobalComplexType) {
             delegateSerializer.serialize(encoder, value.toSerialDelegate())

@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 
@@ -29,13 +28,6 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
  * added to user schemas.
  */
 interface XSI_OpenAttrs {
-    val vcMinVersion: SchemaVersion?
-    val vcMaxVersion: SchemaVersion?
-    val vcTypeAvailable: List<SerializableQName>?
-    val vcTypeUnAvailable: List<SerializableQName>?
-    val vcFacetAvailable: List<SerializableQName>?
-    val vcFacetUnAvailable: List<SerializableQName>?
-
     @XmlOtherAttributes
     val otherAttrs: Map<SerializableQName, String>
 }
