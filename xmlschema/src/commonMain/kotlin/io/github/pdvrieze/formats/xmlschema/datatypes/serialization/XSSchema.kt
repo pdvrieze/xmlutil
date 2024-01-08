@@ -271,6 +271,7 @@ class XSSchema : XSOpenAttrsBase {
                 attributes = attributes,
                 attributeGroups = attributeGroups,
                 notations = notations,
+                otherAttrs = otherAttrs,
             )
         }
 
@@ -298,6 +299,7 @@ class XSSchema : XSOpenAttrsBase {
             attributes = schema.attributes,
             attributeGroups = schema.attributeGroups,
             notations = schema.notations,
+            otherAttrs = schema.otherAttrs,
         )
     }
 
