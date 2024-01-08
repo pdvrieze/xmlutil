@@ -21,6 +21,7 @@
 package org.w3.xml.xmschematestsuite
 
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -32,6 +33,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("instanceTest", TS_NAMESPACE, TS_PREFIX)
 data class TSInstanceTest(
     val name: String,
+    @SerialName("version")
+    @XmlElement(false)
     val versions: List<SchemaVersion>? = null,
     @XmlElement(true)
     val instanceDocument: TSInstanceDocument,

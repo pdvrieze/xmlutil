@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -91,7 +91,7 @@ class TestXSTestSuite {
                         for (group in testSet.testGroups) {
                             if (true || group.name.equals("id040")) {
                                 dynamicContainer("Group '${group.name}'") {
-                                    addSchemaTests(setBaseUrl, group, testSet.schemaVersion?.let(::listOf))
+                                    addSchemaTests(setBaseUrl, group, testSet.schemaVersions)
                                 }
                             }
                         }
@@ -107,7 +107,9 @@ class TestXSTestSuite {
                     ts.testGroups.flatMap { tg ->
                         listOfNotNull(tg.schemaTest)
                     }.filter { schemaTest ->
-                        schemaTest.expected.firstOrNull { it.version != "1.1" }?.validity == TSValidityOutcome.VALID
+                        schemaTest.expected.firstOrNull { exp ->
+                            exp.versions.let { ver -> ver == null || SchemaVersion.V1_1 !in ver }
+                        }?.validity == TSValidityOutcome.VALID
                     }.flatMap { schemaTest ->
                         schemaTest.schemaDocuments
                     }.map { schemaDoc ->
@@ -459,7 +461,9 @@ private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
             assertNotNull(stream)
         }
     }
-    if (instanceTest.expected.firstOrNull { it.version != "1.0" }?.validity == TSValidityOutcome.VALID) {
+    if (instanceTest.expected.firstOrNull { e ->
+        e.versions.let { it ==null || SchemaVersion.V1_0 in it }
+    }?.validity == TSValidityOutcome.VALID) {
         val schemaLocation = schemaDoc.href.toAnyUri()
         val schema = resolver.readSchema(schemaLocation).resolve(resolver)
 
@@ -487,18 +491,15 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
 
     val expecteds = mutableMapOf<SchemaVersion, TSExpected>()
     for (e in schemaTest.expected) {
-        val version = when (e.version) {
-            "1.0" -> SchemaVersion.V1_0
-            "1.1" -> SchemaVersion.V1_1
-            else -> null
-        }
-        when (version) {
+        when (e.versions) {
             null -> {
                 for (ver in defaultVersions) {
                     expecteds.getOrPut(ver) { e }
                 }
             }
-            else -> expecteds[version] = e
+            else -> for (v in e.versions) {
+                expecteds[v] = e
+            }
         }
     }
 
@@ -511,7 +512,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
             TSValidityOutcome.INVALID_LAX,
             TSValidityOutcome.INVALID -> {
                 if (true) {
-                    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
+                    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel} ($expectedValidity)") {
                         val e = assertFails(documentation) {
                             val schemaLocation = schemaDoc.href.toAnyUri()
                             val schema = resolver.readSchema(schemaLocation)

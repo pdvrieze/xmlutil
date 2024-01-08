@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,8 @@
 
 package org.w3.xml.xmschematestsuite
 
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -34,8 +36,9 @@ open class TSExpected {
     @XmlElement(false)
     val validity: TSValidityOutcome
 
+    @SerialName("version")
     @XmlElement(false)
-    val version: String?
+    val versions: List<SchemaVersion>?
 
     @XmlOtherAttributes
     val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String>
@@ -46,22 +49,22 @@ open class TSExpected {
 
     constructor(
         validity: TSValidityOutcome,
-        version: String? = null,
+        versions: List<SchemaVersion>? = null,
         otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) {
         this.validity = validity
-        this.version = version
+        this.versions = versions
         this.otherAttributes = otherAttributes
     }
 
     open fun copy(
         validity: TSValidityOutcome = this.validity,
-        version: String? = this.version,
+        versions: List<SchemaVersion>? = this.versions,
         exception: String? = null,
         message: Regex? = null,
         annotation: String? = null,
         otherAttributes: Map<QName, String> = this.otherAttributes
     ): OTSExpected {
-        return OTSExpected(validity, version, exception, message, annotation, otherAttributes)
+        return OTSExpected(validity, versions, exception, message, annotation, otherAttributes)
     }
 }

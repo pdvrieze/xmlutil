@@ -22,6 +22,7 @@ package org.w3.xml.xmschematestsuite.override
 
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -189,30 +190,31 @@ data class OTSTestGroup(
 
 private fun mergeExpecteds(originalExpected: List<TSExpected>, overridden: List<TSExpected>): List<TSExpected> {
     val newExpected: List<TSExpected> = when {
-        overridden.all { it.version == null } &&
-                originalExpected.all { it.version == null } -> overridden // just override
+        overridden.all { it.versions == null } &&
+                originalExpected.all { it.versions == null } -> overridden // just override
         else -> {
             val ex = arrayOfNulls<TSExpected>(2)
             for (e in originalExpected) {
-                when (e.version) {
-                    null -> {
-                        if (ex[0] == null) ex[0] = e.copy(version = "1.0")
-                        if (ex[1] == null) ex[1] = e.copy(version = "1.1")
+                for (v in e.versions ?: listOf(SchemaVersion.entries)) {
+                    when (v) {
+                        SchemaVersion.V1_0 -> ex[0] = e
+                        SchemaVersion.V1_1 -> ex[1] = e
                     }
-
-                    "1.0" -> ex[0] = e
-                    "1.1" -> ex[1] = e
                 }
             }
             for (e in overridden) {
-                when (e.version) {
-                    null -> {
-                        if (overridden.none { it.version == "1.0" }) ex[0] = e.copy(version = "1.0")
-                        if (overridden.none { it.version == "1.1" }) ex[1] = e.copy(version = "1.1")
+                for (v in e.versions ?: emptyList()) {
+                    when (v) {
+                        SchemaVersion.V1_0 -> ex[0] = e
+                        else -> ex[1] = e
                     }
-
-                    "1.0" -> ex[0] = e
-                    "1.1" -> ex[1] = e
+                }
+                when (e.versions) {
+                    null -> {
+                        val versions = overridden.flatMapTo(HashSet()) { it.versions ?: emptyList() }
+                        if (SchemaVersion.V1_0 !in versions) ex[0] = e.copy(versions = listOf(SchemaVersion.V1_0))
+                        if (SchemaVersion.V1_1 !in versions) ex[0] = e.copy(versions = listOf(SchemaVersion.V1_1))
+                    }
                 }
             }
             ex.filterNotNull()
@@ -234,12 +236,12 @@ class OTSExpected : TSExpected {
 
     constructor(
         validity: TSValidityOutcome,
-        version: String? = null,
+        versions: List<SchemaVersion>? = null,
         exception: String? = null,
         message: Regex? = null,
         annotation: String? = null,
         otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-    ) : super(validity, version, otherAttributes) {
+    ) : super(validity, versions, otherAttributes) {
         this.exception = exception
         this.message = message
         this.annotation = annotation
@@ -247,18 +249,20 @@ class OTSExpected : TSExpected {
 
     override fun copy(
         validity: TSValidityOutcome,
-        version: String?,
+        versions: List<SchemaVersion>?,
         exception: String?,
         message: Regex?,
         annotation: String?,
         otherAttributes: Map<QName, String>
-    ): OTSExpected = OTSExpected(validity, version, exception, message, annotation, otherAttributes)
+    ): OTSExpected = OTSExpected(validity, versions, exception, message, annotation, otherAttributes)
 }
 
 
 @Serializable
 data class OTSSchemaTest(
     val name: String,
+    @SerialName("version")
+    @XmlElement(false)
     val versions: List<SchemaVersion>? = null,
     val expecteds: List<TSExpected> = emptyList(),
     val isIgnored: Boolean = false,
@@ -274,6 +278,8 @@ data class OTSSchemaTest(
 @Serializable
 data class OTSInstanceTest(
     val name: String,
+    @SerialName("version")
+    @XmlElement(false)
     val versions: List<SchemaVersion>? = null,
     val expecteds: List<TSExpected> = emptyList(),
     val isIgnored: Boolean = false,
