@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBigDecimalImpl
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
-import kotlinx.serialization.ExperimentalSerializationApi
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -39,31 +39,46 @@ sealed class SchemaVersion : Comparable<SchemaVersion> {
         internal val decimal = VBigDecimalImpl("1.0")
 
         override fun compareTo(other: SchemaVersion): Int = when(other) {
-            is Unknown -> decimal.compareTo(other.ver)
+            is UnknownDecimal -> decimal.compareTo(other.ver)
+            is UnknownToken -> -1
             V1_0 -> 0
             V1_1 -> -1
         }
+
+        override fun toString(): String = "1.0"
     }
 
     object V1_1: SchemaVersion() {
-        internal val decimal = VBigDecimalImpl("1.0")
+        internal val decimal = VBigDecimalImpl("1.1")
 
         override fun compareTo(other: SchemaVersion): Int = when(other) {
-            is Unknown -> decimal.compareTo(other.ver)
+            is UnknownDecimal -> decimal.compareTo(other.ver)
+            is UnknownToken -> -1
             V1_0 -> 1
             V1_1 -> 0
         }
+
+        override fun toString(): String = "1.1"
+
     }
 
-    class Unknown(val ver: VDecimal): SchemaVersion() {
+    class UnknownDecimal(val ver: VDecimal): SchemaVersion() {
         override fun compareTo(other: SchemaVersion): Int = when(other) {
-            is Unknown -> ver.compareTo(other.ver)
+            is UnknownDecimal -> ver.compareTo(other.ver)
+            is UnknownToken -> -1
             V1_0 -> ver.compareTo(V1_0.decimal)
             V1_1 -> ver.compareTo(V1_1.decimal)
         }
+
+        override fun toString(): String = ver.xmlString
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
+    class UnknownToken(val token: VToken): SchemaVersion() {
+        override fun compareTo(other: SchemaVersion): Int = 1
+
+        override fun toString(): String = token.xmlString
+    }
+
     companion object : KSerializer<SchemaVersion> {
 
         val entries: List<SchemaVersion> = listOf(V1_0, V1_1)
@@ -79,7 +94,9 @@ sealed class SchemaVersion : Comparable<SchemaVersion> {
 
                 V1_1 -> encoder.encodeString("1.1")
 
-                is Unknown -> encoder.encodeString(value.ver.xmlString)
+                is UnknownDecimal -> encoder.encodeString(value.ver.xmlString)
+
+                is UnknownToken -> encoder.encodeString(value.token.xmlString)
             }
         }
 
@@ -90,7 +107,11 @@ sealed class SchemaVersion : Comparable<SchemaVersion> {
         fun fromXml(xml: String): SchemaVersion = when (xml) {
             "1.0" -> V1_0
             "1.1" -> V1_1
-            else -> Unknown(VBigDecimalImpl(xml))
+            else -> try {
+                UnknownDecimal(VBigDecimalImpl(xml))
+            } catch (e: NumberFormatException) {
+                UnknownToken(VToken(xml))
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -42,7 +42,7 @@ data class TSTestGroup(
     val instanceTests: List<TSInstanceTest> = emptyList(),
     val name: String,
     @SerialName("version")
-    val version: SchemaVersion?,
+    val versions: List<SchemaVersion>?,
     @XmlOtherAttributes
     val otherAttributes: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
 ) {

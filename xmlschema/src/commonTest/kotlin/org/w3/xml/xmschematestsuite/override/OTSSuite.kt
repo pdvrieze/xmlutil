@@ -20,6 +20,7 @@
 
 package org.w3.xml.xmschematestsuite.override
 
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -258,14 +259,14 @@ class OTSExpected : TSExpected {
 @Serializable
 data class OTSSchemaTest(
     val name: String,
-    val version: String? = null,
+    val versions: List<SchemaVersion>? = null,
     val expecteds: List<TSExpected> = emptyList(),
     val isIgnored: Boolean = false,
 ) {
 
     fun applyTo(original: TSSchemaTest): TSSchemaTest {
         val newExpected: List<TSExpected> = mergeExpecteds(original.expected, expecteds)
-        return original.copy(version = version ?: original.version, expected = newExpected)
+        return original.copy(versions = versions ?: original.versions, expected = newExpected)
     }
 
 }
@@ -273,13 +274,13 @@ data class OTSSchemaTest(
 @Serializable
 data class OTSInstanceTest(
     val name: String,
-    val version: String? = null,
+    val versions: List<SchemaVersion>? = null,
     val expecteds: List<TSExpected> = emptyList(),
     val isIgnored: Boolean = false,
 ) {
     fun applyTo(original: TSInstanceTest): TSInstanceTest {
         val newExpected: List<TSExpected> = mergeExpecteds(original.expected, expecteds)
-        return original.copy(version = version ?: original.version, expected = newExpected)
+        return original.copy(versions = versions ?: original.versions, expected = newExpected)
     }
 
 }

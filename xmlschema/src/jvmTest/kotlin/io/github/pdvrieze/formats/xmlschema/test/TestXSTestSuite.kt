@@ -425,13 +425,13 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
         val documentation = group.documentationString()
         if (schemaTest.schemaDocuments.size == 1) {
             val schemaDoc = schemaTest.schemaDocuments.single()
-            addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation, group.version?.let(::listOf) ?: testSetVersion)
+            addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation, group.versions ?: testSetVersion)
             targetSchemaDoc = schemaDoc
         } else {
             dynamicContainer("Schema documents") {
                 for (schemaDoc in schemaTest.schemaDocuments) {
                     if (true || schemaDoc.href.contains("ipo.xsd")) {
-                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation, group.version?.let(::listOf) ?: testSetVersion)
+                        addSchemaDocTest(setBaseUrl, schemaTest, schemaDoc, documentation, group.versions ?: testSetVersion)
                         targetSchemaDoc = schemaDoc
                     }
                 }
@@ -475,11 +475,8 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     documentation: String,
     testGroupVersions: List<SchemaVersion>?,
 ) {
-    val defaultVersions = when(schemaTest.version) {
-        "1.0" -> listOf(SchemaVersion.V1_0)
-        "1.1" -> listOf(SchemaVersion.V1_1)
-        else -> testGroupVersions ?: SchemaVersion.entries
-    }
+    val defaultVersions = schemaTest.versions ?: testGroupVersions ?: SchemaVersion.entries
+
     val resolver = SimpleResolver(setBaseUrl)
 
     dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists") {

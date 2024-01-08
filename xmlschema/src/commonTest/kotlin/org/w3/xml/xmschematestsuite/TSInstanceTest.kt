@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,7 @@
 
 package org.w3.xml.xmschematestsuite
 
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -31,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("instanceTest", TS_NAMESPACE, TS_PREFIX)
 data class TSInstanceTest(
     val name: String,
-    val version: String? = null,
+    val versions: List<SchemaVersion>? = null,
     @XmlElement(true)
     val instanceDocument: TSInstanceDocument,
     @XmlElement(true)

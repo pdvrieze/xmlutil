@@ -44,16 +44,16 @@ internal class VBigDecimalImpl(override val xmlString: String) : VBigDecimal {
         when (xmlString[0]) {
             '-', '+' -> next = 2
             in '0'..'9' -> Unit
-            else -> throw NumberFormatException("Decimals start with digit or sign")
+            else -> throw NumberFormatException("Decimals start with digit or sign: '$xmlString'")
         }
 
         if (next == 2 && xmlString[1] !in '0'..'9') { // sign
-            throw NumberFormatException("Decimal signs should be followed by a digit")
+            throw NumberFormatException("Decimal signs should be followed by a digit: '$xmlString'")
         }
         val len = xmlString.length
         while (next < len && xmlString[next] != '.') {
             if (xmlString[next] !in '0'..'9') { // sign
-                throw NumberFormatException("Decimals must only contain digits or a single .")
+                throw NumberFormatException("Decimals must only contain digits or a single: '$xmlString'")
             }
             ++next
         }
