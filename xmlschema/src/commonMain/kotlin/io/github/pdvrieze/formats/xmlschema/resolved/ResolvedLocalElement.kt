@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -49,7 +49,6 @@ class ResolvedLocalElement private constructor(
         require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
 
         if (rawPart.targetNamespace != null && schema.targetNamespace != rawPart.targetNamespace) {
-            error("XXX. Canary. Remove once verified")
             check(parent is ResolvedComplexType) { "3.3.3(4.3.1) - Attribute with non-matchin namespace must have complex type ancestor"}
             check(parent.mdlContentType is ResolvedComplexType.ElementContentType)
             check(parent.mdlDerivationMethod == VDerivationControl.RESTRICTION)
