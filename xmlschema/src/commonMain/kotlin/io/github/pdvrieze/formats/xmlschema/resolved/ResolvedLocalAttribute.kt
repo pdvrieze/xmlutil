@@ -55,8 +55,6 @@ class ResolvedLocalAttribute private constructor(
 //            error("XXX. Canary. Remove once verified")
             check(parent is ResolvedComplexType) { "3.2.3(6.3.1) - Attribute with non-matching namespace must have complex type ancestor"}
             check(parent.mdlDerivationMethod == VDerivationControl.RESTRICTION)
-            val contentType = parent.mdlContentType
-            check(contentType !is ResolvedComplexType.ResolvedSimpleContentType) { "Restricting an empty content type is not possible ($rawPart)" }
             check(parent.mdlBaseTypeDefinition != AnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
         }
 
