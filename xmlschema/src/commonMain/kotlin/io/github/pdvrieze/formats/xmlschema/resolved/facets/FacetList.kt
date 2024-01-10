@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -81,7 +81,7 @@ class FacetList(
             newList.minConstraint == null -> this.minConstraint
             this.minConstraint == null -> newList.minConstraint
             else -> {
-                minConstraint.validate(newList.minConstraint.value)
+                minConstraint.validateOverlay(newList.minConstraint)
                 newList.minConstraint.checkNotFixed(this.minConstraint)
             }
         }
@@ -90,7 +90,7 @@ class FacetList(
             newList.maxConstraint == null -> this.maxConstraint
             this.maxConstraint == null -> newList.maxConstraint
             else -> {
-                maxConstraint.validate(newList.maxConstraint.value)
+                maxConstraint.validateOverlay(newList.maxConstraint)
                 newList.maxConstraint.checkNotFixed(this.maxConstraint)
             }
         }

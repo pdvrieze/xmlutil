@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2024.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You should have received a copy of the license with the source distribution.
+ * Alternatively, you may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.DecimalType
@@ -52,25 +72,79 @@ interface IDateTime : VAnyAtomicType {
         }
     }
 
+    private fun localDateTime(): LocalDateTime = LocalDateTime(
+        year ?: 0,
+        month?.toInt() ?: 1,
+        day?.toInt() ?: 1,
+        hour?.toInt() ?: 0,
+        minute?.toInt() ?: 0,
+        second?.toDouble()?.toInt() ?: 0
+    )
+
     fun instant(): Instant {
-        val dateTime = LocalDateTime(
-            year ?: 0,
-            month?.toInt() ?: 1,
-            day?.toInt() ?: 1,
-            hour?.toInt() ?: 0,
-            minute?.toInt() ?: 0,
-            second?.toDouble()?.toInt() ?: 0
-        )
+        val dateTime = localDateTime()
         val zoneOffset = timezoneOffset?.let { UtcOffset(seconds = it * 60) } ?: UtcOffset.ZERO
         return dateTime.toInstant(zoneOffset)
     }
 
     operator fun compareTo(other: IDateTime): Int {
-        return instant().compareTo(other.instant())
+        val left = localDateTime()
+        val right = other.localDateTime()
+        when (val tzol = timezoneOffset) {
+            null -> {
+                val left1 = left.toInstant(UtcOffset(-14))
+                val left2 = left.toInstant(UtcOffset(14))
+
+                when (val tzor = other.timezoneOffset) {
+                    null -> {
+                        val right1 = right.toInstant(UtcOffset(-14))
+                        val right2 = right.toInstant(UtcOffset(14))
+                        val c1 = left2.compareTo(right1)
+                        val c2 = right2.compareTo(left1)
+                        if (c1 == c2) return c1 else return 0 /* not comparable */
+                    }
+
+                    else -> {
+                        val right1 = right.toInstant(UtcOffset(seconds = tzor * 60))
+                        val c1 = left2.compareTo(right1)
+                        val c2 = right1.compareTo(left1)
+                        if (c1 == c2) return c1 else return 0 /* not comparable */
+                    }
+                }
+            }
+
+            else -> {
+                val left1 = left.toInstant(UtcOffset(seconds = tzol * 60))
+                when (val tzor = other.timezoneOffset) {
+                    null -> {
+                        val right1 = right.toInstant(UtcOffset(-14))
+                        val right2 = right.toInstant(UtcOffset(14))
+                        val c1 = left1.compareTo(right1)
+                        val c2 = right2.compareTo(left1)
+                        if (c1 == c2) return c1 else return 0 /* not comparable */
+                    }
+
+                    else -> {
+                        val right1 = right.toInstant(UtcOffset(seconds = tzor * 60))
+                        return left1.compareTo(right1)
+                    }
+                }
+            }
+        }
     }
 
 
     companion object {
+
+        fun areEqual(left: IDateTime, other: IDateTime): Boolean {
+            when {
+                left.timezoneOffset == null -> if (other.timezoneOffset!=null) return false
+                other.timezoneOffset == null -> return false
+            }
+            return left.instant() == other.instant()
+        }
+
+
         fun yearFragValue(yr: String): Int = yr.toInt()
         fun monthFragValue(mo: String): UInt = mo.toUInt()
         fun dayFragValue(da: String): UInt = da.toUInt()

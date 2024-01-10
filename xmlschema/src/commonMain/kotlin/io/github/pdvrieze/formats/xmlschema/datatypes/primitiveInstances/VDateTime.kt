@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -58,4 +58,24 @@ open class VDateTime(
                     "${yearFrag()}-${monthFrag()}-${dayFrag()}T${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
             }
         }
+
+    override fun toString(): String = xmlString
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is IDateTime) return false
+        return IDateTime.areEqual(this, other)
+    }
+
+    override fun hashCode(): Int {
+        var result = year
+        result = 31 * result + month.hashCode()
+        result = 31 * result + day.hashCode()
+        result = 31 * result + hour.hashCode()
+        result = 31 * result + minute.hashCode()
+        result = 31 * result + second.hashCode()
+        result = 31 * result + (timezoneOffset ?: 0)
+        return result
+    }
+
 }

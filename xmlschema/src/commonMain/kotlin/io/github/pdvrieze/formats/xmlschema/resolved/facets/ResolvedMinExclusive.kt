@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
@@ -42,16 +41,17 @@ class ResolvedMinExclusive(
         check(decimal > v)
     }
 
-    override fun validate(value: VAnySimpleType) = when (this.value) {
-        is VDecimal -> {
-            check(value is VDecimal)
-            check(value > this.value)
-        }
-        is IDateTime -> {
-            check(value is IDateTime)
-            check(value > this.value)
-        }
-        else -> error("Value $value cannot be validated")
+    override fun validate(value: VAnySimpleType) {
+        return validateImpl(value, this.value, { this > it }, { this > it })
+    }
+
+    private fun validateEq(value: VAnySimpleType) {
+        return validateImpl(value, this.value, { this >= it }, { this >= it })
+    }
+
+    override fun validateOverlay(overlay: ResolvedMinBoundFacet) = when(overlay) {
+        is ResolvedMinExclusive -> validateEq(overlay.value)
+        is ResolvedMinInclusive -> validate(overlay.value) // must still be less
     }
 
     override fun equals(other: Any?): Boolean {

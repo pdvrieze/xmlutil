@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -22,4 +22,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 
-sealed class ResolvedMinBoundFacet(rawPart: XSFacet) : ResolvedBoundBaseFacet(rawPart)
+sealed class ResolvedMinBoundFacet(rawPart: XSFacet) : ResolvedBoundBaseFacet(rawPart) {
+
+    abstract fun validateOverlay(overlay: ResolvedMinBoundFacet)
+
+}

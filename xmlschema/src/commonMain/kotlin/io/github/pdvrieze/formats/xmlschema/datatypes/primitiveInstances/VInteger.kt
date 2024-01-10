@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -45,7 +45,8 @@ interface VInteger : VDecimal {
     }
 }
 
-private class IntInstance(private val i: Int) : VInteger {
+@JvmInline
+private value class IntInstance(private val i: Int) : VInteger {
     override fun toLong(): Long = i.toLong()
 
     override fun toInt(): Int = i

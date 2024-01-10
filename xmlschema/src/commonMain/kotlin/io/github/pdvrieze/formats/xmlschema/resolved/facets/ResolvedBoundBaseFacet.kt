@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 
@@ -30,5 +32,31 @@ sealed class ResolvedBoundBaseFacet(rawPart: XSFacet) : ResolvedFacet(rawPart) {
     abstract val isInclusive: Boolean
 
     abstract val value: VAnySimpleType
+
+    companion object {
+
+
+        internal inline fun validateImpl(
+            left: VAnySimpleType,
+            right: VAnySimpleType,
+            compareDec: (VDecimal).(VDecimal) -> Boolean,
+            compareDT: (IDateTime).(IDateTime) -> Boolean,
+        ) {
+            when (left) {
+                is VDecimal -> {
+                    check(right is VDecimal)
+                    check(left.compareDec(right))
+                }
+
+                is IDateTime -> {
+                    check(right is IDateTime)
+                    check(left.compareDT(right)) { "Value $left is not smaller than $right" }
+                }
+
+                else -> error("Value $right cannot be validated")
+            }
+        }
+
+    }
 
 }
