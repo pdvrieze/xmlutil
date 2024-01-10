@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -489,15 +489,15 @@ sealed class ResolvedComplexType(
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
                         derivation is XSComplexType.Shorthand -> // restriction (or shorthand)
-                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
+                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
 
 
                 baseTypeDefinition !is ResolvedComplexType -> // simple type 4.2.1
-                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
+                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
 
                 baseTypeDefinition.mdlContentType.mdlVariety.let { // simple content 4.2.1
                     it == Variety.SIMPLE || it == Variety.EMPTY
-                } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
+                } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
 
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
                 else -> { // extension
@@ -836,8 +836,9 @@ sealed class ResolvedComplexType(
     ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
-        override val flattened: FlattenedParticle =
+        override val flattened: FlattenedParticle by lazy {
             mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, DummyCheckHelper(schema))
+        }
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,
@@ -863,18 +864,11 @@ sealed class ResolvedComplexType(
         effectiveMixed: Boolean,
         effectiveContent: ResolvedParticle<ResolvedModelGroup>?,
         schema: ResolvedSchemaLike,
-        openContent: ResolvedOpenContent?,
-        attributeNames: Collection<QName>
+        openContent: ResolvedOpenContent?
     ): ResolvedContentType {
         if (effectiveContent == null) return EmptyContentType
 
-        val context = buildList<QName> {
-            addAll(attributeNames)
-            effectiveContent.collectElementNames(this)
-        }
-
         return when {
-
             effectiveMixed -> MixedContentType(effectiveContent, effectiveContent::isSiblingName, schema, openContent)
             else -> ElementOnlyContentType(effectiveContent, effectiveContent::isSiblingName, schema, openContent)
         }
