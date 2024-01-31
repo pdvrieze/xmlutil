@@ -1200,7 +1200,20 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
     override fun valueFromNormalized(representation: VString): VGMonthDay {
         val s = representation.xmlString
         require(s.startsWith("--"))
-        val tzIndex = s.indexOf('Z', 2)
+        var tzIndex = -1
+        for (i in 5 until representation.length) {
+            when (val c = representation[i]) {
+                'Z', '+', '-' -> {
+                    tzIndex = i
+                    break
+                }
+
+                in '0'..'9' -> {}
+
+                else -> throw NumberFormatException("$c is not a valid character in a monthDay: $representation")
+            }
+        }
+
         return when {
             tzIndex < 0 -> {
                 val (month, day) = s.substring(2).split('-').map { it.toUInt() }
@@ -1208,7 +1221,11 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
             }
 
             else -> {
-                val tz = IDateTime.timezoneFragValue(s.substring(tzIndex))
+                val tz = try {
+                    IDateTime.timezoneFragValue(s.substring(tzIndex))
+                } catch (e: NumberFormatException) {
+                    throw NumberFormatException("Not valid monthDay: $representation\n${e.message}").also { it.addSuppressed(e) }
+                }
                 val (month, day) = s.substring(2, tzIndex).split('-').map { it.toUInt() }
                 VGMonthDay(month, day, tz)
             }
