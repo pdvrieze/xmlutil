@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSField
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSUnique
-import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedDirectUnique(
@@ -31,6 +30,10 @@ class ResolvedDirectUnique(
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedDirectReferenceable(rawPart, schema, owner), ResolvedUnique {
+
+    init {
+        require(rawPart.ref == null) { "A unique can either have a name or ref" }
+    }
 
     override val constraint: ResolvedDirectUnique
         get() = this

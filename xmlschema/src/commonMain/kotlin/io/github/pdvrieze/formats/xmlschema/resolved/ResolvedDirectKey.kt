@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -30,6 +30,10 @@ class ResolvedDirectKey(
     schema: ResolvedSchemaLike,
     owner: ResolvedElement,
 ): ResolvedDirectReferenceable(rawPart, schema, owner), ResolvedKey {
+
+    init {
+        require(rawPart.ref == null) { "A key can either have a name or ref" }
+    }
 
     override val mdlQName: QName = checkNotNull(rawPart.name).toQname(schema.targetNamespace)
 

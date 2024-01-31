@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -29,6 +29,9 @@ class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owne
 
     init {
         check(rawPart.name == null)
+        check(rawPart.refer == null) { "When reference only id is valid member, not refer" }
+        check(rawPart.selector == null) { "When reference only id is valid member, not selector" }
+        check(rawPart.fields.isEmpty()) { "When reference only id is valid member, not fields" }
     }
 
     override val constraint: ResolvedIndirectKeyRef get() = this
