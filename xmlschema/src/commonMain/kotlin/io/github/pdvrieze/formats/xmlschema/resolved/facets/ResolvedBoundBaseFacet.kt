@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDuration
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 
@@ -40,24 +37,32 @@ sealed class ResolvedBoundBaseFacet(rawPart: XSFacet) : ResolvedFacet(rawPart) {
         internal inline fun validateImpl(
             left: VAnySimpleType,
             right: VAnySimpleType,
-            compareDec: (VDecimal).(VDecimal) -> Boolean,
-            compareDT: (IDateTime).(IDateTime) -> Boolean,
-            compareDuration: (VDuration).(VDuration) -> Boolean,
+            compareValue: (Int) -> Boolean
         ) {
             when (left) {
                 is VDecimal -> {
                     check(right is VDecimal)
-                    check(left.compareDec(right))
+                    check(compareValue(left.compareTo(right)))
+                }
+
+                is VFloat -> {
+                    check(right is VFloat)
+                    check(compareValue(left.value.toDouble().compareTo(right.value.toDouble())))
+                }
+
+                is VDouble -> {
+                    check(right is VDouble)
+                    check(compareValue(left.value.compareTo(right.value)))
                 }
 
                 is IDateTime -> {
                     check(right is IDateTime)
-                    check(left.compareDT(right)) { "Value $left is not smaller than $right" }
+                    check(compareValue(left.compareTo(right))) { "Value $left is not smaller than $right" }
                 }
 
                 is VDuration -> {
                     check(right is VDuration)
-                    check(left.compareDuration(right)) { "Value $left is not smaller than $right" }
+                    check(compareValue(left.compareTo(right))) { "Value $left is not smaller than $right" }
                 }
 
                 else -> error("Value $right cannot be validated")

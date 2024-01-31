@@ -41,7 +41,7 @@ class ResolvedMaxInclusive internal constructor(
     }
 
     override fun validate(value: VAnySimpleType) {
-        return validateImpl(value, this.value, { this <= it }, { this <= it }, { this <= it })
+        return validateImpl(value, this.value) { it <= 0 }
     }
 
     override fun validateOverlay(overlay: ResolvedMaxBoundFacet) =
