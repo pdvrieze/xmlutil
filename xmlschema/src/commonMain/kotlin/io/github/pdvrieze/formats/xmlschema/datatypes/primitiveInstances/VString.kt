@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -42,8 +42,18 @@ interface VString : VAnyAtomicType, CharSequence {
     fun toInt(): Int = xmlCollapseWhitespace(xmlString).toInt()
     fun toULong(): ULong = xmlCollapseWhitespace(xmlString).toULong()
     fun toUInt(): UInt = xmlCollapseWhitespace(xmlString).toUInt()
-    fun toDouble(): Double = xmlCollapseWhitespace(xmlString).toDouble()
-    fun toFloat(): Float = xmlCollapseWhitespace(xmlString).toFloat()
+    fun toDouble(): Double = when (val s = xmlCollapseWhitespace(xmlString)) {
+        "NaN" -> Double.NaN
+        "INF", "+INF" -> Double.POSITIVE_INFINITY
+        "-INF" -> Double.NEGATIVE_INFINITY
+        else -> s.toDouble()
+    }
+    fun toFloat(): Float = when (val s = xmlCollapseWhitespace(xmlString)) {
+        "NaN" -> Float.NaN
+        "INF", "+INF" -> Float.POSITIVE_INFINITY
+        "-INF" -> Float.NEGATIVE_INFINITY
+        else -> s.toFloat()
+    }
 
     @JvmInline
     private value class Inst(override val xmlString: String) : VString {
