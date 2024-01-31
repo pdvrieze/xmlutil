@@ -41,11 +41,11 @@ class ResolvedMaxExclusive(
     }
 
     override fun validate(value: VAnySimpleType) {
-        return validateImpl(value, this.value, { this < it }, { this < it })
+        return validateImpl(value, this.value, { this < it }, { this < it }, { this < it })
     }
 
     private fun validateEq(value: VAnySimpleType) {
-        return validateImpl(value, this.value, { this <= it }, { this <= it })
+        return validateImpl(value, this.value, { this <= it }, { this <= it }, { this <= it })
     }
 
     override fun validateOverlay(overlay: ResolvedMaxBoundFacet) = when(overlay) {

@@ -250,9 +250,13 @@ class FacetList(
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
             }
 
+            is DayTimeDurationType,
+            is YearMonthDurationType,
             is DurationType -> {
-                val minDuration = minConstraint?.let { primitiveType.value(it.value) }
-                val maxDuration = maxConstraint?.let { primitiveType.value(it.value) }
+                check(minLength == null && maxLength == null) { "Durations can not have lengths" }
+
+                val minDuration = minConstraint?.let { primitiveType.value(it.value) } as VDuration?
+                val maxDuration = maxConstraint?.let { primitiveType.value(it.value) } as VDuration?
                 if (minDuration != null && maxDuration != null) {
                     check(minDuration <= maxDuration) { "Duration values not in range" }
                 }
@@ -267,6 +271,8 @@ class FacetList(
             is GMonthType,
             is DateTimeType,
             is DateTimeStampType -> {
+                check(minLength == null && maxLength == null) { "DateTime values can not have lengths" }
+
                 val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 if (minDateTime != null && maxDateTime != null) {

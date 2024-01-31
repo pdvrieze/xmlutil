@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -1021,9 +1021,7 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD
 
     override fun validateValue(value: Any, version: SchemaVersion) {
         require(value is VDuration)
-        require(value.months == 0L)
-        val days = value.millis / (24 * 3600_000)
-        require(days == 0L)
+        require(value.months == 0L) { "dayTimeDuration may not have months"}
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {

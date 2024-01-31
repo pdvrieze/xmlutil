@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -46,6 +46,10 @@ class VDuration(override val months: Long, val millis: Long) : IDuration {
 
     override val seconds: Double
         get() = millis.toDouble() / 1000.0
+
+    override fun toString(): String {
+        return xmlString
+    }
 
     override val xmlString: String
         get() = buildString {
