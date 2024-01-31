@@ -265,7 +265,8 @@ class FacetList(
             is GMonthDayType,
             is GDayType,
             is GMonthType,
-            is DateTimeType -> {
+            is DateTimeType,
+            is DateTimeStampType -> {
                 val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 if (minDateTime != null && maxDateTime != null) {
