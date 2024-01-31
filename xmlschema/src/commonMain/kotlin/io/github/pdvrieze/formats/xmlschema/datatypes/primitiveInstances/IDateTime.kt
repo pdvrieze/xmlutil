@@ -151,6 +151,19 @@ interface IDateTime : VAnyAtomicType {
         fun hourFragValue(hr: String): UInt = hr.toUInt()
         fun minuteFragValue(mi: String): UInt = mi.toUInt()
         fun secondFragValue(se: String): VDecimal = DecimalType.value(VString(se))
+        fun tzIndex(string: CharSequence, start: Int=0, end: Int = string.length): Int {
+            for (i in start until end.coerceAtMost(string.length)) {
+                when (val c = string[i]) {
+                    'Z', '+', '-' -> return i
+
+                    in '0'..'9' -> {}
+
+                    else -> throw NumberFormatException("$c is not a valid character in a monthDay: $string")
+                }
+            }
+            return -1
+        }
+
         fun timezoneFragValue(tz: String): Int? {
             if (tz.isEmpty()) return null
             if (tz == "Z") return 0 // handle Z case differently

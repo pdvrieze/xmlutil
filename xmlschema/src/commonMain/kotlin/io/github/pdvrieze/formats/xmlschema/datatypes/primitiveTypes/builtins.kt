@@ -1115,7 +1115,7 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
     override fun valueFromNormalized(representation: VString): VGDay {
         val s = representation.xmlString
         require(s.startsWith("---"))
-        val tzIndex = s.indexOf('Z', 3)
+        val tzIndex = IDateTime.tzIndex(s, 3)
         return when {
             tzIndex < 0 -> VGDay(s.substring(3).toInt())
             else -> VGDay(s.substring(3, tzIndex).toInt(), IDateTime.timezoneFragValue(s.substring(tzIndex)))
@@ -1200,19 +1200,7 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
     override fun valueFromNormalized(representation: VString): VGMonthDay {
         val s = representation.xmlString
         require(s.startsWith("--"))
-        var tzIndex = -1
-        for (i in 5 until representation.length) {
-            when (val c = representation[i]) {
-                'Z', '+', '-' -> {
-                    tzIndex = i
-                    break
-                }
-
-                in '0'..'9' -> {}
-
-                else -> throw NumberFormatException("$c is not a valid character in a monthDay: $representation")
-            }
-        }
+        val tzIndex = IDateTime.tzIndex(representation, 5)
 
         return when {
             tzIndex < 0 -> {
@@ -1313,7 +1301,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
             }
         }
         require(splitMonth>0)
-        val splitTz = splitMonth + 3
+        val splitTz = IDateTime.tzIndex(representation, splitMonth+3)
 
         val year = representation.substring(0, splitMonth).toInt()
         val month = representation.substring(splitMonth, splitTz).toInt()
