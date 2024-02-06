@@ -560,7 +560,7 @@ sealed class ResolvedComplexType(
             }
 
             val wildcardElement: XSOpenContentBase? =
-                (rawPart as? XSComplexType.Shorthand)?.openContent
+                derivation.openContent
                     ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
                         explicitContentType.mdlVariety != Variety.EMPTY || it.appliesToEmpty
                     }
