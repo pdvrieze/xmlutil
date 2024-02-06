@@ -319,6 +319,13 @@ sealed class ResolvedComplexType(
                     "${derivedCType.flattened} does not extend ${baseCType.flattened}"
                 }
 
+                val baseContent= baseCType.mdlOpenContent
+                if (baseContent!=null) {
+                    val extContent = derivedCType.mdlOpenContent
+                    if (extContent!=null) {
+                        require(extContent.mdlMode.extends(baseContent.mdlMode)) { "Open content mode ${extContent.mdlMode} does not extend ${baseContent.mdlMode}" }
+                    }
+                }
             }
         }
 
