@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -30,6 +30,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override val mdlMinOccurs: VNonNegativeInteger
     override val mdlMaxOccurs: VAllNNI
+    @Deprecated("Forwards to the namespace constraint")
     override val mdlNotQName: VQNameList get() = mdlNamespaceConstraint.disallowedNames as VQNameList
 
     constructor(
@@ -137,6 +138,10 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         result = 31 * result + mdlMinOccurs.hashCode()
         result = 31 * result + mdlMaxOccurs.hashCode()
         return result
+    }
+
+    fun isSubsetOf(other: ResolvedAny, schemaVersion: SchemaVersion): Boolean {
+        return mdlNamespaceConstraint.isSubsetOf(other.mdlNamespaceConstraint, schemaVersion)
     }
 
 }

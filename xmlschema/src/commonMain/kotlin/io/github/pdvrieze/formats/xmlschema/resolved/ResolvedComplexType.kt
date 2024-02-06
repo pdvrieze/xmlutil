@@ -322,8 +322,19 @@ sealed class ResolvedComplexType(
                 val baseContent= baseCType.mdlOpenContent
                 if (baseContent!=null) {
                     val extContent = derivedCType.mdlOpenContent
-                    if (extContent!=null) {
-                        require(extContent.mdlMode.extends(baseContent.mdlMode)) { "Open content mode ${extContent.mdlMode} does not extend ${baseContent.mdlMode}" }
+                    if (extContent != null) {
+                        require(extContent.mdlMode.extends(baseContent.mdlMode)) {
+                            "Open content mode ${extContent.mdlMode} does not extend ${baseContent.mdlMode}"
+                        }
+                        val baseWildcard = baseContent.mdlWildCard
+                        if (baseWildcard != null) {
+                            val extWildcard = extContent.mdlWildCard
+                            if (extWildcard != null) {
+                                require(baseWildcard.isSubsetOf(extWildcard, schema.version)) {
+                                    "3.4.6.2 - 1.4.3.2.2.4) When opencontent specifies wildcards the base must be a subset of the extension"
+                                }
+                            }
+                        }
                     }
                 }
             }
