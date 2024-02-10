@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -306,6 +306,9 @@ object AnySimpleType : Datatype("anySimpleType", XSD_NS_URI, BuiltinSchemaXmlsch
     }
 
     override fun value(representation: VString): Any = representation
+
+    override fun toString(): String = "xsd:anySimpleType"
+
 }
 
 private object AnySimpleTypeRestriction : ResolvedSimpleRestrictionBase(null) {

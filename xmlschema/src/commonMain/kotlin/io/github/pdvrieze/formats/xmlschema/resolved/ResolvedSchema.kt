@@ -47,7 +47,13 @@ class ResolvedSchema(
 
     init {
         val rootData =
-            SchemaData(rawPart, listOf(resolver.baseUri.value), rawPart.targetNamespace?.value ?: "", resolver, builtin = builtin)
+            SchemaData(
+                rawPart,
+                listOf(resolver.baseUri.value),
+                rawPart.targetNamespace?.value ?: "",
+                resolver,
+                builtin = builtin
+            )
 
         rootData.checkRecursiveTypeDefinitions()
         rootData.checkRecursiveSubstitutionGroups()
@@ -56,7 +62,7 @@ class ResolvedSchema(
 
         val allNeededNamespaces = HashSet<String>()
 
-        for((importNs, schemaData) in allData) {
+        for ((importNs, schemaData) in allData) {
             allNeededNamespaces.addAll(schemaData.includedNamespaceToUris.keys)
             allNeededNamespaces.addAll(schemaData.importedNamespaces) // allow for unresolved namespaces
             val nestedData = NestedData(importNs.toAnyUri(), schemaData)
@@ -130,7 +136,7 @@ class ResolvedSchema(
     }
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
-        if (typeName.namespaceURI == BuiltinSchemaXmlschema.targetNamespace.value) {
+        if (typeName.namespaceURI.let { it != targetNamespace.value && it == BuiltinSchemaXmlschema.targetNamespace.value }) {
             BuiltinSchemaXmlschema.maybeSimpleType(typeName)?.let { return it }
         }
         return withQName(typeName) {
@@ -139,7 +145,7 @@ class ResolvedSchema(
     }
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? {
-        if (typeName.namespaceURI == BuiltinSchemaXmlschema.targetNamespace.value) {
+        if (typeName.namespaceURI.let { it != targetNamespace.value && it == BuiltinSchemaXmlschema.targetNamespace.value }) {
             BuiltinSchemaXmlschema.maybeType(typeName)?.let { return it }
         }
         return withQName(typeName) {
@@ -161,9 +167,12 @@ class ResolvedSchema(
     }
 
     override fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute? {
-        return when (attributeName.namespaceURI) {
-            BuiltinSchemaXmlInstance.targetNamespace.value -> BuiltinSchemaXmlInstance.attribute(attributeName)
-            else -> withQName(attributeName) { maybeAttribute(it) }
+        return when {
+            attributeName.namespaceURI
+                .let { it == targetNamespace.value || it != BuiltinSchemaXmlInstance.targetNamespace.value } ->
+                withQName(attributeName) { maybeAttribute(it) }
+
+            else -> BuiltinSchemaXmlInstance.attribute(attributeName)
         }
     }
 
@@ -185,7 +194,7 @@ class ResolvedSchema(
         return nestedData.values.asSequence()
             .filterIsInstance<NestedData>()
             .flatMap { it.elements.values }
-            .filter { ! it.mdlAbstract }
+            .filter { !it.mdlAbstract }
             .toSet()
     }
 
@@ -461,7 +470,8 @@ class ResolvedSchema(
             val newAttributes = mutableMapOf<String, ResolvedGlobalAttribute>().apply { putAll(attributes) }
             val newTypes = mutableMapOf<String, ResolvedGlobalType>().apply { putAll(_types) }
             val newGroups = mutableMapOf<String, ResolvedGlobalGroup>().apply { putAll(_groups) }
-            val newAttributeGroups = mutableMapOf<String, ResolvedGlobalAttributeGroup>().apply { putAll(attributeGroups) }
+            val newAttributeGroups =
+                mutableMapOf<String, ResolvedGlobalAttributeGroup>().apply { putAll(attributeGroups) }
             val newNotations = mutableMapOf<String, ResolvedNotation>().apply { putAll(notations) }
             val newImports = mutableMapOf<String, SchemaElementResolver?>().apply { putAll(imports) }
 
@@ -480,7 +490,14 @@ class ResolvedSchema(
                 require(newGroups.put(n, g) == null) { "Duplicate group with name ${QName(ons, n)}" }
             }
             for ((n, ag) in otherData.attributeGroups) {
-                require(newAttributeGroups.put(n, ag) == null) { "Duplicate attribute group with name ${QName(ons, n)}" }
+                require(newAttributeGroups.put(n, ag) == null) {
+                    "Duplicate attribute group with name ${
+                        QName(
+                            ons,
+                            n
+                        )
+                    }"
+                }
             }
             for ((name, notation) in otherData.notations) {
                 require(newNotations.put(name, notation) == null) { "Duplicate notation with name ${QName(ons, name)}" }
