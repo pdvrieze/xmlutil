@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -134,7 +134,7 @@ tasks.create<Task>("test") {
     group="verification"
 }
 
-addNativeTargets()
+addNativeTargets(includeWasi = false)
 
 /*
 apiValidation {

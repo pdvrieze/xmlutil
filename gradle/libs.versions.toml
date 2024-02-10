@@ -5,7 +5,7 @@ kotlin = "1.9.22"
 dokka = "1.9.10"
 binaryValidator = "0.14.0"
 woodstox = "6.5.1"
-dateTime = "0.4.1"
+dateTime = "0.5.0"
 
 [libraries]
 logback-classic = "ch.qos.logback:logback-classic:1.4.7"
