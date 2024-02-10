@@ -1293,23 +1293,32 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
         for (i in 1..< representation.length.coerceAtMost(5)) {
             when (val s = representation[i]) {
                 '-', '+' -> {
-                    splitMonth = i
+                    splitMonth = i + 1
                     break
                 }
+
                 in '0'..'9' -> {}
+
                 else -> throw NumberFormatException("Non-integer in year: $s")
             }
         }
-        require(splitMonth>0)
-        val splitTz = IDateTime.tzIndex(representation, splitMonth+3)
+        require(splitMonth > 0)
+        val year = representation.substring(0, splitMonth-1).toInt()
+        try {
 
-        val year = representation.substring(0, splitMonth).toInt()
-        val month = representation.substring(splitMonth, splitTz).toInt()
-        if (splitTz<representation.length) {
-            val tzOffset = IDateTime.timezoneFragValue(representation.xmlString.substring(splitTz))
-            return VGYearMonth(year, month.toUInt(), tzOffset)
-        } else {
-            return VGYearMonth(year, month.toUInt())
+            val splitTz = IDateTime.tzIndex(representation, splitMonth+3)
+
+
+            if (splitTz in 0 ..< representation.length) {
+                val month = representation.substring(splitMonth, splitTz).toInt()
+                val tzOffset = IDateTime.timezoneFragValue(representation.xmlString.substring(splitTz))
+                return VGYearMonth(year, month.toUInt(), tzOffset)
+            } else {
+                val month = representation.substring(splitMonth).toInt()
+                return VGYearMonth(year, month.toUInt())
+            }
+        } catch (e: Exception) {
+            throw NumberFormatException("Not a valid yearMonth: '$representation'\n- ${e.message}")
         }
     }
 
