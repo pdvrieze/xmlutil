@@ -1014,9 +1014,13 @@ internal open class XmlDecoderBase internal constructor(
             // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
             // treated as such).
             if (valueChild >= 0 && input.peek() is XmlEvent.EndElementEvent && !seenItems[valueChild]) {
-                // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
-                seenItems[valueChild] = true
-                return valueChild
+                val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
+                // Lists/maps need to be empty (treated as null/missing)
+                if (valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
+                    // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
+                    seenItems[valueChild] = true
+                    return valueChild
+                }
             }
             for (eventType in input) {
                 when (eventType) {

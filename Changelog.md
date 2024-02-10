@@ -17,6 +17,7 @@ Fixes:
 - Fix handling of empty `@XmlValue` members of string-like type. Also
   collapse whitespace when parsing non-string primitives (per xml
   schema). Strings never ignore whitespace.
+- Fix handling `XmlValue` members of collection type inside an empty tag.
 - Fix parsing of `XmlDefault` attributes if the (effective) type is an
   attribute and it is parsed using as serializable value (rather than)
   directly as primitive.
