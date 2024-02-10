@@ -319,8 +319,8 @@ sealed class ResolvedComplexType(
                     "${derivedCType.flattened} does not extend ${baseCType.flattened}"
                 }
 
-                val baseContent= baseCType.mdlOpenContent
-                if (baseContent!=null) {
+                val baseContent = baseCType.mdlOpenContent
+                if (baseContent != null) {
                     val extContent = derivedCType.mdlOpenContent
                     if (extContent != null) {
                         require(extContent.mdlMode.extends(baseContent.mdlMode)) {
@@ -637,21 +637,31 @@ sealed class ResolvedComplexType(
                 }
 
                 is XSSimpleContentRestriction -> {
-                    val b = derivation.base
                     if(baseType is ResolvedComplexType) {
                         val ct = baseType.mdlContentType
                         if (ct is ResolvedSimpleContentType) {
                             val simpleBase = ct.mdlSimpleTypeDefinition
                             if (simpleBase === AnySimpleType || simpleBase === AnyAtomicType) {
+/*
                                 require(schema.version == SchemaVersion.V1_0) {
-                                    "Complex type with simple content may not be a restriction of special types"
+                                    "Complex type with simple content may not be a restriction of special type $simpleBase in version ${schema.version}"
                                 }
+*/
                                 require(derivation.facets.isEmpty()) {
                                     "complex types with simple content of special simple type can not have facets"
                                 }
                             }
 
 
+                        }
+                    } else if (baseType is ResolvedSimpleType) {
+                        if (baseType === AnySimpleType || baseType === AnyAtomicType) {
+                            require(schema.version == SchemaVersion.V1_0) {
+                                "Complex type with simple content may not be a restriction of special type $baseType in version ${schema.version}"
+                            }
+                            require(derivation.facets.isEmpty()) {
+                                "complex types with simple content of special simple type can not have facets"
+                            }
                         }
                     }
 
