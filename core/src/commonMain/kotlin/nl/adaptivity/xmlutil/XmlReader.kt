@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -69,15 +69,15 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     public fun require(type: EventType, namespace: String?, name: String?) {
         when {
             eventType != type ->
-                throw XmlException("Type $eventType does not match expected type \"$type\" ($locationInfo)")
+                throw XmlException("Type $eventType does not match expected type \"$type\" ($extLocationInfo)")
 
             namespace != null &&
                     namespaceURI != namespace ->
-                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\" ($locationInfo)")
+                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\" ($extLocationInfo)")
 
             name != null &&
                     localName != name ->
-                throw XmlException("local name $localName does not match expected \"$name\" ($locationInfo)")
+                throw XmlException("local name $localName does not match expected \"$name\" ($extLocationInfo)")
         }
     }
 
@@ -142,7 +142,11 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
 
     /** Get some information on the current location in the file. This is implementation dependent.  */
+    @Deprecated("Use extLocationInfo as that allows more detailed information", ReplaceWith("extLocationInfo?.toString()"))
     public val locationInfo: String?
+
+    @Suppress("DEPRECATION")
+    public val extLocationInfo: LocationInfo? get() = locationInfo?.let(::StringLocationInfo)
 
     /** The current namespace context */
     public val namespaceContext: IterableNamespaceContext
@@ -152,13 +156,24 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     public val standalone: Boolean?
 
     public val version: String?
+
+    public interface LocationInfo
+
+    public class StringLocationInfo(private val str: String): LocationInfo {
+        override fun toString(): String = str
+    }
+
+    /**
+     * Extended location info that actually provides column, line, and or file/string offset information
+     */
+    public class ExtLocationInfo(private val col: Int, private val line: Int, private val offset:Int)
 }
 
 public val XmlReader.attributes: Array<out XmlEvent.Attribute>
     get() =
         Array(attributeCount) { i ->
             XmlEvent.Attribute(
-                locationInfo,
+                extLocationInfo,
                 getAttributeNamespace(i),
                 getAttributeLocalName(i),
                 getAttributePrefix(i),

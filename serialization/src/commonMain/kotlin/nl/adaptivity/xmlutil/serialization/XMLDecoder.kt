@@ -376,8 +376,15 @@ internal open class XmlDecoderBase internal constructor(
         override val namespaceDecls: List<Namespace>
             get() = input.namespaceDecls
 
+        @Deprecated(
+            "Use extLocationInfo as that allows more detailed information",
+            replaceWith = ReplaceWith("extLocationInfo?.toString()")
+        )
         override val locationInfo: String?
-            get() = input.locationInfo
+            get() = extLocationInfo?.toString()
+
+        override val extLocationInfo: XmlReader.LocationInfo?
+            get() = input.extLocationInfo
 
         override val namespaceContext: IterableNamespaceContext
             get() = input.namespaceContext
@@ -1527,7 +1534,7 @@ internal open class XmlDecoderBase internal constructor(
                 if (keyDescriptor.effectiveOutputKind == OutputKind.Attribute) {
                     // When the key is an attribute it is always on the outer tag (either an entry tag or collapsed)
                     val key = input.getAttributeValue(keyDescriptor.tagName)
-                        ?: throw XmlSerialException("Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.locationInfo}")
+                        ?: throw XmlSerialException("Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.extLocationInfo}", input.extLocationInfo)
 
                     val decoder = StringDecoder(keyDescriptor, key)
 
@@ -1573,7 +1580,7 @@ internal open class XmlDecoderBase internal constructor(
                 if (lastIndex < 0) {
                     check(input.eventType == EventType.START_ELEMENT)
                     if (!(xmlDescriptor.entryName isEquivalent input.name))
-                        throw XmlSerialException("Map entry not found. Found ${input.name}@${input.locationInfo} instead")
+                        throw XmlSerialException("Map entry not found. Found ${input.name}@${input.extLocationInfo} instead", input.extLocationInfo)
                 }
                 if (lastIndex % 2 == 0) assert(xmlDescriptor.entryName isEquivalent input.name) {
                     "${xmlDescriptor.entryName} != ${input.name}"
@@ -1744,7 +1751,7 @@ internal open class XmlDecoderBase internal constructor(
                         val typeTag = xmlDescriptor.getElementDescriptor(0).tagName
                         input.getAttributeValue(typeTag.namespaceURI, typeTag.localPart)
                             ?.expandTypeNameIfNeeded(xmlDescriptor.parentSerialName)
-                            ?: throw XmlParsingException(input.locationInfo, "Missing type for polymorphic value")
+                            ?: throw XmlParsingException(input.extLocationInfo, "Missing type for polymorphic value")
                     }
 
                     isMixed && (input.eventType == EventType.TEXT ||

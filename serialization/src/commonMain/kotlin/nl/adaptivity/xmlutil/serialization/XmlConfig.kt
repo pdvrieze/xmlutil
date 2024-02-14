@@ -467,7 +467,7 @@ private constructor(
                     emptyList()
                 } else {
                     throw UnknownXmlFieldException(
-                        input.locationInfo,
+                        input.extLocationInfo,
                         "(${descriptor.serialDescriptor.serialName}) ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)",
                         candidates
                     )
@@ -490,7 +490,7 @@ private constructor(
                     emptyList()
                 } else {
                     throw UnknownXmlFieldException(
-                        input.locationInfo,
+                        input.extLocationInfo,
                         "(${descriptor.serialDescriptor.serialName}) ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)",
                         candidates
                     )
@@ -502,7 +502,7 @@ private constructor(
         @Deprecated("Use UnknownChildHander instead that supports recovering from unknown children")
         public val DEFAULT_NONRECOVERABLE_CHILD_HANDLER: NonRecoveryUnknownChildHandler =
             { input, inputKind, name, candidates ->
-                throw UnknownXmlFieldException(input.locationInfo, name?.toString() ?: "<CDATA>", candidates)
+                throw UnknownXmlFieldException(input.extLocationInfo, name?.toString() ?: "<CDATA>", candidates)
             }
     }
 }

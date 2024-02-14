@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -109,16 +109,16 @@ internal fun XmlReader.unhandledEvent(message: String? = null) {
         EventType.ENTITY_REF,
         EventType.CDSECT,
         EventType.TEXT -> when {
-            !isWhitespace() -> message ?: "Content found where not expected [$locationInfo] Text:'$text'"
+            !isWhitespace() -> message ?: "Content found where not expected [$extLocationInfo] Text:'$text'"
             else -> null
         }
 
-        EventType.START_ELEMENT -> message ?: "Element found where not expected [$locationInfo]: $name"
+        EventType.START_ELEMENT -> message ?: "Element found where not expected [$extLocationInfo]: $name"
 
         EventType.END_DOCUMENT -> message ?: "End of document found where not expected"
 
         else -> null
     }// ignore
 
-    actualMessage?.let { throw XmlException(it) }
+    actualMessage?.let { throw XmlException(it, extLocationInfo) }
 }

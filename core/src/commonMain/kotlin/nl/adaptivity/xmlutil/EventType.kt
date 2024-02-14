@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -28,7 +28,7 @@ public enum class EventType {
         override val isIgnorable: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): StartDocumentEvent = reader.run {
-            StartDocumentEvent(locationInfo, version, encoding, standalone)
+            StartDocumentEvent(extLocationInfo, version, encoding, standalone)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
@@ -39,7 +39,7 @@ public enum class EventType {
         override fun createEvent(reader: XmlReader): StartElementEvent =
             reader.run {
                 StartElementEvent(
-                    locationInfo,
+                    extLocationInfo,
                     namespaceURI,
                     localName,
                     prefix,
@@ -77,7 +77,7 @@ public enum class EventType {
     },
     END_ELEMENT {
         override fun createEvent(reader: XmlReader): EndElementEvent = reader.run {
-            EndElementEvent(locationInfo, namespaceURI, localName, prefix, namespaceContext)
+            EndElementEvent(extLocationInfo, namespaceURI, localName, prefix, namespaceContext)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
@@ -90,7 +90,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
-            TextEvent(locationInfo, COMMENT, text)
+            TextEvent(extLocationInfo, COMMENT, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
@@ -105,7 +105,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
-            TextEvent(locationInfo, TEXT, text)
+            TextEvent(extLocationInfo, TEXT, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
@@ -120,7 +120,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
-            TextEvent(locationInfo, CDSECT, text)
+            TextEvent(extLocationInfo, CDSECT, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
@@ -135,7 +135,7 @@ public enum class EventType {
         override val isIgnorable: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
-            TextEvent(locationInfo, DOCDECL, text)
+            TextEvent(extLocationInfo, DOCDECL, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
@@ -150,7 +150,7 @@ public enum class EventType {
         override val isIgnorable: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): EndDocumentEvent = reader.run {
-            EndDocumentEvent(locationInfo)
+            EndDocumentEvent(extLocationInfo)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
@@ -161,7 +161,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
-            EntityRefEvent(locationInfo, reader.localName, text)
+            EntityRefEvent(extLocationInfo, reader.localName, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
@@ -177,7 +177,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent = reader.run {
-            TextEvent(locationInfo, IGNORABLE_WHITESPACE, text)
+            TextEvent(extLocationInfo, IGNORABLE_WHITESPACE, text)
         }
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent) {
@@ -192,7 +192,7 @@ public enum class EventType {
     },
     ATTRIBUTE {
         override fun createEvent(reader: XmlReader): Attribute = reader.run {
-            Attribute(locationInfo, this.namespaceURI, localName, prefix, text)
+            Attribute(extLocationInfo, this.namespaceURI, localName, prefix, text)
         }
 
         override fun writeEvent(writer: XmlWriter, reader: XmlReader) {
@@ -206,7 +206,7 @@ public enum class EventType {
         override val isTextElement: Boolean get() = true
 
         override fun createEvent(reader: XmlReader): TextEvent =
-            ProcessingInstructionEvent(reader.locationInfo, reader.piTarget, reader.piData)
+            ProcessingInstructionEvent(reader.extLocationInfo, reader.piTarget, reader.piData)
 
         override fun writeEvent(writer: XmlWriter, textEvent: TextEvent): Unit = when (textEvent) {
             is ProcessingInstructionEvent -> writer.processingInstruction(textEvent.target, textEvent.data)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -65,8 +65,15 @@ public class XmlBufferReader(private val buffer: List<XmlEvent>) : XmlReader {
     override val namespaceDecls: List<Namespace>
         get() = current<StartElementEvent>().namespaceDecls.let { it as? List<Namespace> ?: it.toList() }
 
+    @Deprecated(
+        "Use extLocationInfo as that allows more detailed information",
+        replaceWith = ReplaceWith("extLocationInfo?.toString()")
+    )
     override val locationInfo: String?
-        get() = buffer[currentPos].locationInfo
+        get() = extLocationInfo?.toString()
+
+    override val extLocationInfo: XmlReader.LocationInfo?
+        get() = buffer[currentPos].extLocationInfo
 
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext

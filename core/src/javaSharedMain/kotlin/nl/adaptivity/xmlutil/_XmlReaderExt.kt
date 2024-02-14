@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -52,7 +52,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
         }
     }
 
-    val startLocation = locationInfo
+    val startLocation = extLocationInfo
     try {
 
         val missingNamespaces:MutableMap<String, String> = TreeMap<String, String>()

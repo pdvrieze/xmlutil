@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -25,7 +25,15 @@ package nl.adaptivity.xmlutil
  *
  * @author Created by pdvrieze on 16/11/15.
  */
-public sealed class XmlEvent(public val locationInfo: String?) {
+public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?) {
+
+    protected constructor(locationInfo: String?) : this(locationInfo?.let(XmlReader::StringLocationInfo))
+
+    @Deprecated(
+        "More detail is available from extLocationInfo",
+        ReplaceWith("extLocationInfo?.toString()")
+    )
+    public val locationInfo: String? = extLocationInfo?.toString()
 
     public companion object {
 
@@ -33,8 +41,15 @@ public sealed class XmlEvent(public val locationInfo: String?) {
 
     }
 
-    public open class TextEvent(locationInfo: String?, override val eventType: EventType, public val text: String) :
-        XmlEvent(locationInfo) {
+    public open class TextEvent(
+        extLocationInfo: XmlReader.LocationInfo?,
+        override val eventType: EventType,
+        public val text: String
+    ) :
+        XmlEvent(extLocationInfo) {
+
+        public constructor(locationInfo: String, eventType: EventType, text: String) :
+                this(locationInfo.let(XmlReader::StringLocationInfo), eventType, text)
 
         override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
 
@@ -43,18 +58,28 @@ public sealed class XmlEvent(public val locationInfo: String?) {
                     (eventType == EventType.TEXT && isXmlWhitespace(text))
 
         override fun toString(): String {
-            return "$eventType - \"$text\" (${locationInfo ?: ""})"
+            return "$eventType - \"$text\" (${extLocationInfo ?: ""})"
         }
     }
 
-    public class ProcessingInstructionEvent(locationInfo: String?, public val target: String, public val data: String) :
-        TextEvent(locationInfo, EventType.PROCESSING_INSTRUCTION, "$target $data")
+    public class ProcessingInstructionEvent(
+        extLocationInfo: XmlReader.LocationInfo?,
+        public val target: String,
+        public val data: String
+    ) :
+        TextEvent(extLocationInfo, EventType.PROCESSING_INSTRUCTION, "$target $data") {
+        public constructor(locationInfo: String, target: String, data: String) :
+                this(locationInfo.let(XmlReader::StringLocationInfo), target, data)
+
+    }
 
     public class EntityRefEvent(
-        locationInfo: String?,
+        extLocationInfo: XmlReader.LocationInfo?,
         public val localName: String,
         text: String
-    ) : TextEvent(locationInfo, EventType.ENTITY_REF, text) {
+    ) : TextEvent(extLocationInfo, EventType.ENTITY_REF, text) {
+        public constructor(locationInfo: String, localName: String, text: String) :
+                this(locationInfo.let(XmlReader::StringLocationInfo), localName, text)
 
         override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
 
@@ -62,29 +87,43 @@ public sealed class XmlEvent(public val locationInfo: String?) {
             get() = false
 
         override fun toString(): String {
-            return "$eventType - \"$text\" (${locationInfo ?: ""})"
+            return "$eventType - \"$text\" (${extLocationInfo ?: ""})"
         }
     }
 
-    public class EndDocumentEvent(locationInfo: String?) : XmlEvent(locationInfo) {
+    public class EndDocumentEvent(extLocationInfo: XmlReader.LocationInfo?) : XmlEvent(extLocationInfo) {
+        public constructor(locationInfo: String) :
+                this(locationInfo.let(XmlReader::StringLocationInfo))
 
         override fun writeTo(writer: XmlWriter): Unit = writer.endDocument()
 
         override val eventType: EventType get() = EventType.END_DOCUMENT
 
         override fun toString(): String {
-            return "$eventType (${locationInfo ?: ""})"
+            return "$eventType (${extLocationInfo ?: ""})"
         }
 
     }
 
     public class EndElementEvent(
-        locationInfo: String?,
+        extLocationInfo: XmlReader.LocationInfo?,
         namespaceUri: String,
         localName: String,
         prefix: String,
         namespaceContext: IterableNamespaceContext,
-    ) : NamedEvent(locationInfo, namespaceUri, localName, prefix) {
+    ) : NamedEvent(extLocationInfo, namespaceUri, localName, prefix) {
+        public constructor(
+            locationInfo: String, namespaceUri: String,
+            localName: String,
+            prefix: String,
+            namespaceContext: IterableNamespaceContext
+        ) : this(
+            locationInfo.let(XmlReader::StringLocationInfo),
+            namespaceUri,
+            localName,
+            prefix,
+            namespaceContext
+        )
 
         override fun writeTo(writer: XmlWriter): Unit = writer.endTag(namespaceUri, localName, prefix)
 
@@ -94,29 +133,34 @@ public sealed class XmlEvent(public val locationInfo: String?) {
     }
 
     public class StartDocumentEvent(
-        locationInfo: String?,
+        extLocationInfo: XmlReader.LocationInfo?,
         public val encoding: String?,
         public val version: String?,
         public val standalone: Boolean?
-    ) :
-        XmlEvent(locationInfo) {
+    ) : XmlEvent(extLocationInfo) {
+
+        public constructor(locationInfo: String, encoding: String?, version: String?, standalone: Boolean?) :
+                this(locationInfo.let(XmlReader::StringLocationInfo), encoding, version, standalone)
 
         override fun writeTo(writer: XmlWriter): Unit = writer.startDocument(version, encoding, standalone)
 
         override val eventType: EventType get() = EventType.START_DOCUMENT
 
         override fun toString(): String {
-            return "$eventType - encoding:$encoding, version: $version, standalone: $standalone (${locationInfo ?: ""})"
+            return "$eventType - encoding:$encoding, version: $version, standalone: $standalone (${extLocationInfo ?: ""})"
         }
 
     }
 
     public abstract class NamedEvent(
-        locationInfo: String?,
+        extLocationInfo: XmlReader.LocationInfo?,
         public val namespaceUri: String,
         public val localName: String,
         public val prefix: String
-    ) : XmlEvent(locationInfo) {
+    ) : XmlEvent(extLocationInfo) {
+
+        public constructor(locationInfo: String, namespaceUri: String, localName: String, prefix: String) :
+                this(locationInfo.let(XmlReader::StringLocationInfo), namespaceUri, localName, prefix)
 
         public fun isEqualNames(ev: NamedEvent): Boolean {
             return namespaceUri == ev.namespaceUri &&
@@ -127,20 +171,38 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         public val name: QName get() = QName(namespaceUri, localName, prefix)
 
         override fun toString(): String {
-            return "$eventType - {$namespaceUri}$prefix:$localName (${locationInfo ?: ""})"
+            return "$eventType - {$namespaceUri}$prefix:$localName (${extLocationInfo ?: ""})"
         }
 
     }
 
     public class StartElementEvent(
-        locationInfo: String?,
+        extLocationInfo: XmlReader.LocationInfo?,
         namespaceUri: String,
         localName: String,
         prefix: String,
         public val attributes: Array<out Attribute>,
         private val parentNamespaceContext: IterableNamespaceContext,
         namespaceDecls: List<Namespace>
-    ) : NamedEvent(locationInfo, namespaceUri, localName, prefix) {
+    ) : NamedEvent(extLocationInfo, namespaceUri, localName, prefix) {
+
+        public constructor(
+            locationInfo: String,
+            namespaceUri: String,
+            localName: String,
+            prefix: String,
+            attributes: Array<out Attribute>,
+            parentNamespaceContext: IterableNamespaceContext,
+            namespaceDecls: List<Namespace>
+        ) : this(
+            locationInfo.let(XmlReader::StringLocationInfo),
+            namespaceUri,
+            localName,
+            prefix,
+            attributes,
+            parentNamespaceContext,
+            namespaceDecls
+        )
 
         private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
 
@@ -149,7 +211,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
             localName: String,
             prefix: String,
             parentNamespaceContext: IterableNamespaceContext
-        ) : this(null, namespaceUri, localName, prefix, emptyArray(), parentNamespaceContext, emptyList())
+        ) : this(extLocationInfo = null, namespaceUri, localName, prefix, emptyArray(), parentNamespaceContext, emptyList())
 
         @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
         public constructor(namespaceUri: String, localName: String, prefix: String) :
@@ -164,7 +226,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
             attributes: Array<out Attribute>,
             namespaceDecls: List<Namespace>
         ) : this(
-            locationInfo,
+            locationInfo?.let(XmlReader::StringLocationInfo),
             namespaceUri,
             localName,
             prefix,
@@ -216,7 +278,7 @@ public sealed class XmlEvent(public val locationInfo: String?) {
         }
 
         override fun toString(): String {
-            return "$eventType - {$namespaceUri}$prefix:$localName (${locationInfo ?: ""})" +
+            return "$eventType - {$namespaceUri}$prefix:$localName (${extLocationInfo ?: ""})" +
                     attributes.joinToString(
                         "\n    ",
                         if (attributes.isNotEmpty()) "\n    " else ""
@@ -226,12 +288,20 @@ public sealed class XmlEvent(public val locationInfo: String?) {
     }
 
     public class Attribute(
-        locationInfo: String?,
+        extLocationInfo: XmlReader.LocationInfo?,
         namespaceUri: CharSequence,
         localName: CharSequence,
         prefix: CharSequence,
         value: CharSequence
-    ) : XmlEvent(locationInfo) {
+    ) : XmlEvent(extLocationInfo) {
+
+        public constructor(
+            locationInfo: String,
+            namespaceUri: CharSequence,
+            localName: CharSequence,
+            prefix: CharSequence,
+            value: CharSequence
+        ) : this(locationInfo.let(XmlReader::StringLocationInfo), namespaceUri, localName, prefix, value)
 
         public constructor(
             namespaceUri: CharSequence,

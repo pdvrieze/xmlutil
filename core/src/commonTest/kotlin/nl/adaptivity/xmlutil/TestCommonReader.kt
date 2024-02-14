@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -103,6 +103,7 @@ abstract class TestCommonReader {
             assertEquals(EventType.END_ELEMENT, reader.next())
 
             assertTrue(reader.hasNext())
+            @Suppress("DEPRECATION")
             assertEquals(
                 EventType.END_DOCUMENT,
                 reader.next(),

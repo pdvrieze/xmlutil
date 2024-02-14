@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -72,7 +72,7 @@ public fun XmlReader.elementToFragment(): CompactFragment {
         }
     }
 
-    val startLocation = locationInfo
+    val startLocation = extLocationInfo
     try {
 
         val missingNamespaces = mutableMapOf<String, String>()
@@ -107,9 +107,9 @@ public fun XmlReader.elementToFragment(): CompactFragment {
 
         return CompactFragment(SimpleNamespaceContext(missingNamespaces), output.toString())
     } catch (e: XmlException) {
-        throw XmlException("Failure to parse children into string at $startLocation", e)
+        throw XmlException("Failure to parse children into string", startLocation, e)
     } catch (e: RuntimeException) {
-        throw XmlException("Failure to parse children into string at $startLocation", e)
+        throw XmlException("Failure to parse children into string", startLocation, e)
     }
 
 }

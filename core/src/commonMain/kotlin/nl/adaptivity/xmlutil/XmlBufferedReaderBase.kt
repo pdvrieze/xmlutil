@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -107,10 +107,15 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
             throw XmlException("Attempting to read beyond the end of the stream")
         }
 
+    @Deprecated(
+        "Use extLocationInfo as that allows more detailed information",
+        replaceWith = ReplaceWith("extLocationInfo?.toString()")
+    )
     override val locationInfo: String?
-        get() { // allow for location info at the start of the document
-            return current?.locationInfo ?: delegate.locationInfo
-        }
+        get() = extLocationInfo?.toString()
+
+    override val extLocationInfo: XmlReader.LocationInfo?
+        get() = current?.extLocationInfo ?: delegate.extLocationInfo
 
     override val namespaceContext: IterableNamespaceContext
         get() {

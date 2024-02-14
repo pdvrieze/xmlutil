@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -21,18 +21,39 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.SerializationException
+import nl.adaptivity.xmlutil.XmlReader
 
-public open class XmlSerialException(message: String, cause: Throwable? = null) : SerializationException(message, cause)
+public open class XmlSerialException(
+    message: String,
+    public val extLocationInfo: XmlReader.LocationInfo?,
+    cause: Throwable? = null
+) : SerializationException(message, cause) {
+    public constructor(message: String, cause: Throwable? = null) : this(message, null, cause)
+}
 
-public class XmlParsingException(locationInfo: String?, message: String, cause: Exception? = null) :
-    XmlSerialException("Invalid XML value at position: $locationInfo: $message", cause)
+public class XmlParsingException(
+    extLocationInfo: XmlReader.LocationInfo?,
+    message: String,
+    cause: Exception? = null
+) : XmlSerialException("Invalid XML value at position: $extLocationInfo: $message", extLocationInfo, cause) {
+    public constructor(locationInfo: String?, message: String, cause: Exception? = null) :
+            this(locationInfo?.let(XmlReader::StringLocationInfo), message, cause)
+}
 
 public class UnknownXmlFieldException(
-    locationInfo: String?,
+    extLocationInfo: XmlReader.LocationInfo?,
     xmlName: String,
     candidates: Collection<Any> = emptyList()
-) :
-    XmlSerialException("Could not find a field for name $xmlName${candidateString(candidates)}${locationInfo?.let { " at position $it" } ?: ""}")
+) : XmlSerialException(
+    "Could not find a field for name $xmlName${candidateString(candidates)}${extLocationInfo?.let { " at position $it" } ?: ""}",
+    extLocationInfo
+) {
+    public constructor(
+        locationInfo: String?,
+        xmlName: String,
+        candidates: Collection<Any> = emptyList()
+    ) : this(locationInfo?.let(XmlReader::StringLocationInfo), xmlName, candidates)
+}
 
 private fun candidateString(candidates: Iterable<Any>) =
     when (candidates.iterator().hasNext()) {

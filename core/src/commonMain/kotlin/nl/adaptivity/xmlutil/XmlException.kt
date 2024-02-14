@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
+import kotlin.jvm.JvmOverloads
 
 
 /**
@@ -29,19 +30,43 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
  */
 public open class XmlException : IOException {
 
-    public constructor()
+    public val locationInfo: XmlReader.LocationInfo?
 
-    public constructor(message: String) : super(message)
+    @JvmOverloads
+    public constructor(locationInfo: XmlReader.LocationInfo? = null) {
+        this.locationInfo = locationInfo
+    }
 
-    public constructor(message: String, cause: Throwable) : super(message, cause)
+    @JvmOverloads
+    public constructor(message: String, locationInfo: XmlReader.LocationInfo? = null) : super(message) {
+        this.locationInfo = locationInfo
+    }
 
-    public constructor(cause: Throwable) : super(cause)
+    public constructor(message: String, cause: Throwable) : super(message, cause) {
+        this.locationInfo = null
+    }
+
+    public constructor(message: String, locationInfo: XmlReader.LocationInfo?, cause: Throwable) : super(message, cause) {
+        this.locationInfo = locationInfo
+    }
+
+    public constructor(cause: Throwable) : super(cause) {
+        this.locationInfo = null
+    }
+
+    public constructor(locationInfo: XmlReader.LocationInfo?, cause: Throwable) : super(cause) {
+        this.locationInfo = locationInfo
+    }
 
     public constructor(message: String, reader: XmlReader, cause: Throwable) :
-            super("${reader.locationInfo ?: "Unknown position"} - $message", cause)
+            super("${reader.extLocationInfo ?: "Unknown position"} - $message", cause) {
+        this.locationInfo = reader.extLocationInfo
+    }
 
     public constructor(message: String, reader: XmlReader) :
-            super("${reader.locationInfo ?: "Unknown position"} - $message")
+            super("${reader.extLocationInfo ?: "Unknown position"} - $message") {
+        this.locationInfo = reader.extLocationInfo
+    }
 
     @Deprecated("Only use in Java, in kotlin just throw", ReplaceWith("throw this"))
     public fun doThrow(): Nothing {
