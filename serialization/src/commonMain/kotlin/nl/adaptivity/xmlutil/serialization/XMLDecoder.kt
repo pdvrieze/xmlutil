@@ -274,7 +274,7 @@ internal open class XmlDecoderBase internal constructor(
 
     }
 
-    internal inner class StringDecoder(xmlDescriptor: XmlDescriptor, private val stringValue: String) :
+    internal inner class StringDecoder(xmlDescriptor: XmlDescriptor, private val locationInfo: XmlReader.LocationInfo?, private val stringValue: String) :
         Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -286,7 +286,7 @@ internal open class XmlDecoderBase internal constructor(
 
         @ExperimentalSerializationApi
         override fun decodeInline(descriptor: SerialDescriptor): Decoder {
-            return StringDecoder(xmlDescriptor.getElementDescriptor(0), stringValue)
+            return StringDecoder(xmlDescriptor.getElementDescriptor(0), locationInfo, stringValue)
         }
 
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
@@ -295,22 +295,22 @@ internal open class XmlDecoderBase internal constructor(
             return stringValue
         }
 
-        fun getInputWrapper(): XmlReader {
-            return XmlStringReader(stringValue)
+        fun getInputWrapper(locationInfo: XmlReader.LocationInfo?): XmlReader {
+            return XmlStringReader(locationInfo, stringValue)
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             val effectiveDeserializationStrategy = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
             return when (effectiveDeserializationStrategy) {
                 is XmlDeserializationStrategy ->
-                    effectiveDeserializationStrategy.deserializeXML(this, getInputWrapper())
+                    effectiveDeserializationStrategy.deserializeXML(this, getInputWrapper(locationInfo))
 
                 else -> effectiveDeserializationStrategy.deserialize(this)
             }
         }
     }
 
-    private inner class XmlStringReader(private val stringValue: String) : XmlReader {
+    private inner class XmlStringReader(override val extLocationInfo: XmlReader.LocationInfo?, private val stringValue: String) : XmlReader {
         private var pos = -1
 
         override val depth: Int get() = if (pos == 0) 0 else -1
@@ -382,9 +382,6 @@ internal open class XmlDecoderBase internal constructor(
         )
         override val locationInfo: String?
             get() = extLocationInfo?.toString()
-
-        override val extLocationInfo: XmlReader.LocationInfo?
-            get() = input.extLocationInfo
 
         override val namespaceContext: IterableNamespaceContext
             get() = input.namespaceContext
@@ -464,10 +461,10 @@ internal open class XmlDecoderBase internal constructor(
                 -> {
                     when {
                         xmlDescriptor.outputKind == OutputKind.Attribute ->
-                            AttributeListDecoder(xmlDescriptor, attrIndex).also { tagIdHolder = it }
+                            AttributeListDecoder(xmlDescriptor, input.extLocationInfo, attrIndex).also { tagIdHolder = it }
 
                         xmlDescriptor.outputKind == OutputKind.Text ->
-                            ValueListDecoder(xmlDescriptor)
+                            ValueListDecoder(xmlDescriptor, input.extLocationInfo)
 
                         xmlDescriptor.isListEluded ->
                             AnonymousListDecoder(xmlDescriptor, polyInfo, typeDiscriminatorName).also {
@@ -724,6 +721,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
+            @Suppress("DEPRECATION")
             if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
                 (xmlDescriptor.getValueChild() == index)
             ) {
@@ -1219,10 +1217,11 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
+            val startPos = input.extLocationInfo
             val stringValue = decodeStringElementCollapsed(descriptor, index)
             return when {
                 config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(
-                    StringDecoder(xmlDescriptor.getElementDescriptor(index), stringValue))
+                    StringDecoder(xmlDescriptor.getElementDescriptor(index), startPos, stringValue))
 
                 else -> stringValue.toBoolean()
             }
@@ -1292,11 +1291,13 @@ internal open class XmlDecoderBase internal constructor(
                 return input.getAttributeName(attrIndex) as T
             }
 
+            val startPos = input.extLocationInfo
             val value = decodeStringElement(descriptor, index)
 
-            val decoder = StringDecoder(xmlDescriptor.valueDescriptor, value)
+            val decoder = StringDecoder(xmlDescriptor.valueDescriptor, startPos, value)
             return when (effectiveDeserializer) {
-                is XmlDeserializationStrategy -> effectiveDeserializer.deserializeXML(decoder, XmlStringReader(value))
+                is XmlDeserializationStrategy ->
+                    effectiveDeserializer.deserializeXML(decoder, XmlStringReader(startPos, value))
 
                 else -> effectiveDeserializer.deserialize(decoder)
             }
@@ -1354,7 +1355,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeString(): String = throw UnsupportedOperationException("Expect map structure")
     }
 
-    internal abstract inner class TextualListDecoder(xmlDescriptor: XmlListDescriptor) :
+    internal abstract inner class TextualListDecoder(xmlDescriptor: XmlListDescriptor, private val locationInfo: XmlReader.LocationInfo?) :
         TagDecoderBase<XmlListDescriptor>(xmlDescriptor, null) {
         private var listIndex = 0
 
@@ -1377,7 +1378,7 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>,
             previousValue: T?
         ): T {
-            val decoder = StringDecoder(xmlDescriptor.getElementDescriptor(index), textValues[listIndex++])
+            val decoder = StringDecoder(xmlDescriptor.getElementDescriptor(index), locationInfo, textValues[listIndex++])
             return decoder.decodeSerializableValue(deserializer)
         }
 
@@ -1390,14 +1391,14 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
-    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, private val attrIndex: Int) :
-        TextualListDecoder(xmlDescriptor) {
+    internal inner class AttributeListDecoder(xmlDescriptor: XmlListDescriptor, private val locationInfo: XmlReader.LocationInfo?, private val attrIndex: Int) :
+        TextualListDecoder(xmlDescriptor, locationInfo) {
 
         override fun getTextValue(): String = input.getAttributeValue(attrIndex)
     }
 
-    internal inner class ValueListDecoder(xmlDescriptor: XmlListDescriptor) :
-        TextualListDecoder(xmlDescriptor) {
+    internal inner class ValueListDecoder(xmlDescriptor: XmlListDescriptor, locationInfo: XmlReader.LocationInfo?) :
+        TextualListDecoder(xmlDescriptor, locationInfo) {
 
         override fun getTextValue(): String = input.text
     }
@@ -1536,7 +1537,7 @@ internal open class XmlDecoderBase internal constructor(
                     val key = input.getAttributeValue(keyDescriptor.tagName)
                         ?: throw XmlSerialException("Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.extLocationInfo}", input.extLocationInfo)
 
-                    val decoder = StringDecoder(keyDescriptor, key)
+                    val decoder = StringDecoder(keyDescriptor, input.extLocationInfo, key)
 
                     return deserializer.deserializeSafe(decoder, previousValue)
 
@@ -1718,6 +1719,7 @@ internal open class XmlDecoderBase internal constructor(
                             ) {
                                 val sdec = StringDecoder(
                                     xmlDescriptor.getElementDescriptor(0),
+                                    input.extLocationInfo,
                                     input.getAttributeValue(i)
                                 )
                                 val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true)
