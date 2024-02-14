@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -21,10 +21,10 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.jvm.JvmOverloads
@@ -435,6 +435,7 @@ private constructor(
          * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
          */
         public inline fun recommended_0_87_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            repairNamespaces = false
             recommended_0_86_3 {
                 isStrictOtherAttributes = true
                 configurePolicy()

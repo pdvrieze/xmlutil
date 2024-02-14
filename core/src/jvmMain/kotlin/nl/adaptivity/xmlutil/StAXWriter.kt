@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -164,16 +164,17 @@ public class StAXWriter(
             .partition { it.namespaceUri == XMLNS_ATTRIBUTE_NS_URI }
         pendingWrites.clear()
         doStartTag(start.namespaceUri, start.prefix, start.localName, isEndTag)
-        for (attr in (nsAttrs.asSequence() + regularAttrs.asSequence())) {
+        for (attr in nsAttrs) {
             when {
-                attr.namespaceUri != XMLNS_ATTRIBUTE_NS_URI
-                -> doAttribute(attr.namespaceUri, attr.prefix, attr.localName, attr.value)
-
-                attr.prefix == ""
-                -> doNamespaceAttr("", attr.value)
+                attr.prefix == "" ->
+                    doNamespaceAttr("", attr.value)
 
                 else -> doNamespaceAttr(attr.localName, attr.value)
             }
+        }
+
+        for (attr in regularAttrs.asSequence()) {
+            doAttribute(attr.namespaceUri, attr.prefix, attr.localName, attr.value)
         }
     }
 
@@ -272,7 +273,7 @@ public class StAXWriter(
                 delegate.writeAttribute(prefix, namespace, name, value)
             }
         } catch (e: XMLStreamException) {
-            throw XmlException(e)
+            throw XmlException("Failure writing attribute ($namespace, $prefix, $name)=$value", e)
         }
     }
 

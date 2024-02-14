@@ -409,7 +409,7 @@ internal open class XmlEncoderBase internal constructor(
     ) : XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex), childIndex, null) {
         override fun encodeString(value: String) {
             val d = xmlDescriptor.getElementDescriptor(0)
-            parent.defer(childIndex, forceDefer = true) {
+            parent.defer(childIndex, d) {
                 parent.encodeStringElement(d, childIndex, value)
             }
         }
@@ -419,7 +419,7 @@ internal open class XmlEncoderBase internal constructor(
             value: T
         ) {
             val d = xmlDescriptor.getElementDescriptor(0)
-            parent.defer(childIndex, forceDefer = true) {
+            parent.defer(childIndex, d) {
                 parent.encodeSerializableElement(
                     d,
                     childIndex,
@@ -532,19 +532,17 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         @OptIn(ExperimentalSerializationApi::class)
-        open fun defer(index: Int, forceDefer: Boolean = false, deferred: CompositeEncoder.() -> Unit) {
-            if (! forceDefer && xmlDescriptor.getElementDescriptor(index).doInline) {
+        open fun defer(index: Int, itemDescriptor: XmlDescriptor = xmlDescriptor.getElementDescriptor(index), deferred: CompositeEncoder.() -> Unit) {
+            if (itemDescriptor.doInline) {
                 // Don't defer inline values as it has a problem with the value serializer deferring
                 deferred()
             } else if (!deferring) { // We should never defer if we are processing deferred elements
                 deferred()
             } else if (reorderInfo != null) {
                 deferredBuffer.add(reorderInfo[index] to deferred)
-            } else if (forceDefer) {
-                deferredBuffer.add(index to deferred)
             } else {
                 val outputKind =
-                    xmlDescriptor.getElementDescriptor(index).outputKind
+                    itemDescriptor.outputKind
                 if (outputKind == OutputKind.Attribute) {
                     deferred()
                 } else {
@@ -907,11 +905,7 @@ internal open class XmlEncoderBase internal constructor(
             deferring = false
         ), XML.XmlOutput {
 
-        override fun defer(
-            index: Int,
-            forceDefer: Boolean,
-            deferred: CompositeEncoder.() -> Unit
-        ) {
+        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
             // Polymorphic types are "hardcoded" so don't need deferring
             deferred()
         }
@@ -1009,7 +1003,7 @@ internal open class XmlEncoderBase internal constructor(
         TagEncoder<XmlDescriptor>(xmlDescriptor, null) {
 
         private lateinit var entryKey: QName
-        override fun defer(index: Int, forceDefer: Boolean, deferred: CompositeEncoder.() -> Unit) {
+        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
             // a map, where deferring is never needed
             deferred()
         }
@@ -1088,7 +1082,7 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun defer(index: Int, forceDefer: Boolean, deferred: CompositeEncoder.() -> Unit) {
+        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
             // This is a list, deferring is not relevant.
             deferred()
         }
@@ -1144,11 +1138,7 @@ internal open class XmlEncoderBase internal constructor(
 
         private val parentXmlDescriptor: XmlDescriptor? get() = xmlDescriptor.tagParent.descriptor as? XmlDescriptor
 
-        override fun defer(
-            index: Int,
-            forceDefer: Boolean,
-            deferred: CompositeEncoder.() -> Unit
-        ) {
+        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
             // Deferring in a list is not needed (this is for list elements, not the list itself.
             deferred()
         }
@@ -1208,7 +1198,7 @@ internal open class XmlEncoderBase internal constructor(
         private lateinit var keySerializer: SerializationStrategy<*>
         private var keyValue: Any? = null
 
-        override fun defer(index: Int, forceDefer: Boolean, deferred: CompositeEncoder.() -> Unit) {
+        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
             // deferring is never valid in a map, ther should not be any reordering either
             deferred()
         }
