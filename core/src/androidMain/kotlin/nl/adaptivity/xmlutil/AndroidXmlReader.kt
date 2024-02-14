@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -129,12 +129,21 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
         return null
     }
 
+    @Deprecated("Use extLocationInfo as that allows more detailed information", ReplaceWith("extLocationInfo?.toString()"))
     override val locationInfo: String
         get() = buildString {
             append(parser.lineNumber)
             append(':')
             append(parser.columnNumber)
         }
+
+    override val extLocationInfo: XmlReader.LocationInfo
+        get() = XmlReader.ExtLocationInfo(
+            col = parser.columnNumber,
+            line = parser.lineNumber,
+            offset = -1
+        )
+
 
     override val standalone: Boolean
         get() = parser.getProperty("xmldecl-standalone") as Boolean

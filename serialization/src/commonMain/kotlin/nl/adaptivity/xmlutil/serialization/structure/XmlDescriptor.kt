@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -436,11 +436,11 @@ public sealed class XmlValueDescriptor(
                 defaultValue(xmlCodecBase.serializersModule, xmlCodecBase.config, deserializer)
 
             xmlCodecBase is XmlDecoderBase ->
-                deserializer.deserialize(xmlCodecBase.StringDecoder(this, default))
+                deserializer.deserialize(xmlCodecBase.StringDecoder(this, XmlReader.ExtLocationInfo(0,0,0), default))
 
             else -> xmlCodecBase.run {
                 val dec = XmlDecoderBase(serializersModule, config, CompactFragment("").getXmlReader())
-                    .StringDecoder(this@XmlValueDescriptor, default)
+                    .StringDecoder(this@XmlValueDescriptor, XmlReader.ExtLocationInfo(0,0,0), default)
 
                 deserializer.deserialize(dec)
             }
@@ -461,8 +461,7 @@ public sealed class XmlValueDescriptor(
 
             effectiveOutputKind.let { it == OutputKind.Attribute || it == OutputKind.Text } -> {
                 val xmlDecoderBase: XmlDecoderBase = XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader())
-                val dec = xmlDecoderBase
-                    .StringDecoder(this, default)
+                val dec = xmlDecoderBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default)
                 deserializer.deserialize(dec)
             }
 

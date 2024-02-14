@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -37,6 +37,7 @@ public class KtXmlReader internal constructor(
 
     private var line = 1
     private var column = 0
+    private var offset = 0
 
     private var _eventType: EventType? = null //START_DOCUMENT // Already have this state
     public override val eventType: EventType
@@ -692,6 +693,7 @@ public class KtXmlReader internal constructor(
         }
 
         peekCount--
+        offset++
         column++
         if (result == '\n'.code) {
             line++
@@ -811,6 +813,9 @@ public class KtXmlReader internal constructor(
 
     override val locationInfo: String
         get() = "$line:$column"
+
+    override val extLocationInfo: XmlReader.LocationInfo
+        get() = XmlReader.ExtLocationInfo(col = column, line = line, offset = offset)
 
     public fun getLineNumber(): Int {
         return line

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -126,10 +126,24 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return delegate.namespaceContext.getPrefix(namespaceUri)
     }
 
+    @Deprecated(
+        "Use extLocationInfo as that allows more detailed information",
+        replaceWith = ReplaceWith("extLocationInfo?.toString()")
+    )
     override val locationInfo: String?
         get() {
             val location = delegate.location
             return location?.toString()
+        }
+
+    override val extLocationInfo: XmlReader.LocationInfo?
+        get() {
+            val l = delegate.location ?: return null
+            return XmlReader.ExtLocationInfo(
+                col = l.columnNumber,
+                line =  l.lineNumber,
+                offset = l.characterOffset,
+            )
         }
 
     public val location: Location

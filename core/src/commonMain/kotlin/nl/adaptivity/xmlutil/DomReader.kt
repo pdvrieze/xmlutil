@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -120,9 +120,8 @@ public class DomReader(public val delegate: Node2) : XmlReader {
 
         }
 
-    override val locationInfo: String
+    override val extLocationInfo: XmlReader.LocationInfo
         get() {
-
             fun <A : Appendable> helper(node: Node2?, result: A): A = when (node?.nodetype) {
                 null, NodeType.DOCUMENT_NODE
                 -> result
@@ -136,8 +135,15 @@ public class DomReader(public val delegate: Node2) : XmlReader {
                 else -> helper(node.parentNode, result).apply { append("/.") }
             }
 
-            return helper(current, StringBuilder()).toString()
+            return XmlReader.StringLocationInfo(helper(current, StringBuilder()).toString())
         }
+
+    @Deprecated(
+        "Use extLocationInfo as that allows more detailed information",
+        replaceWith = ReplaceWith("extLocationInfo?.toString()")
+    )
+    override val locationInfo: String
+        get() = extLocationInfo.toString()
 
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
     private val requireCurrentElem get() = currentElement ?: throw IllegalStateException("No current element")

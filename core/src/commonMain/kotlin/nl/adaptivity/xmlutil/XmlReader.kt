@@ -166,7 +166,24 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /**
      * Extended location info that actually provides column, line, and or file/string offset information
      */
-    public class ExtLocationInfo(private val col: Int, private val line: Int, private val offset:Int)
+    public class ExtLocationInfo(private val col: Int, private val line: Int, private val offset: Int) : LocationInfo {
+        override fun toString(): String = buildString {
+            when {
+                line >= 0 -> {
+                    append(line)
+                    if (col >= 0) {
+                        append(':')
+                        append(col)
+                    }
+                }
+
+                offset >= 0 -> append('@').append(offset)
+
+                else -> append("<unknown>")
+            }
+
+        }
+    }
 }
 
 public val XmlReader.attributes: Array<out XmlEvent.Attribute>
