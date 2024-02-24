@@ -744,8 +744,18 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             val result: T = when (effectiveDeserializer) {
-                is XmlDeserializationStrategy -> effectiveDeserializer
-                    .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
+                is XmlDeserializationStrategy -> {
+                    val current = input.eventType.createEvent(input)
+                    val i = when (val p = input.peek()) {
+                        // if the element is actually closed we synthesize the reader (needed for compactFragments),
+                        // this stops the end event to be consumed
+                        is XmlEvent.EndElementEvent -> XmlBufferReader(listOf(current, p)).also { it.next() }
+
+                        else -> input
+                    }
+                    effectiveDeserializer
+                        .deserializeXML(decoder, i, previousValue, xmlDescriptor.getValueChild() == index)
+                }
 
                 is AbstractCollectionSerializer<*, T, *> ->
                     effectiveDeserializer.merge(decoder, previousValue)
@@ -1021,7 +1031,7 @@ internal open class XmlDecoderBase internal constructor(
             if (valueChild >= 0 && input.peek() is XmlEvent.EndElementEvent && !seenItems[valueChild]) {
                 val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
                 // Lists/maps need to be empty (treated as null/missing)
-                if (valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
+                if ((! valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
                     // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
                     seenItems[valueChild] = true
                     return valueChild

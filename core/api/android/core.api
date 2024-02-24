@@ -470,6 +470,8 @@ public final class nl/adaptivity/xmlutil/XmlEvent$EndDocumentEvent : nl/adaptivi
 
 public final class nl/adaptivity/xmlutil/XmlEvent$EndElementEvent : nl/adaptivity/xmlutil/XmlEvent$NamedEvent {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)V
+	public fun <init> (Ljavax/xml/namespace/QName;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;)V
+	public synthetic fun <init> (Ljavax/xml/namespace/QName;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)V
 	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
 	public final fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
@@ -528,6 +530,8 @@ public final class nl/adaptivity/xmlutil/XmlEvent$StartElementEvent : nl/adaptiv
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;Ljava/util/List;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Ljava/util/List;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)V
+	public fun <init> (Ljavax/xml/namespace/QName;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;)V
+	public synthetic fun <init> (Ljavax/xml/namespace/QName;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;Lnl/adaptivity/xmlutil/IterableNamespaceContext;Ljava/util/List;)V
 	public final fun getAttributes ()[Lnl/adaptivity/xmlutil/XmlEvent$Attribute;
 	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;

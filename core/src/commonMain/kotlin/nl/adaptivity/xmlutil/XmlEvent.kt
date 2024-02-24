@@ -112,6 +112,14 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         prefix: String,
         namespaceContext: IterableNamespaceContext,
     ) : NamedEvent(extLocationInfo, namespaceUri, localName, prefix) {
+
+        public constructor(
+            name: QName,
+            parentNamespaceContext: IterableNamespaceContext,
+            extLocationInfo: XmlReader.LocationInfo? = null
+        ) : this(extLocationInfo, name.namespaceURI, name.localPart, name.prefix, parentNamespaceContext)
+
+
         public constructor(
             locationInfo: String, namespaceUri: String,
             localName: String,
@@ -205,6 +213,12 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         )
 
         private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
+
+        public constructor(
+            name: QName,
+            parentNamespaceContext: IterableNamespaceContext,
+            extLocationInfo: XmlReader.LocationInfo? = null
+        ) : this(extLocationInfo, name.namespaceURI, name.localPart, name.prefix, emptyArray(), parentNamespaceContext, emptyList())
 
         public constructor(
             namespaceUri: String,

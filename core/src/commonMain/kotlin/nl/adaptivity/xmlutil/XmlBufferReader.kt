@@ -38,13 +38,13 @@ public class XmlBufferReader(private val buffer: List<XmlEvent>) : XmlReader {
     override val depth: Int get() = namespaceHolder.depth
 
     override val namespaceURI: String
-        get() = current<StartElementEvent>().namespaceUri
+        get() = current<NamedEvent>().namespaceUri
 
     override val localName: String
-        get() = current<StartElementEvent>().localName
+        get() = current<NamedEvent>().localName
 
     override val prefix: String
-        get() = current<StartElementEvent>().prefix
+        get() = current<NamedEvent>().prefix
 
     override val isStarted: Boolean
         get() = currentPos >= 0

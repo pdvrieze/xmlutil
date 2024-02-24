@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -42,9 +42,16 @@ public object CompactFragmentSerializer : XmlSerializer<CompactFragment> {
         previousValue: CompactFragment?,
         isValueChild: Boolean
     ): CompactFragment {
-        return decoder.decodeStructure(descriptor) {
-            input.next()
-            input.siblingsToFragment()
+        return when {
+            isValueChild -> {
+                input.next()
+                input.siblingsToFragment()
+            }
+
+            else -> decoder.decodeStructure(descriptor) {
+                input.next()
+                input.siblingsToFragment()
+            }
         }
     }
 

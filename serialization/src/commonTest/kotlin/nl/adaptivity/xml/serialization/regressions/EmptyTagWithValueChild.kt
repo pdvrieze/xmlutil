@@ -40,14 +40,27 @@ class EmptyTagWithValueChild {
 
     @Test
     fun testSerializeCF() {
-        val actual = XML.encodeToString(OuterFrag(InnerFrag(emptyList())))
+        val actual = XML.encodeToString(OuterFrag(InnerFrag(CompactFragment(""))))
         assertXmlEquals("<Outer><Inner /></Outer>", actual)
     }
 
     @Test
     fun testDeserializeCF() {
-        val expected = OuterFrag(InnerFrag(emptyList()))
+        val expected = OuterFrag(InnerFrag(CompactFragment("")))
         val actual = XML.decodeFromString<OuterFrag>("<Outer><Inner /></Outer>")
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testSerializeCFlist() {
+        val actual = XML.encodeToString(OuterFrags(InnerFrags(emptyList())))
+        assertXmlEquals("<Outer><Inner /></Outer>", actual)
+    }
+
+    @Test
+    fun testDeserializeCFlist() {
+        val expected = OuterFrags(InnerFrags(emptyList()))
+        val actual = XML.decodeFromString<OuterFrags>("<Outer><Inner /></Outer>")
         assertEquals(expected, actual)
     }
 
@@ -69,9 +82,17 @@ class EmptyTagWithValueChild {
 
     @Serializable
     @SerialName("Outer")
-    private data class OuterFrag(val inner: InnerFrag)
+    private data class OuterFrags(val inner: InnerFrags)
 
     @Serializable
     @SerialName("Inner")
-    private data class InnerFrag(@XmlValue val values: List<CompactFragment>)
+    private data class InnerFrags(@XmlValue val values: List<CompactFragment>)
+
+    @Serializable
+    @SerialName("Inner")
+    private data class InnerFrag(@XmlValue val value: CompactFragment)
+
+    @Serializable
+    @SerialName("Outer")
+    private data class OuterFrag(val inner: InnerFrag)
 }
