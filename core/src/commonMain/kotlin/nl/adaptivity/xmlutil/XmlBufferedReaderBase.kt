@@ -40,8 +40,17 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
     protected abstract val hasPeekItems: Boolean
 
     @XmlUtilInternal
-    protected var current: XmlEvent? = if (delegate.isStarted) XmlEvent.from(delegate) else null
+    protected var current: XmlEvent?
         private set
+
+    init {
+        if (delegate.isStarted) {
+            current = XmlEvent.from(delegate)
+            if (current is StartElementEvent) incDepth()
+        } else {
+            current = null
+        }
+    }
 
     private val currentElement: StartElementEvent
         get() = current as? StartElementEvent
