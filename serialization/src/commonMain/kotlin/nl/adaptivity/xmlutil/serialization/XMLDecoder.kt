@@ -721,9 +721,11 @@ internal open class XmlDecoderBase internal constructor(
 
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
+            val isValueChild = xmlDescriptor.getValueChild() == index
+
             @Suppress("DEPRECATION")
-            if (((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
-                (xmlDescriptor.getValueChild() == index)
+            if (false && ((effectiveDeserializer as DeserializationStrategy<*>) == CompactFragmentSerializer) &&
+                isValueChild
             ) {
                 // handle missing compact fragments
                 @Suppress("UNCHECKED_CAST")
@@ -753,8 +755,15 @@ internal open class XmlDecoderBase internal constructor(
 
                         else -> input
                     }
-                    effectiveDeserializer
+                    val r = effectiveDeserializer
                         .deserializeXML(decoder, i, previousValue, xmlDescriptor.getValueChild() == index)
+
+                    // Make sure that the (end tag is not consumed) - it will be consumed by the endStructure function
+                    if (input.eventType == EventType.END_ELEMENT && /*isValueChild && */input.depth < tagDepth) {
+                        input.pushBackCurrent()
+                    }
+
+                    r
                 }
 
                 is AbstractCollectionSerializer<*, T, *> ->
@@ -1028,7 +1037,7 @@ internal open class XmlDecoderBase internal constructor(
             val valueChild = descriptor.getValueChild()
             // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
             // treated as such).
-            if (valueChild >= 0 && input.peek() is XmlEvent.EndElementEvent && !seenItems[valueChild]) {
+            if (valueChild >= 0 && /*input.peek() is XmlEvent.EndElementEvent &&*/ !seenItems[valueChild]) {
                 val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
                 // Lists/maps need to be empty (treated as null/missing)
                 if ((! valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {

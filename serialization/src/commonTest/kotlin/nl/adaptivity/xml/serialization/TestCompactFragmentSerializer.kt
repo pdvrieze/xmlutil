@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -21,7 +21,7 @@
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
+import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -32,23 +32,23 @@ import kotlin.test.assertEquals
 class TestCompactFragmentSerializer {
     @Test
     fun testSerializeCompactFragment() {
-        val f = FragmentContainer(CompactFragment("""<a><b>"hello"</b></a>"""), "bar")
-        val expected = "<FragmentContainer c=\"bar\">${f.fragment.contentString}</FragmentContainer>"
+        val f = FragmentContainer(CompactFragment(listOf(XmlEvent.NamespaceImpl("ns", "urn:ns")), """<ns:a><ns:b>"hello"</ns:b></ns:a>"""), "bar")
+        val expected = "<FragmentContainer xmlns:ns=\"urn:ns\" c=\"bar\">${f.fragment.contentString}</FragmentContainer>"
         val actual = XML.Companion.encodeToString(f)
         assertEquals(expected, actual)
     }
 
     @Test
     fun testDeserializeCompactFragment() {
-        val expected = FragmentContainer(CompactFragment("""<a><b>"hello"</b></a>"""), "bar")
-        val input = "<FragmentContainer c=\"bar\">${expected.fragment.contentString}</FragmentContainer>"
+        val expected = FragmentContainer(CompactFragment(listOf(XmlEvent.NamespaceImpl("ns", "urn:ns")), """<ns:a><ns:b>"hello"</ns:b></ns:a>"""), "bar")
+        val input = "<FragmentContainer xmlns:ns=\"urn:ns\" c=\"bar\">${expected.fragment.contentString}</FragmentContainer>"
         val actual = XML.decodeFromString<FragmentContainer>(input)
         assertEquals(expected, actual)
     }
 
     @Serializable
     data class FragmentContainer(
-        @XmlValue(true) @Serializable(CompactFragmentSerializer::class) val fragment: CompactFragment,
+        @XmlValue(true) val fragment: CompactFragment,
         @XmlElement(false)
         val c: String
     )
