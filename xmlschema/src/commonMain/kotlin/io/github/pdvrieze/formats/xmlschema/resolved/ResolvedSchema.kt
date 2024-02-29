@@ -148,9 +148,15 @@ class ResolvedSchema(
         if (typeName.namespaceURI.let { it != targetNamespace.value && it == BuiltinSchemaXmlschema.targetNamespace.value }) {
             BuiltinSchemaXmlschema.maybeType(typeName)?.let { return it }
         }
-        return withQName(typeName) {
+        withQName(typeName) {
             maybeType(it)
+        }?.let { return it }
+
+        if (typeName.namespaceURI == BuiltinSchemaXmlschema.targetNamespace.value) {
+            return BuiltinSchemaXmlschema.maybeType(typeName)
         }
+
+        return null
     }
 
     override fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup? =
