@@ -51,4 +51,30 @@ class XSGlobalSimpleType(
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>,
-) : XSISimpleType, XSGlobalType
+) : XSISimpleType, XSGlobalType {
+    override fun toString(): String {
+        return buildString {
+            append("XSGlobalSimpleType(name=")
+            append(name)
+            append(", simpleDerivation=")
+            append(simpleDerivation)
+            if (!final.isNullOrEmpty()) {
+                append(", final=")
+                append(final)
+            }
+            if (id != null) {
+                append(", id=")
+                append(id)
+            }
+            if (annotation != null) {
+                append(", annotation=")
+                append(annotation)
+            }
+            if (otherAttrs.isNotEmpty()) {
+                append(", otherAttrs=")
+                append(otherAttrs)
+            }
+            append(")")
+        }
+    }
+}
