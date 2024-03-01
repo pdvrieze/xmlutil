@@ -747,16 +747,8 @@ internal open class XmlDecoderBase internal constructor(
 
             val result: T = when (effectiveDeserializer) {
                 is XmlDeserializationStrategy -> {
-                    val current = input.eventType.createEvent(input)
-                    val i = when (val p = input.peek()) {
-                        // if the element is actually closed we synthesize the reader (needed for compactFragments),
-                        // this stops the end event to be consumed
-                        is XmlEvent.EndElementEvent -> XmlBufferReader(listOf(current, p)).also { it.next() }
-
-                        else -> input
-                    }
                     val r = effectiveDeserializer
-                        .deserializeXML(decoder, i, previousValue, xmlDescriptor.getValueChild() == index)
+                        .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
 
                     // Make sure that the (end tag is not consumed) - it will be consumed by the endStructure function
                     if (input.eventType == EventType.END_ELEMENT && /*isValueChild && */input.depth < tagDepth) {
