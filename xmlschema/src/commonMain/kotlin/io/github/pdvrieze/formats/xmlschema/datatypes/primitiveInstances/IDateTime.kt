@@ -100,7 +100,7 @@ interface IDateTime : VAnyAtomicType {
                         val right1 = right.toInstant(UtcOffset(-14))
                         val right2 = right.toInstant(UtcOffset(14))
                         val c1 = left2.compareTo(right1)
-                        val c2 = right2.compareTo(left1)
+                        val c2 = left1.compareTo(right2)
                         if (c1 == c2) return c1 else return 0 /* not comparable */
                     }
 
