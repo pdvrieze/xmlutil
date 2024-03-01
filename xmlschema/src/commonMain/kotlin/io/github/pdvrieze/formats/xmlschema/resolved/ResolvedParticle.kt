@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -81,6 +81,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         if (mdlTerm is IResolvedAll) {
             check(mdlMaxOccurs == VAllNNI.ONE) { "all: maxOccurs must be 1" }
         }
+        mdlTerm.flatten(checkHelper) // to trigger checks in flattening code.
         mdlTerm.checkTerm(checkHelper)
     }
 

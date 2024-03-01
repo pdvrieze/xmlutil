@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -762,7 +762,7 @@ sealed class FlattenedGroup(
                         is Element -> {
                             val startName = startTerm.term.mdlQName
                             require(startName !in lastOptionals) {
-                                "Non-deterministic sequence: sequence${particles.joinToString()}"
+                                "Non-deterministic sequence: (${particles.joinToString()})"
                             }
                             if (checkHelper.version == SchemaVersion.V1_0) {
                                 // In version 1.1 resolving prioritises explicit elements, wildcards can omit
