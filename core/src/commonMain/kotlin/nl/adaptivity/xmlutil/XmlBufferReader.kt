@@ -28,10 +28,19 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
  * A reader that presents a list of events as an xml reader. This is designed to work together with
  * [XmlBufferedWriter].
  */
-public class XmlBufferReader(private val buffer: List<XmlEvent>) : XmlReader {
+public class XmlBufferReader private constructor(
+    private val buffer: List<XmlEvent>,
+    private val namespaceHolder: NamespaceHolder
+) : XmlReader {
     private var currentPos = -1
 
-    private val namespaceHolder = NamespaceHolder()
+    public constructor(buffer: List<XmlEvent>): this(buffer, NamespaceHolder())
+    public constructor(buffer: List<XmlEvent>, initialContext: IterableNamespaceContext): this(
+        buffer,
+        NamespaceHolder().also {
+            initialContext.forEach { ns -> it.addPrefixToContext(ns) }
+        }
+    )
 
     override val eventType: EventType get() = buffer[currentPos].eventType
 

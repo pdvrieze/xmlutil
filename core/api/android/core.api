@@ -264,6 +264,7 @@ public final class nl/adaptivity/xmlutil/XMLConstants {
 
 public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil/XmlReader {
 	public fun <init> (Ljava/util/List;)V
+	public fun <init> (Ljava/util/List;Lnl/adaptivity/xmlutil/IterableNamespaceContext;)V
 	public fun close ()V
 	public fun getAttributeCount ()I
 	public fun getAttributeLocalName (I)Ljava/lang/String;
