@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. 
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -42,7 +42,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
         require(typeName.namespaceURI == XSD_NS_URI) {
-            "The type must be in the xmlschema namespace for the builtin schema"
+            "The type ($typeName) must be in the xmlschema namespace for the builtin schema"
         }
 
         return typeMap[typeName.localPart]

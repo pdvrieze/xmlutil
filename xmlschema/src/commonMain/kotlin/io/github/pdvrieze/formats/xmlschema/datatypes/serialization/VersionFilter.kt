@@ -98,11 +98,17 @@ class VersionFilter(delegate: XmlBufferedReader) : XmlDelegatingReader(delegate)
         if (maxVersion != null && maxVersion <= SchemaVersion.V1_0) return true
 
         if (typeAvailable != null) {
-            if (typeAvailable.any { BuiltinSchemaXmlschema.maybeType(it) == null }) return true
+            if (typeAvailable.any {
+                it.namespaceURI != BuiltinSchemaXmlschema.targetNamespace.value ||
+                BuiltinSchemaXmlschema.maybeType(it) == null
+            }) return true
         }
 
         if (typeUnavailable != null) {
-            if (typeUnavailable.all { BuiltinSchemaXmlschema.maybeType(it) != null }) return true
+            if (typeUnavailable.all {
+                    it.namespaceURI == BuiltinSchemaXmlschema.targetNamespace.value &&
+                BuiltinSchemaXmlschema.maybeType(it) != null
+            }) return true
         }
 
         if (facetAvailable != null) {
@@ -150,7 +156,7 @@ class VersionFilter(delegate: XmlBufferedReader) : XmlDelegatingReader(delegate)
             localname = substring(cPos + 1)
         }
 
-        val namespace = delegate.getNamespaceURI(prefix) ?: ""
+        val namespace = delegate.namespaceContext.getNamespaceURI(prefix) ?: ""
         return QName(namespace, localname, prefix)
     }
 
