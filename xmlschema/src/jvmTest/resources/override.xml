@@ -46,9 +46,6 @@
   <test path="MS-Additional2006-07-15/addB194/addB194">
     <expected validity="invalid" annotation="This contains a non-deterministic choice group"/>
   </test>
-  <test path="MS-SimpleType2006-07-15/stZ007/stZ007">
-    <expected validity="invalid" version="1.1" exception="IllegalArgumentException" message="Complex type with simple content may not be a restriction of special types"/>
-  </test>
   <test path="MS-SimpleType2006-07-15/ste110/ste110">
     <expected validity="invalid" exception="IllegalArgumentException"/>
   </test>
