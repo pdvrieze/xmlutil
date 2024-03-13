@@ -19,6 +19,15 @@
   -->
 
 <overrides xmlns="http://pdvrieze.github.io/xmlutil/testoverride">
+  <test path="XSImportReference/s4_2_6si01/s4_2_6si01s">
+    <expected validity="indeterminate" annotation="XMLSchema elements can be automatically visible without explicit import"/>
+  </test>
+  <test path="wildcard/s3_10_1ii08/s3_10_1ii08s">
+    <expected validity="invalid" version="1.0" annotation="Uses any attribute not supported in 1.0" />
+  </test>
+  <test path="wildcard/s3_10_1ii09/s3_10_1ii09s">
+    <expected validity="invalid" version="1.0" annotation="##definedSibling is not supported in 1.0" />
+  </test>
   <test path="Missing/missing001/missing001">
     <expected validity="lax" annotation="Allow missing types"/>
   </test>
