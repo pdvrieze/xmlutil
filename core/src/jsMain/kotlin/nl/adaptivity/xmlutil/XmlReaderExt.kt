@@ -108,10 +108,14 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
             }.toList()
 
         val wrappedString = XMLSerializer().serializeToString(wrapperElement.delegate)
-        val unwrappedString = wrappedString.substring(
-            wrappedString.indexOf('>', WRAPPERQNAME.length) + 1,
-            wrappedString.length - WRAPPERQNAME.length - 3
-        )
+        val tagEndIdx = wrappedString.indexOf('>', WRAPPERQNAME.length)
+        val unwrappedString = when {
+            wrappedString[tagEndIdx-1]=='/' -> ""
+            else -> wrappedString.substring(
+                tagEndIdx + 1,
+                wrappedString.length - WRAPPERQNAME.length - 3
+            )
+        }
         return CompactFragment(ns, unwrappedString)
     } catch (e: XmlException) {
         throw XmlException("Failure to parse children into string", startLocation ?: e.locationInfo, e)
