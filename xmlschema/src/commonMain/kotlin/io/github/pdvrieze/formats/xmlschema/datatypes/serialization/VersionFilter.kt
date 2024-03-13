@@ -95,7 +95,7 @@ class VersionFilter(delegate: XmlBufferedReader) : XmlDelegatingReader(delegate)
         }
 
         if (minVersion != null && minVersion > SchemaVersion.V1_1) return true
-        if (maxVersion != null && maxVersion < SchemaVersion.V1_0) return true
+        if (maxVersion != null && maxVersion <= SchemaVersion.V1_0) return true
 
         if (typeAvailable != null) {
             if (typeAvailable.any { BuiltinSchemaXmlschema.maybeType(it) == null }) return true
