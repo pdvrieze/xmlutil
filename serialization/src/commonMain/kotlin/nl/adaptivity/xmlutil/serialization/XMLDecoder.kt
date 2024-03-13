@@ -498,13 +498,13 @@ internal open class XmlDecoderBase internal constructor(
      * Special class that handles null values that are not mere primitives. Nice side-effect is that XmlDefault values
      * are actually parsed as XML and can be complex
      */
-    private inner class NullDecoder(xmlDescriptor: XmlDescriptor) :
+    private inner class NullDecoder(xmlDescriptor: XmlDescriptor, val isValueChild: Boolean) :
         XmlDecoder(xmlDescriptor), CompositeDecoder {
 
         override fun decodeNotNullMark() = (xmlDescriptor as? XmlValueDescriptor)?.default != null
 
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
-            if (!defaultOverEmpty) return ""
+            if (isValueChild && (!defaultOverEmpty)) return ""
             val default = (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, String.serializer())
             return default ?: ""
         }
@@ -692,13 +692,13 @@ internal open class XmlDecoderBase internal constructor(
             index: Int,
             deserializer: DeserializationStrategy<T>
         ): XmlDecoder? {
+            if (nulledItemsIdx >= 0) return null
+
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
 
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
             return when {
-                nulledItemsIdx >= 0 -> null
-
                 effectiveDeserializer.descriptor.kind is PrimitiveKind ->
                     XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
 
@@ -742,7 +742,7 @@ internal open class XmlDecoderBase internal constructor(
                 AttributeMapDecoder(childXmlDescriptor, lastAttrIndex)
             } else {
                 serialElementDecoder(descriptor, index, effectiveDeserializer)
-                    ?: NullDecoder(childXmlDescriptor)
+                    ?: NullDecoder(childXmlDescriptor, isValueChild)
             }
 
             val result: T = when (effectiveDeserializer) {
@@ -761,8 +761,13 @@ internal open class XmlDecoderBase internal constructor(
                 is AbstractCollectionSerializer<*, T, *> ->
                     effectiveDeserializer.merge(decoder, previousValue)
 
-                else ->
+                else -> try {
                     effectiveDeserializer.deserialize(decoder)
+                } catch (e: XmlException) {
+                    throw e
+                } catch (e: Exception) {
+                    throw XmlException("In: ${xmlDescriptor.tagName}/${descriptor.getElementName(index)} Error: ${input.extLocationInfo} - ${e.message}", input.extLocationInfo, e)
+                }
             }
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId

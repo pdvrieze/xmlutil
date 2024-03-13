@@ -20,8 +20,9 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlEvent
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -33,9 +34,9 @@ class TestCompactFragmentSerializer {
     @Test
     fun testSerializeCompactFragment() {
         val f = FragmentContainer(CompactFragment(listOf(XmlEvent.NamespaceImpl("ns", "urn:ns")), """<ns:a><ns:b>"hello"</ns:b></ns:a>"""), "bar")
-        val expected = "<FragmentContainer xmlns:ns=\"urn:ns\" c=\"bar\">${f.fragment.contentString}</FragmentContainer>"
+        val expected = "<FragmentContainer c=\"bar\" xmlns:ns=\"urn:ns\">${f.fragment.contentString}</FragmentContainer>"
         val actual = XML.Companion.encodeToString(f)
-        assertEquals(expected, actual)
+        assertXmlEquals(expected, actual)
     }
 
     @Test
