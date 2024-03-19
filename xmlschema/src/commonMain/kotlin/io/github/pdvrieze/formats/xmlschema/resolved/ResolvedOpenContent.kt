@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContentBase
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 
@@ -45,8 +44,11 @@ open class ResolvedOpenContent(
         }
     ) {
         when (mdlMode) {
-            Mode.NONE -> require(mdlWildCard == null)
-            else -> requireNotNull(mdlWildCard)
+            Mode.NONE -> require(rawPart.any == null)
+            else -> {
+                val w = requireNotNull(rawPart.any)
+                require(w.maxOccurs == null) { "any in opencontent is not allowed to have a maxoccurs" }
+            }
         }
     }
 
