@@ -1290,7 +1290,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
 
     override fun valueFromNormalized(representation: VString): VGYearMonth {
         var splitMonth = -1
-        for (i in 1..< representation.length.coerceAtMost(5)) {
+        for (i in 1..< representation.length.coerceAtMost(6)) {
             when (val s = representation[i]) {
                 '-'/*, '+'*/ -> {
                     splitMonth = i + 1
@@ -1302,7 +1302,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
                 else -> throw NumberFormatException("Non-integer in year: $s")
             }
         }
-        require(splitMonth > 0)
+        require(splitMonth >= 0) { "No month found in ${representation.xmlString}" }
         val year = representation.substring(0, splitMonth-1).toInt()
         try {
 
