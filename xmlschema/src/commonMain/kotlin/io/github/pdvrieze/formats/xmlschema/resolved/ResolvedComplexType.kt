@@ -461,7 +461,12 @@ sealed class ResolvedComplexType(
 
             mdlDerivationMethod = when (derivation) {
                 is XSComplexContent.XSExtension -> VDerivationControl.EXTENSION
-                else -> VDerivationControl.RESTRICTION
+                else -> {
+                    require(derivation.openContent == null || derivation.term != null) {
+                        "Per the S4S a restriction with open content must also have a term"
+                    }
+                    VDerivationControl.RESTRICTION
+                }
             }
 
 
