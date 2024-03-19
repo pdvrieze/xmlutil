@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -62,7 +62,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
         .onFailure { e -> throw IllegalStateException("No type definition found", e) }
         .getOrThrow()
 
-    val mdlTypeTable: ITypeTable? get() = model.mdlTypeTable
+    val mdlTypeTable: ResolvedTypeTable? get() = model.mdlTypeTable
 
     val mdlValueConstraint: ValueConstraint? get() = model.mdlValueConstraint
 
@@ -151,6 +151,8 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
                 checkHelper.checkType(td)
             }
+
+        mdlTypeTable?.check(checkHelper)
     }
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitElement(this)
@@ -192,7 +194,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
         abstract val mdlTypeDefinition: Result<ResolvedType>
 
-        abstract val mdlTypeTable: ITypeTable?
+        abstract val mdlTypeTable: ResolvedTypeTable?
 
         val mdlValueConstraint: ValueConstraint? = ValueConstraint(rawPart)
 

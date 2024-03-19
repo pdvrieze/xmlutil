@@ -1090,6 +1090,10 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         return wrap(elem.function())
     }
 
+    fun <U> wrapNullable(function: T.() -> U?): SchemaElement<U>? {
+        return elem.function()?.let { wrap(it) }
+    }
+
     fun <U> wrapEach(function: T.() -> Collection<U>): Collection<SchemaElement<U>> {
         return elem.function().map { wrap(it) }
     }
