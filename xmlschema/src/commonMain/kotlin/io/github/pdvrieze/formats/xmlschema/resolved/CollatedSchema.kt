@@ -772,7 +772,7 @@ class OwnerWrapper internal constructor(
 
     override val finalDefault: Set<VDerivationControl.Type> get() = base.finalDefault
 
-    override val defaultOpenContent: XSDefaultOpenContent? get() = base.defaultOpenContent
+    override val defaultOpenContent: ResolvedDefaultOpenContent? get() = base.defaultOpenContent
 
     private inline fun <R> checkImport(name: QName, action: () -> R): R = when (name.namespaceURI) {
         XSD_NS_URI,
@@ -840,7 +840,7 @@ class ChameleonWrapper internal constructor(
         get() = base.blockDefault
     override val finalDefault: Set<VDerivationControl.Type>
         get() = base.finalDefault
-    override val defaultOpenContent: XSDefaultOpenContent?
+    override val defaultOpenContent: ResolvedDefaultOpenContent?
         get() = base.defaultOpenContent
     override val defaultAttributes: QName? get() = base.defaultAttributes
 
@@ -906,7 +906,7 @@ internal class RedefineSchema(
     internal val elementKind: Redefinable,
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
     override val finalDefault: Set<VDerivationControl.Type> = emptySet(),
-    override val defaultOpenContent: XSDefaultOpenContent? = null,
+    override val defaultOpenContent: ResolvedDefaultOpenContent? = null,
     override val defaultAttributes: QName? = null,
 ) : ResolvedSchemaLike() {
 

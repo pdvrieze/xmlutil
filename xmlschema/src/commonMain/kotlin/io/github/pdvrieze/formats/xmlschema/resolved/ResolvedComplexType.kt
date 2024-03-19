@@ -502,12 +502,8 @@ sealed class ResolvedComplexType(
             }
 
             val openContent: ResolvedOpenContent? = derivation.openContent?.let {
-                ResolvedOpenContent(
-                    it,
-                    schema,
-                    effectiveContent?.mdlTerm?.hasLocalNsInContext() ?: false
-                )
-            }
+                ResolvedOpenContent(it, schema, effectiveContent?.mdlTerm?.hasLocalNsInContext() ?: false)
+            } ?: schema.defaultOpenContent
 
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
@@ -568,7 +564,7 @@ sealed class ResolvedComplexType(
                 derivation.openContent
                     ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
                         explicitContentType.mdlVariety != Variety.EMPTY || it.appliesToEmpty
-                    }
+                    }?.rawPart
 
             if (wildcardElement == null || wildcardElement.mode == VContentMode.NONE) {
                 mdlContentType = explicitContentType

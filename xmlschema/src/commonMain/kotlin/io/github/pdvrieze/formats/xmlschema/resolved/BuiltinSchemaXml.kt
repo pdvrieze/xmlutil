@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. 
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -133,7 +133,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override val finalDefault: Set<VDerivationControl.Type> get() = delegate.finalDefault
 
-    override val defaultOpenContent: XSDefaultOpenContent? get() = delegate.defaultOpenContent
+    override val defaultOpenContent: ResolvedDefaultOpenContent? get() = delegate.defaultOpenContent
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = delegate.maybeSimpleType(typeName)
 

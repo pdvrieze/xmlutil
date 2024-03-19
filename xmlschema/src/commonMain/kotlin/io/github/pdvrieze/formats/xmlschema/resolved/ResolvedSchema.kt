@@ -97,8 +97,9 @@ class ResolvedSchema(
 
     val annotations: List<XSAnnotation> get() = rawPart.annotations
 
-    override val defaultOpenContent: XSDefaultOpenContent?
-        get() = rawPart.defaultOpenContent
+    override val defaultOpenContent: ResolvedDefaultOpenContent? = rawPart.defaultOpenContent?.let {
+        ResolvedDefaultOpenContent(it, this)
+    }
 
     override val attributeFormDefault: VFormChoice
         get() = rawPart.attributeFormDefault ?: VFormChoice.UNQUALIFIED

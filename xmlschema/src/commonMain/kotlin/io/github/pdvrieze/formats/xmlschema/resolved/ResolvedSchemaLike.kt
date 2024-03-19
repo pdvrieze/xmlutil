@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -35,7 +35,7 @@ abstract class ResolvedSchemaLike {
 
     abstract val blockDefault: Set<VDerivationControl.T_BlockSetValues>
     abstract val finalDefault: Set<VDerivationControl.Type>
-    abstract val defaultOpenContent: XSDefaultOpenContent?
+    abstract val defaultOpenContent: ResolvedDefaultOpenContent?
     abstract val attributeFormDefault: VFormChoice
     abstract val elementFormDefault: VFormChoice
 

@@ -20,10 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContent
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenContentBase
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 
-class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike, localInContext: Boolean) {
+class ResolvedDefaultOpenContent(rawPart: XSDefaultOpenContent, schema: ResolvedSchemaLike) :
+    ResolvedOpenContent(rawPart, schema, false) {
+
+    val appliesToEmpty: Boolean = rawPart.appliesToEmpty
+}
+
+open class ResolvedOpenContent(val rawPart: XSOpenContentBase, schema: ResolvedSchemaLike, localInContext: Boolean) {
     val mdlMode: Mode = when(rawPart.mode) {
         VContentMode.INTERLEAVE -> Mode.INTERLEAVE
         VContentMode.SUFFIX -> Mode.SUFFIX
