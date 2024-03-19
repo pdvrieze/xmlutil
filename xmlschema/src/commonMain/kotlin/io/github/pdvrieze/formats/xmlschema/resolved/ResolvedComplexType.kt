@@ -444,7 +444,7 @@ sealed class ResolvedComplexType(
                 }
 
                 is XSComplexType.Shorthand -> {
-                    require(schema !is RedefineSchema || typeContext !is ResolvedGlobalComplexType) {
+                    require(schema !is RedefineSchema || schema.isOverride || typeContext !is ResolvedGlobalComplexType) {
                         "When *redefining* a complex type must have a base type, thus can not be shorthand: ${(typeContext as? ResolvedGlobalType)?.mdlQName}"
                     }
 

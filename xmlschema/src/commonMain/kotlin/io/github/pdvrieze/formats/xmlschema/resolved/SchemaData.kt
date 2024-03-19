@@ -34,6 +34,8 @@ internal open class NamespaceHolder(val namespace: String, var loading: Boolean)
 
 internal class RecursiveRedefine(val schemaLocation: VAnyURI, namespace: String) : NamespaceHolder(namespace, false)
 
+internal class RecursiveOverride(val schemaLocation: VAnyURI, namespace: String) : NamespaceHolder(namespace, false)
+
 internal class SchemaData(
     namespace: String,
     val schemaLocation: String?,
@@ -647,6 +649,91 @@ internal class SchemaData(
                 }
             }
 
+
+            for (override in sourceSchema.overrides) {
+                require(override.schemaLocation.value !in b.schemaLocations) { "Redefine (indirectly) refers to itself" }
+                val overrideLocation = resolver.resolve(override.schemaLocation)
+                val overrideData: NamespaceHolder? = when(val processed = alreadyProcessed[overrideLocation.value]) {
+                    is SchemaData -> processed
+
+                    is NamespaceHolder -> {
+
+                        require(! processed.loading && overrideLocation.value !in schemaLocations) { "Redefines can not refer to documents themselves" }
+                        RecursiveOverride(overrideLocation, processed.namespace)
+                    }
+
+                    else -> {
+                        val delegateResolver = resolver.delegate(overrideLocation)
+                        when (val parsed = resolver.tryReadSchema(overrideLocation)) {
+                            null -> {
+                                require(override.groups.isEmpty()) { "Groups in unresolvable override $overrideLocation" }
+                                require(override.attributeGroups.isEmpty()) { "Attribute groups in unresolvable override $overrideLocation" }
+                                require(override.complexTypes.isEmpty()) { "Complex types in unresolvable override $overrideLocation" }
+                                require(override.simpleTypes.isEmpty()) { "Simple types in unresolvable override $overrideLocation" }
+                                null
+                            }
+
+                            else -> {
+                                require(parsed.targetNamespace.let { it == null || it.value == targetNamespace })
+                                SchemaData(
+                                    parsed,
+                                    listOf(overrideLocation.value),
+                                    targetNamespace,
+                                    delegateResolver,
+                                    b.newProcessed
+                                ).also {
+                                    b.newProcessed[overrideLocation.value] = it
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (overrideData !is SchemaData) {
+                    if (overrideLocation.value.isNotEmpty())
+                        b.newProcessed[overrideLocation.value] = NamespaceHolder(targetNamespace ?: "", false)
+                } else {
+                    b.addInclude(overrideData, targetNamespace)
+
+                    val overridenTypeNames = mutableSetOf<String>()
+                    for (st in (override.simpleTypes + override.complexTypes)) {
+                        val name = st.name.xmlString
+                        require(overridenTypeNames.add(name)) { "Redefine redefines the same type multiple times" }
+                        val baseType = requireNotNull(b.types[name]) { "Redefine must actually redefine type" }
+                        // TODO add check for base type
+                        val typeName = QName(targetNamespace ?: "", name)
+                        b.types[name] =
+                            SchemaElement.Overridden(st, sourceSchema, overrideData, schemaLocations.first(), typeName, Redefinable.TYPE)
+                    }
+
+                    val overriddenGroups = mutableSetOf<String>()
+                    for (g in override.groups) {
+                        val name = g.name.xmlString
+                        require(overriddenGroups.add(name)) { "Override redefines the same group multiple times" }
+                        val oldGroup = requireNotNull(b.groups[name]) { "Override must actually redefine group" }
+                        // TODO add checks if needed
+                        val groupName = QName(targetNamespace ?: "", name)
+                        b.groups[name] =
+                            SchemaElement.Redefined(g, sourceSchema, overrideData, schemaLocations.first(), groupName, Redefinable.GROUP)
+                    }
+
+                    val overridenAttrGroups = mutableSetOf<String>()
+                    for (ag in override.attributeGroups) {
+                        val name = ag.name.xmlString
+                        require(overridenAttrGroups.add(name)) { "Override redefines the same attribute group multiple times" }
+                        val oldGroup =
+                            requireNotNull(b.attributeGroups[name]) { "Override must actually redefine attribute group" }
+                        // TODO add checks if needed
+                        val agName = QName(targetNamespace ?: "", name)
+
+                        b.attributeGroups[name] = SchemaElement.Redefined(
+                            ag, sourceSchema, overrideData, schemaLocations.first(),
+                            agName, Redefinable.ATTRIBUTEGROUP
+                        )
+                    }
+                }
+            }
+
             for (import in sourceSchema.imports) {
                 val importNS = when (val i = import.namespace) {
                     null -> {
@@ -904,6 +991,7 @@ internal class RedefineSchema(
     val originSchemaData: SchemaData,
     internal val elementName: QName,
     internal val elementKind: Redefinable,
+    internal val isOverride: Boolean,
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
     override val finalDefault: Set<VDerivationControl.Type> = emptySet(),
     override val defaultOpenContent: ResolvedDefaultOpenContent? = null,
@@ -1182,7 +1270,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
             // handle the case where it is called multiple times
             schema is RedefineSchema && schema.originSchemaData == overriddenSchema -> schema
-            else -> RedefineSchema(schema, overriddenSchema, elementName, elementKind)
+            else -> RedefineSchema(schema, overriddenSchema, elementName, elementKind, false)
         }
 
         override fun <U> wrap(value: U): SchemaElement<U> {
@@ -1196,6 +1284,38 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         }
 
         override fun toString(): String = "redefine($elem)"
+    }
+
+    class Overridden<T>(
+        elem: T,
+        rawSchema: XSSchema,
+        val overriddenSchema: SchemaData,
+        schemaLocation: String,
+        val elementName: QName,
+        val elementKind: Redefinable,
+    ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
+        override val targetNamespace: String
+            get() = elementName.namespaceURI
+
+        override val builtin: Boolean get() = false
+
+        override fun effectiveSchema(schema: ResolvedSchemaLike): ResolvedSchemaLike = when {
+            // handle the case where it is called multiple times
+            schema is RedefineSchema && schema.originSchemaData == overriddenSchema -> schema
+            else -> RedefineSchema(schema, overriddenSchema, elementName, elementKind, true)
+        }
+
+        override fun <U> wrap(value: U): SchemaElement<U> {
+            return Overridden(value, rawSchema, overriddenSchema, schemaLocation, elementName, elementKind)
+        }
+
+        override fun toChameleon(
+            chameleon: String
+        ): Chameleon<T> {
+            throw UnsupportedOperationException("Overridden elements can not be chameleons")
+        }
+
+        override fun toString(): String = "override($elem)"
     }
 
     companion object {
