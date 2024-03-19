@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -150,33 +150,12 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         if (mdlVariety != Variety.ATOMIC && base == AnySimpleType) return true //2.2.3
         if (base is ResolvedSimpleType && base.mdlVariety == Variety.UNION) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
-            val members = base.transitiveUnionMembership() //2.2.4.2
+            val members = base.mdlMemberTypeDefinitions //2.2.4.2
             return members.any { m ->
                 isValidlyDerivedFrom(m, asRestriction)
             }
         }
         return false //none of the 4 options is true
-    }
-
-    fun transitiveUnionMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
-        if(mdlVariety != Variety.UNION) return collector
-        when(val d = simpleDerivation) {
-            is ResolvedUnionDerivation -> {
-                for (m in d.memberTypes) {
-                    when (m.mdlVariety) {
-                        Variety.UNION -> m.transitiveUnionMembership(collector)
-                        else -> collector.add(m)
-                    }
-                }
-            }
-            is ResolvedListDerivationBase -> {
-                throw IllegalStateException("list derivations should never have union variety")
-            }
-            is ResolvedSimpleRestrictionBase -> {
-                (d.baseType as? ResolvedSimpleType)?.transitiveUnionMembership(collector)
-            }
-        }
-        return collector
     }
 
     fun value(representation: VString): Any? {
