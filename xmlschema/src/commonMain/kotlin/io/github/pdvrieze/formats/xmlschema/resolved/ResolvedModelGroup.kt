@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -49,9 +49,11 @@ sealed interface ResolvedModelGroup : ResolvedTerm {
 
     fun hasLocalNsInContext(): Boolean {
         for (particle in mdlParticles) {
-            when (val t = particle.mdlTerm) {
-                is ResolvedModelGroup -> if(t.hasLocalNsInContext()) return true
-                is ResolvedElement -> if(t.mdlQName.namespaceURI.isEmpty()) return true
+            if (particle !is ResolvedProhibitedElement) {
+                when (val t = particle.mdlTerm) {
+                    is ResolvedModelGroup -> if (t.hasLocalNsInContext()) return true
+                    is ResolvedElement -> if (t.mdlQName.namespaceURI.isEmpty()) return true
+                }
             }
         }
         return false
