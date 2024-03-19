@@ -769,7 +769,7 @@ sealed class ResolvedComplexType(
         ): Boolean {
             if (baseCT !is ElementContentType) return false
 
-            require(mdlOpenContent?.restricts(baseCT.mdlOpenContent, checkHelper.version) != false) {
+            require(mdlOpenContent?.restricts(baseCT.mdlOpenContent, checkHelper.version, mdlParticle.mdlTerm.mdlParticles.isEmpty()) != false) {
                 "Open content must also restrict the base open content (which implies the base must allow open content)"
             }
 

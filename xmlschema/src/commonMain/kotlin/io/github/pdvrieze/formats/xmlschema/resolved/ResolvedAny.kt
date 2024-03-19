@@ -141,7 +141,8 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     }
 
     fun isSubsetOf(other: ResolvedAny, schemaVersion: SchemaVersion): Boolean {
-        return mdlNamespaceConstraint.isSubsetOf(other.mdlNamespaceConstraint, schemaVersion)
+        return mdlProcessContents >= other.mdlProcessContents &&
+                mdlNamespaceConstraint.isSubsetOf(other.mdlNamespaceConstraint, schemaVersion)
     }
 
 }

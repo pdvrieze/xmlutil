@@ -39,9 +39,9 @@ class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike
         }
     }
 
-    fun restricts(other: ResolvedOpenContent?, schemaVersion: SchemaVersion): Boolean {
+    fun restricts(other: ResolvedOpenContent?, schemaVersion: SchemaVersion, derivedContentEmpty: Boolean): Boolean {
         if (other == null) return false
-        return other.mdlMode.extends(mdlMode) && when (val w = mdlWildCard) {
+        return (derivedContentEmpty || other.mdlMode.extends(mdlMode)) && when (val w = mdlWildCard) {
             null -> other.mdlWildCard == null
             else -> when(val owc = other.mdlWildCard){
                 null -> true
