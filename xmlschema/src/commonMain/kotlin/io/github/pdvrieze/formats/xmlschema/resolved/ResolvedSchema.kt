@@ -107,7 +107,8 @@ class ResolvedSchema(
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
         get() = rawPart.blockDefault ?: emptySet()
 
-    override val defaultAttributes: QName? = rawPart.defaultAttributes
+    override val defaultAttributes: ResolvedGlobalAttributeGroup? =
+        rawPart.defaultAttributes?.let { attributeGroup(it) }
 
     val xPathDefaultNamespace: VXPathDefaultNamespace
         get() = rawPart.xpathDefaultNamespace ?: VXPathDefaultNamespace.LOCAL

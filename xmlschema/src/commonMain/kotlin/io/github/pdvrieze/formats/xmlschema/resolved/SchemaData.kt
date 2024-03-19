@@ -853,7 +853,7 @@ class OwnerWrapper internal constructor(
 
     override val elementFormDefault: VFormChoice get() = owner.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
-    override val defaultAttributes: QName? get() = base.defaultAttributes
+    override val defaultAttributes: ResolvedGlobalAttributeGroup? get() = base.defaultAttributes
 
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = base.blockDefault
 
@@ -929,7 +929,7 @@ class ChameleonWrapper internal constructor(
         get() = base.finalDefault
     override val defaultOpenContent: ResolvedDefaultOpenContent?
         get() = base.defaultOpenContent
-    override val defaultAttributes: QName? get() = base.defaultAttributes
+    override val defaultAttributes: ResolvedGlobalAttributeGroup? get() = base.defaultAttributes
 
     private fun QName.extend(): QName {
         return when {
@@ -995,7 +995,7 @@ internal class RedefineSchema(
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
     override val finalDefault: Set<VDerivationControl.Type> = emptySet(),
     override val defaultOpenContent: ResolvedDefaultOpenContent? = null,
-    override val defaultAttributes: QName? = null,
+    override val defaultAttributes: ResolvedGlobalAttributeGroup? = null,
 ) : ResolvedSchemaLike() {
 
     override val version: SchemaVersion get() = referenceSchema.version

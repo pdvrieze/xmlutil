@@ -807,7 +807,15 @@ sealed class ResolvedComplexType(
         ): Boolean {
             if (baseCT !is ElementContentType) return false
 
-            require(mdlOpenContent?.restricts(baseCT.mdlOpenContent, checkHelper.version, mdlParticle.mdlTerm.mdlParticles.isEmpty()) != false) {
+            val effectiveBaseOc = baseCT.mdlOpenContent ?:
+                (baseCT.mdlParticle.mdlTerm.mdlParticles.singleOrNull() as? ResolvedAny)?.let {
+                    when (it.mdlMaxOccurs) {
+                        VAllNNI.UNBOUNDED -> ResolvedOpenContent(it, ResolvedOpenContent.Mode.INTERLEAVE)
+                        else -> null
+                    }
+                }
+
+            require(mdlOpenContent?.restricts(effectiveBaseOc, checkHelper.version, mdlParticle.mdlTerm.mdlParticles.isEmpty()) != false) {
                 "Open content must also restrict the base open content (which implies the base must allow open content)"
             }
 
@@ -984,7 +992,7 @@ sealed class ResolvedComplexType(
 
                 // Defined attribute group references (including the default one)
                 val groups = buildSet {
-                    defaultAttributeGroup?.let { ag -> add(schema.attributeGroup(ag)) }
+                    defaultAttributeGroup?.let { add(it) }
                     rawPart.content.derivation.attributeGroups.mapTo(this) { schema.attributeGroup(it.ref) }
                 }
                 for (group in groups) {

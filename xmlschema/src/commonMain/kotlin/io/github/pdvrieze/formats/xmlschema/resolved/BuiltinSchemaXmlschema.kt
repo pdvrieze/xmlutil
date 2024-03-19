@@ -35,7 +35,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val version: SchemaVersion get() = SchemaVersion.V1_1
     override val targetNamespace: VAnyURI = XSD_NS_URI.toAnyUri()
     override val defaultOpenContent: Nothing? get() = null
-    override val defaultAttributes: Nothing? get() = null
+    override val defaultAttributes: ResolvedGlobalAttributeGroup? get() = null
 
     override val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
     override val elementFormDefault: VFormChoice get() = VFormChoice.QUALIFIED
