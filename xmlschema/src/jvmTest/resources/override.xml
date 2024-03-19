@@ -618,8 +618,8 @@
               message="No attribute group with name \{AttrGroup/name\}wrongName found"/>
   </test>
   <test path="AGroupDef/ag_targetns00101m1_n/AG_targetNS00101m1_n">
-    <expected validity="invalid" exception="SerializationException"
-              message="Missing namespace for prefix wrongNS in QName value"/>
+    <expected validity="invalid" exception="XmlException"
+              message=".* - Missing namespace for prefix wrongNS in QName value"/>
   </test>
   <test path="AGroupDef/annotation00101m2/annotation00101m2">
     <expected validity="invalid" exception="XmlSerialException"
