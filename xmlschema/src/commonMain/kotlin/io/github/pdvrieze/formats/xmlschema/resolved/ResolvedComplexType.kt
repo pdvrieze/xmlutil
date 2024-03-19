@@ -302,6 +302,18 @@ sealed class ResolvedComplexType(
                 require(derivedCType is ElementOnlyContentType) { "Content type for complex extension must match: ${derivedCType.mdlVariety}!= ${baseCType.mdlVariety}" }
                 // Ensure chcking particle extensions
 
+                val bot = baseCType.mdlOpenContent
+                val eot = derivedCType.mdlOpenContent
+
+                require(bot == null ||
+                        eot?.mdlMode == ResolvedOpenContent.Mode.INTERLEAVE ||
+                        (bot.mdlMode == ResolvedOpenContent.Mode.SUFFIX && eot?.mdlMode == ResolvedOpenContent.Mode.SUFFIX)) {
+                    "3.4.6.2(1.4.3.2.2.3) - open content not compatible"
+                }
+                if (bot != null && eot != null) {
+                    require(eot.mdlWildCard!!.mdlNamespaceConstraint.isSupersetOf(bot.mdlWildCard!!.mdlNamespaceConstraint))
+                }
+
             }
         }
         when (baseCType) {
@@ -501,25 +513,28 @@ sealed class ResolvedComplexType(
                 )
             }
 
+/*
             val openContent: ResolvedOpenContent? = derivation.openContent?.let {
                 ResolvedOpenContent(it, schema, effectiveContent?.mdlTerm?.hasLocalNsInContext() ?: false)
             } ?: schema.defaultOpenContent
+*/
+            val rawOpenContent = derivation.openContent
 
             val explicitContentType: ResolvedContentType = when {
                 derivation is XSComplexContent.XSRestriction ||
                         derivation is XSComplexType.Shorthand -> // restriction (or shorthand)
-                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
+                    typeContext.contentType(effectiveMixed, effectiveContent, schema, null)
 
 
                 baseTypeDefinition !is ResolvedComplexType -> // simple type 4.2.1
-                    typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
+                    typeContext.contentType(effectiveMixed, effectiveContent, schema, null)
 
                 baseTypeDefinition.mdlContentType.mdlVariety.let { // simple content 4.2.1
                     it == Variety.SIMPLE || it == Variety.EMPTY
-                } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent)
+                } -> typeContext.contentType(effectiveMixed, effectiveContent, schema, null)
 
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
-                else -> { // extension
+                else -> { // extension 4.2.3
                     val baseParticle = (baseTypeDefinition.mdlContentType as ElementContentType).mdlParticle
                     if (STRICT_ALL_IN_EXTENSION && baseTypeDefinition != AnyType) {
                         require(baseParticle.mdlTerm is IResolvedAll || term !is XSAll) {
@@ -553,6 +568,7 @@ sealed class ResolvedComplexType(
                             )
                         }
                     }
+                    val openContent = (baseTypeDefinition.mdlContentType as? ElementContentType)?.mdlOpenContent
                     when {
                         effectiveMixed -> MixedContentType(part, part::isSiblingName, schema, openContent)
                         else -> ElementOnlyContentType(part, part::isSiblingName, schema, openContent)
@@ -560,13 +576,27 @@ sealed class ResolvedComplexType(
                 }
             }
 
-            val wildcardElement: XSOpenContentBase? =
-                derivation.openContent
-                    ?: (schema as? ResolvedSchema)?.defaultOpenContent?.takeIf {
-                        explicitContentType.mdlVariety != Variety.EMPTY || it.appliesToEmpty
-                    }?.rawPart
+            val resolvedWildcard = run {
+                val derivedOC = derivation.openContent
+                val defaultOpenContent = schema.defaultOpenContent
 
-            if (wildcardElement == null || wildcardElement.mode == VContentMode.NONE) {
+                val hasLocalNsInContest = (explicitContentType as? ElementContentType)?.mdlParticle?.mdlTerm?.hasLocalNsInContext() ?: false
+
+                when {
+                    // 5.1
+                    derivedOC != null -> ResolvedOpenContent(derivedOC, schema, hasLocalNsInContest)
+
+                    // 5.2
+                    defaultOpenContent != null && (explicitContentType.mdlVariety != Variety.EMPTY || defaultOpenContent.appliesToEmpty) ->
+                        defaultOpenContent
+
+                    // 5.3
+                    else -> null
+
+                }
+            }
+
+            if (resolvedWildcard == null || resolvedWildcard.mdlMode == ResolvedOpenContent.Mode.NONE) {
                 mdlContentType = explicitContentType
             } else {
                 val particle: ResolvedParticle<ResolvedModelGroup> =
@@ -578,13 +608,25 @@ sealed class ResolvedComplexType(
                         )
 
                 // TODO Add wildcard union
-                val w = wildcardElement.any ?: XSAny()
-                val openContent = ResolvedOpenContent(
-                    XSOpenContent(
-                        mode = wildcardElement.mode,
-                        any = w
-                    ), schema, particle.mdlTerm.hasLocalNsInContext()
-                )
+                val w = resolvedWildcard.mdlWildCard!! //?: ResolvedAny(XSAny(), schema)
+
+                val exCTOC=(explicitContentType as? ElementContentType)?.mdlOpenContent
+
+                val newWildcard = when {
+                    exCTOC == null -> w
+                    else -> {
+                        val unifiedConstraint = w.mdlNamespaceConstraint.union(
+                            exCTOC.mdlWildCard!!.mdlNamespaceConstraint,
+                            { false },
+                            schema
+                        )
+                        ResolvedAny(unifiedConstraint, w.mdlProcessContents)
+                    }
+
+                }
+
+                val openContent = ResolvedOpenContent(newWildcard, resolvedWildcard.mdlMode)
+
 
                 mdlContentType = when {
                     effectiveMixed -> MixedContentType(

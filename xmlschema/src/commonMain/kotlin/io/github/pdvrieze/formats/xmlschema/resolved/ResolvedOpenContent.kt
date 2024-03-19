@@ -31,18 +31,21 @@ class ResolvedDefaultOpenContent(rawPart: XSDefaultOpenContent, schema: Resolved
     val appliesToEmpty: Boolean = rawPart.appliesToEmpty
 }
 
-open class ResolvedOpenContent(val rawPart: XSOpenContentBase, schema: ResolvedSchemaLike, localInContext: Boolean) {
-    val mdlMode: Mode = when(rawPart.mode) {
-        VContentMode.INTERLEAVE -> Mode.INTERLEAVE
-        VContentMode.SUFFIX -> Mode.SUFFIX
-        VContentMode.NONE -> Mode.NONE
-    }
+open class ResolvedOpenContent(
+    val mdlWildCard: ResolvedAny?,
+    val mdlMode: Mode,
+) {
 
-    val mdlWildCard: ResolvedAny? = rawPart.any?.let { ResolvedAny(it, schema) }
-
-    init {
-        when(mdlMode) {
-            Mode.NONE -> require(mdlWildCard==null)
+    constructor(rawPart: XSOpenContentBase, schema: ResolvedSchemaLike, localInContext: Boolean) : this(
+        rawPart.any?.let { ResolvedAny(it, schema) },
+        when (rawPart.mode) {
+            VContentMode.INTERLEAVE -> Mode.INTERLEAVE
+            VContentMode.SUFFIX -> Mode.SUFFIX
+            VContentMode.NONE -> Mode.NONE
+        }
+    ) {
+        when (mdlMode) {
+            Mode.NONE -> require(mdlWildCard == null)
             else -> requireNotNull(mdlWildCard)
         }
     }
