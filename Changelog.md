@@ -14,6 +14,8 @@ Features:
   interfaces allows the format to treat the data specially.
 
 Fixes:
+- In handling id attributes apply the xml collapse whitespace rules
+  (per the facets of the xsd:id type)
 - Fix handling of empty `@XmlValue` members of string-like type. Also
   collapse whitespace when parsing non-string primitives (per xml
   schema). Strings never ignore whitespace.

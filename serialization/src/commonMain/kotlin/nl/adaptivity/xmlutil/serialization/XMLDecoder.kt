@@ -424,7 +424,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeStringImpl(defaultOverEmpty: Boolean): String {
             val value = super.decodeStringImpl(defaultOverEmpty)
             if (attrIndex >= 0 && xmlDescriptor.isIdAttr) {
-                tagIdHolder?.run { tagId = value }
+                tagIdHolder?.run { tagId = xmlCollapseWhitespace(value) }
             }
             return value
         }
@@ -1195,7 +1195,7 @@ internal open class XmlDecoderBase internal constructor(
             if (isAttribute) {
                 val a = doReadAttribute(lastAttrIndex)
                 if (xmlDescriptor.getElementDescriptor(index).isIdAttr) {
-                    tagId = a
+                    tagId = xmlCollapseWhitespace(a)
                 }
                 return a
             } else if (nulledItemsIdx >= 0) { // Now reading nulls
