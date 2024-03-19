@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSOpenConten
 import io.github.pdvrieze.formats.xmlschema.types.VContentMode
 
 class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike, localInContext: Boolean) {
-
     val mdlMode: Mode = when(rawPart.mode) {
         VContentMode.INTERLEAVE -> Mode.INTERLEAVE
         VContentMode.SUFFIX -> Mode.SUFFIX
@@ -39,6 +38,18 @@ class ResolvedOpenContent(val rawPart: XSOpenContent, schema: ResolvedSchemaLike
             else -> requireNotNull(mdlWildCard)
         }
     }
+
+    fun restricts(other: ResolvedOpenContent?, schemaVersion: SchemaVersion): Boolean {
+        if (other == null) return false
+        return other.mdlMode.extends(mdlMode) && when (val w = mdlWildCard) {
+            null -> other.mdlWildCard == null
+            else -> when(val owc = other.mdlWildCard){
+                null -> true
+                else -> w.isSubsetOf(owc, schemaVersion)
+            }
+        }
+    }
+
 
     enum class Mode { INTERLEAVE, SUFFIX, NONE;
 

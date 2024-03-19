@@ -768,6 +768,11 @@ sealed class ResolvedComplexType(
             checkHelper: CheckHelper
         ): Boolean {
             if (baseCT !is ElementContentType) return false
+
+            require(mdlOpenContent?.restricts(baseCT.mdlOpenContent, checkHelper.version) != false) {
+                "Open content must also restrict the base open content (which implies the base must allow open content)"
+            }
+
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
 
