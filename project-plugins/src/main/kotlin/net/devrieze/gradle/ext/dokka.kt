@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,7 @@
 package net.devrieze.gradle.ext
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
@@ -29,12 +30,13 @@ import java.net.URI
 import java.net.URL
 
 fun Project.configureDokka(
-    myModuleName: String = name,
-    myModuleVersion: String? = property("xmlutil_version") as String?
+    myModuleName: Provider<String>,
+    myModuleVersion: Provider<String>
 ) {
     tasks.withType<AbstractDokkaLeafTask> {
-        moduleName.set(myModuleName)
-        myModuleVersion.let { moduleVersion.set(it) }
+        moduleName.convention(myModuleName)
+        moduleVersion.convention(myModuleVersion)
+
         dokkaSourceSets.configureEach {
             this@configureDokka.configureDokkaSourceSet(this)
         }

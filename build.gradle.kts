@@ -18,21 +18,13 @@
  * under the License.
  */
 
-import net.devrieze.gradle.ext.configureDokka
-import net.devrieze.gradle.ext.envAndroid
-import net.devrieze.gradle.ext.envJvm
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     repositories {
@@ -41,116 +33,20 @@ buildscript {
 }
 
 plugins {
-    id(libs.plugins.kotlinMultiplatform.get().pluginId) apply false
+    id("projectPlugin")
+    alias(libs.plugins.kotlinMultiplatform) apply false
 //    kotlin("multiplatform")/* version "1.7.0"*/ //apply false
     idea
 //    kotlin("multiplatform") apply false
     `maven-publish`
     signing
-    id(libs.plugins.dokka.get().pluginId)
+    alias(libs.plugins.dokka)
 }
 
 description = "The overall project for cross-platform xml access"
 
-ext {
-    set("myJavaVersion", JavaVersion.VERSION_1_8)
-}
-
 val xmlutil_version: String by project
 val kotlin_version: String get() = libs.versions.kotlin.get()
-
-allprojects {
-    group = "io.github.pdvrieze.xmlutil"
-    version = xmlutil_version
-    repositories {
-        maven {
-            name = "Bundled maven"
-            url = file("mavenBundled").toURI()
-        }
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-
-    tasks.withType<KotlinNpmInstallTask> {
-        args += "--ignore-scripts"
-//        dependsOn(":restoreYarnLock")
-    }
-
-    extensions.findByType<JavaPluginExtension>()?.apply {
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-        }
-    }
-    afterEvaluate {
-
-        extensions.findByType<JavaPluginExtension>()?.run {
-            targetCompatibility = JavaVersion.VERSION_1_8
-        }
-        extensions.findByType<KotlinMultiplatformExtension>()?.run {
-            targets.configureEach {
-                if (this is KotlinJvmTarget) {
-                    val targetName = name
-                    attributes {
-                        when (targetName) {
-                            "jvm" -> {
-                                attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                                attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-                            }
-
-                            "android" -> {
-                                attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-                                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-                            }
-                        }
-                    }
-                    compilations.configureEach {
-                        compileTaskProvider.configure {
-                            kotlinOptions {
-                                jvmTarget = "1.8"
-                            }
-                        }
-                    }
-                }
-
-            }
-            sourceSets {
-                all {
-                    languageSettings {
-                        progressiveMode = true
-                        languageVersion = "1.9"
-                        apiVersion = "1.8"
-                        optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
-                    }
-                }
-            }
-        }
-        extensions.findByType<KotlinJvmProjectExtension>()?.run {
-            target {
-                attributes {
-                    attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-                    attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-                }
-                sourceSets.configureEach {
-                    languageSettings {
-                        progressiveMode = true
-                        languageVersion = "1.9"
-                        apiVersion = "1.8"
-                        optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
-                    }
-                }
-            }
-        }
-    }
-
-    tasks.withType<Test> {
-        useJUnitPlatform()
-    }
-}
 
 plugins.withType<NodeJsRootPlugin> {
     extensions.configure<NodeJsRootExtension> {
@@ -184,8 +80,6 @@ tasks.register<Copy>("pages") {
     // Needed as pages may have content already
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
-
-project.configureDokka()
 
 configurations.all {
     resolutionStrategy {

@@ -23,17 +23,17 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
+    id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id(libs.plugins.dokka.get().pluginId)
+    alias(libs.plugins.dokka)
     idea
     alias(libs.plugins.binaryValidator)
 }
@@ -126,7 +126,7 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                api(project(":core"))
+                api(project(":core:base"))
 
                 api(libs.serialization.core)
             }
@@ -168,7 +168,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 compileOnly(libs.kxml2)
-                api(project(":core")) {
+                api(project(":core:android")) {
                     attributes { attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm) }
                 }
             }
@@ -188,7 +188,7 @@ kotlin {
 
         val jsMain by getting {
             dependencies {
-                api(project(":core"))
+                api(project(":core:base"))
             }
         }
 
@@ -203,7 +203,7 @@ kotlin {
         all {
             if (this.name == "nativeMain") {
                 dependencies {
-                    api(project(":core"))
+                    api(project(":core:base"))
                 }
             }
             if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
@@ -244,8 +244,6 @@ apiValidation {
 }
 
 doPublish()
-
-configureDokka(myModuleVersion = xmlutil_serial_version)
 
 tasks.register("cleanTest") {
     group = "verification"

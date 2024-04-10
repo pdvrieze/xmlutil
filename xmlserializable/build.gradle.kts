@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -19,15 +19,15 @@
  */
 
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 
 plugins {
+    id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id(libs.plugins.dokka.get().pluginId)
+    alias(libs.plugins.dokka)
     idea
     alias(libs.plugins.binaryValidator)
 }
@@ -106,7 +106,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":core")) // Don't add a runtime dep here
+                implementation(project(":core:base")) // Don't add a runtime dep here
                 implementation(libs.serialization.core)
             }
         }
@@ -161,8 +161,6 @@ kotlin {
 }
 
 doPublish()
-
-configureDokka(myModuleVersion = xmlutil_version)
 
 idea {
     module {

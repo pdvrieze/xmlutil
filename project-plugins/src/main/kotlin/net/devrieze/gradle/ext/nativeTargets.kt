@@ -20,7 +20,6 @@
 
 package net.devrieze.gradle.ext
 
-import gradle.kotlin.dsl.accessors._b43a41b3a2c24e7f863347686afebb31.ext
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -31,10 +30,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.kpm.external.ExternalVariantApi
 import org.jetbrains.kotlin.gradle.kpm.external.project
-import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyTemplate
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
@@ -134,7 +130,7 @@ private val defaultXmlUtilHierarchyTemplate  = KotlinHierarchyTemplate {
 }
 
 val Project.nativeState: NativeState
-    get() = rootProject.ext["nativeTargets"] as NativeState
+    get() = rootProject.extraProperties["nativeTargets"] as NativeState
 
 @OptIn(ExperimentalWasmDsl::class)
 fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean = true) {
@@ -151,7 +147,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
             NativeState.SINGLE
         }
     }
-    rootProject.ext.set("nativeTargets", nativeState)
+    rootProject.extraProperties.set("nativeTargets", nativeState)
 
     val singleTargetMode = /*ideaActive || */nativeState == NativeState.SINGLE
 

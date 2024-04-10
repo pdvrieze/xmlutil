@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     `kotlin-dsl`
+    `java-gradle-plugin`
 }
 
 kotlin {
@@ -35,13 +36,21 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+gradlePlugin {
+    plugins {
+        register("projectPlugin") {
+            id = "projectPlugin"
+            implementationClass = "io.github.xmlutil.plugin.ProjectPlugin"
+        }
+    }
+}
+
 dependencies {
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
 }
 
 repositories {
-    maven { url = file("mavenBundled").toURI() }
-    mavenLocal()
     mavenCentral()
+    mavenLocal()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *

@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -28,7 +28,6 @@ import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
-import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import java.util.*
 

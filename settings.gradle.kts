@@ -19,11 +19,12 @@
  */
 
 pluginManagement {
+    includeBuild("project-plugins")
     repositories {
-        maven {
-            name = "Bundled maven"
-            url = file("mavenBundled")
-        }
+//        maven {
+//            name = "Bundled maven"
+//            url = file("mavenBundled")
+//        }
         mavenLocal()
         gradlePluginPortal()
         google()
@@ -31,23 +32,19 @@ pluginManagement {
     }
     resolutionStrategy {
         eachPlugin {
-            switch (requested.id.id) {
-                case "com.android.library":
-                case "com.android.application" :
-                    def ver = requested.version!=null ? requested.version : "8.0.2"
+            when (requested.id.id) {
+                "com.android.library",
+                "com.android.application" -> {
+                    val ver = requested.version ?: "8.0.2"
                     useModule("com.android.tools.build:gradle:${ver}");
-                    break
-//                case "org.jetbrains.dokka-android" :
-//                    def ver = requested.version!=null ? requested.version : dokkaVersion
-//                    useVersion(ver)
-//                    break
+                }
             }
         }
     }
 }
 
 plugins {
-    id "com.gradle.enterprise" version "3.1.1"
+    id ("com.gradle.enterprise") version "3.1.1"
 }
 
 rootProject.name = "xmlutil"

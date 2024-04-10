@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -18,10 +18,31 @@
  * under the License.
  */
 
-import org.gradle.api.plugins.JavaPluginExtension
+pluginManagement {
+    repositories {
+        maven {
+            name = "Bundled maven"
+            url = file("mavenBundled").toURI()
+        }
+        mavenLocal()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
 
-project.extensions.configure<JavaPluginExtension>("java") {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+    repositories {
+        maven {
+            name = "Bundled maven"
+            url = file("mavenBundled").toURI()
+        }
+        mavenLocal()
+        mavenCentral()
+        google()
     }
 }

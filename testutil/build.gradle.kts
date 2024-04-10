@@ -21,15 +21,15 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 
 plugins {
+    id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id(libs.plugins.dokka.get().pluginId)
+    alias(libs.plugins.dokka)
     idea
     alias(libs.plugins.binaryValidator)
 }
@@ -76,7 +76,7 @@ kotlin {
             dependencies {
                 api(libs.serialization.core)
                 api(kotlin("test"))
-                api(project(":core"))
+                api(project(":core:base"))
 
             }
         }
@@ -95,7 +95,11 @@ addNativeTargets()
 
 doPublish()
 
-configureDokka("testutil", xmlutil_core_version)
+config {
+    dokkaModuleName = "testutil"
+    dokkaVersion = xmlutil_core_version
+}
+
 
 idea {
     module {

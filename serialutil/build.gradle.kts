@@ -22,7 +22,6 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.configureDokka
 import net.devrieze.gradle.ext.doPublish
 
 plugins {
@@ -31,7 +30,8 @@ plugins {
     id("maven-publish")
     signing
     idea
-    id(libs.plugins.dokka.get().pluginId)
+    id("projectPlugin")
+    alias(libs.plugins.dokka)
     alias(libs.plugins.binaryValidator)
 }
 
@@ -130,8 +130,6 @@ apiValidation {
 }
 
 doPublish()
-
-configureDokka(myModuleVersion = xmlutil_util_version)
 
 idea {
     module {

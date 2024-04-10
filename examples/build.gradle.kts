@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,7 @@
 @file:Suppress("PropertyName")
 
 plugins {
+    id("projectPlugin")
     kotlin("jvm")
     alias(libs.plugins.kotlinSerialization)
     idea
