@@ -20,13 +20,15 @@
 
 import net.devrieze.gradle.ext.*
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
+    id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    id(libs.plugins.dokka.get().pluginId)
+    alias(libs.plugins.dokka)
     idea
     alias(libs.plugins.binaryValidator)
 }
@@ -123,6 +125,21 @@ kotlin {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        nodejs()
+        browser {
+            testTask {
+                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
+            }
+        }
+    }
+
     targets.all {
         mavenPublication {
             version = xmlutil_core_version
@@ -147,12 +164,6 @@ kotlin {
                 implementation(kotlin("test-annotations-common"))
                 implementation(project(":testutil"))
                 implementation(project(":serialization"))
-            }
-        }
-
-        val javaSharedMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-jdk8"))
             }
         }
 
@@ -188,13 +199,6 @@ kotlin {
             }
         }
     }
-    sourceSets.all {
-        languageSettings.apply {
-            optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-            optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
-        }
-    }
-
 }
 
 addNativeTargets()
@@ -209,5 +213,3 @@ apiValidation {
 }
 
 doPublish()
-
-configureDokka(myModuleVersion = xmlutil_core_version)
