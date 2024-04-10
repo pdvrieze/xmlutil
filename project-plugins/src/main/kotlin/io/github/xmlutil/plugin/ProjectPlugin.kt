@@ -35,17 +35,17 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 class ProjectPlugin: Plugin<Project> {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     override fun apply(project: Project) {
         project.logger.lifecycle("  =======\nUsing ProjectPlugin\n  =======")
         project.group = "io.github.pdvrieze.xmlutil"
@@ -67,7 +67,6 @@ class ProjectPlugin: Plugin<Project> {
             dokkaVersion.convention(project.version.toString())
         }
         project.plugins.all {
-            project.logger.lifecycle(" --> Configuring plugin ${this.javaClass.name} for project ${project.name}")
             when (this) {
                 is JavaPlugin -> {
                     project.extensions.configure<JavaPluginExtension> {
@@ -83,9 +82,10 @@ class ProjectPlugin: Plugin<Project> {
                     project.extensions.configure<KotlinJvmProjectExtension> {
                         compilerOptions {
                             jvmTarget = JvmTarget.JVM_1_8
-                            progressiveMode = true
-                            languageVersion = KotlinVersion.KOTLIN_1_8
+                            apiVersion = KotlinVersion.KOTLIN_1_8
+                            configureCompilerOptions()
                         }
+
                         target {
                             attributes {
                                 attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
@@ -93,7 +93,7 @@ class ProjectPlugin: Plugin<Project> {
                             }
                             sourceSets.configureEach {
                                 languageSettings {
-                                    optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
+                                    configureLanguageSettings()
                                 }
                             }
                         }
@@ -104,14 +104,15 @@ class ProjectPlugin: Plugin<Project> {
                 is KotlinMultiplatformPluginWrapper -> {
                     project.the<KotlinMultiplatformExtension>().apply {
                         applyDefaultXmlUtilHierarchyTemplate()
+                        compilerOptions {
+                            configureCompilerOptions()
+                        }
                         targets.configureEach {
                             val isJvm = this is KotlinJvmTarget
                             sourceSets.configureEach {
                                 languageSettings {
-                                    progressiveMode = true
-                                    languageVersion = "1.9"
+                                    configureLanguageSettings()
                                     apiVersion = if (isJvm) "1.8" else "1.9"
-                                    optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
                                 }
                             }
                         }
@@ -126,13 +127,13 @@ class ProjectPlugin: Plugin<Project> {
                             }
                             when (name) {
                                 "jvm" -> attributes {
-                                    project.logger.lifecycle("Setting attributes for target jvm")
+                                    project.logger.debug("Setting attributes for target jvm")
                                     attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
                                     attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
                                 }
 
                                 "android" -> attributes {
-                                    project.logger.lifecycle("Setting attributes for target android")
+                                    project.logger.debug("Setting attributes for target android")
                                     attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envAndroid)
                                     attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
                                 }
@@ -148,6 +149,17 @@ class ProjectPlugin: Plugin<Project> {
         }
         project.plugins.apply(DokkaPlugin::class.java)
         project.configureDokka(e.dokkaModuleName, e.dokkaVersion)
+    }
+
+    private fun KotlinCommonCompilerOptions.configureCompilerOptions() {
+        progressiveMode = true
+        languageVersion = KotlinVersion.KOTLIN_1_9
+    }
+
+    private fun LanguageSettingsBuilder.configureLanguageSettings() {
+        optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
+        optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
+//        optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
     }
 }
 
