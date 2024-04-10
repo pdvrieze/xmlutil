@@ -62,7 +62,7 @@ public actual object ElementSerializer : XmlSerializer<Element1> {
         previousValue: Element1?,
         isValueChild: Boolean
     ): IElement {
-        return delegate.deserializeXML(decoder, input, previousValue as Element2, isValueChild) as IElement
+        return delegate.deserializeXML(decoder, input, previousValue as Element2?, isValueChild) as IElement
     }
 
 }

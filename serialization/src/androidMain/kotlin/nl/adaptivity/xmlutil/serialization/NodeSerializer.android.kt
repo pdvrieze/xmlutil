@@ -64,5 +64,4 @@ public actual object NodeSerializer : XmlSerializer<Node1> {
     ): INode {
         return delegate.deserializeXML(decoder, input, previousValue as INode, isValueChild) as INode
     }
-
 }
