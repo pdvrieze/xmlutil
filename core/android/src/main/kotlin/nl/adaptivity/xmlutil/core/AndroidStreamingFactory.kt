@@ -18,10 +18,9 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.core
 
-import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.*
 import org.xmlpull.v1.XmlPullParserException
 import java.io.*
 import javax.xml.transform.Result

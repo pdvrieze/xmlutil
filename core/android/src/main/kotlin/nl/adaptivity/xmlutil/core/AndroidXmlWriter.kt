@@ -20,8 +20,11 @@
 
 @file:Suppress("DEPRECATION")
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.core
 
+import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.XmlException
+import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.core.impl.BetterXmlSerializer
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase

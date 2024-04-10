@@ -18,8 +18,9 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.core
 
+import nl.adaptivity.xmlutil.*
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream

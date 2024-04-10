@@ -18,20 +18,23 @@
  * under the License.
  */
 
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.envAndroid
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinWithJavaTarget
 
 plugins {
     id("projectPlugin")
-    kotlin("multiplatform")
+    kotlin("jvm")
     alias(libs.plugins.kotlinSerialization)
+    `java-library`
     `maven-publish`
     signing
     alias(libs.plugins.dokka)
     idea
-//    alias(libs.plugins.binaryValidator)
+    alias(libs.plugins.binaryValidator)
 }
 
 base {
@@ -42,105 +45,37 @@ val autoModuleName = "net.devrieze.xmlutil.core"
 
 kotlin {
     explicitApi()
-    applyDefaultXmlUtilHierarchyTemplate()
 
-    val testTask = tasks.create("test") {
-        group = "verification"
-    }
-    val cleanTestTask = tasks.create("cleanTest") {
-        group = "verification"
-    }
-
-    jvm("android") {
+    target {
+        val t: KotlinWithJavaTarget<KotlinJvmOptions, KotlinJvmCompilerOptions> = this
         attributes {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
         }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
-            }
-            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-        }
 
         tasks.withType<Jar>().named(artifactsTaskName) {
-            from(project.file("src/r8-workaround.pro")) {
-                rename { "xmlutil-r8-workaround.pro" }
-                into("META-INF/com.android.tools/r8")
-            }
-            from(project.file("src/androidMain/proguard.pro")) {
+            from(project.file("src/main/proguard.pro")) {
                 rename { "xmlutil-proguard.pro" }
                 into("META-INF/com.android.tools/r8")
             }
-            from(project.file("src/androidMain/proguard.pro")) {
+            from(project.file("src/main/proguard.pro")) {
                 rename { "xmlutil-proguard.pro" }
                 into("META-INF/com.android.tools/proguard")
             }
         }
     }
-
-    targets.all {
-        mavenPublication {
-            logger.lifecycle("android publication with name: $name")
-        }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xexpect-actual-classes"
-            }
-        }
-    }
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                api(project(":core:base"))
-            }
-        }
-
-/*
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-annotations-common"))
-                implementation(project(":testutil"))
-                implementation(project(":serialization"))
-            }
-        }
-*/
-
-        val javaSharedMain by getting {
-            dependencies {
-            }
-        }
-
-        val androidMain by getting {
-            dependencies {
-                compileOnly(libs.kxml2)
-            }
-        }
-
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
-
-                runtimeOnly(libs.junit5.engine)
-                runtimeOnly(libs.kxml2)
-            }
-        }
-    }
-    sourceSets.all {
-        languageSettings.apply {
-            optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-            optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
-        }
-    }
-
 }
 
-/*
+dependencies {
+    compileOnly(libs.kxml2)
+    api(project(":core:base"))
+
+    testImplementation(kotlin("test-junit5"))
+    testImplementation(libs.junit5.api)
+
+    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.kxml2)
+}
+
 apiValidation {
     nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")
     ignoredPackages.apply {
@@ -149,6 +84,15 @@ apiValidation {
         add("nl.adaptivity.xmlutil.util.impl")
     }
 }
-*/
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenKotlin") {
+            artifactId = "core-android"
+            from(components["java"])
+            artifact(tasks["kotlinSourcesJar"])
+        }
+    }
+}
 
 doPublish("core-android")

@@ -1,0 +1,1 @@
+-keep class nl.adaptivity.xmlutil.core.AndroidStreamingFactory

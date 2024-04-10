@@ -1,0 +1,88 @@
+public final class nl/adaptivity/xmlutil/core/AndroidStreamingFactory : nl/adaptivity/xmlutil/XmlStreamingFactory {
+	public fun <init> ()V
+	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+}
+
+public final class nl/adaptivity/xmlutil/core/AndroidXmlReader : nl/adaptivity/xmlutil/XmlReader {
+	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
+	public fun <init> (Ljava/io/Reader;)V
+	public fun <init> (Lorg/xmlpull/v1/XmlPullParser;)V
+	public fun close ()V
+	public fun getAttributeCount ()I
+	public fun getAttributeLocalName (I)Ljava/lang/String;
+	public fun getAttributeNamespace (I)Ljava/lang/String;
+	public fun getAttributePrefix (I)Ljava/lang/String;
+	public fun getAttributeValue (I)Ljava/lang/String;
+	public fun getAttributeValue (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun getDepth ()I
+	public fun getEncoding ()Ljava/lang/String;
+	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public fun getExtLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
+	public fun getLocalName ()Ljava/lang/String;
+	public fun getLocationInfo ()Ljava/lang/String;
+	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public fun getNamespaceDecls ()Ljava/util/List;
+	public fun getNamespacePrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun getNamespaceURI ()Ljava/lang/String;
+	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public final fun getParser ()Lorg/xmlpull/v1/XmlPullParser;
+	public fun getPiData ()Ljava/lang/String;
+	public fun getPiTarget ()Ljava/lang/String;
+	public fun getPrefix ()Ljava/lang/String;
+	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getText ()Ljava/lang/String;
+	public fun getVersion ()Ljava/lang/String;
+	public fun hasNext ()Z
+	public fun isStarted ()Z
+	public fun isWhitespace ()Z
+	public synthetic fun next ()Ljava/lang/Object;
+	public fun next ()Lnl/adaptivity/xmlutil/EventType;
+	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
+	public fun remove ()V
+}
+
+public final class nl/adaptivity/xmlutil/core/AndroidXmlWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
+	public static final field TAG_DEPTH_FORCE_INDENT_NEXT I
+	public static final field TAG_DEPTH_NOT_TAG I
+	public fun <init> (Ljava/io/OutputStream;Ljava/lang/String;)V
+	public fun <init> (Ljava/io/OutputStream;Ljava/lang/String;Z)V
+	public fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZZ)V
+	public synthetic fun <init> (Ljava/io/OutputStream;Ljava/lang/String;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/Writer;)V
+	public fun <init> (Ljava/io/Writer;Z)V
+	public fun <init> (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)V
+	public synthetic fun <init> (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/Writer;ZZ)V
+	public synthetic fun <init> (Ljava/io/Writer;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lorg/xmlpull/v1/XmlSerializer;)V
+	public fun <init> (Lorg/xmlpull/v1/XmlSerializer;Z)V
+	public synthetic fun <init> (Lorg/xmlpull/v1/XmlSerializer;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun cdsect (Ljava/lang/String;)V
+	public fun close ()V
+	public fun comment (Ljava/lang/String;)V
+	public fun docdecl (Ljava/lang/String;)V
+	public fun endDocument ()V
+	public fun endTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun entityRef (Ljava/lang/String;)V
+	public fun flush ()V
+	public fun getDepth ()I
+	public fun getNamespaceContext ()Ljavax/xml/namespace/NamespaceContext;
+	public fun getNamespaceUri (Ljava/lang/String;)Ljava/lang/String;
+	public fun getPrefix (Ljava/lang/String;)Ljava/lang/String;
+	public fun ignorableWhitespace (Ljava/lang/String;)V
+	public fun namespaceAttr (Ljava/lang/String;Ljava/lang/String;)V
+	public fun processingInstruction (Ljava/lang/String;)V
+	public fun setPrefix (Ljava/lang/String;Ljava/lang/String;)V
+	public fun startDocument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public fun startTag (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public fun text (Ljava/lang/String;)V
+}
+

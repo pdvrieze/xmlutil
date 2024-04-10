@@ -37,14 +37,16 @@ config {
     applyLayout = false
 }
 
-base {
-    archivesName.set("core")
-}
-
 val autoModuleName = "net.devrieze.xmlutil.core"
 
 kotlin {
     explicitApi()
+
+    components.configureEach {
+        val c: SoftwareComponent = this
+
+        logger.lifecycle("Found component ${c.name}")
+    }
 
     val testTask = tasks.create("test") {
         group = "verification"
@@ -66,6 +68,10 @@ kotlin {
             }
         }
         tasks.withType<Jar>().named(artifactsTaskName) {
+            from(project.file("src/r8-workaround.pro")) {
+                rename { "xmlutil-r8-workaround.pro" }
+                into("META-INF/com.android.tools/r8")
+            }
             from(project.file("src/jvmMain/proguard.pro")) {
                 rename { "xmlutil-proguard.pro" }
                 into("META-INF/proguard")
@@ -73,34 +79,6 @@ kotlin {
         }
 
     }
-/*
-    jvm("android") {
-        attributes {
-            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-        }
-        compilations.all {
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
-            }
-            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-        }
-
-        tasks.withType<Jar>().named(artifactsTaskName) {
-            from(project.file("src/r8-workaround.pro")) {
-                rename { "xmlutil-r8-workaround.pro" }
-                into("META-INF/com.android.tools/r8")
-            }
-            from(project.file("src/androidMain/proguard.pro")) {
-                rename { "xmlutil-proguard.pro" }
-                into("META-INF/com.android.tools/r8")
-            }
-            from(project.file("src/androidMain/proguard.pro")) {
-                rename { "xmlutil-proguard.pro" }
-                into("META-INF/com.android.tools/proguard")
-            }
-        }
-    }
-*/
     js {
         browser()
         compilations.all {
@@ -132,6 +110,13 @@ kotlin {
     }
 
     targets.all {
+        val targetName = name
+        mavenPublication {
+            when(targetName) {
+                "jvm" -> artifactId = "core-jvmCommon"
+                else -> artifactId = "core-$targetName"
+            }
+        }
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs += "-Xexpect-actual-classes"
@@ -155,14 +140,6 @@ kotlin {
             }
         }
 
-/*
-        val jvmMain by getting {
-            dependencies {
-                compileOnly(project(":core:javaApi"))
-            }
-        }
-*/
-
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
@@ -173,24 +150,6 @@ kotlin {
             }
         }
 
-/*
-        val androidMain by getting {
-            dependencies {
-                compileOnly(libs.kxml2)
-            }
-        }
-
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
-
-                runtimeOnly(libs.junit5.engine)
-                runtimeOnly(libs.kxml2)
-            }
-        }
-*/
-
         val jsTest by getting {
             dependencies {
                 implementation(kotlin("test-js"))
@@ -198,6 +157,12 @@ kotlin {
         }
     }
 
+}
+
+publishing {
+    publications.withType<MavenPublication>().named("kotlinMultiplatform") {
+        artifactId = "core-base"
+    }
 }
 
 addNativeTargets()
@@ -211,4 +176,4 @@ apiValidation {
     }
 }
 
-doPublish("core-common")
+doPublish("core")

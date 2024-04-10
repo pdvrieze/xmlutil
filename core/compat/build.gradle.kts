@@ -18,18 +18,17 @@
  * under the License.
  */
 
-import net.devrieze.gradle.ext.*
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
+import net.devrieze.gradle.ext.doPublish
 
 plugins {
     id("projectPlugin")
     kotlin("multiplatform")
-    alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
     alias(libs.plugins.dokka)
     idea
-    alias(libs.plugins.binaryValidator)
 }
 
 base {
@@ -49,78 +48,28 @@ kotlin {
         group = "verification"
     }
 
-    jvm {
-        attributes {
-            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
+    jvm("jdk") {
+        mavenPublication {
+            artifactId = "compat-jdk"
         }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
-            }
-            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-            tasks.named<Jar>("jvmJar") {
-                manifest {
-                    attributes("Automatic-Module-Name" to autoModuleName)
-                }
-            }
-        }
-        tasks.withType<Jar>().named(artifactsTaskName) {
-            from(project.file("src/jvmMain/proguard.pro")) {
-                rename { "xmlutil-proguard.pro" }
-                into("META-INF/proguard")
-            }
-        }
-
     }
     jvm("android") {
-        attributes {
-            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
-        }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
-            }
-            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-        }
-
-        tasks.withType<Jar>().named(artifactsTaskName) {
-            from(project.file("src/r8-workaround.pro")) {
-                rename { "xmlutil-r8-workaround.pro" }
-                into("META-INF/com.android.tools/r8")
-            }
-            from(project.file("src/androidMain/proguard.pro")) {
-                rename { "xmlutil-proguard.pro" }
-                into("META-INF/com.android.tools/r8")
-            }
-            from(project.file("src/androidMain/proguard.pro")) {
-                rename { "xmlutil-proguard.pro" }
-                into("META-INF/com.android.tools/proguard")
-            }
+        mavenPublication {
+            artifactId = "compat-android"
         }
     }
     js {
         browser()
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                sourceMapEmbedSources = "always"
-                suppressWarnings = false
-                verbose = true
-                metaInfo = true
-                moduleKind = "umd"
-                main = "call"
-            }
-        }
     }
 
     targets.all {
+        val targetName = name
+        mavenPublication {
+            when (targetName) {
+                "jdk" -> artifactId = "core-jvm"
+                else -> artifactId = "compat-${targetName}"
+            }
+        }
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs += "-Xexpect-actual-classes"
@@ -135,7 +84,7 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
+        val jdkMain by getting {
             dependencies {
                 api(project(":core:jdk"))
             }
@@ -151,12 +100,9 @@ kotlin {
 
 addNativeTargets()
 
-apiValidation {
-    nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")
-    ignoredPackages.apply {
-        add("nl.adaptivity.xmlutil.core.internal")
-        add("nl.adaptivity.xmlutil.core.impl")
-        add("nl.adaptivity.xmlutil.util.impl")
+publishing {
+    publications.withType<MavenPublication>().named("kotlinMultiplatform") {
+        artifactId = "core"
     }
 }
 

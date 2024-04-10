@@ -1,2 +1,1 @@
--keep class nl.adaptivity.xmlutil.StAXStreamingFactory
 -keep class nl.adaptivity.xmlutil.util.DefaultSerializationProvider

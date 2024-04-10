@@ -51,7 +51,7 @@ class ProjectPlugin: Plugin<Project> {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-        val xmlutil_version = libs.findVersion("xmlutil").get().preferredVersion
+        val xmlutil_version = libs.findVersion("xmlutil").get().requiredVersion
 
         project.group = "io.github.pdvrieze.xmlutil"
         project.version = xmlutil_version
@@ -91,6 +91,7 @@ class ProjectPlugin: Plugin<Project> {
                             configureCompilerOptions()
                         }
 
+
                         target {
                             attributes {
                                 attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
@@ -100,6 +101,10 @@ class ProjectPlugin: Plugin<Project> {
                                 languageSettings {
                                     configureLanguageSettings()
                                 }
+                            }
+                            mavenPublication {
+                                version = xmlutil_version
+                                project.logger.lifecycle("Setting maven publication ($artifactId) version to $xmlutil_version")
                             }
                         }
                     }
@@ -122,8 +127,17 @@ class ProjectPlugin: Plugin<Project> {
                             }
                             mavenPublication {
                                 version = xmlutil_version
+                                project.logger.lifecycle("Setting maven publication ($artifactId) version to $xmlutil_version")
                             }
                         }
+
+/*
+                        metadata {
+                            mavenPublication {
+                                version = xmlutil_version
+                            }
+                        }
+*/
 
                         targets.withType<KotlinJvmTarget> {
                             compilations.configureEach {
