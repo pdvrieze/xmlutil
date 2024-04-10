@@ -38,11 +38,8 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
-val xmlutil_serial_version: String by project
-
 base {
     archivesName.set("xmlutil-serialization")
-    version = xmlutil_serial_version
 }
 
 val autoModuleName = "net.devrieze.xmlutil.serialization"
@@ -111,9 +108,6 @@ kotlin {
                 }
             }
         }
-        mavenPublication {
-            version = xmlutil_serial_version
-        }
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs = freeCompilerArgs + "-Xexpect-actual-classes"
@@ -151,7 +145,11 @@ kotlin {
         }
 
         val jvmMain by getting {}
-        val commonJvmTest by getting {}
+        val commonJvmTest by getting {
+            dependencies {
+                implementation(project(":core:jdk"))
+            }
+        }
         val commonJvmMain by getting {}
 /*
         val jvmWoodstoxTest by getting {
@@ -168,7 +166,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 compileOnly(libs.kxml2)
-                api(project(":core:android")) {
+                api(project(":core:base")) {
                     attributes { attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm) }
                 }
             }

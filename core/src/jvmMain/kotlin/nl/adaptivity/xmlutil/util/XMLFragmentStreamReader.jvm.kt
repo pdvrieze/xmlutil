@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -32,7 +32,8 @@ import javax.xml.XMLConstants
 
 /**
  * This streamreader allows for reading document fragments. It does so by wrapping the reader into a
- * pair of wrapper elements, and then ignoring those on reading.
+ * pair of wrapper elements, and then ignoring those on reading. This avoids the restriction of
+ * xml that a document only has 1 document element.
  *
  * Created by pdvrieze on 04/11/15.
  */

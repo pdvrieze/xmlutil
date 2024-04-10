@@ -36,11 +36,8 @@ fun Project.doPublish(
     pubName: String = project.name,
     pubDescription: String = "Component of the XMLUtil library"
 ) {
-    val xmlutil_version: String by project
 
-    if (version == "unspecified") version = xmlutil_version
-
-    val isReleaseVersion = ("SNAPSHOT" !in xmlutil_version)
+    val isReleaseVersion = ("SNAPSHOT" !in version.toString())
     extra["isReleaseVersion"] = isReleaseVersion
 
 

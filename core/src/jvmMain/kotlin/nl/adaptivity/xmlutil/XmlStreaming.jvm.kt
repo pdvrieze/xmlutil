@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -65,7 +65,38 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     private var _factory: XmlStreamingFactory? = null
 
     private val factory: XmlStreamingFactory
-        get() = _factory ?: serviceLoader.firstOrNull()?.also { _factory = it } ?: StAXStreamingFactory.DEFAULT_OBJECT
+        get() {
+            var f: XmlStreamingFactory? = _factory
+
+            if (f != null) return f
+
+            f = serviceLoader.firstOrNull()
+
+            if (f == null) {
+                f = try {
+                    Class.forName("nl.adaptivity.xmlutil.StAXStreamingFactory")
+                        .getConstructor()
+                        .newInstance() as XmlStreamingFactory
+                } catch (e: ClassNotFoundException) { /*Doesn't matter */
+                    null
+                }
+            }
+
+            if (f == null) {
+                f = try {
+                    Class.forName("nl.adaptivity.xmlutil.AndroidStreamingFactory")
+                        .getConstructor()
+                        .newInstance() as XmlStreamingFactory
+                } catch (e: ClassNotFoundException) {
+                    null
+                }
+            }
+
+            if (f == null) f = GenericFactory()
+
+            _factory = f
+            return f
+        }
 
     override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(result, repairNamespaces)

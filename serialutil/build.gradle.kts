@@ -35,11 +35,8 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
-val xmlutil_util_version: String by project
-
 base {
     archivesName.set("serialutil")
-    version = xmlutil_util_version
 }
 
 val autoModuleName = "net.devrieze.serialutil"
@@ -73,12 +70,6 @@ kotlin {
                 moduleKind = "umd"
                 main = "call"
             }
-        }
-    }
-
-    targets.all {
-        mavenPublication {
-            version = xmlutil_util_version
         }
     }
 

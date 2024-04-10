@@ -27,6 +27,7 @@ import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -47,9 +48,12 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 class ProjectPlugin: Plugin<Project> {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     override fun apply(project: Project) {
-        project.logger.lifecycle("  =======\nUsing ProjectPlugin\n  =======")
+        project.logger.info("===================\nUsing ProjectPlugin\n===================")
+
+        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+        val xmlutil_version = libs.findVersion("xmlutil").get().preferredVersion
+
         project.group = "io.github.pdvrieze.xmlutil"
-        val xmlutil_version: String by project
         project.version = xmlutil_version
         project.tasks.withType<KotlinNpmInstallTask> {
             args += "--ignore-scripts"
@@ -63,8 +67,9 @@ class ProjectPlugin: Plugin<Project> {
         }
 
         val e = project.extensions.create<ProjectConfigurationExtension>("config").apply {
-            dokkaModuleName.convention(project.name)
-            dokkaVersion.convention(project.version.toString())
+            dokkaModuleName.convention(project.provider { project.name })
+            dokkaVersion.convention(project.provider { project.version.toString() })
+            applyLayout.convention(true)
         }
         project.plugins.all {
             when (this) {
@@ -103,7 +108,7 @@ class ProjectPlugin: Plugin<Project> {
 
                 is KotlinMultiplatformPluginWrapper -> {
                     project.the<KotlinMultiplatformExtension>().apply {
-                        applyDefaultXmlUtilHierarchyTemplate()
+                        if(e.applyLayout.get()) applyDefaultXmlUtilHierarchyTemplate()
                         compilerOptions {
                             configureCompilerOptions()
                         }
@@ -115,13 +120,16 @@ class ProjectPlugin: Plugin<Project> {
                                     apiVersion = if (isJvm) "1.8" else "1.9"
                                 }
                             }
+                            mavenPublication {
+                                version = xmlutil_version
+                            }
                         }
 
                         targets.withType<KotlinJvmTarget> {
                             compilations.configureEach {
                                 compileTaskProvider.configure {
                                     compilerOptions {
-                                        jvmTarget = JvmTarget.JVM_1_8
+                                        configureCompilerOptions()
                                     }
                                 }
                             }
@@ -154,6 +162,10 @@ class ProjectPlugin: Plugin<Project> {
     private fun KotlinCommonCompilerOptions.configureCompilerOptions() {
         progressiveMode = true
         languageVersion = KotlinVersion.KOTLIN_1_9
+        if (this is KotlinJvmCompilerOptions) {
+            jvmTarget = JvmTarget.JVM_1_8
+            freeCompilerArgs.add("-Xjvm-default=all")
+        }
     }
 
     private fun LanguageSettingsBuilder.configureLanguageSettings() {
@@ -166,4 +178,5 @@ class ProjectPlugin: Plugin<Project> {
 abstract class ProjectConfigurationExtension {
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
+    abstract val applyLayout: Property<Boolean>
 }

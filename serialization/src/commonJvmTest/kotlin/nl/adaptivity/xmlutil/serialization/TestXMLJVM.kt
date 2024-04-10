@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import nl.adaptivity.xmlutil.StAXWriter
+import nl.adaptivity.xmlutil.jdk.StAXWriter
 import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.Assertions.assertTrue

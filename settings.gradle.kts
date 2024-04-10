@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2016.
+ * Copyright (c) 2024.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -50,7 +50,10 @@ plugins {
 rootProject.name = "xmlutil"
 
 include(":serialutil")
-include(":core")
+include(":core:compat")
+include(":core:base")
+include(":core:jdk")
+include(":core:android")
 include(":serialization")
 include(":xmlserializable")
 include(":testutil")

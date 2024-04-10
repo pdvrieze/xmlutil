@@ -34,14 +34,8 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
-val xmlutil_serial_version: String by project
-val xmlutil_core_version: String by project
-val xmlutil_util_version: String by project
-val xmlutil_versiondesc: String by project
-
 base {
     archivesName.set("xmltestutil")
-    version = xmlutil_core_version
 }
 
 val moduleName = "io.github.pdvrieze.testutil"
@@ -97,7 +91,6 @@ doPublish()
 
 config {
     dokkaModuleName = "testutil"
-    dokkaVersion = xmlutil_core_version
 }
 
 

@@ -32,12 +32,8 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
-val xmlutil_version: String by project
-val xmlutil_versiondesc: String by project
-
 base {
     archivesName.set("xmlserializable")
-    version = xmlutil_version
 }
 
 val serializationVersion: String get() = libs.versions.kotlinx.serialization.get()
@@ -94,12 +90,6 @@ kotlin {
                 moduleKind = "umd"
                 main = "call"
             }
-        }
-    }
-
-    targets.all {
-        mavenPublication {
-            version = xmlutil_version
         }
     }
 
