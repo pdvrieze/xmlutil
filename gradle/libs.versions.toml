@@ -11,7 +11,7 @@ xmlutil = "0.90.0-SNAPSHOT"
 
 [libraries]
 logback-classic = "ch.qos.logback:logback-classic:1.4.7"
-woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
+woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 kxml2 = "net.sf.kxml:kxml2:2.3.0"
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
@@ -22,10 +22,10 @@ serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-jso
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
 
 [plugins]
-binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref="binaryValidator" }
-dokka = { id = "org.jetbrains.dokka", version.ref="dokka" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref="kotlin" }
-kotlinJs = { id = "org.jetbrains.kotlin.js", version.ref="kotlin" }
-kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref="kotlin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref="kotlin" }
-kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin" }
+binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryValidator" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinJs = { id = "org.jetbrains.kotlin.js", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
