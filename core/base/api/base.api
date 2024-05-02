@@ -635,6 +635,7 @@ public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/co
 	public fun newGenericReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newGenericReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
 	public final fun newGenericReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static synthetic fun newGenericReader$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/io/InputStream;Ljava/lang/String;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
 	public final fun newGenericWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/core/KtXmlWriter;
 	public static synthetic fun newGenericWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/core/KtXmlWriter;
 	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;

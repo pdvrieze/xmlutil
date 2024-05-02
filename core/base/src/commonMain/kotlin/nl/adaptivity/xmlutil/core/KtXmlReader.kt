@@ -29,7 +29,7 @@ import kotlin.jvm.JvmInline
 @ExperimentalXmlUtilApi
 public class KtXmlReader internal constructor(
     private val reader: Reader,
-    encoding: String?,
+    encoding: String? = null,
     public val relaxed: Boolean = false
 ) : XmlReader {
 

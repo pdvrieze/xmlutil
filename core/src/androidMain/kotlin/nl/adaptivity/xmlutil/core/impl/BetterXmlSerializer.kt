@@ -336,7 +336,7 @@ public class BetterXmlSerializer : XmlSerializer {
     }
 
     @Throws(IOException::class)
-    override fun setOutput(os: OutputStream?, encoding: String?) {
+    override fun setOutput(os: OutputStream?, encoding: String? = null) {
         if (os == null) {
             throw IllegalArgumentException()
         }

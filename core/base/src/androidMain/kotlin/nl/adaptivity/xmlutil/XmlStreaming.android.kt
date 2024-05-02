@@ -136,7 +136,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     public fun newGenericReader(input: String): XmlReader =
         newGenericReader(StringReader(input))
 
-    public fun newGenericReader(inputStream: InputStream, encoding: String?): XmlReader =
+    public fun newGenericReader(inputStream: InputStream, encoding: String? = null): XmlReader =
         KtXmlReader(inputStream, encoding)
 
     public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)

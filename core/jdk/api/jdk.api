@@ -1,5 +1,6 @@
 public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/XmlReader {
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/io/InputStream;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/io/Reader;)V
 	public fun <init> (Ljavax/xml/stream/XMLStreamReader;)V
 	public fun <init> (Ljavax/xml/transform/Source;)V

@@ -47,7 +47,7 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     public constructor(reader: Reader) : this(safeInputFactory().createXMLStreamReader(reader))
 
     @Throws(XMLStreamException::class)
-    public constructor(inputStream: InputStream, encoding: String?) : this(
+    public constructor(inputStream: InputStream, encoding: String? = null) : this(
         safeInputFactory().createXMLStreamReader(
             inputStream,
             encoding
