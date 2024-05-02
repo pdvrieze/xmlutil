@@ -6,13 +6,15 @@ javaVersion = "8"
 junit5-jupiter = "5.10.1"
 kotlin = "1.9.23"
 kotlinx-serialization = "1.6.2"
+kxml2 = "2.3.0"
+logback-classic = "1.4.7"
 woodstox = "6.5.1"
 xmlutil = "0.90.0-SNAPSHOT"
 
 [libraries]
-logback-classic = "ch.qos.logback:logback-classic:1.4.7"
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
-kxml2 = "net.sf.kxml:kxml2:2.3.0"
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5-jupiter" }
