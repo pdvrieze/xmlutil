@@ -11,7 +11,7 @@ woodstox = "6.6.2"
 xmlutil = "0.90.0-SNAPSHOT"
 
 [libraries]
-woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
+woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
