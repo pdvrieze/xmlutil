@@ -88,7 +88,7 @@ class ProjectPlugin: Plugin<Project> {
                         compilerOptions {
                             jvmTarget = JvmTarget.JVM_1_8
                             apiVersion = KotlinVersion.KOTLIN_1_8
-                            configureCompilerOptions()
+                            configureCompilerOptions(project, "project ${project.name}")
                         }
 
 
@@ -104,7 +104,7 @@ class ProjectPlugin: Plugin<Project> {
                             }
                             mavenPublication {
                                 version = xmlutil_version
-                                project.logger.lifecycle("Setting maven publication ($artifactId) version to $xmlutil_version")
+                                project.logger.info("Setting maven publication ($artifactId) version to $xmlutil_version")
                             }
                         }
                     }
@@ -115,7 +115,7 @@ class ProjectPlugin: Plugin<Project> {
                     project.the<KotlinMultiplatformExtension>().apply {
                         if(e.applyLayout.get()) applyDefaultXmlUtilHierarchyTemplate()
                         compilerOptions {
-                            configureCompilerOptions()
+                            configureCompilerOptions(project, "project ${project.name}")
                         }
                         targets.configureEach {
                             val isJvm = this is KotlinJvmTarget
@@ -127,7 +127,7 @@ class ProjectPlugin: Plugin<Project> {
                             }
                             mavenPublication {
                                 version = xmlutil_version
-                                project.logger.lifecycle("Setting maven publication ($artifactId) version to $xmlutil_version")
+                                project.logger.info("Setting maven publication ($artifactId) version to $xmlutil_version")
                             }
                         }
 
@@ -143,7 +143,7 @@ class ProjectPlugin: Plugin<Project> {
                             compilations.configureEach {
                                 compileTaskProvider.configure {
                                     compilerOptions {
-                                        configureCompilerOptions()
+                                        configureCompilerOptions(project, "${project.name}:$name")
                                     }
                                 }
                             }
@@ -173,10 +173,11 @@ class ProjectPlugin: Plugin<Project> {
         project.configureDokka(e.dokkaModuleName, e.dokkaVersion)
     }
 
-    private fun KotlinCommonCompilerOptions.configureCompilerOptions() {
+    private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
         progressiveMode = true
         languageVersion = KotlinVersion.KOTLIN_1_9
         if (this is KotlinJvmCompilerOptions) {
+            project.logger.info("Setting common compilation options for $name")
             jvmTarget = JvmTarget.JVM_1_8
             freeCompilerArgs.add("-Xjvm-default=all")
         }
