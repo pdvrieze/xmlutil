@@ -33,7 +33,7 @@ import java.io.InputStreamReader
  *          attribute in the XML)
  * @param relaxed
  */
-public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boolean = false): KtXmlReader {
+public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relaxed: Boolean = false): KtXmlReader {
     val bufferedInput = when {
         inputStream is BufferedInputStream && inputStream.markSupported() -> inputStream
         else -> BufferedInputStream(inputStream, 4096)

@@ -9,6 +9,9 @@ Changes:
   are no longer mandatory (the code falls back to the generic parsers/
   serializers). Core is now a dependency only module that pulls in the
   specific modules (for compatibility).
+- Make automatic encoding detection the default/recommended, and add
+  some changes to make this work better. Thanks to @sschuberth in 
+  (#206).
 
 Features:
 - Extend applicability of `@XmlValue` on a list/map to capture any serializer.

@@ -68,6 +68,16 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     }
 
     @Throws(XmlException::class)
+    override fun newReader(inputStream: InputStream): XmlReader {
+        try {
+            return KtXmlReader(inputStream)
+        } catch (e: XmlPullParserException) {
+            throw XmlException(e)
+        }
+
+    }
+
+    @Throws(XmlException::class)
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         try {
             return KtXmlReader(inputStream, encoding)

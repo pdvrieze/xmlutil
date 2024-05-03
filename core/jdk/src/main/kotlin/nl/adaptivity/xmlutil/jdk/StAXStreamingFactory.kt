@@ -72,6 +72,14 @@ public class StAXStreamingFactory : XmlStreamingFactory {
         }
     }
 
+    override fun newReader(inputStream: InputStream): XmlReader {
+        try {
+            return StAXReader(inputStream, null)
+        } catch (e: XMLStreamException) {
+            throw XmlException(e)
+        }
+    }
+
     @Throws(XmlException::class)
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         try {

@@ -88,6 +88,15 @@ public actual interface XmlStreamingFactory {
 
     public fun newReader(reader: Reader): XmlReader
 
+    /**
+     * Version of newReader that autodetects the encoding. It first looks for UTF16/UTF32.
+     * Then it looks at the declared encoding in the attribute in 8-bit ascii mode. If not
+     * it will use the byte order mark to determine UTF16LE/BE or UTF8.
+     *
+     * If no other encoding is determined, the used encoding will be UTF-8 per the XML standard.
+     */
+    public fun newReader(inputStream: InputStream): XmlReader = newReader(inputStream, "UTF-8")
+
     public fun newReader(inputStream: InputStream, encoding: String = "UTF-8"): XmlReader
 
     public fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))

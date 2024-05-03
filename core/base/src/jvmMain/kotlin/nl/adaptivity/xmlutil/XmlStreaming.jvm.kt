@@ -300,6 +300,10 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
             return KtXmlReader(reader)
         }
 
+        override fun newReader(inputStream: InputStream): XmlReader {
+            return KtXmlReader(inputStream)
+        }
+
         override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
             return KtXmlReader(inputStream, encoding)
         }
