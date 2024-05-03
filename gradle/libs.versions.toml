@@ -1,17 +1,18 @@
 [versions]
-junit5-jupiter = "5.10.1"
-kotlinx-serialization = "1.6.2"
-kotlin = "1.9.23"
-dokka = "1.9.10"
-binaryValidator = "0.15.0-Beta.2"
-woodstox = "6.5.1"
-javaVersion = "8"
 apiVersion = "1.8"
+binaryValidator = "0.15.0-Beta.2"
+dokka = "1.9.20"
+javaVersion = "8"
+junit5-jupiter = "5.10.2"
+kotlin = "1.9.23"
+kotlinx-serialization = "1.6.3"
+kxml2 = "2.3.0"
+woodstox = "6.6.2"
 xmlutil = "0.90.0-SNAPSHOT"
 
 [libraries]
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref="woodstox" }
-kxml2 = "net.sf.kxml:kxml2:2.3.0"
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5-jupiter" }
@@ -21,7 +22,7 @@ serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-jso
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
 
 [plugins]
-binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref="binaryValidator" }
-dokka = { id = "org.jetbrains.dokka", version.ref="dokka" }
-kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref="kotlin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref="kotlin" }
+binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryValidator" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
