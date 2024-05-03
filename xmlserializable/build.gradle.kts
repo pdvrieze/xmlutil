@@ -59,7 +59,7 @@ kotlin {
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
-            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
             tasks.named<Jar>("jvmJar") {
                 manifest {
                     attributes("Automatic-Module-Name" to autoModuleName)
@@ -75,7 +75,7 @@ kotlin {
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
-            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].toUpperCase()}${target.name.substring(1)}Test"))
+            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
         }
     }
     js {
