@@ -77,6 +77,9 @@ dependencies {
 }
 
 apiValidation {
+    klib {
+        enabled = true
+    }
     nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")
     ignoredPackages.apply {
         add("nl.adaptivity.xmlutil.core.internal")

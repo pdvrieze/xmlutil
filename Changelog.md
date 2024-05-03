@@ -3,6 +3,12 @@ Changes:
 - The core module has been changed to use default implementations for
   Java interfaces. This could cause binary compatibility issues in
   rare cases (when called from Java).
+- In preparation for Kotlin 2.0 the core module has been modified
+  to move the code in to base, except for Android and JDK specific
+  code. The Android and JDK code have been put in separate modules and
+  are no longer mandatory (the code falls back to the generic parsers/
+  serializers). Core is now a dependency only module that pulls in the
+  specific modules (for compatibility).
 
 Features:
 - Extend applicability of `@XmlValue` on a list/map to capture any serializer.

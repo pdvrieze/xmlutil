@@ -114,6 +114,9 @@ kotlin {
 addNativeTargets()
 
 apiValidation {
+    klib {
+        enabled = true
+    }
     ignoredPackages.apply {
         add("nl.adaptivity.serialutil.impl")
     }

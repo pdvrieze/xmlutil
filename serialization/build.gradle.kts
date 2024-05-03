@@ -39,7 +39,7 @@ plugins {
 }
 
 base {
-    archivesName.set("xmlutil-serialization")
+    archivesName.set("serialization")
 }
 
 val autoModuleName = "net.devrieze.xmlutil.serialization"
@@ -231,6 +231,9 @@ dependencies {
 }
 
 apiValidation {
+    klib {
+        enabled = true
+    }
     nonPublicMarkers.apply {
         add("nl.adaptivity.xmlutil.serialization.WillBePrivate")
         add("nl.adaptivity.xmlutil.XmlUtilInternal")
