@@ -45,6 +45,12 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     @Throws(XMLStreamException::class)
     public constructor(reader: Reader) : this(safeInputFactory().createXMLStreamReader(reader))
 
+    /**
+     * Create a new reader
+     * @param inputStream The bytestream to read from
+     * @param encoding The encoding to use, or null to use autodetection (also using the encoding
+     *     attribute in the document)
+     */
     @Throws(XMLStreamException::class)
     public constructor(inputStream: InputStream, encoding: String?) : this(
         safeInputFactory().createXMLStreamReader(

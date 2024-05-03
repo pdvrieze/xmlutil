@@ -27,6 +27,11 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import kotlin.jvm.JvmInline
 
 @ExperimentalXmlUtilApi
+/**
+ * @param reader Reader for the input
+ * @param encoding The encoding to record, note this doesn't impact the actual parsing (that is handled in the reader)
+ * @param relaxed If `true` ignore various syntax and namespace errors
+ */
 public class KtXmlReader internal constructor(
     private val reader: Reader,
     encoding: String?,

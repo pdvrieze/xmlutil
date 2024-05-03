@@ -28,6 +28,10 @@ import java.io.InputStreamReader
 
 /**
  * Helper factory for xml reading that autodetects encodings.
+ * @param inputStream The inputstream from which to read the bytes
+ * @param encoding The encoding to use, or `null` to use autodetection (including the encoding
+ *          attribute in the XML)
+ * @param relaxed
  */
 public fun KtXmlReader(inputStream: InputStream, encoding: String?, relaxed: Boolean = false): KtXmlReader {
     val bufferedInput = when {
