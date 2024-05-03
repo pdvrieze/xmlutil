@@ -20,5 +20,8 @@
 
 package io.github.pdvrieze.xmlutil.compat.impl
 
+/**
+ * Object just present to have some code (without this things don't work the way they should)
+ */
 internal object CompatMarker {
 }
