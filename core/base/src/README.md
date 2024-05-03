@@ -1,4 +1,4 @@
-# Module core
+# Module base
 Core Xml wrapper that provides xmlpull parsing functionality. This module
 is designed to wrap the actually present xml functionality in the platform.
 In addition, this module provides a platform independent implementation
