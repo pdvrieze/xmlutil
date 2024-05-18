@@ -232,6 +232,7 @@ dependencies {
 
 apiValidation {
     klib {
+        strictValidation = false
         enabled = true
     }
     nonPublicMarkers.apply {

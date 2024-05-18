@@ -3,6 +3,7 @@ reports
 out
 local.properties
 build
+.kotlin
 .gradle
 .idea/libraries
 .idea/dataSources.ids

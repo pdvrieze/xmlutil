@@ -111,4 +111,14 @@ public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     }
 }
 
-internal expect fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter
+internal fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter {
+    return CharArrayWriter().also {
+        @Suppress("DEPRECATION")
+        XmlStreaming.newWriter(it as Appendable).use { out ->
+            while (hasNext()) {
+                next()
+                writeCurrent(out)
+            }
+        }
+    }
+}

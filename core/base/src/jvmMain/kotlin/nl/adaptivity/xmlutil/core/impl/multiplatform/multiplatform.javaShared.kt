@@ -22,9 +22,9 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlin.reflect.KClass
 
-public actual val KClass<*>.name: String get() = javaCompat.name
+public actual val KClass<*>.name: String get() = java.name
 
 public typealias URI = java.net.URI
 
-public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = javaCompat.annotations.toList()
+public actual val KClass<*>.maybeAnnotations: List<Annotation> get() = java.annotations.toList()
 

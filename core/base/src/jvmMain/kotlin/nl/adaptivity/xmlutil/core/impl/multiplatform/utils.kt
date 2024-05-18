@@ -26,7 +26,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlin.reflect.KClass
 import java.io.StringWriter as JavaStringWriter
 
 public actual typealias AutoCloseable = java.lang.AutoCloseable
@@ -43,7 +42,7 @@ public actual abstract class Writer : Appendable {
 
     actual abstract override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
 
-    actual override fun append(value: CharSequence?): Appendable {
+    actual open override fun append(value: CharSequence?): Appendable {
         return append(value, 0, value?.length ?: 0)
     }
 
@@ -54,13 +53,13 @@ public actual abstract class Writer : Appendable {
 public actual open class StringWriter actual constructor() : Writer() {
     private val delegate = JavaStringWriter()
 
-    override fun append(value: Char): Appendable {
+    actual override fun append(value: Char): Appendable {
         delegate.append(value)
         return this
     }
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE", "KotlinRedundantDiagnosticSuppress")
-    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable {
+    actual override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable {
         delegate.append(value, startIndex, endIndex)
         return this
     }
@@ -75,13 +74,3 @@ public actual typealias StringReader = java.io.StringReader
 
 public actual typealias InputStream = java.io.InputStream
 public actual typealias OutputStream = java.io.OutputStream
-
-internal expect val <T : Any> KClass<T>.javaCompat: Class<T>
-
-internal expect val <T : Any> T.javaClassCompat: Class<T>
-
-
-
-internal actual val <T : Any> KClass<T>.javaCompat: Class<T> get() = this.java
-internal actual val <T : Any> T.javaClassCompat: Class<T>
-    get() = javaClass

@@ -46,7 +46,7 @@ public actual abstract class InputStream : Closeable {
         return len
     }
 
-    public actual fun read(b: ByteArray): Int {
+    public actual open fun read(b: ByteArray): Int {
         return read(b, 0, b.size)
     }
 

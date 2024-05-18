@@ -119,7 +119,7 @@ public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : nl/ad
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lorg/w3c/dom/Element;
 	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
-	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lorg/w3c/dom/Element;Z)Lnl/adaptivity/xmlutil/core/impl/idom/IElement;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lorg/w3c/dom/Element;Z)Lorg/w3c/dom/Element;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Element;)V
@@ -161,7 +161,7 @@ public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : nl/adapt
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lorg/w3c/dom/Node;
 	public synthetic fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;Z)Ljava/lang/Object;
-	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lorg/w3c/dom/Node;Z)Lnl/adaptivity/xmlutil/core/impl/idom/INode;
+	public fun deserializeXML (Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Lorg/w3c/dom/Node;Z)Lorg/w3c/dom/Node;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lorg/w3c/dom/Node;)V

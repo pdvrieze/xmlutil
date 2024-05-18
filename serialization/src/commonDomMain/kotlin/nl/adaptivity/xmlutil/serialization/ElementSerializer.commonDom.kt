@@ -42,7 +42,7 @@ public actual object ElementSerializer : XmlSerializer<Element> {
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor get() = SerialDescriptor("org.w3c.dom.Element", delegate.descriptor)
 
-    override fun deserialize(decoder: Decoder): IElement {
+    override fun deserialize(decoder: Decoder): Element {
         return delegate.deserialize(decoder) as IElement
     }
 
@@ -56,7 +56,7 @@ public actual object ElementSerializer : XmlSerializer<Element> {
         input: XmlReader,
         previousValue: Element?,
         isValueChild: Boolean
-    ): IElement {
+    ): Element {
         return delegate.deserializeXML(decoder, input, previousValue as Element2, isValueChild) as IElement
     }
 

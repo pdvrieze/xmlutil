@@ -58,15 +58,17 @@ public expect val KClass<*>.maybeAnnotations: List<Annotation>
 @XmlUtilInternal
 public expect abstract class Writer : Appendable {
     public open fun write(text: String)
-    override fun append(value: CharSequence?): Appendable
-    abstract override fun append(value: Char): Appendable
-    abstract override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
+    open override fun append(value: CharSequence?): Appendable
+    abstract open override fun append(value: Char): Appendable
+    abstract open override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
     public open fun flush()
 }
 
 @XmlUtilInternal
 public expect open class StringWriter() : Writer {
     override fun toString(): String
+    override fun append(value: Char): Appendable
+    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
 }
 
 @XmlUtilInternal
@@ -83,20 +85,22 @@ public expect abstract class OutputStream : Closeable {
 @XmlUtilInternal
 public expect abstract class Reader {
     public open fun read(): Int
-    public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
+    public open abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
 @XmlUtilInternal
 public expect abstract class InputStream : Closeable {
     public open fun read(buffer: ByteArray, offset: Int, len: Int): Int
 
-    public fun read(b: ByteArray): Int
+    public open fun read(b: ByteArray): Int
     public abstract fun read(): Int
-    public override fun close()
+    public open override fun close()
 }
 
 @XmlUtilInternal
-public expect open class StringReader(source: String) : Reader
+public expect open class StringReader(source: String) : Reader {
+    override fun read(buf: CharArray, offset: Int, len: Int): Int
+}
 
 @XmlUtilInternal
 @MpJvmDefaultWithoutCompatibility

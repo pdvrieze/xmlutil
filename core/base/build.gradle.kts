@@ -18,7 +18,9 @@
  * under the License.
  */
 
+import kotlinx.validation.api.klib.KlibSignatureVersion
 import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
@@ -40,6 +42,7 @@ config {
 val autoModuleName = "net.devrieze.xmlutil.core"
 
 kotlin {
+    applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
 
     components.configureEach {

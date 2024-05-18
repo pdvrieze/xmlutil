@@ -91,16 +91,15 @@ class ProjectPlugin: Plugin<Project> {
                             configureCompilerOptions(project, "project ${project.name}")
                         }
 
-
+                        sourceSets.configureEach {
+                            languageSettings {
+                                configureLanguageSettings()
+                            }
+                        }
                         target {
                             attributes {
                                 attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
                                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-                            }
-                            sourceSets.configureEach {
-                                languageSettings {
-                                    configureLanguageSettings()
-                                }
                             }
                             mavenPublication {
                                 version = xmlutil_version
@@ -122,7 +121,7 @@ class ProjectPlugin: Plugin<Project> {
                             sourceSets.configureEach {
                                 languageSettings {
                                     configureLanguageSettings()
-                                    apiVersion = if (isJvm) "1.8" else "1.9"
+                                    apiVersion = if (isJvm) "1.8" else "2.0"
                                 }
                             }
                             mavenPublication {
@@ -175,7 +174,7 @@ class ProjectPlugin: Plugin<Project> {
 
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
         progressiveMode = true
-        languageVersion = KotlinVersion.KOTLIN_1_9
+        languageVersion = KotlinVersion.KOTLIN_2_0
         if (this is KotlinJvmCompilerOptions) {
             project.logger.info("Setting common compilation options for $name")
             jvmTarget = JvmTarget.JVM_1_8

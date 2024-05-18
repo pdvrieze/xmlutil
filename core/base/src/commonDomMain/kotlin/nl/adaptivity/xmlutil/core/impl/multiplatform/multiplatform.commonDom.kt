@@ -68,7 +68,7 @@ public actual abstract class Writer : Appendable {
 
     actual abstract override fun append(value: Char): Appendable
 
-    actual override fun append(value: CharSequence?): Appendable {
+    actual open override fun append(value: CharSequence?): Appendable {
         return append(value, 0, value?.length ?: 0)
     }
 
@@ -86,7 +86,7 @@ public actual open class StringWriter : Writer() {
         return buffer.toString()
     }
 
-    override fun append(value: Char): Appendable = apply {
+    actual open override fun append(value: Char): Appendable = apply {
         buffer.append(value)
     }
 
@@ -94,7 +94,7 @@ public actual open class StringWriter : Writer() {
         buffer.append(value)
     }
 
-    override fun append(
+    actual override fun append(
         value: CharSequence?,
         startIndex: Int,
         endIndex: Int
@@ -126,7 +126,7 @@ public actual open class StringReader(private val source: CharSequence) : Reader
         else -> source[pos++].code
     }
 
-    override fun read(buf: CharArray, offset: Int, len: Int): Int {
+    actual override fun read(buf: CharArray, offset: Int, len: Int): Int {
         if (pos >= source.length) return -1
         val count = minOf(len, source.length - pos)
         for (i in 0 until count) {

@@ -61,7 +61,7 @@ public actual object NodeSerializer : XmlSerializer<Node1> {
         input: XmlReader,
         previousValue: Node1?,
         isValueChild: Boolean
-    ): INode {
+    ): Node1 {
         return delegate.deserializeXML(decoder, input, previousValue as INode, isValueChild) as INode
     }
 }

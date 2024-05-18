@@ -28,8 +28,6 @@ import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.kpm.external.ExternalVariantApi
-import org.jetbrains.kotlin.gradle.kpm.external.project
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
@@ -88,7 +86,8 @@ private val defaultXmlUtilHierarchyTemplate  = KotlinHierarchyTemplate {
         group("commonDom") {
 
             group("wasmCommon") {
-                withWasm()
+                withWasmJs()
+                withWasmWasi()
             }
 
             group("native") {
@@ -230,9 +229,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
                 }
             }
 
-            @OptIn(ExternalVariantApi::class)
             project.logger.debug("Registering :${project.name}:nativeTest")
-            @OptIn(ExternalVariantApi::class)
             project.tasks.register("nativeTest") {
                 group = "verification"
                 val testTasks = tasks.withType<KotlinNativeTest>().filter {

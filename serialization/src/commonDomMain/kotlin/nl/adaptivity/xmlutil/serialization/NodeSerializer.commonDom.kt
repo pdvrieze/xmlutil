@@ -51,7 +51,7 @@ public actual object NodeSerializer : XmlSerializer<Node1> {
         delegate.serializeXML(encoder, output, v, isValueChild)
     }
 
-    override fun deserialize(decoder: Decoder): INode {
+    override fun deserialize(decoder: Decoder): Node1 {
         return delegate.deserialize(decoder) as INode
     }
 
@@ -60,7 +60,7 @@ public actual object NodeSerializer : XmlSerializer<Node1> {
         input: XmlReader,
         previousValue: Node1?,
         isValueChild: Boolean
-    ): INode {
+    ): Node1 {
         return delegate.deserializeXML(decoder, input, previousValue as INode, isValueChild) as INode
     }
 

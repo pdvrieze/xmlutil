@@ -51,7 +51,7 @@ public actual object ElementSerializer : XmlSerializer<Element1> {
         return delegate.serializeXML(encoder, output, e, isValueChild)
     }
 
-    override fun deserialize(decoder: Decoder): IElement {
+    override fun deserialize(decoder: Decoder): Element1 {
         return delegate.deserialize(decoder) as IElement
     }
 
@@ -60,7 +60,7 @@ public actual object ElementSerializer : XmlSerializer<Element1> {
         input: XmlReader,
         previousValue: Element1?,
         isValueChild: Boolean
-    ): IElement {
+    ): Element1 {
         return delegate.deserializeXML(decoder, input, previousValue as Element2, isValueChild) as IElement
     }
 }
