@@ -17,4 +17,4 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-nl.adaptivity.xmlutil.AndroidStreamingFactory
+nl.adaptivity.xmlutil.core.AndroidStreamingFactory
