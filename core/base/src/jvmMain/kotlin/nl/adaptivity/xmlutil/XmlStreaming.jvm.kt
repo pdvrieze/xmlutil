@@ -67,7 +67,8 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
             if (f != null) return f
 
-            f = serviceLoader.firstOrNull()
+            // Ignore errors in the service loader, but fall back instead
+            f = try { serviceLoader.firstOrNull() } catch (e: ServiceConfigurationError) { null }
 
             if (f == null) {
                 f = try {
