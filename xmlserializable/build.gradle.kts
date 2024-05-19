@@ -56,6 +56,9 @@ kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
 
     jvm {
+        compilerOptions {
+            freeCompilerArgs.add("-Xjvm-default=all")
+        }
         compilations.all {
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
@@ -69,6 +72,9 @@ kotlin {
         }
     }
     jvm("android") {
+        compilerOptions {
+            freeCompilerArgs.add("-Xjvm-default=all")
+        }
         compilations.all {
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
@@ -145,6 +151,13 @@ kotlin {
         }
     }
 
+}
+
+apiValidation {
+    klib {
+        enabled = true
+    }
+    ignoredClasses.add("nl.adaptivity.xmlutil.xmlserializable.SerializableList")
 }
 
 doPublish()
