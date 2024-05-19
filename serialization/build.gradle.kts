@@ -144,7 +144,11 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {}
+        val jvmMain by getting {
+            dependencies {
+                runtimeOnly(project(":core:jdk"))
+            }
+        }
         val commonJvmTest by getting {
             dependencies {
                 implementation(project(":core:jdk"))
@@ -166,6 +170,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 compileOnly(libs.kxml2)
+                runtimeOnly(project(":core:android"))
                 api(project(":core:base")) {
                     attributes { attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm) }
                 }
