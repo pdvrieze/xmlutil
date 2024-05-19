@@ -24,8 +24,13 @@
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
+import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.js.config.SourceMapSourceEmbedding
 
 plugins {
     id("projectPlugin")
@@ -39,7 +44,7 @@ plugins {
 }
 
 base {
-    archivesName.set("serialization")
+    archivesName = "serialization"
 }
 
 val autoModuleName = "net.devrieze.xmlutil.serialization"
@@ -55,9 +60,6 @@ kotlin {
                 manifest {
                     attributes("Automatic-Module-Name" to autoModuleName)
                 }
-            }
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
             }
         }
 
@@ -76,27 +78,19 @@ kotlin {
 */
 
     }
-//        androidTarget("actualAndroid")
 
-    jvm("android") {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-        }
-    }
+    jvm("android")
+
     js {
         browser()
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                sourceMapEmbedSources = "always"
-                suppressWarnings = false
-                verbose = true
-                metaInfo = true
-                moduleKind = "umd"
-                main = "call"
-            }
+        @Suppress("OPT_IN_USAGE")
+        compilerOptions {
+            sourceMap = true
+            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+            suppressWarnings = false
+            verbose = true
+            moduleKind = JsModuleKind.MODULE_UMD
+            main = JsMainFunctionExecutionMode.CALL
         }
     }
 
@@ -108,9 +102,10 @@ kotlin {
                 }
             }
         }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + "-Xexpect-actual-classes"
+        @Suppress("OPT_IN_USAGE")
+        if (this is HasConfigurableKotlinCompilerOptions<*>) {
+            compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }
@@ -236,6 +231,7 @@ dependencies {
 }
 
 apiValidation {
+    @Suppress("OPT_IN_USAGE")
     klib {
         strictValidation = false
         enabled = true

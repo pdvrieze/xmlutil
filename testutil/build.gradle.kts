@@ -22,6 +22,10 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 
 plugins {
     id("projectPlugin")
@@ -35,33 +39,25 @@ plugins {
 }
 
 base {
-    archivesName.set("xmltestutil")
+    archivesName = "xmltestutil"
 }
 
 val moduleName = "io.github.pdvrieze.testutil"
 
 kotlin {
-    jvm {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-        }
+    jvm()
 
-    }
     js {
         browser()
         nodejs()
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                sourceMapEmbedSources = "always"
-                suppressWarnings = false
-                verbose = true
-                metaInfo = true
-                moduleKind = "umd"
-                main = "call"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            sourceMap = true
+            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+            suppressWarnings = false
+            verbose = true
+            moduleKind = JsModuleKind.MODULE_UMD
+            main = JsMainFunctionExecutionMode.CALL
         }
     }
 

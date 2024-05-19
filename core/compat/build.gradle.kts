@@ -21,6 +21,8 @@
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 
 plugins {
     id("projectPlugin")
@@ -32,7 +34,7 @@ plugins {
 }
 
 base {
-    archivesName.set("xmlutil")
+    archivesName = "xmlutil"
 }
 
 val autoModuleName = "net.devrieze.xmlutil.core"
@@ -70,9 +72,10 @@ kotlin {
                 else -> artifactId = "compat-${targetName}"
             }
         }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xexpect-actual-classes"
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        if (this is HasConfigurableKotlinCompilerOptions<*>) {
+            compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }

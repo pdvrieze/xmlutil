@@ -28,13 +28,7 @@ plugins {
 }
 
 base {
-    archivesName.set("examples")
-}
-
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.set(freeCompilerArgs.get() + "-Xjvm-default=all")
-    }
+    archivesName = "examples"
 }
 
 val autoModuleName = "net.devrieze.serialexamples"

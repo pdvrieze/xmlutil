@@ -18,10 +18,15 @@
  * under the License.
  */
 
-import kotlinx.validation.api.klib.KlibSignatureVersion
+import kotlinx.validation.ExperimentalBCVApi
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
@@ -83,18 +88,16 @@ kotlin {
 
     }
     js {
-        browser()
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                sourceMapEmbedSources = "always"
-                suppressWarnings = false
-                verbose = true
-                metaInfo = true
-                moduleKind = "umd"
-                main = "call"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            sourceMap = true
+            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+            suppressWarnings = false
+            verbose = true
+            moduleKind = JsModuleKind.MODULE_UMD
+            main = JsMainFunctionExecutionMode.CALL
         }
+        browser()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
@@ -107,7 +110,7 @@ kotlin {
         nodejs()
         browser {
             testTask {
-                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
+                isEnabled = !System.getenv().containsKey("GITHUB_ACTION")
             }
         }
     }
@@ -115,14 +118,15 @@ kotlin {
     targets.all {
         val targetName = name
         mavenPublication {
-            when(targetName) {
-                "jvm" -> artifactId = "core-jvmCommon"
-                else -> artifactId = "core-$targetName"
+            artifactId = when (targetName) {
+                "jvm" -> "core-jvmCommon"
+                else -> "core-$targetName"
             }
         }
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xexpect-actual-classes"
+        @Suppress("OPT_IN_USAGE")
+        when (val t = this) {
+            is HasConfigurableKotlinCompilerOptions<*> -> t.compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }
@@ -171,6 +175,7 @@ publishing {
 addNativeTargets()
 
 apiValidation {
+    @OptIn(ExperimentalBCVApi::class)
     klib {
         enabled = true
     }

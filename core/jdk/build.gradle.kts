@@ -18,6 +18,7 @@
  * under the License.
  */
 
+import kotlinx.validation.ExperimentalBCVApi
 import net.devrieze.gradle.ext.doPublish
 
 plugins {
@@ -31,7 +32,7 @@ plugins {
 }
 
 base {
-    archivesName.set("xmlutil")
+    archivesName = "xmlutil"
 }
 
 val autoModuleName = "net.devrieze.xmlutil.core.jdk"
@@ -69,6 +70,7 @@ dependencies {
 }
 
 apiValidation {
+    @OptIn(ExperimentalBCVApi::class)
     klib {
         enabled = true
     }
@@ -79,6 +81,7 @@ apiValidation {
         add("nl.adaptivity.xmlutil.util.impl")
     }
 }
+
 publishing {
     publications {
         create<MavenPublication>("mavenKotlin") {

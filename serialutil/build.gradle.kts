@@ -23,6 +23,9 @@
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
+import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 
 plugins {
     id("projectPlugin")
@@ -36,40 +39,28 @@ plugins {
 }
 
 base {
-    archivesName.set("serialutil")
+    archivesName = "serialutil"
 }
 
 val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
-    jvm {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-        }
-    }
-    jvm("android") {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xjvm-default=all"
-            }
-        }
-    }
+    jvm()
+
+    jvm("android")
+
     js {
         browser()
         nodejs()
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                sourceMapEmbedSources = "always"
-                suppressWarnings = false
-                verbose = true
-                metaInfo = true
-                moduleKind = "umd"
-                main = "call"
-            }
+        @Suppress("OPT_IN_USAGE")
+        compilerOptions {
+            sourceMap = true
+            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+            suppressWarnings = false
+            verbose = true
+            moduleKind = JsModuleKind.MODULE_UMD
+            main = JsMainFunctionExecutionMode.CALL
         }
     }
 
@@ -114,6 +105,7 @@ kotlin {
 addNativeTargets()
 
 apiValidation {
+    @Suppress("OPT_IN_USAGE")
     klib {
         enabled = true
     }

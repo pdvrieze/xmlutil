@@ -18,12 +18,10 @@
  * under the License.
  */
 
+import kotlinx.validation.ExperimentalBCVApi
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.envAndroid
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinWithJavaTarget
 
 plugins {
     id("projectPlugin")
@@ -38,7 +36,7 @@ plugins {
 }
 
 base {
-    archivesName.set("core-android")
+    archivesName = "core-android"
 }
 
 val autoModuleName = "net.devrieze.xmlutil.core"
@@ -47,7 +45,6 @@ kotlin {
     explicitApi()
 
     target {
-        val t: KotlinWithJavaTarget<KotlinJvmOptions, KotlinJvmCompilerOptions> = this
         attributes {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envAndroid)
         }
@@ -77,6 +74,7 @@ dependencies {
 }
 
 apiValidation {
+    @OptIn(ExperimentalBCVApi::class)
     klib {
         enabled = true
     }
