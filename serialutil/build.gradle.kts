@@ -25,13 +25,13 @@ import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 
 plugins {
+    id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
-    id("maven-publish")
+    `maven-publish`
     signing
-    idea
-    id("projectPlugin")
     alias(libs.plugins.dokka)
+    idea
     alias(libs.plugins.binaryValidator)
 }
 
@@ -124,6 +124,10 @@ apiValidation {
 }
 
 doPublish()
+
+config {
+    dokkaModuleName = "serialutil"
+}
 
 idea {
     module {

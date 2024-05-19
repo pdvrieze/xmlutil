@@ -147,6 +147,7 @@ class ProjectPlugin: Plugin<Project> {
                                 }
                             }
                             when (name) {
+                                "jdk",
                                 "jvm" -> attributes {
                                     project.logger.debug("Setting attributes for target jvm")
                                     attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)

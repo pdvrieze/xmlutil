@@ -30,6 +30,7 @@ pluginManagement {
         google()
         mavenCentral()
     }
+/*
     resolutionStrategy {
         eachPlugin {
             when (requested.id.id) {
@@ -41,6 +42,7 @@ pluginManagement {
             }
         }
     }
+*/
 }
 
 plugins {

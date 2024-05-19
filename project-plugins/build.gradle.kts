@@ -47,7 +47,7 @@ gradlePlugin {
 
 dependencies {
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
-    implementation("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
+    compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
 }
 
 repositories {

@@ -33,6 +33,7 @@ fun Project.configureDokka(
     myModuleName: Provider<String>,
     myModuleVersion: Provider<String>
 ) {
+    logger.info("Configuring dokka for project($name)")
     tasks.withType<AbstractDokkaLeafTask> {
         moduleName.convention(myModuleName)
         moduleVersion.convention(myModuleVersion)
@@ -49,6 +50,7 @@ private fun Project.configureDokkaSourceSet(
     sourceSet: GradleDokkaSourceSetBuilder
 ) {
     if (!sourceSet.suppress.get()) {
+        logger.info("Configuring sourceSet:${project.name}:${sourceSet.name}")
         with(sourceSet) {
             if (name.startsWith("android")) {
                 noAndroidSdkLink.set(false)
@@ -59,6 +61,7 @@ private fun Project.configureDokkaSourceSet(
             }
             displayName.set(
                 when (val dn = displayName.get()) {
+                    "jdk" -> "JVM"
                     "jvm" -> "JVM"
                     "android" -> "Android"
                     "common" -> "Common"
@@ -67,7 +70,7 @@ private fun Project.configureDokkaSourceSet(
                     else -> dn
                 }
             )
-            logger.lifecycle("Configuring dokka on sourceSet: $name = ${displayName.orNull}")
+            logger.lifecycle("Configuring dokka on sourceSet: :${project.name}:$name = ${displayName.orNull}")
 
             includeNonPublic = false
             skipEmptyPackages = true
