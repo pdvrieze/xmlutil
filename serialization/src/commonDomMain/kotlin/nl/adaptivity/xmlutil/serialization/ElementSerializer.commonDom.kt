@@ -40,18 +40,18 @@ public actual object ElementSerializer : XmlSerializer<Element> {
     private val helperDoc = createDocument(QName("XX")) as IDocument
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor get() = SerialDescriptor("org.w3c.dom.Element", delegate.descriptor)
+    actual override val descriptor: SerialDescriptor get() = SerialDescriptor("org.w3c.dom.Element", delegate.descriptor)
 
-    override fun deserialize(decoder: Decoder): Element {
+    actual override fun deserialize(decoder: Decoder): Element {
         return delegate.deserialize(decoder) as IElement
     }
 
-    override fun serialize(encoder: Encoder, value: Element) {
+    actual override fun serialize(encoder: Encoder, value: Element) {
         val e = value as? Element2 ?: (helperDoc.adoptNode(value) as Element2)
         return delegate.serialize(encoder, e)
     }
 
-    override fun deserializeXML(
+    actual override fun deserializeXML(
         decoder: Decoder,
         input: XmlReader,
         previousValue: Element?,
@@ -60,7 +60,7 @@ public actual object ElementSerializer : XmlSerializer<Element> {
         return delegate.deserializeXML(decoder, input, previousValue as Element2, isValueChild) as IElement
     }
 
-    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Element, isValueChild: Boolean) {
+    actual override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Element, isValueChild: Boolean) {
         val e = value as? Element2 ?: (helperDoc.adoptNode(value) as Element2)
         return delegate.serializeXML(encoder, output, e, isValueChild)
     }

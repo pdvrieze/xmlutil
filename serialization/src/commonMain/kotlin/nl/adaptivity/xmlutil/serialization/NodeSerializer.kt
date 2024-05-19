@@ -23,9 +23,21 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlSerializer
+import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.dom.Node
 
 public typealias SerializableNode = @Serializable(NodeSerializer::class) Node
 
-public expect object NodeSerializer : XmlSerializer<Node>
+public expect object NodeSerializer : XmlSerializer<Node> {
+    override val descriptor: SerialDescriptor
+
+    override fun serialize(encoder: Encoder, value: Node)
+    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Node, isValueChild: Boolean)
+    override fun deserialize(decoder: Decoder): Node
+    override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Node?, isValueChild: Boolean): Node
+}

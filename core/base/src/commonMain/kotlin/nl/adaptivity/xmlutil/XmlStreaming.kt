@@ -21,7 +21,10 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom2.DOMImplementation
+import nl.adaptivity.xmlutil.dom2.Node
 
 
 public expect fun IXmlStreaming.newWriter(
@@ -80,6 +83,25 @@ public expect object XmlStreaming : IXmlStreaming {
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter
 
+    public override val genericDomImplementation: DOMImplementation
+
+    public override fun newWriter(): DomWriter
+
+    @ExperimentalXmlUtilApi
+    public override fun newWriter(dest: Node): DomWriter
+
+    public override fun setFactory(factory: XmlStreamingFactory?)
+
+    public override fun newReader(input: CharSequence): XmlReader
+
+    public override fun newReader(reader: Reader): XmlReader
+
+    @ExperimentalXmlUtilApi
+    public override fun newReader(source: Node): XmlReader
+
+    public override fun newGenericReader(input: CharSequence): XmlReader
+
+    public override fun newGenericReader(reader: Reader): XmlReader
 }
 
 

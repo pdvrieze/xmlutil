@@ -39,23 +39,23 @@ public actual object NodeSerializer : XmlSerializer<Node1> {
     private val helperDoc = createDocument(QName("XX")) as IDocument
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor: SerialDescriptor = SerialDescriptor("org.w3c.dom.node", delegate.descriptor)
+    actual override val descriptor: SerialDescriptor = SerialDescriptor("org.w3c.dom.node", delegate.descriptor)
 
-    override fun serialize(encoder: Encoder, value: Node1) {
+    actual override fun serialize(encoder: Encoder, value: Node1) {
         val v = (value as? Node2) ?: helperDoc.adoptNode(value)
         delegate.serialize(encoder, v)
     }
 
-    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Node1, isValueChild: Boolean) {
+    actual override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Node1, isValueChild: Boolean) {
         val v = (value as? Node2) ?: helperDoc.adoptNode(value)
         delegate.serializeXML(encoder, output, v, isValueChild)
     }
 
-    override fun deserialize(decoder: Decoder): Node1 {
+    actual override fun deserialize(decoder: Decoder): Node1 {
         return delegate.deserialize(decoder) as INode
     }
 
-    override fun deserializeXML(
+    actual override fun deserializeXML(
         decoder: Decoder,
         input: XmlReader,
         previousValue: Node1?,

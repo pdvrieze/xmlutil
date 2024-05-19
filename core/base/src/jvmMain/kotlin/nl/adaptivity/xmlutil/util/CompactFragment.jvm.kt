@@ -34,18 +34,18 @@ public actual class CompactFragment : ICompactFragment {
     @Suppress("DEPRECATION")
     public actual class Factory : XmlDeserializerFactory<CompactFragment> {
 
-        override fun deserialize(reader: XmlReader): CompactFragment {
+        actual override fun deserialize(reader: XmlReader): CompactFragment {
             return Companion.deserialize(reader)
         }
     }
 
-    override val isEmpty: Boolean
+    actual override val isEmpty: Boolean
         get() = content.isEmpty()
 
-    override val namespaces: IterableNamespaceContext
+    actual override val namespaces: IterableNamespaceContext
 
     @Transient
-    override val content: CharArray
+    actual override val content: CharArray
 
     public actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
         this.namespaces = SimpleNamespaceContext.from(namespaces)
@@ -65,7 +65,7 @@ public actual class CompactFragment : ICompactFragment {
 
 
     @Throws(XmlException::class)
-    override fun serialize(out: XmlWriter) {
+    actual override fun serialize(out: XmlWriter) {
         val reader = XMLFragmentStreamReader.from(this)
         try {
             out.serialize(reader)
@@ -74,7 +74,7 @@ public actual class CompactFragment : ICompactFragment {
         }
     }
 
-    override fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
+    actual override fun getXmlReader(): XmlReader = XMLFragmentStreamReader.from(this)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -100,7 +100,7 @@ public actual class CompactFragment : ICompactFragment {
         ) { "${it.prefix} -> ${it.namespaceURI}" }
     }
 
-    override val contentString: String
+    actual override val contentString: String
         get() = String(content)
 
     public actual companion object {

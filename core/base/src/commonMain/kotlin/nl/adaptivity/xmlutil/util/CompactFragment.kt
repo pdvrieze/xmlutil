@@ -21,8 +21,10 @@
 package nl.adaptivity.xmlutil.util
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.IterableNamespaceContext
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.XmlWriter
 
 /**
  * A class representing an xml fragment compactly.
@@ -35,8 +37,18 @@ public expect class CompactFragment : ICompactFragment {
     public constructor(namespaces: Iterable<Namespace>, content: CharArray?)
     public constructor(namespaces: Iterable<Namespace>, content: String)
 
+    public override val isEmpty: Boolean
+    public override val namespaces: IterableNamespaceContext
+    public override val content: CharArray
+    public override val contentString: String
+
+    public override fun serialize(out: XmlWriter)
+    public override fun getXmlReader(): XmlReader
+
     @Suppress("DEPRECATION")
-    public class Factory() : nl.adaptivity.xmlutil.XmlDeserializerFactory<CompactFragment>
+    public class Factory() : nl.adaptivity.xmlutil.XmlDeserializerFactory<CompactFragment> {
+        public override fun deserialize(reader: XmlReader): CompactFragment
+    }
 
     public companion object {
         public fun deserialize(reader: XmlReader): CompactFragment

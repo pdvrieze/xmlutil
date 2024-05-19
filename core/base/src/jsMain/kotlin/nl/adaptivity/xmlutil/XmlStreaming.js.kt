@@ -51,25 +51,25 @@ public actual interface XmlStreamingFactory
 )
 public actual object XmlStreaming : IXmlStreaming {
     @ExperimentalXmlUtilApi
-    override fun newReader(source: Node2): XmlReader {
+    actual override fun newReader(source: Node2): XmlReader {
         @Suppress("DEPRECATION")
         return DomReader(source)
     }
 
-    override fun newWriter(): DomWriter {
+    actual override fun newWriter(): DomWriter {
         return DomWriter()
     }
 
     @Suppress("DEPRECATION")
-    override fun newWriter(dest: Node2): DomWriter = DomWriter(dest)
+    actual override fun newWriter(dest: Node2): DomWriter = DomWriter(dest)
 
     @Deprecated("Does not work on Javascript except for setting null", level = DeprecationLevel.ERROR)
-    public override fun setFactory(factory: XmlStreamingFactory?) {
+    public actual override fun setFactory(factory: XmlStreamingFactory?) {
         if (factory != null)
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
-    public override fun newReader(input: CharSequence): XmlReader {
+    public actual override fun newReader(input: CharSequence): XmlReader {
         val str = when { // Ignore initial BOM (it parses incorrectly without exception)
             input[0] == '\ufeff' -> input.subSequence(1, input.length)
             else -> input
@@ -79,12 +79,12 @@ public actual object XmlStreaming : IXmlStreaming {
         return DomReader(DOMParser().parseFromString(str, "text/xml").wrap() as Node2)
     }
 
-    public override fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
-    public override fun newGenericReader(input: CharSequence): XmlReader =
+    public actual override fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input))
 
-    public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
     public fun newWriter(
         output: Appendable,
@@ -122,7 +122,7 @@ public actual object XmlStreaming : IXmlStreaming {
         return WriterXmlWriter(writer, DomWriter(xmlDeclMode))
     }
 
-    override val genericDomImplementation: DOMImplementation
+    actual override val genericDomImplementation: DOMImplementation
         get() = DOMImplementationImpl
 }
 

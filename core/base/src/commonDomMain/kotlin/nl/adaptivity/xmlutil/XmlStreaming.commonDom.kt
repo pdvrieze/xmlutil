@@ -44,7 +44,7 @@ import nl.adaptivity.xmlutil.dom2.Node
 )
 public actual object XmlStreaming : IXmlStreaming {
 
-    public override fun setFactory(factory: XmlStreamingFactory?) {
+    public actual override fun setFactory(factory: XmlStreamingFactory?) {
         throw UnsupportedOperationException("Native does not support setting the factory")
     }
 
@@ -53,29 +53,29 @@ public actual object XmlStreaming : IXmlStreaming {
         throw UnsupportedOperationException("Cannot work")
     }
 
-    public override fun newReader(input: CharSequence): XmlReader {
+    public actual override fun newReader(input: CharSequence): XmlReader {
         return KtXmlReader(StringReader(input.toString()))
     }
 
-    public override fun newReader(reader: Reader): XmlReader {
+    public actual override fun newReader(reader: Reader): XmlReader {
         return newGenericReader(reader)
     }
 
-    public override fun newGenericReader(input: CharSequence): XmlReader =
+    public actual override fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input.toString()))
 
-    public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
     @ExperimentalXmlUtilApi
-    override fun newReader(source: Node): XmlReader {
+    actual override fun newReader(source: Node): XmlReader {
         @Suppress("DEPRECATION")
         return DomReader(source)
     }
 
-    override fun newWriter(): DomWriter = DomWriter()
+    actual override fun newWriter(): DomWriter = DomWriter()
 
     @Suppress("DEPRECATION")
-    override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
+    actual override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     public fun newWriter(
         output: Appendable,
@@ -117,7 +117,7 @@ public actual object XmlStreaming : IXmlStreaming {
         return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
 
-    override val genericDomImplementation: DOMImplementation
+    actual override val genericDomImplementation: DOMImplementation
         get() = SimpleDOMImplementation
 }
 

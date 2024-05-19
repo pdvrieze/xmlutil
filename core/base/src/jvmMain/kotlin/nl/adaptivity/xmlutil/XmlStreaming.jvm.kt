@@ -103,10 +103,10 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
-    override fun newWriter(): DomWriter = DomWriter()
+    actual override fun newWriter(): DomWriter = DomWriter()
 
     @Suppress("DEPRECATION")
-    override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
+    actual override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
     public actual fun newWriter(
@@ -149,12 +149,12 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
-    override val genericDomImplementation: DOMImplementation
+    actual override val genericDomImplementation: DOMImplementation
         get() = DOMImplementationImpl
 
     @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
-    override fun newReader(source: Node): XmlReader {
+    actual override fun newReader(source: Node): XmlReader {
         return DomReader(source)
     }
 
@@ -163,7 +163,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newReader(inputStream, encoding)
     }
 
-    override fun newReader(reader: Reader): XmlReader {
+    actual override fun newReader(reader: Reader): XmlReader {
         return factory.newReader(reader)
     }
 
@@ -172,7 +172,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newReader(source)
     }
 
-    public override fun newReader(input: CharSequence): XmlReader {
+    public actual override fun newReader(input: CharSequence): XmlReader {
         return factory.newReader(input)
     }
 
@@ -182,7 +182,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     )
     public override fun newReader(input: String): XmlReader = newReader(input as CharSequence)
 
-    public override fun newGenericReader(input: CharSequence): XmlReader =
+    public actual override fun newGenericReader(input: CharSequence): XmlReader =
         newGenericReader(StringReader(input.toString()))
 
     public fun newGenericReader(input: String): XmlReader =
@@ -191,9 +191,9 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     public fun newGenericReader(inputStream: InputStream, encoding: String? = null): XmlReader =
         KtXmlReader(inputStream, encoding)
 
-    public override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
 
-    public override fun setFactory(factory: XmlStreamingFactory?) {
+    public actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory
     }
 
