@@ -109,6 +109,9 @@ public sealed class XmlDescriptor(
     final override val tagParent: SafeParentInfo = serializerParent,
 ) : SafeXmlDescriptor {
 
+    /**
+     * Does this value represent an xml ID attribute (requiring global uniqueness)
+     */
     public abstract val isIdAttr: Boolean
 
     public val effectiveOutputKind: OutputKind
@@ -163,6 +166,7 @@ public sealed class XmlDescriptor(
     @OptIn(ExperimentalSerializationApi::class)
     internal fun <A : Appendable> toString(builder: A, indent: Int, seen: MutableSet<String>): A {
         when (this) {
+            is XmlContextualDescriptor,
             is XmlListDescriptor,
             is XmlPrimitiveDescriptor -> appendTo(builder, indent, seen)
 
@@ -292,6 +296,9 @@ public sealed class XmlDescriptor(
                         effectiveSerializerParent,
                         effectiveTagParent
                     )
+
+                SerialKind.CONTEXTUAL ->
+                    return XmlContextualDescriptor(config, serializersModule, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
 
                 else -> {} // fall through to other handler.
             }
@@ -726,6 +733,39 @@ public class XmlAttributeMapDescriptor internal constructor(
         }
     }
 
+}
+
+public class XmlContextualDescriptor @ExperimentalXmlUtilApi
+internal constructor(
+    private val config: XmlConfig,
+    private val serializersModule: SerializersModule,
+    serializerParent: SafeParentInfo,
+    tagParent: SafeParentInfo,
+    private val canBeAttribute: Boolean
+) : XmlDescriptor(config.policy, serializerParent, tagParent) {
+    @ExperimentalSerializationApi
+    override val doInline: Boolean get() = false
+
+    override val isIdAttr: Boolean get() = false
+
+
+    override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
+        builder
+            .append("CONTEXTUAL(")
+            .append(tagParent.elementUseNameInfo.run { annotatedName?.toString() ?: serialName })
+            .append(")")
+    }
+
+    internal fun <T> resolve(serializer: SerializationStrategy<T>): XmlDescriptor {
+        val overriddenParentInfo = DetachedParent(serializer.descriptor, useNameInfo, false)
+
+        return from(config, serializersModule, overriddenParentInfo, tagParent, canBeAttribute)
+    }
+
+    @ExperimentalXmlUtilApi
+    override val preserveSpace: Boolean get() = false
+
+    override val outputKind: OutputKind get() = OutputKind.Inline
 }
 
 public class XmlCompositeDescriptor @ExperimentalXmlUtilApi

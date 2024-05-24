@@ -172,7 +172,16 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
         ) {
-            xmlDescriptor.effectiveSerializationStrategy(serializer).serializeSafe(this, value)
+            when  {
+                xmlDescriptor is XmlContextualDescriptor -> {
+                    val actualDescriptor = xmlDescriptor.resolve(serializer)
+                    val delegateEncoder = XmlEncoder(actualDescriptor, elementIndex, discriminatorName)
+                    actualDescriptor.effectiveSerializationStrategy(serializer).serializeSafe(delegateEncoder, value)
+                }
+
+                else ->
+                    xmlDescriptor.effectiveSerializationStrategy(serializer).serializeSafe(this, value)
+            }
         }
 
         @ExperimentalSerializationApi
