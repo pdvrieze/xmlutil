@@ -202,6 +202,16 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor
     final val valueChild // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.valueChild|{}valueChild[0]
         final fun <get-valueChild>(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.valueChild.<get-valueChild>|<get-valueChild>(){}[0]
 }
+final class nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor|null[0]
+    final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.doInline|{}doInline[0]
+        final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
+    final val isIdAttr // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.isIdAttr|{}isIdAttr[0]
+        final fun <get-isIdAttr>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.isIdAttr.<get-isIdAttr>|<get-isIdAttr>(){}[0]
+    final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.outputKind|{}outputKind[0]
+        final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
+    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.preserveSpace|{}preserveSpace[0]
+        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
+}
 final class nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor|null[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun getElementDescriptor(kotlin/Int): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
@@ -841,7 +851,7 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor : nl.ad
         open fun <get-typeDescriptor>(): nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor.typeDescriptor.<get-typeDescriptor>|<get-typeDescriptor>(){}[0]
 }
 sealed class nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor|null[0]
-    constructor <init>(nl.adaptivity.xmlutil.serialization/XmlConfig, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo = ...) // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.<init>|<init>(nl.adaptivity.xmlutil.serialization.XmlConfig;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo = ...) // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.<init>|<init>(nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.preserveSpace|{}preserveSpace[0]

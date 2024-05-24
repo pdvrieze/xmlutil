@@ -174,7 +174,7 @@ internal open class XmlEncoderBase internal constructor(
         ) {
             when  {
                 xmlDescriptor is XmlContextualDescriptor -> {
-                    val actualDescriptor = xmlDescriptor.resolve(serializer)
+                    val actualDescriptor = xmlDescriptor.resolve(serializer, config, serializersModule)
                     val delegateEncoder = XmlEncoder(actualDescriptor, elementIndex, discriminatorName)
                     actualDescriptor.effectiveSerializationStrategy(serializer).serializeSafe(delegateEncoder, value)
                 }

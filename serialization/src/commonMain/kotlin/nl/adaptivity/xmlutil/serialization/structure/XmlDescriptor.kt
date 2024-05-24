@@ -298,7 +298,7 @@ public sealed class XmlDescriptor(
                     )
 
                 SerialKind.CONTEXTUAL ->
-                    return XmlContextualDescriptor(config, serializersModule, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
+                    return XmlContextualDescriptor(config, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
 
                 else -> {} // fall through to other handler.
             }
@@ -737,8 +737,7 @@ public class XmlAttributeMapDescriptor internal constructor(
 
 public class XmlContextualDescriptor @ExperimentalXmlUtilApi
 internal constructor(
-    private val config: XmlConfig,
-    private val serializersModule: SerializersModule,
+    config: XmlConfig,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
     private val canBeAttribute: Boolean
@@ -756,7 +755,7 @@ internal constructor(
             .append(")")
     }
 
-    internal fun <T> resolve(serializer: SerializationStrategy<T>): XmlDescriptor {
+    internal fun <T> resolve(serializer: SerializationStrategy<T>, config: XmlConfig, serializersModule: SerializersModule): XmlDescriptor {
         val overriddenParentInfo = DetachedParent(serializer.descriptor, useNameInfo, false)
 
         return from(config, serializersModule, overriddenParentInfo, tagParent, canBeAttribute)
@@ -1135,14 +1134,14 @@ internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?): Declared
 }
 
 public sealed class XmlListLikeDescriptor(
-    config: XmlConfig,
+    policy: XmlSerializationPolicy,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo = serializerParent
-) : XmlDescriptor(config.policy, serializerParent, tagParent) {
+) : XmlDescriptor(policy, serializerParent, tagParent) {
 
     public open val isListEluded: Boolean = when {
         tagParent is DetachedParent && tagParent.isDocumentRoot -> false
-        else -> config.policy.isListEluded(serializerParent, tagParent)
+        else -> policy.isListEluded(serializerParent, tagParent)
     }
 
     @ExperimentalSerializationApi
@@ -1180,7 +1179,7 @@ public class XmlMapDescriptor internal constructor(
     serializersModule: SerializersModule,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo = serializerParent,
-) : XmlListLikeDescriptor(config, serializerParent, tagParent) {
+) : XmlListLikeDescriptor(config.policy, serializerParent, tagParent) {
 
     override val outputKind: OutputKind get() = OutputKind.Element
 
@@ -1236,7 +1235,7 @@ public class XmlListDescriptor internal constructor(
     serializersModule: SerializersModule,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo = serializerParent,
-) : XmlListLikeDescriptor(config, serializerParent, tagParent) {
+) : XmlListLikeDescriptor(config.policy, serializerParent, tagParent) {
 
     override val outputKind: OutputKind
 

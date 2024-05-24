@@ -763,6 +763,13 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDes
 	public fun isIdAttr ()Z
 }
 
+public final class nl/adaptivity/xmlutil/serialization/structure/XmlContextualDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public fun getDoInline ()Z
+	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getPreserveSpace ()Z
+	public fun isIdAttr ()Z
+}
+
 public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor : nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor {
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -806,8 +813,8 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlListDescript
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
-	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDoInline ()Z
 	public final fun getPreserveSpace ()Z
