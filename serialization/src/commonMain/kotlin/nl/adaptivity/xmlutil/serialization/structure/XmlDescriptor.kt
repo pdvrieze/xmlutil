@@ -114,7 +114,7 @@ public sealed class XmlDescriptor(
      */
     public abstract val isIdAttr: Boolean
 
-    public val effectiveOutputKind: OutputKind
+    public open val effectiveOutputKind: OutputKind
         get() = when (outputKind) {
             OutputKind.Inline -> getElementDescriptor(0).effectiveOutputKind
             else -> outputKind
@@ -298,7 +298,12 @@ public sealed class XmlDescriptor(
                     )
 
                 SerialKind.CONTEXTUAL ->
-                    return XmlContextualDescriptor(config, effectiveSerializerParent, effectiveTagParent, canBeAttribute)
+                    return XmlContextualDescriptor(
+                        config,
+                        effectiveSerializerParent,
+                        effectiveTagParent,
+                        canBeAttribute
+                    )
 
                 else -> {} // fall through to other handler.
             }
@@ -421,7 +426,8 @@ public sealed class XmlValueDescriptor(
     @Deprecated("This is not safe anymore. This should have been internal.")
     @XmlUtilDeprecatedInternal
     public fun <T> defaultValue(deserializer: DeserializationStrategy<T>): T {
-        val codec = XmlDecoderBase(getPlatformDefaultModule(), XmlConfig(), CompactFragment(default ?: "").getXmlReader())
+        val codec =
+            XmlDecoderBase(getPlatformDefaultModule(), XmlConfig(), CompactFragment(default ?: "").getXmlReader())
 
         return defaultValue(codec, deserializer)
     }
@@ -443,11 +449,11 @@ public sealed class XmlValueDescriptor(
                 defaultValue(xmlCodecBase.serializersModule, xmlCodecBase.config, deserializer)
 
             xmlCodecBase is XmlDecoderBase ->
-                deserializer.deserialize(xmlCodecBase.StringDecoder(this, XmlReader.ExtLocationInfo(0,0,0), default))
+                deserializer.deserialize(xmlCodecBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default))
 
             else -> xmlCodecBase.run {
                 val dec = XmlDecoderBase(serializersModule, config, CompactFragment("").getXmlReader())
-                    .StringDecoder(this@XmlValueDescriptor, XmlReader.ExtLocationInfo(0,0,0), default)
+                    .StringDecoder(this@XmlValueDescriptor, XmlReader.ExtLocationInfo(0, 0, 0), default)
 
                 deserializer.deserialize(dec)
             }
@@ -467,7 +473,8 @@ public sealed class XmlValueDescriptor(
             default == null -> null
 
             effectiveOutputKind.let { it == OutputKind.Attribute || it == OutputKind.Text } -> {
-                val xmlDecoderBase: XmlDecoderBase = XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader())
+                val xmlDecoderBase: XmlDecoderBase =
+                    XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader())
                 val dec = xmlDecoderBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default)
                 deserializer.deserialize(dec)
             }
@@ -747,6 +754,12 @@ internal constructor(
 
     override val isIdAttr: Boolean get() = false
 
+    override val elementsCount: Int get() = 0
+
+    @OptIn(ExperimentalSerializationApi::class)
+    public val context: KClass<*>? = serializerParent.elementSerialDescriptor.capturedKClass
+
+    override val effectiveOutputKind: OutputKind get() = outputKind
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder
@@ -755,8 +768,12 @@ internal constructor(
             .append(")")
     }
 
-    internal fun <T> resolve(serializer: SerializationStrategy<T>, config: XmlConfig, serializersModule: SerializersModule): XmlDescriptor {
-        val overriddenParentInfo = DetachedParent(serializer.descriptor, useNameInfo, false)
+    internal fun resolve(
+        descriptor: SerialDescriptor,
+        config: XmlConfig,
+        serializersModule: SerializersModule
+    ): XmlDescriptor {
+        val overriddenParentInfo = DetachedParent(descriptor, useNameInfo, false)
 
         return from(config, serializersModule, overriddenParentInfo, tagParent, canBeAttribute)
     }

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xml.serialization.regressions
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
@@ -27,14 +28,13 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.XmlContextualDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class ContextualSerialization208 {
+class ContextualSerializationPrimitive208 {
     val xml = XML(
         SerializersModule {
             contextual(AnyIntSerializer)
@@ -47,7 +47,7 @@ class ContextualSerialization208 {
 
         val actual = xml.encodeToString(data)
         val expected = "<TestContainer any1=\"101\" any2=\"102\"/>"
-        assertEquals(expected, actual)
+        assertXmlEquals(expected, actual)
     }
 
     @Test
@@ -59,6 +59,14 @@ class ContextualSerialization208 {
         assertEquals(2, descriptor.elementsCount)
         val child1Descriptor = assertIs<XmlContextualDescriptor>(descriptor.getElementDescriptor(0))
         val child2Descriptor = assertIs<XmlContextualDescriptor>(descriptor.getElementDescriptor(1))
+    }
+
+    @Test
+    fun testDeserialization() {
+        val data = "<TestContainer any1=\"101\" any2=\"102\"/>"
+        val expected = TestContainer(101, 102)
+        val actual = xml.decodeFromString<TestContainer>(data)
+        assertEquals(expected, actual)
     }
 
     object AnyIntSerializer: KSerializer<Any> {
@@ -76,5 +84,5 @@ class ContextualSerialization208 {
     }
 
     @Serializable
-    class TestContainer(@Contextual val any1: Any, @Contextual val any2: Any)
+    data class TestContainer(@Contextual val any1: Any, @Contextual val any2: Any)
 }

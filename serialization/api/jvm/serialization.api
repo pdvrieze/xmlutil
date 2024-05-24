@@ -764,7 +764,10 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDes
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlContextualDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public final fun getContext ()Lkotlin/reflect/KClass;
 	public fun getDoInline ()Z
+	public fun getEffectiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getElementsCount ()I
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getPreserveSpace ()Z
 	public fun isIdAttr ()Z
@@ -774,7 +777,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getEffectiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getEffectiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getElementsCount ()I
 	public final fun getNamespaceDecls ()Ljava/util/List;

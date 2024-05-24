@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import nl.adaptivity.xmlutil.serialization.structure.XmlContextualDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 
 public enum class InputKind {
@@ -37,8 +38,9 @@ public enum class InputKind {
         }
     };
 
-    internal fun mapsTo(xmlDescriptor: XmlDescriptor): Boolean {
-        return mapsTo(xmlDescriptor.outputKind)
+    internal fun mapsTo(xmlDescriptor: XmlDescriptor): Boolean = when {
+        xmlDescriptor is XmlContextualDescriptor -> true // just allow context
+        else -> mapsTo(xmlDescriptor.outputKind)
     }
 
     internal abstract fun mapsTo(outputKind: OutputKind): Boolean

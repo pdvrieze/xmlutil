@@ -12,6 +12,9 @@ Changes:
 - Make automatic encoding detection the default/recommended, and add
   some changes to make this work better. Thanks to @sschuberth in 
   (#206).
+- Explicitly check for duplicate names in decoding.
+- Support the use of contextual serializers (#208). This means that
+  contextual serializers are eluded.
 
 Features:
 - Extend applicability of `@XmlValue` on a list/map to capture any serializer.
