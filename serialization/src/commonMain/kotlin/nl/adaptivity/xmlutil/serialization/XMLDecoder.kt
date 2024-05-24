@@ -611,7 +611,8 @@ internal open class XmlDecoderBase internal constructor(
 
         override var tagId: String? = null
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
-        private val nameToMembers: Map<QName, Int>
+        private val tagNameToMembers: Map<QName, Int>
+        private val attrNameToMembers: Map<QName, Int>
         private val polyChildren: Map<QName, PolyInfo>
         private val contextualDescriptors: Array<XmlDescriptor?>
 
@@ -657,7 +658,8 @@ internal open class XmlDecoderBase internal constructor(
 
         init {
             val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
-            val nameMap: MutableMap<QName, Int> = mutableMapOf()
+            val tagNameMap: MutableMap<QName, Int> = mutableMapOf()
+            val attrNameMap: MutableMap<QName, Int> = mutableMapOf()
             val contextList = arrayOfNulls<XmlDescriptor>(xmlDescriptor.elementsCount)
             val seenTagNames = HashSet<QName>()
             val seenAttrNames = HashSet<QName>()
@@ -682,40 +684,47 @@ internal open class XmlDecoderBase internal constructor(
                     val childSer = deserializer.findChildSerializer(idx, serializersModule)
                     val resolved = child.resolve(childSer.descriptor, config, serializersModule)
                     val childName = resolved.tagName.normalize()
-                    when (resolved.outputKind) {
-                        OutputKind.Element -> check(seenTagNames.add(childName)) {
-                            "Duplicate tag name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
+                    when (resolved.effectiveOutputKind) {
+                        OutputKind.Attribute -> {
+                            check(seenAttrNames.add(childName)) {
+                                "Duplicate attribute name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
+                            }
+                            attrNameMap[childName] = idx
                         }
 
-                        OutputKind.Attribute -> check(seenAttrNames.add(childName)) {
-                            "Duplicate attribute name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
+                        else -> {
+                            check(seenTagNames.add(childName)) {
+                                "Duplicate tag name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
+                            }
+                            tagNameMap[childName] = idx
                         }
 
-                        else -> {}
                     }
-
-                    nameMap[childName] = idx
 
                     contextList[idx] = resolved
                 } else {
-                    when (child.outputKind) {
-                        OutputKind.Element -> check(seenTagNames.add(child.tagName)) {
-                            "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
+                    when (child.effectiveOutputKind) {
+                        OutputKind.Attribute -> {
+                            check(seenAttrNames.add(child.tagName)) {
+                                "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
+                            }
+                            attrNameMap[child.tagName.normalize()] = idx
                         }
 
-                        OutputKind.Attribute -> check(seenAttrNames.add(child.tagName)) {
-                            "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
+                        else -> {
+                            check(seenTagNames.add(child.tagName)) {
+                                "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
+                            }
+                            tagNameMap[child.tagName.normalize()] = idx
                         }
 
-                        else -> {}
                     }
 
-
-                    nameMap[child.tagName.normalize()] = idx
                 }
             }
             polyChildren = polyMap
-            nameToMembers = nameMap
+            tagNameToMembers = tagNameMap
+            attrNameToMembers = attrNameMap
             contextualDescriptors = contextList
         }
 
@@ -897,9 +906,13 @@ internal open class XmlDecoderBase internal constructor(
             currentPolyInfo = null
 
             val polyMap = polyChildren
-            val nameMap = nameToMembers
+            val tagNameMap = tagNameToMembers
+            val attrNameMap = attrNameToMembers
 
             val normalizedName = name.normalize()
+
+            val nameMap = if (isNameOfAttr) attrNameMap else tagNameMap
+
             nameMap[normalizedName]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
 
             polyMap[normalizedName]?.checkInputType()?.let {
@@ -950,7 +963,9 @@ internal open class XmlDecoderBase internal constructor(
                 inputType,
                 xmlDescriptor,
                 name,
-                (nameMap.map { (k, v) ->
+                (attrNameMap.map { (k, v) ->
+                    PolyInfo(k, v, xmlDescriptor.getElementDescriptor(v))
+                } + tagNameMap.map { (k, v) ->
                     PolyInfo(k, v, xmlDescriptor.getElementDescriptor(v))
                 } + polyMap.values)
             ).let {
@@ -1064,7 +1079,7 @@ internal open class XmlDecoderBase internal constructor(
                     }
                     // If this was explicitly declared as attribute use that as index, otherwise
                     // just skip the attribute.
-                    return nameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex(descriptor)
+                    return attrNameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex(descriptor)
                 }
 
                 // The ifNegative function will recursively call this function if we didn't find it (and the handler

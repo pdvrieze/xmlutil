@@ -12,6 +12,8 @@ Changes:
 - Make automatic encoding detection the default/recommended, and add
   some changes to make this work better. Thanks to @sschuberth in 
   (#206).
+- Separate the tag and attribute namespace (allowing the same name
+  as attribute and element).
 - Explicitly check for duplicate names in decoding.
 - Support the use of contextual serializers (#208). This means that
   contextual serializers are eluded.
