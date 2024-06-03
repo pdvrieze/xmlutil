@@ -33,6 +33,7 @@ import java.io.*
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
+import kotlin.concurrent.Volatile
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import java.io.Writer as JavaIoWriter
@@ -49,16 +50,17 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     @Suppress("DEPRECATION")
     @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
-    override val serializationLoader: ServiceLoader<SerializationProvider> by lazy {
+    override val serializationLoader: ServiceLoader<SerializationProvider> get() {
         val service = SerializationProvider::class.java
-        ServiceLoader.load(service, service.classLoader)
+        return ServiceLoader.load(service, service.classLoader)
     }
 
-    private val serviceLoader: ServiceLoader<XmlStreamingFactory> by lazy {
+    private val serviceLoader: ServiceLoader<XmlStreamingFactory> get() {
         val service = XmlStreamingFactory::class.java
-        ServiceLoader.load(service, service.classLoader)
+        return ServiceLoader.load(service, service.classLoader)
     }
 
+    @Volatile
     private var _factory: XmlStreamingFactory? = null
 
     private val factory: XmlStreamingFactory
