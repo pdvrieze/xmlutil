@@ -68,8 +68,11 @@ kotlin {
         val targetName = name
         mavenPublication {
             when (targetName) {
+                "android" -> artifactId = "core-android"
                 "jdk" -> artifactId = "core-jvm"
-                else -> artifactId = "compat-${targetName}"
+                else -> {
+                    artifactId = artifactId.replace("core", "compat")
+                }
             }
         }
         @OptIn(ExperimentalKotlinGradlePluginApi::class)

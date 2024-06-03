@@ -120,7 +120,7 @@ kotlin {
         mavenPublication {
             artifactId = when (targetName) {
                 "jvm" -> "core-jvmCommon"
-                else -> "core-$targetName"
+                else -> artifactId.replace("base","core")
             }
         }
         @Suppress("OPT_IN_USAGE")
