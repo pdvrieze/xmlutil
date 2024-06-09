@@ -31,7 +31,8 @@ jobs:
             GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         strategy:
             matrix:
-                os: [ macOs-latest, windows-latest, ubuntu-latest ]
+#                os: [ macOs-latest, windows-latest, ubuntu-latest ]
+                os: [ macOs-latest ]
         steps:
             -   name: Checkout
                 uses: actions/checkout@v4.1.6
@@ -53,11 +54,6 @@ jobs:
                 if: matrix.os != 'ubuntu-latest'
                 run: ./gradlew nativeTest --stacktrace
                 shell: bash
-            -   name: Upload (macos / windows)
-                if: matrix.os != 'ubuntu-latest'
-                run: ./gradlew publishNative -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=host --stacktrace
-                shell: bash
-            # Linux / JVM / JS
             -   name: Check (ubuntu)
                 if: matrix.os == 'ubuntu-latest'
                 run: ./gradlew check --stacktrace
@@ -70,8 +66,8 @@ jobs:
                     path: |
                         **/build/reports/
                         **/build/test-results/
-            -   name: Upload (ubuntu)
-                if: matrix.os == 'ubuntu-latest'
+            -   name: Upload (macOs)
+                if: matrix.os == 'macOs-latest'
                 run: ./gradlew publish -Pxmlutil.repositoryId='${{ needs.create-staging-repository.outputs.repository_id }}' -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash
 
