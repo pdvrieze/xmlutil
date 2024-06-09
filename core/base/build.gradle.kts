@@ -40,6 +40,10 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
+base {
+    archivesName = "core"
+}
+
 config {
     applyLayout = false
 }

@@ -34,7 +34,7 @@ plugins {
 }
 
 base {
-    archivesName = "xmlutil"
+    archivesName = "compat"
 }
 
 val autoModuleName = "net.devrieze.xmlutil.core"
