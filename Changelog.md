@@ -1,3 +1,12 @@
+# 0.90.0-RC3
+- Fix issues with dependencies in new layout (#209) - XMPCore now
+  builds/resolves.
+
+# 0.90.0-RC2
+Fixes:
+- Fix multithreading initialization on JVM targets, serviceLoaders are
+  not thread-safe (#211). 
+
 # 0.90.0-RC1 – Supporting 2.0
 Changes:
 - Build with Kotlin 2.0.0
