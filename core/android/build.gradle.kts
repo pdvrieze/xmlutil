@@ -26,8 +26,6 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMEN
 plugins {
     id("projectPlugin")
     kotlin("jvm")
-    alias(libs.plugins.kotlinSerialization)
-    `java-library`
     `maven-publish`
     signing
     alias(libs.plugins.dokka)
@@ -39,7 +37,7 @@ base {
     archivesName = "core-android"
 }
 
-val autoModuleName = "net.devrieze.xmlutil.core"
+val autoModuleName = "net.devrieze.xmlutil.core.android"
 
 kotlin {
     explicitApi()
@@ -64,7 +62,7 @@ kotlin {
 
 dependencies {
     compileOnly(libs.kxml2)
-    api(project(":core:base"))
+    api(projects.core)
 
     testImplementation(kotlin("test-junit5"))
     testImplementation(libs.junit5.api)

@@ -115,7 +115,7 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                api(project(":core:base"))
+                api(projects.core)
 
                 api(libs.serialization.core)
             }
@@ -123,8 +123,8 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation(project(":serialutil"))
-                implementation(project(":testutil"))
+                implementation(projects.serialutil)
+                implementation(projects.testutil)
                 implementation(libs.serialization.json)
 
                 implementation(kotlin("test-common"))
@@ -141,12 +141,12 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                runtimeOnly(project(":core:jdk"))
+                runtimeOnly(projects.coreJdk)
             }
         }
         val commonJvmTest by getting {
             dependencies {
-                implementation(project(":core:jdk"))
+                implementation(projects.coreJdk)
             }
         }
         val commonJvmMain by getting {}
@@ -165,8 +165,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 compileOnly(libs.kxml2)
-                runtimeOnly(project(":core:android"))
-                api(project(":core:base")) {
+                runtimeOnly(projects.coreAndroid)
+                api(projects.core) {
                     attributes { attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm) }
                 }
             }
@@ -186,7 +186,7 @@ kotlin {
 
         val jsMain by getting {
             dependencies {
-                api(project(":core:base"))
+                api(projects.core)
             }
         }
 
@@ -201,7 +201,7 @@ kotlin {
         all {
             if (this.name == "nativeMain") {
                 dependencies {
-                    api(project(":core:base"))
+                    api(projects.core)
                 }
             }
             if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed

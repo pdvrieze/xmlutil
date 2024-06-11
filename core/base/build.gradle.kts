@@ -40,10 +40,6 @@ plugins {
     alias(libs.plugins.binaryValidator)
 }
 
-base {
-    archivesName = "core"
-}
-
 config {
     applyLayout = false
 }
@@ -122,12 +118,9 @@ kotlin {
     targets.all {
         val targetName = name
         mavenPublication {
-            val newId = when (targetName) {
-                "jvm" -> "core-jvmCommon"
-                else -> artifactId.replace("base", "core")
+            when (targetName) {
+                "jvm" -> artifactId = "core-jvmCommon"
             }
-            logger.lifecycle("Renamed artefact for $targetName from $artifactId to $newId")
-            artifactId = newId
         }
         @Suppress("OPT_IN_USAGE")
         when (val t = this) {
@@ -148,8 +141,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
-                implementation(project(":testutil"))
-                implementation(project(":serialization"))
+                implementation(projects.testutil)
+                implementation(projects.serialization)
             }
         }
 

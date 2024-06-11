@@ -79,7 +79,7 @@ repositories {
 ```
 
 ### Core
-#### multiplatform
+#### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
    implementation("io.github.pdvrieze.xmlutil:core:0.90.1-SNAPSHOT")
 ```
