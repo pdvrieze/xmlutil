@@ -50,12 +50,6 @@ kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
 
-    components.configureEach {
-        val c: SoftwareComponent = this
-
-        logger.lifecycle("Found component ${c.name}")
-    }
-
     val testTask = tasks.create("test") {
         group = "verification"
     }
@@ -63,13 +57,13 @@ kotlin {
         group = "verification"
     }
 
-    jvm {
+    jvm("jvmCommon") {
         compilations.all {
             tasks.named<Test>("${target.name}Test") {
                 testTask.dependsOn(this)
             }
             cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-            tasks.named<Jar>("jvmJar") {
+            tasks.named<Jar>("jvmCommonJar") {
                 manifest {
                     attributes("Automatic-Module-Name" to autoModuleName)
                 }
@@ -116,12 +110,6 @@ kotlin {
     }
 
     targets.all {
-        val targetName = name
-        mavenPublication {
-            when (targetName) {
-                "jvm" -> artifactId = "core-jvmCommon"
-            }
-        }
         @Suppress("OPT_IN_USAGE")
         when (val t = this) {
             is HasConfigurableKotlinCompilerOptions<*> -> t.compilerOptions {
@@ -146,7 +134,7 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        val jvmCommonTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
@@ -163,12 +151,6 @@ kotlin {
         }
     }
 
-}
-
-publishing {
-    publications.withType<MavenPublication>().named("kotlinMultiplatform") {
-        artifactId = "core-base"
-    }
 }
 
 addNativeTargets()

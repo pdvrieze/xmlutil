@@ -39,16 +39,8 @@ kotlin {
     explicitApi()
     applyDefaultXmlUtilHierarchyTemplate()
 
-    jvm("jdk") {
-        mavenPublication {
-            artifactId = "core-compat-jdk"
-        }
-    }
-    jvm("android") {
-        mavenPublication {
-            artifactId = "core-compat-android"
-        }
-    }
+    jvm("jdk")
+    jvm("android")
     js {
         browser()
     }
@@ -84,15 +76,5 @@ kotlin {
 }
 
 addNativeTargets()
-
-publishing {
-    publications.withType<MavenPublication>().named("kotlinMultiplatform") {
-        artifactId = "core"
-        components.named("kotlin") {
-            val c: ComponentWithVariants = this as ComponentWithVariants
-            logger.lifecycle("Found component \"kotlin\" with variants")
-        }
-    }
-}
 
 doPublish("compat")
