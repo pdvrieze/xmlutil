@@ -93,7 +93,7 @@ class ProjectPlugin: Plugin<Project> {
 
                         sourceSets.configureEach {
                             languageSettings {
-                                configureLanguageSettings()
+                                configureOptins()
                             }
                         }
                         target {
@@ -118,10 +118,12 @@ class ProjectPlugin: Plugin<Project> {
                         }
                         targets.configureEach {
                             val isJvm = this is KotlinJvmTarget
-                            sourceSets.configureEach {
-                                languageSettings {
-                                    configureLanguageSettings()
-                                    apiVersion = if (isJvm) "1.8" else "2.0"
+                            this.compilations.configureEach {
+                                compileTaskProvider.configure {
+                                    compilerOptions {
+                                        apiVersion = if (isJvm) KotlinVersion.KOTLIN_1_8 else KotlinVersion.KOTLIN_2_0
+                                        configureOptins()
+                                    }
                                 }
                             }
                             mavenPublication {
@@ -183,10 +185,15 @@ class ProjectPlugin: Plugin<Project> {
         }
     }
 
-    private fun LanguageSettingsBuilder.configureLanguageSettings() {
+    private fun LanguageSettingsBuilder.configureOptins() {
         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
         optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
 //        optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
+    }
+
+    private fun KotlinCommonCompilerOptions.configureOptins() {
+        optIn.add("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
+        optIn.add("nl.adaptivity.xmlutil.XmlUtilInternal")
     }
 }
 

@@ -33,7 +33,7 @@ import java.io.*
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
-import kotlin.concurrent.Volatile
+import kotlin.jvm.Volatile
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import java.io.Writer as JavaIoWriter
