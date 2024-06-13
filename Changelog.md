@@ -1,3 +1,15 @@
+# 0.90.0 2.0 will go
+*(June 13, 2024)
+Changes:
+- The core module no longer automatically includes Android/Jvm "native"
+  parsers by default, but uses the platform independent implementation.
+  The Android/Jvm native parsers are available by including "core-jvm"
+  and "core-android" packages. Note that serialization-jvm and
+  serialization-android do so already.
+- There is a coreCompat package that provides the original setup as
+  direct replacement for core. This is a temporary package that will
+  be removed at 1.0 release.
+
 # 0.90.0-RC3
 - Fix issues with dependencies in new layout (#209) - XMPCore now
   builds/resolves.
