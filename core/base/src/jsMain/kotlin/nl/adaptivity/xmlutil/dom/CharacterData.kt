@@ -39,5 +39,7 @@ public actual external interface CharacterData: Node {
     public actual fun replaceData(offset: Int, count: Int, data: String)
 }
 
+@Suppress("NOTHING_TO_INLINE")
 public actual inline fun CharacterData.getData(): String = data
+@Suppress("NOTHING_TO_INLINE")
 public actual inline fun CharacterData.setData(value: String) { data = value }

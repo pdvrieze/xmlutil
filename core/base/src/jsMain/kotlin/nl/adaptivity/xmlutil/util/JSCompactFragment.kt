@@ -133,6 +133,7 @@ public actual class CompactFragment : ICompactFragment {
 private val Any.prototype: dynamic
     get() {
 
+        @Suppress("NOTHING_TO_INLINE")
         inline fun prototype(o: dynamic): dynamic {
             return o.prototype
         }

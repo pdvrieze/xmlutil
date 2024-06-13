@@ -29,4 +29,5 @@ public actual external interface NodeList {
     public actual fun item(index: Int): Node?
 }
 
+@Suppress("NOTHING_TO_INLINE")
 public actual inline fun NodeList.getLength(): Int = length

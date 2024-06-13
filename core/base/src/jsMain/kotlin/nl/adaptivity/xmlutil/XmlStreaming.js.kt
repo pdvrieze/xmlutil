@@ -143,6 +143,8 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
     }
 
     override var indent: Int
+        @Suppress("DEPRECATION")
+        @Deprecated("Use indentString for better accuracy")
         get() = delegate.indent
         set(value) {
             delegate.indent = value
@@ -218,6 +220,8 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
     }
 
     override var indent: Int
+        @Suppress("DEPRECATION")
+        @Deprecated("Use indentString for better accuracy")
         get() = delegate.indent
         set(value) {
             delegate.indent = value

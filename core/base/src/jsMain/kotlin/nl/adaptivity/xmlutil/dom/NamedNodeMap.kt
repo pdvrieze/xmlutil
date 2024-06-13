@@ -32,4 +32,5 @@ public actual external interface NamedNodeMap {
 
 }
 
+@Suppress("NOTHING_TO_INLINE")
 public actual inline fun NamedNodeMap.getLength(): Int = asDynamic().length as Int

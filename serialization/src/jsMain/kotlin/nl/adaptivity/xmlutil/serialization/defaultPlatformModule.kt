@@ -26,4 +26,4 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
-public actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule
+public actual fun getPlatformDefaultModule(): SerializersModule = EmptySerializersModule()
