@@ -79,15 +79,19 @@ repositories {
 ```
 
 ### Core
+It should be noted that the JVM and Android packages are no longer part
+of the multiplatform publication (they are combined into a `jvmCommon`)
+package. The `JVM` and `Android` packages provide the native
+implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
    implementation("io.github.pdvrieze.xmlutil:core:0.90.0")
 ```
-#### JVM – uses the stax API _not available_ on Android
+#### **Optional** JVM – uses the stax API _not available_ on Android
 ```
    implementation("io.github.pdvrieze.xmlutil:core-jvm:0.90.0-RC3")
 ```
-#### Android – Uses the android streaming library
+#### **Optional** Android – Uses the android streaming library
 ```
    implementation("io.github.pdvrieze.xmlutil:core-android:0.90.0-RC3")
 ```
