@@ -34,6 +34,6 @@ base {
 val autoModuleName = "net.devrieze.serialexamples"
 
 dependencies {
-    implementation(project(":serialization"))
-    implementation(project(":serialutil"))
+    implementation(projects.serialization)
+    implementation(projects.serialutil)
 }

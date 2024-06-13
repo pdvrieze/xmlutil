@@ -99,7 +99,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":core:base")) // Don't add a runtime dep here
+                implementation(projects.core) // Don't add a runtime dep here
                 implementation(libs.serialization.core)
             }
         }

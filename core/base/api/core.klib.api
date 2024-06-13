@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <io.github.pdvrieze.xmlutil:base>
+// Library unique name: <io.github.pdvrieze.xmlutil:core>
 abstract class nl.adaptivity.xmlutil.util/XmlDelegatingWriter : nl.adaptivity.xmlutil/XmlDelegatingWriter { // nl.adaptivity.xmlutil.util/XmlDelegatingWriter|null[0]
     constructor <init>(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil.util/XmlDelegatingWriter.<init>|<init>(nl.adaptivity.xmlutil.XmlWriter){}[0]
 }

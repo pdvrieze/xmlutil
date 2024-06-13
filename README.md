@@ -79,9 +79,9 @@ repositories {
 ```
 
 ### Core
-#### multiplatform
+#### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:core:0.90.0")
 ```
 #### JVM – uses the stax API _not available_ on Android
 ```
@@ -93,7 +93,7 @@ repositories {
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.90.0-RC1")
 ```
 
 #### Native
@@ -104,19 +104,19 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.90.0")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.90.0")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.90.0")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.90.0")
 ```
 
 ### -Ktor- (Deprecated)

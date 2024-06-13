@@ -33,48 +33,19 @@ plugins {
     idea
 }
 
-base {
-    archivesName = "compat"
-}
-
-val autoModuleName = "net.devrieze.xmlutil.core"
+val autoModuleName = "net.devrieze.xmlutil.core.compat"
 
 kotlin {
     explicitApi()
     applyDefaultXmlUtilHierarchyTemplate()
 
-    val testTask = tasks.create("test") {
-        group = "verification"
-    }
-    val cleanTestTask = tasks.create("cleanTest") {
-        group = "verification"
-    }
-
-    jvm("jdk") {
-        mavenPublication {
-            artifactId = "compat-jdk"
-        }
-    }
-    jvm("android") {
-        mavenPublication {
-            artifactId = "compat-android"
-        }
-    }
+    jvm("jdk")
+    jvm("android")
     js {
         browser()
     }
 
     targets.all {
-        val targetName = name
-        mavenPublication {
-            when (targetName) {
-                "android" -> artifactId = "core-android"
-                "jdk" -> artifactId = "core-jvm"
-                else -> {
-                    artifactId = artifactId.replace("core", "compat")
-                }
-            }
-        }
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         if (this is HasConfigurableKotlinCompilerOptions<*>) {
             compilerOptions {
@@ -86,19 +57,19 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":core:base"))
+                api(projects.core)
             }
         }
 
         val jdkMain by getting {
             dependencies {
-                api(project(":core:jdk"))
+                api(projects.coreJdk)
             }
         }
 
         val androidMain by getting {
             dependencies {
-                api(project(":core:android"))
+                api(projects.coreAndroid)
             }
         }
     }
@@ -106,10 +77,4 @@ kotlin {
 
 addNativeTargets()
 
-publishing {
-    publications.withType<MavenPublication>().named("kotlinMultiplatform") {
-        artifactId = "core"
-    }
-}
-
-doPublish("core")
+doPublish("compat")

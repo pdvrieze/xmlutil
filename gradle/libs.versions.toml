@@ -8,7 +8,7 @@ kotlin = "2.0.0"
 kotlinx-serialization = "1.7.0"
 kxml2 = "2.3.0"
 woodstox = "6.6.2"
-xmlutil = "0.90.0-RC3"
+xmlutil = "0.90.0"
 
 [libraries]
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }

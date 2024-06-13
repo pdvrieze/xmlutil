@@ -58,10 +58,10 @@ kotlin {
 }
 
 dependencies {
-    api(project(":core:base"))
+    api(projects.core)
 
-    testImplementation(project(":testutil"))
-    testImplementation(project(":serialization"))
+    testImplementation(projects.testutil)
+    testImplementation(projects.serialization)
     testImplementation(kotlin("test-junit5"))
     testImplementation(libs.junit5.api)
 

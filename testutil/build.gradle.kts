@@ -66,7 +66,7 @@ kotlin {
             dependencies {
                 api(libs.serialization.core)
                 api(kotlin("test"))
-                api(project(":core:base"))
+                api(projects.core)
 
             }
         }
