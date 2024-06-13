@@ -18,6 +18,9 @@
  * under the License.
  */
 
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import kotlinx.validation.ExperimentalBCVApi
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -154,6 +157,7 @@ kotlin {
 }
 
 apiValidation {
+    @OptIn(ExperimentalBCVApi::class)
     klib {
         enabled = true
     }

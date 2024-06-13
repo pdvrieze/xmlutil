@@ -18,6 +18,8 @@
  * under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xmlutil.xmlserializable
 
 import nl.adaptivity.xmlutil.XmlDeserializerFactory

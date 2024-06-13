@@ -20,8 +20,6 @@
 
 package nl.adaptivity.xmlutil.dom
 
-@Suppress("DEPRECATION")
 internal actual fun Node.asAttr(): Attr = this as Attr
 
-@Suppress("DEPRECATION")
 internal actual fun Node.asElement(): Element = this as Element

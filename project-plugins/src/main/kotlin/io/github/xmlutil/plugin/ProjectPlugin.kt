@@ -122,7 +122,6 @@ class ProjectPlugin: Plugin<Project> {
                                 compileTaskProvider.configure {
                                     compilerOptions {
                                         apiVersion = if (isJvm) KotlinVersion.KOTLIN_1_8 else KotlinVersion.KOTLIN_2_0
-                                        configureOptins()
                                     }
                                 }
                             }
@@ -178,6 +177,7 @@ class ProjectPlugin: Plugin<Project> {
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
         progressiveMode = true
         languageVersion = KotlinVersion.KOTLIN_2_0
+        configureOptins()
         if (this is KotlinJvmCompilerOptions) {
             project.logger.info("Setting common compilation options for $name")
             jvmTarget = JvmTarget.JVM_1_8
@@ -188,12 +188,13 @@ class ProjectPlugin: Plugin<Project> {
     private fun LanguageSettingsBuilder.configureOptins() {
         optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
         optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-//        optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
+        optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
     }
 
     private fun KotlinCommonCompilerOptions.configureOptins() {
         optIn.add("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
         optIn.add("nl.adaptivity.xmlutil.XmlUtilInternal")
+        optIn.add("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
     }
 }
 

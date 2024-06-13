@@ -36,9 +36,10 @@ import nl.adaptivity.xmlutil.util.ICompactFragment
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @Deprecated("Use serializer member",
-    ReplaceWith("CompactFragment.serializer()", "nl.adaptivity.xmlutil.util.CompactFragment")
+    ReplaceWith("CompactFragment.serializer()", "nl.adaptivity.xmlutil.util.CompactFragment"),
+    level = DeprecationLevel.HIDDEN
 )
-public inline fun CompactFragment.Companion.serializer(): KSerializer<CompactFragment> =
+public fun CompactFragment.Companion.serializer(): KSerializer<CompactFragment> =
     serializer()
 
 @Deprecated("Use the serializer defined in the core module",

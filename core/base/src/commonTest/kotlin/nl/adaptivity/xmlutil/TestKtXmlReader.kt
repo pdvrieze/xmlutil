@@ -29,7 +29,7 @@ import kotlin.test.Test
 class TestKtXmlReader : TestCommonReader() {
 
     private fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
-    
+
     @Test
     fun testReadCompactFragmentWithNamespaceInOuter() {
         testReadCompactFragmentWithNamespaceInOuter(::createReader)
@@ -86,18 +86,19 @@ class TestKtXmlReader : TestCommonReader() {
                 <?xpacket end='w'?>
             """
         val expected = xmlStreaming.newReader(expectedXml)
-        assertXmlEquals(expected, DomReader(domWriter.target))
+        val actual = xmlStreaming.newReader(domWriter.target)
+        assertXmlEquals(expected, actual)
 
         val fromDom = StringWriter()
         KtXmlWriter(fromDom).use { writer ->
-            DomReader(domWriter.target).use { reader ->
-                while(reader.hasNext()) {
+            xmlStreaming.newReader(domWriter.target).use { reader ->
+                while (reader.hasNext()) {
                     reader.next()
                     reader.writeCurrent(writer)
                 }
             }
         }
-         assertXmlEquals(expectedXml, fromDom.toString())
+        assertXmlEquals(expectedXml, fromDom.toString())
     }
 
     @Test

@@ -29,5 +29,5 @@ public fun XmlWriter.writeChild(node: Node) {
 }
 
 public fun XmlWriter.serialize(node: Node) {
-    serialize(DomReader(node))
+    serialize(xmlStreaming.newReader(node))
 }

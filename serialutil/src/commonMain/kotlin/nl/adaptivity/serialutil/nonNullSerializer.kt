@@ -136,11 +136,12 @@ private class SerializerCanary : Decoder {
         return super.decodeNullableSerializableValue(deserializer)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         check(serializer == null) { "serializer already set" }
         if (deserializer.descriptor.isNullable) {
             deserializer.deserialize(this)
-            check(serializer != null) { "This should have " }
+            check(serializer != null) { "This should have set the serializer" }
         } else {
             serializer = deserializer as KSerializer<*>
             throw FinishedException()

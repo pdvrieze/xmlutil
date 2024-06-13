@@ -508,7 +508,7 @@ private constructor(
 }
 
 @ExperimentalXmlUtilApi
-internal inline fun NonRecoveryUnknownChildHandler.asRecoverable(): UnknownChildHandler {
+internal fun NonRecoveryUnknownChildHandler.asRecoverable(): UnknownChildHandler {
     return UnknownChildHandler { input, inputKind, _, name, candidates ->
         this(input, inputKind, name, candidates)
         emptyList()

@@ -26,11 +26,11 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 public class OrderMatrix(public val size: Int) {
     private val data: BooleanArray = BooleanArray(size*size)
 
-    private inline operator fun BooleanArray.get(x: Int, y: Int): Boolean {
+    private operator fun BooleanArray.get(x: Int, y: Int): Boolean {
         return this[x + (y * this@OrderMatrix.size)]
     }
 
-    private inline operator fun BooleanArray.set(x: Int, y: Int, value: Boolean) {
+    private operator fun BooleanArray.set(x: Int, y: Int, value: Boolean) {
         this[x + (y * this@OrderMatrix.size)] = value
     }
 

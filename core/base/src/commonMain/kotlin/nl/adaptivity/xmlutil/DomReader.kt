@@ -38,7 +38,7 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
  *
  * @author Created by pdvrieze on 22/03/17.
  */
-@Deprecated("Don't use directly. Instead create an instance through xmlStreaming")
+@Deprecated("Don't use directly. Instead create an instance through xmlStreaming", ReplaceWith("xmlStreaming.newReader(delegate)", "nl.adaptivity.xmlutil.xmlStreaming"))
 @XmlUtilDeprecatedInternal
 public class DomReader(public val delegate: Node2) : XmlReader {
 

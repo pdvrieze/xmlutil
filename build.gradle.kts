@@ -52,8 +52,8 @@ plugins.withType<NodeJsRootPlugin> {
     extensions.configure<NodeJsRootExtension> {
 //        nodeVersion = "21.2.0"
         // This version is needed to be able to use/test/run the latest wasm opcodes
-        nodeVersion = "21.0.0-v8-canary202309143a48826a08"
-        nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+//        version = "21.0.0-v8-canary202309143a48826a08"
+//        downloadBaseUrl = "https://nodejs.org/download/v8-canary"
     }
 }
 

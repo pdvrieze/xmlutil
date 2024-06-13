@@ -126,6 +126,7 @@ private class ChildSerializerCanary(val index: Int, override val serializersModu
         return super.decodeNullableSerializableValue(deserializer)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         check(serializer == null) { "serializer already set" }
         if (deserializer.descriptor.isNullable) {

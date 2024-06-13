@@ -25,7 +25,7 @@ public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer
 }
 
 public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializerKt {
-	public static final fun serializer (Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;)Lkotlinx/serialization/KSerializer;
+	public static final synthetic fun serializer (Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;)Lkotlinx/serialization/KSerializer;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {

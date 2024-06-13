@@ -44,6 +44,7 @@ public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.Te
 
     @get:Suppress("OverridingDeprecatedMember")
     override var indent: Int
+        @Deprecated("Use indentString for better accuracy")
         get() = indentSequence.sumOf {
             when (it.eventType) {
                 EventType.COMMENT -> 7 + it.text.length

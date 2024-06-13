@@ -19,6 +19,7 @@
  */
 
 @file:OptIn(WillBePrivate::class)
+@file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil.serialization.structure
 
@@ -40,7 +41,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.serialization.impl.OrderMatrix
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
+import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.reflect.KClass
+import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
 @ExperimentalXmlUtilApi
@@ -841,7 +844,11 @@ internal constructor(
 
         if (valueChildIndex >= 0) {
             val valueChild = l[valueChildIndex]
-            if (valueChild.serialKind != StructureKind.LIST || valueChild.getElementDescriptor(0).serialDescriptor != CompactFragmentSerializer.descriptor) {
+            if (valueChild.serialKind != StructureKind.LIST ||
+                valueChild.getElementDescriptor(0).serialDescriptor.let {
+                    @Suppress("DEPRECATION")
+                    it != DeprecatedCompactFragmentSerializer.descriptor && it != CompactFragmentSerializer.descriptor
+                }) {
                 val invalidIdx = l.indices
                     .firstOrNull { idx -> idx != valueChildIndex && l[idx].outputKind == OutputKind.Element }
                 if (invalidIdx != null) {
@@ -1738,6 +1745,7 @@ internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getXmlOverride() = when {
     this is XmlSerialDescriptor -> xmlDescriptor
     isNullable && annotations.any { it is XmlSerialDescriptorMarker } -> getElementDescriptor(-1).nullable

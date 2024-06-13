@@ -61,11 +61,12 @@ public actual interface XmlStreamingFactory {
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter
 
-    @Deprecated("Use version with xmlDeclMode")
+    @Suppress("DEPRECATION")
+    @Deprecated("Usage of results only works on the JVM")
     public fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
         newWriter(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
-    @Deprecated("Usage of results is deprecated")
+    @Deprecated("Usage of results only works on the JVM")
     public fun newWriter(
         result: Result,
         repairNamespaces: Boolean = false,

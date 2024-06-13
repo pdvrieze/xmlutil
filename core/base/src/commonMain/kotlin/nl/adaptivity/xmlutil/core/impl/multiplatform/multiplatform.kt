@@ -59,8 +59,8 @@ public expect val KClass<*>.maybeAnnotations: List<Annotation>
 public expect abstract class Writer : Appendable {
     public open fun write(text: String)
     open override fun append(value: CharSequence?): Appendable
-    abstract open override fun append(value: Char): Appendable
-    abstract open override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
+    abstract override fun append(value: Char): Appendable
+    abstract override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable
     public open fun flush()
 }
 
@@ -85,7 +85,7 @@ public expect abstract class OutputStream : Closeable {
 @XmlUtilInternal
 public expect abstract class Reader {
     public open fun read(): Int
-    public open abstract fun read(buf: CharArray, offset: Int, len: Int): Int
+    public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
 }
 
 @XmlUtilInternal
@@ -94,7 +94,7 @@ public expect abstract class InputStream : Closeable {
 
     public open fun read(b: ByteArray): Int
     public abstract fun read(): Int
-    public open override fun close()
+    public override fun close()
 }
 
 @XmlUtilInternal

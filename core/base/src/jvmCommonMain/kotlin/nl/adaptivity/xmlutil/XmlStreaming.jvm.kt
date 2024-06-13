@@ -36,6 +36,7 @@ import javax.xml.transform.Source
 import kotlin.jvm.Volatile
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
+import org.w3c.dom.Node as DomNode
 import java.io.Writer as JavaIoWriter
 
 @Deprecated(
@@ -317,6 +318,10 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 @Suppress("DEPRECATION")
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
+
+public fun IXmlStreaming.newReader(node: DomNode): XmlReader {
+    return DomReader(node)
+}
 
 @Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(

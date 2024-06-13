@@ -142,7 +142,10 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
 
     /** Get some information on the current location in the file. This is implementation dependent.  */
-    @Deprecated("Use extLocationInfo as that allows more detailed information", ReplaceWith("extLocationInfo?.toString()"))
+    @Deprecated(
+        "Use extLocationInfo as that allows more detailed information",
+        ReplaceWith("extLocationInfo?.toString()")
+    )
     public val locationInfo: String?
 
     @Suppress("DEPRECATION")
@@ -159,7 +162,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public interface LocationInfo
 
-    public class StringLocationInfo(private val str: String): LocationInfo {
+    public class StringLocationInfo(private val str: String) : LocationInfo {
         override fun toString(): String = str
     }
 
@@ -301,10 +304,13 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     }
                     append(t.text)
                 }
+
                 EventType.START_ELEMENT
                 -> {
                     // If we have text we will actually not ignore the whitespace
-                    if (isNotEmpty()) { append(whiteSpace); whiteSpace.clear() }
+                    if (isNotEmpty()) {
+                        append(whiteSpace); whiteSpace.clear()
+                    }
                     // don't progress the event either
                     break@loop
                 }
@@ -428,6 +434,7 @@ public fun XmlReader.isIgnorable(): Boolean = when (eventType) {
     EventType.PROCESSING_INSTRUCTION,
     EventType.DOCDECL,
     EventType.IGNORABLE_WHITESPACE -> true
+
     EventType.TEXT -> isXmlWhitespace(text)
     else -> false
 }
