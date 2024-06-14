@@ -166,9 +166,6 @@ kotlin {
             dependencies {
                 compileOnly(libs.kxml2)
                 runtimeOnly(projects.coreAndroid)
-                api(projects.core) {
-                    attributes { attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm) }
-                }
             }
         }
 
