@@ -85,19 +85,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.90.0")
+   implementation("io.github.pdvrieze.xmlutil:core:0.90.1")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.90.1-RC3")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.90.0-RC3")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.90.1-RC3")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.90.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.90.1-RC1")
 ```
 
 #### Native
@@ -108,19 +108,19 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.90.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.90.1")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.90.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.90.1")
 ```
 #### Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.90.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.90.1")
 ```
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.90.0")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.90.1")
 ```
 
 ### -Ktor- (Deprecated)

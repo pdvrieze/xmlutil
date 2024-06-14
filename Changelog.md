@@ -1,3 +1,6 @@
+# 0.90.1 Fix Android
+- Fix android plugin dependency.
+
 # 0.90.0 2.0 will go
 *(June 13, 2024)
 Changes:
