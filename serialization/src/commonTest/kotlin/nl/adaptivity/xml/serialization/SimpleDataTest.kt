@@ -65,10 +65,12 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
         var ignoredName: QName? = null
         var ignoredKind: InputKind? = null
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { _, inputKind, _, name, _ ->
-                ignoredName = name
-                ignoredKind = inputKind
-                emptyList()
+            defaultPolicy {
+                unknownChildHandler = UnknownChildHandler { _, inputKind, _, name, _ ->
+                    ignoredName = name
+                    ignoredKind = inputKind
+                    emptyList()
+                }
             }
         }
         assertEquals(value, xml.decodeFromString(serializer, unknownValues))

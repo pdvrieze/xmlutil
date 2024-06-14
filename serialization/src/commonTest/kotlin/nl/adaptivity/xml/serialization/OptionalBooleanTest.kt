@@ -71,12 +71,14 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
         var ignoredDescriptor: XmlDescriptor? = null
         var ignoredCandidates: Collection<Any>? = null
         val xml = XML {
-            unknownChildHandler = UnknownChildHandler { _, inputKind, descriptor, name, candidates ->
-                ignoredName = name
-                ignoredKind = inputKind
-                ignoredDescriptor = descriptor
-                ignoredCandidates = candidates
-                emptyList()
+            defaultPolicy {
+                unknownChildHandler = UnknownChildHandler { _, inputKind, descriptor, name, candidates ->
+                    ignoredName = name
+                    ignoredKind = inputKind
+                    ignoredDescriptor = descriptor
+                    ignoredCandidates = candidates
+                    emptyList()
+                }
             }
         }
         assertEquals(value, xml.decodeFromString(serializer, noisyXml))

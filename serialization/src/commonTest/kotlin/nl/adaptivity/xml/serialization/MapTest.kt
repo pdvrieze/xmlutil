@@ -73,7 +73,7 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
         assertEquals(value, xml.decodeFromString(serializer, serialized))
     }
 
-    @OptIn(ExperimentalXmlUtilApi::class)
+    @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
     @Test
     fun testSerializeNotEludingList() {
         val xml = baseXmlFormat.copy {

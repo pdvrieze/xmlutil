@@ -59,7 +59,7 @@ class SmallTests {
                 indent = 4
                 xmlDeclMode = XmlDeclMode.Charset
                 xmlVersion = XmlVersion.XML10
-                policy = object : DefaultXmlSerializationPolicy(pedantic = true, throwOnRepeatedElement = true) {
+                policy = object : DefaultXmlSerializationPolicy(Builder().apply { pedantic = true; throwOnRepeatedElement = true }) {
                     override fun effectiveOutputKind(
                         serializerParent: SafeParentInfo,
                         tagParent: SafeParentInfo,
