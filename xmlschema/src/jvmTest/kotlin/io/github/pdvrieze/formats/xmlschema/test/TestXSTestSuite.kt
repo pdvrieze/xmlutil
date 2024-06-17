@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
@@ -53,6 +54,57 @@ class TestXSTestSuite {
             autoPolymorphic = true
             throwOnRepeatedElement = true
         }
+    }
+
+    @Test
+    fun testParseSpeed() {
+        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
+
+        val override = javaClass.getResource("/override.xml").withXmlReader {
+            val compact = XML { recommended() }.decodeFromReader<CompactOverride>(it)
+            OTSSuite(compact)
+        }
+
+        val nodes = mutableListOf<DynamicNode>()
+        val schemaUrls: List<Pair<URI, URI>> = suiteURL.withXmlReader { xmlReader ->
+            val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
+            suite.testSetRefs
+//                .filter { arrayOf("sunMeta/").any { m -> it.href.contains(m) } }
+                .flatMap { setRef ->
+                val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
+                val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
+
+                val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
+
+                val tsName = "$folderName - ${testSet.name}"
+
+                testSet.testGroups.flatMap { gr ->
+                    gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.mapNotNull { sd ->
+                        (setBaseUrl to setBaseUrl.resolve(sd.href))
+                    } ?: emptyList()
+                }
+            }
+        }
+        var startTime = System.currentTimeMillis()
+        val iterCount = 0
+        for (i in 0 .. iterCount) {
+            if (i==1) startTime = System.currentTimeMillis()
+            for ((setBaseUri, uri) in schemaUrls) {
+                uri.toURL().openStream().use {
+                    val resolver = SimpleResolver(setBaseUri)
+
+                    try {
+                        val schema = resolver.readSchema(VAnyURI.Serializer.invoke(uri.toString()))
+                    } catch (e: Exception) {
+                        System.err.println("Failure to read schema: $uri \n${e.message?.prependIndent("        ")}")
+                    }
+                }
+            }
+        }
+        val endTime = System.currentTimeMillis()
+        val duration = (endTime-startTime)/iterCount.coerceAtLeast(1)
+        println("Duration time (${schemaUrls.size} documents): $duration ms")
+        assertTrue(duration<10000, "Duration expected less than 10 seconds" )
     }
 
     @DisplayName("Test suites: suite.xml")
@@ -89,7 +141,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (true || group.name.equals("id040")) {
+                            if (true || group.name.equals("addB182")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(setBaseUrl, group, testSet.schemaVersion?.let(::listOf))
                                 }
