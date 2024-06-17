@@ -1730,19 +1730,16 @@ public class ParentInfo(
         }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val elementSerialDescriptor: SerialDescriptor
-        get() {
-            return when {
-                overriddenSerializer != null -> overriddenSerializer.descriptor.getXmlOverride()
+    override val elementSerialDescriptor: SerialDescriptor = when {
+        overriddenSerializer != null -> overriddenSerializer.descriptor.getXmlOverride()
 
-                descriptor.serialKind == SerialKind.CONTEXTUAL ->
-                    descriptor.serialDescriptor
+        descriptor.serialKind == SerialKind.CONTEXTUAL ->
+            descriptor.serialDescriptor
 
-                index == -1 -> descriptor.serialDescriptor
+        index == -1 -> descriptor.serialDescriptor
 
-                else -> descriptor.serialDescriptor.getElementDescriptor(index).getXmlOverride()
-            }
-        }
+        else -> descriptor.serialDescriptor.getElementDescriptor(index).getXmlOverride()
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
     override val elementUseOutputKind: OutputKind? = useOutputKind ?: when (index) {
