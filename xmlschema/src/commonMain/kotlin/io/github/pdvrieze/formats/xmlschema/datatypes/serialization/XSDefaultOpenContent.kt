@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("defaultOpenContent", XSD_NS_URI, XSD_PREFIX)
 class XSDefaultOpenContent : XSOpenContentBase {
     @SerialName("appliesToEmpty")
-    private val _appliesToEmpty: VBoolean
+    private var _appliesToEmpty: VBoolean = VBoolean.FALSE
 
     val appliesToEmpty: Boolean get() = _appliesToEmpty.value
 
