@@ -224,7 +224,7 @@ class ResolvedGlobalElement private constructor(
                 }
 
                 elemPart.elem.type != null -> when (val t = schema.maybeType(elemPart.elem.type)) { // otherwise look up the type
-                    null -> Result.failure(NoSuchElementException("No type with name '$elemPart.elem.type' found"))
+                    null -> Result.failure(NoSuchElementException("No type with name '${elemPart.elem.type}' found"))
                     else -> Result.success(t)
                 }
 
