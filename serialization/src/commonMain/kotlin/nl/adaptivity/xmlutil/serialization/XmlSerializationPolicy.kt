@@ -663,16 +663,18 @@ private constructor(
     override fun overrideSerializerOrNull(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-    ): KSerializer<*>? =
-        when (serializerParent.elementSerialDescriptor.serialName) {
+    ): KSerializer<*>? {
+        val elementSerialDescriptor = serializerParent.elementSerialDescriptor
+        return when (elementSerialDescriptor.serialName) {
             "javax.xml.namespace.QName?",
             "javax.xml.namespace.QName" -> when {
-                serializerParent.elementSerialDescriptor.isNullable -> QNameSerializer.nullable
+                elementSerialDescriptor.isNullable -> QNameSerializer.nullable
                 else -> QNameSerializer
             }
 
             else -> null
         }
+    }
 
     /**
      * Default implementation that uses [XmlBefore] and [XmlAfter]. It does
