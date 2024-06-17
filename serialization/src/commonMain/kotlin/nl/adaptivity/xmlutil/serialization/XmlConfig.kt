@@ -189,6 +189,8 @@ private constructor(
     public val omitXmlDecl: Boolean
         get() = xmlDeclMode == XmlDeclMode.None
 
+    public val formatCache: FormatCache = (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: FormatCache()
+
     /**
      * Configuration for the xml parser.
      *

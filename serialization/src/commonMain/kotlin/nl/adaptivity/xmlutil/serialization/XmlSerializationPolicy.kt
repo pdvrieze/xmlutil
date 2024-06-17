@@ -325,6 +325,7 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  */
 public open class DefaultXmlSerializationPolicy
 private constructor(
+    internal val formatCache: FormatCache,
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean,
     public val encodeDefault: XmlEncodeDefault,
@@ -351,6 +352,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
+        formatCache = FormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -415,6 +417,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
+        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: FormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -433,7 +436,11 @@ private constructor(
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
-    protected constructor(builder: Builder) : this(
+    @Deprecated("Use version that takes a FormatCache parameter")
+    protected constructor(builder: Builder) : this(FormatCache(), builder)
+
+    protected constructor(formatCache: FormatCache, builder: Builder): this(
+        formatCache = formatCache,
         pedantic = builder.pedantic,
         autoPolymorphic = builder.autoPolymorphic,
         encodeDefault = builder.encodeDefault,
@@ -446,7 +453,10 @@ private constructor(
         isStrictOtherAttributes = builder.isStrictOtherAttributes
     )
 
-    public constructor(config: Builder.() -> Unit) : this(Builder().apply(config))
+    @Deprecated("Use version that takes a FormatCache parameter")
+    public constructor(config: Builder.() -> Unit) : this(FormatCache(), config)
+
+    public constructor(formatCache: FormatCache, config: Builder.() -> Unit) : this(formatCache, Builder().apply(config))
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
         return typeDiscriminatorName
@@ -778,7 +788,7 @@ private constructor(
         val keyUseName = mapKeyName(mapParent)
 
         val pseudoKeyParent =
-            InjectedParentTag(0, XmlTypeDescriptor(keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
+            InjectedParentTag(0, XmlTypeDescriptor(FormatCache(), keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
         val keyEffectiveOutputKind = effectiveOutputKind(pseudoKeyParent, pseudoKeyParent, true)
         if (!keyEffectiveOutputKind.isTextual) return false
 

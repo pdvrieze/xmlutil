@@ -24,10 +24,15 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.FormatCache
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.toNamespace
 
-public class XmlTypeDescriptor internal constructor(public val serialDescriptor: SerialDescriptor, parentNamespace: Namespace?) {
+public class XmlTypeDescriptor internal constructor(
+    cache: FormatCache,
+    public val serialDescriptor: SerialDescriptor,
+    parentNamespace: Namespace?
+) {
 
     @OptIn(ExperimentalSerializationApi::class)
     public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace)
@@ -65,9 +70,15 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     private val children by lazy {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) { idx ->
-            XmlTypeDescriptor(serialDescriptor.getElementDescriptor(idx).getXmlOverride(), typeQname?.toNamespace() ?: parentNamespace)
+            val desc = serialDescriptor.getElementDescriptor(idx).getXmlOverride()
+            val ns = typeQname?.toNamespace() ?: parentNamespace
+            cache.lookupType(ns, desc) {
+                XmlTypeDescriptor(cache, desc, ns)
+            }
         }
     }
 
-
+    override fun toString(): String {
+        return "TypeDescriptor($typeQname, ${serialDescriptor.kind})"
+    }
 }
