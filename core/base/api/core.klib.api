@@ -1005,6 +1005,7 @@ final enum class nl.adaptivity.xmlutil/XmlDeclMode : kotlin/Enum<nl.adaptivity.x
     enum entry None // nl.adaptivity.xmlutil/XmlDeclMode.None|null[0]
     final fun valueOf(kotlin/String): nl.adaptivity.xmlutil/XmlDeclMode // nl.adaptivity.xmlutil/XmlDeclMode.valueOf|valueOf#static(kotlin.String){}[0]
     final fun values(): kotlin/Array<nl.adaptivity.xmlutil/XmlDeclMode> // nl.adaptivity.xmlutil/XmlDeclMode.values|values#static(){}[0]
+    final object Companion // nl.adaptivity.xmlutil/XmlDeclMode.Companion|null[0]
     final val entries // nl.adaptivity.xmlutil/XmlDeclMode.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil/XmlDeclMode> // nl.adaptivity.xmlutil/XmlDeclMode.entries.<get-entries>|<get-entries>#static(){}[0]
 }

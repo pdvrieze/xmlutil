@@ -1,3 +1,9 @@
+#0.90.2
+Fixes:
+- Don't make the companion of `XmlDeclMode` internal (#219). This is a
+  workaround for a regresion in 2.0 that doesn't allow resolving enum
+  constants in this case.
+
 # 0.90.0 2.0 will go
 *(June 13, 2024)
 Changes:
