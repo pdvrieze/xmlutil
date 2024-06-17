@@ -20,10 +20,12 @@
 
 @file:Suppress("PropertyName")
 
-import net.devrieze.gradle.ext.*
+import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
+import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     id("projectPlugin")
@@ -104,12 +106,13 @@ kotlin {
     }
 }
 
-addNativeTargets()
+addNativeTargets(includeWasm = false, includeWasi = false)
 
 doPublish()
 
 config {
     dokkaModuleName = "xmlschema"
+    kotlinApiVersion = KotlinVersion.KOTLIN_2_0
 }
 
 idea {
