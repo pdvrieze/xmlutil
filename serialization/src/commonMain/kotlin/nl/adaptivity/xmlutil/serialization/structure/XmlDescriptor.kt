@@ -1723,11 +1723,10 @@ public class ParentInfo(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val elementUseAnnotations: Collection<Annotation>
-        get() = when (index) {
-            -1 -> emptyList()
-            else -> descriptor.serialDescriptor.getElementAnnotations(index)
-        }
+    override val elementUseAnnotations: Collection<Annotation> = when (index) {
+        -1 -> emptyList()
+        else -> descriptor.serialDescriptor.getElementAnnotations(index)
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
     override val elementSerialDescriptor: SerialDescriptor = when {
