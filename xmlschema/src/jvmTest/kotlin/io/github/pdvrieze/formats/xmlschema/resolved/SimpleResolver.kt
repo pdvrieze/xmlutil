@@ -36,6 +36,16 @@ import java.net.URL
 
 internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
     ResolvedSchema.Resolver {
+    private val xml = XML {
+        defaultPolicy {
+            autoPolymorphic = true
+            throwOnRepeatedElement = true
+            verifyElementOrder = true
+            isStrictAttributeNames = true
+        }
+    }
+
+
     override val baseUri: VAnyURI
         get() = baseURI.toASCIIString().toAnyUri()
 
@@ -48,27 +58,13 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
         ) {
             when (schemaLocation.value) {
                 "http://www.w3.org/XML/2008/06/xlink.xsd" -> return baseURI.resolve("/xlink.xsd").withXmlReader { reader ->
-                    XML {
-                        defaultPolicy {
-                            autoPolymorphic = true
-                            throwOnRepeatedElement = true
-                            verifyElementOrder = true
-                            isStrictAttributeNames = true
-                        }
-                    }.decodeFromReader<XSSchema>(reader)
+                    xml.decodeFromReader<XSSchema>(reader)
                 }
                 else -> throw FileNotFoundException("Absolute uri references are not supported ${schemaLocation}")
             }
         }
         return baseURI.resolve(schemaUri).withXmlReader { reader ->
-            XML {
-                defaultPolicy {
-                    autoPolymorphic = true
-                    throwOnRepeatedElement = true
-                    verifyElementOrder = true
-                    isStrictAttributeNames = true
-                }
-            }.decodeFromReader<XSSchema>(reader)
+            xml.decodeFromReader<XSSchema>(reader)
         }
     }
 
@@ -82,14 +78,7 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
             if (schemaUri.scheme == "file") throw FileNotFoundException("Absolute file uri references are not supported")
             when (schemaLocation.value) {
                 "http://www.w3.org/XML/2008/06/xlink.xsd" -> return javaClass.classLoader.getResourceAsStream("xlink.xsd").withXmlReader { reader ->
-                    XML {
-                        defaultPolicy {
-                            autoPolymorphic = true
-                            throwOnRepeatedElement = true
-                            verifyElementOrder = true
-                            isStrictAttributeNames = true
-                        }
-                    }.decodeFromReader<XSSchema>(reader)
+                    xml.decodeFromReader<XSSchema>(reader)
                 }
                 else -> return null
             }
@@ -101,14 +90,7 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
         }
 
         return stream.withXmlReader { reader ->
-            XML {
-                defaultPolicy {
-                    autoPolymorphic = true
-                    throwOnRepeatedElement = true
-                    verifyElementOrder = true
-                    isStrictAttributeNames = true
-                }
-            }.decodeFromReader<XSSchema>(reader)
+            xml.decodeFromReader<XSSchema>(reader)
         }
     }
 
