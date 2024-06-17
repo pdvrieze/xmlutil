@@ -67,16 +67,10 @@ public class FormatCache {
 
     internal inline fun lookupType(name: QName, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
         return when (kind) {
-
             StructureKind.MAP,
             StructureKind.LIST -> defaultValue()
-            else -> {
-                val expected = defaultValue()
-        //        return defaultValue()
-                val actual =  cache.getOrPut(name, defaultValue)
-                check(expected == actual) { "Cache mismatch for $name: ${expected}!=${actual}"}
-                return actual
-            }
+
+            else -> cache.getOrPut(name, defaultValue)
         }
     }
 }
