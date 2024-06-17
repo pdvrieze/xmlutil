@@ -46,6 +46,9 @@
   <test path="MS-Additional2006-07-15/addB194/addB194">
     <expected validity="invalid" annotation="This contains a non-deterministic choice group"/>
   </test>
+  <test path="MS-Additional2006-07-15/addB182/addB182">
+    <expected validity="indeterminate" annotation="Targets xmlschema namespace but also imports string"/>
+  </test>
   <test path="MS-SimpleType2006-07-15/stZ007/stZ007">
     <expected validity="invalid" version="1.1" exception="IllegalArgumentException" message="Complex type with simple content may not be a restriction of special types"/>
   </test>
