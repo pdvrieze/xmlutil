@@ -118,7 +118,6 @@ public enum class XmlDeclMode {
     /** Emit an xml declaration that includes the character set. */
     Charset;
 
-    @XmlUtilInternal
     public companion object {
         @XmlUtilInternal
         public fun from(value: Boolean): XmlDeclMode = when (value) {

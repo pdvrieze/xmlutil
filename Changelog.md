@@ -1,3 +1,7 @@
+#0.90.2
+Fixes:
+- Don't make the companion of `XmlDeclMode` internal.
+
 # 0.90.0 2.0 will go
 *(June 13, 2024)
 Changes:

@@ -257,11 +257,15 @@ public final class nl/adaptivity/xmlutil/XmlBufferedWriter : nl/adaptivity/xmlut
 public final class nl/adaptivity/xmlutil/XmlDeclMode : java/lang/Enum {
 	public static final field Auto Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static final field Charset Lnl/adaptivity/xmlutil/XmlDeclMode;
+	public static final field Companion Lnl/adaptivity/xmlutil/XmlDeclMode$Companion;
 	public static final field Minimal Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static final field None Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public static fun values ()[Lnl/adaptivity/xmlutil/XmlDeclMode;
+}
+
+public final class nl/adaptivity/xmlutil/XmlDeclMode$Companion {
 }
 
 public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/XmlReader {
