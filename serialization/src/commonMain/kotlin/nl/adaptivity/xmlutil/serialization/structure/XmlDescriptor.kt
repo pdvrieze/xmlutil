@@ -30,6 +30,7 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
@@ -817,76 +818,57 @@ internal constructor(
         get() = false
 
     @ExperimentalXmlUtilApi
-    public val valueChild: Int = serialDescriptor.getValueChild()
+    public val valueChild: Int get() = lazyProps.valueChildIdx
 
-    @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
-    public val attrMapChild: Int by lazy { //uses elementDescriptor, so needs to be lazy
-        var fallbackIdx = if (config.policy.isStrictOtherAttributes) Int.MAX_VALUE else -1
-        for (i in 0 until elementsCount) {
-            if (getElementDescriptor(i) is XmlAttributeMapDescriptor) {
-                if (serialDescriptor.getElementAnnotations(i).firstOrNull<XmlOtherAttributes>() != null) {
-                    fallbackIdx = i
-                    break
-                }
-                if (fallbackIdx < 0) fallbackIdx = i
-            }
-        }
-        if (fallbackIdx == Int.MAX_VALUE) -1 else fallbackIdx // fallbacks for old behaviour.
-    }
+    public val attrMapChild: Int get() = lazyProps.attrMapChildIdx
 
     override val outputKind: OutputKind get() = OutputKind.Element
     private val initialChildReorderInfo: Collection<XmlOrderConstraint>? =
         config.policy.initialChildReorderMap(serialDescriptor)
 
-    @OptIn(ExperimentalSerializationApi::class)
-    private val children: List<XmlDescriptor> by lazy {
-
-        val valueChildIndex = getValueChild()
-
-        val l = when {
-            initialChildReorderInfo != null -> getElementDescriptors(config, serializersModule, initialChildReorderInfo)
-            else -> List(elementsCount) { index -> createElementDescriptor(config, serializersModule, index, true) }
+    private val lazyProps: LazyProps by lazy {
+        when {
+            initialChildReorderInfo != null -> getReorderedElementDescriptors(config, serializersModule, initialChildReorderInfo)
+            else -> getDefaultElementDescriptors(config, serializersModule)
         }
-
-        if (valueChildIndex >= 0) {
-            val valueChild = l[valueChildIndex]
-            if (valueChild.serialKind != StructureKind.LIST ||
-                valueChild.getElementDescriptor(0).serialDescriptor.let {
-                    @Suppress("DEPRECATION")
-                    it != DeprecatedCompactFragmentSerializer.descriptor && it != CompactFragmentSerializer.descriptor
-                }) {
-                val invalidIdx = l.indices
-                    .firstOrNull { idx -> idx != valueChildIndex && l[idx].outputKind == OutputKind.Element }
-                if (invalidIdx != null) {
-                    throw XmlSerialException(
-                        "Types (${tagName}) with an @XmlValue member may not contain other child elements (${
-                            serialDescriptor.getElementDescriptor(
-                                invalidIdx
-                            )
-                        }"
-                    )
-                }
-            }
-        }
-
-        l
     }
 
-    private fun getElementDescriptors(
+    @OptIn(ExperimentalSerializationApi::class)
+    private val children: List<XmlDescriptor> get() = lazyProps.children
+
+    private fun getReorderedElementDescriptors(
         config: XmlConfig,
         serializersModule: SerializersModule,
         initialChildReorderInfo: Collection<XmlOrderConstraint>
-    ): List<XmlDescriptor> {
+    ): LazyProps {
         val descriptors = arrayOfNulls<XmlDescriptor>(elementsCount)
+        var attrMapChildIdx = if (config.policy.isStrictOtherAttributes) Int.MAX_VALUE else CompositeDecoder.UNKNOWN_NAME
+        var valueChildIdx = CompositeDecoder.UNKNOWN_NAME
+
 
         fun XmlOrderNode.ensureDescriptor(): XmlDescriptor {
-            return descriptors[this.elementIdx] ?: let {
+            val elementIdx = this.elementIdx
+            return descriptors[elementIdx] ?: let {
                 val canBeAttribute =
                     if (predecessors.isEmpty()) true else predecessors.all { it.ensureDescriptor().outputKind == OutputKind.Attribute }
 
-                createElementDescriptor(config, serializersModule, elementIdx, canBeAttribute).also {
-                    descriptors[elementIdx] = it
+                val parentInfo = ParentInfo(config.formatCache, this@XmlCompositeDescriptor, elementIdx)
+                from(config, serializersModule, parentInfo, canBeAttribute = canBeAttribute).also { desc ->
+                    descriptors[elementIdx] = desc
+                    for (ann in parentInfo.elementUseAnnotations) {
+                        when (ann) {
+                            is XmlValue -> valueChildIdx = elementIdx
+                            is XmlOtherAttributes -> if (desc is XmlAttributeMapDescriptor) {
+                                attrMapChildIdx = elementIdx
+                            }
+
+                            else -> if (config.policy.isStrictOtherAttributes && attrMapChildIdx < 0 && desc is XmlAttributeMapDescriptor) {
+                                attrMapChildIdx = elementIdx
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -899,34 +881,56 @@ internal constructor(
             }
         }
 
-        return descriptors.requireNoNulls().toList()
+        val children = descriptors.requireNoNulls().toList()
+
+        val childReorderInfo: Pair<OrderMatrix, IntArray> =
+            initialChildReorderInfo.sequenceStarts(elementsCount).fullFlatten(serialDescriptor, children)
+
+        return LazyProps(
+            children = children,
+            attrMapChildIdx = if (attrMapChildIdx == Int.MAX_VALUE) CompositeDecoder.UNKNOWN_NAME else attrMapChildIdx,
+            valueChildIdx = valueChildIdx,
+            childReorderMap = childReorderInfo.second,
+            childConstraints = childReorderInfo.first,
+        )
 
     }
 
-
-    private fun createElementDescriptor(
+    private fun getDefaultElementDescriptors(
         config: XmlConfig,
-        serializersModule: SerializersModule,
-        index: Int,
-        canBeAttribute: Boolean
-    ): XmlDescriptor {
-        return from(config, serializersModule, ParentInfo(config.formatCache, this, index), canBeAttribute = canBeAttribute)
+        serializersModule: SerializersModule
+    ): LazyProps {
+        var valueChildIdx = CompositeDecoder.UNKNOWN_NAME
+        var attrMapChildIdx = if (config.policy.isStrictOtherAttributes) Int.MAX_VALUE else -1
+
+        val children = List(serialDescriptor.elementsCount) { idx ->
+            val parentInfo = ParentInfo(config.formatCache, this, idx)
+            val desc = from(config, serializersModule, parentInfo, canBeAttribute = true)
+
+            for (ann in parentInfo.elementUseAnnotations) {
+                when (ann) {
+                    is XmlValue -> valueChildIdx = idx
+                    is XmlOtherAttributes -> if (desc is XmlAttributeMapDescriptor) {
+                        attrMapChildIdx = idx
+                    }
+                    else -> if (config.policy.isStrictOtherAttributes && attrMapChildIdx<0 && desc is XmlAttributeMapDescriptor) {
+                        attrMapChildIdx = idx
+                    }
+                }
+            }
+            desc
+        }
+
+        return LazyProps(children, if(attrMapChildIdx == Int.MAX_VALUE) -1 else attrMapChildIdx, valueChildIdx)
     }
+
 
     override fun getElementDescriptor(index: Int): XmlDescriptor =
         children[index]
 
-    private val childReorderInfo: Pair<OrderMatrix, IntArray>? by lazy {
-        initialChildReorderInfo?.let {
-            val newList = it.sequenceStarts(elementsCount)
+    public val childReorderMap: IntArray? get() = lazyProps.childReorderMap
 
-            newList.fullFlatten(serialDescriptor, children)
-        }
-    }
-
-    public val childReorderMap: IntArray? get() = childReorderInfo?.second
-
-    public val childConstraints: OrderMatrix? get() = childReorderInfo?.first
+    public val childConstraints: OrderMatrix? get() = lazyProps.childConstraints
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder.apply {
@@ -956,6 +960,40 @@ internal constructor(
         var result = super.hashCode()
         result = 31 * result + (initialChildReorderInfo?.hashCode() ?: 0)
         return result
+    }
+
+    private inner class LazyProps(
+        public val children: List<XmlDescriptor>,
+        public val attrMapChildIdx: Int,
+        public val valueChildIdx: Int,
+        public val childReorderMap: IntArray? = null,
+        public val childConstraints: OrderMatrix? = null,
+    ) {
+
+        init {
+            if (valueChildIdx >= 0) {
+                val valueChild = children[valueChildIdx]
+                @Suppress("OPT_IN_USAGE")
+                if (valueChild.serialKind != StructureKind.LIST ||
+                    valueChild.getElementDescriptor(0).serialDescriptor.let {
+                        @Suppress("DEPRECATION")
+                        it != DeprecatedCompactFragmentSerializer.descriptor && it != CompactFragmentSerializer.descriptor
+                    }) {
+                    val invalidIdx = children.indices
+                        .firstOrNull { idx -> idx != valueChildIdx && children[idx].outputKind == OutputKind.Element }
+                    if (invalidIdx != null) {
+                        throw XmlSerialException(
+                            "Types (${tagName}) with an @XmlValue member may not contain other child elements (${
+                                serialDescriptor.getElementDescriptor(
+                                    invalidIdx
+                                )
+                            }"
+                        )
+                    }
+                }
+            }
+
+        }
     }
 }
 
