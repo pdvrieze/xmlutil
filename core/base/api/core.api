@@ -597,23 +597,6 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 	public static final fun writeCurrent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
-public abstract interface class nl/adaptivity/xmlutil/XmlSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor {
-	public fun getAnnotations ()Ljava/util/List;
-	public abstract fun getDelegate ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun getElementAnnotations (I)Ljava/util/List;
-	public fun getElementDescriptor (I)Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun getElementIndex (Ljava/lang/String;)I
-	public fun getElementName (I)Ljava/lang/String;
-	public fun getElementsCount ()I
-	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
-	public fun getSerialName ()Ljava/lang/String;
-	public fun getSerialQName ()Ljavax/xml/namespace/QName;
-	public abstract fun getXmlDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public fun isElementOptional (I)Z
-	public fun isInline ()Z
-	public fun isNullable ()Z
-}
-
 public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
 	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }

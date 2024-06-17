@@ -1748,6 +1748,13 @@ internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
 @OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getXmlOverride() = when {
     this is XmlSerialDescriptor -> xmlDescriptor
-    isNullable && annotations.any { it is XmlSerialDescriptorMarker } -> getElementDescriptor(-1).nullable
+    isNullable &&
+            annotations.hasXmlSerialDesriptorMarker -> getElementDescriptor(-1).nullable
     else -> this
 }
+
+private val List<Annotation>.hasXmlSerialDesriptorMarker: Boolean
+    get() {
+        if (size < 1) return false
+        return get(0) is XmlSerialDescriptorMarker
+    }

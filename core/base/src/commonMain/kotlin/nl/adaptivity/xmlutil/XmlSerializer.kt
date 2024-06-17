@@ -46,7 +46,7 @@ public fun SerialDescriptor.xml(
     xmlDescriptor: SerialDescriptor = this,
     serialQName: QName? = null
 ): XmlSerialDescriptor {
-    return XmlSerialDescriptorImpl(this, xmlDescriptor, serialQName)
+    return ExtXmlSerialDescriptor(this, xmlDescriptor, serialQName)
 }
 
 /**
@@ -60,24 +60,15 @@ public annotation class XmlSerialDescriptorMarker
  * Serial Descriptor delegate that supports special casing by the XML format. This means
  * that the descriptor can be different for non-xml and xml serialization. (Used by the QName
  * serializer).
+ *
+ * This descriptor is internal as implementation is brittle. If you want an instance use
+ * [SerialDescriptor.xml].
  */
-@ExperimentalXmlUtilApi
+@XmlUtilInternal
 public interface XmlSerialDescriptor : SerialDescriptor {
     public val delegate: SerialDescriptor
     public val xmlDescriptor: SerialDescriptor
     public val serialQName: QName? get() = null
-
-    @ExperimentalSerializationApi
-    override val elementsCount: Int get() = delegate.elementsCount
-
-    @ExperimentalSerializationApi
-    override val kind: SerialKind get() = delegate.kind
-
-    @ExperimentalSerializationApi
-    override val serialName: String get() = delegate.serialName
-
-    @ExperimentalSerializationApi
-    override fun getElementAnnotations(index: Int): List<Annotation> = delegate.getElementAnnotations(index)
 
     @ExperimentalSerializationApi
     override fun getElementDescriptor(index: Int): SerialDescriptor = when {
@@ -86,14 +77,23 @@ public interface XmlSerialDescriptor : SerialDescriptor {
     }
 
     @ExperimentalSerializationApi
-    override fun getElementIndex(name: String): Int = delegate.getElementIndex(name)
+    override val annotations: List<Annotation> get() =
+        listOf(XmlSerialDescriptorMarker()) + delegate.annotations
+}
+
+private class ExtXmlSerialDescriptor(
+    override val delegate: SerialDescriptor,
+    xmlDescriptor: SerialDescriptor = delegate,
+    serialQName: QName? = null
+) : SerialDescriptor by delegate, XmlSerialDescriptor {
+    override val serialQName: QName? get() = xmlDescriptor.serialQName
+
+    override val xmlDescriptor: XmlSerialDescriptor = BaseXmlSerialDescriptor(xmlDescriptor, serialQName)
 
     @ExperimentalSerializationApi
-    override fun getElementName(index: Int): String = delegate.getElementName(index)
-
-    @ExperimentalSerializationApi
-    override fun isElementOptional(index: Int): Boolean {
-        return delegate.isElementOptional(index)
+    override fun getElementDescriptor(index: Int): SerialDescriptor = when {
+        index < 0 -> xmlDescriptor
+        else -> delegate.getElementDescriptor(index)
     }
 
     @ExperimentalSerializationApi
@@ -106,18 +106,25 @@ public interface XmlSerialDescriptor : SerialDescriptor {
     override val isNullable: Boolean get() = delegate.isNullable
 }
 
-private class XmlSerialDescriptorImpl(
+private class BaseXmlSerialDescriptor(
     override val delegate: SerialDescriptor,
-    xmlDescriptor: SerialDescriptor = delegate,
-    serialQName: QName? = null
-) : XmlSerialDescriptor {
-    override val serialQName: QName? get() = xmlDescriptor.serialQName
+    override val serialQName: QName?
+) : SerialDescriptor by delegate, XmlSerialDescriptor {
+    override val xmlDescriptor: SerialDescriptor get() = this
 
-    override val xmlDescriptor: XmlSerialDescriptor = object : XmlSerialDescriptor {
-        override val delegate: SerialDescriptor = xmlDescriptor
-
-        override val xmlDescriptor: SerialDescriptor get() = this
-        override val serialQName: QName? = serialQName
+    @ExperimentalSerializationApi
+    override fun getElementDescriptor(index: Int): SerialDescriptor = when {
+        index < 0 -> xmlDescriptor
+        else -> delegate.getElementDescriptor(index)
     }
+
+    @ExperimentalSerializationApi
+    override val annotations: List<Annotation> get() =
+        listOf(XmlSerialDescriptorMarker()) + delegate.annotations
+
+    override val isInline: Boolean get() = delegate.isInline
+
+    @ExperimentalSerializationApi
+    override val isNullable: Boolean get() = delegate.isNullable
 
 }
