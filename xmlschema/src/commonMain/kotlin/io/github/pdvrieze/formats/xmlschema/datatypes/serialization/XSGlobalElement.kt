@@ -76,6 +76,14 @@ class XSGlobalElement : XSElement {
         this.final = final
     }
 
+    override fun toString(): String = buildString{
+        append("element")
+        append(name)
+        if (_abstract != null) { append(", abstract=").append(_abstract) }
+        if (final!=null) { append(", final=").append(final) }
+        if (substitutionGroup!=null) { substitutionGroup.joinTo(this, prefix = ", substitutionGroup=[", postfix = "]") }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
