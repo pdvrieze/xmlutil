@@ -148,8 +148,12 @@ public sealed class XmlDescriptor(
 
     @Suppress("UNCHECKED_CAST")
     internal fun <V> effectiveDeserializationStrategy(fallback: DeserializationStrategy<V>): DeserializationStrategy<V> {
-        if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
-        return (overriddenSerializer ?: fallback) as DeserializationStrategy<V>
+        if (overriddenSerializer == null) return fallback
+        if (overriddenSerializer.descriptor.isNullable && !fallback.descriptor.isNullable) {
+            if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
+        }
+
+        return overriddenSerializer as DeserializationStrategy<V>
     }
 
     override val serialDescriptor: SerialDescriptor get() = typeDescriptor.serialDescriptor
