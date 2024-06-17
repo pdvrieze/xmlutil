@@ -665,13 +665,17 @@ private constructor(
         tagParent: SafeParentInfo
     ): KSerializer<*>? {
         val elementSerialDescriptor = serializerParent.elementSerialDescriptor
-        return when (elementSerialDescriptor.serialName) {
-            "javax.xml.namespace.QName?",
-            "javax.xml.namespace.QName" -> when {
+        val sn = elementSerialDescriptor.serialName
+        return when(sn.length) {
+            26 -> when {
+                sn!="javax.xml.namespace.QName?" -> null
                 elementSerialDescriptor.isNullable -> QNameSerializer.nullable
                 else -> QNameSerializer
             }
-
+            25 -> when {
+                sn != "javax.xml.namespace.QName" -> null
+                else -> QNameSerializer
+            }
             else -> null
         }
     }
