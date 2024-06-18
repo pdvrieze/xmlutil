@@ -119,3 +119,6 @@ expect public annotation class MpJvmDefaultWithoutCompatibility()
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS)
 expect public annotation class MpJvmDefaultWithCompatibility()
+
+@XmlUtilInternal
+public expect inline fun <K,V> MutableMap<K,V>.computeIfAbsent(key: K, crossinline defaultValue: () -> V): V

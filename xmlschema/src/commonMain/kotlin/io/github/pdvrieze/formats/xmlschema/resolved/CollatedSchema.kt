@@ -320,7 +320,7 @@ internal class SchemaData(
      * @return The modified mutable map containing the merged nested SchemaData objects.
      */
     internal fun <M : MutableMap<String, Pair<String, SchemaData>>> collectAndMergeNested(collector: M): M {
-        collector.getOrPut(this.schemaLocation ?: "") { Pair(namespace, this) }
+        collector.computeIfAbsent(this.schemaLocation ?: "") { Pair(namespace, this) }
 
         for (ns in importedNamespaces) {
             val uris = includedNamespaceToUris[ns] ?: emptyList()
@@ -664,7 +664,7 @@ internal class SchemaData(
 
                 val il = import.schemaLocation
                 if (il == null) {
-                    b.includedNamespaceToUris.getOrPut(importNS.value, { mutableListOf() }).let {
+                    b.includedNamespaceToUris.computeIfAbsent(importNS.value, { mutableListOf() }).let {
                         if (VAnyURI.EMPTY !in it) it.add(VAnyURI.EMPTY) // Don't duplicate "missing" uris
                     }
                     b.importedNamespaces.add(importNS.value)
@@ -707,7 +707,7 @@ internal class SchemaData(
                                     }
 
                                     b.importedNamespaces.add(importNS.value)
-                                    b.includedNamespaceToUris.getOrPut(importNS.value, { mutableListOf() })
+                                    b.includedNamespaceToUris.computeIfAbsent(importNS.value, { mutableListOf() })
                                         .also {
                                             require(importLocation !in it) { "Duplicate import of location ${importLocation}" }
                                             it.add(importLocation)

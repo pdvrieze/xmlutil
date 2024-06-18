@@ -27,6 +27,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.*
@@ -688,10 +689,11 @@ private constructor(
     override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
     ): Collection<XmlOrderConstraint>? {
-        val nameToIdx =
-            (0 until parentDescriptor.elementsCount).associateBy {
-                parentDescriptor.getElementName(it)
-            }
+        val mapCapacity = parentDescriptor.elementsCount*2
+        val nameToIdx = HashMap<String, Int>(mapCapacity)
+        for (i in 0 until parentDescriptor.elementsCount) {
+            nameToIdx[parentDescriptor.getElementName(i)] = i
+        }
 
         fun String.toChildIndex(): Int = when (this) {
             "*" -> XmlOrderConstraint.OTHERS
@@ -699,8 +701,9 @@ private constructor(
                 ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
-        val orderConstraints = HashSet<XmlOrderConstraint>()
-        val orderNodes = mutableMapOf<String, XmlOrderNode>()
+        val orderConstraints = HashSet<XmlOrderConstraint>(mapCapacity)
+        val orderNodes = HashMap<String, XmlOrderNode>(mapCapacity)
+
         for (elementIdx in 0 until parentDescriptor.elementsCount) {
             var xmlBefore: Array<out String>? = null
             var xmlAfter: Array<out String>? = null
@@ -719,7 +722,7 @@ private constructor(
                     xmlAfter = annotation.value
                 }
                 if (xmlBefore != null || xmlAfter != null) {
-                    val node = orderNodes.getOrPut(
+                    val node = orderNodes.computeIfAbsent(
                         parentDescriptor.getElementName(elementIdx)
                     ) {
                         XmlOrderNode(
@@ -729,14 +732,14 @@ private constructor(
                     if (xmlBefore != null) {
                         val befores = Array(xmlBefore.size) {
                             val name = xmlBefore[it]
-                            orderNodes.getOrPut(name) { XmlOrderNode(name.toChildIndex()) }
+                            orderNodes.computeIfAbsent(name) { XmlOrderNode(name.toChildIndex()) }
                         }
                         node.addSuccessors(*befores)
                     }
                     if (xmlAfter != null) {
                         val afters = Array(xmlAfter.size) {
                             val name = xmlAfter[it]
-                            orderNodes.getOrPut(name) { XmlOrderNode(name.toChildIndex()) }
+                            orderNodes.computeIfAbsent(name) { XmlOrderNode(name.toChildIndex()) }
                         }
                         node.addPredecessors(*afters)
                     }

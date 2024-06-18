@@ -133,6 +133,11 @@ public final class nl/adaptivity/xmlutil/serialization/FormatCache {
 	public fun <init> ()V
 }
 
+public final class nl/adaptivity/xmlutil/serialization/FormatCache$inlined$sam$i$java_util_function_Function$0 : java/util/function/Function {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final synthetic fun apply (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
 public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer;
 	public synthetic fun deserializeNonXML (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;

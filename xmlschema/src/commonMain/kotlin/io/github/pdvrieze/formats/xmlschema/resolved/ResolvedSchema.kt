@@ -64,14 +64,14 @@ class ResolvedSchema(
             this.nestedData[importNs] = past?.mergeWith(nestedData) ?: nestedData
         }
 
-        // Use getOrPut to ensure uniqueness
-        nestedData.getOrPut(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
-        nestedData.getOrPut(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
+        // Use computeIfAbsent to ensure uniqueness
+        nestedData.computeIfAbsent(BuiltinSchemaXmlschema.targetNamespace.value) { BuiltinSchemaXmlschema.resolver }
+        nestedData.computeIfAbsent(BuiltinSchemaXmlInstance.targetNamespace.value) { BuiltinSchemaXmlInstance.resolver }
 
         if (rawPart.targetNamespace?.value != XMLConstants.XML_NS_URI &&
             XMLConstants.XML_NS_URI in allNeededNamespaces
         ) {
-            val old = nestedData.getOrPut(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
+            val old = nestedData.computeIfAbsent(XMLConstants.XML_NS_URI) { BuiltinSchemaXml.resolver } // allow override of the namespace
         }
 
         visibleNamespaces = rootData.importedNamespaces.toSet()

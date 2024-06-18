@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -113,9 +114,8 @@ class DelegateMap<T: Any, V : NamedPart> :
 
 
     override fun get(key: String): V? {
-        return lazyStore.getOrPut(key) {
-            val orig = delegate[key] ?: return null
-            transform(orig)
+        return lazyStore.computeIfAbsent(key) {
+            delegate[key]?.let { transform(it) }
         }
     }
 }
