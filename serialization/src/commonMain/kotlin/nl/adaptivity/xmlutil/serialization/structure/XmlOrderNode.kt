@@ -163,7 +163,8 @@ internal fun Iterable<XmlOrderConstraint>.sequenceStarts(childCount: Int): Colle
 }
 
 /**
- * This function creates a list with all the nodes reachable from the receiver in (breath first) order.
+ * This function creates a list with all the nodes reachable from the receiver in (depth first) order.
+ * Note that this was changed to depth-first as it avoids an additional loop.
  * This function is used initially before element descriptors are finalised.
  */
 internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
@@ -179,12 +180,10 @@ internal fun XmlOrderNode.flatten(): List<XmlOrderNode> {
     val seen = BooleanArray(lastIndex() + 1)
 
     fun XmlOrderNode.flattenSuccessorsTo(receiver: MutableList<XmlOrderNode>) {
-        val unseenSuccessors = successors.filter { !seen[it.elementIdx] }
+        val unseenSuccessors = successors.asSequence().filter { !seen[it.elementIdx] }
         for (successor in unseenSuccessors) {
             receiver.add(successor)
             seen[successor.elementIdx] = true
-        }
-        for (successor in unseenSuccessors) {
             successor.flattenSuccessorsTo(receiver)
         }
     }
@@ -210,7 +209,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
 
     val originalOrderNodes = arrayOfNulls<XmlOrderNode>(serialDescriptor.elementsCount)
 
-    val allNodes = mutableListOf<XmlOrderNode>()
+    val allNodes = ArrayList<XmlOrderNode>(serialDescriptor.elementsCount)
 
     fun addTransitive(node: XmlOrderNode) {
         if (originalOrderNodes[node.elementIdx] == null) {
@@ -225,7 +224,6 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
     // Order all nodes such that they are in constraint order
     for (node in asSequence().filter { it.predecessors.isEmpty() }) {
         addTransitive(node)
-//        allNodes.add(node)
     }
 
     // Those nodes without any constraint will be groups on their own
