@@ -42,8 +42,11 @@ internal abstract class XmlCodecBase internal constructor(
     companion object {
 
         @OptIn(ExperimentalSerializationApi::class)
-        internal fun SerialDescriptor.declRequestedName(parentNamespace: Namespace): QName {
-            annotations.firstOrNull<XmlSerialName>()?.let { return it.toQName(serialName, parentNamespace) }
+        internal fun SerialDescriptor.declRequestedName(
+            parentNamespace: Namespace,
+            annotation: XmlSerialName?
+        ): QName {
+            annotation?.let { return it.toQName(serialName, parentNamespace) }
             return serialName.substringAfterLast('.').toQname(parentNamespace)
         }
 
