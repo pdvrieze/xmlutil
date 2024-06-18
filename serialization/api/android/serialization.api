@@ -718,11 +718,37 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/structure/Sa
 	public abstract fun getNamespace ()Lnl/adaptivity/xmlutil/Namespace;
 	public abstract fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
 	public abstract fun getParentIsInline ()Z
+	public fun getUseAnnAfter ()[Ljava/lang/String;
+	public fun getUseAnnBefore ()[Ljava/lang/String;
+	public fun getUseAnnCData ()Ljava/lang/Boolean;
+	public fun getUseAnnChildrenName ()Lnl/adaptivity/xmlutil/serialization/XmlChildrenName;
+	public fun getUseAnnDefault ()Ljava/lang/String;
+	public fun getUseAnnIgnoreWhitespace ()Ljava/lang/Boolean;
+	public fun getUseAnnIsElement ()Ljava/lang/Boolean;
+	public fun getUseAnnIsId ()Z
+	public fun getUseAnnIsOtherAttributes ()Z
+	public fun getUseAnnIsValue ()Ljava/lang/Boolean;
+	public fun getUseAnnNsDecls ()Ljava/util/List;
+	public fun getUseAnnPolyChildren ()Lnl/adaptivity/xmlutil/serialization/XmlPolyChildren;
+	public fun getUseAnnXmlSerialName ()Lnl/adaptivity/xmlutil/serialization/XmlSerialName;
 	public fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo$DefaultImpls {
 	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public static fun getUseAnnAfter (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
+	public static fun getUseAnnBefore (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)[Ljava/lang/String;
+	public static fun getUseAnnCData (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/Boolean;
+	public static fun getUseAnnChildrenName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlChildrenName;
+	public static fun getUseAnnDefault (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/String;
+	public static fun getUseAnnIgnoreWhitespace (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/Boolean;
+	public static fun getUseAnnIsElement (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/Boolean;
+	public static fun getUseAnnIsId (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
+	public static fun getUseAnnIsOtherAttributes (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
+	public static fun getUseAnnIsValue (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/Boolean;
+	public static fun getUseAnnNsDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
+	public static fun getUseAnnPolyChildren (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlPolyChildren;
+	public static fun getUseAnnXmlSerialName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlSerialName;
 	public static fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 }
 
@@ -906,6 +932,9 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlTypeDescript
 	public final fun getElementsCount ()I
 	public final fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public final fun getSerialName ()Ljava/lang/String;
+	public final fun getTypeAnnCData ()Ljava/lang/Boolean;
+	public final fun getTypeAnnNsDecls ()Ljava/util/List;
+	public final fun getTypeAnnXmlSerialName ()Lnl/adaptivity/xmlutil/serialization/XmlSerialName;
 	public final fun getTypeNameInfo ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
 	public final fun getTypeQname ()Ljavax/xml/namespace/QName;
 	public fun hashCode ()I

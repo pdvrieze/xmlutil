@@ -22,9 +22,11 @@ package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.*
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.XmlConfig
+import nl.adaptivity.xmlutil.core.impl.multiplatform.maybeAnnotations
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.toNamespace
 
@@ -33,9 +35,38 @@ public class XmlTypeDescriptor internal constructor(
     public val serialDescriptor: SerialDescriptor,
     parentNamespace: Namespace?
 ) {
+    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    @ExperimentalXmlUtilApi
+    public var typeAnnNsDecls: List<Namespace>? = null
+        private set
+
+    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    @ExperimentalXmlUtilApi
+    public var typeAnnXmlSerialName: XmlSerialName? = null
+        private set
+
+    /** Value of the [XmlCData] annotation */
+    @ExperimentalXmlUtilApi
+    public var typeAnnCData: Boolean? = null
+        private set
+
+    init {
+        @OptIn(ExperimentalSerializationApi::class)
+        for (a in serialDescriptor.annotations) {
+            when (a) {
+                is XmlNamespaceDeclSpec -> typeAnnNsDecls = a.namespaces
+                is XmlSerialName -> typeAnnXmlSerialName = a
+                is XmlCData -> typeAnnCData = a.value
+            }
+        }
+        if (typeAnnXmlSerialName==null) {
+            @OptIn(ExperimentalSerializationApi::class)
+            typeAnnXmlSerialName = serialDescriptor.capturedKClass?.maybeAnnotations?.firstOrNull<XmlSerialName>()
+        }
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace)
+    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace, typeAnnXmlSerialName)
 
     @OptIn(ExperimentalSerializationApi::class)
     public val serialName: String

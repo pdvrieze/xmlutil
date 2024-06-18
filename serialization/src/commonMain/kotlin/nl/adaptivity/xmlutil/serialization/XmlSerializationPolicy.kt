@@ -467,12 +467,9 @@ private constructor(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
     ): Boolean {
-        val useAnnotations = tagParent.elementUseAnnotations
-        val isMixed = useAnnotations.firstOrNull<XmlValue>()?.value == true
-        if (isMixed) return true
+        if (tagParent.useAnnIsValue == true) return true
 
-        val reqChildrenName =
-            useAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
+        val reqChildrenName = tagParent.useAnnChildrenName?.toQName()
         return reqChildrenName == null
     }
 
@@ -480,9 +477,7 @@ private constructor(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
     ): Boolean {
-        val xmlPolyChildren =
-            tagParent.elementUseAnnotations.firstOrNull<XmlPolyChildren>()
-        return autoPolymorphic || xmlPolyChildren != null
+        return autoPolymorphic || tagParent.useAnnPolyChildren != null
     }
 
     @Deprecated("Don't use or implement this, use the 3 parameter version")
@@ -506,9 +501,7 @@ private constructor(
         return when (val overrideOutputKind =
             serializerParent.elementUseOutputKind) {
             null -> {
-                val useAnnotations = tagParent.elementUseAnnotations
-                val isValue =
-                    useAnnotations.firstOrNull<XmlValue>()?.value == true
+                val isValue = tagParent.useAnnIsValue == true
                 var parentChildDesc = tagParent.elementSerialDescriptor
                 while (parentChildDesc.isInline) {
                     parentChildDesc =
@@ -769,7 +762,7 @@ private constructor(
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
-        serializerParent.elementUseAnnotations.firstOrNull<XmlIgnoreWhitespace>()?.apply { return !value }
+        serializerParent.useAnnIgnoreWhitespace?.let { return !it }
         return !(serializerParent.elementSerialDescriptor.annotations
             .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
     }
@@ -779,7 +772,7 @@ private constructor(
     }
 
     override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
-        val childAnnotation = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()
+        val childAnnotation = serializerParent.useAnnChildrenName
         val childrenName = childAnnotation?.toQName()
         return DeclaredNameInfo("value", childrenName, childAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
     }
@@ -791,6 +784,7 @@ private constructor(
         return QName(serializerParent.namespace.namespaceURI, "entry")
     }
 
+    @Suppress("DEPRECATION")
     private val pseudoConfig = XmlConfig(XmlConfig.Builder(policy = this))
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -816,13 +810,10 @@ private constructor(
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> {
-        val annotations = (serializerParent.elementUseAnnotations.asSequence() +
-                serializerParent.elementSerialDescriptor.annotations)
-        return annotations
-            .filterIsInstance<XmlNamespaceDeclSpec>()
-            .flatMap { decl ->
-                decl.namespaces
-            }.toList()
+        return buildList {
+            serializerParent.useAnnNsDecls?.let { addAll(it) }
+            serializerParent.elementTypeDescriptor.typeAnnNsDecls?.let { addAll(it) }
+        }
     }
 
     override fun ignoredSerialInfo(message: String) {
