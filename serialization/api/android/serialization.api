@@ -706,8 +706,8 @@ public final class nl/adaptivity/xmlutil/serialization/structure/PolymorphicMode
 }
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo {
-	public abstract fun copy (Lnl/adaptivity/xmlutil/serialization/FormatCache;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
-	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/FormatCache;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public abstract fun copy (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public abstract fun getDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;
 	public abstract fun getElementSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public abstract fun getElementTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
@@ -718,12 +718,12 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/structure/Sa
 	public abstract fun getNamespace ()Lnl/adaptivity/xmlutil/Namespace;
 	public abstract fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
 	public abstract fun getParentIsInline ()Z
-	public fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/FormatCache;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo$DefaultImpls {
-	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/FormatCache;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
-	public static fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/FormatCache;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public static synthetic fun copy$default (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;Lkotlinx/serialization/KSerializer;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
+	public static fun maybeOverrideSerializer (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/XmlConfig;Lkotlinx/serialization/KSerializer;)Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor {

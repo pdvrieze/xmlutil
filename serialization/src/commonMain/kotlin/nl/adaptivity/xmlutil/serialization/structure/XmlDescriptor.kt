@@ -246,10 +246,10 @@ public sealed class XmlDescriptor(
                 else -> {
                     elementSerialDescriptor = overridenSerializer.descriptor.getXmlOverride()
                     effectiveSerializerParent = serializerParent.copy(
-                        cache = config.formatCache,
+                        config = config,
                         overriddenSerializer = overridenSerializer
                     )
-                    effectiveTagParent = tagParent.copy(cache = config.formatCache, overriddenSerializer = overridenSerializer)
+                    effectiveTagParent = tagParent.copy(config = config, overriddenSerializer = overridenSerializer)
                 }
             }
 
@@ -350,7 +350,7 @@ public class XmlRootDescriptor internal constructor(
     serializersModule: SerializersModule,
     descriptor: SerialDescriptor,
     tagName: DeclaredNameInfo,
-) : XmlDescriptor(config.policy, DetachedParent(config.formatCache, descriptor, tagName, true, outputKind = null)) {
+) : XmlDescriptor(config.policy, DetachedParent(config, descriptor, tagName, true, outputKind = null)) {
 
     internal constructor(
 // TODO get rid of coded, put policy in its place
@@ -636,7 +636,7 @@ public class XmlInlineDescriptor internal constructor(
             }
         }
 
-        val useParentInfo = ParentInfo(config.formatCache, this, 0, effectiveUseNameInfo)
+        val useParentInfo = ParentInfo(config, this, 0, effectiveUseNameInfo)
 
         from(config, serializersModule, useParentInfo, tagParent, canBeAttribute)
     }
@@ -711,7 +711,7 @@ public class XmlAttributeMapDescriptor internal constructor(
         from(
             config,
             serializersModule,
-            ParentInfo(config.formatCache, this, 0, useOutputKind = OutputKind.Text),
+            ParentInfo(config, this, 0, useOutputKind = OutputKind.Text),
             tagParent,
             true,
         )
@@ -725,7 +725,7 @@ public class XmlAttributeMapDescriptor internal constructor(
         from(
             config,
             serializersModule,
-            ParentInfo(config.formatCache, this, 1, useOutputKind = OutputKind.Text),
+            ParentInfo(config, this, 1, useOutputKind = OutputKind.Text),
             tagParent,
             true
         )
@@ -784,7 +784,7 @@ internal constructor(
         config: XmlConfig,
         serializersModule: SerializersModule
     ): XmlDescriptor {
-        val overriddenParentInfo = DetachedParent(config.formatCache, descriptor, useNameInfo, false)
+        val overriddenParentInfo = DetachedParent(config, descriptor, useNameInfo, false)
 
         return from(config, serializersModule, overriddenParentInfo, tagParent, canBeAttribute)
     }
@@ -824,13 +824,12 @@ internal constructor(
     public val attrMapChild: Int get() = lazyProps.attrMapChildIdx
 
     override val outputKind: OutputKind get() = OutputKind.Element
-    private val initialChildReorderInfo: Collection<XmlOrderConstraint>? =
-        config.policy.initialChildReorderMap(serialDescriptor)
+    private val initialChildReorderInfo: Collection<XmlOrderConstraint>? get() = typeDescriptor.initialChildReorderInfo
 
     private val lazyProps: LazyProps by lazy {
-        when {
-            initialChildReorderInfo != null -> getReorderedElementDescriptors(config, serializersModule, initialChildReorderInfo)
-            else -> getDefaultElementDescriptors(config, serializersModule)
+        when (val roInfo = initialChildReorderInfo) {
+            null -> getDefaultElementDescriptors(config, serializersModule)
+            else -> getReorderedElementDescriptors(config, serializersModule, roInfo)
         }
     }
 
@@ -853,7 +852,7 @@ internal constructor(
                 val canBeAttribute =
                     if (predecessors.isEmpty()) true else predecessors.all { it.ensureDescriptor().outputKind == OutputKind.Attribute }
 
-                val parentInfo = ParentInfo(config.formatCache, this@XmlCompositeDescriptor, elementIdx)
+                val parentInfo = ParentInfo(config, this@XmlCompositeDescriptor, elementIdx)
                 from(config, serializersModule, parentInfo, canBeAttribute = canBeAttribute).also { desc ->
                     descriptors[elementIdx] = desc
                     for (ann in parentInfo.elementUseAnnotations) {
@@ -904,7 +903,7 @@ internal constructor(
         var attrMapChildIdx = if (config.policy.isStrictOtherAttributes) Int.MAX_VALUE else -1
 
         val children = List(serialDescriptor.elementsCount) { idx ->
-            val parentInfo = ParentInfo(config.formatCache, this, idx)
+            val parentInfo = ParentInfo(config, this, idx)
             val desc = from(config, serializersModule, parentInfo, canBeAttribute = true)
 
             for (ann in parentInfo.elementUseAnnotations) {
@@ -1048,7 +1047,7 @@ public class XmlPolymorphicDescriptor internal constructor(
                 PolymorphicMode.TRANSPARENT -> null
                 PolymorphicMode.TAG -> from(
                     config = config,
-                    serializersModule = serializersModule, ParentInfo(config.formatCache, this, 1), canBeAttribute = false
+                    serializersModule = serializersModule, ParentInfo(config, this, 1), canBeAttribute = false
                 ).tagName
 
                 is PolymorphicMode.ATTR -> tagName
@@ -1067,7 +1066,7 @@ public class XmlPolymorphicDescriptor internal constructor(
 
                         val childSerializerParent =
                             DetachedParent(
-                                config.formatCache,
+                                config,
                                 childInfo.descriptor,
                                 childInfo.tagName,
                                 false,
@@ -1085,7 +1084,7 @@ public class XmlPolymorphicDescriptor internal constructor(
                     for (i in 0 until d.elementsCount) {
                         val childDesc = d.getElementDescriptor(i)
                         val childSerializerParent = DetachedParent(
-                            config.formatCache,
+                            config,
                             childDesc,
                             qName,
                             false,
@@ -1105,7 +1104,7 @@ public class XmlPolymorphicDescriptor internal constructor(
                     for (childDesc in childDescriptors) {
 
                         val childSerializerParent =
-                            DetachedParent(config.formatCache, childDesc, qName, false, outputKind, isDefaultNamespace = false)
+                            DetachedParent(config, childDesc, qName, false, outputKind, isDefaultNamespace = false)
 
                         map[childDesc.serialName] =
                             from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
@@ -1126,7 +1125,7 @@ public class XmlPolymorphicDescriptor internal constructor(
         List(elementsCount) { index ->
             val canBeAttribute = index == 0
             val overrideOutputKind = if (canBeAttribute) OutputKind.Attribute else OutputKind.Element
-            val parent = ParentInfo(config.formatCache, this, index, useOutputKind = overrideOutputKind)
+            val parent = ParentInfo(config, this, index, useOutputKind = overrideOutputKind)
 
             from(config = config, serializersModule = serializersModule, parent, canBeAttribute = canBeAttribute)
         }
@@ -1280,14 +1279,14 @@ public class XmlMapDescriptor internal constructor(
 
     private val keyDescriptor: XmlDescriptor by lazy {
         val keyNameInfo = config.policy.mapKeyName(serializerParent)
-        val parentInfo = ParentInfo(config.formatCache, this, 0, keyNameInfo)
+        val parentInfo = ParentInfo(config, this, 0, keyNameInfo)
         val keyTagParent = InjectedParentTag(0, typeDescriptor[0], keyNameInfo, tagParent.namespace)
         from(config, serializersModule, parentInfo, keyTagParent, canBeAttribute = true)
     }
 
     private val valueDescriptor: XmlDescriptor by lazy {
         val valueNameInfo = config.policy.mapValueName(serializerParent, isListEluded)
-        val parentInfo = ParentInfo(config.formatCache, this, 1, valueNameInfo, OutputKind.Element)
+        val parentInfo = ParentInfo(config, this, 1, valueNameInfo, OutputKind.Element)
         val valueTagParent = InjectedParentTag(0, typeDescriptor[1], valueNameInfo, tagParent.namespace)
         from(config, serializersModule, parentInfo, valueTagParent, canBeAttribute = true)
     }
@@ -1340,7 +1339,7 @@ public class XmlListDescriptor internal constructor(
                 when (childDescriptor.kind) {
                     is PolymorphicKind -> when {
                         config.policy.isTransparentPolymorphic(
-                            DetachedParent(config.formatCache, childDescriptor, false),
+                            DetachedParent(config, childDescriptor, false),
                             tagParent
                         ) -> OutputKind.Mixed
 
@@ -1363,13 +1362,13 @@ public class XmlListDescriptor internal constructor(
         delimiters = when (outputKind) {
             OutputKind.Attribute ->
                 config.policy.attributeListDelimiters(
-                    ParentInfo(config.formatCache, this, 0, useNameInfo, outputKind),
+                    ParentInfo(config, this, 0, useNameInfo, outputKind),
                     tagParent
                 )
 
             OutputKind.Text ->
                 config.policy.textListDelimiters(
-                    ParentInfo(config.formatCache, this, 0, useNameInfo, outputKind),
+                    ParentInfo(config, this, 0, useNameInfo, outputKind),
                     tagParent
                 )
 
@@ -1392,7 +1391,7 @@ public class XmlListDescriptor internal constructor(
             else -> tagParent.elementUseNameInfo
         }
 
-        from(config, serializersModule, ParentInfo(config.formatCache, this, 0, useNameInfo, outputKind), tagParent, false)
+        from(config, serializersModule, ParentInfo(config, this, 0, useNameInfo, outputKind), tagParent, false)
     }
 
     override fun getElementDescriptor(index: Int): XmlDescriptor {
@@ -1478,16 +1477,16 @@ public interface SafeParentInfo {
     public val namespace: Namespace
 
     public fun copy(
-        cache: FormatCache,
+        config: XmlConfig,
         useNameInfo: DeclaredNameInfo = elementUseNameInfo,
         useOutputKind: OutputKind? = elementUseOutputKind,
         overriddenSerializer: KSerializer<*>? = this.overriddenSerializer
     ): SafeParentInfo
 
-    public fun maybeOverrideSerializer(formatCache: FormatCache, overriddenSerializer: KSerializer<*>?): SafeParentInfo =
+    public fun maybeOverrideSerializer(config: XmlConfig, overriddenSerializer: KSerializer<*>?): SafeParentInfo =
         when (overriddenSerializer) {
             null -> this
-            else -> copy(cache = formatCache, overriddenSerializer = overriddenSerializer)
+            else -> copy(config = config, overriddenSerializer = overriddenSerializer)
         }
 }
 
@@ -1510,7 +1509,7 @@ internal class InjectedParentTag(
         get() = elementTypeDescriptor.serialDescriptor
 
     override fun copy(
-        cache: FormatCache,
+        config: XmlConfig,
         useNameInfo: DeclaredNameInfo,
         useOutputKind: OutputKind?,
         overriddenSerializer: KSerializer<*>?
@@ -1527,7 +1526,7 @@ internal class InjectedParentTag(
 }
 
 private class DetachedParent(
-    cache: FormatCache,
+    config: XmlConfig,
     serialDescriptor: SerialDescriptor,
     override val elementUseNameInfo: DeclaredNameInfo,
     val isDocumentRoot: Boolean,
@@ -1537,14 +1536,14 @@ private class DetachedParent(
 
     @OptIn(ExperimentalSerializationApi::class)
     constructor(
-        cache: FormatCache,
+        config: XmlConfig,
         serialDescriptor: SerialDescriptor,
         useName: QName?,
         isDocumentRoot: Boolean,
         outputKind: OutputKind? = null,
         isDefaultNamespace: Boolean,
     ) : this(
-        cache,
+        config,
         serialDescriptor,
         DeclaredNameInfo(
             serialName = serialDescriptor.run {
@@ -1559,12 +1558,12 @@ private class DetachedParent(
 
     @OptIn(ExperimentalSerializationApi::class)
     constructor(
-        cache: FormatCache,
+        config: XmlConfig,
         serialDescriptor: SerialDescriptor,
         isDocumentRoot: Boolean,
         outputKind: OutputKind? = null,
     ) : this(
-        cache,
+        config,
         serialDescriptor,
         DeclaredNameInfo(
             serialName = serialDescriptor.run {
@@ -1578,13 +1577,13 @@ private class DetachedParent(
     )
 
     override fun copy(
-        cache: FormatCache,
+        config: XmlConfig,
         useNameInfo: DeclaredNameInfo,
         useOutputKind: OutputKind?,
         overriddenSerializer: KSerializer<*>?,
     ): DetachedParent {
         return DetachedParent(
-            cache,
+            config,
             serialDescriptor,
             useNameInfo,
             isDocumentRoot,
@@ -1627,8 +1626,8 @@ private class DetachedParent(
 
     override val elementTypeDescriptor: XmlTypeDescriptor by lazy {
         val descriptor = overriddenSerializer?.descriptor?.getXmlOverride() ?: serialDescriptor
-        cache.lookupType(namespace, descriptor) {
-            XmlTypeDescriptor(cache, descriptor, namespace)
+        config.formatCache.lookupType(namespace, descriptor) {
+            XmlTypeDescriptor(config, descriptor, namespace)
         }
     }
 
@@ -1649,7 +1648,7 @@ internal val DEFAULT_NAMESPACE = XmlEvent.NamespaceImpl("", "")
 
 @WillBePrivate // 2021-07-05 Should not have been public.
 public class ParentInfo(
-    cache: FormatCache,
+    config: XmlConfig,
     override val descriptor: XmlDescriptor,
     override val index: Int,
     useNameInfo: DeclaredNameInfo? = null,
@@ -1658,12 +1657,12 @@ public class ParentInfo(
 ) : SafeParentInfo {
 
     override fun copy(
-        cache: FormatCache,
+        config: XmlConfig,
         useNameInfo: DeclaredNameInfo,
         useOutputKind: OutputKind?,
         overriddenSerializer: KSerializer<*>?
     ): ParentInfo {
-        return ParentInfo(cache, descriptor, index, useNameInfo, useOutputKind, overriddenSerializer)
+        return ParentInfo(config, descriptor, index, useNameInfo, useOutputKind, overriddenSerializer)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1698,8 +1697,8 @@ public class ParentInfo(
         when {
             overriddenSerializer != null -> {
                 val elemDesc = overriddenSerializer.descriptor.getXmlOverride()
-                cache.lookupType(descriptor.tagName, elemDesc) {
-                    XmlTypeDescriptor(cache, elemDesc, descriptor.tagName.toNamespace())
+                config.formatCache.lookupType(descriptor.tagName, elemDesc) {
+                    XmlTypeDescriptor(config, elemDesc, descriptor.tagName.toNamespace())
                 }
             }
 
@@ -1709,8 +1708,8 @@ public class ParentInfo(
 
             else -> {
                 val ns = descriptor.tagParent.namespace
-                cache.lookupType(ns, elementSerialDescriptor) {
-                    XmlTypeDescriptor(cache, elementSerialDescriptor, ns)
+                config.formatCache.lookupType(ns, elementSerialDescriptor) {
+                    XmlTypeDescriptor(config, elementSerialDescriptor, ns)
                 }
             }
         }

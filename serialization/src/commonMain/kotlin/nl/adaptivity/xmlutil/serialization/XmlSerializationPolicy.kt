@@ -791,13 +791,15 @@ private constructor(
         return QName(serializerParent.namespace.namespaceURI, "entry")
     }
 
+    private val pseudoConfig = XmlConfig(XmlConfig.Builder(policy = this))
+
     @OptIn(ExperimentalSerializationApi::class)
     override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
         val keyDescriptor = mapParent.elementSerialDescriptor.getElementDescriptor(0)
         val keyUseName = mapKeyName(mapParent)
 
         val pseudoKeyParent =
-            InjectedParentTag(0, XmlTypeDescriptor(FormatCache(), keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
+            InjectedParentTag(0, XmlTypeDescriptor(pseudoConfig, keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
         val keyEffectiveOutputKind = effectiveOutputKind(pseudoKeyParent, pseudoKeyParent, true)
         if (!keyEffectiveOutputKind.isTextual) return false
 

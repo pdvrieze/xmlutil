@@ -21,15 +21,15 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.FormatCache
+import nl.adaptivity.xmlutil.serialization.XmlConfig
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.toNamespace
 
 public class XmlTypeDescriptor internal constructor(
-    cache: FormatCache,
+    config: XmlConfig,
     public val serialDescriptor: SerialDescriptor,
     parentNamespace: Namespace?
 ) {
@@ -46,6 +46,11 @@ public class XmlTypeDescriptor internal constructor(
     @OptIn(ExperimentalSerializationApi::class)
     public val elementsCount: Int
         get() = serialDescriptor.elementsCount
+
+    internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy {
+        config.policy.initialChildReorderMap(serialDescriptor)
+    }
+
 
     public operator fun get(index: Int): XmlTypeDescriptor {
         return children[index]
@@ -72,8 +77,8 @@ public class XmlTypeDescriptor internal constructor(
         Array(serialDescriptor.elementsCount) { idx ->
             val desc = serialDescriptor.getElementDescriptor(idx).getXmlOverride()
             val ns = typeQname?.toNamespace() ?: parentNamespace
-            cache.lookupType(ns, desc) {
-                XmlTypeDescriptor(cache, desc, ns)
+            config.formatCache.lookupType(ns, desc) {
+                XmlTypeDescriptor(config, desc, ns)
             }
         }
     }
