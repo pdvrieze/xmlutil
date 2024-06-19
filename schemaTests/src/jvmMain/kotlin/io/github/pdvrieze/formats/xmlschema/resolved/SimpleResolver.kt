@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2024.
  *
  * This file is part of xmlutil.
  *
@@ -34,7 +34,7 @@ import java.io.InputStreamReader
 import java.net.URI
 import java.net.URL
 
-internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
+class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
     ResolvedSchema.Resolver {
 
     constructor(baseURI: URL, isNetworkResolvingAllowed: Boolean = false) :

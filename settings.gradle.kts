@@ -67,6 +67,7 @@ include(":testutil")
 include(":examples")
 if (includeSchema) {
     include(":xmlschema")
+    include(":benchmark")
     include(":schemaTests")
 }
 
