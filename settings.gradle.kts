@@ -49,6 +49,10 @@ plugins {
     id ("com.gradle.enterprise") version "3.1.1"
 }
 
+val includeSchema = providers.gradleProperty("excludeSchema").map {
+    it.lowercase() == "false"
+}.getOrElse(true)
+
 rootProject.name = "xmlutil"
 
 include(":serialutil")
@@ -61,7 +65,9 @@ include(":serialization")
 include(":xmlserializable")
 include(":testutil")
 include(":examples")
-include(":xmlschema")
+if (includeSchema) {
+    include(":xmlschema")
+}
 
 project(":core").projectDir = file("core/base")
 project(":coreJdk").projectDir = file("core/jdk")
