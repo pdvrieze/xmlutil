@@ -126,7 +126,6 @@ kotlin {
                 implementation(projects.serialutil)
                 implementation(projects.testutil)
                 implementation(libs.serialization.json)
-                implementation(libs.datetime)
 
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))

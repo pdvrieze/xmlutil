@@ -21,7 +21,6 @@
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -35,7 +34,7 @@ class ContextualWithTypeSerializer220 {
     @Serializable
     data class Box(
         @Contextual
-        @XmlElement val i: Instant
+        @XmlElement val i: Long
     )
 
     @Test
@@ -43,11 +42,11 @@ class ContextualWithTypeSerializer220 {
         val box: Box = XML.defaultInstance.decodeFromString(
             """<?xml version="1.0" encoding="UTF-8"?>
                <Box>
-                 <i>2023-11-02T15:56:49.364+01:00</i>
+                 <i>1698937009364</i>
                </Box>""".trimIndent()
         )
 
-        val expected = Instant.fromEpochMilliseconds(1698937009364L)
+        val expected = 1698937009364L
 
         assertEquals(expected, box.i)
     }
@@ -56,11 +55,11 @@ class ContextualWithTypeSerializer220 {
     fun serializeTest() {
         val expected =
             """<Box>
-                 <i>2023-11-02T14:56:49.364Z</i>
+                 <i>1698937009364</i>
                </Box>""".trimIndent()
 
 
-        val actual = XML.encodeToString(Box(Instant.fromEpochMilliseconds(1698937009364L)))
+        val actual = XML.encodeToString(Box(1698937009364L))
 
         assertXmlEquals(expected, actual)
     }
