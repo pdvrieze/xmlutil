@@ -83,10 +83,23 @@ class TestXSTestSuite {
                 }
             }
         }
-        var startTime = System.currentTimeMillis()
-        val iterCount = 0
+
+        var xml = XML {
+            defaultPolicy {
+                autoPolymorphic = true
+                throwOnRepeatedElement = true
+                verifyElementOrder = true
+                isStrictAttributeNames = true
+            }
+        }
+
+        val initTime = System.currentTimeMillis()
+        var startTime = initTime
+        val iterCount = 5
         for (i in 0 .. iterCount) {
-            if (i==1) startTime = System.currentTimeMillis()
+            if (i==1) {
+                startTime = System.currentTimeMillis()
+            }
             for ((setBaseUri, uri) in schemaUrls) {
                 val resolver = SimpleResolver(setBaseUri)
 
@@ -99,7 +112,14 @@ class TestXSTestSuite {
         }
         val endTime = System.currentTimeMillis()
         val duration = (endTime-startTime)/iterCount.coerceAtLeast(1)
-        println("Duration time (${schemaUrls.size} documents): $duration ms")
+
+        if (iterCount==0)  {
+            println("Duration time (${schemaUrls.size} documents): $duration ms")
+        } else {
+            val initialTime = startTime-initTime
+            println("Duration time (${schemaUrls.size} documents × $iterCount): $duration ms (+${initialTime-duration} ms)")
+
+        }
         assertTrue(duration<10000, "Duration expected less than 10 seconds" )
     }
 

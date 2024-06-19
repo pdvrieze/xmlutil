@@ -32,20 +32,27 @@ import java.io.InputStream
 import java.net.URI
 import java.net.URL
 
-class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
+class SimpleResolver(internal val xml: XML, private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
     ResolvedSchema.Resolver {
+
+        constructor(xml: XML, baseUrl: URL, isNetworkResolvingAllowed: Boolean = false) :
+                this(xml, baseUrl.toURI(), isNetworkResolvingAllowed)
+
+    constructor(baseURI: URI, isNetworkResolvingAllowed: Boolean = false) : this(
+        XML {
+            defaultPolicy {
+                autoPolymorphic = true
+                throwOnRepeatedElement = true
+                verifyElementOrder = true
+                isStrictAttributeNames = true
+            }
+        },
+        baseURI,
+        isNetworkResolvingAllowed
+    )
 
     constructor(baseURI: URL, isNetworkResolvingAllowed: Boolean = false) :
             this(baseURI.toURI(), isNetworkResolvingAllowed)
-
-    private val xml = XML {
-        defaultPolicy {
-            autoPolymorphic = true
-            throwOnRepeatedElement = true
-            verifyElementOrder = true
-            isStrictAttributeNames = true
-        }
-    }
 
     init {
         require(baseURI.isAbsolute) {
@@ -102,7 +109,7 @@ class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Bo
     }
 
     override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
-        return SimpleResolver(baseURI.resolve2(schemaLocation.value))
+        return SimpleResolver(xml, baseURI.resolve2(schemaLocation.value))
     }
 
     override fun resolve(relativeUri: VAnyURI): VAnyURI {
