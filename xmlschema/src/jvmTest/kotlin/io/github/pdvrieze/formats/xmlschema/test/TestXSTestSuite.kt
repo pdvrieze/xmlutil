@@ -28,11 +28,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlStreaming
+import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
@@ -66,12 +64,12 @@ class TestXSTestSuite {
         }
 
         val nodes = mutableListOf<DynamicNode>()
-        val schemaUrls: List<Pair<URI, URI>> = suiteURL.withXmlReader { xmlReader ->
+        val schemaUrls: List<Pair<URL, URL>> = suiteURL.withXmlReader { xmlReader ->
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             suite.testSetRefs
 //                .filter { arrayOf("sunMeta/").any { m -> it.href.contains(m) } }
                 .flatMap { setRef ->
-                val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
+                val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
                 val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
 
                 val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
@@ -90,7 +88,7 @@ class TestXSTestSuite {
         for (i in 0 .. iterCount) {
             if (i==1) startTime = System.currentTimeMillis()
             for ((setBaseUri, uri) in schemaUrls) {
-                uri.toURL().openStream().use {
+                uri.openStream().use {
                     val resolver = SimpleResolver(setBaseUri)
 
                     try {
@@ -128,11 +126,11 @@ class TestXSTestSuite {
                     "wgMeta").any { m -> it.href.contains(m) } }
 //                .filter { arrayOf("msMeta/Notation", "msMeta/Schema", "msMeta/SimpleType",
 //                    "msMeta/Wildcards").any { m -> it.href.contains(m) } }
-                .filter { (it.href.contains("msMeta/")) }
+//                .filter { (it.href.contains("msMeta/")) }
 //                .filter { (it.href.contains("wgMeta/")) }
                 .map { setRef ->
 
-                    val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
+                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
                     val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
 
                     val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
@@ -152,7 +150,7 @@ class TestXSTestSuite {
             nodes.addAll(subNodes)
             val typeTests = buildDynamicContainer("Test types") {
                 val schemaUrls: List<URL> = suite.testSetRefs.flatMap { setRef ->
-                    val setBaseUrl: URI = javaClass.getResource("/xsts/${setRef.href}").toURI()
+                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
                     val resolver = SimpleResolver(setBaseUrl)
 
                     val ts = setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) }
@@ -163,7 +161,7 @@ class TestXSTestSuite {
                     }.flatMap { schemaTest ->
                         schemaTest.schemaDocuments
                     }.map { schemaDoc ->
-                        setBaseUrl.resolve(schemaDoc.href).toURL()
+                        setBaseUrl.resolve(schemaDoc.href)
                     }.filter {
                         "particlesIc006.xsd" in it.path
                     }
@@ -468,7 +466,7 @@ data class ElementInfo(val name: QName, var hasBeenAbsent: Boolean = false, var 
 }
 
 private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
-    setBaseUrl: URI,
+    setBaseUrl: URL,
     group: TSTestGroup,
     testSetVersion: List<SchemaVersion>?
 ) {
@@ -499,7 +497,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
 }
 
 private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
-    setBaseUrl: URI,
+    setBaseUrl: URL,
     instanceTest: TSInstanceTest,
     schemaDoc: TSSchemaDocument,
     documentation: String
@@ -507,7 +505,7 @@ private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
     val instanceDoc = instanceTest.instanceDocument
     val resolver = SimpleResolver(setBaseUrl)
     dynamicTest("Instance document ${instanceDoc.href} exists") {
-        setBaseUrl.resolve(instanceDoc.href).toURL().openStream().use { stream ->
+        setBaseUrl.resolve(instanceDoc.href).openStream().use { stream ->
             assertNotNull(stream)
         }
     }
@@ -521,7 +519,7 @@ private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
 }
 
 private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
-    setBaseUrl: URI,
+    setBaseUrl: URL,
     schemaTest: TSSchemaTest,
     schemaDoc: TSSchemaDocument,
     documentation: String,
@@ -532,10 +530,10 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         "1.1" -> listOf(SchemaVersion.V1_1)
         else -> testGroupVersions ?: SchemaVersion.entries
     }
-    val resolver = SimpleResolver(setBaseUrl)
+    val resolver = SimpleResolver(setBaseUrl.toURI())
 
     dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists") {
-        setBaseUrl.resolve(schemaDoc.href).toURL().openStream().use { stream ->
+        setBaseUrl.resolve(schemaDoc.href).openStream().use { stream ->
             assertNotNull(stream)
         }
     }
@@ -670,6 +668,10 @@ inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
 
 inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
     return openStream().use { inStream ->
-        XmlStreaming.newReader(inStream, "UTF-8").use(body)
+        xmlStreaming.newReader(inStream, "UTF-8").use(body)
     }
+}
+
+fun URL.resolve(path: String): URL {
+    return URL(this, path)
 }

@@ -533,22 +533,22 @@
   </test>
   <test path="suntest/xsd015.e/xsd015.e">
     <expected validity="invalid" exception="NoSuchElementException"
-              message="^No type with name \{http://www.w3.org/2001/XMLSchema\}abc found"/>
+              message="^No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
   </test>
   <test path="suntest/xsd016.e/xsd016.e">
     <expected validity="invalid" exception="NoSuchElementException"
-              message="^No type with name \{http://www.w3.org/2001/XMLSchema\}abc found"/>
+              message="^No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
   </test>
   <test path="suntest/xsd017.e/xsd017.e">
-    <expected validity="invalid" exception="NoSuchElementException" message="No type with name \{foo\}def found"/>
+    <expected validity="invalid" exception="NoSuchElementException" message="No type with name '\{foo\}def' found"/>
   </test>
   <test path="suntest/xsd018.e/xsd018.e">
     <expected validity="invalid" exception="NoSuchElementException"
-              message="No type with name \{http://www.w3.org/2001/XMLSchema\}abc found"/>
+              message="No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
   </test>
   <test path="suntest/xsd019.e/xsd019.e">
     <expected validity="invalid" exception="NoSuchElementException"
-              message="No type with name \{http://www.w3.org/2001/XMLSchema\}abc found"/>
+              message="No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
   </test>
   <test path="suntest/xsd020-2.e/xsd020-2.e">
     <expected validity="invalid" exception="NoSuchElementException" message="No attribute with name \{foo\}abc found"/>
@@ -615,7 +615,7 @@
               message="No attribute group with name \{AttrGroup/name\}wrongName found"/>
   </test>
   <test path="AGroupDef/ag_targetns00101m1_n/AG_targetNS00101m1_n">
-    <expected validity="invalid" exception="SerializationException"
+    <expected validity="invalid" exception="XmlException"
               message="Missing namespace for prefix wrongNS in QName value"/>
   </test>
   <test path="AGroupDef/annotation00101m2/annotation00101m2">

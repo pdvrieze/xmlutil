@@ -25,6 +25,9 @@ import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
+import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -53,16 +56,14 @@ kotlin {
     js {
         browser()
         nodejs()
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                sourceMapEmbedSources = "always"
-                suppressWarnings = false
-                verbose = true
-                metaInfo = true
-                moduleKind = "umd"
-                main = "call"
-            }
+
+        compilerOptions {
+            sourceMap = true
+            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+            suppressWarnings = false
+            verbose = true
+            moduleKind = JsModuleKind.MODULE_UMD
+            main = JsMainFunctionExecutionMode.NO_CALL
         }
     }
 
@@ -87,6 +88,7 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(projects.schemaTests)
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
                 implementation(libs.serialization.json)
@@ -108,7 +110,7 @@ kotlin {
 
 addNativeTargets(includeWasm = false, includeWasi = false)
 
-doPublish()
+//doPublish()
 
 config {
     dokkaModuleName = "xmlschema"

@@ -4,5 +4,5 @@
 	branch = pages
 
 [submodule "xsdtests"]
-	path = xmlschema/src/jvmTest/resources/xsts
+	path = schemaTests/src/jvmMain/resources/xsts
 	url = https://github.com/w3c/xsdtests.git

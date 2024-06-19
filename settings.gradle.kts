@@ -67,6 +67,7 @@ include(":testutil")
 include(":examples")
 if (includeSchema) {
     include(":xmlschema")
+    include(":schemaTests")
 }
 
 project(":core").projectDir = file("core/base")

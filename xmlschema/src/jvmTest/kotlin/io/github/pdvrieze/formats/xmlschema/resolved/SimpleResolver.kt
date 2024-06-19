@@ -36,6 +36,10 @@ import java.net.URL
 
 internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAllowed: Boolean = false) :
     ResolvedSchema.Resolver {
+
+    constructor(baseURI: URL, isNetworkResolvingAllowed: Boolean = false) :
+            this(baseURI.toURI(), isNetworkResolvingAllowed)
+
     private val xml = XML {
         defaultPolicy {
             autoPolymorphic = true
@@ -45,6 +49,11 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
         }
     }
 
+    init {
+        require(baseURI.isAbsolute) {
+            "URI ${baseURI} is not absolute"
+        }
+    }
 
     override val baseUri: VAnyURI
         get() = baseURI.toASCIIString().toAnyUri()
@@ -57,13 +66,13 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
                     schemaUri.host != baseURI.host)
         ) {
             when (schemaLocation.value) {
-                "http://www.w3.org/XML/2008/06/xlink.xsd" -> return baseURI.resolve("/xlink.xsd").withXmlReader { reader ->
+                "http://www.w3.org/XML/2008/06/xlink.xsd" -> return baseURI.resolve2("/xlink.xsd").withXmlReader { reader ->
                     xml.decodeFromReader<XSSchema>(reader)
                 }
                 else -> throw FileNotFoundException("Absolute uri references are not supported ${schemaLocation}")
             }
         }
-        return baseURI.resolve(schemaUri).withXmlReader { reader ->
+        return baseURI.resolve2(schemaUri).withXmlReader { reader ->
             xml.decodeFromReader<XSSchema>(reader)
         }
     }
@@ -84,7 +93,7 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
             }
         }
         val stream = try {
-            baseURI.resolve(schemaUri).toURL().openStream()
+            baseURI.resolve2(schemaUri).toURL().openStream()
         } catch (e: FileNotFoundException) {
             return null
         }
@@ -95,13 +104,20 @@ internal class SimpleResolver(private val baseURI: URI, val isNetworkResolvingAl
     }
 
     override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
-        return SimpleResolver(baseURI.resolve(schemaLocation.value))
+        return SimpleResolver(baseURI.resolve2(schemaLocation.value))
     }
 
     override fun resolve(relativeUri: VAnyURI): VAnyURI {
-        return baseURI.resolve(relativeUri.xmlString).toASCIIString().toAnyUri()
+        return baseURI.resolve2(relativeUri.xmlString).toASCIIString().toAnyUri()
     }
 }
+
+internal fun URI.resolve2(other: URI): URI = when {
+    other.isAbsolute -> other
+    else -> URL(toURL(), other.toASCIIString()).toURI()
+}
+
+internal fun URI.resolve2(other: String): URI = resolve2(URI.create(other))
 
 private inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
     return toURL().withXmlReader(body)
