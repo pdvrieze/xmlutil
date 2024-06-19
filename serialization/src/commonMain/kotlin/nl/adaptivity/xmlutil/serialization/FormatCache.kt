@@ -20,12 +20,14 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
+import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 
@@ -35,43 +37,38 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
 public class FormatCache {
-    private val cache = mutableMapOf<QName, XmlTypeDescriptor>()
+    private val cache = mutableMapOf<TypeKey, XmlTypeDescriptor>()
 
-    internal inline fun lookupType(namespace: Namespace?, serialName: String, kind: SerialKind, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(QName(namespace?.namespaceURI ?: "", serialName), kind, defaultValue)
+    @OptIn(ExperimentalSerializationApi::class)
+    internal fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
+        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
     }
 
-    internal inline fun lookupType(
-        parentName: QName,
-        serialName: String,
-        kind: SerialKind,
-        crossinline defaultValue: () -> XmlTypeDescriptor
-    ): XmlTypeDescriptor {
-        return lookupType(QName(parentName.namespaceURI, serialName), kind, defaultValue)
+    /**
+     * Lookup a type descriptor for this type with the given namespace.
+     * @param parentName A key
+     */
+    @OptIn(ExperimentalSerializationApi::class)
+    internal fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
+        return lookupType(TypeKey(parentName.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
     }
 
-    internal inline fun lookupType(namespace: String, serialName: String, kind: SerialKind, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(QName(namespace, serialName), kind, defaultValue)
+    @OptIn(ExperimentalSerializationApi::class)
+    internal fun lookupType(name: QName, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
+        return lookupType(TypeKey(name.namespaceURI, name.localPart), kind, defaultValue)
     }
 
-    internal inline fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(QName(namespace?.namespaceURI ?: "", serialDesc.serialName), serialDesc.kind, defaultValue)
-    }
-
-    internal inline fun lookupType(parentName: QName, serialDesc: SerialDescriptor, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(QName(parentName.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
-    }
-
-    internal inline fun lookupType(namespace: String, serialDesc: SerialDescriptor, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(QName(namespace, serialDesc.serialName), serialDesc.kind, defaultValue)
-    }
-
-    internal inline fun lookupType(name: QName, kind: SerialKind, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
+    @OptIn(ExperimentalSerializationApi::class)
+    private inline fun lookupType(name: TypeKey, kind: SerialKind, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
         return when (kind) {
             StructureKind.MAP,
             StructureKind.LIST -> defaultValue()
 
             else -> cache.computeIfAbsent(name, defaultValue)
         }
+    }
+
+    private data class TypeKey(val namespace: String, val serialName: String) {
+        constructor(namespace: String?, serialName: String, dummy: Boolean = false) : this(namespace ?: "", serialName)
     }
 }

@@ -1791,6 +1791,7 @@ public class ParentInfo(
 
             else -> {
                 val ns = descriptor.tagParent.namespace
+                config.lookupTypeDesc(ns, elementSerialDescriptor)
                 config.formatCache.lookupType(ns, elementSerialDescriptor) {
                     XmlTypeDescriptor(config, elementSerialDescriptor, ns)
                 }

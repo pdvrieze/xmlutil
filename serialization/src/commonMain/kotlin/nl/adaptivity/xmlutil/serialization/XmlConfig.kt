@@ -21,12 +21,14 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -50,6 +52,11 @@ private constructor(
     public val nilAttribute: Pair<QName, String>? = null,
     public val xmlVersion: XmlVersion = XmlVersion.XML11
 ) {
+    internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
+        return formatCache.lookupType(parentNamespace, serialDescriptor) {
+            XmlTypeDescriptor(this, serialDescriptor, parentNamespace)
+        }
+    }
 
     @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi

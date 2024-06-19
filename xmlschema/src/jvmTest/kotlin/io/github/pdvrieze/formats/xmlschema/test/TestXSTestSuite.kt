@@ -96,10 +96,10 @@ class TestXSTestSuite {
         val initTime = System.currentTimeMillis()
         var startTime = initTime
         val iterCount = 5
+
         for (i in 0 .. iterCount) {
-            if (i==1) {
-                startTime = System.currentTimeMillis()
-            }
+            if (i == 1) startTime = System.currentTimeMillis()
+
             for ((setBaseUri, uri) in schemaUrls) {
                 val resolver = SimpleResolver(setBaseUri)
 
