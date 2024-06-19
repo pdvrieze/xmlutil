@@ -256,6 +256,9 @@ internal open class XmlDecoderBase internal constructor(
              * But only if decodeInline was called previously.
              */
             val desc = when {
+                xmlDescriptor is XmlContextualDescriptor ->
+                    xmlDescriptor.resolve(deserializer.descriptor, config, serializersModule)
+
                 triggerInline && xmlDescriptor is XmlInlineDescriptor
                 -> xmlDescriptor.getElementDescriptor(0)
 

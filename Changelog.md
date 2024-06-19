@@ -1,8 +1,12 @@
-#0.90.2
+#0.90.2-SNAPSHOT
+Changes:
+- Add "work in progress" xml schema module to the dev branch. This
+  is not yet ready for release (but will parse most xml schemas)
 Fixes:
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
   workaround for a regresion in 2.0 that doesn't allow resolving enum
   constants in this case.
+- Fix deserialization with contextual serializer #220 
 
 # 0.90.0 2.0 will go
 *(June 13, 2024)
