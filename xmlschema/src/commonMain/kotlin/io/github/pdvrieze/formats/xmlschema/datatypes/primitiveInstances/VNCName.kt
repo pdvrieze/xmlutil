@@ -25,6 +25,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmName
 
@@ -36,8 +38,8 @@ interface VNCName : VName {
     }
 
 
-    @JvmInline
-    private value class Inst(override val xmlString: String) : VNCName {
+//    @JvmInline
+    private class Inst(override val xmlString: String, version: XmlVersion = XmlVersion.XML11) : VNCName {
 
         init {
             // This can not go through NCNameType as VNCName is used in AtomicDatatype
@@ -50,6 +52,10 @@ interface VNCName : VName {
     @OptIn(XmlUtilInternal::class)
     class Serializer : SimpleTypeSerializer<VNCName>("token") {
         override fun deserialize(decoder: Decoder): VNCName {
+            val version = when {
+                (decoder is XML.XmlInput) && decoder.input.version=="1.0" -> XmlVersion.XML10
+                else -> XmlVersion.XML11
+            }
             return Inst(WhitespaceValue.COLLAPSE.normalize(VString(decoder.decodeString())).xmlString)
         }
     }
