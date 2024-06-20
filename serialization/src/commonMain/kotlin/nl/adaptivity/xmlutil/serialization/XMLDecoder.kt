@@ -283,8 +283,7 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         private val locationInfo: XmlReader.LocationInfo?,
         private val stringValue: String
-    ) :
-        Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
+    ) : Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             throw UnsupportedOperationException("Strings cannot be decoded to structures")
@@ -304,7 +303,7 @@ internal open class XmlDecoderBase internal constructor(
             return stringValue
         }
 
-        fun getInputWrapper(locationInfo: XmlReader.LocationInfo?): XmlReader {
+        private fun getInputWrapper(locationInfo: XmlReader.LocationInfo?): XmlReader {
             return XmlStringReader(locationInfo, stringValue)
         }
 
@@ -319,6 +318,10 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    /**
+     * Implementation of XmlReader that only reads a string. This is provided to allow XmlSerializers
+     * to work in cases such as an attribute list of QNames.
+     */
     private inner class XmlStringReader(
         override val extLocationInfo: XmlReader.LocationInfo?,
         private val stringValue: String
@@ -422,6 +425,7 @@ internal open class XmlDecoderBase internal constructor(
     ) : XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
         private var notNullChecked = false
 
+        /** Object that allows recording id attributes */
         var tagIdHolder: TagIdHolder? = null
 
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
@@ -444,12 +448,14 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
-            !notNullChecked -> super.decodeSerializableValue(deserializer)
-            else -> deserializer.deserializeSafe(this)
+            // This is needed to avoid loops with [kotlinx.serialization.internal.NullableSerializer]
+            notNullChecked -> deserializer.deserializeSafe(this)
+            else -> super.decodeSerializableValue(deserializer)
         }
 
         @ExperimentalSerializationApi
         override fun decodeInline(descriptor: SerialDescriptor): Decoder {
+            // TODO is this valid
             tagIdHolder = object : TagIdHolder {
                 override var tagId: String? = null
             }
@@ -464,41 +470,37 @@ internal open class XmlDecoderBase internal constructor(
             ).also { tagIdHolder = it }
 
             return when {
-                xmlDescriptor.kind is PrimitiveKind
-                -> throw AssertionError("A primitive is not a composite")
+                xmlDescriptor.kind is PrimitiveKind ->
+                    throw AssertionError("A primitive is not a composite")
 
-                xmlDescriptor is XmlPolymorphicDescriptor
-                -> PolymorphicDecoder(deserializer, xmlDescriptor, polyInfo).also { tagIdHolder = it }
+                xmlDescriptor is XmlPolymorphicDescriptor ->
+                    PolymorphicDecoder(deserializer, xmlDescriptor, polyInfo).also { tagIdHolder = it }
 
-                xmlDescriptor is XmlListDescriptor
-                -> {
-                    when {
-                        xmlDescriptor.outputKind == OutputKind.Attribute ->
-                            AttributeListDecoder(
-                                deserializer,
-                                xmlDescriptor,
-                                input.extLocationInfo,
-                                attrIndex
-                            ).also { tagIdHolder = it }
-
-                        xmlDescriptor.outputKind == OutputKind.Text ->
-                            ValueListDecoder(deserializer, xmlDescriptor, input.extLocationInfo)
-
-                        xmlDescriptor.isListEluded ->
-                            AnonymousListDecoder(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName).also {
-                                tagIdHolder = it
-                            }
-
-                        else -> NamedListDecoder(
+                xmlDescriptor is XmlListDescriptor -> when {
+                    xmlDescriptor.outputKind == OutputKind.Attribute ->
+                        AttributeListDecoder(
                             deserializer,
                             xmlDescriptor,
-                            typeDiscriminatorName
+                            input.extLocationInfo,
+                            attrIndex
                         ).also { tagIdHolder = it }
-                    }
+
+                    xmlDescriptor.outputKind == OutputKind.Text ->
+                        ValueListDecoder(deserializer, xmlDescriptor, input.extLocationInfo)
+
+                    xmlDescriptor.isListEluded ->
+                        AnonymousListDecoder(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName).also {
+                            tagIdHolder = it
+                        }
+
+                    else -> NamedListDecoder(
+                        deserializer,
+                        xmlDescriptor,
+                        typeDiscriminatorName
+                    ).also { tagIdHolder = it }
                 }
 
-                xmlDescriptor is XmlMapDescriptor
-                -> when {
+                xmlDescriptor is XmlMapDescriptor -> when {
                     xmlDescriptor.isListEluded ->
                         AnonymousMapDecoder(
                             deserializer,
@@ -553,8 +555,9 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>,
             previousValue: T?
         ): T {
-            val default =
-                (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, deserializer) ?: previousValue
+            val default = (xmlDescriptor as? XmlValueDescriptor)
+                ?.defaultValue(this@XmlDecoderBase, deserializer) ?: previousValue
+
             @Suppress("UNCHECKED_CAST")
             return default as T
         }

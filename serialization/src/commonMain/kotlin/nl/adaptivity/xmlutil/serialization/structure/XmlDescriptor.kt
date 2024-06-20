@@ -353,7 +353,7 @@ public class XmlRootDescriptor internal constructor(
     serializersModule: SerializersModule,
     descriptor: SerialDescriptor,
     tagName: DeclaredNameInfo,
-) : XmlDescriptor(config.policy, DetachedParent(config, descriptor, tagName, true, outputKind = null)) {
+) : XmlDescriptor(config.policy, DetachedParent(config, descriptor, tagName, true, elementUseOutputKind = null)) {
 
     internal constructor(
 // TODO get rid of coded, put policy in its place
@@ -1005,6 +1005,7 @@ public sealed class PolymorphicMode {
     public data class ATTR(public val name: QName) : PolymorphicMode()
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 public class XmlPolymorphicDescriptor internal constructor(
     config: XmlConfig,
     serializersModule: SerializersModule,
@@ -1043,83 +1044,91 @@ public class XmlPolymorphicDescriptor internal constructor(
             else -> PolymorphicMode.ATTR(polyAttrName)
         }
 
-        @OptIn(ExperimentalSerializationApi::class)
-        polyInfo = mutableMapOf<String, XmlDescriptor>().also { map ->
+        val localPolyInfo = HashMap<String, XmlDescriptor>()
 
-            val qName = when (polymorphicMode) {
-                PolymorphicMode.TRANSPARENT -> null
-                PolymorphicMode.TAG -> from(
-                    config = config,
-                    serializersModule = serializersModule, ParentInfo(config, this, 1), canBeAttribute = false
-                ).tagName
+        val wrapperUseName = when (polymorphicMode) {
+            PolymorphicMode.TRANSPARENT -> null
+            PolymorphicMode.TAG -> from(
+                config = config,
+                serializersModule = serializersModule, ParentInfo(config, this, 1), canBeAttribute = false
+            ).tagName.let { DeclaredNameInfo(it) }
 
-                is PolymorphicMode.ATTR -> tagName
-            }
+            is PolymorphicMode.ATTR -> tagName.let { DeclaredNameInfo(it) }
+        }
 
 
-            when {
-                xmlPolyChildren != null -> {
-                    val baseName = ActualNameInfo(
-                        tagParent.descriptor?.serialDescriptor?.serialName ?: "",
-                        tagParent.descriptor?.tagName ?: QName("", "")
-                    )
-                    val currentPkg = baseName.serialName.substringBeforeLast('.', "")
+        when {
+            // If the [XmlPolyChildren] annotation is present, use that
+            xmlPolyChildren != null -> {
+                val baseName = ActualNameInfo(
+                    tagParent.descriptor?.serialDescriptor?.serialName ?: "",
+                    tagParent.descriptor?.tagName ?: QName("", "")
+                )
+                val currentPkg = baseName.serialName.substringBeforeLast('.', "")
 
-                    val baseClass = serialDescriptor.capturedKClass ?: Any::class
+                val baseClass = serialDescriptor.capturedKClass ?: Any::class
 
-                    for (polyChild in xmlPolyChildren.value) {
-                        val childInfo =
-                            polyTagName(config, currentPkg, baseName, polyChild, baseClass, serializersModule)
+                for (polyChild in xmlPolyChildren.value) {
+                    val childInfo =
+                        polyTagName(config, currentPkg, baseName, polyChild, baseClass, serializersModule)
 
-                        val childSerializerParent =
-                            DetachedParent(
-                                childInfo.elementTypeDescriptor,
-                                childInfo.useNameInfo,
-                                false,
-                                outputKind = OutputKind.Element,
-                            )
-
-                        map[childInfo.describedName] =
-                            from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
-                    }
-                }
-
-                serialDescriptor.kind == PolymorphicKind.SEALED -> {
-                    // A sealed descriptor has 2 elements: 0 name: String, 1: value: elementDescriptor
-                    val d = serialDescriptor.getElementDescriptor(1)
-                    for (i in 0 until d.elementsCount) {
-                        val childDesc = d.getElementDescriptor(i)
-                        val childSerializerParent = DetachedParent(
-                            config,
-                            childDesc,
-                            qName,
-                            false,
-                            isDefaultNamespace = false
+                    val childSerializerParent =
+                        DetachedParent(
+                            tagParent.namespace,
+                            childInfo.elementTypeDescriptor,
+                            childInfo.useNameInfo,
+                            elementUseOutputKind = OutputKind.Element,
                         )
 
-                        map[childDesc.serialName] =
-                            from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
-
-                    }
+                    val xmlDescriptor = from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
+                    localPolyInfo[childInfo.describedName] = xmlDescriptor
                 }
+            }
 
-                else -> {
+            serialDescriptor.kind == PolymorphicKind.SEALED -> {
+                // A sealed descriptor has 2 elements: 0 name: String, 1: value: elementDescriptor
+                val d = serialDescriptor.getElementDescriptor(1)
+                for (i in 0 until d.elementsCount) {
+                    val childTypeDescriptor = config.lookupTypeDesc(tagParent.namespace, d.getElementDescriptor(i))
+                    val childDesc = d.getElementDescriptor(i)
+                    val childSerializerParent = DetachedParent(
+                        namespace = tagParent.namespace,
+                        elementTypeDescriptor = childTypeDescriptor,
+                        elementUseNameInfo = wrapperUseName ?: DeclaredNameInfo("value"),
+                    )
 
-                    val childDescriptors = serializersModule.getPolymorphicDescriptors(serialDescriptor)
+                    localPolyInfo[childDesc.serialName] =
+                        from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
 
-                    for (childDesc in childDescriptors) {
+                }
+            }
 
-                        val childSerializerParent =
-                            DetachedParent(config, childDesc, qName, false, outputKind, isDefaultNamespace = false)
+            else -> {
 
-                        map[childDesc.serialName] =
-                            from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
+                val childDescriptors = serializersModule.getPolymorphicDescriptors(serialDescriptor)
+
+                for (childDesc in childDescriptors) {
+                    val childTypeDescriptor = config.lookupTypeDesc(tagParent.namespace, childDesc)
+
+                    val childNameInfo = wrapperUseName ?: childTypeDescriptor.getNameInfo(tagName.toNamespace())
+
+                    val childSerializerParent =
+                        DetachedParent(
+                            tagParent.namespace,
+                            childTypeDescriptor,
+                            childNameInfo,
+                            elementUseOutputKind = outputKind,
+                        )
+
+                    localPolyInfo[childDesc.serialName] =
+                        from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
 
 
-                    }
                 }
             }
         }
+
+        polyInfo = localPolyInfo
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -1345,12 +1354,13 @@ public class XmlListDescriptor internal constructor(
             !isListEluded -> OutputKind.Element
 
             tagParent.useAnnIsValue == true -> {
-                val childDescriptor = serialDescriptor.getElementDescriptor(0)
+                val namespace = tagParent.namespace
+                val childTypeDescriptor = config.lookupTypeDesc(namespace, serialDescriptor.getElementDescriptor(0))
 
-                when (childDescriptor.kind) {
+                when (childTypeDescriptor.serialDescriptor.kind) {
                     is PolymorphicKind -> when {
                         config.policy.isTransparentPolymorphic(
-                            DetachedParent(config, childDescriptor, false),
+                            DetachedParent(namespace, childTypeDescriptor, DeclaredNameInfo("item")),
                             tagParent
                         ) -> OutputKind.Mixed
 
@@ -1588,10 +1598,11 @@ internal class InjectedParentTag(
 }
 
 private class DetachedParent(
+    namespace: Namespace?,
     override val elementTypeDescriptor: XmlTypeDescriptor,
     override val elementUseNameInfo: DeclaredNameInfo,
-    val isDocumentRoot: Boolean,
-    outputKind: OutputKind? = null,
+    val isDocumentRoot: Boolean = false,
+    override val elementUseOutputKind: OutputKind? = null,
     override val overriddenSerializer: KSerializer<*>? = null,
 ) : SafeParentInfo {
 
@@ -1600,89 +1611,20 @@ private class DetachedParent(
         serialDescriptor: SerialDescriptor,
         elementUseNameInfo: DeclaredNameInfo,
         isDocumentRoot: Boolean,
-        outputKind: OutputKind? = null,
+        elementUseOutputKind: OutputKind? = null,
         overriddenSerializer: KSerializer<*>? = null,
     ) : this(
+        elementUseNameInfo.annotatedName?.toNamespace(),
         (overriddenSerializer?.descriptor?.getXmlOverride() ?: serialDescriptor).let { descriptor ->
             val namespace = elementUseNameInfo.annotatedName?.toNamespace() ?: DEFAULT_NAMESPACE
             config.formatCache.lookupType(namespace, descriptor) {
                 XmlTypeDescriptor(config, descriptor, namespace)
             }
         },
-        elementUseNameInfo, isDocumentRoot, outputKind, overriddenSerializer
+        elementUseNameInfo, isDocumentRoot, elementUseOutputKind, overriddenSerializer
     )
 
-    constructor(
-        config: XmlConfig,
-        serialDescriptor: SerialDescriptor,
-        useName: QName?,
-        isDocumentRoot: Boolean,
-        outputKind: OutputKind? = null,
-        isDefaultNamespace: Boolean,
-    ) : this(
-        config.formatCache.lookupType(DEFAULT_NAMESPACE, serialDescriptor) {
-            XmlTypeDescriptor(config, serialDescriptor, DEFAULT_NAMESPACE)
-        },
-        useName,
-        isDocumentRoot,
-        outputKind,
-        isDefaultNamespace
-    )
-
-    @OptIn(ExperimentalSerializationApi::class)
-    constructor(
-        elementTypeDescriptor: XmlTypeDescriptor,
-        useName: QName?,
-        isDocumentRoot: Boolean,
-        outputKind: OutputKind? = null,
-        isDefaultNamespace: Boolean,
-    ) : this(
-        elementTypeDescriptor,
-        DeclaredNameInfo(
-            serialName = elementTypeDescriptor.serialDescriptor.run {
-                capturedKClass?.maybeSerialName ?: getNameInfo(
-                    DEFAULT_NAMESPACE,
-                    elementTypeDescriptor.typeAnnXmlSerialName
-                ).serialName
-            },
-            annotatedName = useName,
-            isDefaultNamespace = isDefaultNamespace
-        ),
-        isDocumentRoot,
-        outputKind
-    )
-
-    @OptIn(ExperimentalSerializationApi::class)
-    constructor(
-        config: XmlConfig,
-        serialDescriptor: SerialDescriptor,
-        isDocumentRoot: Boolean,
-        outputKind: OutputKind? = null,
-    ) : this(
-        config.formatCache.lookupType(DEFAULT_NAMESPACE, serialDescriptor) {
-            XmlTypeDescriptor(config, serialDescriptor, DEFAULT_NAMESPACE)
-        },
-        isDocumentRoot,
-        outputKind
-    )
-
-    @OptIn(ExperimentalSerializationApi::class)
-    constructor(
-        elementTypeDescriptor: XmlTypeDescriptor,
-        isDocumentRoot: Boolean,
-        outputKind: OutputKind? = null,
-    ) : this(
-        elementTypeDescriptor,
-        DeclaredNameInfo(
-            serialName = elementTypeDescriptor.serialDescriptor.let { sd ->
-                sd.capturedKClass?.maybeSerialName ?: sd.getNameInfo(DEFAULT_NAMESPACE, elementTypeDescriptor.typeAnnXmlSerialName).serialName
-            },
-            annotatedName = null,
-            isDefaultNamespace = false
-        ),
-        isDocumentRoot,
-        outputKind
-    )
+    override val namespace: Namespace = namespace ?: DEFAULT_NAMESPACE
 
     override fun copy(
         config: XmlConfig,
@@ -1691,6 +1633,7 @@ private class DetachedParent(
         overriddenSerializer: KSerializer<*>?,
     ): DetachedParent {
         return DetachedParent(
+            namespace,
             elementTypeDescriptor,
             useNameInfo,
             isDocumentRoot,
@@ -1703,17 +1646,11 @@ private class DetachedParent(
 
     override val descriptor: Nothing? get() = null
 
-    override val parentIsInline: Boolean get() = elementTypeDescriptor.serialDescriptor.isInline
+    override val parentIsInline: Boolean get() = false//elementTypeDescriptor.serialDescriptor.isInline
 
     override val elementUseAnnotations: Collection<Annotation> get() = emptyList()
 
     override val elementSerialDescriptor get() = elementTypeDescriptor.serialDescriptor
-
-    override val elementUseOutputKind: OutputKind? = outputKind
-
-    override val namespace: Namespace
-        get() = elementUseNameInfo.annotatedName?.toNamespace()
-            ?: DEFAULT_NAMESPACE
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -2014,6 +1951,10 @@ internal fun SerialDescriptor.getXmlOverride() = when {
             annotations.hasXmlSerialDesriptorMarker -> getElementDescriptor(-1).nullable
 
     else -> this
+}
+
+internal fun QName.normalize(): QName {
+    return copy(prefix = "")
 }
 
 private val List<Annotation>.hasXmlSerialDesriptorMarker: Boolean

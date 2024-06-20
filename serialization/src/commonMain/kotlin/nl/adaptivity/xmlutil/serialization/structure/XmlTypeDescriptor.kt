@@ -82,6 +82,11 @@ public class XmlTypeDescriptor internal constructor(
         config.policy.initialChildReorderMap(serialDescriptor)
     }
 
+    internal fun getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
+        @OptIn(ExperimentalSerializationApi::class)
+        return serialDescriptor.getNameInfo(parentNamespace, typeAnnXmlSerialName)
+    }
+
 
     public operator fun get(index: Int): XmlTypeDescriptor {
         return children[index]

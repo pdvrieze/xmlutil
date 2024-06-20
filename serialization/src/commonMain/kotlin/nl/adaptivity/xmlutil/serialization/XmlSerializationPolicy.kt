@@ -112,6 +112,7 @@ public interface XmlSerializationPolicy {
         val isDefaultNamespace: Boolean/* = false*/
     ) {
         internal constructor(serialName: String) : this(serialName, null, false)
+        internal constructor(name: QName): this(name.localPart, name, false)
 
         @OptIn(ExperimentalSerializationApi::class)
         internal constructor(descriptor: SerialDescriptor) : this(descriptor.serialName, (descriptor as? XmlSerialDescriptor)?.serialQName, false)
