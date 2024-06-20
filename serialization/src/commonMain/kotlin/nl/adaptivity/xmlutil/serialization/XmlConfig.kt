@@ -50,7 +50,8 @@ private constructor(
     public val indentString: String = "",
     public val policy: XmlSerializationPolicy,
     public val nilAttribute: Pair<QName, String>? = null,
-    public val xmlVersion: XmlVersion = XmlVersion.XML11
+    public val xmlVersion: XmlVersion = XmlVersion.XML11,
+    cachingEnabled: Boolean = true,
 ) {
     internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
         return formatCache.lookupType(parentNamespace, serialDescriptor) {
@@ -180,7 +181,8 @@ private constructor(
             unknownChildHandler = builder.unknownChildHandler ?: DEFAULT_UNKNOWN_CHILD_HANDLER
         ),
         nilAttribute = builder.nilAttribute,
-        xmlVersion = builder.xmlVersion
+        xmlVersion = builder.xmlVersion,
+        cachingEnabled = builder.isCachingEnabled,
     ) {
         isInlineCollapsed = builder.isInlineCollapsed
         isCollectingNSAttributes = builder.isCollectingNSAttributes
@@ -196,7 +198,10 @@ private constructor(
     public val omitXmlDecl: Boolean
         get() = xmlDeclMode == XmlDeclMode.None
 
-    public val formatCache: FormatCache = (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: FormatCache()
+    public val formatCache: FormatCache = when {
+        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache()
+        else -> FormatCache.Dummy
+    }
 
     /**
      * Configuration for the xml parser.
@@ -235,6 +240,9 @@ private constructor(
                     if (value is DefaultXmlSerializationPolicy && value.autoPolymorphic != autoPolymorphic) {
                         this.autoPolymorphic = value.autoPolymorphic
                     }
+                }
+                if (value is DefaultXmlSerializationPolicy && value.formatCache == FormatCache.Dummy && isCachingEnabled) {
+                    isCachingEnabled = false
                 }
             }
 
@@ -366,6 +374,19 @@ private constructor(
         public var nilAttribute: Pair<QName, String>? = null
 
         public var xmlVersion: XmlVersion = XmlVersion.XML11
+
+        public var isCachingEnabled: Boolean = true
+            set(value) {
+                if (field != value) {
+                    field = value
+
+                    // If this is changed, also update the policy
+                    val p = policy
+                    if (p is DefaultXmlSerializationPolicy) {
+                        policy = p.builder().apply { isCachingEnabled = value }.build()
+                    }
+                }
+            }
 
         /**
          * This property determines whether the serialization will collect all used namespaces and

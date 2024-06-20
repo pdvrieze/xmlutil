@@ -353,7 +353,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
-        formatCache = FormatCache(),
+        formatCache = DefaultFormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -418,7 +418,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
-        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: FormatCache(),
+        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -438,7 +438,10 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     @Deprecated("Use version that takes a FormatCache parameter")
-    protected constructor(builder: Builder) : this(FormatCache(), builder)
+    protected constructor(builder: Builder) : this(
+        if (builder.isCachingEnabled) DefaultFormatCache() else FormatCache.Dummy,
+        builder
+    )
 
     protected constructor(formatCache: FormatCache, builder: Builder): this(
         formatCache = formatCache,
@@ -454,8 +457,8 @@ private constructor(
         isStrictOtherAttributes = builder.isStrictOtherAttributes
     )
 
-    @Deprecated("Use version that takes a FormatCache parameter")
-    public constructor(config: Builder.() -> Unit) : this(FormatCache(), config)
+    @Deprecated("Use/implement version that takes a FormatCache parameter")
+    public constructor(config: Builder.() -> Unit) : this(DefaultFormatCache(),config)
 
     public constructor(formatCache: FormatCache, config: Builder.() -> Unit) : this(formatCache, Builder().apply(config))
 
@@ -745,19 +748,24 @@ private constructor(
         return if (orderConstraints.isEmpty()) null else orderConstraints.toList()
     }
 
+/*
     override fun updateReorderMap(
         original: Collection<XmlOrderConstraint>,
         children: List<XmlDescriptor>
     ): Collection<XmlOrderConstraint> {
-
-        fun Int.isAttribute(): Boolean = children[this].outputKind == OutputKind.Attribute
+        fun Int.isAttribute(): Boolean = children[this].effectiveOutputKind == OutputKind.Attribute
 
         return original.filter { constraint ->
-            val (isBeforeAttribute, isAfterAttribute) = constraint.map(Int::isAttribute)
+            if (constraint.before == XmlOrderConstraint.OTHERS || constraint.after == XmlOrderConstraint.OTHERS) {
+                true
+            } else {
+                val (isBeforeAttribute, isAfterAttribute) = constraint.map { it.isAttribute() }
 
-            isBeforeAttribute || (!isAfterAttribute)
+                isBeforeAttribute || (!isAfterAttribute)
+            }
         }
     }
+*/
 
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
@@ -898,6 +906,7 @@ private constructor(
         public var isStrictAttributeNames: Boolean,
         public var isStrictBoolean: Boolean,
         public var isStrictOtherAttributes: Boolean,
+        internal var isCachingEnabled: Boolean,
     ) {
         /**
          * Constructor for default builder. To set any values, use the property setters. The primary constructor
@@ -914,6 +923,7 @@ private constructor(
             isStrictAttributeNames = false,
             isStrictBoolean = false,
             isStrictOtherAttributes = false,
+            isCachingEnabled = true
         )
 
         @ExperimentalXmlUtilApi
@@ -928,6 +938,7 @@ private constructor(
             policy.isStrictAttributeNames,
             policy.isStrictOtherAttributes,
             policy.isStrictBoolean,
+            policy.formatCache != FormatCache.Dummy
         )
 
         public fun ignoreUnknownChildren() {

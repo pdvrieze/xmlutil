@@ -331,7 +331,7 @@ public sealed class XmlDescriptor(
                             )
 
                         else ->
-                            XmlCompositeDescriptor(
+                            config.formatCache.getCompositeDescriptor(
                                 config,
                                 serializersModule,
                                 effectiveSerializerParent,
@@ -843,11 +843,14 @@ internal constructor(
 
         fun XmlOrderNode.ensureDescriptor(): XmlDescriptor {
             val elementIdx = this.elementIdx
-            return descriptors[elementIdx] ?: let {
-                val canBeAttribute =
-                    if (predecessors.isEmpty()) true else predecessors.all { it.ensureDescriptor().outputKind == OutputKind.Attribute }
-
+            return descriptors[elementIdx] ?: Unit.run {
                 val parentInfo = ParentInfo(config, this@XmlCompositeDescriptor, elementIdx)
+
+                val canBeAttribute =
+                    parentInfo.useAnnIsElement != true && (predecessors.isEmpty()) || predecessors.all {
+                        it.ensureDescriptor().outputKind == OutputKind.Attribute
+                    }
+
                 from(config, serializersModule, parentInfo, canBeAttribute = canBeAttribute).also { desc ->
                     descriptors[elementIdx] = desc
                     parentInfo.useAnnIsValue?.let { valueChildIdx = elementIdx }
@@ -862,10 +865,24 @@ internal constructor(
         }
 
         // sequence starts should be independent values that can be ordered in any way
-        val sequenceStarts = initialChildReorderInfo.sequenceStarts(elementsCount)
-        for (orderedSequence in sequenceStarts) {
-            for (element in orderedSequence.flatten()) {
-                element.ensureDescriptor()
+        initialChildReorderInfo.sequenceStarts(elementsCount).let { sequenceStarts ->
+            for (orderedSequence in sequenceStarts) {
+                for (element in orderedSequence.flatten()) {
+                    element.ensureDescriptor()
+                }
+            }
+        }
+
+        val updatedReorderInfo = config.policy.updateReorderMap(initialChildReorderInfo, descriptors.toList().requireNoNulls())
+        if (initialChildReorderInfo != updatedReorderInfo) {
+            println("Order constraints updated for validity")
+            descriptors.fill(null)
+            updatedReorderInfo.sequenceStarts(elementsCount).let { sequenceStarts ->
+                for (orderedSequence in sequenceStarts) {
+                    for (element in orderedSequence.flatten()) {
+                        element.ensureDescriptor()
+                    }
+                }
             }
         }
 

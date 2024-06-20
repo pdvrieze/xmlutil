@@ -24,86 +24,78 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.serialization.structure.ParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
+import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 
-/**
- * Opaque caching class that allows for caching format related data (to speed up reuse). This is
- * intended to be stored on the config, thus reused through multiple serializations.
- * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
- */
-public class FormatCache {
-    private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
-    private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
-    private val pendingDescs = HashSet<DescKey>()
-
-    @OptIn(ExperimentalSerializationApi::class)
-    internal fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
-    }
+public abstract class FormatCache internal constructor(){
+    internal abstract fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
     /**
      * Lookup a type descriptor for this type with the given namespace.
      * @param parentName A key
      */
-    @OptIn(ExperimentalSerializationApi::class)
-    internal fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(parentName.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
-    }
+    internal abstract fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
     @OptIn(ExperimentalSerializationApi::class)
-    internal fun lookupType(name: QName, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(name.namespaceURI, name.localPart), kind, defaultValue)
-    }
+    internal abstract fun lookupType(name: QName, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
-    @OptIn(ExperimentalSerializationApi::class)
-    private inline fun lookupType(name: TypeKey, kind: SerialKind, crossinline defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return when (kind) {
-            StructureKind.MAP,
-            StructureKind.LIST -> defaultValue()
-
-            else -> typeDescCache.computeIfAbsent(name, defaultValue)
-        }
-    }
-
-    internal inline fun lookupDescriptor(
+    internal abstract fun lookupDescriptor(
         overridenSerializer: KSerializer<*>?,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean,
-        crossinline defaultValue: () -> XmlDescriptor
-    ): XmlDescriptor {
-        val key = DescKey(overridenSerializer, serializerParent, tagParent.takeIf { it !== serializerParent }, canBeAttribute)
+        defaultValue: () -> XmlDescriptor
+    ): XmlDescriptor
 
-        check(pendingDescs.add(key)) {
-            "Recursive lookup of ${serializerParent.elementSerialDescriptor.serialName}"
-        }
+    internal abstract fun getCompositeDescriptor(
+        config: XmlConfig,
+        serializersModule: SerializersModule,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        preserveSpace: Boolean,
+    ): XmlCompositeDescriptor
 
-        return elemDescCache.getOrPut(key) {
-//            val parentName = serializerParent.descriptor?.typeDescriptor?.run { typeQname ?: serialName }
-//            println("Calculating new descriptor for $parentName/${serializerParent.elementSerialDescriptor.serialName}")
-            defaultValue()
-        }.also {
-            pendingDescs.remove(key)
-        }
-    }
+    internal object Dummy: FormatCache() {
+        override fun lookupType(
+            namespace: Namespace?,
+            serialDesc: SerialDescriptor,
+            defaultValue: () -> XmlTypeDescriptor
+        ): XmlTypeDescriptor = defaultValue()
 
-    internal data class DescKey(
-        val overridenSerializer: KSerializer<*>?,
-        val serializerParent: SafeParentInfo,
-        val tagParent: SafeParentInfo?,
-        val canBeAttribute: Boolean
-    )
+        override fun lookupType(
+            parentName: QName,
+            serialDesc: SerialDescriptor,
+            defaultValue: () -> XmlTypeDescriptor
+        ): XmlTypeDescriptor = defaultValue()
 
-    private data class TypeKey(val namespace: String, val serialName: String) {
-        constructor(namespace: String?, serialName: String, dummy: Boolean = false) : this(namespace ?: "", serialName)
+        @OptIn(ExperimentalSerializationApi::class)
+        override fun lookupType(
+            name: QName,
+            kind: SerialKind,
+            defaultValue: () -> XmlTypeDescriptor
+        ): XmlTypeDescriptor = defaultValue()
+
+        override fun lookupDescriptor(
+            overridenSerializer: KSerializer<*>?,
+            serializerParent: SafeParentInfo,
+            tagParent: SafeParentInfo,
+            canBeAttribute: Boolean,
+            defaultValue: () -> XmlDescriptor
+        ): XmlDescriptor = defaultValue()
+
+        override fun getCompositeDescriptor(
+            config: XmlConfig,
+            serializersModule: SerializersModule,
+            serializerParent: SafeParentInfo,
+            tagParent: SafeParentInfo,
+            preserveSpace: Boolean
+        ): XmlCompositeDescriptor = XmlCompositeDescriptor(config, serializersModule, serializerParent, tagParent, preserveSpace)
     }
 }
+

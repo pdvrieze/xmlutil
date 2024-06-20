@@ -13,6 +13,7 @@ abstract class <#A: kotlin/Any?> nl.adaptivity.xmlutil.serialization/AbstractXml
     final fun deserialize(kotlinx.serialization.encoding/Decoder): #A // nl.adaptivity.xmlutil.serialization/AbstractXmlSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
     final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // nl.adaptivity.xmlutil.serialization/AbstractXmlSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
 }
+abstract class nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/FormatCache|null[0]
 abstract enum class nl.adaptivity.xmlutil.serialization/InputKind : kotlin/Enum<nl.adaptivity.xmlutil.serialization/InputKind> { // nl.adaptivity.xmlutil.serialization/InputKind|null[0]
     enum entry Attribute // nl.adaptivity.xmlutil.serialization/InputKind.Attribute|null[0]
     enum entry Element // nl.adaptivity.xmlutil.serialization/InputKind.Element|null[0]
@@ -374,9 +375,6 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor { //
     final var typeAnnXmlSerialName // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.typeAnnXmlSerialName|{}typeAnnXmlSerialName[0]
         final fun <get-typeAnnXmlSerialName>(): nl.adaptivity.xmlutil.serialization/XmlSerialName? // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.typeAnnXmlSerialName.<get-typeAnnXmlSerialName>|<get-typeAnnXmlSerialName>(){}[0]
 }
-final class nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/FormatCache|null[0]
-    constructor <init>() // nl.adaptivity.xmlutil.serialization/FormatCache.<init>|<init>(){}[0]
-}
 final class nl.adaptivity.xmlutil.serialization/PolyInfo { // nl.adaptivity.xmlutil.serialization/PolyInfo|null[0]
     constructor <init>(nl.adaptivity.xmlutil/QName, kotlin/Int, nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor) // nl.adaptivity.xmlutil.serialization/PolyInfo.<init>|<init>(nl.adaptivity.xmlutil.QName;kotlin.Int;nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor){}[0]
     final fun component1(): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/PolyInfo.component1|component1(){}[0]
@@ -547,6 +545,9 @@ final class nl.adaptivity.xmlutil.serialization/XmlConfig { // nl.adaptivity.xml
         final var indentString // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.indentString|{}indentString[0]
             final fun <get-indentString>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.indentString.<get-indentString>|<get-indentString>(){}[0]
             final fun <set-indentString>(kotlin/String) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.indentString.<set-indentString>|<set-indentString>(kotlin.String){}[0]
+        final var isCachingEnabled // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.isCachingEnabled|{}isCachingEnabled[0]
+            final fun <get-isCachingEnabled>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.isCachingEnabled.<get-isCachingEnabled>|<get-isCachingEnabled>(){}[0]
+            final fun <set-isCachingEnabled>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.isCachingEnabled.<set-isCachingEnabled>|<set-isCachingEnabled>(kotlin.Boolean){}[0]
         final var isCollectingNSAttributes // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.isCollectingNSAttributes|{}isCollectingNSAttributes[0]
             final fun <get-isCollectingNSAttributes>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.isCollectingNSAttributes.<get-isCollectingNSAttributes>|<get-isCollectingNSAttributes>(){}[0]
             final fun <set-isCollectingNSAttributes>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.isCollectingNSAttributes.<set-isCollectingNSAttributes>|<set-isCollectingNSAttributes>(kotlin.Boolean){}[0]
@@ -811,7 +812,6 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
     open fun preserveSpace(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.preserveSpace|preserveSpace(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
     open fun serialNameToQName(kotlin/String, nl.adaptivity.xmlutil/Namespace): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.serialNameToQName|serialNameToQName(kotlin.String;nl.adaptivity.xmlutil.Namespace){}[0]
     open fun shouldEncodeElementDefault(nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.shouldEncodeElementDefault|shouldEncodeElementDefault(nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor?){}[0]
-    open fun updateReorderMap(kotlin.collections/Collection<nl.adaptivity.xmlutil.serialization.structure/XmlOrderConstraint>, kotlin.collections/List<nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor>): kotlin.collections/Collection<nl.adaptivity.xmlutil.serialization.structure/XmlOrderConstraint> // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.updateReorderMap|updateReorderMap(kotlin.collections.Collection<nl.adaptivity.xmlutil.serialization.structure.XmlOrderConstraint>;kotlin.collections.List<nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor>){}[0]
     open val isStrictAttributeNames // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isStrictAttributeNames|{}isStrictAttributeNames[0]
         open fun <get-isStrictAttributeNames>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isStrictAttributeNames.<get-isStrictAttributeNames>|<get-isStrictAttributeNames>(){}[0]
     open val isStrictBoolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isStrictBoolean|{}isStrictBoolean[0]

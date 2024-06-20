@@ -85,7 +85,6 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun preserveSpace (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public fun serialNameToQName (Ljava/lang/String;Lnl/adaptivity/xmlutil/Namespace;)Ljavax/xml/namespace/QName;
 	public fun shouldEncodeElementDefault (Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
-	public fun updateReorderMap (Ljava/util/Collection;Ljava/util/List;)Ljava/util/Collection;
 }
 
 public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder {
@@ -129,13 +128,7 @@ public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : nl/ad
 	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Element;Z)V
 }
 
-public final class nl/adaptivity/xmlutil/serialization/FormatCache {
-	public fun <init> ()V
-}
-
-public final class nl/adaptivity/xmlutil/serialization/FormatCache$inlined$sam$i$java_util_function_Function$0 : java/util/function/Function {
-	public fun <init> (Lkotlin/jvm/functions/Function1;)V
-	public final synthetic fun apply (Ljava/lang/Object;)Ljava/lang/Object;
+public abstract class nl/adaptivity/xmlutil/serialization/FormatCache {
 }
 
 public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
@@ -460,6 +453,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public final fun isCachingEnabled ()Z
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
 	public final fun policyBuilder ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;
@@ -470,6 +464,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun recommended_0_87_0 ()V
 	public final fun recommended_0_87_0 (Lkotlin/jvm/functions/Function1;)V
 	public final fun setAutoPolymorphic (Ljava/lang/Boolean;)V
+	public final fun setCachingEnabled (Z)V
 	public final fun setCollectingNSAttributes (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
 	public final fun setIndent (I)V
