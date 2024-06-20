@@ -353,7 +353,7 @@ public class XmlRootDescriptor internal constructor(
     serializersModule: SerializersModule,
     descriptor: SerialDescriptor,
     tagName: DeclaredNameInfo,
-) : XmlDescriptor(config.policy, DetachedParent(config, descriptor, tagName, true, elementUseOutputKind = null)) {
+) : XmlDescriptor(config.policy, DetachedParent(config, descriptor, tagName, true)) {
 
     internal constructor(
 // TODO get rid of coded, put policy in its place
@@ -777,7 +777,9 @@ internal constructor(
         config: XmlConfig,
         serializersModule: SerializersModule
     ): XmlDescriptor {
-        val overriddenParentInfo = DetachedParent(config, descriptor, useNameInfo, false)
+        val typeDescriptor = config.lookupTypeDesc(tagParent.namespace, descriptor)
+
+        val overriddenParentInfo = DetachedParent(tagParent.namespace, typeDescriptor, useNameInfo)
 
         return from(config, serializersModule, overriddenParentInfo, tagParent, canBeAttribute)
     }
@@ -1538,6 +1540,7 @@ public interface SafeParentInfo {
 
     /** The raw serial descriptor of the element*/
     public val elementSerialDescriptor: SerialDescriptor
+        get() = elementTypeDescriptor.serialDescriptor
 
     /** Overidden serializer of the element*/
     public val overriddenSerializer: KSerializer<*>?
@@ -1550,8 +1553,6 @@ public interface SafeParentInfo {
 
     public fun copy(
         config: XmlConfig,
-        useNameInfo: DeclaredNameInfo = elementUseNameInfo,
-        useOutputKind: OutputKind? = elementUseOutputKind,
         overriddenSerializer: KSerializer<*>? = this.overriddenSerializer
     ): SafeParentInfo
 
@@ -1577,21 +1578,18 @@ internal class InjectedParentTag(
     override val elementUseAnnotations: Collection<Annotation>
         get() = emptyList()
 
-    override val elementSerialDescriptor: SerialDescriptor
-        get() = elementTypeDescriptor.serialDescriptor
-
     override fun copy(
         config: XmlConfig,
-        useNameInfo: DeclaredNameInfo,
-        useOutputKind: OutputKind?,
         overriddenSerializer: KSerializer<*>?
     ): InjectedParentTag {
+        val newElementTypeDescriptor = overriddenSerializer?.let { config.lookupTypeDesc(namespace, it.descriptor) }
+            ?: elementTypeDescriptor
         return InjectedParentTag(
             index,
-            elementTypeDescriptor,
-            useNameInfo,
+            newElementTypeDescriptor,
+            elementUseNameInfo,
             namespace,
-            useOutputKind,
+            elementUseOutputKind,
             overriddenSerializer
         )
     }
@@ -1611,46 +1609,36 @@ private class DetachedParent(
         serialDescriptor: SerialDescriptor,
         elementUseNameInfo: DeclaredNameInfo,
         isDocumentRoot: Boolean,
-        elementUseOutputKind: OutputKind? = null,
-        overriddenSerializer: KSerializer<*>? = null,
     ) : this(
-        elementUseNameInfo.annotatedName?.toNamespace(),
-        (overriddenSerializer?.descriptor?.getXmlOverride() ?: serialDescriptor).let { descriptor ->
-            val namespace = elementUseNameInfo.annotatedName?.toNamespace() ?: DEFAULT_NAMESPACE
-            config.formatCache.lookupType(namespace, descriptor) {
-                XmlTypeDescriptor(config, descriptor, namespace)
+        namespace = elementUseNameInfo.annotatedName?.toNamespace(),
+        elementTypeDescriptor = (elementUseNameInfo.annotatedName?.toNamespace() ?: DEFAULT_NAMESPACE).let { namespace ->
+            config.formatCache.lookupType(namespace, serialDescriptor) {
+                XmlTypeDescriptor(config, serialDescriptor, namespace)
             }
         },
-        elementUseNameInfo, isDocumentRoot, elementUseOutputKind, overriddenSerializer
+        elementUseNameInfo = elementUseNameInfo,
+        isDocumentRoot = isDocumentRoot
     )
 
     override val namespace: Namespace = namespace ?: DEFAULT_NAMESPACE
 
     override fun copy(
         config: XmlConfig,
-        useNameInfo: DeclaredNameInfo,
-        useOutputKind: OutputKind?,
         overriddenSerializer: KSerializer<*>?,
     ): DetachedParent {
-        return DetachedParent(
-            namespace,
-            elementTypeDescriptor,
-            useNameInfo,
-            isDocumentRoot,
-            useOutputKind,
-            overriddenSerializer
-        )
+        val newElementTypeDescriptor = overriddenSerializer?.let { config.lookupTypeDesc(namespace, it.descriptor) }
+            ?: elementTypeDescriptor
+
+        return DetachedParent(namespace, newElementTypeDescriptor, elementUseNameInfo)
     }
 
     override val index: Int get() = -1
 
     override val descriptor: Nothing? get() = null
 
-    override val parentIsInline: Boolean get() = false//elementTypeDescriptor.serialDescriptor.isInline
+    override val parentIsInline: Boolean get() = false
 
     override val elementUseAnnotations: Collection<Annotation> get() = emptyList()
-
-    override val elementSerialDescriptor get() = elementTypeDescriptor.serialDescriptor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -1693,11 +1681,9 @@ public class ParentInfo(
 
     override fun copy(
         config: XmlConfig,
-        useNameInfo: DeclaredNameInfo,
-        useOutputKind: OutputKind?,
         overriddenSerializer: KSerializer<*>?
     ): ParentInfo {
-        return ParentInfo(config, descriptor, index, useNameInfo, useOutputKind, overriddenSerializer)
+        return ParentInfo(config, descriptor, index, elementUseNameInfo, elementUseOutputKind, overriddenSerializer)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1730,14 +1716,6 @@ public class ParentInfo(
     @OptIn(ExperimentalSerializationApi::class)
     override val elementTypeDescriptor: XmlTypeDescriptor by lazy {
         when {
-            overriddenSerializer != null -> {
-                val elemDesc = overriddenSerializer.descriptor.getXmlOverride()
-                config.formatCache.lookupType(descriptor.tagName, elemDesc) {
-                    XmlTypeDescriptor(config, elemDesc, descriptor.tagName.toNamespace())
-                }
-            }
-
-            index == -1 -> descriptor.typeDescriptor
             elementSerialDescriptor.kind == SerialKind.CONTEXTUAL ->
                 descriptor.typeDescriptor
 
