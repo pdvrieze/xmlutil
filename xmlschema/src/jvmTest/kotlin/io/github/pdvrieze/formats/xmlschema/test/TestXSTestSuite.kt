@@ -28,11 +28,14 @@ import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
+import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.w3.xml.xmschematestsuite.*
@@ -82,7 +85,7 @@ class TestXSTestSuite {
                     } ?: emptyList()
                 }
             }
-        }
+        }//.filter { it.second.toString().contains("wildcards") }
 
         var xml = XML {
             defaultPolicy {
@@ -101,10 +104,9 @@ class TestXSTestSuite {
             if (i == 1) startTime = System.currentTimeMillis()
 
             for ((setBaseUri, uri) in schemaUrls) {
-                val resolver = SimpleResolver(setBaseUri)
-
+                val resolver = SimpleResolver(xml, setBaseUri)
                 try {
-                    val schema = resolver.readSchema(VAnyURI.Serializer.invoke(uri.toString()))
+                    val schema = resolver.readSchema(VAnyURI(uri.toString()))
                 } catch (e: Exception) {
                     System.err.println("Failure to read schema: $uri \n${e.message?.prependIndent("        ")}")
                 }
