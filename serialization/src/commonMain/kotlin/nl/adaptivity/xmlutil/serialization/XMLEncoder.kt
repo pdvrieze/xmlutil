@@ -68,47 +68,38 @@ internal open class XmlEncoderBase internal constructor(
             return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
         }
 
-        override fun encodeBoolean(value: Boolean) =
-            encodeString(value.toString())
+        override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
 
-        override fun encodeByte(value: Byte) =
-            when (xmlDescriptor.isUnsigned) {
-                true -> encodeString(value.toUByte().toString())
-                else -> encodeString(value.toString())
-            }
+        override fun encodeByte(value: Byte) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toUByte().toString())
+            else -> encodeString(value.toString())
+        }
 
-        override fun encodeShort(value: Short) =
-            when (xmlDescriptor.isUnsigned) {
-                true -> encodeString(value.toUShort().toString())
-                else -> encodeString(value.toString())
-            }
+        override fun encodeShort(value: Short) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toUShort().toString())
+            else -> encodeString(value.toString())
+        }
 
-        override fun encodeInt(value: Int) =
-            when (xmlDescriptor.isUnsigned) {
-                true -> encodeString(value.toUInt().toString())
-                else -> encodeString(value.toString())
-            }
+        override fun encodeInt(value: Int) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toUInt().toString())
+            else -> encodeString(value.toString())
+        }
 
-        override fun encodeLong(value: Long) =
-            when (xmlDescriptor.isUnsigned) {
-                true -> encodeString(value.toULong().toString())
-                else -> encodeString(value.toString())
-            }
+        override fun encodeLong(value: Long) = when (xmlDescriptor.isUnsigned) {
+            true -> encodeString(value.toULong().toString())
+            else -> encodeString(value.toString())
+        }
 
-        override fun encodeFloat(value: Float) =
-            encodeString(value.toString())
+        override fun encodeFloat(value: Float) = encodeString(value.toString())
 
-        override fun encodeDouble(value: Double) =
-            encodeString(value.toString())
+        override fun encodeDouble(value: Double) = encodeString(value.toString())
 
-        override fun encodeChar(value: Char) =
-            encodeString(value.toString())
+        override fun encodeChar(value: Char) = encodeString(value.toString())
 
         @OptIn(ExperimentalXmlUtilApi::class)
         override fun encodeString(value: String) {
             // string doesn't need parsing so take a shortcut
-            val defaultValue =
-                (xmlDescriptor as XmlValueDescriptor).default
+            val defaultValue = (xmlDescriptor as XmlValueDescriptor).default
 
             if (value == defaultValue) return
 
@@ -121,9 +112,8 @@ internal open class XmlEncoderBase internal constructor(
                             smartWriteAttribute(discriminatorName, typeRef.toCName())
                         }
                         // Write the xml preserve attribute if the values starts or ends with whitespace
-                        if (!xmlDescriptor.preserveSpace && (value.first().isWhitespace() || value.last()
-                                .isWhitespace())
-                        ) {
+                        if (!xmlDescriptor.preserveSpace &&
+                            (value.first().isWhitespace() || value.last().isWhitespace())) {
                             // this uses attribute directly as no namespace declaration is valid/needed
                             target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
                         }
@@ -132,13 +122,12 @@ internal open class XmlEncoderBase internal constructor(
                     }
                 }
 
-                OutputKind.Attribute -> {
-                    smartWriteAttribute(serialName, value)
-                }
+                OutputKind.Attribute -> smartWriteAttribute(serialName, value)
 
                 OutputKind.Mixed,
-                OutputKind.Text -> {
-                    if (xmlDescriptor.isCData) target.cdsect(value) else target.text(value)
+                OutputKind.Text -> when {
+                    xmlDescriptor.isCData -> target.cdsect(value)
+                    else -> target.text(value)
                 }
             }
         }
@@ -172,7 +161,7 @@ internal open class XmlEncoderBase internal constructor(
             serializer: SerializationStrategy<T>,
             value: T
         ) {
-            when  {
+            when {
                 xmlDescriptor is XmlContextualDescriptor -> {
                     val actualDescriptor = xmlDescriptor.resolve(serializer.descriptor, config, serializersModule)
                     val delegateEncoder = XmlEncoder(actualDescriptor, elementIndex, discriminatorName)
@@ -429,12 +418,7 @@ internal open class XmlEncoderBase internal constructor(
         ) {
             val d = xmlDescriptor.getElementDescriptor(0)
             parent.defer(childIndex, d) {
-                parent.encodeSerializableElement(
-                    d,
-                    childIndex,
-                    serializer,
-                    value
-                )
+                parent.encodeSerializableElement(d, childIndex, serializer, value)
             }
         }
 
@@ -514,8 +498,7 @@ internal open class XmlEncoderBase internal constructor(
             return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
         }
 
-        private val deferredBuffer =
-            mutableListOf<Pair<Int, CompositeEncoder.() -> Unit>>()
+        private val deferredBuffer = arrayOfNulls<CompositeEncoder.() -> Unit>(xmlDescriptor.elementsCount)
 
         private val reorderInfo =
             (xmlDescriptor as? XmlCompositeDescriptor)?.childReorderMap
@@ -550,14 +533,14 @@ internal open class XmlEncoderBase internal constructor(
             } else if (!deferring) { // We should never defer if we are processing deferred elements
                 deferred()
             } else if (reorderInfo != null) {
-                deferredBuffer.add(reorderInfo[index] to deferred)
+                deferredBuffer[reorderInfo[index]] = deferred
             } else {
                 val outputKind =
                     itemDescriptor.outputKind
                 if (outputKind == OutputKind.Attribute) {
                     deferred()
                 } else {
-                    deferredBuffer.add(index to deferred)
+                    deferredBuffer[index] = deferred
                 }
             }
         }
@@ -764,9 +747,9 @@ internal open class XmlEncoderBase internal constructor(
             // This is a separate function to allow InlineTagEncoder to flush but not write the end tag
             deferring = false
 
-            val actions = deferredBuffer.sortedBy { it.first }
-            for ((_, deferred) in actions) {
-                deferred()
+//            val actions = deferredBuffer.sortedBy { it.first }
+            for (deferred in deferredBuffer) {
+                deferred?.invoke(this)
             }
         }
 
@@ -782,9 +765,7 @@ internal open class XmlEncoderBase internal constructor(
             }
 
             if (reorderInfo != null) {
-                val deferred: CompositeEncoder.() -> Unit =
-                    { smartWriteAttribute(actualAttrName, value) }
-                deferredBuffer.add(reorderInfo[index] to deferred)
+                deferredBuffer[reorderInfo[index]] = { smartWriteAttribute(actualAttrName, value) }
             } else {
                 smartWriteAttribute(actualAttrName, value)
             }
@@ -944,12 +925,8 @@ internal open class XmlEncoderBase internal constructor(
 
                             OutputKind.Mixed,
                             OutputKind.Inline,
-                            OutputKind.Element -> target.smartStartTag(
-                                childDesc.tagName
-                            ) {
-                                text(
-                                    value
-                                )
+                            OutputKind.Element -> target.smartStartTag(childDesc.tagName) {
+                                text(value)
                             }
 
                             OutputKind.Text ->
@@ -961,11 +938,7 @@ internal open class XmlEncoderBase internal constructor(
                 polymorphicMode == PolymorphicMode.TRANSPARENT -> {
                     when {
                         isMixed -> target.text(value)
-                        else -> target.smartStartTag(serialName) {
-                            text(
-                                value
-                            )
-                        }
+                        else -> target.smartStartTag(serialName) { text(value) }
                     }
                 }
 
@@ -978,11 +951,7 @@ internal open class XmlEncoderBase internal constructor(
                     }
                 }
 
-                else -> super.encodeStringElement(
-                    elementDescriptor,
-                    index,
-                    value
-                )
+                else -> super.encodeStringElement(elementDescriptor, index, value)
             }
         }
 
