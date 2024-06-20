@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
@@ -29,6 +30,9 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.serialization.structure.ParentInfo
+import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 
 /**
@@ -37,7 +41,9 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
 public class FormatCache {
-    private val cache = mutableMapOf<TypeKey, XmlTypeDescriptor>()
+    private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
+    private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
+    private val pendingDescs = HashSet<DescKey>()
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
@@ -64,9 +70,38 @@ public class FormatCache {
             StructureKind.MAP,
             StructureKind.LIST -> defaultValue()
 
-            else -> cache.computeIfAbsent(name, defaultValue)
+            else -> typeDescCache.computeIfAbsent(name, defaultValue)
         }
     }
+
+    internal inline fun lookupDescriptor(
+        overridenSerializer: KSerializer<*>?,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean,
+        crossinline defaultValue: () -> XmlDescriptor
+    ): XmlDescriptor {
+        val key = DescKey(overridenSerializer, serializerParent, tagParent.takeIf { it !== serializerParent }, canBeAttribute)
+
+        check(pendingDescs.add(key)) {
+            "Recursive lookup of ${serializerParent.elementSerialDescriptor.serialName}"
+        }
+
+        return elemDescCache.getOrPut(key) {
+//            val parentName = serializerParent.descriptor?.typeDescriptor?.run { typeQname ?: serialName }
+//            println("Calculating new descriptor for $parentName/${serializerParent.elementSerialDescriptor.serialName}")
+            defaultValue()
+        }.also {
+            pendingDescs.remove(key)
+        }
+    }
+
+    internal data class DescKey(
+        val overridenSerializer: KSerializer<*>?,
+        val serializerParent: SafeParentInfo,
+        val tagParent: SafeParentInfo?,
+        val canBeAttribute: Boolean
+    )
 
     private data class TypeKey(val namespace: String, val serialName: String) {
         constructor(namespace: String?, serialName: String, dummy: Boolean = false) : this(namespace ?: "", serialName)

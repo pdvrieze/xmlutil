@@ -229,114 +229,118 @@ public sealed class XmlDescriptor(
             tagParent: SafeParentInfo = serializerParent,
             canBeAttribute: Boolean
         ): XmlDescriptor {
+
             val overridenSerializer = config.policy.overrideSerializerOrNull(serializerParent, tagParent)
 
-            val elementSerialDescriptor: SerialDescriptor
-            val effectiveSerializerParent: SafeParentInfo
-            val effectiveTagParent: SafeParentInfo
+            return config.formatCache.lookupDescriptor(overridenSerializer, serializerParent, tagParent, canBeAttribute) {
 
-            when (overridenSerializer) {
-                null -> {
-                    elementSerialDescriptor = serializerParent.elementSerialDescriptor
-                    effectiveSerializerParent = serializerParent
-                    effectiveTagParent = tagParent
+
+                val elementSerialDescriptor: SerialDescriptor
+                val effectiveSerializerParent: SafeParentInfo
+                val effectiveTagParent: SafeParentInfo
+
+                when (overridenSerializer) {
+                    null -> {
+                        elementSerialDescriptor = serializerParent.elementSerialDescriptor
+                        effectiveSerializerParent = serializerParent
+                        effectiveTagParent = tagParent
+                    }
+
+                    else -> {
+                        elementSerialDescriptor = overridenSerializer.descriptor.getXmlOverride()
+                        effectiveSerializerParent = serializerParent.copy(
+                            config = config,
+                            overriddenSerializer = overridenSerializer
+                        )
+                        effectiveTagParent = tagParent.copy(config = config, overriddenSerializer = overridenSerializer)
+                    }
                 }
 
-                else -> {
-                    elementSerialDescriptor = overridenSerializer.descriptor.getXmlOverride()
-                    effectiveSerializerParent = serializerParent.copy(
-                        config = config,
-                        overriddenSerializer = overridenSerializer
-                    )
-                    effectiveTagParent = tagParent.copy(config = config, overriddenSerializer = overridenSerializer)
-                }
-            }
+                val preserveSpace = config.policy.preserveSpace(serializerParent, tagParent)
 
-            val preserveSpace = config.policy.preserveSpace(serializerParent, tagParent)
+                when (elementSerialDescriptor.kind) {
+                    SerialKind.ENUM,
+                    is PrimitiveKind ->
+                        XmlPrimitiveDescriptor(
+                            config.policy,
+                            effectiveSerializerParent,
+                            effectiveTagParent,
+                            canBeAttribute,
+                            preserveSpace
+                        )
 
-            when (elementSerialDescriptor.kind) {
-                SerialKind.ENUM,
-                is PrimitiveKind ->
-                    return XmlPrimitiveDescriptor(
-                        config.policy,
-                        effectiveSerializerParent,
-                        effectiveTagParent,
-                        canBeAttribute,
-                        preserveSpace
-                    )
+                    StructureKind.LIST ->
+                        XmlListDescriptor(
+                            config,
+                            serializersModule,
+                            effectiveSerializerParent,
+                            effectiveTagParent
+                        )
 
-                StructureKind.LIST ->
-                    return XmlListDescriptor(
-                        config,
-                        serializersModule,
-                        effectiveSerializerParent,
-                        effectiveTagParent
-                    )
+                    StructureKind.MAP -> {
+                        when {
+                            serializerParent.useAnnIsOtherAttributes ->
+                                XmlAttributeMapDescriptor(
+                                    config,
+                                    serializersModule,
+                                    effectiveSerializerParent,
+                                    effectiveTagParent
+                                )
 
-                StructureKind.MAP -> {
-                    return when {
-                        serializerParent.useAnnIsOtherAttributes ->
-                            XmlAttributeMapDescriptor(
+                            serializerParent.elementUseOutputKind == OutputKind.Attribute -> XmlAttributeMapDescriptor(
                                 config,
                                 serializersModule,
                                 effectiveSerializerParent,
                                 effectiveTagParent
                             )
 
-                        serializerParent.elementUseOutputKind == OutputKind.Attribute -> XmlAttributeMapDescriptor(
+                            else -> XmlMapDescriptor(
+                                config,
+                                serializersModule,
+                                effectiveSerializerParent,
+                                effectiveTagParent
+                            )
+                        }
+                    }
+
+                    is PolymorphicKind ->
+                        XmlPolymorphicDescriptor(
                             config,
                             serializersModule,
                             effectiveSerializerParent,
                             effectiveTagParent
                         )
 
-                        else -> XmlMapDescriptor(
+                    SerialKind.CONTEXTUAL ->
+                        XmlContextualDescriptor(
                             config,
-                            serializersModule,
                             effectiveSerializerParent,
-                            effectiveTagParent
+                            effectiveTagParent,
+                            canBeAttribute
                         )
+
+                    else -> when {
+                        config.isInlineCollapsed &&
+                                elementSerialDescriptor.isInline ->
+                            XmlInlineDescriptor(
+                                config,
+                                serializersModule,
+                                effectiveSerializerParent,
+                                effectiveTagParent,
+                                canBeAttribute
+                            )
+
+                        else ->
+                            XmlCompositeDescriptor(
+                                config,
+                                serializersModule,
+                                effectiveSerializerParent,
+                                effectiveTagParent,
+                                preserveSpace
+                            )
                     }
                 }
 
-                is PolymorphicKind ->
-                    return XmlPolymorphicDescriptor(
-                        config,
-                        serializersModule,
-                        effectiveSerializerParent,
-                        effectiveTagParent
-                    )
-
-                SerialKind.CONTEXTUAL ->
-                    return XmlContextualDescriptor(
-                        config,
-                        effectiveSerializerParent,
-                        effectiveTagParent,
-                        canBeAttribute
-                    )
-
-                else -> {} // fall through to other handler.
-            }
-
-            return when {
-                config.isInlineCollapsed &&
-                        elementSerialDescriptor.isInline ->
-                    XmlInlineDescriptor(
-                        config,
-                        serializersModule,
-                        effectiveSerializerParent,
-                        effectiveTagParent,
-                        canBeAttribute
-                    )
-
-                else ->
-                    XmlCompositeDescriptor(
-                        config,
-                        serializersModule,
-                        effectiveSerializerParent,
-                        effectiveTagParent,
-                        preserveSpace
-                    )
             }
         }
 
@@ -408,7 +412,7 @@ public class XmlRootDescriptor internal constructor(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + element.hashCode()
+        result = 31 * result + element.serialDescriptor.hashCode()
         return result
     }
 
@@ -657,17 +661,11 @@ public class XmlInlineDescriptor internal constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
-        if (!super.equals(other)) return false
-
-        other as XmlInlineDescriptor
-
-        return isUnsigned == other.isUnsigned
+        return super.equals(other)
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + isUnsigned.hashCode()
-        return result
+        return 31 * super.hashCode() + 137
     }
 
     private companion object {
@@ -819,7 +817,8 @@ internal constructor(
     public val attrMapChild: Int get() = lazyProps.attrMapChildIdx
 
     override val outputKind: OutputKind get() = OutputKind.Element
-    private val initialChildReorderInfo: Collection<XmlOrderConstraint>? get() = typeDescriptor.initialChildReorderInfo
+    private val initialChildReorderInfo: Collection<XmlOrderConstraint>?
+        get() = typeDescriptor.initialChildReorderInfo
 
     private val lazyProps: LazyProps by lazy {
         when (val roInfo = initialChildReorderInfo) {
@@ -1420,15 +1419,14 @@ public class XmlListDescriptor internal constructor(
         other as XmlListDescriptor
 
         if (isListEluded != other.isListEluded) return false
-        if (outputKind != other.outputKind) return false
-        return childDescriptor == other.childDescriptor
+        return outputKind == other.outputKind
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + isListEluded.hashCode()
         result = 31 * result + outputKind.hashCode()
-        result = 31 * result + childDescriptor.hashCode()
+        result = 31 * result + serialDescriptor.getElementDescriptor(0).hashCode()
         return result
     }
 
@@ -1686,7 +1684,7 @@ private class DetachedParent(
 
     override val index: Int get() = -1
 
-    override val descriptor: SafeXmlDescriptor? get() = null
+    override val descriptor: Nothing? get() = null
 
     override val parentIsInline: Boolean get() = elementTypeDescriptor.serialDescriptor.isInline
 
@@ -1762,7 +1760,7 @@ public class ParentInfo(
     }
 
     override fun hashCode(): Int {
-        var result = descriptor.hashCode()
+        var result = descriptor.serialDescriptor.hashCode()
         result = 31 * result + index
         result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
         result = 31 * result + elementUseNameInfo.hashCode()
@@ -1789,13 +1787,7 @@ public class ParentInfo(
             elementSerialDescriptor.kind == SerialKind.CONTEXTUAL ->
                 descriptor.typeDescriptor
 
-            else -> {
-                val ns = descriptor.tagParent.namespace
-                config.lookupTypeDesc(ns, elementSerialDescriptor)
-                config.formatCache.lookupType(ns, elementSerialDescriptor) {
-                    XmlTypeDescriptor(config, elementSerialDescriptor, ns)
-                }
-            }
+            else -> config.lookupTypeDesc(descriptor.tagParent.namespace, elementSerialDescriptor)
         }
     }
 
