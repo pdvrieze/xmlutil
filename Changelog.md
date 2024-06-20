@@ -2,6 +2,11 @@
 Changes:
 - Add "work in progress" xml schema module to the dev branch. This
   is not yet ready for release (but will parse most xml schemas)
+- Have the XmlReader.{version,standalone,encoding} properties be
+  retained by all readers (as existing parsers behave); reading these
+  values before the document declaration was seen (or known to not be
+  present) is non-deterministic.
+
 Fixes:
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
   workaround for a regresion in 2.0 that doesn't allow resolving enum

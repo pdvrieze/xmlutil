@@ -143,13 +143,13 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         }
 
     override val encoding: String?
-        get() = (current as StartDocumentEvent).encoding
+        get() = (current as? StartDocumentEvent)?.encoding ?: delegate.encoding
 
     override val standalone: Boolean?
-        get() = (current as StartDocumentEvent).standalone
+        get() = (current as? StartDocumentEvent)?.standalone ?: delegate.standalone
 
     override val version: String?
-        get() = (current as StartDocumentEvent).version
+        get() = (current as? StartDocumentEvent)?.version ?: delegate.version
 
     public fun nextEvent(): XmlEvent {
         if (hasPeekItems) {

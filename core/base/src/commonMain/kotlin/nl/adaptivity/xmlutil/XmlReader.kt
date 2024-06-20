@@ -154,10 +154,28 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /** The current namespace context */
     public val namespaceContext: IterableNamespaceContext
 
+    /**
+     * The declared encoding for the document. Unlike general parsing, this value is accessible
+     * after reading the document element. The document element must be the first non-whitespace
+     * element. The value for this property before document element presence is known is
+     * implementation defined (and may change).
+     */
     public val encoding: String?
 
+    /**
+     * The declared standalone status for the document. Unlike general parsing, this value is accessible
+     * after reading the document element. The document element must be the first non-whitespace
+     * element. The value for this property before document element presence is known is
+     * implementation defined (and may change).
+     */
     public val standalone: Boolean?
 
+    /**
+     * The declared xml version for the document. Unlike general parsing, this value is accessible
+     * after reading the document element. The document element must be the first non-whitespace
+     * element. The value for this property before document element presence is known is
+     * implementation defined (and may change).
+     */
     public val version: String?
 
     public interface LocationInfo

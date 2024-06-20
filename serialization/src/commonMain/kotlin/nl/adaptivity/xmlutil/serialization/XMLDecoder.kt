@@ -398,15 +398,11 @@ internal open class XmlDecoderBase internal constructor(
         override val namespaceContext: IterableNamespaceContext
             get() = input.namespaceContext
 
-        override val encoding: Nothing
-            get() = throw XmlSerialException("Strings have no document declarations")
+        override val encoding: Nothing? get() = null
 
+        override val standalone: Nothing? get() = null
 
-        override val standalone: Nothing
-            get() = throw XmlSerialException("Strings have no document declarations")
-
-        override val version: Nothing
-            get() = throw XmlSerialException("Strings have no document declarations")
+        override val version: Nothing? get() = null
     }
 
     internal interface TagIdHolder {

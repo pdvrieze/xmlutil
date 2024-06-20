@@ -83,8 +83,10 @@ public class KtXmlReader internal constructor(
         private set
 
     public override var version: String? = null
+        private set
 
     public override var standalone: Boolean? = null
+        private set
 
     private val srcBuf = CharArray(8192)
 

@@ -53,11 +53,12 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relax
                 chk = chk shl 8 or i.toUInt()
                 srcBuf[srcBufCount++] = i.toChar()
             }
+            bufferedInput.reset()
             if (srcBufCount == 4) {
                 when (chk) {
-                    0x00000FEFFu -> enc = "UTF-32BE"
+                    0x00000FEFFu -> { bufferedInput.skip(4); enc = "UTF-32BE" }
 
-                    0xFFFE_0000u -> enc = "UTF-32LE"
+                    0xFFFE_0000u -> { bufferedInput.skip(4); enc = "UTF-32LE" }
 
                     0x0000_003Cu -> {
                         enc = "UTF-32BE"
@@ -82,6 +83,8 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relax
                     }
 
                     0x3C3F_786Du -> { // starts with 8-bit "<?xm"
+                        bufferedInput.mark(4000)
+                        bufferedInput.skip(4)
                         while (true) {
                             val i: Int = bufferedInput.read()
                             if (i == -1) break
@@ -132,20 +135,24 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relax
                                 break
                             }
                         }
+                        bufferedInput.reset()
                     }
 
                     else -> when {
                         chk and 0xFFFF_0000u == 0xFEFF_0000u -> {
+                            bufferedInput.skip(2)
                             enc = "UTF-16BE"
                             srcBuf[0] = (srcBuf[2].code shl 8 or srcBuf[3].code).toChar()
                         }
 
                         chk and 0xFFFF_0000u == 0xFFFE_0000u -> {
+                            bufferedInput.skip(2)
                             enc = "UTF-16LE"
                             srcBuf[0] = (srcBuf[3].code shl 8 or srcBuf[2].code).toChar()
                         }
 
                         chk and 0xFFFF_FF00u == 0xEFBBBF00u -> {
+                            bufferedInput.skip(3)
                             enc = "UTF-8"
                             srcBuf[0] = srcBuf[3]
                         }
@@ -155,7 +162,7 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relax
         }
         if (enc == null) enc = "UTF-8"
 
-        bufferedInput.reset()
+
         return KtXmlReader(InputStreamReader(bufferedInput, enc), enc, relaxed = relaxed)
     } catch (e: Exception) {
         throw (e as? XmlException) ?: XmlException("Invalid stream or encoding: $e", e)

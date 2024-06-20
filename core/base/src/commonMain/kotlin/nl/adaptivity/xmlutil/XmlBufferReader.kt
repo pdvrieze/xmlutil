@@ -87,14 +87,27 @@ public class XmlBufferReader private constructor(
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
-    override val encoding: String?
-        get() = current<StartDocumentEvent>().encoding
+    override var encoding: String? = null
+        private set
 
-    override val standalone: Boolean?
-        get() = current<StartDocumentEvent>().standalone
+    override var standalone: Boolean? = null
+        private set
 
-    override val version: String?
-        get() = current<StartDocumentEvent>().version
+    override var version: String? = null
+        private set
+
+    init {
+        var p = 0
+        while (p < buffer.size && buffer[p].eventType == EventType.IGNORABLE_WHITESPACE) {
+            ++p
+        }
+        if (p < buffer.size && buffer[p].eventType == EventType.START_DOCUMENT) {
+            val d = buffer[p] as StartDocumentEvent
+            encoding = d.encoding
+            version = d.version
+            standalone = d.standalone
+        }
+    }
 
     override fun hasNext(): Boolean = currentPos + 1 < buffer.size
 
