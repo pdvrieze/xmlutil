@@ -544,6 +544,8 @@ internal open class XmlEncoderBase internal constructor(
         open fun defer(index: Int, itemDescriptor: XmlDescriptor = xmlDescriptor.getElementDescriptor(index), deferred: CompositeEncoder.() -> Unit) {
             if (itemDescriptor.doInline) {
                 // Don't defer inline values as it has a problem with the value serializer deferring
+                // This is needed as we allow manual inline that is not a value class (and thus
+                // doesn't call encodeInlineElement).
                 deferred()
             } else if (!deferring) { // We should never defer if we are processing deferred elements
                 deferred()
