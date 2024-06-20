@@ -25,12 +25,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUr
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.xmlStreaming
-import java.io.BufferedInputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.net.URI
 import java.net.URL
 
@@ -124,31 +122,12 @@ private inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
 }
 
 private inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
-    return openStream().withXmlReader(body)
+    return openStream().use { it.withXmlReader(body) }
 }
 
 private inline fun <R> InputStream.withXmlReader(body: (XmlReader) -> R): R {
-    val stream = when {
-        markSupported() -> this
-        else -> BufferedInputStream(this)
-    }
-    return stream.use { inStream ->
-        inStream.mark(4)
-        val c = inStream.read()
-        val charset: String = when {
-            c == 0xef && read() == 0xbb && read() == 0xbf -> "UTF-8"
-
-            c == 0xfe && read() == 0xff -> "UTF-16BE"
-
-            c == 0xff && read() == 0xfe -> "UTF-16LE"
-
-            else -> {
-                inStream.reset()
-                "UTF-8"
-            }
-        }
-
-        val reader = xmlStreaming.newGenericReader(InputStreamReader(inStream, charset))
+    return use { inStream ->
+        val reader = KtXmlReader(inStream)
         val r = reader.use(body)
         if (reader.eventType != EventType.END_DOCUMENT) {
             var e: EventType

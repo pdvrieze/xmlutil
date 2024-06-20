@@ -88,14 +88,12 @@ class TestXSTestSuite {
         for (i in 0 .. iterCount) {
             if (i==1) startTime = System.currentTimeMillis()
             for ((setBaseUri, uri) in schemaUrls) {
-                uri.openStream().use {
-                    val resolver = SimpleResolver(setBaseUri)
+                val resolver = SimpleResolver(setBaseUri)
 
-                    try {
-                        val schema = resolver.readSchema(VAnyURI.Serializer.invoke(uri.toString()))
-                    } catch (e: Exception) {
-                        System.err.println("Failure to read schema: $uri \n${e.message?.prependIndent("        ")}")
-                    }
+                try {
+                    val schema = resolver.readSchema(VAnyURI.Serializer.invoke(uri.toString()))
+                } catch (e: Exception) {
+                    System.err.println("Failure to read schema: $uri \n${e.message?.prependIndent("        ")}")
                 }
             }
         }
