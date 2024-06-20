@@ -707,7 +707,7 @@ internal open class XmlDecoderBase internal constructor(
                 val child = xmlDescriptor.getElementDescriptor(idx).toNonTransparentChild()
 
                 if (child is XmlPolymorphicDescriptor && child.isTransparent) {
-                    for ((_, childDescriptor) in child.polyInfo) {
+                    for (childDescriptor in child.polyInfo.values) {
                         /*
                          * For polymorphic value classes this cannot be a multi-value inline. Get
                          * the tag name from the child (even if it is inline).
@@ -1904,14 +1904,13 @@ internal open class XmlDecoderBase internal constructor(
                                     input.extLocationInfo,
                                     input.getAttributeValue(i)
                                 )
-                                val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true)
 
-                                val childQnames = xmlDescriptor.polyInfo.map { (childSerialName, childDesc) ->
-                                    childSerialName to config.policy.typeQName(childDesc)
-                                }
+                                // The QName corresponding to the type serialized
+                                val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true).normalize()
 
-                                detectedPolyType = childQnames.firstOrNull { it.second == typeQName }?.first
-                                    ?: throw XmlSerialException("Could not find child for type with qName: $typeQName. Candidates are: ${childQnames.joinToString()}")
+                                detectedPolyType = xmlDescriptor.typeQNameToSerialName[typeQName]
+                                    ?: throw XmlSerialException("Could not find child for type with qName: $typeQName. " +
+                                            "Candidates are: ${xmlDescriptor.typeQNameToSerialName.keys.sortedBy { it.localPart }.joinToString()}")
 
                                 polyTypeAttrname = attrName
                                 nextIndex = 1

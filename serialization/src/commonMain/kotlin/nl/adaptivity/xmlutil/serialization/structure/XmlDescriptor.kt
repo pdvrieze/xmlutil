@@ -1032,6 +1032,7 @@ public class XmlPolymorphicDescriptor internal constructor(
     public val polymorphicMode: PolymorphicMode
     public val isTransparent: Boolean get() = polymorphicMode == PolymorphicMode.TRANSPARENT
     public val polyInfo: Map<String, XmlDescriptor>
+    public val typeQNameToSerialName: Map<QName, String>
 
     init {
         val xmlPolyChildren = tagParent.useAnnPolyChildren
@@ -1047,6 +1048,7 @@ public class XmlPolymorphicDescriptor internal constructor(
         }
 
         val localPolyInfo = HashMap<String, XmlDescriptor>()
+        val localQNameToSerialName = HashMap<QName, String>()
 
         val wrapperUseName = when (polymorphicMode) {
             PolymorphicMode.TRANSPARENT -> null
@@ -1084,6 +1086,8 @@ public class XmlPolymorphicDescriptor internal constructor(
 
                     val xmlDescriptor = from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
                     localPolyInfo[childInfo.describedName] = xmlDescriptor
+                    val qName = config.policy.typeQName(xmlDescriptor).normalize()
+                    localQNameToSerialName[qName] = childInfo.describedName
                 }
             }
 
@@ -1099,8 +1103,10 @@ public class XmlPolymorphicDescriptor internal constructor(
                         elementUseNameInfo = wrapperUseName ?: DeclaredNameInfo("value"),
                     )
 
-                    localPolyInfo[childDesc.serialName] =
-                        from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
+                    val xmlDescriptor = from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
+                    localPolyInfo[childDesc.serialName] = xmlDescriptor
+                    val qName = config.policy.typeQName(xmlDescriptor).normalize()
+                    localQNameToSerialName[qName] = childDesc.serialName
 
                 }
             }
@@ -1122,15 +1128,16 @@ public class XmlPolymorphicDescriptor internal constructor(
                             elementUseOutputKind = outputKind,
                         )
 
-                    localPolyInfo[childDesc.serialName] =
-                        from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
-
-
+                    val xmlDescriptor = from(config, serializersModule, childSerializerParent, tagParent, canBeAttribute = false)
+                    localPolyInfo[childDesc.serialName] = xmlDescriptor
+                    val qName = config.policy.typeQName(xmlDescriptor).normalize()
+                    localQNameToSerialName[qName] = childDesc.serialName
                 }
             }
         }
 
         polyInfo = localPolyInfo
+        typeQNameToSerialName = localQNameToSerialName
     }
 
     @OptIn(ExperimentalSerializationApi::class)
