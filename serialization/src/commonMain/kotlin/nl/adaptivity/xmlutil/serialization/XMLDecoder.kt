@@ -982,20 +982,22 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         protected open fun Int.checkRepeatAndOrder(inputType: InputKind): Int = also { idx ->
-            checkRepeat()
-            if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
-                if (xmlDescriptor is XmlCompositeDescriptor) {
-                    // TODO optimize by caching ordering.
-                    val constraints = xmlDescriptor.childConstraints
-                    if (constraints != null) {
-                        for (childIdx in seenItems.indices) {
-                            if (seenItems[childIdx]) {
-                                if (constraints.isOrderedAfter(childIdx, this)) {
-                                    throw XmlSerialException(
-                                        "In ${xmlDescriptor.tagName}, found element ${
-                                            xmlDescriptor.friendlyChildName(childIdx)
-                                        } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints"
-                                    )
+            if (!config.isUnchecked) {
+                checkRepeat()
+                if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
+                    if (xmlDescriptor is XmlCompositeDescriptor) {
+                        // TODO optimize by caching ordering.
+                        val constraints = xmlDescriptor.childConstraints
+                        if (constraints != null) {
+                            for (childIdx in seenItems.indices) {
+                                if (seenItems[childIdx]) {
+                                    if (constraints.isOrderedAfter(childIdx, this)) {
+                                        throw XmlSerialException(
+                                            "In ${xmlDescriptor.tagName}, found element ${
+                                                xmlDescriptor.friendlyChildName(childIdx)
+                                            } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints"
+                                        )
+                                    }
                                 }
                             }
                         }

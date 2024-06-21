@@ -28,14 +28,12 @@ import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import kotlinx.serialization.KSerializer
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
-import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.impl.newReader
+import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
-import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.w3.xml.xmschematestsuite.*
@@ -50,14 +48,35 @@ import kotlin.test.assertTrue
 
 class TestXSTestSuite {
 
-    val xml = XML {
-        defaultPolicy {
-            autoPolymorphic = true
-            throwOnRepeatedElement = true
+    var xml: XML = XML {}
+
+    @Test
+    fun testParseGeneric() {
+        xml = XML {
+            isUnchecked = true
+            defaultPolicy {
+                autoPolymorphic = true
+                throwOnRepeatedElement = true
+            }
         }
+        xmlStreaming.setFactory(xmlStreaming.genericFactory)
+        testParseSpeed()
+        xmlStreaming.setFactory(null)
     }
 
     @Test
+    fun testParseStax() {
+        xml = XML {
+            defaultPolicy {
+                autoPolymorphic = true
+                throwOnRepeatedElement = true
+            }
+        }
+        xmlStreaming.setFactory(StAXStreamingFactory())
+        testParseSpeed()
+        xmlStreaming.setFactory(null)
+    }
+
     fun testParseSpeed() {
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
 
@@ -87,7 +106,7 @@ class TestXSTestSuite {
             }
         }//.filter { it.second.toString().contains("wildcards") }
 
-        var xml = XML {
+        val xml = this.xml.copy {
             defaultPolicy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true
@@ -98,7 +117,7 @@ class TestXSTestSuite {
 
         val initTime = System.currentTimeMillis()
         var startTime = initTime
-        val iterCount = 5
+        val iterCount = 10
 
         for (i in 0 .. iterCount) {
             if (i == 1) startTime = System.currentTimeMillis()
