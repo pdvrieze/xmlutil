@@ -23,8 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.serialization.XML
 import java.io.FileNotFoundException
@@ -134,7 +133,7 @@ private inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
 
 private inline fun <R> InputStream.withXmlReader(body: (XmlReader) -> R): R {
     return use { inStream ->
-        val reader = KtXmlReader(inStream)
+        val reader = xmlStreaming.newReader(inStream)
         val r = reader.use(body)
         if (reader.eventType != EventType.END_DOCUMENT) {
             var e: EventType
