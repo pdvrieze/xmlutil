@@ -695,6 +695,7 @@ internal open class XmlDecoderBase internal constructor(
 
                 for (idx in xmlDescriptor.contextualChildren) {
                     val child = xmlDescriptor.getElementDescriptor(idx) as XmlContextualDescriptor
+                    // This uses a "workaround" to find the actual deserializer.
                     val childSer = deserializer.findChildSerializer(idx, serializersModule)
                     val resolved = child.resolve(this, childSer.descriptor)
                     val childName = resolved.tagName.normalize()
@@ -740,6 +741,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
 
+            // The deserializer is provided as fallback/default
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
             return when {

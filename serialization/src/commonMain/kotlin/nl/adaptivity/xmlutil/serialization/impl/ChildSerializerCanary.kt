@@ -31,6 +31,9 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
 
 internal fun DeserializationStrategy<*>.findChildSerializer(index: Int, serializersModule: SerializersModule): DeserializationStrategy<*> {
+    /*
+     * This function actually has to use a canary as the type argument serializers are hidden.
+     */
     val canary = ChildSerializerCanary(index, serializersModule)
     try {
         deserialize(canary)
