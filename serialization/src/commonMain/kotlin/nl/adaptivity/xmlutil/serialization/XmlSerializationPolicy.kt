@@ -657,25 +657,11 @@ private constructor(
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun overrideSerializerOrNull(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
     ): KSerializer<*>? {
-        val elementSerialDescriptor = serializerParent.elementSerialDescriptor
-        val sn = elementSerialDescriptor.serialName
-        return when(sn.length) {
-            26 -> when {
-                sn!="javax.xml.namespace.QName?" -> null
-                elementSerialDescriptor.isNullable -> QNameSerializer.nullable
-                else -> QNameSerializer
-            }
-            25 -> when {
-                sn != "javax.xml.namespace.QName" -> null
-                else -> QNameSerializer
-            }
-            else -> null
-        }
+        return null
     }
 
     /**

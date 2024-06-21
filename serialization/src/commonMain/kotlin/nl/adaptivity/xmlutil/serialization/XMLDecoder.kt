@@ -162,7 +162,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeNull(): Nothing? {
             if (hasNullMark()) { // we have a nullable element marked nil using a nil attribute
                 input.nextTag()
-                input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                if (!config.isUnchecked) input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
                 return null
             }
             return super.decodeNull()
@@ -183,7 +183,7 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 when (descOutputKind) {
                     OutputKind.Element -> { // This may occur with list values.
-                        input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                        if (!config.isUnchecked) input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElement()
                     }
 
@@ -221,7 +221,7 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 when (xmlDescriptor.outputKind) {
                     OutputKind.Element -> {
-                        input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                        if (!config.isUnchecked) input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElementChunked(consumeChunk)
                         return
                     }
@@ -635,7 +635,7 @@ internal open class XmlDecoderBase internal constructor(
                 val index = decodeElementIndex(descriptor)
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
-            input.require(EventType.END_ELEMENT, readTagName)
+            if (!config.isUnchecked) input.require(EventType.END_ELEMENT, readTagName)
         }
 
     }
@@ -785,7 +785,7 @@ internal open class XmlDecoderBase internal constructor(
                     val r = effectiveDeserializer.deserializeXML(decoder, input, previousValue, isValueChild)
 
                     // Make sure that the end tag is not consumed - it will be consumed by the endStructure function
-                    if (input.eventType == EventType.END_ELEMENT && /*isValueChild && */input.depth < tagDepth) {
+                    if (input.eventType == EventType.END_ELEMENT && input.depth < tagDepth) {
                         input.pushBackCurrent()
                     }
 
@@ -883,16 +883,6 @@ internal open class XmlDecoderBase internal constructor(
 
         @OptIn(ExperimentalXmlUtilApi::class)
         open fun indexOf(name: QName, inputType: InputKind): Int {
-            // Two functions that allow matching only if the input kind matches the outputkind of the candidate
-
-            fun Int.checkInputType(): Int? {
-                val desc = contextualDescriptors[this] ?: xmlDescriptor.getElementDescriptor(this)
-                return if (inputType.mapsTo(desc)) this else null
-            }
-
-            fun PolyInfo.checkInputType(): PolyInfo? {
-                return if (inputType.mapsTo(this.descriptor)) this else null
-            }
 
             val isNameOfAttr = inputType == InputKind.Attribute
 
@@ -906,11 +896,13 @@ internal open class XmlDecoderBase internal constructor(
 
             val nameMap = if (isNameOfAttr) attrNameMap else tagNameMap
 
-            nameMap[normalizedName]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
+            nameMap[normalizedName]?.let { return it.checkRepeatAndOrder(inputType) }
 
-            polyMap[normalizedName]?.checkInputType()?.let {
-                return it.index.checkRepeatAndOrder(inputType).apply {
-                    currentPolyInfo = it
+            if (!isNameOfAttr) {
+                polyMap[normalizedName]?.let {
+                    return it.index.checkRepeatAndOrder(inputType).apply {
+                        currentPolyInfo = it
+                    }
                 }
             }
 
@@ -919,19 +911,14 @@ internal open class XmlDecoderBase internal constructor(
             if (isNameOfAttr && !config.policy.isStrictAttributeNames) {
                 if (name.namespaceURI.isEmpty()) {
                     val attrName = normalizedName.copy(namespaceURI = containingNamespaceUri)
-                    nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
-                    polyMap[attrName]?.checkInputType()?.let {
-                        currentPolyInfo = it
-                        return it.index.checkRepeat()
-                    }
+                    nameMap[attrName]?.let { return it.checkRepeat() }
                 }
 
                 if (name.prefix.isEmpty()) {
                     val emptyNsPrefix = input.getNamespaceURI("")
                     if (emptyNsPrefix != null) {
                         val attrName = normalizedName.copy(namespaceURI = emptyNsPrefix)
-                        nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
-                        polyMap[attrName]?.checkInputType()?.let { return it.index.checkRepeat() }
+                        nameMap[attrName]?.let { return it.checkRepeat() }
                     }
                 }
             }
@@ -939,7 +926,7 @@ internal open class XmlDecoderBase internal constructor(
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
             if (!config.policy.isStrictAttributeNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
-                nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
+                nameMap[QName(name.getLocalPart())]?.let { return it.checkRepeatAndOrder(inputType) }
             }
 
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
@@ -1043,8 +1030,7 @@ internal open class XmlDecoderBase internal constructor(
             }
             if (nulledItemsIdx >= 0) {
                 // This processes all "missing" elements.
-
-                input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
+                if (!config.isUnchecked) input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
 
                 if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.DECODE_DONE
 
@@ -1183,11 +1169,11 @@ internal open class XmlDecoderBase internal constructor(
 
                             // If there is no child descriptor and it is missing this can only be because it is
                             // either a list or nullable. It can be treated as such.
-                            childDesc.isNullable || when (childDesc.kind) {
+                            when (childDesc.kind) {
                                 StructureKind.LIST,
                                 StructureKind.MAP -> true
 
-                                else -> false
+                                else -> childDesc.isNullable
                             }
                         }
                     }
@@ -1205,10 +1191,12 @@ internal open class XmlDecoderBase internal constructor(
                 val index = decodeElementIndex(descriptor)
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
-            if (typeDiscriminatorName == null) {
-                input.require(EventType.END_ELEMENT, serialName)
-            } else { // if there is a type discriminator we have an inherited name
-                input.require(EventType.END_ELEMENT, null)
+            if (!config.isUnchecked) {
+                if (typeDiscriminatorName == null) {
+                    input.require(EventType.END_ELEMENT, serialName)
+                } else { // if there is a type discriminator we have an inherited name
+                    input.require(EventType.END_ELEMENT, null)
+                }
             }
         }
 
@@ -1765,7 +1753,7 @@ internal open class XmlDecoderBase internal constructor(
                         when (val e = input.peek()?.eventType) {
                             EventType.START_ELEMENT -> {
                                 input.next()
-                                require(input.name.isEquivalent(xmlDescriptor.entryName))
+                                if (!config.isUnchecked) require(input.name.isEquivalent(xmlDescriptor.entryName))
                                 return super.decodeElementIndex().also {
                                     require(it >= 0) { "Map entry must contain a (key) child" }
                                 }
@@ -1975,7 +1963,7 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             if (!xmlDescriptor.isTransparent) {
-                input.require(EventType.START_ELEMENT, null, "value")
+                if (!config.isUnchecked) input.require(EventType.START_ELEMENT, null, "value")
                 return super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
             }
 
@@ -1994,14 +1982,14 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             if (!xmlDescriptor.isTransparent) {
-                input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                if (!config.isUnchecked) input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             } else {
                 val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
                 if (!isMixed || !xmlDescriptor.isTransparent) { // Don't check in mixed mode as we could have just had raw text
                     val t = polyInfo?.tagName
                     if (t != null) {
-                        input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
+                        if (!config.isUnchecked) input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
                     } else {
                         super.endStructure(descriptor)
                     }

@@ -313,6 +313,7 @@ private constructor(
             this.isInlineCollapsed = config.isInlineCollapsed
             this.isCollectingNSAttributes = config.isCollectingNSAttributes
             this.xmlVersion = config.xmlVersion
+            this.isUnchecked = config.isUnchecked
         }
 
 

@@ -147,6 +147,7 @@ public sealed class XmlDescriptor(
         return (overriddenSerializer ?: fallback) as SerializationStrategy<V>
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Suppress("UNCHECKED_CAST")
     internal fun <V> effectiveDeserializationStrategy(fallback: DeserializationStrategy<V>): DeserializationStrategy<V> {
         if (overriddenSerializer == null) return fallback
@@ -915,7 +916,7 @@ internal constructor(
 
     private val lazyProps: LazyProps by lazy {
         when (val roInfo = initialChildReorderInfo) {
-            null -> getDefaultElementDescriptors(codecConfig)
+            null -> createElementDescriptors(codecConfig)
             else -> getReorderedElementDescriptors(codecConfig, roInfo)
         }
     }
@@ -995,7 +996,7 @@ internal constructor(
 
     }
 
-    private fun getDefaultElementDescriptors(
+    private fun createElementDescriptors(
         codecConfig: XmlCodecConfig
     ): LazyProps {
         var valueChildIdx = CompositeDecoder.UNKNOWN_NAME

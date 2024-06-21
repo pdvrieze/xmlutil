@@ -526,7 +526,7 @@ public class KtXmlReader internal constructor(
 
     private fun push(c: Int) {
         if (c < 0) error("UNEXPECTED EOF")
-        isWhitespace = isWhitespace and isXmlWhitespace(c.toChar())
+        isWhitespace = isWhitespace && isXmlWhitespace(c.toChar())
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf(txtBufPos * 4 / 3 + 4)
         }
@@ -711,8 +711,11 @@ public class KtXmlReader internal constructor(
 
     /** Does never read more than needed  */
     private fun peek(pos: Int): Int {
+        val srcBuf = srcBuf
         while (pos >= peekCount) {
             var nw: Int
+            val reader = reader
+
             when {
                 srcBuf.size <= 1 -> nw = reader.read()
                 srcBufPos < srcBufCount -> nw = srcBuf[srcBufPos++].code

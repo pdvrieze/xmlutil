@@ -81,7 +81,7 @@ class TestXSTestSuite {
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
 
         val override = javaClass.getResource("/override.xml").withXmlReader {
-            val compact = XML { recommended() }.decodeFromReader<CompactOverride>(it)
+            val compact = xml.decodeFromReader<CompactOverride>(it)
             OTSSuite(compact)
         }
 
@@ -114,6 +114,7 @@ class TestXSTestSuite {
                 isStrictAttributeNames = true
             }
         }
+        assertTrue(xml.config.isUnchecked)
 
         val initTime = System.currentTimeMillis()
         var startTime = initTime

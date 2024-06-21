@@ -20,9 +20,6 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import nl.adaptivity.xmlutil.serialization.structure.XmlContextualDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-
 public enum class InputKind {
     Element {
         override fun mapsTo(outputKind: OutputKind): Boolean {
@@ -37,11 +34,6 @@ public enum class InputKind {
             return outputKind == OutputKind.Text// || outputKind == OutputKind.Mixed
         }
     };
-
-    internal fun mapsTo(xmlDescriptor: XmlDescriptor): Boolean = when {
-        xmlDescriptor is XmlContextualDescriptor -> true // just allow context
-        else -> mapsTo(xmlDescriptor.outputKind)
-    }
 
     internal abstract fun mapsTo(outputKind: OutputKind): Boolean
 }
