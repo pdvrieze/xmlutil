@@ -375,11 +375,13 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         }
     }
 
-    public class NamespaceImpl(namespacePrefix: CharSequence, namespaceUri: CharSequence) : Namespace {
+    public class NamespaceImpl public constructor(namespacePrefix: String, namespaceUri: String) : Namespace {
 
-        override val prefix: String = namespacePrefix.toString()
+        override val prefix: String = namespacePrefix
+        override val namespaceURI: String = namespaceUri
 
-        override val namespaceURI: String = namespaceUri.toString()
+        public constructor(namespacePrefix: CharSequence, namespaceUri: CharSequence) :
+                this(namespacePrefix.toString(), namespaceUri.toString())
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

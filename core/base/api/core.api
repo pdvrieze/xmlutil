@@ -432,6 +432,7 @@ public abstract class nl/adaptivity/xmlutil/XmlEvent$NamedEvent : nl/adaptivity/
 
 public final class nl/adaptivity/xmlutil/XmlEvent$NamespaceImpl : nl/adaptivity/xmlutil/Namespace {
 	public fun <init> (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getNamespaceURI ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
@@ -700,7 +701,10 @@ public final class nl/adaptivity/xmlutil/XmlStreamingKt {
 }
 
 public final class nl/adaptivity/xmlutil/XmlStreaming_jvmKt {
+	public static final fun getGenericFactory (Lnl/adaptivity/xmlutil/IXmlStreaming;)Lnl/adaptivity/xmlutil/XmlStreaming$GenericFactory;
 	public static final fun getXmlStreaming ()Lnl/adaptivity/xmlutil/IXmlStreaming;
+	public static final fun newGenericReader (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/InputStream;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static final fun newReader (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/InputStream;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static final fun newReader (Lnl/adaptivity/xmlutil/IXmlStreaming;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static final fun newWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static final fun newWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;

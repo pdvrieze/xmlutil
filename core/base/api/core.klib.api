@@ -1531,6 +1531,7 @@ sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|
     }
     final class NamespaceImpl : nl.adaptivity.xmlutil/Namespace { // nl.adaptivity.xmlutil/XmlEvent.NamespaceImpl|null[0]
         constructor <init>(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlEvent.NamespaceImpl.<init>|<init>(kotlin.CharSequence;kotlin.CharSequence){}[0]
+        constructor <init>(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlEvent.NamespaceImpl.<init>|<init>(kotlin.String;kotlin.String){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil/XmlEvent.NamespaceImpl.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil/XmlEvent.NamespaceImpl.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // nl.adaptivity.xmlutil/XmlEvent.NamespaceImpl.toString|toString(){}[0]
