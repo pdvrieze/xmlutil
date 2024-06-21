@@ -41,7 +41,6 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
-import kotlin.collections.set
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -643,17 +642,13 @@ internal open class XmlDecoderBase internal constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     internal abstract inner class TagDecoderBase<D : XmlDescriptor>(
-        val deserializer: DeserializationStrategy<*>,
+        private val deserializer: DeserializationStrategy<*>,
         xmlDescriptor: D,
         protected val typeDiscriminatorName: QName?
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput, TagIdHolder {
 
         override var tagId: String? = null
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
-        private val tagNameToMembers: Map<QName, Int>
-        private val attrNameToMembers: Map<QName, Int>
-        private val polyChildren: Map<QName, PolyInfo>
-        private val contextualDescriptors: Array<XmlDescriptor?>
 
         /**
          * Determine whether whitespace is preserved in the content of the tag. This is a var as it
@@ -685,9 +680,12 @@ internal open class XmlDecoderBase internal constructor(
 
         protected var decodeElementIndexCalled = false
 
-        init {
+        private val tagNameToMembers: Map<QName, Int>
+        private val attrNameToMembers: Map<QName, Int>
+        private val polyChildren: Map<QName, PolyInfo> = xmlDescriptor.polyMap
+        private val contextualDescriptors: Array<XmlDescriptor?>
 
-            polyChildren = xmlDescriptor.polyMap
+        init {
             if (xmlDescriptor.contextualChildren.isNotEmpty()) {
                 val tagNameMap: MutableMap<QName, Int> = xmlDescriptor.tagNameMap.toMutableMap()
                 val attrNameMap: MutableMap<QName, Int> = xmlDescriptor.attrMap.toMutableMap()
@@ -775,19 +773,6 @@ internal open class XmlDecoderBase internal constructor(
 
             val isValueChild = xmlDescriptor.getValueChild() == index
 
-            if (false && effectiveDeserializer as DeserializationStrategy<*> === DeprecatedCompactFragmentSerializer
-                && isValueChild) {
-                // handle missing compact fragments
-                @Suppress("UNCHECKED_CAST")
-                if (nulledItemsIdx >= 0) return (CompactFragment("") as T)
-//                input.require(EventType.START_ELEMENT, null)
-                return input.siblingsToFragment().let {
-                    input.pushBackCurrent() // Make the closing tag again be the next read.
-                    @Suppress("UNCHECKED_CAST")
-                    (it as? CompactFragment ?: CompactFragment(it)) as T
-                }
-            }
-
             val decoder: Decoder = if (lastAttrIndex >= 0 && childXmlDescriptor is XmlAttributeMapDescriptor) {
                 AttributeMapDecoder(effectiveDeserializer, childXmlDescriptor, lastAttrIndex)
             } else {
@@ -797,10 +782,9 @@ internal open class XmlDecoderBase internal constructor(
 
             val result: T = when (effectiveDeserializer) {
                 is XmlDeserializationStrategy -> {
-                    val r = effectiveDeserializer
-                        .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
+                    val r = effectiveDeserializer.deserializeXML(decoder, input, previousValue, isValueChild)
 
-                    // Make sure that the (end tag is not consumed) - it will be consumed by the endStructure function
+                    // Make sure that the end tag is not consumed - it will be consumed by the endStructure function
                     if (input.eventType == EventType.END_ELEMENT && /*isValueChild && */input.depth < tagDepth) {
                         input.pushBackCurrent()
                     }
@@ -1774,7 +1758,16 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeElementIndex(): Int {
 
             if (!xmlDescriptor.isValueCollapsed) {
-                while (input.peek()?.eventType == EventType.IGNORABLE_WHITESPACE) input.next()
+                run {
+                    var e = input.peek()
+                    while (e?.run { eventType.isTextElement } == true) {
+                        if (e.eventType == EventType.TEXT) {
+                            require(e.isIgnorable) { "Text content found in named map body" }
+                        }
+                        input.next()
+                        e = input.peek()
+                    }
+                }
 
                 if (lastIndex.mod(2) == 1) {
                     when (input.peek()?.eventType) {
