@@ -43,8 +43,8 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
         parser.setInput(input, encoding)
     }
 
-    override val eventType: EventType
-        get() = DELEGATE_TO_LOCAL[parser.eventType]
+    override lateinit var eventType: EventType
+        private set
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
         return parser.getAttributeValue(nsUri, localName)
@@ -55,13 +55,23 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
     @Throws(XmlException::class)
     override fun hasNext(): Boolean {
         // TODO make this more robust (if needed)
-        return eventType !== EventType.END_DOCUMENT
+        return !isStarted || eventType !== EventType.END_DOCUMENT
     }
 
     @Throws(XmlException::class)
-    override fun next(): EventType = DELEGATE_TO_LOCAL[parser.nextToken()].also {
-        if (it == EventType.START_DOCUMENT) version = parser.getAttributeValue(null, "version")
-        isStarted = true
+    override fun next(): EventType {
+        val nextToken = when (val n = parser.nextToken()) {
+            XmlPullParser.TEXT -> when {
+                isXmlWhitespace(parser.text) -> { XmlPullParser.IGNORABLE_WHITESPACE }
+                else -> XmlPullParser.TEXT
+            }
+            else -> n
+        }
+        return DELEGATE_TO_LOCAL[nextToken].also {
+            eventType = it
+            if (it == EventType.START_DOCUMENT) version = parser.getAttributeValue(null, "version")
+            isStarted = true
+        }
     }
 
     @Throws(XmlException::class)
