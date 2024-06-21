@@ -24,8 +24,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
@@ -54,8 +52,7 @@ public abstract class FormatCache internal constructor(){
     ): XmlDescriptor
 
     internal abstract fun getCompositeDescriptor(
-        config: XmlConfig,
-        serializersModule: SerializersModule,
+        codecConfig: XML.XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         preserveSpace: Boolean,
@@ -90,12 +87,11 @@ public abstract class FormatCache internal constructor(){
         ): XmlDescriptor = defaultValue()
 
         override fun getCompositeDescriptor(
-            config: XmlConfig,
-            serializersModule: SerializersModule,
+            codecConfig: XML.XmlCodecConfig,
             serializerParent: SafeParentInfo,
             tagParent: SafeParentInfo,
             preserveSpace: Boolean
-        ): XmlCompositeDescriptor = XmlCompositeDescriptor(config, serializersModule, serializerParent, tagParent, preserveSpace)
+        ): XmlCompositeDescriptor = XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }
 }
 

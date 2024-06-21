@@ -53,11 +53,45 @@ private constructor(
     public val xmlVersion: XmlVersion = XmlVersion.XML11,
     cachingEnabled: Boolean = true,
 ) {
-    internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
-        return formatCache.lookupType(parentNamespace, serialDescriptor) {
-            XmlTypeDescriptor(this, serialDescriptor, parentNamespace)
-        }
+
+    /**
+     * Determines whether inline classes are merged with their content. Note that inline classes
+     * may still determine the tag name used for the data even if the actual contents come from
+     * the child content. The actual name used is ultimately determined by the [policy] in use.
+     *
+     * If the value is `false` inline classes will be handled like non-inline classes
+     */
+    public var isInlineCollapsed: Boolean = true
+        private set
+
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use indentString for better accuracy")
+    public val indent: Int
+        get() = indentString.countIndentedLength()
+
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use xmlDeclMode with more options")
+    public val omitXmlDecl: Boolean
+        get() = xmlDeclMode == XmlDeclMode.None
+
+    public val formatCache: FormatCache = when {
+        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache()
+        else -> FormatCache.Dummy
     }
+
+    /**
+     * This property determines whether the serialization will collect all used namespaces and
+     * emits all namespace attributes on the root tag.
+     */
+    public var isCollectingNSAttributes: Boolean = false
+        private set
+
+    /**
+     * This property can be used to disable various checks on the correctness of the serializer descriptions.
+     * This should speed up processing, but may give surprising results in the presence of an error.
+     */
+    public var isUnchecked: Boolean = false
+        private set
 
     @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
@@ -107,16 +141,6 @@ private constructor(
         nilAttribute
     )
 
-    /**
-     * Determines whether inline classes are merged with their content. Note that inline classes
-     * may still determine the tag name used for the data even if the actual contents come from
-     * the child content. The actual name used is ultimately determined by the [policy] in use.
-     *
-     * If the value is `false` inline classes will be handled like non-inline classes
-     */
-    public var isInlineCollapsed: Boolean = true
-        private set
-
     @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
     @Deprecated("Use the primary constructor that takes a recoverable child handler")
@@ -128,12 +152,6 @@ private constructor(
         unknownChildHandler: NonRecoveryUnknownChildHandler,
         policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic),
     ) : this(repairNamespaces, xmlDeclMode, indentString, autoPolymorphic, unknownChildHandler.asRecoverable(), policy)
-
-    /**
-     * This property determines whether the serialization will collect all used namespaces and
-     * emits all namespace attributes on the root tag.
-     */
-    public var isCollectingNSAttributes: Boolean = false
 
     @ExperimentalXmlUtilApi
     @Suppress("DEPRECATION")
@@ -186,21 +204,13 @@ private constructor(
     ) {
         isInlineCollapsed = builder.isInlineCollapsed
         isCollectingNSAttributes = builder.isCollectingNSAttributes
+        isUnchecked = builder.isUnchecked
     }
 
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use indentString for better accuracy")
-    public val indent: Int
-        get() = indentString.countIndentedLength()
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use xmlDeclMode with more options")
-    public val omitXmlDecl: Boolean
-        get() = xmlDeclMode == XmlDeclMode.None
-
-    public val formatCache: FormatCache = when {
-        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache()
-        else -> FormatCache.Dummy
+    internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
+        return formatCache.lookupType(parentNamespace, serialDescriptor) {
+            XmlTypeDescriptor(this, serialDescriptor, parentNamespace)
+        }
     }
 
     /**
@@ -393,6 +403,12 @@ private constructor(
          * emits all namespace attributes on the root tag.
          */
         public var isCollectingNSAttributes: Boolean = false
+
+        /**
+         * This property can be used to disable various checks on the correctness of the serializer descriptions.
+         * This should speed up processing, but may give surprising results in the presence of an error.
+         */
+        public var isUnchecked: Boolean = false
 
         public var indent: Int
             @Deprecated("Use indentString for better accuracy")

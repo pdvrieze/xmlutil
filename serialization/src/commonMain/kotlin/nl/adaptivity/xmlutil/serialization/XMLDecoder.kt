@@ -64,7 +64,7 @@ internal open class XmlDecoderBase internal constructor(
                         input.getAttributeLocalName(i) == "nil" &&
                         input.getAttributeValue(i) == "true") ||
                         (input.getAttributeName(i) == config.nilAttribute?.first &&
-                                input.getAttributeValue(i) == config.nilAttribute.second)
+                                input.getAttributeValue(i) == config.nilAttribute?.second)
             }
             if (hasNilAttr) return true // we detected a nullable element
         }
@@ -257,7 +257,7 @@ internal open class XmlDecoderBase internal constructor(
              */
             val desc = when {
                 xmlDescriptor is XmlContextualDescriptor ->
-                    xmlDescriptor.resolve(deserializer.descriptor, config, serializersModule)
+                    xmlDescriptor.resolve(this, deserializer.descriptor)
 
                 triggerInline && xmlDescriptor is XmlInlineDescriptor
                 -> xmlDescriptor.getElementDescriptor(0)
@@ -413,7 +413,7 @@ internal open class XmlDecoderBase internal constructor(
     }
 
     /**
-     * Wrapper decoder that expects to be used to decode a serial value
+     * Wrapper decoder that expects to be used to decode a *single* serial value
      */
     @OptIn(ExperimentalXmlUtilApi::class)
     private open inner class SerialValueDecoder(
@@ -685,90 +685,46 @@ internal open class XmlDecoderBase internal constructor(
 
         protected var decodeElementIndexCalled = false
 
-        private fun XmlDescriptor.toNonTransparentChild(): XmlDescriptor {
-            var result = this
-            while (result is XmlInlineDescriptor || // Inline descriptors are only used when we actually elude the inline content
-                (result is XmlListDescriptor && result.isListEluded)
-            ) { // Lists may or may not be eluded
-
-                result = result.getElementDescriptor(0)
-            }
-            if (result is XmlMapDescriptor && result.isListEluded && result.isValueCollapsed) { // some transparent tags
-                return result.getElementDescriptor(1).toNonTransparentChild()
-            }
-            return result
-        }
-
         init {
-            val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
-            val tagNameMap: MutableMap<QName, Int> = mutableMapOf()
-            val attrNameMap: MutableMap<QName, Int> = mutableMapOf()
-            val contextList = arrayOfNulls<XmlDescriptor>(xmlDescriptor.elementsCount)
-            val seenTagNames = HashSet<QName>()
-            val seenAttrNames = HashSet<QName>()
 
-            for (idx in 0 until xmlDescriptor.elementsCount) {
-                val child = xmlDescriptor.getElementDescriptor(idx).toNonTransparentChild()
+            polyChildren = xmlDescriptor.polyMap
+            if (xmlDescriptor.contextualChildren.isNotEmpty()) {
+                val tagNameMap: MutableMap<QName, Int> = xmlDescriptor.tagNameMap.toMutableMap()
+                val attrNameMap: MutableMap<QName, Int> = xmlDescriptor.attrMap.toMutableMap()
+                val contextList = arrayOfNulls<XmlDescriptor>(xmlDescriptor.elementsCount)
 
-                if (child is XmlPolymorphicDescriptor && child.isTransparent) {
-                    for (childDescriptor in child.polyInfo.values) {
-                        /*
-                         * For polymorphic value classes this cannot be a multi-value inline. Get
-                         * the tag name from the child (even if it is inline).
-                        */
-
-                        val tagName = childDescriptor.tagName.normalize()
-                        check(seenTagNames.add(tagName)) {
-                            "Duplicate name $tagName as polymorphic child in ${xmlDescriptor.serialDescriptor.serialName}"
-                        }
-                        polyMap[tagName] = PolyInfo(tagName, idx, childDescriptor)
-                    }
-                } else if (xmlDescriptor.serialKind !is PolymorphicKind && child is XmlContextualDescriptor) {
+                for (idx in xmlDescriptor.contextualChildren) {
+                    val child = xmlDescriptor.getElementDescriptor(idx) as XmlContextualDescriptor
                     val childSer = deserializer.findChildSerializer(idx, serializersModule)
-                    val resolved = child.resolve(childSer.descriptor, config, serializersModule)
+                    val resolved = child.resolve(this, childSer.descriptor)
                     val childName = resolved.tagName.normalize()
                     when (resolved.effectiveOutputKind) {
                         OutputKind.Attribute -> {
-                            check(seenAttrNames.add(childName)) {
+                            check(attrNameMap.put(childName, idx) == null || config.isUnchecked) {
                                 "Duplicate attribute name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
                             }
-                            attrNameMap[childName] = idx
                         }
 
                         else -> {
-                            check(seenTagNames.add(childName)) {
+                            check(
+                                (tagNameMap.put(childName, idx) == null || config.isUnchecked)
+                                        && (config.isUnchecked || childName !in polyChildren)
+                            ) {
                                 "Duplicate tag name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
                             }
-                            tagNameMap[childName] = idx
                         }
-
                     }
-
-                    contextList[idx] = resolved
-                } else {
-                    when (child.effectiveOutputKind) {
-                        OutputKind.Attribute -> {
-                            check(seenAttrNames.add(child.tagName)) {
-                                "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
-                            }
-                            attrNameMap[child.tagName.normalize()] = idx
-                        }
-
-                        else -> {
-                            check(seenTagNames.add(child.tagName)) {
-                                "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
-                            }
-                            tagNameMap[child.tagName.normalize()] = idx
-                        }
-
-                    }
-
                 }
+
+                tagNameToMembers = tagNameMap
+                attrNameToMembers = attrNameMap
+                contextualDescriptors = contextList
+
+            } else {
+                tagNameToMembers = xmlDescriptor.tagNameMap
+                attrNameToMembers = xmlDescriptor.attrMap
+                contextualDescriptors = arrayOfNulls(xmlDescriptor.elementsCount)
             }
-            polyChildren = polyMap
-            tagNameToMembers = tagNameMap
-            attrNameToMembers = attrNameMap
-            contextualDescriptors = contextList
         }
 
         final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
@@ -817,9 +773,8 @@ internal open class XmlDecoderBase internal constructor(
 
             val isValueChild = xmlDescriptor.getValueChild() == index
 
-            if (false && ((effectiveDeserializer as DeserializationStrategy<*>) == DeprecatedCompactFragmentSerializer) &&
-                isValueChild
-            ) {
+            if (false && effectiveDeserializer as DeserializationStrategy<*> === DeprecatedCompactFragmentSerializer
+                && isValueChild) {
                 // handle missing compact fragments
                 @Suppress("UNCHECKED_CAST")
                 if (nulledItemsIdx >= 0) return (CompactFragment("") as T)

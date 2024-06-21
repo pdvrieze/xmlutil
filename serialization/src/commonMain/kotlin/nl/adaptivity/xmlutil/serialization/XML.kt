@@ -81,6 +81,13 @@ public class XML(
 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
+    private val codecConfig: XmlCodecConfig = object : XmlCodecConfig {
+        override val serializersModule: SerializersModule
+            get() = this@XML.serializersModule
+        override val config: XmlConfig
+            get() = this@XML.config
+    }
+
     @Suppress("DEPRECATION")
     public constructor(
         serializersModule: SerializersModule = EmptySerializersModule(),
@@ -155,7 +162,7 @@ public class XML(
         target.indentString = config.indentString
 
         if (prefix != null) {
-            val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor)
+            val root = XmlRootDescriptor(codecConfig, serializer.descriptor)
 
             val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
 
@@ -207,7 +214,7 @@ public class XML(
             config.policy.serialTypeNameToQName(declNameInfo, DEFAULT_NAMESPACE)
 
         val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
-        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo)
+        val root = XmlRootDescriptor(codecConfig, serializer.descriptor, rootNameInfo)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -222,7 +229,7 @@ public class XML(
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
                 val newRootName = rootNameInfo.remapPrefix(prefixMap)
 
-                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName)
+                val newRoot = XmlRootDescriptor(remappedEncoderBase, serializer.descriptor, newRootName)
                 val newDescriptor = newRoot.getElementDescriptor(0)
 
 
@@ -392,7 +399,7 @@ public class XML(
         }
 
         val tmpRoot =
-            XmlRootDescriptor(config, serializersModule, descriptor, DeclaredNameInfo(localName.localPart))
+            XmlRootDescriptor(codecConfig, descriptor, DeclaredNameInfo(localName.localPart))
 
         val realName = tmpRoot.typeDescriptor.typeQname ?: localName
 
@@ -420,7 +427,7 @@ public class XML(
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
         val rootNameInfo = rootNameInfo(deserializer.descriptor, rootName, reader.name)
-        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, rootNameInfo)
+        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, rootNameInfo)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
 
@@ -461,7 +468,7 @@ public class XML(
     private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
         val nameInfo = DeclaredNameInfo(rootName?.localPart ?: serialDescriptor.serialName, rootName, false)
 
-        return XmlRootDescriptor(config, serializersModule, serialDescriptor, nameInfo)
+        return XmlRootDescriptor(codecConfig, serialDescriptor, nameInfo)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)

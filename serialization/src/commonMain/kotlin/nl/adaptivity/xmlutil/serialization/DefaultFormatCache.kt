@@ -25,23 +25,23 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
-import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import kotlin.jvm.JvmStatic
 
 /**
  * Opaque caching class that allows for caching format related data (to speed up reuse). This is
  * intended to be stored on the config, thus reused through multiple serializations.
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
-internal class DefaultFormatCache: FormatCache() {
+internal class DefaultFormatCache : FormatCache() {
     private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
     private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
     private val pendingDescs = HashSet<DescKey>()
@@ -100,13 +100,12 @@ internal class DefaultFormatCache: FormatCache() {
     }
 
     override fun getCompositeDescriptor(
-        config: XmlConfig,
-        serializersModule: SerializersModule,
+        codecConfig: XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         preserveSpace: Boolean
     ): XmlCompositeDescriptor {
-        return XmlCompositeDescriptor(config, serializersModule, serializerParent, tagParent, preserveSpace)
+        return XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
 //        return lookupDescriptor(null, serializerParent, tagParent, false) {
 //            XmlCompositeDescriptor(config, serializersModule, serializerParent, tagParent, preserveSpace)
 //        } as XmlCompositeDescriptor
@@ -119,7 +118,11 @@ internal class DefaultFormatCache: FormatCache() {
         val canBeAttribute: Boolean
     )
 
-    private data class TypeKey(val namespace: String, val serialName: String) {
-        constructor(namespace: String?, serialName: String, dummy: Boolean = false) : this(namespace ?: "", serialName)
+    private data class TypeKey(val namespace: String, val serialName: String)
+
+    companion object {
+        @JvmStatic
+        private fun TypeKey(namespace: String?, serialName: String) =
+            DefaultFormatCache.TypeKey(namespace ?: "", serialName)
     }
 }

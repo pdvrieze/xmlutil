@@ -33,9 +33,9 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.toQname
 
 internal abstract class XmlCodecBase internal constructor(
-    val serializersModule: SerializersModule,
-    val config: XmlConfig
-) {
+    override val serializersModule: SerializersModule,
+    override val config: XmlConfig
+) : XML.XmlCodecConfig {
 
     internal abstract val namespaceContext: NamespaceContext
 
