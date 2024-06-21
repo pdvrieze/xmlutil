@@ -162,6 +162,10 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return DomReader(source)
     }
 
+    internal fun newReader(inputStream: InputStream): XmlReader {
+        return factory.newReader(inputStream)
+    }
+
     @Deprecated("Use extension functions on IXmlStreaming")
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
@@ -318,9 +322,21 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 @Suppress("DEPRECATION")
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
+private val _GenericFactory = XmlStreaming.GenericFactory()
+
+@ExperimentalXmlUtilApi
+public val IXmlStreaming.genericFactory: XmlStreaming.GenericFactory get() = _GenericFactory
 
 public fun IXmlStreaming.newReader(node: DomNode): XmlReader {
     return DomReader(node)
+}
+
+public fun IXmlStreaming.newReader(inputStream: InputStream): XmlReader {
+    return XmlStreaming.newReader(inputStream)
+}
+
+public fun IXmlStreaming.newGenericReader(inputStream: InputStream): XmlReader {
+    return XmlStreaming.newGenericReader(inputStream)
 }
 
 @Suppress("DEPRECATION")
