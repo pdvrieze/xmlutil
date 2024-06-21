@@ -165,7 +165,6 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 compileOnly(libs.kxml2)
-                runtimeOnly(projects.coreAndroid)
             }
         }
 
