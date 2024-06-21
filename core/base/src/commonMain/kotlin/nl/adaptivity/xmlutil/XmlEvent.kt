@@ -45,8 +45,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         extLocationInfo: XmlReader.LocationInfo?,
         override val eventType: EventType,
         public val text: String
-    ) :
-        XmlEvent(extLocationInfo) {
+    ) : XmlEvent(extLocationInfo) {
 
         public constructor(locationInfo: String, eventType: EventType, text: String) :
                 this(locationInfo.let(XmlReader::StringLocationInfo), eventType, text)

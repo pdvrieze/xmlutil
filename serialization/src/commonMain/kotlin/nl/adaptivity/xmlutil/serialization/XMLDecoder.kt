@@ -1758,30 +1758,34 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeElementIndex(): Int {
 
             if (!xmlDescriptor.isValueCollapsed) {
-                run {
-                    var e = input.peek()
-                    while (e?.run { eventType.isTextElement } == true) {
-                        if (e.eventType == EventType.TEXT) {
-                            require(e.isIgnorable) { "Text content found in named map body" }
-                        }
-                        input.next()
-                        e = input.peek()
-                    }
-                }
-
                 if (lastIndex.mod(2) == 1) {
-                    when (input.peek()?.eventType) {
-                        EventType.START_ELEMENT -> {
-                            input.next()
-                            require(input.name.isEquivalent(xmlDescriptor.entryName))
-                            return super.decodeElementIndex().also {
-                                require(it >= 0) { "Map entry must contain a (key) child" }
+                    while (input.hasNext()) {
+                        when (val e = input.peek()?.eventType) {
+                            EventType.START_ELEMENT -> {
+                                input.next()
+                                require(input.name.isEquivalent(xmlDescriptor.entryName))
+                                return super.decodeElementIndex().also {
+                                    require(it >= 0) { "Map entry must contain a (key) child" }
+                                }
                             }
-                        }
 
-                        else -> {
-                            check(super.decodeElementIndex() == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
-                            return CompositeDecoder.DECODE_DONE // should be the value
+                            EventType.IGNORABLE_WHITESPACE -> input.next()
+
+                            EventType.TEXT -> {
+                                input.next()
+                                require(input.isWhitespace()) {
+                                    "Non-ignorable text content found in map: '${input.text}'"
+                                }
+                            }
+
+                            EventType.END_ELEMENT -> {
+                                check(super.decodeElementIndex() == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
+                                return CompositeDecoder.DECODE_DONE // should be the value
+                            }
+
+                            else -> {
+                                throw IllegalArgumentException("Unexpected event ${e} in map content")
+                            }
                         }
                     }
                 } else { // value (is inside entry)
