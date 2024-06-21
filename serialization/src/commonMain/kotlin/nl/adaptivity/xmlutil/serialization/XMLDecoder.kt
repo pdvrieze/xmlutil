@@ -628,7 +628,7 @@ internal open class XmlDecoderBase internal constructor(
         typeDiscriminatorName: QName?
     ) : TagDecoderBase<D>(deserializer, xmlDescriptor, typeDiscriminatorName) {
 
-        private val readTagName = input.name
+        private val readTagName = if(config.isUnchecked) xmlDescriptor.tagName else input.name
 
         override fun endStructure(descriptor: SerialDescriptor) {
             if (!decodeElementIndexCalled) {
@@ -648,7 +648,7 @@ internal open class XmlDecoderBase internal constructor(
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput, TagIdHolder {
 
         override var tagId: String? = null
-        private val ignoredAttributes: MutableList<QName> = mutableListOf()
+        private val ignoredAttributes: MutableList<QName> = ArrayList(2)
 
         /**
          * Determine whether whitespace is preserved in the content of the tag. This is a var as it
