@@ -211,7 +211,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
             namespaceDecls
         )
 
-        private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
+        private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls)
 
         public constructor(
             name: QName,

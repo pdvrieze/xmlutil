@@ -136,7 +136,9 @@ public open class NamespaceHolder : Iterable<Namespace> {
             return this@NamespaceHolder.getPrefix(namespaceURI)
         }
 
-        override fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this@NamespaceHolder)
+        @Suppress("UNCHECKED_CAST")
+        override fun freeze(): IterableNamespaceContext =
+            SimpleNamespaceContext(nameSpaces.copyOfRange(0, totalNamespaceCount*2) as Array<String>)
 
         override fun iterator(): Iterator<Namespace> = this@NamespaceHolder.iterator()
 
