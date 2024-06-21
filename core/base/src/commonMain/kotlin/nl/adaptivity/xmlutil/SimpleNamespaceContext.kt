@@ -98,6 +98,9 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
     public constructor(namespaces: Collection<Namespace>) :
             this(flatten(namespaces, { prefix }, { namespaceURI }))
 
+    public constructor(namespaces: List<Namespace>) :
+            this(Array(namespaces.size * 2) { i -> if (i % 2 == 0) namespaces[i / 2].prefix else namespaces[i / 2].namespaceURI })
+
     public constructor(namespaces: Iterable<Namespace>) :
             this(namespaces as? Collection<Namespace> ?: namespaces.toList())
 
@@ -242,10 +245,14 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
             crossinline prefix: T.() -> String,
             crossinline namespace: T.() -> String
         ): Array<String> {
-            val filler: Iterator<String> = namespaces.asSequence().flatMap {
-                sequenceOf(it.prefix(), it.namespace())
-            }.iterator()
-            return Array(namespaces.size * 2) { filler.next() }
+            val result = arrayOfNulls<String>(namespaces.size * 2)
+            var i = 0
+            for (n in namespaces) {
+                result[i++] = n.prefix()
+                result[i++] = n.namespace()
+            }
+            @Suppress("UNCHECKED_CAST")
+            return result as Array<String>
         }
 
     }
