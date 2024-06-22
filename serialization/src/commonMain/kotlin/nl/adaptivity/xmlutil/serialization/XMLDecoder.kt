@@ -940,7 +940,8 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
-                otherAttrIndex.takeIf { it >= 0 }?.let { return it }
+                val other = otherAttrIndex
+                if (other >= 0) return other
             } else {
                 xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
                     return valueChildIdx.checkRepeat()
@@ -1068,7 +1069,7 @@ internal open class XmlDecoderBase internal constructor(
                     name.prefix == XMLNS_ATTRIBUTE ||
                     (name.prefix.isEmpty() && name.localPart == XMLNS_ATTRIBUTE)
                 ) {
-                    // Ignore namespace decls, just recursively call the function itself
+                    // Ignore namespace decls and the type discriminator attribute, just recursively call the function itself
                     return decodeElementIndex()
                 } else if (name.getNamespaceURI() == XML_NS_URI && name.localPart == "space") {
                     when (input.getAttributeValue(lastAttrIndex)) {
@@ -1702,8 +1703,7 @@ internal open class XmlDecoderBase internal constructor(
                             "Map entry not found. Found ${input.name}@${input.extLocationInfo} instead",
                             input.extLocationInfo
                         )
-                }
-                if (lastIndex % 2 == 0) assert(xmlDescriptor.entryName isEquivalent input.name) {
+                } else if (lastIndex % 2 == 0) assert(xmlDescriptor.entryName isEquivalent input.name) {
                     "${xmlDescriptor.entryName} != ${input.name}"
                 }
                 // Use the default, but correct the index (map serializer is dumb)
