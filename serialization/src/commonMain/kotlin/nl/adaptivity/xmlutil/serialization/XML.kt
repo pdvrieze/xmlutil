@@ -39,7 +39,6 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
-import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 

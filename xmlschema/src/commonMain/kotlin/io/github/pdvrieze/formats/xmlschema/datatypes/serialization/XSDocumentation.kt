@@ -31,7 +31,6 @@ import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -45,8 +44,6 @@ class XSDocumentation : XSOpenAttrsBase {
     val lang: VLanguage?
 
     @XmlValue(true)
-//    @XmlDefault("")
-    @Serializable(CompactFragmentSerializer::class)
     var content: CompactFragment
 
     constructor(

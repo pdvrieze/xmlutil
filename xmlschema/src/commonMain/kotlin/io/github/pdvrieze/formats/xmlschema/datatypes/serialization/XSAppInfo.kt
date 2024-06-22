@@ -29,7 +29,6 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -39,7 +38,6 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @XmlSerialName("appinfo", XSD_NS_URI, XSD_PREFIX)
 class XSAppInfo : XSOpenAttrsBase {
     @XmlValue(true)
-    @Serializable(CompactFragmentSerializer::class)
     val content: CompactFragment
 
     @XmlElement(false)

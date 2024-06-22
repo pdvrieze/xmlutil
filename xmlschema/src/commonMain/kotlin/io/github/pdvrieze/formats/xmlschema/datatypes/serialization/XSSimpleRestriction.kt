@@ -44,7 +44,7 @@ class XSSimpleRestriction : XSSimpleDerivation, XSI_Annotated {
     val facets: List<XSFacet>
 
     @XmlValue(true)
-    val otherContents: List<@Serializable(with = CompactFragmentSerializer::class) CompactFragment>
+    val otherContents: List<CompactFragment>
 
     // Requires an embedded restriction
     constructor(

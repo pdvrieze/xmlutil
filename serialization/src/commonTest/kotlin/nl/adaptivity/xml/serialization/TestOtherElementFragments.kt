@@ -23,13 +23,14 @@ package nl.adaptivity.xml.serialization
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
+import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as CompactFragmentSerializerCompat
 
 class TestOtherElementFragments {
     @Test
@@ -50,9 +51,26 @@ class TestOtherElementFragments {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun testDeserializeCompactFragmentCompat() {
+        val expected =
+            ContainerCompat(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")), "bar")
+        val input =
+            "<Container>${expected.children[0].contentString}<c>bar</c>${expected.children[1].contentString}</Container>"
+        val actual = XML { autoPolymorphic = true }.decodeFromString<ContainerCompat>(input)
+        assertEquals(expected, actual)
+    }
+
     @Serializable
     data class Container(
         @XmlValue(true) val children: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>,
+        @XmlElement(true)
+        val c: String
+    )
+
+    @Serializable
+    data class ContainerCompat(
+        @XmlValue(true) val children: List<@Serializable(CompactFragmentSerializerCompat::class) CompactFragment>,
         @XmlElement(true)
         val c: String
     )

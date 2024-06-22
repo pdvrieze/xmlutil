@@ -28,7 +28,6 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlBefore
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -64,7 +63,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
     @XmlBefore("attributes", "attributeGroups")
     override val facets: List<XSFacet>
 
-    val otherContents: List<@Serializable(CompactFragmentSerializer::class) CompactFragment>
+    val otherContents: List<CompactFragment>
 
     /**
      * Mark the derivation as restriction

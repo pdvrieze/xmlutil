@@ -18,24 +18,23 @@
  * under the License.
  */
 
-@file:UseSerializers(QNameSerializer::class, CompactFragmentSerializer::class)
-
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSAssertionFacet
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XmlBefore
+import nl.adaptivity.xmlutil.serialization.XmlId
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 @XmlSerialName("complexContent", XSD_NS_URI, XSD_PREFIX)
@@ -46,7 +45,7 @@ class XSComplexContent(
     @SerialName("mixed")
     private val _mixed: VBoolean? = null,
     @XmlOtherAttributes
-    override val otherAttrs: Map<QName, String> = emptyMap(),
+    override val otherAttrs: Map<SerializableQName, String> = emptyMap(),
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     override val derivation: XSComplexDerivationBase
@@ -67,7 +66,7 @@ class XSComplexContent(
         final override val anyAttribute: XSAnyAttribute?
         @XmlBefore("term")
         final override val openContent: XSOpenContent?
-        final override val base: QName?
+        final override val base: SerializableQName?
         abstract val derivationMethod: VDerivationControl.Complex
 
         constructor(

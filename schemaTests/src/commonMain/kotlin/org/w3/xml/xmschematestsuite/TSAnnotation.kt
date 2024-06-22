@@ -25,7 +25,6 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -44,7 +43,6 @@ class TSAnnotation(
     @XmlSerialName("appinfo", TS_NAMESPACE, TS_PREFIX)
     class AppInfo(
         @XmlValue(true)
-        @Serializable(CompactFragmentSerializer::class)
         val info: CompactFragment,
         val source: VAnyURI? = null,
         @XmlOtherAttributes
@@ -55,7 +53,6 @@ class TSAnnotation(
     @XmlSerialName("documentation", TS_NAMESPACE, TS_PREFIX)
     class Documentation(
         @XmlValue(true)
-        @Serializable(CompactFragmentSerializer::class)
         val info: CompactFragment,
         val source: VAnyURI? = null,
         @XmlSerialName("lang", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)

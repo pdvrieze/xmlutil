@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.*
 public object CompactFragmentSerializer : XmlSerializer<CompactFragment> {
     private val namespacesSerializer = ListSerializer(Namespace)
 
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("compactFragment") {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("nl.adaptivity.xmlutil.util.compactFragment") {
         element("namespaces", namespacesSerializer.descriptor)
         element("content", serialDescriptor<String>())
     }

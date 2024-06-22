@@ -21,13 +21,9 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlSerializer
 import nl.adaptivity.xmlutil.XmlWriter
@@ -51,12 +47,8 @@ public fun CompactFragment.Companion.serializer(): KSerializer<CompactFragment> 
 @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 public object CompactFragmentSerializer : AbstractXmlSerializer<CompactFragment>() {
     private val delegate = CompactFragment.serializer() as XmlSerializer<CompactFragment>
-    private val namespacesSerializer = ListSerializer(Namespace)
 
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("compactFragment") {
-        element("namespaces", namespacesSerializer.descriptor)
-        element("content", serialDescriptor<String>())
-    }
+    override val descriptor: SerialDescriptor = SerialDescriptor("nl.adaptivity.xmlutil.util.CompactFragment\\\$Compat", delegate.descriptor)
 
     override fun deserializeXML(
         decoder: Decoder,
