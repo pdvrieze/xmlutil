@@ -88,7 +88,9 @@ private constructor(
 
     /**
      * This property can be used to disable various checks on the correctness of the serializer descriptions.
-     * This should speed up processing, but may give surprising results in the presence of an error.
+     * This should speed up processing, but may give surprising results in the presence of an error. Note that
+     * this doesn't disable all checks, but mainly expensive ones on matters like order, or checks on
+     * serial format. This does not disable the checking
      */
     public var isUnchecked: Boolean = false
         private set
