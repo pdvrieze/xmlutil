@@ -31,18 +31,34 @@ import kotlin.jvm.JvmInline
  * @param reader Reader for the input
  * @param encoding The encoding to record, note this doesn't impact the actual parsing (that is handled in the reader)
  * @param relaxed If `true` ignore various syntax and namespace errors
+ * @param ignorePos If `true` don't record current position (line/offset)
  */
 public class KtXmlReader internal constructor(
     private val reader: Reader,
     encoding: String?,
-    public val relaxed: Boolean = false
+    public val relaxed: Boolean = false,
+    ignorePos: Boolean = false
 ) : XmlReader {
 
     public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
 
-    private var line = 1
-    private var column = 0
-    private var offset = 0
+    private var line: Int
+    private var column: Int
+    private var offset: Int
+
+    init {
+        if (ignorePos) {
+            line = -1
+            column = -1
+            offset = -1
+        } else {
+            line = 1
+            column = 0
+            offset = 0
+        }
+    }
+
+    public val ignorePos: Boolean get() = offset < 0
 
     private var _eventType: EventType? = null //START_DOCUMENT // Already have this state
     public override val eventType: EventType
@@ -62,13 +78,13 @@ public class KtXmlReader internal constructor(
 
     public override val namespaceURI: String
         get() = when (_eventType) {
-            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].namespace ?: throw XmlException("Missing namespace")
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].namespace ?: throw XmlException("Missing namespace", extLocationInfo)
             else -> throw IllegalStateException("Local name not accessible outside of element tags")
         }
 
     public override val prefix: String
         get() = when (_eventType) {
-            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: throw XmlException("Missing prefix")
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: throw XmlException("Missing prefix", extLocationInfo)
             else -> throw IllegalStateException("Local name not accessible outside of element tags")
         }
 
@@ -101,13 +117,7 @@ public class KtXmlReader internal constructor(
     private val peek = IntArray(2)
     private var peekCount = 0
 
-    private var entityMap = HashMap<String, String>().also {
-        it["amp"] = "&"
-        it["apos"] = "'"
-        it["gt"] = ">"
-        it["lt"] = "<"
-        it["quot"] = "\""
-    }
+    private var entityMap = HashMap(INITIAL_ENTITY_MAP)
 
     private val namespaceHolder = NamespaceHolder()
 
@@ -117,7 +127,7 @@ public class KtXmlReader internal constructor(
     private var elementStack: ElementStack = ElementStack()
 
     /** Target buffer for storing incoming text (including aggregated resolved entities)  */
-    private var txtBuf = CharArray(128)
+    private var txtBuf = CharArray(256)
 
     /** Write position   */
     private var txtBufPos = 0
@@ -327,7 +337,7 @@ public class KtXmlReader internal constructor(
                 read()
                 read()
                 if ((peek(0) == 'l'.code || peek(0) == 'L'.code) && peek(1) <= ' '.code) {
-                    if (line != 1 || column > 4) error("PI must not start with xml")
+                    if (offset>=0 && (line != 1 || column > 4)) error("PI must not start with xml")
                     parseStartTag(true)
                     if (attributeCount < 1 || "version" != attributes[0].localName) error("version expected")
                     version = attributes[0].value
@@ -526,11 +536,14 @@ public class KtXmlReader internal constructor(
 
     private fun push(c: Int) {
         if (c < 0) error("UNEXPECTED EOF")
-        isWhitespace = isWhitespace && isXmlWhitespace(c.toChar())
-        if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            txtBuf = txtBuf.copyOf(txtBufPos * 4 / 3 + 4)
+        if (isWhitespace) {
+            isWhitespace = isXmlWhitespace(c.toChar())
         }
-        if (c > 0xffff) {
+
+        if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
+            txtBuf = txtBuf.copyOf((txtBufPos * 5) / 3 + 4)
+        }
+        if (c > 0xffff) { // This comparison works as surrogates are in the 0xd800-0xdfff range
             // write high Unicode value as surrogate pair
             val offset = c - 0x010000
             txtBuf[txtBufPos++] = ((offset ushr 10) + 0xd800).toChar() // high surrogate
@@ -694,17 +707,25 @@ public class KtXmlReader internal constructor(
 
     private fun read(): Int {
         val result: Int
-        if (peekCount == 0) result = peek(0) else {
-            result = peek[0]
-            peek[0] = peek[1]
+        when(val pc =peekCount) {
+            0 -> {
+                result = peek(0)
+                peekCount = 0
+            }
+            else -> {
+                result = peek[0]
+                peek[0] = peek[1]
+                peekCount = pc -1
+            }
         }
 
-        peekCount--
-        offset++
-        column++
-        if (result == '\n'.code) {
-            line++
-            column = 1
+        if (offset >= 0) {
+            ++offset
+            ++column
+            if (result == '\n'.code) {
+                ++line
+                column = 1
+            }
         }
         return result
     }
@@ -812,7 +833,9 @@ public class KtXmlReader internal constructor(
                 buf.append(textCpy)
             }
         }
-        buf.append("@$line:$column in ")
+        if (offset >= 0) {
+            buf.append("@$line:$column in ")
+        }
         buf.append(reader.toString())
         return buf.toString()
     }
@@ -826,7 +849,7 @@ public class KtXmlReader internal constructor(
         replaceWith = ReplaceWith("extLocationInfo?.toString()")
     )
     override val locationInfo: String
-        get() = "$line:$column"
+        get() = if (offset>=0) "$line:$column" else "<unknown>"
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() = XmlReader.ExtLocationInfo(col = column, line = line, offset = offset)
@@ -928,6 +951,14 @@ public class KtXmlReader internal constructor(
         const val ILLEGAL_TYPE = "Wrong event type"
 
         const val PROCESS_NAMESPACES = true
+
+        val INITIAL_ENTITY_MAP = HashMap<String, String>(8).also {
+            it["amp"] = "&"
+            it["apos"] = "'"
+            it["gt"] = ">"
+            it["lt"] = "<"
+            it["quot"] = "\""
+        }
     }
 
     private class ElementStack {
