@@ -25,12 +25,9 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeXmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.toQname
 
 internal abstract class XmlCodecBase internal constructor(
     override val serializersModule: SerializersModule,
@@ -101,8 +98,9 @@ internal abstract class XmlCodecBase internal constructor(
 
         protected abstract val namespaceContext: NamespaceContext
 
-        internal fun QName.normalize(): QName {
-            return copy(prefix = "")
+        internal fun QName.normalize(): QName = when {
+            prefix.isEmpty() -> this
+            else -> copy(prefix = "")
         }
 
     }
