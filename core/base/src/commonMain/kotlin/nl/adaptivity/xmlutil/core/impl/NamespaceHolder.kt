@@ -42,7 +42,11 @@ public open class NamespaceHolder : Iterable<Namespace> {
         private set
 
     public val namespacesAtCurrentDepth: List<Namespace>
-        get() = namespaceIndicesAt(depth).map { XmlEvent.NamespaceImpl(getPrefix(it), getNamespace(it)) }
+        get() {
+            val startIdx = if(depth == 0) 0 else (arrayUseAtDepth(depth - 1) shr 1)
+            val endIdx = (arrayUseAtDepth(depth) shr 1)
+            return List(endIdx-startIdx) { i -> XmlEvent.NamespaceImpl(getPrefix(i), getNamespace(i))}
+        }
 
     public fun incDepth() {
         ++depth
