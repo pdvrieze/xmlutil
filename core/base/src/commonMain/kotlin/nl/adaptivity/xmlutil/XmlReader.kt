@@ -357,16 +357,16 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
  *
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
-public fun XmlBufferedReader.allConsecutiveTextContent(): String {
+public fun XmlPeekingReader.allConsecutiveTextContent(): String {
     if (eventType == EventType.END_ELEMENT) return ""
     val t = this
     return buildString {
         if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) append(text)
 
-        var event: XmlEvent? = null
+        var eventType: EventType?
 
-        loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
-            when (event?.eventType) {
+        loop@ while ((t.peekNextEvent().also { eventType = it }) !== EventType.END_ELEMENT) {
+            when (eventType) {
                 EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT -> {
                     t.next();Unit
@@ -386,7 +386,7 @@ public fun XmlBufferedReader.allConsecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $event")
+                else -> throw XmlException("Found unexpected child tag: $eventType")
             }//ignore
 
         }

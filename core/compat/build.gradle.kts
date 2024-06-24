@@ -43,6 +43,10 @@ kotlin {
     jvm("android")
     js {
         browser()
+        compilerOptions {
+            sourceMap = true
+            verbose = true
+        }
     }
 
     targets.all {

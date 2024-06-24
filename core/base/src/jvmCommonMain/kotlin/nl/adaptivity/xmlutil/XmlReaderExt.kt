@@ -55,13 +55,13 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
     val startLocation = extLocationInfo
     try {
 
-        val missingNamespaces:MutableMap<String, String> = TreeMap<String, String>()
+        val missingNamespaces: MutableMap<String, String> = TreeMap<String, String>()
         // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
         val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
 
 
         var type: EventType? = eventType
-        while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
+        while (type !== EventType.END_DOCUMENT && (type !== EventType.END_ELEMENT || depth > initialDepth)) {
             when (type) {
                 EventType.START_ELEMENT ->
                     KtXmlWriter(caw, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->

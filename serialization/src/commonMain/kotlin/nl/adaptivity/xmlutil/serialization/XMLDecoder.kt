@@ -50,7 +50,7 @@ internal open class XmlDecoderBase internal constructor(
     input: XmlReader
 ) : XmlCodecBase(context, config) {
 
-    val input = XmlBufferedReader(input)
+    val input: XmlPeekingReader = PseudoBufferedReader(input)
 
     override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -75,7 +75,10 @@ internal open class XmlDecoderBase internal constructor(
         previousValue: T? = null,
         isValueChild: Boolean = false
     ): T = when (this) {
-        is XmlDeserializationStrategy -> deserializeXML(decoder, input, previousValue, isValueChild)
+        is XmlDeserializationStrategy -> {
+            val initialDepth = input.depth
+            deserializeXML(decoder, input, previousValue, isValueChild)
+        }
         else -> deserialize(decoder)
     }
 
@@ -84,7 +87,7 @@ internal open class XmlDecoderBase internal constructor(
     ) : XmlCodec<XmlDescriptor>(xmlDescriptor), XML.XmlInput, Decoder {
         final override val config: XmlConfig get() = this@XmlDecoderBase.config
         final override val serializersModule: SerializersModule get() = this@XmlDecoderBase.serializersModule
-        final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
+        final override val input: XmlPeekingReader get() = this@XmlDecoderBase.input
 
         override fun decodeNull(): Nothing? {
             // We don't write nulls, so if we know that we have a null we just return it
@@ -634,7 +637,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             if (!decodeElementIndexCalled) {
-                val index = decodeElementIndex(descriptor)
+                val index = decodeElementIndex()
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
             if (!config.isUnchecked) input.require(EventType.END_ELEMENT, readTagName)
@@ -728,7 +731,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
+        final override val input: XmlPeekingReader get() = this@XmlDecoderBase.input
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -788,11 +791,20 @@ internal open class XmlDecoderBase internal constructor(
 
             val result: T = when (effectiveDeserializer) {
                 is XmlDeserializationStrategy -> {
+                    check(! input.hasPeekItems)
+                    check(input.eventType == EventType.START_ELEMENT)
+                    val expectedDepth = when {
+                        isValueChild -> input.depth + 1
+                        else -> input.depth
+                    }
+
                     val r = effectiveDeserializer.deserializeXML(decoder, input, previousValue, isValueChild)
 
                     // Make sure that the end tag is not consumed - it will be consumed by the endStructure function
-                    if (input.eventType == EventType.END_ELEMENT && input.depth < tagDepth) {
-                        input.pushBackCurrent()
+                    if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT) {
+                        if (input.depth < expectedDepth) {
+                            input.pushBackCurrent()
+                        }
                     }
 
                     r
@@ -806,6 +818,7 @@ internal open class XmlDecoderBase internal constructor(
                 } catch (e: XmlException) {
                     throw e
                 } catch (e: Exception) {
+                    if (input.hasPeekItems) input.next()
                     throw XmlException(
                         "In: ${xmlDescriptor.tagName}/${descriptor.getElementName(index)} Error: ${input.extLocationInfo} - ${e.message}",
                         input.extLocationInfo,
@@ -1023,8 +1036,13 @@ internal open class XmlDecoderBase internal constructor(
 
         @OptIn(ExperimentalXmlUtilApi::class)
         protected open fun decodeElementIndex(): Int {
-            if (!decodeElementIndexCalled && input.depth < tagDepth) {
-                return CompositeDecoder.DECODE_DONE
+            if (!decodeElementIndexCalled) {
+                if (input.depth < tagDepth) {
+                    return CompositeDecoder.DECODE_DONE
+                }
+                if (!input.hasPeekItems && input.depth == tagDepth && input.eventType == EventType.END_ELEMENT) {
+                    return CompositeDecoder.DECODE_DONE
+                }
             }
 
             decodeElementIndexCalled = true
@@ -1272,12 +1290,12 @@ internal open class XmlDecoderBase internal constructor(
                 OutputKind.Mixed,
                 OutputKind.Text -> {
                     input.allConsecutiveTextContent().also { // add some checks that we only have text content
-                        val peek = input.peek()
-                        if (peek !is XmlEvent.EndElementEvent) {
+                        val peek = input.peekNextEvent()
+                        if (peek != EventType.END_ELEMENT) {
                             throw XmlSerialException("Missing end tag after text only content (found: ${peek})")
-                        } else if (peek.localName != serialName.localPart) {
+                        } /*else if (peek.localName != serialName.localPart) {
                             throw XmlSerialException("Expected end tag local name ${serialName.localPart}, found ${peek.localName}")
-                        }
+                        }*/
                     }
                 }
 
@@ -1752,7 +1770,7 @@ internal open class XmlDecoderBase internal constructor(
             if (!xmlDescriptor.isValueCollapsed) {
                 if (lastIndex.mod(2) == 1) {
                     while (input.hasNext()) {
-                        when (val e = input.peek()?.eventType) {
+                        when (val e = input.peekNextEvent()) {
                             EventType.START_ELEMENT -> {
                                 input.next()
                                 if (!config.isUnchecked) require(input.name.isEquivalent(xmlDescriptor.entryName))

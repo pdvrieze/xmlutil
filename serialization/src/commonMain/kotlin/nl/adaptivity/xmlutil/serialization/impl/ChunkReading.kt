@@ -59,14 +59,14 @@ internal fun XmlReader.readSimpleElementChunked(consumeChunk: (chunk: String) ->
     }
 }
 
-internal fun XmlBufferedReader.allConsecutiveTextContentChunked(consumeChunk: (chunk: String) -> Unit) {
+internal fun XmlPeekingReader.allConsecutiveTextContentChunked(consumeChunk: (chunk: String) -> Unit) {
     val t = this
     if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) consumeChunksFromString(text, consumeChunk)
 
-    var event: XmlEvent? = null
+    var eventType: EventType? = null
 
-    loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
-        when (event?.eventType) {
+    loop@ while ((t.peekNextEvent().also { eventType = it }) !== EventType.END_ELEMENT) {
+        when (eventType) {
             EventType.PROCESSING_INSTRUCTION,
             EventType.COMMENT
             -> {
@@ -88,7 +88,7 @@ internal fun XmlBufferedReader.allConsecutiveTextContentChunked(consumeChunk: (c
                 break@loop
             }
 
-            else -> throw XmlException("Found unexpected child tag: $event")
+            else -> throw XmlException("Found unexpected child tag: $eventType")
         }//ignore
 
     }

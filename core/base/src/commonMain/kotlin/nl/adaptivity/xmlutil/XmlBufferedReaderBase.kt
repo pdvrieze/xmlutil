@@ -23,9 +23,8 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
-
 @XmlUtilInternal
-public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader {
+public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader, XmlPeekingReader {
     private val namespaceHolder = NamespaceHolder()
 
     init { // Record also for the first element
@@ -37,7 +36,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
     }
 
     @XmlUtilInternal
-    protected abstract val hasPeekItems: Boolean
+    public override abstract val hasPeekItems: Boolean
 
     @XmlUtilInternal
     protected var current: XmlEvent?
@@ -191,10 +190,14 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         return peekFirst()
     }
 
+    override fun peekNextEvent(): EventType? {
+        return peek()?.eventType
+    }
+
     /**
      * Put the current element in the peek buffer. This is basically a very limited pushback
      */
-    public abstract fun pushBackCurrent()
+    public abstract override fun pushBackCurrent()
 
     /**
      * Get the next event to add to the queue. Children can override this to customize the events that are added to the
