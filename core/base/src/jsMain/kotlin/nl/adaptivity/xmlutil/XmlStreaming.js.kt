@@ -119,7 +119,7 @@ public actual object XmlStreaming : IXmlStreaming {
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
-        return WriterXmlWriter(writer, DomWriter(xmlDeclMode))
+        return WriterXmlWriter(writer, DomWriter(xmlStreaming.genericDomImplementation.createDocument(), xmlDeclMode = xmlDeclMode))
     }
 
     actual override val genericDomImplementation: DOMImplementation
@@ -181,35 +181,39 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
     override fun close() {
         try {
             val xmls = XMLSerializer()
-            val domText = xmls.serializeToString((delegate.target as IDocument).delegate)
 
-            val xmlDeclMode = delegate.xmlDeclMode
-            if (xmlDeclMode != XmlDeclMode.None) {
-                val encoding = when (xmlDeclMode) {
-                    XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
-                    else -> when (delegate.requestedEncoding?.lowercase()?.startsWith("utf-")) {
-                        false -> delegate.requestedEncoding
-                        else -> null
+            if (delegate.currentNode != null) {
+
+                val domText = xmls.serializeToString((delegate.target as IDocument).delegate)
+
+                val xmlDeclMode = delegate.xmlDeclMode
+                if (xmlDeclMode != XmlDeclMode.None) {
+                    val encoding = when (xmlDeclMode) {
+                        XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
+                        else -> when (delegate.requestedEncoding?.lowercase()?.startsWith("utf-")) {
+                            false -> delegate.requestedEncoding
+                            else -> null
+                        }
+                    }
+
+                    val xmlVersion = delegate.requestedVersion ?: "1.0"
+
+                    target.write("<?xml version=\"")
+                    target.write(xmlVersion)
+                    target.write("\"")
+                    if (encoding != null) {
+                        target.write(" encoding=\"")
+                        target.write(encoding)
+                        target.write("\"")
+                    }
+                    target.write("?>")
+                    if (delegate.indentSequence.isNotEmpty()) {
+                        target.write("\n")
                     }
                 }
 
-                val xmlVersion = delegate.requestedVersion ?: "1.0"
-
-                target.write("<?xml version=\"")
-                target.write(xmlVersion)
-                target.write("\"")
-                if (encoding != null) {
-                    target.write(" encoding=\"")
-                    target.write(encoding)
-                    target.write("\"")
-                }
-                target.write("?>")
-                if (delegate.indentSequence.isNotEmpty()) {
-                    target.write("\n")
-                }
+                target.write(domText)
             }
-
-            target.write(domText)
         } finally {
             delegate.close()
         }
