@@ -27,9 +27,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
+import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
@@ -48,24 +50,77 @@ import kotlin.test.assertTrue
 
 class TestXSTestSuite {
 
-    var xml: XML = XML {}
+    var xml: XML = XML {
+        xmlStreaming.setFactory(xmlStreaming.genericFactory)
+        recommended_0_87_0()
+    }
 
     @Test
-    fun testParseGeneric() {
+    fun testParseGenericSpeed() {
+        val urls = testXmlSchemaUrls()
+        var dummy1: Any?
+        var dummy2: Any?
+        var dummy3: Any?
+        var dummy4: Any?
+        measure("Parse xml ${urls.size} schema documents") {
+            for ((_, url) in urls) {
+                url.openStream().use { instr ->
+                    KtXmlReader(instr).use { r ->
+                        for (e in r) {
+                            when (e) {
+                                EventType.START_DOCUMENT -> {
+                                    dummy1 = r.version
+                                    dummy2 = r.relaxed
+                                    dummy3 = r.standalone
+                                }
+                                EventType.END_ELEMENT,
+                                EventType.START_ELEMENT -> {
+                                    for (i in 0 until r.attributeCount) {
+                                        dummy1 = r.localName
+                                        dummy2 = r.namespaceURI
+                                        dummy3 = r.prefix
+                                        dummy4 = r.getAttributeValue(i)
+                                    }
+                                    dummy1 = r.localName
+                                    dummy2 = r.namespaceURI
+                                    dummy3 = r.prefix
+                                }
+                                EventType.TEXT,
+                                EventType.CDSECT,
+                                EventType.ENTITY_REF,
+                                EventType.IGNORABLE_WHITESPACE,
+                                EventType.PROCESSING_INSTRUCTION,
+                                EventType.COMMENT -> {
+                                    dummy1 = r.text
+                                }
+                                EventType.DOCDECL -> { dummy1 = r.text}
+                                EventType.END_DOCUMENT -> {}
+                                EventType.ATTRIBUTE -> error("unexpected attribute")
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    @Test
+    fun testDeserializeGenericSpeed() {
         xml = XML {
-            isUnchecked = true
+            isUnchecked = false
             defaultPolicy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true
             }
         }
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
-        testParseSpeed()
+        testDeserializeSpeed()
         xmlStreaming.setFactory(null)
     }
 
     @Test
-    fun testParseStax() {
+    fun testDeserializeStaxSpeed() {
         xml = XML {
             defaultPolicy {
                 autoPolymorphic = true
@@ -73,40 +128,43 @@ class TestXSTestSuite {
             }
         }
         xmlStreaming.setFactory(StAXStreamingFactory())
-        testParseSpeed()
+        testDeserializeSpeed()
         xmlStreaming.setFactory(null)
     }
 
-    fun testParseSpeed() {
-        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
-
-        val override = javaClass.getResource("/override.xml").withXmlReader {
-            val compact = xml.decodeFromReader<CompactOverride>(it)
-            OTSSuite(compact)
-        }
-
-        val nodes = mutableListOf<DynamicNode>()
-        val schemaUrls: List<Pair<URL, URL>> = suiteURL.withXmlReader { xmlReader ->
-            val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
-            suite.testSetRefs
-//                .filter { arrayOf("sunMeta/").any { m -> it.href.contains(m) } }
-                .flatMap { setRef ->
-                val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
-                val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
-
-                val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
-
-                val tsName = "$folderName - ${testSet.name}"
-
-                testSet.testGroups.flatMap { gr ->
-                    gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.mapNotNull { sd ->
-                        (setBaseUrl to setBaseUrl.resolve(sd.href))
-                    } ?: emptyList()
-                }
+    inline fun measure(name:String, rounds: Int = 20, warmups: Int = 1, action: MeasureInfo.() -> Unit): Long {
+        val initTime = System.currentTimeMillis()
+        var startTime = initTime
+        val iterCount = rounds+warmups
+        for (i in 0 until iterCount) {
+            if (i==warmups+1) {
+                startTime = System.currentTimeMillis()
             }
-        }//.filter { it.second.toString().contains("wildcards") }
+            MeasureInfo(i-warmups, rounds, warmups).action()
+        }
+        val endTime = System.currentTimeMillis()
+        println ("Init: ${Instant.fromEpochMilliseconds(initTime)}")
+        println ("Start: ${Instant.fromEpochMilliseconds(startTime)}")
+        println ("End: ${Instant.fromEpochMilliseconds(endTime)}")
+        if (rounds==0) {
+            val duration = (endTime - initTime)/warmups
+            println("$name: Duration time: $duration ms")
+            return duration
+        } else {
+            val duration = (endTime - startTime)/rounds
+            val warmupExtra = (startTime - initTime - duration)
+            println("$name: Duration time × $rounds): $duration ms (+${warmupExtra} ms)")
+            return duration
+        }
+    }
+
+    fun testDeserializeSpeed() {
+
+        val schemaUrls: List<Pair<URL, URL>> =
+            testXmlSchemaUrls()//.filter { it.second.toString().contains("wildcards") }
 
         val xml = this.xml.copy {
+            isUnchecked = true
             defaultPolicy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true
@@ -116,13 +174,9 @@ class TestXSTestSuite {
         }
         assertTrue(xml.config.isUnchecked)
 
-        val initTime = System.currentTimeMillis()
-        var startTime = initTime
-        val iterCount = 10
-
-        for (i in 0 .. iterCount) {
-            if (i == 1) startTime = System.currentTimeMillis()
-
+        print("Iterating: ")
+        val duration = measure("Parsing and deserializing ${schemaUrls.size} schema documents") {
+            if(round<0) print("*") else if (round+1<rounds) print("×") else println("×")
             for ((setBaseUri, uri) in schemaUrls) {
                 val resolver = SimpleResolver(xml, setBaseUri)
                 try {
@@ -132,17 +186,37 @@ class TestXSTestSuite {
                 }
             }
         }
-        val endTime = System.currentTimeMillis()
-        val duration = (endTime-startTime)/iterCount.coerceAtLeast(1)
-
-        if (iterCount==0)  {
-            println("Duration time (${schemaUrls.size} documents): $duration ms")
-        } else {
-            val initialTime = startTime-initTime
-            println("Duration time (${schemaUrls.size} documents × $iterCount): $duration ms (+${initialTime-duration} ms)")
-
-        }
+        println()
         assertTrue(duration<10000, "Duration expected less than 10 seconds" )
+    }
+
+    private fun testXmlSchemaUrls(): List<Pair<URL, URL>> {
+        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
+
+        val override = javaClass.getResource("/override.xml").withXmlReader {
+            val compact = xml.decodeFromReader<CompactOverride>(it)
+            OTSSuite(compact)
+        }
+
+        return suiteURL.withXmlReader { xmlReader ->
+            val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
+            suite.testSetRefs
+                //                .filter { arrayOf("sunMeta/").any { m -> it.href.contains(m) } }
+                .flatMap { setRef ->
+                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
+                    val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
+
+                    val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
+
+                    val tsName = "$folderName - ${testSet.name}"
+
+                    testSet.testGroups.flatMap { gr ->
+                        gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.mapNotNull { sd ->
+                            (setBaseUrl to setBaseUrl.resolve(sd.href))
+                        } ?: emptyList()
+                    }
+                }
+        }
     }
 
     @DisplayName("Test suites: suite.xml")
@@ -715,3 +789,5 @@ inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
 fun URL.resolve(path: String): URL {
     return URL(this, path)
 }
+
+data class MeasureInfo(val round: Int, val rounds: Int, val warmups: Int)
