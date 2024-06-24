@@ -174,7 +174,7 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
             return delegateToLocal(delegate.eventType)
         }
         try {
-            return updateDepth(fixWhitespace(delegateToLocal(delegate.next())))
+            return updateDepth(delegate.eventType, fixWhitespace(delegateToLocal(delegate.next())))
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
@@ -189,7 +189,7 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override fun nextTag(): EventType {
         isStarted = true
         try {
-            return updateDepth(fixWhitespace(delegateToLocal(delegate.nextTag())))
+            return updateDepth(delegate.eventType, fixWhitespace(delegateToLocal(delegate.nextTag())))
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
@@ -207,22 +207,22 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
         return eventType
     }
 
-    private fun updateDepth(eventType: EventType) = when (eventType) {
-        EventType.START_ELEMENT -> {
-            namespaceHolder.incDepth()
-            for (idx in 0 until delegate.namespaceCount) {
-                namespaceHolder.addPrefixToContext(delegate.getNamespacePrefix(idx), delegate.getNamespaceURI(idx))
+    private fun updateDepth(startEventType: Int, eventType: EventType): EventType {
+        if (startEventType == XMLStreamReader.END_ELEMENT) {
+            namespaceHolder.decDepth()
+        }
+        return when (eventType) {
+            EventType.START_ELEMENT -> {
+                namespaceHolder.incDepth()
+                for (idx in 0 until delegate.namespaceCount) {
+                    namespaceHolder.addPrefixToContext(delegate.getNamespacePrefix(idx), delegate.getNamespaceURI(idx))
+                }
+
+                eventType
             }
 
-            eventType
+            else -> eventType
         }
-
-        EventType.END_ELEMENT -> {
-            namespaceHolder.decDepth()
-            eventType
-        }
-
-        else -> eventType
     }
 
     @Throws(XmlException::class)

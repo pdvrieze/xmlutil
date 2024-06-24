@@ -61,6 +61,15 @@ kotlin {
             }
         }
 
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-annotations-common"))
+                implementation(projects.testutil)
+                implementation(projects.serialization)
+            }
+        }
+
         val jdkMain by getting {
             dependencies {
                 api(projects.coreJdk)

@@ -6,6 +6,9 @@ Changes:
   retained by all readers (as existing parsers behave); reading these
   values before the document declaration was seen (or known to not be
   present) is non-deterministic.
+- Make the value of the `depth` property of `XmlReader` consistent
+  for EndElement values. The depth of an endEvent uses the android
+  XmlPullParser semantics
 
 Fixes:
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
