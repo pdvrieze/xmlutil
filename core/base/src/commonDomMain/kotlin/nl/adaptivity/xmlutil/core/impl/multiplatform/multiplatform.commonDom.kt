@@ -153,5 +153,5 @@ public actual annotation class MpJvmDefaultWithoutCompatibility
 public actual annotation class MpJvmDefaultWithCompatibility
 
 public actual inline fun <K, V> MutableMap<K, V>.computeIfAbsent(key: K, defaultValue: () -> V): V {
-    TODO("not implemented")
+    return getOrPut(key, defaultValue)
 }
