@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName10
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
@@ -38,12 +39,19 @@ interface VNCName : VName {
     }
 
 
-//    @JvmInline
-    private class Inst(override val xmlString: String, version: XmlVersion = XmlVersion.XML11) : VNCName {
+    @JvmInline
+    private value class Inst private constructor(override val xmlString: String) : VNCName {
 
         init {
             // This can not go through NCNameType as VNCName is used in AtomicDatatype
             require(xmlString.isNCName()) { "'$xmlString' is not an NCName" }
+        }
+
+        constructor(xmlString: String, version: XmlVersion = XmlVersion.XML11) : this(xmlString) {
+            when (version) {
+                XmlVersion.XML10 -> require(xmlString.isNCName10()) { "'$xmlString' is not an NCName in XML 1.0" }
+                XmlVersion.XML11 -> require(xmlString.isNCName()) { "'$xmlString' is not an NCName in XML 1.1" }
+            }
         }
 
         override fun toString(): String = xmlString
