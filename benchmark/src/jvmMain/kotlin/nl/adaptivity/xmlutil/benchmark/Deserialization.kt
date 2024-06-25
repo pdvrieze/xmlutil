@@ -29,7 +29,6 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import kotlin.test.BeforeTest
 
 @State(Scope.Benchmark)
 @Measurement(iterations = 10)
@@ -41,9 +40,8 @@ open class Deserialization {
 
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML { recommended_0_87_0() })
 
-    val readers by lazy {
+    val readers: List<Pair<URL, XmlBufferReader>> by lazy {
         suites
-            .filter { (_, u) -> u.toString().contains("xsts.xsd") }
             .map { (_, u) ->
             u.openStream().use { input ->
                 xmlStreaming.newReader(input).use { reader ->
@@ -141,9 +139,11 @@ open class Deserialization {
     }
 
     private fun testDeserializeOnlySpeed(bh : BlackholeWrapper, xml: XML) {
+        var count = 0
         for ((u, reader) in readers) {
             try {
                 reader.reset()
+                ++count
                 bh.consume(xml.decodeFromReader<XSSchema>(reader))
             } catch (e: Exception) {
                 throw AssertionError("Failure to read $u:\n${e.message?.prependIndent("        ")}", e)
