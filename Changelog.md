@@ -15,6 +15,8 @@ Fixes:
   workaround for a regresion in 2.0 that doesn't allow resolving enum
   constants in this case.
 - Fix deserialization with contextual serializer #220 
+- Fix `NamespaceHolder.namespacesAtCurrentDepth` for nested
+  declarations.
 
 # 0.90.0 2.0 will go
 *(June 13, 2024)

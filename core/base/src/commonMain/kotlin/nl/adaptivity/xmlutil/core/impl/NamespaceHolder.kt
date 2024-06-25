@@ -45,7 +45,10 @@ public open class NamespaceHolder : Iterable<Namespace> {
         get() {
             val startIdx = if(depth == 0) 0 else (arrayUseAtDepth(depth - 1) shr 1)
             val endIdx = (arrayUseAtDepth(depth) shr 1)
-            return List(endIdx-startIdx) { i -> XmlEvent.NamespaceImpl(getPrefix(i), getNamespace(i))}
+            return List(endIdx-startIdx) { offset ->
+                val i = startIdx+offset
+                XmlEvent.NamespaceImpl(getPrefix(i), getNamespace(i))
+            }
         }
 
     public fun incDepth() {
@@ -122,7 +125,7 @@ public open class NamespaceHolder : Iterable<Namespace> {
         setPrefix(nextPair, prefix)
         setNamespace(nextPair, namespaceUri)
 
-        namespaceCounts[depth]++
+        namespaceCounts[depth]+=1
     }
 
     private fun enlargeNamespaceBuffer() {

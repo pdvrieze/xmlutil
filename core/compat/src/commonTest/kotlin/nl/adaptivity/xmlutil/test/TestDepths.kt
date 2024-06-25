@@ -20,21 +20,19 @@
 
 package nl.adaptivity.xmlutil.test
 
-import nl.adaptivity.xmlutil.EventType
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.isXmlWhitespace
-import nl.adaptivity.xmlutil.xmlStreaming
+import nl.adaptivity.xmlutil.*
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class TestDepths {
 
     val input = """<?xml version="1.0" encoding="UTF-8"?>
         |<?dummy ?>
-        |<outer>
+        |<outer xmlns:ns="ns1">
         |  <inner>
-        |    <a>depth 3</a>
+        |    <a xmlns:foo="bar">depth 3</a>
         |  </inner>
         |  <inner2>Depth 2</inner2>
         |</outer>
@@ -79,6 +77,10 @@ class TestDepths {
         assertEquals(EventType.START_ELEMENT, reader.next())
         assertEquals("a", reader.localName)
         assertEquals(3, reader.depth)
+        assertEquals(listOf(XmlEvent.NamespaceImpl("foo","bar")), reader.namespaceDecls)
+        val event = assertIs<XmlEvent.StartElementEvent>(reader.toEvent())
+        assertEquals(listOf(XmlEvent.NamespaceImpl("foo","bar")), event.namespaceDecls.toList())
+
 
         assertEquals(EventType.TEXT, reader.next())
         assertEquals("depth 3", reader.text)
