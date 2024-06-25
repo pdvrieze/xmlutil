@@ -431,32 +431,6 @@
     <inspection_tool class="NegatedEqualityExpression" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NegativelyNamedBooleanVariable" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NestedSwitchStatement" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="NewClassNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
-      <extension name="AbstractClassNamingConvention" enabled="true">
-        <option name="inheritDefaultSettings" value="false" />
-        <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
-        <option name="m_minLength" value="4" />
-        <option name="m_maxLength" value="64" />
-      </extension>
-      <extension name="ClassNamingConvention" enabled="true">
-        <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
-        <option name="m_minLength" value="4" />
-        <option name="m_maxLength" value="64" />
-      </extension>
-      <extension name="EnumeratedClassNamingConvention" enabled="true">
-        <option name="inheritDefaultSettings" value="false" />
-        <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
-        <option name="m_minLength" value="4" />
-        <option name="m_maxLength" value="64" />
-      </extension>
-      <extension name="InterfaceNamingConvention" enabled="false">
-        <option name="inheritDefaultSettings" value="false" />
-        <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
-        <option name="m_minLength" value="4" />
-        <option name="m_maxLength" value="64" />
-      </extension>
-      <extension name="TypeParameterNamingConvention" enabled="true" />
-    </inspection_tool>
     <inspection_tool class="NewExceptionWithoutArguments" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NewInstanceOfSingleton" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="NonExceptionNameEndsWithException" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -700,7 +674,7 @@
       <scope name="Project - non-generated" level="WARNING" enabled="true" />
     </inspection_tool>
     <inspection_tool class="ZeroLengthArrayInitialization" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
-    <inspection_tool class="unused" enabled="true" level="WEAK WARNING" enabled_by_default="true" checkParameterExcludingHierarchy="false" isSelected="false">
+    <inspection_tool class="unused" enabled="true" level="WEAK WARNING" enabled_by_default="true" checkParameterExcludingHierarchy="false" isSelected="true">
       <option name="LOCAL_VARIABLE" value="true" />
       <option name="FIELD" value="true" />
       <option name="METHOD" value="true" />

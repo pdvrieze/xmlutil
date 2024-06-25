@@ -56,6 +56,7 @@ class TestXSTestSuite {
     }
 
     @Test
+    @Disabled
     fun testParseGenericSpeed() {
         val urls = testXmlSchemaUrls()
         var dummy1: Any?
@@ -106,6 +107,7 @@ class TestXSTestSuite {
     }
 
     @Test
+    @Disabled
     fun testDeserializeGenericSpeed() {
         xml = XML {
             isUnchecked = false
@@ -120,6 +122,7 @@ class TestXSTestSuite {
     }
 
     @Test
+    @Disabled
     fun testDeserializeStaxSpeed() {
         xml = XML {
             defaultPolicy {

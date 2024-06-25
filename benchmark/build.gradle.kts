@@ -21,24 +21,63 @@ import net.devrieze.gradle.ext.addNativeTargets
  */
 
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.benchmark)
+    kotlin("multiplatform")
     id("projectPlugin")
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.allopen)
     alias(libs.plugins.dokka)
-    alias(libs.plugins.jmh)
+//    alias(libs.plugins.jmh)
     signing
 }
 
-jmh {
-    jmhVersion = libs.versions.jmh.core
+kotlin {
+    jvm()
+
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(projects.core)
+                implementation(projects.xmlschema)
+                implementation(projects.schemaTests)
+                implementation(projects.serialization)
+                implementation(projects.testutil)
+                implementation(libs.benchmark.runtime)
+                implementation(libs.datetime)
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation(projects.coreJdk)
+//                implementation(libs.jmhCore)
+                implementation(kotlin("test-junit5"))
+            }
+        }
+    }
 }
 
-dependencies {
-    jmhImplementation(projects.core)
-    jmhImplementation(projects.xmlschema)
-    jmhImplementation(projects.schemaTests)
-    jmhImplementation(projects.serialization)
-    jmhImplementation(projects.testutil)
-    jmhImplementation(libs.jmhCore)
-    jmhImplementation(kotlin("test-junit5"))
+benchmark {
+    targets {
+        register("jvm")
+    }
+    configurations {
+        create("parsing") {
+            include("nl.adaptivity.xmlutil.benchmark.Parsing")
+        }
+        create("deserialization") {
+            include("nl.adaptivity.xmlutil.benchmark.Deserialization")
+        }
+        create("deserializationFast") {
+            include("nl.adaptivity.xmlutil.benchmark.Deserialization.testDeserializeGenericSpeedRetainedXml")
+            include("nl.adaptivity.xmlutil.benchmark.Deserialization.testDeserializeNoparseRetained")
+        }
+    }
 }
+
+allOpen {
+    annotations("org.openjdk.jmh.annotations.State", "kotlinx.benchmark.State")
+}
+
+//jmh {
+//    jmhVersion = libs.versions.jmh.core
+//}
