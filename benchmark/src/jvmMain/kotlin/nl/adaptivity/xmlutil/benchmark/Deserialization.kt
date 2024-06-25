@@ -23,24 +23,40 @@ package nl.adaptivity.xmlutil.benchmark
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import kotlinx.benchmark.*
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.benchmark.util.testXmlSchemaUrls
+import nl.adaptivity.xmlutil.benchmark.util.*
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.*
 import java.net.URL
 import java.util.concurrent.TimeUnit
+import kotlin.test.BeforeTest
 
 @State(Scope.Benchmark)
 @Measurement(iterations = 10)
 @Warmup(iterations = 2)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-class Deserialization {
+open class Deserialization {
     lateinit var retainedXml: XML
 
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML { recommended_0_87_0() })
 
-    lateinit var readers: Lazy<List<XmlBufferReader>>
+    val readers by lazy {
+        suites
+            .filter { (_, u) -> u.toString().contains("xsts.xsd") }
+            .map { (_, u) ->
+            u.openStream().use { input ->
+                xmlStreaming.newReader(input).use { reader ->
+                    val events = buildList<XmlEvent> {
+                        while (reader.hasNext()) {
+                            add(reader.run { next(); toEvent() })
+                        }
+                    }
+                    u to XmlBufferReader(events)
+                }
+            }
+        }
+    }
 
     @Param("true")
     var unchecked: Boolean = false
@@ -57,22 +73,12 @@ class Deserialization {
                 isStrictAttributeNames = true
             }
         }
-        readers = lazy {
-            suites.map { (_, u) ->
-                u.openStream().use { input ->
-                    xmlStreaming.newReader(input).use { reader ->
-                        val events = buildList<XmlEvent> {
-                            while (reader.hasNext()) add(reader.run { next(); toEvent() })
-                        }
-                        XmlBufferReader(events)
-                    }
-                }
-            }
-        }
     }
 
     @Benchmark
-    fun testDeserializeGenericSpeed(bh : Blackhole) {
+    fun testDeserializeGenericSpeed(bh : Blackhole) = testDeserializeGenericSpeedImpl(BlackHoleWrapperImpl(bh))
+
+    fun testDeserializeGenericSpeedImpl(bh: BlackholeWrapper) {
         val xml = XML {
             isUnchecked = unchecked
             defaultPolicy {
@@ -86,7 +92,10 @@ class Deserialization {
     }
 
     @Benchmark
-    fun testDeserializeGenericSpeedRetainedXml(bh : Blackhole) {
+    fun testDeserializeGenericSpeedRetainedXml(bh : Blackhole) =
+        testDeserializeGenericSpeedImpl(BlackHoleWrapperImpl(bh))
+
+    fun testDeserializeGenericSpeedRetainedXml(bh : BlackholeWrapper) {
         check(retainedXml.config.isUnchecked == unchecked)
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
         testDeserializeAndParseSpeed(bh, retainedXml)
@@ -94,13 +103,17 @@ class Deserialization {
     }
 
     @Benchmark
-    fun testDeserializeNoparseRetained(bh : Blackhole) {
+    fun testDeserializeNoparseRetained(bh : Blackhole) = testDeserializeNoparseRetained(BlackHoleWrapperImpl(bh))
+
+    fun testDeserializeNoparseRetained(bh : BlackholeWrapper) {
         check(retainedXml.config.isUnchecked == unchecked)
         testDeserializeOnlySpeed(bh, retainedXml)
     }
 
     @Benchmark
-    fun testDeserializeStaxSpeed(bh : Blackhole) {
+    fun testDeserializeStaxSpeed(bh : Blackhole) = testDeserializeStaxSpeed(BlackHoleWrapperImpl(bh))
+
+    fun testDeserializeStaxSpeed(bh : BlackholeWrapper) {
         val xml = XML {
             defaultPolicy {
                 autoPolymorphic = true
@@ -112,7 +125,7 @@ class Deserialization {
         xmlStreaming.setFactory(null)
     }
 
-    private fun testDeserializeAndParseSpeed(bh : Blackhole, xml: XML) {
+    private fun testDeserializeAndParseSpeed(bh : BlackholeWrapper, xml: XML) {
         for ((_, uri) in suites) {
             try {
                 uri.openStream().use { inStream ->
@@ -127,13 +140,12 @@ class Deserialization {
         }
     }
 
-    private fun testDeserializeOnlySpeed(bh : Blackhole, xml: XML) {
-        for (reader in readers.value) {
+    private fun testDeserializeOnlySpeed(bh : BlackholeWrapper, xml: XML) {
+        for ((u, reader) in readers) {
             try {
-                val schema = xml.decodeFromReader<XSSchema>(reader)
-                bh.consume(schema)
+                bh.consume(xml.decodeFromReader<XSSchema>(reader))
             } catch (e: Exception) {
-                System.err.println("Failure to read schema:\n${e.message?.prependIndent("        ")}")
+                throw AssertionError("Failure to read $u:\n${e.message?.prependIndent("        ")}", e)
             }
         }
     }

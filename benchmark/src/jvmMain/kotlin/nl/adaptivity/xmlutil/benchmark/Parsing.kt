@@ -42,11 +42,8 @@ class Parsing {
         recommended_0_87_0()
     }
 
-    lateinit var suites: List<Pair<URL, URL>>
-
-    @Setup
-    fun getSuiteUrls() {
-        suites = testXmlSchemaUrls(xml)
+    val suites: List<Pair<URL, URL>> by lazy {
+        testXmlSchemaUrls(xml)
     }
 
     @Benchmark

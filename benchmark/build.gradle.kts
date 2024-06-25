@@ -53,7 +53,16 @@ kotlin {
                 implementation(kotlin("test-junit5"))
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                runtimeOnly(libs.junit5.engine)
+            }
+        }
     }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 benchmark {
