@@ -29,5 +29,8 @@ class BlackHoleWrapperImpl(val delegate: Blackhole) : BlackholeWrapper {
 }
 
 object DummyBlackHole: BlackholeWrapper {
-    override fun consume(value: Any?) {}
+    private var x: Any? = null
+    override fun consume(value: Any?) {
+        x = value
+    }
 }
