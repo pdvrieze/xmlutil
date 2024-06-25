@@ -31,6 +31,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 

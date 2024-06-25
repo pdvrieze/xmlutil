@@ -701,11 +701,11 @@
   </test>
   <test path="CType/annotation00101m3/annotation00101m3">
     <expected validity="invalid" exception="XmlSerialException"
-              message="In [^ ]*complexType, found element term\([^ ]*all \| [^ ]*choice \| [^ ]*sequence \| [^ ]*group\) before [^ ]*annotation in conflict with ordering constraints"/>
+              message="In [^ ]*complexType, found element term\([^\)]*sequence[^\)]*\) before [^ ]*annotation in conflict with ordering constraints"/>
   </test>
   <test path="CType/annotation00101m4/annotation00101m4">
     <expected validity="invalid" exception="XmlSerialException"
-              message="In [^ ]*complexType, found element term\([^ ]*all \| [^ ]*choice \| [^ ]*sequence \| [^ ]*group\) before [^ ]*annotation in conflict with ordering constraints"/>
+              message="In [^ ]*complexType, found element term\([^\)]*sequence[^\)]*\) before [^ ]*annotation in conflict with ordering constraints"/>
   </test>
   <test path="CType/attributeuses00101m1/Negative" isInstance="true">
     <expected validity="invalid" exception="xx" message="yy"/>

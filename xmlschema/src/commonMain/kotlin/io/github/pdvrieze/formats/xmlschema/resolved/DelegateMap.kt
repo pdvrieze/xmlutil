@@ -25,8 +25,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-class DelegateMap<T: Any, V : NamedPart> :
-    AbstractMap<String, V> {
+class DelegateMap<T: Any, V : NamedPart> : AbstractMap<String, V> {
 
     private val targetNamespace: String
     private val _delegate: Map<String, T> // force this to use the getter at runtime
@@ -114,7 +113,7 @@ class DelegateMap<T: Any, V : NamedPart> :
 
 
     override fun get(key: String): V? {
-        return lazyStore.computeIfAbsent(key) {
+        return lazyStore.getOrPut(key) {
             delegate[key]?.let { transform(it) }
         }
     }
