@@ -143,6 +143,7 @@ open class Deserialization {
     private fun testDeserializeOnlySpeed(bh : BlackholeWrapper, xml: XML) {
         for ((u, reader) in readers) {
             try {
+                reader.reset()
                 bh.consume(xml.decodeFromReader<XSSchema>(reader))
             } catch (e: Exception) {
                 throw AssertionError("Failure to read $u:\n${e.message?.prependIndent("        ")}", e)

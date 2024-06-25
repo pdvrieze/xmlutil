@@ -109,6 +109,14 @@ public class XmlBufferReader private constructor(
         }
     }
 
+    /**
+     * Reset the reader to the start
+     */
+    public fun reset() {
+        currentPos = -1
+        namespaceHolder.clear()
+    }
+
     override fun hasNext(): Boolean = currentPos + 1 < buffer.size
 
     override fun next(): EventType {
