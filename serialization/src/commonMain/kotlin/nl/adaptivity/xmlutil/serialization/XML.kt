@@ -1096,7 +1096,14 @@ public class XML(
         public fun getNamespaceURI(prefix: String): String? = input.namespaceContext.getNamespaceURI(prefix)
     }
 
-
+    /**
+     * Class to support recovery in parsing.
+     * @property elementIndex The index of the child element that is the data that is parsed
+     * @property value The value for the particular property
+     * @property unParsed It is also possible to just provide a property index. In this case the value
+     *                    of this property should be `true` and the value of the [value] property is ignored (should
+     *                    be null)
+     */
     @ExperimentalXmlUtilApi
     public data class ParsedData<T>(public val elementIndex: Int, public val value: T, val unParsed: Boolean = false)
 

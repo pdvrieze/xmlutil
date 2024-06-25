@@ -74,12 +74,19 @@ internal open class XmlDecoderBase internal constructor(
         decoder: Decoder,
         previousValue: T? = null,
         isValueChild: Boolean = false
-    ): T = when (this) {
-        is XmlDeserializationStrategy -> {
-            val initialDepth = input.depth
-            deserializeXML(decoder, input, previousValue, isValueChild)
+    ): T {
+        val initialDepth = if (input.eventType == EventType.START_ELEMENT) input.depth - 1 else input.depth
+        val r = when (this) {
+            is XmlDeserializationStrategy -> {
+                deserializeXML(decoder, input, previousValue, isValueChild)
+            }
+
+            else -> deserialize(decoder)
         }
-        else -> deserialize(decoder)
+        if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT && initialDepth == input.depth) {
+            input.pushBackCurrent()
+        }
+        return r
     }
 
     abstract inner class DecodeCommons(
@@ -268,9 +275,14 @@ internal open class XmlDecoderBase internal constructor(
                 else -> xmlDescriptor
 
             }
+            val startsWithTag = input.eventType == EventType.START_ELEMENT
+            val startDepth = input.depth
             val serialValueDecoder =
                 SerialValueDecoder(effectiveDeserializer, desc, polyInfo, attrIndex, typeDiscriminatorName, isValueChild)
             val value = effectiveDeserializer.deserializeSafe(serialValueDecoder)
+            if (startsWithTag && !input.hasPeekItems && input.depth<startDepth) {
+                input.pushBackCurrent()
+            }
 
             val tagId = serialValueDecoder.tagIdHolder?.tagId
             if (tagId != null) {
@@ -636,7 +648,9 @@ internal open class XmlDecoderBase internal constructor(
         private val readTagName = if(config.isUnchecked) xmlDescriptor.tagName else input.name
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            if (!decodeElementIndexCalled) {
+            // If we aren't in the closed stage, we read the index again to check that we are finished
+            if (stage < STAGE_CLOSE) {
+                stage = STAGE_NULLS
                 val index = decodeElementIndex()
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
@@ -662,7 +676,7 @@ internal open class XmlDecoderBase internal constructor(
         private var preserveWhitespace = xmlDescriptor.preserveSpace
 
         protected val attrCount: Int = if (input.eventType == EventType.START_ELEMENT) input.attributeCount else 0
-        private val tagDepth: Int = input.depth
+        protected val tagDepth: Int = input.depth
 
         /**
          * Array that records for each child element whether it has been encountered. After processing the entire tag
@@ -683,7 +697,7 @@ internal open class XmlDecoderBase internal constructor(
         @OptIn(ExperimentalXmlUtilApi::class)
         private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
-        protected var decodeElementIndexCalled = false
+        protected var stage = STAGE_INIT
 
         private val tagNameToMembers: Map<QName, Int>
         private val attrNameToMembers: Map<QName, Int>
@@ -1036,16 +1050,10 @@ internal open class XmlDecoderBase internal constructor(
 
         @OptIn(ExperimentalXmlUtilApi::class)
         protected open fun decodeElementIndex(): Int {
-            if (!decodeElementIndexCalled) {
-                if (input.depth < tagDepth) {
-                    return CompositeDecoder.DECODE_DONE
-                }
-                if (!input.hasPeekItems && input.depth == tagDepth && input.eventType == EventType.END_ELEMENT) {
-                    return CompositeDecoder.DECODE_DONE
-                }
+            if (stage == STAGE_CLOSE) {
+                return CompositeDecoder.DECODE_DONE
             }
 
-            decodeElementIndexCalled = true
             /* Decoding works in 4 stages: pending injected elements, attributes,
              * child content, null values.
              * Pending injected elements allow for handling unexpected content, and should be
@@ -1057,126 +1065,136 @@ internal open class XmlDecoderBase internal constructor(
             if (pendingRecovery.isNotEmpty()) {
                 return pendingRecovery.first().elementIndex
             }
-            if (nulledItemsIdx >= 0) {
-                // This processes all "missing" elements.
-                if (!config.isUnchecked) input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
+            if (stage == STAGE_NULLS) {
+                if (nulledItemsIdx >= 0) {
+                    // This processes all "missing" elements.
+                    if (!config.isUnchecked) input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
 
-                if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.DECODE_DONE
+                    if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.DECODE_DONE
 
-                return nulledItemsIdx.also {// return the current index, and then move to the next value
-                    nextNulledItemsIdx()
+                    return nulledItemsIdx.also {// return the current index, and then move to the next value
+                        nextNulledItemsIdx()
+                    }
+                } else {
+                    stage = STAGE_CLOSE
                 }
             }
 
-            // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
-            lastAttrIndex++
+            if (stage <= STAGE_ATTRS) {
+                // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
+                lastAttrIndex++
 
-            // Allow for ignoring attributes (like keys on collapsed maps).
-            // This must be separate as it may be the last attribute that is ignored
-            while (lastAttrIndex in 0 until attrCount &&
-                ignoredAttributes.any { it isEquivalent input.getAttributeName(lastAttrIndex) }
-            ) {
-                ++lastAttrIndex
-            }
-
-            if (lastAttrIndex in 0 until attrCount) {
-
-                val name = input.getAttributeName(lastAttrIndex)
-
-                if (name == typeDiscriminatorName || name.getNamespaceURI() == XMLNS_ATTRIBUTE_NS_URI ||
-                    name.prefix == XMLNS_ATTRIBUTE ||
-                    (name.prefix.isEmpty() && name.localPart == XMLNS_ATTRIBUTE)
+                // Allow for ignoring attributes (like keys on collapsed maps).
+                // This must be separate as it may be the last attribute that is ignored
+                while (lastAttrIndex in 0 until attrCount &&
+                    ignoredAttributes.any { it isEquivalent input.getAttributeName(lastAttrIndex) }
                 ) {
-                    // Ignore namespace decls and the type discriminator attribute, just recursively call the function itself
-                    return decodeElementIndex()
-                } else if (name.getNamespaceURI() == XML_NS_URI && name.localPart == "space") {
-                    when (input.getAttributeValue(lastAttrIndex)) {
-                        "preserve" -> preserveWhitespace = true
-                        "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
-                    }
-                    // If this was explicitly declared as attribute use that as index, otherwise
-                    // just skip the attribute.
-                    return attrNameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex()
+                    ++lastAttrIndex
                 }
 
-                // The ifNegative function will recursively call this function if we didn't find it (and the handler
-                // didn't throw an exception). This allows for ignoring unknown elements.
-                return indexOf(name, InputKind.Attribute).markSeenOrHandleUnknown { decodeElementIndex() }
+                if (lastAttrIndex in 0 until attrCount) {
 
-            }
-            lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
+                    val name = input.getAttributeName(lastAttrIndex)
 
-            val valueChild = xmlDescriptor.getValueChild()
-            // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
-            // treated as such).
-            if (valueChild >= 0 && /*input.peek() is XmlEvent.EndElementEvent &&*/ !seenItems[valueChild]) {
-                val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
-                // Lists/maps need to be empty (treated as null/missing)
-                if ((!valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
-                    // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
-                    seenItems[valueChild] = true
-                    return valueChild
-                }
-            }
-            for (eventType in input) {
-                when (eventType) {
-                    EventType.END_ELEMENT -> {
-                        return readElementEnd()
+                    if (name == typeDiscriminatorName || name.getNamespaceURI() == XMLNS_ATTRIBUTE_NS_URI ||
+                        name.prefix == XMLNS_ATTRIBUTE ||
+                        (name.prefix.isEmpty() && name.localPart == XMLNS_ATTRIBUTE)
+                    ) {
+                        // Ignore namespace decls and the type discriminator attribute, just recursively call the function itself
+                        return decodeElementIndex()
+                    } else if (name.getNamespaceURI() == XML_NS_URI && name.localPart == "space") {
+                        when (input.getAttributeValue(lastAttrIndex)) {
+                            "preserve" -> preserveWhitespace = true
+                            "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
+                        }
+                        // If this was explicitly declared as attribute use that as index, otherwise
+                        // just skip the attribute.
+                        return attrNameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex()
                     }
 
-                    EventType.START_DOCUMENT,
-                    EventType.COMMENT,
-                    EventType.DOCDECL,
-                    EventType.PROCESSING_INSTRUCTION -> {
-                    } // do nothing/ignore
+                    // The ifNegative function will recursively call this function if we didn't find it (and the handler
+                    // didn't throw an exception). This allows for ignoring unknown elements.
+                    return indexOf(name, InputKind.Attribute).markSeenOrHandleUnknown { decodeElementIndex() }
 
-                    EventType.ENTITY_REF,
-                    EventType.CDSECT,
-                    EventType.IGNORABLE_WHITESPACE,
-                    EventType.TEXT -> {
-                        // The android reader doesn't check whitespaceness. This code should throw
-                        if (input.isWhitespace()) {
-                            if (valueChild != CompositeDecoder.UNKNOWN_NAME && preserveWhitespace) {
-                                val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
-                                if (valueKind == StructureKind.LIST || valueKind is PrimitiveKind
-                                ) { // this allows all primitives (
-                                    seenItems[valueChild] = true
-                                    return valueChild // We can handle whitespace
+                }
+                stage = STAGE_CONTENT // no more attributes
+                lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
+            }
+
+            if (stage <= STAGE_CONTENT) {
+                stage = STAGE_CONTENT
+                val valueChild = xmlDescriptor.getValueChild()
+                // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
+                // treated as such).
+                if (valueChild >= 0 && !seenItems[valueChild]) {
+                    val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
+                    // Lists/maps need to be empty (treated as null/missing)
+                    if ((!valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
+                        // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
+                        seenItems[valueChild] = true
+                        return valueChild
+                    }
+                }
+                for (eventType in input) {
+                    when (eventType) {
+                        EventType.END_ELEMENT -> {
+                            return readElementEnd()
+                        }
+
+                        EventType.START_DOCUMENT,
+                        EventType.COMMENT,
+                        EventType.DOCDECL,
+                        EventType.PROCESSING_INSTRUCTION -> {
+                        } // do nothing/ignore
+
+                        EventType.ENTITY_REF,
+                        EventType.CDSECT,
+                        EventType.IGNORABLE_WHITESPACE,
+                        EventType.TEXT -> {
+                            // The android reader doesn't check whitespaceness. This code should throw
+                            if (input.isWhitespace()) {
+                                if (valueChild != CompositeDecoder.UNKNOWN_NAME && preserveWhitespace) {
+                                    val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
+                                    if (valueKind == StructureKind.LIST || valueKind is PrimitiveKind
+                                    ) { // this allows all primitives (
+                                        seenItems[valueChild] = true
+                                        return valueChild // We can handle whitespace
+                                    }
+                                }
+                            } else if (!input.isWhitespace()) {
+                                return valueChild.markSeenOrHandleUnknown {
+                                    config.policy.handleUnknownContentRecovering(
+                                        input,
+                                        InputKind.Text,
+                                        xmlDescriptor,
+                                        QName("<CDATA>"),
+                                        emptyList()
+                                    ).let { pendingRecovery.addAll(it) }
+                                    decodeElementIndex() // if this doesn't throw, recursively continue
                                 }
                             }
-                        } else if (!input.isWhitespace()) {
-                            return valueChild.markSeenOrHandleUnknown {
-                                config.policy.handleUnknownContentRecovering(
-                                    input,
-                                    InputKind.Text,
-                                    xmlDescriptor,
-                                    QName("<CDATA>"),
-                                    emptyList()
-                                ).let { pendingRecovery.addAll(it) }
-                                decodeElementIndex() // if this doesn't throw, recursively continue
-                            }
-                        }
-                    }
-
-                    EventType.ATTRIBUTE -> return indexOf(
-                        input.name,
-                        InputKind.Attribute
-                    ).markSeenOrHandleUnknown { decodeElementIndex() }
-
-                    EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
-                        // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
-                        // as a shortcut.
-                        CompositeDecoder.UNKNOWN_NAME -> {
-                            if (pendingRecovery.isNotEmpty()) {
-                                return pendingRecovery.first().elementIndex
-                            }
-                            input.elementContentToFragment()
                         }
 
-                        else -> return i.also { seenItems[i] = true }
-                    }
+                        EventType.ATTRIBUTE -> return indexOf(
+                            input.name,
+                            InputKind.Attribute
+                        ).markSeenOrHandleUnknown { decodeElementIndex() }
 
-                    EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
+                        EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
+                            // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
+                            // as a shortcut.
+                            CompositeDecoder.UNKNOWN_NAME -> {
+                                if (pendingRecovery.isNotEmpty()) {
+                                    return pendingRecovery.first().elementIndex
+                                }
+                                input.elementContentToFragment()
+                            }
+
+                            else -> return i.also { seenItems[i] = true }
+                        }
+
+                        EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
+                    }
                 }
             }
             return CompositeDecoder.DECODE_DONE
@@ -1212,12 +1230,13 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 }
             }
+            stage = STAGE_CLOSE // finished processing nulls
             nulledItemsIdx = seenItems.size
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            if (!decodeElementIndexCalled) {
-                val index = decodeElementIndex(descriptor)
+            if (stage < STAGE_CLOSE) {
+                val index = decodeElementIndex()
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
             if (!config.isUnchecked) {
@@ -1230,6 +1249,8 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         open fun readElementEnd(): Int {
+            // We are now in the null/default reading stage
+            stage = STAGE_NULLS
             // this is triggered on endTag, so we increase the null index to be 0 or higher.
             // We use this function as we still need to do the skipping of the relevant children
             nextNulledItemsIdx()
@@ -1590,10 +1611,9 @@ internal open class XmlDecoderBase internal constructor(
         private var childCount = 0
 
         override fun decodeElementIndex(): Int {
-            decodeElementIndexCalled = true
-
+            stage = STAGE_CONTENT
             return when (input.nextTag()) {
-                EventType.END_ELEMENT -> CompositeDecoder.DECODE_DONE
+                EventType.END_ELEMENT -> CompositeDecoder.DECODE_DONE.also { stage = STAGE_CLOSE }
                 else -> childCount++ // This is important to ensure appending in the list.
             }
         }
@@ -2055,3 +2075,10 @@ internal fun XmlDescriptor.friendlyChildName(idx: Int): String = when (val c = g
 
     else -> c.tagName.toString()
 }
+
+private const val STAGE_INIT = 1
+private const val STAGE_ATTRS = 2
+private const val STAGE_CONTENT = 3
+private const val STAGE_NULLS = 4
+private const val STAGE_CLOSE = 5
+

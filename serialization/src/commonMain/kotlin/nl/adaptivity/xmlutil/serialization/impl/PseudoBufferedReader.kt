@@ -124,5 +124,10 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
         }
         return delegate.action()
     }
+
+    override fun toString(): String = when {
+        hasPeekItems -> "PEEKING[$delegate]"
+        else -> "DIRECT[$delegate]"
+    }
 }
 
