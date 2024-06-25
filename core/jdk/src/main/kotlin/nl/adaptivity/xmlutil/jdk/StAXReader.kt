@@ -171,7 +171,7 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     override fun next(): EventType {
         if (!isStarted) {
             isStarted = true
-            return delegateToLocal(delegate.eventType)
+            return updateDepth(-1, delegateToLocal(delegate.eventType))
         }
         try {
             return updateDepth(delegate.eventType, fixWhitespace(delegateToLocal(delegate.next())))

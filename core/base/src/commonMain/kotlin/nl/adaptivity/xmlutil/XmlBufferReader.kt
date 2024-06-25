@@ -112,6 +112,8 @@ public class XmlBufferReader private constructor(
     override fun hasNext(): Boolean = currentPos + 1 < buffer.size
 
     override fun next(): EventType {
+        if (currentPos >= 0 && buffer[currentPos] is EndElementEvent) namespaceHolder.decDepth()
+
         currentPos++
         if (currentPos >= buffer.size) throw NoSuchElementException("Reading beyond the end of the reader")
 
@@ -123,8 +125,6 @@ public class XmlBufferReader private constructor(
                     namespaceHolder.addPrefixToContext(ns)
                 }
             }
-
-            is EndElementEvent -> namespaceHolder.decDepth()
 
             else -> { // ignore
             }
