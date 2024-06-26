@@ -25,6 +25,9 @@ import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmStatic
+
+private const val BUF_SIZE = 4096
 
 @ExperimentalXmlUtilApi
 /**
@@ -104,11 +107,28 @@ public class KtXmlReader internal constructor(
     public override var standalone: Boolean? = null
         private set
 
-    private val srcBuf = CharArray(8192)
 
     private var srcBufPos: Int = 0
-
     private var srcBufCount: Int = 0
+
+    //    private val srcBuf = CharArray(8192)
+    private var bufLeft = CharArray(BUF_SIZE)
+    private var bufRight: CharArray// = CharArray(BUF_SIZE)
+
+    init { // Read the first buffers on creation, rather than delayed
+        var cnt = reader.readUntilFullOrEOF(bufLeft)
+        require(cnt>=0) { "Trying to parse an empty file (that is not valid XML)" }
+        if (cnt < BUF_SIZE) {
+            bufRight = CharArray(0)
+            srcBufCount = cnt
+        } else {
+            val newRight = CharArray(BUF_SIZE)
+            bufRight = newRight
+            cnt = reader.readUntilFullOrEOF(newRight).coerceAtLeast(0) // in case the EOF is exactly at the boundary
+            srcBufCount = BUF_SIZE + cnt
+        }
+    }
+
 
     /**
      * A separate peek buffer seems simpler than managing
@@ -706,57 +726,169 @@ public class KtXmlReader internal constructor(
     }
 
     private fun read(): Int {
-        val result: Int
-        when(val pc =peekCount) {
-            0 -> {
-                result = peek(0)
-                peekCount = 0
+        val pos = srcBufPos
+        if (pos >= srcBufCount) return -1
+        if (pos + 2 >= BUF_SIZE) return readAcross()
+
+        val next = pos + 1
+        when (val ch = bufLeft[pos]) {
+            '\u0000' -> { // should not happen at end of file (or really generally at all)
+                srcBufPos = next + 1
+                return bufLeft[next].code
+            }
+            '\r' -> {
+                bufLeft[srcBufPos] = '\n'
+                if (next < srcBufCount && bufLeft[next] =='\n') {
+                    bufLeft[next] = '\u0000'
+                    srcBufPos = next + 1
+                } else {
+                    srcBufPos = next
+                }
+                if (!ignorePos) {
+                    line += 1
+                    column = 0
+                }
+                return '\n'.code
+            }
+            '\n' -> {
+                srcBufPos = next
+                if (!ignorePos) {
+                    line += 1
+                    column = 0
+                }
+                return '\n'.code
             }
             else -> {
-                result = peek[0]
-                peek[0] = peek[1]
-                peekCount = pc -1
+                srcBufPos = next
+                return ch.code
             }
+        }
+    }
+
+    private fun swapBuffer() {
+        val oldLeft = bufLeft
+        bufLeft = bufRight
+        bufRight = oldLeft
+        srcBufPos -= BUF_SIZE
+        val rightBufCount = srcBufCount - BUF_SIZE
+        if (rightBufCount>= BUF_SIZE) {
+            val newRead = reader.readUntilFullOrEOF(bufRight)
+            srcBufCount = rightBufCount + newRead
+        } else {
+            srcBufCount = rightBufCount
+        }
+    }
+
+    private fun readAcross(): Int {
+        var pos = srcBufPos
+        if (pos >= BUF_SIZE) {
+            swapBuffer()
+            pos -= BUF_SIZE
         }
 
-        if (offset >= 0) {
-            ++offset
-            ++column
-            if (result == '\n'.code) {
-                ++line
-                column = 1
+        val next = pos + 1
+        when (val ch = bufLeft[pos]) {
+            '\u0000' -> { // should not happen at end of file (or really generally at all)
+                srcBufPos = next
+                return readAcross() // just recurse
+            }
+            '\r' -> {
+                bufLeft[srcBufPos] = '\n'
+                if (next < srcBufCount && getBuf(next) =='\n') {
+                    setBuf(next, '\u0000')
+                    srcBufPos = next + 1
+                } else {
+                    srcBufPos = next
+                }
+                if (!ignorePos) {
+                    line += 1
+                    column = 0
+                }
+                return '\n'.code
+            }
+            '\n' -> {
+                srcBufPos = next
+                if (!ignorePos) {
+                    line += 1
+                    column = 0
+                }
+                return '\n'.code
+            }
+            else -> {
+                srcBufPos = next
+                return ch.code
             }
         }
-        return result
     }
 
     /** Does never read more than needed  */
     private fun peek(pos: Int): Int {
-        val srcBuf = srcBuf
-        while (pos >= peekCount) {
-            var nw: Int
-            val reader = reader
+        // In this case we *may* need the right buffer, otherwise not
+        // optimize this implementation for the "happy" path
+        if (srcBufPos + (pos shl 2 + 1) >= BUF_SIZE) return peekAcross(pos)
+        var current = srcBufPos
+        var peekCount = pos
 
-            when {
-                srcBuf.size <= 1 -> nw = reader.read()
-                srcBufPos < srcBufCount -> nw = srcBuf[srcBufPos++].code
-                else -> {
-                    srcBufCount = reader.read(srcBuf, 0, srcBuf.size)
-                    nw = if (srcBufCount <= 0) -1 else srcBuf[0].code
-                    srcBufPos = 1
+        while (current < srcBufCount) {
+            var chr: Char = bufLeft[current]
+            when (chr) {
+                '\u0000' -> ++current
+                '\r' -> {
+                    chr = '\n' // update the char
+                    bufLeft[current] = '\n' // replace it with LF (\n)
+                    if (bufLeft[current+1] == '\r') {
+                        // Note also as we are separated from the edge of the buffer setting this is valid even
+                        // beyond the end of the file
+                        bufLeft[current++] = '\u0000' // 0 is not a valid XML CHAR, so we can skip it
+                    }
                 }
+                else -> ++current
             }
-            if (nw == '\r'.code) {
-                wasCR = true
-                peek[peekCount++] = '\n'.code
-            } else {
-                if (nw == '\n'.code) {
-                    if (!wasCR) peek[peekCount++] = '\n'.code
-                } else peek[peekCount++] = nw
-                wasCR = false
-            }
+            if (peekCount-- == 0) return chr.code
         }
-        return peek[pos]
+        return -1
+    }
+
+    /**
+     * Pessimistic implementation of peek that allows checks across into the "right" buffer
+     */
+    private fun peekAcross(pos: Int): Int {
+        var current = srcBufPos
+        var peekCount = pos
+
+        while (current < srcBufCount) {
+            var chr: Char = getBuf(current)
+            when (chr) {
+                '\u0000' -> ++current
+                '\r' -> {
+                    chr = '\n' // update the char
+                    setBuf(current, '\n') // replace it with LF (\n)
+                    if (current+1 <srcBufCount && getBuf(current+1) == '\r') {
+                        setBuf(current++, '\u0000') // 0 is not a valid XML CHAR, so we can skip it
+                    }
+                }
+
+                else -> ++current
+            }
+            if (peekCount-- == 0) return chr.code
+        }
+        return -1
+    }
+
+    private fun getBuf(pos: Int): Char {
+        val split = pos - BUF_SIZE
+        return when {
+            split < 0 -> bufLeft[pos]
+            else -> bufRight[split]
+        }
+    }
+
+    private fun setBuf(pos: Int, value: Char) {
+        val split = pos - BUF_SIZE
+        when {
+            split < 0 -> bufLeft[pos] = value
+            else -> bufRight[split] = value
+        }
     }
 
     private fun readName(): String {
@@ -958,6 +1090,20 @@ public class KtXmlReader internal constructor(
             it["gt"] = ">"
             it["lt"] = "<"
             it["quot"] = "\""
+        }
+
+        @JvmStatic
+        private fun Reader.readUntilFullOrEOF(buffer: CharArray): Int {
+            val bufSize = buffer.size
+//            var lastRead = read(buffer, 0, bufSize)
+            var totalRead: Int = read(buffer, 0, bufSize)
+            if (totalRead < 0) return -1
+            while (totalRead < bufSize) {
+                val lastRead = read(buffer, totalRead, bufSize - totalRead)
+                if (lastRead < 0) return totalRead
+                totalRead += lastRead
+            }
+            return totalRead
         }
     }
 
