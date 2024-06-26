@@ -18,19 +18,18 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil.benchmark.util
+package nl.adaptivity.xmlutil.benchmark.test
 
-import kotlinx.benchmark.Blackhole
+import nl.adaptivity.xmlutil.benchmark.Parsing
+import nl.adaptivity.xmlutil.benchmark.util.DummyBlackHole
+import nl.adaptivity.xmlutil.benchmark.util.measure
+import org.junit.jupiter.api.Test
 
-class BlackHoleWrapperImpl(val delegate: Blackhole) : BlackholeWrapper {
-    override fun consume(value: Any?) {
-        delegate.consume(value)
+class ParseTest : Parsing() {
+
+    @Test
+    fun benchParseSchemas() {
+        measure("Parsing schemas", rounds = 40, warmups = 2) { benchParseSchemas(DummyBlackHole) }
     }
-}
 
-object DummyBlackHole: BlackholeWrapper {
-    private var x: Any? = null
-    override fun consume(value: Any?) {
-        x = value
-    }
 }

@@ -23,6 +23,8 @@ package nl.adaptivity.xmlutil.benchmark
 import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import kotlinx.benchmark.*
 import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapperImpl
+import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapper
 import nl.adaptivity.xmlutil.benchmark.util.testXmlSchemaUrls
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.serialization.XML
@@ -36,7 +38,7 @@ import java.util.concurrent.TimeUnit
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-class Parsing {
+open class Parsing {
 
     val xml = XML {
         recommended_0_87_0()
@@ -58,6 +60,10 @@ class Parsing {
     @Benchmark
     @Warmup(iterations = 1)
     fun benchParseSchemas(bh: Blackhole) {
+        benchParseSchemas(BlackholeWrapperImpl(bh))
+    }
+
+    protected fun benchParseSchemas(bh: BlackholeWrapper) {
         for ((_, url) in suites) {
             url.openStream().use { instr ->
                 KtXmlReader(instr).use { r: KtXmlReader ->

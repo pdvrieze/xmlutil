@@ -74,7 +74,7 @@ open class Deserialization {
     }
 
     @Benchmark
-    fun testDeserializeGenericSpeed(bh : Blackhole) = testDeserializeGenericSpeedImpl(BlackHoleWrapperImpl(bh))
+    fun testDeserializeGenericSpeed(bh : Blackhole) = testDeserializeGenericSpeedImpl(BlackholeWrapperImpl(bh))
 
     fun testDeserializeGenericSpeedImpl(bh: BlackholeWrapper) {
         val xml = XML {
@@ -91,7 +91,7 @@ open class Deserialization {
 
     @Benchmark
     fun testDeserializeGenericSpeedRetainedXml(bh : Blackhole) =
-        testDeserializeGenericSpeedImpl(BlackHoleWrapperImpl(bh))
+        testDeserializeGenericSpeedImpl(BlackholeWrapperImpl(bh))
 
     fun testDeserializeGenericSpeedRetainedXml(bh : BlackholeWrapper) {
         check(retainedXml.config.isUnchecked == unchecked)
@@ -101,7 +101,7 @@ open class Deserialization {
     }
 
     @Benchmark
-    fun testDeserializeNoparseRetained(bh : Blackhole) = testDeserializeNoparseRetained(BlackHoleWrapperImpl(bh))
+    fun testDeserializeNoparseRetained(bh : Blackhole) = testDeserializeNoparseRetained(BlackholeWrapperImpl(bh))
 
     fun testDeserializeNoparseRetained(bh : BlackholeWrapper) {
         check(retainedXml.config.isUnchecked == unchecked)
@@ -109,7 +109,7 @@ open class Deserialization {
     }
 
     @Benchmark
-    fun testDeserializeStaxSpeed(bh : Blackhole) = testDeserializeStaxSpeed(BlackHoleWrapperImpl(bh))
+    fun testDeserializeStaxSpeed(bh : Blackhole) = testDeserializeStaxSpeed(BlackholeWrapperImpl(bh))
 
     fun testDeserializeStaxSpeed(bh : BlackholeWrapper) {
         val xml = XML {

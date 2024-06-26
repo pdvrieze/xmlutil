@@ -53,7 +53,7 @@ inline fun measure(name:String, rounds: Int = 20, warmups: Int = 1, action: Meas
         return duration
     } else {
         val duration = (endTime - startTime)/rounds
-        val warmupExtra = (startTime - initTime - duration)
+        val warmupExtra = (startTime - initTime - duration)/warmups.coerceAtLeast(1)
         println("$name: Duration time × $rounds): $duration ms (+${warmupExtra} ms)")
         return duration
     }
