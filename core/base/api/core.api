@@ -880,10 +880,18 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReaderJavaKt {
 }
 
 public final class nl/adaptivity/xmlutil/core/KtXmlWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
+	public fun <init> (Ljava/lang/Appendable;Z)V
+	public synthetic fun <init> (Ljava/lang/Appendable;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;)V
 	public synthetic fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/core/XmlVersion;)V
+	public synthetic fun <init> (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;Z)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;Lnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/core/XmlVersion;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/core/XmlVersion;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun attribute (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun cdsect (Ljava/lang/String;)V
 	public fun close ()V

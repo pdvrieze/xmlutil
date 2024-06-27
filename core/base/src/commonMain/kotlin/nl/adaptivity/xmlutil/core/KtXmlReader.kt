@@ -647,7 +647,7 @@ public class KtXmlReader internal constructor(
             skip()
             if (peek(0) != '='.code) {
                 if (!relaxed) {
-                    error("Attr.value missing f. $attrName")
+                    error("Attr.value missing '='. $attrName, found: ${peek(0).toChar()}")
                 }
                 attributes.addNoNS(attrName, attrName)
             } else {

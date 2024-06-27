@@ -84,7 +84,7 @@ public fun isNameCode(c: Int, isColonValid: Boolean = true): Boolean = when (c) 
 }
 
 @ExperimentalXmlUtilApi
-public fun isNameStartChar(c: Char, isColonValid: Boolean = true): Boolean = when (c) {
+public fun isNameStartChar(c: Char, isColonValid: Boolean): Boolean = when (c) {
     '\u00f7', '\u037E' -> false
 
     ':' -> isColonValid
@@ -104,6 +104,25 @@ public fun isNameStartChar(c: Char, isColonValid: Boolean = true): Boolean = whe
     -> true
 
     else -> false
+}
+
+@ExperimentalXmlUtilApi
+public fun isNameStartChar(c: Char): Boolean {
+    if (c.code < 256) return NAMESTART[c.code]
+
+    return when (c) {
+        in '\u0100'..'\u02ff',
+        in '\u0370'..'\u1FFF',
+        '\u200C', '\u200D',
+        in '\u2070'..'\u218f',
+        in '\u2C00'..'\u2FEF',
+        in '\u3001'..'\uD7FF',
+        in '\uF900'..'\uFDCF',
+        in '\uFDF0'..'\uFFFD',
+        -> true
+
+        else -> false
+    }
 }
 
 @ExperimentalXmlUtilApi
@@ -153,4 +172,45 @@ public fun isNameChar11(c: Char, isColonValid: Boolean = true): Boolean = when (
     in '\uFDF0'..'\uFFFD', -> true
 
     else -> false
+}
+
+@ExperimentalXmlUtilApi
+public fun isNameChar11(c: Char): Boolean {
+    if (c.code < 256) return NAMECHAR[c.code]
+    return when (c) {
+        in '\u0100'..'\u1FFF',
+        '\u200C', '\u200D',
+        '\u203F', '\u2040',
+        in '\u2070'..'\u218f',
+        in '\u2C00'..'\u2FEF',
+        in '\u3001'..'\uDFFF', // surrogate pairs always have characters > 0x10000, so in 1.1 are always valid.
+        in '\uF900'..'\uFDCF',
+        in '\uFDF0'..'\uFFFD',
+        -> true
+
+        else -> false
+    }
+}
+
+private val NAMESTART: BooleanArray = BooleanArray(256).also { b ->
+    for (c in 'A'..'Z') b[c.code] = true
+    for (c in 'a'..'z') b[c.code] = true
+    b[':'.code] = true
+    b['_'.code] = true
+    for (c in 0xc0..0xd6) b[c] = true
+    for (c in 0xd8..0xf6) b[c] = true
+    for (c in 0xf8..0xff) b[c] = true
+}
+
+private val NAMECHAR: BooleanArray = BooleanArray(256).also { b ->
+    for (c in 'A'..'Z') b[c.code] = true
+    for (c in 'a'..'z') b[c.code] = true
+    for (c in '0'..'9') b[c.code] = true
+    b[':'.code] = true
+    b['_'.code] = true
+    b['-'.code] = true
+    b['.'.code] = true
+    b[0xb7] = true
+    for (c in 0xc0..0xd6) b[c] = true
+    for (c in 0xd8..0xff) b[c] = true
 }
