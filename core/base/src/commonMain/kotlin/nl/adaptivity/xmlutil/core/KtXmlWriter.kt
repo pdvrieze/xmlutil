@@ -38,16 +38,44 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 public class KtXmlWriter(
     private val writer: Appendable,
     public val isRepairNamespaces: Boolean = true,
-    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    public val xmlDeclMode: XmlDeclMode,
     xmlVersion: XmlVersion = XmlVersion.XML11
 ) : PlatformXmlWriterBase(), XmlWriter {
 
     public constructor(
         writer: Writer,
         isRepairNamespaces: Boolean = true,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+        xmlDeclMode: XmlDeclMode,
         xmlVersion: XmlVersion = XmlVersion.XML11
     ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want" +
+            "to omit it, do so expressly")
+    public constructor(
+        writer: Writer,
+        isRepairNamespaces: Boolean = true,
+        xmlVersion: XmlVersion
+    ) : this((writer as Appendable), isRepairNamespaces, XmlDeclMode.None, xmlVersion)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want" +
+            "to omit it, do so expressly")
+    public constructor(
+        writer: Appendable,
+        isRepairNamespaces: Boolean = true,
+        xmlVersion: XmlVersion
+    ) : this(writer, isRepairNamespaces, XmlDeclMode.None, xmlVersion)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want to omit it, do so expressly")
+    public constructor(
+        writer: Writer,
+        isRepairNamespaces: Boolean = true,
+    ) : this((writer as Appendable), isRepairNamespaces, XmlDeclMode.None, XmlVersion.XML11)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want to omit it, do so expressly")
+    public constructor(
+        writer: Appendable,
+        isRepairNamespaces: Boolean = true,
+    ) : this(writer, isRepairNamespaces, XmlDeclMode.None, XmlVersion.XML11)
 
     /**
      * The version of XML to generate. By default XML 1.1.
@@ -195,7 +223,12 @@ public class KtXmlWriter(
         when (state) {
             WriteState.BeforeDocument -> {
                 if (xmlDeclMode != XmlDeclMode.None) {
-                    startDocument(null, null, null)
+                    // It is only xml 1.1 if it has a version attribute with value 1.1
+                    if (xmlVersion == XmlVersion.XML11 || xmlDeclMode != XmlDeclMode.Minimal) {
+                        startDocument(xmlVersion.versionString, null, null)
+                    } else {
+                        startDocument()
+                    }
                 }
                 state = WriteState.AfterXmlDecl
             }
