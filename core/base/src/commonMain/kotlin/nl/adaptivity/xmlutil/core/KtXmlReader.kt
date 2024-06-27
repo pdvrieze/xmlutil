@@ -728,69 +728,24 @@ public class KtXmlReader internal constructor(
 
         var left: Int = curPos
         var right: Int = -1
-        var cbrCount = 0
         var notFinished = true
 
         outer@while(curPos<bufCount && notFinished) { // loop through all buffer iterations
             inner@while (curPos < innerLoopEnd) {
                 when(val nextChar = bufLeft[curPos]) {
+                    ' ', '\t', '\r', '\n' -> {
+                        ++curPos
+                    }
+
                     delimiter -> {
                         notFinished = false
                         right = curPos
                         break@inner // outer will actually give the result.
                     }
 
-                    ' ', '\t', '\r', '\n' -> {
-                        cbrCount = 0
-                        ++curPos
-                    }
-                    '&' -> {
-                        cbrCount = 0
-                        when {
-                            !resolveEntities -> {
-                                right = curPos
-                                notFinished = false
-                                break@inner
-                            }
-
-                            left == curPos -> { // start with entity
-                                srcBufPos = curPos
-                                pushEntity()
-                                curPos = srcBufPos
-                                left = curPos
-                                isAllWs = false
-                            }
-
-                            else -> { // read all items before entity (then after it will hit the other case)
-                                right = curPos
-                                isAllWs = false
-                                break@inner
-                            }
-                        }
-                    }
-
-                    ']' -> {
-                        isAllWs = false
-                        ++cbrCount
-                        ++curPos
-                        right = curPos
-                        break@inner
-                    }
-
-                    '>' -> {
-                        isAllWs = false
-                        if (cbrCount >= 2) error("Illegal ]]>")
-                        cbrCount = 0
-//                        ++curPos
-                        right = curPos
-                        break@inner
-                    }
-
                     else -> {
-                        cbrCount = 0
                         isAllWs = false
                         right = curPos
-//                        ++curPos
                         break@inner
                     }
                 }
@@ -813,12 +768,11 @@ public class KtXmlReader internal constructor(
             if (! isAllWs) {
                 srcBufPos = curPos
                 return pushNonWSText(delimiter, resolveEntities)
-//                ++curPos
             }
             left = curPos
 
         }
-        isWhitespace = isAllWs
+        isWhitespace = true
         srcBufPos = curPos
     }
 
