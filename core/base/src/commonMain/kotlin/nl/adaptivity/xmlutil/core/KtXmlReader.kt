@@ -626,19 +626,26 @@ public class KtXmlReader internal constructor(
             } else {
                 read('=')
                 skip()
-                var delimiter = peek(0)
-                if (delimiter != '\''.code && delimiter != '"'.code) {
-                    if (!relaxed) {
-                        error("attr value delimiter missing!")
-                    }
-                    delimiter = ' '.code
-                } else read()
+                val delimiter = peek(0)
                 val p = txtBufPos
-                pushText(delimiter.toChar(), true)
+                when (delimiter) {
+                    '\''.code, '"'.code -> {
+                        read()
+                        // This is an attribute, we don't care about whitespace content
+                        pushNonWSText(delimiter.toChar(), true)
+                        read()
+                    }
+
+                    else -> {
+                        if (!relaxed) error("attr value delimiter missing!")
+                        pushWSDelimAttrValue(true)
+                    }
+                }
+
+
                 attributes.addNoNS(attrName, get(p))
 
                 txtBufPos = p
-                if (delimiter != ' '.code) read() // skip endquote
             }
         }
 
@@ -710,13 +717,13 @@ public class KtXmlReader internal constructor(
      * ']': CDATA section
      * Attributes:
      * '"': parse to quote
-     * ' ': parse to whitespace or '>'
+     * NO LONGER SUPPORTED - use pushTextWsDelim ' ': parse to whitespace or '>'
      *
      * @param resolveEntities `true` if entities should be resolved inline, `false` if entity is a start of
      */
     private fun pushText(delimiter: Char, resolveEntities: Boolean) {
         var isAllWs = true
-        if (delimiter == ' ') return pushTextWsDelim(resolveEntities)
+//        if (delimiter == ' ') return pushTextWsDelim(resolveEntities)
 
         var bufCount = srcBufCount
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
@@ -851,8 +858,8 @@ public class KtXmlReader internal constructor(
         srcBufPos = curPos
     }
 
-    /** Push text delimited by whitespace */
-    private fun pushTextWsDelim(resolveEntities: Boolean) {
+    /** Push attribute delimited by whitespace */
+    private fun pushWSDelimAttrValue(resolveEntities: Boolean) {
         var bufCount = srcBufCount
         var leftEnd = minOf(bufCount, BUF_SIZE)
         var left: Int
