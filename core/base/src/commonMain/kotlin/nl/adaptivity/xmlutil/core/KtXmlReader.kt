@@ -318,13 +318,6 @@ public class KtXmlReader internal constructor(
                 TEXT -> {
                     pushText('<', !token)
                     if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
-                    /*
-                                        if (depth == 0) {
-                                            // make exception switchable for instances.chg... !!!!
-                                            //	else
-                                            //    exception ("text '"+getText ()+"' not allowed outside root element");
-                                        }
-                    */
                     return
                 }
 
@@ -553,6 +546,10 @@ public class KtXmlReader internal constructor(
     }
 
     private fun pushRange(buffer: CharArray, start: Int, endExcl: Int, isWSOnly: Boolean) {
+        pushRange(buffer, start, endExcl)
+    }
+
+    private fun pushRange(buffer: CharArray, start: Int, endExcl: Int) {
         val count = endExcl - start
         val minSizeNeeded = txtBufPos + count
         if (minSizeNeeded + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
@@ -561,7 +558,6 @@ public class KtXmlReader internal constructor(
 
         buffer.copyInto(txtBuf, txtBufPos, start, endExcl)
         txtBufPos += count
-        if (isWhitespace) isWhitespace = isWSOnly
     }
 
     private fun push(c: Int) {
@@ -707,10 +703,16 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    /** types:
+    /**
+     * General text push/parse algorithm.
+     * Content:
      * '<': parse to any token (for nextToken ())
+     * ']': CDATA section
+     * Attributes:
      * '"': parse to quote
      * ' ': parse to whitespace or '>'
+     *
+     * @param resolveEntities `true` if entities should be resolved inline, `false` if entity is a start of
      */
     private fun pushText(delimiter: Char, resolveEntities: Boolean) {
         var isAllWs = true
@@ -719,6 +721,11 @@ public class KtXmlReader internal constructor(
         var bufCount = srcBufCount
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
+
+        if (curPos<innerLoopEnd && !isXmlWhitespace(bufLeft[curPos])) {
+            return pushNonWSText(delimiter, resolveEntities)
+        }
+
         var left: Int = curPos
         var right: Int = -1
         var cbrCount = 0
@@ -733,22 +740,32 @@ public class KtXmlReader internal constructor(
                         break@inner // outer will actually give the result.
                     }
 
-                    ' ', '\t', '\r', '\n' -> ++curPos
+                    ' ', '\t', '\r', '\n' -> {
+                        cbrCount = 0
+                        ++curPos
+                    }
                     '&' -> {
-                        if (resolveEntities) {
-                            isAllWs = false
-                            if (left == curPos) { // start with entity
+                        cbrCount = 0
+                        when {
+                            !resolveEntities -> {
+                                right = curPos
+                                notFinished = false
+                                break@inner
+                            }
+
+                            left == curPos -> { // start with entity
                                 srcBufPos = curPos
                                 pushEntity()
                                 curPos = srcBufPos
-                            } else { // read all items before entity (then after it will hit the other case)
+                                left = curPos
+                                isAllWs = false
+                            }
+
+                            else -> { // read all items before entity (then after it will hit the other case)
                                 right = curPos
+                                isAllWs = false
                                 break@inner
                             }
-                        } else {
-                            right = curPos
-                            notFinished = false
-                            break@inner
                         }
                     }
 
@@ -756,17 +773,25 @@ public class KtXmlReader internal constructor(
                         isAllWs = false
                         ++cbrCount
                         ++curPos
+                        right = curPos
+                        break@inner
                     }
 
                     '>' -> {
                         isAllWs = false
                         if (cbrCount >= 2) error("Illegal ]]>")
-                        ++curPos
+                        cbrCount = 0
+//                        ++curPos
+                        right = curPos
+                        break@inner
                     }
 
                     else -> {
+                        cbrCount = 0
                         isAllWs = false
-                        ++curPos
+                        right = curPos
+//                        ++curPos
+                        break@inner
                     }
                 }
             }
@@ -785,6 +810,11 @@ public class KtXmlReader internal constructor(
                 bufCount = srcBufCount
                 innerLoopEnd = minOf(bufCount, BUF_SIZE)
             }
+            if (! isAllWs) {
+                srcBufPos = curPos
+                return pushNonWSText(delimiter, resolveEntities)
+//                ++curPos
+            }
             left = curPos
 
         }
@@ -792,6 +822,82 @@ public class KtXmlReader internal constructor(
         srcBufPos = curPos
     }
 
+    private fun pushNonWSText(delimiter: Char, resolveEntities: Boolean) {
+        var bufCount = srcBufCount
+        var innerLoopEnd = minOf(bufCount, BUF_SIZE)
+        var curPos = srcBufPos
+
+        var left: Int = curPos
+        var right: Int = -1
+        var cbrCount = 0
+        var notFinished = true
+
+        outer@while(curPos<bufCount && notFinished) { // loop through all buffer iterations
+            inner@while (curPos < innerLoopEnd) {
+                when(val nextChar = bufLeft[curPos]) {
+                    delimiter -> {
+                        notFinished = false
+                        right = curPos
+                        break@inner // outer will actually give the result.
+                    }
+
+                    ' ', '\t', '\r', '\n' -> ++curPos
+                    '&' -> {
+                        if (resolveEntities) {
+                            if (left == curPos) { // start with entity
+                                srcBufPos = curPos
+                                pushEntity()
+                                curPos = srcBufPos
+                                left = curPos
+                            } else { // read all items before entity (then after it will hit the other case)
+                                right = curPos
+                                break@inner
+                            }
+                        } else {
+                            right = curPos
+                            notFinished = false
+                            break@inner
+                        }
+                    }
+
+                    ']' -> {
+                        ++cbrCount
+                        ++curPos
+                    }
+
+                    '>' -> {
+                        if (cbrCount >= 2) error("Illegal ]]>")
+                        ++curPos
+                    }
+
+                    else -> {
+                        ++curPos
+                    }
+                }
+            }
+            if (curPos == innerLoopEnd) {
+                right = curPos
+            }
+            if (right > 0) {
+                pushRange(bufLeft, left, right, false) // ws delimited is never WS
+                right = -1
+            }
+
+            if (curPos == BUF_SIZE) { // swap the buffers
+                srcBufPos = curPos
+                swapBuffer()
+                curPos = srcBufPos
+                bufCount = srcBufCount
+                innerLoopEnd = minOf(bufCount, BUF_SIZE)
+            }
+            left = curPos
+
+        }
+        isWhitespace = false
+        srcBufPos = curPos
+    }
+
+    /** Push text delimited by whitespace */
     private fun pushTextWsDelim(resolveEntities: Boolean) {
         var bufCount = srcBufCount
         var leftEnd = minOf(bufCount, BUF_SIZE)
