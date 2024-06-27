@@ -21,10 +21,13 @@
 package nl.adaptivity.xmlutil
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TestKtXmlReader : TestCommonReader() {
 
@@ -73,6 +76,21 @@ class TestKtXmlReader : TestCommonReader() {
     @Test
     fun testProcessingInstruction() {
         testProcessingInstruction(::createReader) { KtXmlWriter(StringWriter()) }
+    }
+
+    @Test
+    fun testReadEntityInAttribute() {
+        val data = "<tag attr=\"&lt;xx&gt;\"/>"
+        val reader = KtXmlReader(StringReader(data))
+        var e = reader.next()
+        if (e == EventType.START_DOCUMENT) e = reader.next()
+        assertEquals(EventType.START_ELEMENT, e)
+        assertEquals("tag", reader.localName)
+        assertEquals(1, reader.attributeCount)
+        assertEquals("attr", reader.getAttributeLocalName(0))
+        assertEquals("<xx>", reader.getAttributeValue(0))
+
+        assertEquals(EventType.END_ELEMENT, reader.next())
     }
 
     @Test
