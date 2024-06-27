@@ -221,6 +221,7 @@ public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil
 	public synthetic fun next ()Ljava/lang/Object;
 	public fun next ()Lnl/adaptivity/xmlutil/EventType;
 	public fun remove ()V
+	public final fun reset ()V
 }
 
 public class nl/adaptivity/xmlutil/XmlBufferedReader : nl/adaptivity/xmlutil/XmlBufferedReaderBase {

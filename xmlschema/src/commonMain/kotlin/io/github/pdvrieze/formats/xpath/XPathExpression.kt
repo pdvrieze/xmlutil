@@ -23,8 +23,6 @@ package io.github.pdvrieze.formats.xpath
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameChar
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNameStartChar
 import io.github.pdvrieze.formats.xpath.impl.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -34,6 +32,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.internal.isNameChar11
+import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import nl.adaptivity.xmlutil.serialization.XML
 
 @OptIn(XPathInternal::class)
@@ -158,7 +158,7 @@ class XPathExpression private constructor(
             if (i >= str.length || !isNameStartChar(str[i])) return@buildString
 
             append(str[i++])
-            while (i < str.length && (str[i]!=':' && isNameChar(str[i]))) {
+            while (i < str.length && (str[i] != ':' && isNameChar11(str[i]))) {
                 append(str[i++])
             }
         }
@@ -835,13 +835,13 @@ class XPathExpression private constructor(
         private fun peekCurrentWord(check: String): Boolean {
             if (!peekCurrent(check)) return false
             val j = i + check.length
-            return j >= str.length || !isNameChar(str[j])
+            return j >= str.length || !isNameChar11(str[j])
         }
 
         private fun tryCurrentWord(check: String): Boolean {
             if (!peekCurrent(check)) return false
             val j = i + check.length
-            if(j >= str.length || !isNameChar(str[j])) {
+            if(j >= str.length || !isNameChar11(str[j])) {
                 i = j
                 return true
             }

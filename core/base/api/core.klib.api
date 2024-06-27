@@ -867,6 +867,7 @@ final class nl.adaptivity.xmlutil/XmlBufferReader : nl.adaptivity.xmlutil/XmlRea
     final fun getNamespaceURI(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil/XmlBufferReader.getNamespaceURI|getNamespaceURI(kotlin.String){}[0]
     final fun hasNext(): kotlin/Boolean // nl.adaptivity.xmlutil/XmlBufferReader.hasNext|hasNext(){}[0]
     final fun next(): nl.adaptivity.xmlutil/EventType // nl.adaptivity.xmlutil/XmlBufferReader.next|next(){}[0]
+    final fun reset() // nl.adaptivity.xmlutil/XmlBufferReader.reset|reset(){}[0]
     final val attributeCount // nl.adaptivity.xmlutil/XmlBufferReader.attributeCount|{}attributeCount[0]
         final fun <get-attributeCount>(): kotlin/Int // nl.adaptivity.xmlutil/XmlBufferReader.attributeCount.<get-attributeCount>|<get-attributeCount>(){}[0]
     final val depth // nl.adaptivity.xmlutil/XmlBufferReader.depth|{}depth[0]
