@@ -508,13 +508,10 @@ private constructor(
         public inline fun recommended_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             repairNamespaces = false
             recommended_0_87_0 {
-                isStrictOtherAttributes = true
                 xmlVersion = XmlVersion.XML11
                 xmlDeclMode = XmlDeclMode.Minimal
-                defaultPolicy {
-                    isStrictBoolean = true
-                    configurePolicy()
-                }
+                isStrictBoolean = true
+                configurePolicy()
             }
         }
 
