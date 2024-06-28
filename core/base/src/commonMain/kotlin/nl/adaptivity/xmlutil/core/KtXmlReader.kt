@@ -94,10 +94,7 @@ public class KtXmlReader internal constructor(
 
     public override val prefix: String
         get() = when (_eventType) {
-            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: throw XmlException(
-                "Missing prefix",
-                extLocationInfo
-            )
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: ""
 
             else -> throw IllegalStateException("Local name not accessible outside of element tags")
         }
@@ -187,84 +184,83 @@ public class KtXmlReader internal constructor(
         //NO-Op
     }
 
-    private fun adjustNsp(fullName: String): Boolean {
-        var hasActualAttributeWithPrefix = false
+    private fun adjustNsp(prefix: String?, localName: String): Boolean {
+        var hasActualAttribute = false
 
         // Loop through all attributes to collect namespace attributes and split name into prefix/localName.
         // Namespaces will not be set yet (as the namespace declaring attribute may be afterwards)
         var attrIdx = 0
         while (attrIdx < (attributes.size)) {
-            val attr = attributes[attrIdx]
+            val attr = attributes[attrIdx++]
 
-            var attrName: String? = attr.localName
-            val cIndex = attrName!!.indexOf(':')
-            var prefix: String
-            if (cIndex >= 0) {
-                prefix = attrName.substring(0, cIndex)
-                attrName = attrName.substring(cIndex + 1)
-            } else if (attrName == "xmlns") {
-                prefix = attrName
-                attrName = null
-            } else {
-                attr.namespace = XMLConstants.NULL_NS_URI // the namespace for the attribute must be the null namespace
-                attr.prefix = XMLConstants.DEFAULT_NS_PREFIX
-                attrIdx += 1
-                continue
-            }
-            if (prefix != "xmlns") {
-                hasActualAttributeWithPrefix = true
-                attrIdx += 1
-            } else {
-                namespaceHolder.addPrefixToContext(attrName, attributes[attrIdx].value)
-                if (attrName != null && attributes[attrIdx].value == "") error("illegal empty namespace")
+            val aLocalName: String = attr.localName!!
+            val aPrefix: String? = attr.prefix
 
-                //  prefixMap = new PrefixMap (prefixMap, attrName, attr.getValue ());
-                attributes.removeAttr(attr)
+            if (aPrefix == "xmlns") {
+                namespaceHolder.addPrefixToContext(aLocalName, attr.value)
+                if (attr.value == "") error("illegal empty namespace")
+
+                attr.localName = null // mark for deletion
+            } else if (aPrefix == null && aLocalName == "xmlns") {
+                namespaceHolder.addPrefixToContext("", attr.value)
+                attr.localName = null // mark for deletion
+            } else {
+                hasActualAttribute = true
             }
         }
-        if (hasActualAttributeWithPrefix) {
-            var i = attributes.size - 1
-            while (i >= 0) {
-                var attrName = attributes[i].localName!!
-                val cIndex = attrName.indexOf(':')
-                if (cIndex == 0 && !relaxed) {
-                    throw RuntimeException("illegal attribute name: $attrName at $this")
-                } else if (cIndex != -1) {
-                    val attrPrefix = attrName.substring(0, cIndex)
-                    attrName = attrName.substring(cIndex + 1)
-                    val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
-                    if (attrNs == null && !relaxed) throw RuntimeException("Undefined Prefix: $attrPrefix in $this")
-                    attributes[i].namespace = attrNs
-                    attributes[i].prefix = attrPrefix
-                    attributes[i].localName = attrName
+        if (hasActualAttribute) {
+            var attrInIdx = 0
+            var attrOutIdx = 0
 
+            // This gradually copies the attributes to remove namespace declarations
+            // use while loop as we need the final size afterwards
+            while (attrInIdx < attributes.size) {
+                val attrIn = attributes[attrInIdx++]
+                val attrLocalName = attrIn.localName
+                if (attrLocalName != null) {
+                    val attrOut = attributes[attrOutIdx++]
+
+                    if (attrIn != attrOut) {
+                        attributes.copyNotNs(attrIn.index, attrOut.index)
+                    }
+
+                    val attrPrefix = attrIn.prefix
+
+                    if (attrPrefix == "" && !relaxed) {
+                        throw RuntimeException("illegal attribute name: ${fullname(attrPrefix, attrLocalName)} at $this")
+                    } else if (attrPrefix != null) {
+                        val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
+                        if (attrNs == null && !relaxed) throw RuntimeException("Undefined Prefix: $attrPrefix in $this")
+                        attrOut.namespace = attrNs
+                    } else {
+                        attrOut.namespace = ""
+                    }
                 }
-                i -= 1
             }
-        }
 
-        val cIdx = fullName.indexOf(':')
-        if (cIdx == 0) error("illegal tag name: $fullName")
-        val prefix: String
-        val localName: String
-        if (cIdx != -1) {
-            prefix = fullName.substring(0, cIdx)
-            localName = fullName.substring(cIdx + 1)
+            if (attrInIdx != attrOutIdx) {
+                attributes.shrink(attrOutIdx)
+            }
+
         } else {
-            prefix = ""
-            localName = fullName
+            attributes.shrink(0)
         }
 
-        val ns = namespaceHolder.getNamespaceUri(prefix) ?: run {
-            if (cIdx >= 0) error("undefined prefix: $prefix")
-            XMLConstants.NULL_NS_URI
+        val ns = when {
+            PROCESS_NAMESPACES -> namespaceHolder.getNamespaceUri(prefix ?: "") ?: run {
+                if (prefix != null) error("undefined prefix: ${prefix}")
+                XMLConstants.NULL_NS_URI
+            }
+
+            else -> ""
         }
+
         val d = depth - 1
         elementStack[d].prefix = prefix
         elementStack[d].localName = localName
         elementStack[d].namespace = ns
 
-        return hasActualAttributeWithPrefix
+        return hasActualAttribute
     }
 
     private fun error(desc: String) {
@@ -631,12 +627,11 @@ public class KtXmlReader internal constructor(
     }
 
     /* precondition: &lt;/ consumed */
-
-    /* precondition: &lt;/ consumed */
     private fun parseEndTag() {
         read() // '<'
         read() // '/'
-        val fullName = readName()
+//        val fullName = readName()
+        val (prefix, localName) = readCName()
         skip()
         read('>')
         val spIdx = depth - 1
@@ -646,15 +641,13 @@ public class KtXmlReader internal constructor(
             return
         }
         if (!relaxed) {
-            val expectedPrefix = elementStack[spIdx].prefix ?: exception("Missing prefix")
+            val expectedPrefix = elementStack[spIdx].prefix //?: exception("Missing prefix")
             val expectedLocalName = elementStack[spIdx].localName ?: exception("Missing localname")
-            val expectedFullname = when {
-                expectedPrefix.isEmpty() -> expectedLocalName
-                else -> "$expectedPrefix:$expectedLocalName"
-            }
 
-            if (fullName != expectedFullname) {
-                error("expected: /${elementStack[spIdx].fullName} read: $fullName")
+            if (prefix != expectedPrefix || localName != expectedLocalName) {
+                val expectedFullName = fullname(expectedPrefix, expectedLocalName)
+                val fullName = fullname(prefix, localName)
+                error("expected: /${expectedFullName} read: $fullName")
             }
         }
     }
@@ -749,7 +742,16 @@ public class KtXmlReader internal constructor(
     /** Sets name and attributes  */
     private fun parseStartTag(xmldecl: Boolean) {
         read() // < or ?
-        val fullName = readName()
+        val prefix: String?
+        val localName: String
+        if (xmldecl) {
+            prefix = null
+            localName = readName()
+        } else {
+            val t = readCName()
+            prefix = t.first
+            localName = t.second
+        }
         attributes.clear(0)
         while (true) {
             skip()
@@ -790,24 +792,26 @@ public class KtXmlReader internal constructor(
 
                 else -> when {
                     isNameStartChar(c.toChar()) -> {
-                        val attrName = readName()
+                        val (aPrefix, aLocalName) = readCName()
 
-                        if (attrName.isEmpty()) {
+                        if (aLocalName.isEmpty()) {
                             error("attr name expected")
                             //type = COMMENT;
                             break
                         }
                         skip()
                         if (peek(0) != '='.code) {
+                            val fullname = fullname(aPrefix, aLocalName)
                             if (!relaxed) {
-                                error("Attr.value missing '='. $attrName, found: ${peek(0).toChar()}")
+                                error("Attr.value missing '='. $fullname, found: ${peek(0).toChar()}")
                             }
-                            attributes.addNoNS(attrName, attrName)
+                            attributes.addNoNS(aPrefix, aLocalName, fullname)
                         } else {
                             read('=')
                             skip()
                             val delimiter = peek(0)
                             val p = txtBufPos
+                            check(p == 0)
                             when (delimiter) {
                                 '\''.code, '"'.code -> {
                                     read()
@@ -823,7 +827,7 @@ public class KtXmlReader internal constructor(
                             }
 
 
-                            attributes.addNoNS(attrName, getOffset(p))
+                            attributes.addNoNS(aPrefix, aLocalName, getOffset(p))
 
                             txtBufPos = p
                         }
@@ -831,6 +835,7 @@ public class KtXmlReader internal constructor(
                     }
 
                     else -> {
+                        val fullName = fullname(prefix, localName)
                         error("unexpected character in tag($fullName): '${c.toChar()}'")
                         read()
                     }
@@ -843,14 +848,12 @@ public class KtXmlReader internal constructor(
         namespaceHolder.incDepth()
         elementStack.ensureCapacity(depth)
 
-        elementStack[d].fullName = fullName
+        elementStack[d].fullName = fullname(prefix, localName)
 
         if (PROCESS_NAMESPACES) {
-            adjustNsp(fullName)
+            adjustNsp(prefix, localName)
         } else {
             elementStack[d].namespace = ""
-            elementStack[d].prefix = ""
-            elementStack[d].localName = fullName
         }
     }
 
@@ -1346,16 +1349,44 @@ public class KtXmlReader internal constructor(
     }
 
     private fun readName(): String {
-        val pos = txtBufPos
         var c = peek(0)
         if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
         do {
             pushChar(read().toChar())
             c = peek(0)
         } while (c >= 0 && isNameChar11(c.toChar()))
-        val result = getOffset(pos)
-        txtBufPos = pos
+        val result = get()
+        txtBufPos = 0
         return result
+    }
+
+    private fun readCName(): Pair<String?, String> {
+        var prefix: String? = null
+
+        peek(0).let { c ->
+            if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
+        }
+
+        while (true) {
+//            pushChar(read().toChar())
+            when (val c = peek(0)) {
+                -1 -> error(UNEXPECTED_EOF)
+
+                ':'.code -> if (PROCESS_NAMESPACES){
+                    prefix = get()
+                    read()
+                    txtBufPos = 0
+                } else pushChar(read())
+
+                else -> when {
+                    isNameChar11(c.toChar()) -> pushChar(read())
+                    else -> break
+                }
+            }
+        }
+        val localName = get()
+        txtBufPos = 0
+        return prefix to localName
     }
 
     private fun skip() {
@@ -1479,7 +1510,7 @@ public class KtXmlReader internal constructor(
     }
 
     override fun getAttributePrefix(index: Int): String {
-        return attributes[index].prefix!!
+        return attributes[index].prefix ?: ""
     }
 
     override fun getAttributeValue(index: Int): String {
@@ -1546,6 +1577,12 @@ public class KtXmlReader internal constructor(
             it["gt"] = ">"
             it["lt"] = "<"
             it["quot"] = "\""
+        }
+
+        @JvmStatic
+        private fun fullname(prefix: String?, localName: String): String = when(prefix) {
+            null -> localName
+            else -> "$prefix:$localName"
         }
 
         @JvmStatic
@@ -1637,6 +1674,11 @@ public class KtXmlReader internal constructor(
             size = newSize
         }
 
+        fun shrink(newSize: Int) {
+            data.fill(null, newSize * 4, size * 4)
+            size = newSize
+        }
+
         fun ensureCapacity(required: Int) {
             val requiredSize = required * 4
             if (data.size >= requiredSize) return
@@ -1654,6 +1696,22 @@ public class KtXmlReader internal constructor(
             data[i++] = null
             data[i++] = attrName
             data[i] = attrValue
+        }
+
+        fun addNoNS(attrPrefix: String?, attrLocalName: String, attrValue: String) {
+            size = if (size < 0) 1 else size + 1
+
+            ensureCapacity(size)
+            var i = size * 4 - 4
+
+            data[i++] = null
+            data[i++] = attrPrefix
+            data[i++] = attrLocalName
+            data[i] = attrValue
+        }
+
+        fun copyNotNs(fromIdx: Int, toIdx: Int) {
+            data.copyInto(data, toIdx * 4 + 1, fromIdx * 4 + 1, fromIdx * 4 + 4)
         }
     }
 
