@@ -289,10 +289,12 @@ public class KtXmlReader internal constructor(
                 error("Unexpected START_DOCUMENT in state $state")
                 parseStartTag(true) // parse it to ignore it
             }
+
             START_ELEMENT -> {
                 error("Unexpected start tag after document body")
                 parseStartTag(false)
             }
+
             END_ELEMENT -> {
                 error("Unexpected end tag outside of body")
                 parseEndTag()
@@ -303,7 +305,7 @@ public class KtXmlReader internal constructor(
             COMMENT -> throw UnsupportedOperationException("Comments/WS are always allowed - they may start the document tough")
 
             TEXT -> {
-                pushText('<', resolveEntities = false)
+                pushText('<')
                 when {
                     isWhitespace -> _eventType = IGNORABLE_WHITESPACE
                     else -> error("Non-whitespace text where not expected: '${text}'")
@@ -443,7 +445,7 @@ public class KtXmlReader internal constructor(
             }
 
             TEXT -> {
-                pushText('<', !true)
+                pushText('<')
                 if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
             }
 
@@ -806,7 +808,7 @@ public class KtXmlReader internal constructor(
                                 '\''.code, '"'.code -> {
                                     read()
                                     // This is an attribute, we don't care about whitespace content
-                                    pushNonWSText(delimiter.toChar(), true)
+                                    pushNonWSText(delimiter.toChar(), resolveEntities = true)
                                     read()
                                 }
 
@@ -945,9 +947,7 @@ public class KtXmlReader internal constructor(
      *
      * @param resolveEntities `true` if entities should be resolved inline, `false` if entity is a start of
      */
-    private fun pushText(delimiter: Char, resolveEntities: Boolean) {
-//        if (delimiter == ' ') return pushTextWsDelim(resolveEntities)
-
+    private fun pushText(delimiter: Char) {
         var bufCount = srcBufCount
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
@@ -957,9 +957,8 @@ public class KtXmlReader internal constructor(
             when (bufLeft[curPos]) {
                 ' ', '\t', '\n', '\r' -> break // whitespace
                 '\u0000' -> ++curPos
-                else -> {
-                    return pushNonWSText(delimiter, resolveEntities)
-                }
+
+                else -> return pushNonWSText(delimiter, resolveEntities = false)
             }
         }
 
@@ -998,14 +997,14 @@ public class KtXmlReader internal constructor(
 
             if (curPos == BUF_SIZE) { // swap the buffers
                 srcBufPos = curPos
-                swapBuffer()
+                swapInputBuffer()
                 curPos = srcBufPos
                 bufCount = srcBufCount
                 innerLoopEnd = minOf(bufCount, BUF_SIZE)
             }
             if (continueInNonWSMode) {
                 srcBufPos = curPos
-                return pushNonWSText(delimiter, resolveEntities)
+                return pushNonWSText(delimiter, resolveEntities = false)
             }
             left = curPos
 
@@ -1015,6 +1014,11 @@ public class KtXmlReader internal constructor(
         srcBufPos = curPos
     }
 
+    /**
+     * @param delimiter The "stopping" delimiter
+     * @param resolveEntities Whether entities should be resolved directly (in attributes) or exposed as entity
+     *                        references (content text).
+     */
     private fun pushNonWSText(delimiter: Char, resolveEntities: Boolean) {
         var bufCount = srcBufCount
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
@@ -1068,9 +1072,11 @@ public class KtXmlReader internal constructor(
                     }
                 }
             }
+
             if (curPos == innerLoopEnd) {
                 right = curPos
             }
+
             if (right > 0) {
                 pushRange(bufLeft, left, right) // ws delimited is never WS
                 right = -1
@@ -1078,7 +1084,7 @@ public class KtXmlReader internal constructor(
 
             if (curPos == BUF_SIZE) { // swap the buffers
                 srcBufPos = curPos
-                swapBuffer()
+                swapInputBuffer()
                 curPos = srcBufPos
                 bufCount = srcBufCount
                 innerLoopEnd = minOf(bufCount, BUF_SIZE)
@@ -1131,7 +1137,7 @@ public class KtXmlReader internal constructor(
 
             if (curPos == BUF_SIZE) { // swap the buffers
                 srcBufPos = curPos
-                swapBuffer()
+                swapInputBuffer()
                 curPos = srcBufPos
                 bufCount = srcBufCount
                 leftEnd = minOf(bufCount, BUF_SIZE)
@@ -1195,7 +1201,7 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private fun swapBuffer() {
+    private fun swapInputBuffer() {
         val oldLeft = bufLeft
         bufLeft = bufRight
         bufRight = oldLeft
@@ -1215,7 +1221,7 @@ public class KtXmlReader internal constructor(
     private fun readAcross(): Int {
         var pos = srcBufPos
         if (pos >= BUF_SIZE) {
-            swapBuffer()
+            swapInputBuffer()
             pos -= BUF_SIZE
         }
 
