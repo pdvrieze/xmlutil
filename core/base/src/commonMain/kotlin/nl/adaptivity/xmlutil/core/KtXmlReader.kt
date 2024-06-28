@@ -954,8 +954,15 @@ public class KtXmlReader internal constructor(
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
 
-        if (curPos < innerLoopEnd && !isXmlWhitespace(bufLeft[curPos])) {
-            return pushNonWSText(delimiter, resolveEntities)
+
+        while (curPos < innerLoopEnd) {
+            when (bufLeft[curPos]) {
+                ' ', '\t', '\n', '\r' -> break // whitespace
+                '\u0000' -> ++curPos
+                else -> {
+                    return pushNonWSText(delimiter, resolveEntities)
+                }
+            }
         }
 
         var left: Int = curPos
@@ -1531,7 +1538,6 @@ public class KtXmlReader internal constructor(
         @JvmStatic
         private fun Reader.readUntilFullOrEOF(buffer: CharArray): Int {
             val bufSize = buffer.size
-//            var lastRead = read(buffer, 0, bufSize)
             var totalRead: Int = read(buffer, 0, bufSize)
             if (totalRead < 0) return -1
             while (totalRead < bufSize) {
