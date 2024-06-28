@@ -686,8 +686,12 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private operator fun get(pos: Int): String {
-        return txtBuf.concatToString(pos, pos + (txtBufPos - pos))
+    private fun get(): String {
+        return txtBuf.concatToString(0, txtBufPos)
+    }
+
+    private fun getOffset(pos: Int): String {
+        return txtBuf.concatToString(pos, txtBufPos)
     }
 
     private fun pushRange(buffer: CharArray, start: Int, endExcl: Int) {
@@ -819,7 +823,7 @@ public class KtXmlReader internal constructor(
                             }
 
 
-                            attributes.addNoNS(attrName, get(p))
+                            attributes.addNoNS(attrName, getOffset(p))
 
                             txtBufPos = p
                         }
@@ -855,85 +859,90 @@ public class KtXmlReader internal constructor(
      * the name of the entity is stored in "name"
      */
     private fun pushEntity() {
-        pushChar(read()) // &
-        val pos = txtBufPos
+        read()
         val first = peek(0)
-        if (first < 0) error(UNEXPECTED_EOF)
-        if (first == '#'.code) {
-            pushChar(read().toChar())
+
+        when {
+            first == '#'.code -> pushCharEntity()
+            first < 0 -> error(UNEXPECTED_EOF)
+            else -> pushRefEntity()
+        }
+    }
+
+    private fun pushRefEntity() {
+        val first = read()
+        val codeBuilder = StringBuilder(8)
+
+        if (!isNameStartChar(first.toChar())) {
+            error("Entity reference does not start with name char &${get()}${first.toChar()}")
+            return
+        }
+        codeBuilder.append(first.toChar())
+
+        while (true) {
+            val c = peek(0)
+            if (c == ';'.code) {
+                read()
+                break
+            }
+            if (!isNameChar11(c.toChar())) {
+                error("unterminated entity ref")
+
+                return
+            }
+            codeBuilder.append(read().toChar())
+        }
+
+        val code = codeBuilder.toString()//get(pos)
+        if (_eventType == ENTITY_REF) {
+            entityName = code
+        }
+
+        val result = entityMap[code]
+        unresolved = result == null
+        if (result != null) {
+            push(result)
+        }
+    }
+
+    private fun pushCharEntity() {
+        read() // #
+        val codeBuilder = StringBuilder(8)
+
+        when (val first = read()) {
+            'x'.code, // hex char refs
+            in '0'.code..'9'.code -> {
+                codeBuilder.append(first.toChar())
+            }
+
+            else -> error("Unexpected start of numeric entity reference '&${first.toChar()}'")
+        }
+
+        while (true) {
             when (val c = peek(0)) {
-                -1 -> {}// do nothing
-                'x'.code, // hex char refs
-                in '0'.code..'9'.code -> pushChar(read().toChar())
-
-                else -> {
-                    error("Unexpected start of numeric entity reference ${c.toChar()} (in ${get(0)})")
-                }
-            }
-            while (true) {
-                when (val c = peek(0)) {
-                    -1 -> error(UNEXPECTED_EOF)
-                    ';'.code -> {
-                        read()
-                        break
-                    }
-
-                    in 'a'.code..'f'.code, // allow hex
-                    in 'A'.code..'F'.code, // allow hex
-                    in '0'.code..'9'.code -> pushChar(read().toChar())
-
-                    else -> {
-                        error("Unexpected content in numeric entity reference: ${c.toChar()} (in ${get(0)}")
-                        break
-                    }
-                }
-            }
-        } else {
-            if (!isNameStartChar(first.toChar())) {
-                if (relaxed || first < 0) {
-                    println("broken entity ${get(pos - 1)}")
-                    return
-                }
-                error("Entity reference does not start with name char ${get(pos - 1)}${first.toChar()}")
-            }
-            pushChar(read().toChar()) // no need to further processing in the while loop
-
-            while (true) {
-                val c = peek(0)
-                if (c == ';'.code) {
+                -1 -> error(UNEXPECTED_EOF)
+                ';'.code -> {
                     read()
                     break
                 }
-                if (!isNameChar11(c.toChar())) {
-                    if (!relaxed) {
-                        error("unterminated entity ref")
-                    }
-                    println("broken entitiy: " + get(pos - 1))
 
-                    return
+                in 'a'.code..'f'.code, // allow hex
+                in 'A'.code..'F'.code, // allow hex
+                in '0'.code..'9'.code -> codeBuilder.append(read().toChar())
+
+                else -> {
+                    error("Unexpected content in numeric entity reference: ${c.toChar()} (in $codeBuilder")
+                    break
                 }
-                pushChar(read().toChar())
             }
+        }
+        val code = codeBuilder.toString()//get(pos)
 
-        }
+        if (_eventType == ENTITY_REF) entityName = code
 
-        val code = get(pos)
-        txtBufPos = pos - 1 // reset the output buffer to before the entity.
-        if (true && _eventType == ENTITY_REF) {
-            entityName = code
-        }
-        if (code[0] == '#') {
-            val c = if (code[1] == 'x') code.substring(2).toInt(16) else code.substring(1).toInt()
-            pushCodePoint(c)
-            return
-        }
-        val result = entityMap[code]
-        unresolved = result == null
-        if (result == null) {
-            if (!true) error("unresolved: &$code;")
-        } else {
-            push(result)
-        }
+        val cp = if (code[0] == 'x') code.substring(2).toInt(16) else code.toInt()
+        pushCodePoint(cp)
+        return
     }
 
     /**
@@ -1342,7 +1351,7 @@ public class KtXmlReader internal constructor(
             pushChar(read().toChar())
             c = peek(0)
         } while (c >= 0 && isNameChar11(c.toChar()))
-        val result = get(pos)
+        val result = getOffset(pos)
         txtBufPos = pos
         return result
     }
@@ -1438,20 +1447,20 @@ public class KtXmlReader internal constructor(
 
     override val text: String
         get() = when {
-            eventType.isTextElement -> get(0)
+            eventType.isTextElement -> get()
             else -> throw XmlException("The element is not text, it is: $eventType")
         }
 
     override val piTarget: String
         get() {
             check(eventType == PROCESSING_INSTRUCTION)
-            return get(0).substringBefore(' ')
+            return get().substringBefore(' ')
         }
 
     override val piData: String
         get() {
             check(eventType == PROCESSING_INSTRUCTION)
-            return get(0).substringAfter(' ', "")
+            return get().substringAfter(' ', "")
         }
 
     public fun isEmptyElementTag(): Boolean {
