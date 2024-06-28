@@ -159,13 +159,17 @@ public open class NamespaceHolder : Iterable<Namespace> {
     }
 
     public fun getNamespaceUri(prefix: CharSequence): String? {
-        return when (val prefixStr = prefix.toString()) {
-            XML_NS_PREFIX -> return XML_NS_URI
-            XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
+        val prefixStr = prefix.toString()
+        var nsIdx = totalNamespaceCount
+        while (--nsIdx >= 0) {
+            if (prefixStr == getPrefix(nsIdx)) return getNamespace(nsIdx)
+        }
 
-            else -> ((totalNamespaceCount - 1) downTo 0)
-                .firstOrNull { getPrefix(it) == prefixStr }
-                ?.let { getNamespace(it) } ?: if (prefixStr.isEmpty()) NULL_NS_URI else null
+        return when (prefixStr) {
+            XML_NS_PREFIX -> XML_NS_URI
+            XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
+            "" -> ""
+            else -> null
         }
     }
 
