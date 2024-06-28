@@ -909,8 +909,10 @@ public class KtXmlReader internal constructor(
         read() // #
         val codeBuilder = StringBuilder(8)
 
+        var isHex = false
+
         when (val first = read()) {
-            'x'.code, // hex char refs
+            'x'.code -> isHex = true // hex char refs
             in '0'.code..'9'.code -> {
                 codeBuilder.append(first.toChar())
             }
@@ -940,7 +942,7 @@ public class KtXmlReader internal constructor(
 
         if (_eventType == ENTITY_REF) entityName = code
 
-        val cp = if (code[0] == 'x') code.substring(2).toInt(16) else code.toInt()
+        val cp = if (isHex) code.toInt(16) else code.toInt()
         pushCodePoint(cp)
         return
     }
