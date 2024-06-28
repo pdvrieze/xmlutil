@@ -71,7 +71,7 @@ public class KtXmlReader internal constructor(
         get() = _eventType ?: throw IllegalStateException("Not yet started")
 
     override val isStarted: Boolean
-        get() = _eventType != null
+        get() = state != State.BEFORE_START
 
     private var entityName: String? = null
 
@@ -172,10 +172,8 @@ public class KtXmlReader internal constructor(
     //    private int stackMismatch = 0;
     private var error: String? = null
 
-    private var wasCR = false
-
     private var unresolved = false
-    private var token = false
+
     private var state = State.BEFORE_START
 
     override val namespaceDecls: List<Namespace>
@@ -305,7 +303,7 @@ public class KtXmlReader internal constructor(
             COMMENT -> throw UnsupportedOperationException("Comments/WS are always allowed - they may start the document tough")
 
             TEXT -> {
-                pushText('<', !token)
+                pushText('<', resolveEntities = false)
                 when {
                     isWhitespace -> _eventType = IGNORABLE_WHITESPACE
                     else -> error("Non-whitespace text where not expected: '${text}'")
@@ -314,12 +312,12 @@ public class KtXmlReader internal constructor(
 
             CDSECT -> {
                 error("CData sections are not supported outside of the document body")
-                parseCData(token)
+                parseCData()
             }
 
             DOCDECL -> {
                 error("Document declarations are not supported outside the preamble")
-                parseDoctype(token)
+                parseDoctype()
             }
 
             END_DOCUMENT -> {
@@ -333,7 +331,7 @@ public class KtXmlReader internal constructor(
 
             PROCESSING_INSTRUCTION -> {
                 error("Processing instruction inside document body")
-                parsePI(token)
+                parsePI()
             }
         }
     }
@@ -386,7 +384,7 @@ public class KtXmlReader internal constructor(
 
         _eventType = peekType()
         when (_eventType) {
-            PROCESSING_INSTRUCTION -> parsePI(token)
+            PROCESSING_INSTRUCTION -> parsePI()
 
             START_ELEMENT -> {
                 state = State.BODY // this must start the body
@@ -395,10 +393,10 @@ public class KtXmlReader internal constructor(
 
             DOCDECL -> {
                 read("DOCTYPE")
-                parseDoctype(token)
+                parseDoctype()
             }
 
-            COMMENT -> parseComment(token)
+            COMMENT -> parseComment()
 
             else -> parseUnexpectedOrWS()
         }
@@ -433,7 +431,7 @@ public class KtXmlReader internal constructor(
         _eventType = peekType()
         when (_eventType) {
 
-            COMMENT -> parseComment(token)
+            COMMENT -> parseComment()
 
             ENTITY_REF -> pushEntity()
 
@@ -445,11 +443,11 @@ public class KtXmlReader internal constructor(
             }
 
             TEXT -> {
-                pushText('<', !token)
+                pushText('<', !true)
                 if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
             }
 
-            CDSECT -> parseCData(token)
+            CDSECT -> parseCData()
 
             else -> parseUnexpectedOrWS()
 
@@ -482,9 +480,9 @@ public class KtXmlReader internal constructor(
         //            text = null;
         _eventType = peekType()
         when (_eventType) {
-            PROCESSING_INSTRUCTION -> parsePI(token)
+            PROCESSING_INSTRUCTION -> parsePI()
 
-            COMMENT -> parseComment(token)
+            COMMENT -> parseComment()
 
             END_DOCUMENT -> {
                 state = State.EOF
@@ -508,13 +506,13 @@ public class KtXmlReader internal constructor(
         error(UNEXPECTED_EOF)
     }
 
-    private fun parsePI(push: Boolean) {
+    private fun parsePI() {
         read() // <
         read() // '?'
-        readTagContentUntil('?', push)
+        readTagContentUntil('?', true)
     }
 
-    private fun parseComment(push: Boolean) {
+    private fun parseComment() {
         read() // <
         read() // '!'
         read() // '-
@@ -531,32 +529,32 @@ public class KtXmlReader internal constructor(
                     return
                 }
             }
-            if (push) pushChar(c.toChar())
+            pushChar(c.toChar())
             c = read()
         }
         error(UNEXPECTED_EOF)
     }
 
-    private fun parseCData(push: Boolean) {
+    private fun parseCData() {
         read() // <
         read() // '['
         read("[CDATA[")
 
         var c = read()
         while (c >= 0) {
-            if (c == ']'.code && peek(0) ==']'.code && peek(1) == '>'.code) {
+            if (c == ']'.code && peek(0) == ']'.code && peek(1) == '>'.code) {
                 read()
                 read()
                 return
             }
-            if (push) pushChar(c.toChar())
+            pushChar(c.toChar())
             c = read()
         }
         error(UNEXPECTED_EOF)
     }
 
     /** precondition: &lt! consumed  */
-    private fun parseDoctype(push: Boolean) {
+    private fun parseDoctype() {
         var nesting = 1
         var quote: Char? = null
 
@@ -571,14 +569,14 @@ public class KtXmlReader internal constructor(
                 }
 
                 '-'.code -> if (quote == '!') {
-                    if (push) pushChar('-')
+                    pushChar('-')
 
                     var c = read()
-                    if (push) pushChar(c)
+                    pushChar(c)
                     if (c != '-'.code) continue
 
                     c = read()
-                    if (push) pushChar(c)
+                    pushChar(c)
                     if (c != '>'.code) continue
 
                     quote = null
@@ -587,9 +585,9 @@ public class KtXmlReader internal constructor(
                 '['.code -> if (quote == null && nesting == 1) ++nesting
 
                 ']'.code -> if (quote == null) {
-                    if (push) pushChar(']')
+                    pushChar(']')
                     val c = read()
-                    if (push) pushChar(i)
+                    pushChar(c)
                     if (c != '>'.code) continue
                     if (nesting != 2) error("Invalid nesting of document type declaration: $nesting")
                     return
@@ -598,21 +596,21 @@ public class KtXmlReader internal constructor(
                 '<'.code -> if (quote == null) {
                     if (nesting < 2) error("Doctype with internal subset must have an opening '['")
 
-                    if (push) pushChar('<')
+                    pushChar('<')
                     var c = read()
-                    if (push) pushChar(c)
+                    pushChar(c)
                     if (c != '!'.code) {
                         nesting++; continue
                     }
 
                     c = read()
-                    if (push) pushChar(c)
+                    pushChar(c)
                     if (c != '-'.code) {
                         nesting++; continue
                     }
 
                     c = read()
-                    if (push) pushChar(c)
+                    pushChar(c)
                     if (c != '-'.code) {
                         nesting++; continue
                     }
@@ -626,7 +624,7 @@ public class KtXmlReader internal constructor(
                     }
                 }
             }
-            if (push) pushChar(i)
+            pushChar(i)
         }
     }
 
@@ -814,7 +812,7 @@ public class KtXmlReader internal constructor(
 
                                 else -> {
                                     if (!relaxed) error("attr value delimiter missing!")
-                                    pushWSDelimAttrValue(true)
+                                    pushWSDelimAttrValue()
                                 }
                             }
 
@@ -919,7 +917,7 @@ public class KtXmlReader internal constructor(
 
         val code = get(pos)
         txtBufPos = pos - 1 // reset the output buffer to before the entity.
-        if (token && _eventType == ENTITY_REF) {
+        if (true && _eventType == ENTITY_REF) {
             entityName = code
         }
         if (code[0] == '#') {
@@ -930,7 +928,7 @@ public class KtXmlReader internal constructor(
         val result = entityMap[code]
         unresolved = result == null
         if (result == null) {
-            if (!token) error("unresolved: &$code;")
+            if (!true) error("unresolved: &$code;")
         } else {
             push(result)
         }
@@ -1093,7 +1091,7 @@ public class KtXmlReader internal constructor(
     }
 
     /** Push attribute delimited by whitespace */
-    private fun pushWSDelimAttrValue(resolveEntities: Boolean) {
+    private fun pushWSDelimAttrValue() {
         var bufCount = srcBufCount
         var leftEnd = minOf(bufCount, BUF_SIZE)
         var left: Int
@@ -1106,8 +1104,8 @@ public class KtXmlReader internal constructor(
             right = -1
 
             inner@ while (curPos < leftEnd) {
-                when (/*val nextChar =*/ bufLeft[curPos]) {
-                    ' ', '\t', '\r', '\n', '>' -> {
+                when (bufLeft[curPos]) {
+                    '\u0000', ' ', '\t', '\r', '\n', '>' -> {
                         right = curPos
                         ++curPos
                         notFinished = false
@@ -1115,15 +1113,13 @@ public class KtXmlReader internal constructor(
                     }
 
                     '&' -> {
-                        if (resolveEntities) {
-                            if (left == curPos) { // start with entity
-                                pushEntity()
-                                curPos = srcBufPos
-                            } else { // read all items before entity (then after it will hit the other case)
-                                right = curPos
-                                break@inner
-                            }
-                        } else ++curPos
+                        if (left == curPos) { // start with entity
+                            pushEntity()
+                            curPos = srcBufPos
+                        } else { // read all items before entity (then after it will hit the other case)
+                            right = curPos
+                            break@inner
+                        }
                     }
 
                     else -> ++curPos
@@ -1348,7 +1344,7 @@ public class KtXmlReader internal constructor(
     private fun skip() {
         while (true) {
             val c = peek(0)
-            if (c > ' '.code || c == -1) break // More sane
+            if (c == -1 || !isXmlWhitespace(c.toChar())) break // More sane
             read()
         }
     }
@@ -1486,7 +1482,7 @@ public class KtXmlReader internal constructor(
     override fun next(): EventType {
         isWhitespace = true
         txtBufPos = 0
-        token = true
+
         when (state) {
             State.BEFORE_START -> nextImplDocStart()
 
