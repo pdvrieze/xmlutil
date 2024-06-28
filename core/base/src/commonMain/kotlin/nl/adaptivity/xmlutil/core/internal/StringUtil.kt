@@ -58,7 +58,7 @@ public fun isNameStartCode(c: Int, isColonValid: Boolean = true): Boolean = when
 }
 
 @ExperimentalXmlUtilApi
-public fun isNameCode(c: Int, isColonValid: Boolean = true): Boolean = when (c) {
+public fun isNameCodepoint(c: Int, isColonValid: Boolean = true): Boolean = when (c) {
     0x00f7, 0x037E -> false
 
     ':'.code -> isColonValid

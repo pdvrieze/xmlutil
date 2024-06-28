@@ -124,4 +124,17 @@ class TestKtXmlReader : TestCommonReader() {
         testReadToDom(::createReader)
     }
 
+    @Test
+    fun testXmlDecl() {
+        val reader = KtXmlReader(StringReader("<?xml version=\"1.1\" standalone=\"yes\"?>\r<foo>bar</foo>"))
+        assertEquals(EventType.START_DOCUMENT, reader.next())
+        assertEquals("1.1", reader.version)
+        assertEquals(true, reader.standalone)
+
+        assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+        assertEquals("\n", reader.text)
+
+        assertEquals(EventType.START_ELEMENT, reader.next())
+        assertEquals("foo", reader.localName)
+    }
 }

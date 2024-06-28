@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
-import nl.adaptivity.xmlutil.core.internal.isNameCode
+import nl.adaptivity.xmlutil.core.internal.isNameCodepoint
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmStatic
@@ -84,13 +84,21 @@ public class KtXmlReader internal constructor(
 
     public override val namespaceURI: String
         get() = when (_eventType) {
-            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].namespace ?: throw XmlException("Missing namespace", extLocationInfo)
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].namespace ?: throw XmlException(
+                "Missing namespace",
+                extLocationInfo
+            )
+
             else -> throw IllegalStateException("Local name not accessible outside of element tags")
         }
 
     public override val prefix: String
         get() = when (_eventType) {
-            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: throw XmlException("Missing prefix", extLocationInfo)
+            START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].prefix ?: throw XmlException(
+                "Missing prefix",
+                extLocationInfo
+            )
+
             else -> throw IllegalStateException("Local name not accessible outside of element tags")
         }
 
@@ -120,7 +128,7 @@ public class KtXmlReader internal constructor(
 
     init { // Read the first buffers on creation, rather than delayed
         var cnt = reader.readUntilFullOrEOF(bufLeft)
-        require(cnt>=0) { "Trying to parse an empty file (that is not valid XML)" }
+        require(cnt >= 0) { "Trying to parse an empty file (that is not valid XML)" }
         if (cnt < BUF_SIZE) {
             bufRight = CharArray(0)
             srcBufCount = cnt
@@ -131,7 +139,9 @@ public class KtXmlReader internal constructor(
             srcBufCount = BUF_SIZE + cnt
         }
 
-        if (bufLeft[0].code == 0x0feff) { srcBufPos = 1 /* drop BOM */ }
+        if (bufLeft[0].code == 0x0feff) {
+            srcBufPos = 1 /* drop BOM */
+        }
     }
 
 
@@ -275,75 +285,122 @@ public class KtXmlReader internal constructor(
         )
     }
 
+    private fun parseUnexpectedOrWS() {
+        when (_eventType!!) {
+            START_DOCUMENT -> {
+                error("Unexpected START_DOCUMENT in state $state")
+                parseStartTag(true) // parse it to ignore it
+            }
+            START_ELEMENT -> {
+                error("Unexpected start tag after document body")
+                parseStartTag(false)
+            }
+            END_ELEMENT -> {
+                error("Unexpected end tag outside of body")
+                parseEndTag()
+            }
+
+            ATTRIBUTE,
+            IGNORABLE_WHITESPACE,
+            COMMENT -> throw UnsupportedOperationException("Comments/WS are always allowed - they may start the document tough")
+
+            TEXT -> {
+                pushText('<', !token)
+                when {
+                    isWhitespace -> _eventType = IGNORABLE_WHITESPACE
+                    else -> error("Non-whitespace text where not expected: '${text}'")
+                }
+            }
+
+            CDSECT -> {
+                error("CData sections are not supported outside of the document body")
+                parseCData(token)
+            }
+
+            DOCDECL -> {
+                error("Document declarations are not supported outside the preamble")
+                parseDoctype(token)
+            }
+
+            END_DOCUMENT -> {
+                error("End of document before end of document element")
+            }
+
+            ENTITY_REF -> {
+                error("Entity reference outside document body")
+                pushEntity()
+            }
+
+            PROCESSING_INSTRUCTION -> {
+                error("Processing instruction inside document body")
+                parsePI(token)
+            }
+        }
+    }
+
+    private fun nextImplDocStart() {
+        attributes.clear()
+
+        val eventType = peekType()
+        if (eventType == START_DOCUMENT) {
+            read() // <
+            read() // ?
+            parseStartTag(true)
+            if (attributeCount < 1 || "version" != attributes[0].localName) error("version expected")
+            version = attributes[0].value
+            var pos = 1
+            if (pos < attributeCount && "encoding" == attributes[1].localName) {
+                encoding = attributes[1].value
+                pos++
+            }
+            if (pos < attributeCount && "standalone" == attributes[pos].localName) {
+                when (val st = attributes[pos].value) {
+                    "yes" -> standalone = true
+                    "no" -> standalone = false
+                    else -> error("illegal standalone value: $st")
+                }
+                pos++
+            }
+            if (pos != attributeCount) error("illegal xmldecl")
+            isWhitespace = true
+            txtBufPos = 0
+        } // if it is not a doc start synthesize an event.
+        _eventType = START_DOCUMENT
+        state = State.START_DOC
+        return
+    }
+
     /**
      * common base for next and nextToken. Clears the state, except from
      * txtPos and whitespace. Does not set the type variable  */
     private fun nextImplPreamble() {
-        if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
+        attributes.clear()
 
-        while (true) {
-            attributes.clear()
+        error?.let { e ->
+            push(e)
 
-            // degenerated needs to be handled before error because of possible
-            // processor expectations(!)
-            if (isSelfClosing) {
-                isSelfClosing = false
-                _eventType = END_ELEMENT
-                return
+            this.error = null
+            _eventType = COMMENT
+            return
+        }
+
+        _eventType = peekType()
+        when (_eventType) {
+            PROCESSING_INSTRUCTION -> parsePI(token)
+
+            START_ELEMENT -> {
+                state = State.BODY // this must start the body
+                parseStartTag(false)
             }
-            error?.let { e ->
-                push(e)
 
-                this.error = null
-                _eventType = COMMENT
-                return
+            DOCDECL -> {
+                read("DOCTYPE")
+                parseDoctype(token)
             }
 
-            //            text = null;
-            _eventType = peekType()
-            if (state == State.BEFORE_START && _eventType != START_DOCUMENT) {
-                _eventType = START_DOCUMENT
-                state = State.START_DOC
-                return
-            }
-            when (_eventType) {
-                START_DOCUMENT -> {
-                    check(state == State.BEFORE_START)
-                    return // just return, no special things here
-                }
-                ENTITY_REF -> {
-                    pushEntity()
-                    return
-                }
+            COMMENT -> parseComment(token)
 
-                START_ELEMENT -> {
-                    state = State.BODY // this must start the body
-                    parseStartTag(false)
-                    return
-                }
-
-                END_ELEMENT -> {
-                    error("End tag in preamble")
-                    parseEndTag()
-                    return
-                }
-
-                END_DOCUMENT -> return
-                TEXT -> {
-                    pushText('<', !token)
-                    if (isWhitespace) {
-                        _eventType = IGNORABLE_WHITESPACE
-                    } else {
-                        error("Non-whitespace text in preamble")
-                    }
-                    return
-                }
-
-                else -> {
-                    _eventType = parseLegacy(token)
-                    if (_eventType != START_DOCUMENT) return
-                }
-            }
+            else -> parseUnexpectedOrWS()
         }
     }
 
@@ -351,59 +408,51 @@ public class KtXmlReader internal constructor(
      * common base for next and nextToken. Clears the state, except from
      * txtPos and whitespace. Does not set the type variable  */
     private fun nextImplBody() {
+        // Depth is only decreased *after* the end element.
         if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
 
-        while (true) {
-            attributes.clear()
+        // degenerated needs to be handled before error because of possible
+        // processor expectations(!)
+        if (isSelfClosing) {
+            isSelfClosing = false
+            _eventType = END_ELEMENT
+            if (depth == 1) state = State.POST
+            return
+        }
 
-            // degenerated needs to be handled before error because of possible
-            // processor expectations(!)
-            if (isSelfClosing) {
-                isSelfClosing = false
-                _eventType = END_ELEMENT
-                return
+        attributes.clear()
+        error?.let { e ->
+            push(e)
+
+            this.error = null
+            _eventType = COMMENT
+            return
+        }
+
+        //            text = null;
+        _eventType = peekType()
+        when (_eventType) {
+
+            COMMENT -> parseComment(token)
+
+            ENTITY_REF -> pushEntity()
+
+            START_ELEMENT -> parseStartTag(false)
+
+            END_ELEMENT -> {
+                parseEndTag()
+                if (depth == 1) state = State.POST
             }
-            error?.let { e ->
-                push(e)
 
-                this.error = null
-                _eventType = COMMENT
-                return
+            TEXT -> {
+                pushText('<', !token)
+                if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
             }
 
-            //            text = null;
-            _eventType = peekType()
-            when (_eventType) {
-                START_DOCUMENT -> return // just return, no special things here
-                ENTITY_REF -> {
-                    pushEntity()
-                    return
-                }
+            CDSECT -> parseCData(token)
 
-                START_ELEMENT -> {
-                    parseStartTag(false)
-                    return
-                }
+            else -> parseUnexpectedOrWS()
 
-                END_ELEMENT -> {
-                    parseEndTag()
-                    if (depth == 1)
-                        state = State.POST
-                    return
-                }
-
-                END_DOCUMENT -> return
-                TEXT -> {
-                    pushText('<', !token)
-                    if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
-                    return
-                }
-
-                else -> {
-                    _eventType = parseLegacy(token)
-                    if (_eventType != START_DOCUMENT) return
-                }
-            }
         }
     }
 
@@ -413,168 +462,97 @@ public class KtXmlReader internal constructor(
     private fun nextImplPost() {
         if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
 
-        while (true) {
-            attributes.clear()
+        attributes.clear()
 
-            // degenerated needs to be handled before error because of possible
-            // processor expectations(!)
-            if (isSelfClosing) {
-                isSelfClosing = false
-                _eventType = END_ELEMENT
+        // degenerated needs to be handled before error because of possible
+        // processor expectations(!)
+        if (isSelfClosing) {
+            isSelfClosing = false
+            _eventType = END_ELEMENT
+            return
+        }
+        error?.let { e ->
+            push(e)
+
+            this.error = null
+            _eventType = COMMENT
+            return
+        }
+
+        //            text = null;
+        _eventType = peekType()
+        when (_eventType) {
+            PROCESSING_INSTRUCTION -> parsePI(token)
+
+            COMMENT -> parseComment(token)
+
+            END_DOCUMENT -> {
+                state = State.EOF
                 return
             }
-            error?.let { e ->
-                push(e)
 
-                this.error = null
-                _eventType = COMMENT
-                return
-            }
-
-            //            text = null;
-            _eventType = peekType()
-            when (_eventType) {
-                ENTITY_REF -> {
-                    pushEntity()
-                    return
-                }
-
-                START_DOCUMENT -> {
-                    error("Document declaration after end of document element")
-                    return
-                }
-
-                START_ELEMENT -> {
-                    error("Start Element after end of document element")
-                    parseStartTag(false)
-                    return
-                }
-
-                END_ELEMENT -> {
-                    error("End Element after end of document element")
-                    parseEndTag()
-                    return
-                }
-
-                END_DOCUMENT -> {
-                    state = State.EOF
-                    return
-                }
-                TEXT -> {
-                    pushText('<', !token)
-                    if (isWhitespace) {
-                        _eventType = IGNORABLE_WHITESPACE
-                    } else {
-                        error("Non-whitespace text after end of document")
-                    }
-                    return
-                }
-
-                else -> {
-                    _eventType = parseLegacy(token)
-                    check(_eventType != START_DOCUMENT)
-                    return
-                }
-            }
+            else -> parseUnexpectedOrWS()
         }
     }
 
-    private fun parseLegacy(push: Boolean): EventType {
-        var localPush = push
-        val expected: String
-        val term: Int
-        val result: EventType
-        var prev = 0
-        read() // <
+    private fun readTagContentUntil(delim: Char, push: Boolean) {
         var c = read()
-        if (c == '?'.code) {
-            if ((peek(0) == 'x'.code || peek(0) == 'X'.code)
-                && (peek(1) == 'm'.code || peek(1) == 'M'.code)
-            ) {
-                if (localPush) {
-                    pushChar(peek(0).toChar())
-                    pushChar(peek(1).toChar())
+        while (c >= 0) {
+            if (c == delim.code && peek(0) == '>'.code) {
+                read()
+                return
+            }
+            if (push) pushChar(c.toChar())
+            c = read()
+        }
+        error(UNEXPECTED_EOF)
+    }
+
+    private fun parsePI(push: Boolean) {
+        read() // <
+        read() // '?'
+        readTagContentUntil('?', push)
+    }
+
+    private fun parseComment(push: Boolean) {
+        read() // <
+        read() // '!'
+        read() // '-
+        read('-')
+
+        var c = read()
+        while (c >= 0) {
+            if (c == '-'.code && peek(0) == '-'.code && (!relaxed || peek(1) == '>'.code)) {
+                if (peek(1) != '>'.code) {
+                    exception("illegal comment delimiter: --->")
+                } else {
+                    read()
+                    read()
+                    return
                 }
+            }
+            if (push) pushChar(c.toChar())
+            c = read()
+        }
+        error(UNEXPECTED_EOF)
+    }
+
+    private fun parseCData(push: Boolean) {
+        read() // <
+        read() // '['
+        read("[CDATA[")
+
+        var c = read()
+        while (c >= 0) {
+            if (c == ']'.code && peek(0) ==']'.code && peek(1) == '>'.code) {
                 read()
                 read()
-                if ((peek(0) == 'l'.code || peek(0) == 'L'.code) && peek(1) <= ' '.code) {
-                    if (offset>=0 && (line != 1 || column > 4)) error("PI must not start with xml")
-                    parseStartTag(true)
-                    if (attributeCount < 1 || "version" != attributes[0].localName) error("version expected")
-                    version = attributes[0].value
-                    var pos = 1
-                    if (pos < attributeCount && "encoding" == attributes[1].localName) {
-                        encoding = attributes[1].value
-                        pos++
-                    }
-                    if (pos < attributeCount && "standalone" == attributes[pos].localName
-                    ) {
-                        when (val st = attributes[pos].value) {
-                            "yes" -> standalone = true
-                            "no" -> standalone = false
-                            else -> error("illegal standalone value: $st")
-                        }
-                        pos++
-                    }
-                    if (pos != attributeCount) error("illegal xmldecl")
-                    isWhitespace = true
-                    txtBufPos = 0
-                    return START_DOCUMENT
-                }
+                return
             }
-
-            /*            int c0 = read ();
-                        int c1 = read ();
-                        int */
-            term = '?'.code
-            result = PROCESSING_INSTRUCTION
-            expected = ""
-        } else if (c == '!'.code) {
-
-            when (peek(0)) {
-                '-'.code -> {
-                    result = COMMENT
-                    expected = "--"
-                    term = '-'.code
-                }
-
-                '['.code -> {
-                    result = CDSECT
-                    expected = "[CDATA["
-                    term = ']'.code
-                    localPush = true
-                }
-
-                else -> {
-                    result = DOCDECL
-                    expected = "DOCTYPE"
-                    term = -1
-                }
-            }
-        } else {
-            error("illegal: <$c")
-            return COMMENT
+            if (push) pushChar(c.toChar())
+            c = read()
         }
-        for (ch in expected) read(ch)
-        if (result == DOCDECL) parseDoctype(localPush) else {
-            while (true) {
-                c = read()
-                if (c < 0) {
-                    error(UNEXPECTED_EOF)
-                    return COMMENT
-                }
-                if (localPush) pushChar(c.toChar())
-                if ((term == '?'.code || c == term)
-                    && peek(0) == term && peek(1) == '>'.code
-                ) break
-                prev = c
-            }
-            if (term == '-'.code && prev == '-'.code && !relaxed) error("illegal comment delimiter: --->")
-            read()
-            read()
-            if (localPush && term != '?'.code) txtBufPos--
-        }
-        return result
+        error(UNEXPECTED_EOF)
     }
 
     /** precondition: &lt! consumed  */
@@ -587,7 +565,7 @@ public class KtXmlReader internal constructor(
             val i = read()
             when (i) {
                 '\''.code,
-                '"'.code -> when(quote) {
+                '"'.code -> when (quote) {
                     null -> quote = i.toChar()
                     i.toChar() -> quote = null
                 }
@@ -623,15 +601,21 @@ public class KtXmlReader internal constructor(
                     if (push) pushChar('<')
                     var c = read()
                     if (push) pushChar(c)
-                    if (c != '!'.code) { nesting++; continue }
+                    if (c != '!'.code) {
+                        nesting++; continue
+                    }
 
                     c = read()
                     if (push) pushChar(c)
-                    if (c != '-'.code) { nesting++; continue }
+                    if (c != '-'.code) {
+                        nesting++; continue
+                    }
 
                     c = read()
                     if (push) pushChar(c)
-                    if (c != '-'.code) { nesting++; continue }
+                    if (c != '-'.code) {
+                        nesting++; continue
+                    }
                     quote = '!' // marker for comment
                 }
 
@@ -676,8 +660,6 @@ public class KtXmlReader internal constructor(
     }
 
     private fun peekType(): EventType {
-        // This forces a startDocument
-//        if (_eventType == null) return START_DOCUMENT
         return when (peek(0)) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
@@ -685,14 +667,18 @@ public class KtXmlReader internal constructor(
                 '/'.code -> END_ELEMENT
                 '?'.code -> when {
                     // order backwards to ensure
-                    peek(2) == '2'.code && peek(3) == 'm'.code &&
-                            peek(4) == 'l'.code && !isNameCode(peek(5)) ->
+                    peek(2) == 'x'.code && peek(3) == 'm'.code &&
+                            peek(4) == 'l'.code && !isNameCodepoint(peek(5)) ->
                         START_DOCUMENT
 
                     else -> PROCESSING_INSTRUCTION
                 }
 
-                '!'.code -> COMMENT
+                '!'.code -> when(peek(2)) {
+                    '-'.code -> COMMENT
+                    '['.code -> CDSECT
+                    else -> DOCDECL
+                }
                 else -> START_ELEMENT
             }
 
@@ -715,12 +701,12 @@ public class KtXmlReader internal constructor(
         txtBufPos += count
     }
 
-    private fun push(s :String) {
+    private fun push(s: String) {
         val minSizeNeeded = txtBufPos + s.length
         if (minSizeNeeded >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf((minSizeNeeded * 5) / 3 + 4)
         }
-        for(c in s) {
+        for (c in s) {
             txtBuf[txtBufPos++] = c
         }
     }
@@ -758,72 +744,95 @@ public class KtXmlReader internal constructor(
 
     /** Sets name and attributes  */
     private fun parseStartTag(xmldecl: Boolean) {
-        if (!xmldecl) read()
+        read() // < or ?
         val fullName = readName()
         attributes.clear(0)
         while (true) {
             skip()
-            val c = peek(0)
-            if (xmldecl) {
-                if (c == '?'.code) {
+            when (val c = peek(0)) {
+                '?'.code -> {
+                    if (!xmldecl) error("? found outside of xml declaration")
                     read()
                     read('>')
                     return
                 }
-            } else {
-                if (c == '/'.code) {
+
+                '/'.code -> {
+                    if (xmldecl) error("/ found to close xml declaration")
                     isSelfClosing = true
                     read()
-                    skip()
+                    if (relaxed) {
+                        error = "ERR: Whitespace between empty content tag closing elements"
+                        while (isXmlWhitespace(peek(0).toChar())) read()
+                    }
                     read('>')
                     break
                 }
-                if (c == '>'.code && !xmldecl) {
+
+                '>'.code -> {
+                    if (xmldecl) error("xml declaration must be closed by '?>', not '>'")
                     read()
                     break
                 }
-            }
-            if (c == -1) {
-                error(UNEXPECTED_EOF)
-                //type = COMMENT;
-                return
-            }
-            val attrName = readName()
-            if (attrName.isEmpty()) {
-                error("attr name expected")
-                //type = COMMENT;
-                break
-            }
-            skip()
-            if (peek(0) != '='.code) {
-                if (!relaxed) {
-                    error("Attr.value missing '='. $attrName, found: ${peek(0).toChar()}")
+
+                -1 -> {
+                    error(UNEXPECTED_EOF)
+                    return
                 }
-                attributes.addNoNS(attrName, attrName)
-            } else {
-                read('=')
-                skip()
-                val delimiter = peek(0)
-                val p = txtBufPos
-                when (delimiter) {
-                    '\''.code, '"'.code -> {
-                        read()
-                        // This is an attribute, we don't care about whitespace content
-                        pushNonWSText(delimiter.toChar(), true)
-                        read()
+
+                ' '.code, '\t'.code, '\n'.code, '\r'.code -> {
+                    next() // ignore whitespace
+                }
+
+                else -> when {
+                    isNameStartChar(c.toChar()) -> {
+                        val attrName = readName()
+
+                        if (attrName.isEmpty()) {
+                            error("attr name expected")
+                            //type = COMMENT;
+                            break
+                        }
+                        skip()
+                        if (peek(0) != '='.code) {
+                            if (!relaxed) {
+                                error("Attr.value missing '='. $attrName, found: ${peek(0).toChar()}")
+                            }
+                            attributes.addNoNS(attrName, attrName)
+                        } else {
+                            read('=')
+                            skip()
+                            val delimiter = peek(0)
+                            val p = txtBufPos
+                            when (delimiter) {
+                                '\''.code, '"'.code -> {
+                                    read()
+                                    // This is an attribute, we don't care about whitespace content
+                                    pushNonWSText(delimiter.toChar(), true)
+                                    read()
+                                }
+
+                                else -> {
+                                    if (!relaxed) error("attr value delimiter missing!")
+                                    pushWSDelimAttrValue(true)
+                                }
+                            }
+
+
+                            attributes.addNoNS(attrName, get(p))
+
+                            txtBufPos = p
+                        }
+
                     }
 
                     else -> {
-                        if (!relaxed) error("attr value delimiter missing!")
-                        pushWSDelimAttrValue(true)
+                        error("unexpected character in tag($fullName): '${c.toChar()}'")
+                        read()
                     }
                 }
-
-
-                attributes.addNoNS(attrName, get(p))
-
-                txtBufPos = p
             }
+
         }
 
         val d = depth
@@ -862,15 +871,15 @@ public class KtXmlReader internal constructor(
                 }
             }
             while (true) {
-                when(val c = peek(0)) {
+                when (val c = peek(0)) {
                     -1 -> error(UNEXPECTED_EOF)
                     ';'.code -> {
                         read()
                         break
                     }
 
-                    in 'a'.code .. 'f'.code, // allow hex
-                    in 'A'.code .. 'F'.code, // allow hex
+                    in 'a'.code..'f'.code, // allow hex
+                    in 'A'.code..'F'.code, // allow hex
                     in '0'.code..'9'.code -> pushChar(read().toChar())
 
                     else -> {
@@ -885,7 +894,7 @@ public class KtXmlReader internal constructor(
                     println("broken entity ${get(pos - 1)}")
                     return
                 }
-                error("Entity reference does not start with name char ${get(pos-1)}${first.toChar()}")
+                error("Entity reference does not start with name char ${get(pos - 1)}${first.toChar()}")
             }
             pushChar(read().toChar()) // no need to further processing in the while loop
 
@@ -895,7 +904,7 @@ public class KtXmlReader internal constructor(
                     read()
                     break
                 }
-                if (! isNameChar11(c.toChar())) {
+                if (!isNameChar11(c.toChar())) {
                     if (!relaxed) {
                         error("unterminated entity ref")
                     }
@@ -945,7 +954,7 @@ public class KtXmlReader internal constructor(
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
 
-        if (curPos<innerLoopEnd && !isXmlWhitespace(bufLeft[curPos])) {
+        if (curPos < innerLoopEnd && !isXmlWhitespace(bufLeft[curPos])) {
             return pushNonWSText(delimiter, resolveEntities)
         }
 
@@ -953,10 +962,10 @@ public class KtXmlReader internal constructor(
         var right: Int = -1
         var notFinished = true
 
-        outer@while(curPos<bufCount && notFinished) { // loop through all buffer iterations
+        outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
             var continueInNonWSMode = false
-            inner@while (curPos < innerLoopEnd) {
-                when(val nextChar = bufLeft[curPos]) {
+            inner@ while (curPos < innerLoopEnd) {
+                when (val nextChar = bufLeft[curPos]) {
                     ' ', '\t', '\r', '\n' -> {
                         ++curPos
                     }
@@ -1011,9 +1020,9 @@ public class KtXmlReader internal constructor(
         var cbrCount = 0
         var notFinished = true
 
-        outer@while(curPos<bufCount && notFinished) { // loop through all buffer iterations
-            inner@while (curPos < innerLoopEnd) {
-                when(bufLeft[curPos]) {
+        outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
+            inner@ while (curPos < innerLoopEnd) {
+                when (bufLeft[curPos]) {
                     delimiter -> {
                         notFinished = false
                         right = curPos
@@ -1085,18 +1094,19 @@ public class KtXmlReader internal constructor(
         var curPos = srcBufPos
         var notFinished = true
 
-        outer@while(curPos<bufCount && notFinished) { // loop through all buffer iterations
+        outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
             left = curPos
             right = -1
 
-            inner@while (curPos < leftEnd) {
-                when(/*val nextChar =*/ bufLeft[curPos]) {
+            inner@ while (curPos < leftEnd) {
+                when (/*val nextChar =*/ bufLeft[curPos]) {
                     ' ', '\t', '\r', '\n', '>' -> {
                         right = curPos
                         ++curPos
                         notFinished = false
                         break@inner
                     }
+
                     '&' -> {
                         if (resolveEntities) {
                             if (left == curPos) { // start with entity
@@ -1127,6 +1137,13 @@ public class KtXmlReader internal constructor(
         srcBufPos = curPos
     }
 
+    private fun read(s: String) {
+        for (c in s) {
+            val d = read()
+            if (c.code != d) error("Found unexpected character '$d' while parsing '$s'")
+        }
+    }
+
     private fun read(c: Char) {
         val a = read()
         if (a != c.code) error("expected: '" + c + "' actual: '" + a.toChar() + "'")
@@ -1143,9 +1160,10 @@ public class KtXmlReader internal constructor(
                 srcBufPos = next + 1
                 return bufLeft[next].code
             }
+
             '\r' -> {
                 bufLeft[srcBufPos] = '\n'
-                if (next < srcBufCount && bufLeft[next] =='\n') {
+                if (next < srcBufCount && bufLeft[next] == '\n') {
                     bufLeft[next] = '\u0000'
                     srcBufPos = next + 1
                 } else {
@@ -1157,6 +1175,7 @@ public class KtXmlReader internal constructor(
                 }
                 return '\n'.code
             }
+
             '\n' -> {
                 srcBufPos = next
                 if (!ignorePos) {
@@ -1165,6 +1184,7 @@ public class KtXmlReader internal constructor(
                 }
                 return '\n'.code
             }
+
             else -> {
                 srcBufPos = next
                 return ch.code
@@ -1178,7 +1198,7 @@ public class KtXmlReader internal constructor(
         bufRight = oldLeft
         srcBufPos -= BUF_SIZE
         val rightBufCount = srcBufCount - BUF_SIZE
-        if (rightBufCount>= BUF_SIZE) {
+        if (rightBufCount >= BUF_SIZE) {
             val newRead = reader.readUntilFullOrEOF(bufRight)
             srcBufCount = when {
                 newRead < 0 -> rightBufCount
@@ -1202,9 +1222,10 @@ public class KtXmlReader internal constructor(
                 srcBufPos = next
                 return readAcross() // just recurse
             }
+
             '\r' -> {
                 bufLeft[srcBufPos] = '\n'
-                if (next < srcBufCount && getBuf(next) =='\n') {
+                if (next < srcBufCount && getBuf(next) == '\n') {
                     setBuf(next, '\u0000')
                     srcBufPos = next + 1
                 } else {
@@ -1216,6 +1237,7 @@ public class KtXmlReader internal constructor(
                 }
                 return '\n'.code
             }
+
             '\n' -> {
                 srcBufPos = next
                 if (!ignorePos) {
@@ -1224,6 +1246,7 @@ public class KtXmlReader internal constructor(
                 }
                 return '\n'.code
             }
+
             else -> {
                 srcBufPos = next
                 return ch.code
@@ -1246,12 +1269,13 @@ public class KtXmlReader internal constructor(
                 '\r' -> {
                     chr = '\n' // update the char
                     bufLeft[current] = '\n' // replace it with LF (\n)
-                    if (bufLeft[current+1] == '\r') {
+                    if (bufLeft[current + 1] == '\r') {
                         // Note also as we are separated from the edge of the buffer setting this is valid even
                         // beyond the end of the file
                         bufLeft[current++] = '\u0000' // 0 is not a valid XML CHAR, so we can skip it
                     }
                 }
+
                 else -> ++current
             }
             if (peekCount-- == 0) return chr.code
@@ -1273,7 +1297,7 @@ public class KtXmlReader internal constructor(
                 '\r' -> {
                     chr = '\n' // update the char
                     setBuf(current, '\n') // replace it with LF (\n)
-                    if (current+1 <srcBufCount && getBuf(current+1) == '\r') {
+                    if (current + 1 < srcBufCount && getBuf(current + 1) == '\r') {
                         setBuf(current++, '\u0000') // 0 is not a valid XML CHAR, so we can skip it
                     }
                 }
@@ -1304,7 +1328,7 @@ public class KtXmlReader internal constructor(
     private fun readName(): String {
         val pos = txtBufPos
         var c = peek(0)
-        if (c < 0 || !isNameStartChar(c.toChar())) error("name expected")
+        if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
         do {
             pushChar(read().toChar())
             c = peek(0)
@@ -1384,7 +1408,7 @@ public class KtXmlReader internal constructor(
         replaceWith = ReplaceWith("extLocationInfo?.toString()")
     )
     override val locationInfo: String
-        get() = if (offset>=0) "$line:$column" else "<unknown>"
+        get() = if (offset >= 0) "$line:$column" else "<unknown>"
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() = XmlReader.ExtLocationInfo(col = column, line = line, offset = offset)
@@ -1457,9 +1481,11 @@ public class KtXmlReader internal constructor(
         txtBufPos = 0
         token = true
         when (state) {
-            State.BEFORE_START,
+            State.BEFORE_START -> nextImplDocStart()
+
             State.START_DOC,
             State.DOCTYPE_DECL -> nextImplPreamble()
+
             State.BODY -> nextImplBody()
             State.POST -> nextImplPost()
             State.EOF -> error("Reading past end of file")
@@ -1655,14 +1681,19 @@ public class KtXmlReader internal constructor(
     private enum class State {
         /** Parsing hasn't started yet */
         BEFORE_START,
+
         /** At or past parsing the xml header */
         START_DOC,
+
         /** At or past parsing the document type definition */
         DOCTYPE_DECL,
+
         /** Parsing the main document element */
         BODY,
+
         /** At end of main document element end tag, or after it*/
         POST,
+
         /** At end of file */
         EOF
     }

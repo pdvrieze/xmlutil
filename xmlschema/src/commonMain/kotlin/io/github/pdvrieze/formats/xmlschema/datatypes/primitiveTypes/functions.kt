@@ -37,7 +37,7 @@ fun CharSequence.isNCName(): Boolean {
     val codepoints = CodepointIterator(this)
     if (!isNameStartCode(codepoints.next(), false)) return false
     while (codepoints.hasNext()) {
-        if (!isNameCode(codepoints.next(), false)) return false
+        if (!isNameCodepoint(codepoints.next(), false)) return false
     }
     return true
 }
@@ -72,7 +72,7 @@ fun CharSequence.isXmlName(): Boolean {
     val codepoints = CodepointIterator(this)
     if (!isNameStartCode(codepoints.next())) return false
     while (codepoints.hasNext()) {
-        if (!isNameCode(codepoints.next())) return false
+        if (!isNameCodepoint(codepoints.next())) return false
     }
     return true
 }
