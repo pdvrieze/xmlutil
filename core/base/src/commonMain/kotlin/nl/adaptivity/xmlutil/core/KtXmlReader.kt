@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
+import nl.adaptivity.xmlutil.core.internal.isNameCode
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmStatic
@@ -165,6 +166,7 @@ public class KtXmlReader internal constructor(
 
     private var unresolved = false
     private var token = false
+    private var state = State.BEFORE_START
 
     override val namespaceDecls: List<Namespace>
         get() = namespaceHolder.namespacesAtCurrentDepth
@@ -276,7 +278,79 @@ public class KtXmlReader internal constructor(
     /**
      * common base for next and nextToken. Clears the state, except from
      * txtPos and whitespace. Does not set the type variable  */
-    private fun nextImpl() {
+    private fun nextImplPreamble() {
+        if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
+
+        while (true) {
+            attributes.clear()
+
+            // degenerated needs to be handled before error because of possible
+            // processor expectations(!)
+            if (isSelfClosing) {
+                isSelfClosing = false
+                _eventType = END_ELEMENT
+                return
+            }
+            error?.let { e ->
+                push(e)
+
+                this.error = null
+                _eventType = COMMENT
+                return
+            }
+
+            //            text = null;
+            _eventType = peekType()
+            if (state == State.BEFORE_START && _eventType != START_DOCUMENT) {
+                _eventType = START_DOCUMENT
+                state = State.START_DOC
+                return
+            }
+            when (_eventType) {
+                START_DOCUMENT -> {
+                    check(state == State.BEFORE_START)
+                    return // just return, no special things here
+                }
+                ENTITY_REF -> {
+                    pushEntity()
+                    return
+                }
+
+                START_ELEMENT -> {
+                    state = State.BODY // this must start the body
+                    parseStartTag(false)
+                    return
+                }
+
+                END_ELEMENT -> {
+                    error("End tag in preamble")
+                    parseEndTag()
+                    return
+                }
+
+                END_DOCUMENT -> return
+                TEXT -> {
+                    pushText('<', !token)
+                    if (isWhitespace) {
+                        _eventType = IGNORABLE_WHITESPACE
+                    } else {
+                        error("Non-whitespace text in preamble")
+                    }
+                    return
+                }
+
+                else -> {
+                    _eventType = parseLegacy(token)
+                    if (_eventType != START_DOCUMENT) return
+                }
+            }
+        }
+    }
+
+    /**
+     * common base for next and nextToken. Clears the state, except from
+     * txtPos and whitespace. Does not set the type variable  */
+    private fun nextImplBody() {
         if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
 
         while (true) {
@@ -313,6 +387,8 @@ public class KtXmlReader internal constructor(
 
                 END_ELEMENT -> {
                     parseEndTag()
+                    if (depth == 1)
+                        state = State.POST
                     return
                 }
 
@@ -326,6 +402,78 @@ public class KtXmlReader internal constructor(
                 else -> {
                     _eventType = parseLegacy(token)
                     if (_eventType != START_DOCUMENT) return
+                }
+            }
+        }
+    }
+
+    /**
+     * Parse only the post part of the document. *misc* = Comment | PI | S
+     */
+    private fun nextImplPost() {
+        if (_eventType == END_ELEMENT) namespaceHolder.decDepth()
+
+        while (true) {
+            attributes.clear()
+
+            // degenerated needs to be handled before error because of possible
+            // processor expectations(!)
+            if (isSelfClosing) {
+                isSelfClosing = false
+                _eventType = END_ELEMENT
+                return
+            }
+            error?.let { e ->
+                push(e)
+
+                this.error = null
+                _eventType = COMMENT
+                return
+            }
+
+            //            text = null;
+            _eventType = peekType()
+            when (_eventType) {
+                ENTITY_REF -> {
+                    pushEntity()
+                    return
+                }
+
+                START_DOCUMENT -> {
+                    error("Document declaration after end of document element")
+                    return
+                }
+
+                START_ELEMENT -> {
+                    error("Start Element after end of document element")
+                    parseStartTag(false)
+                    return
+                }
+
+                END_ELEMENT -> {
+                    error("End Element after end of document element")
+                    parseEndTag()
+                    return
+                }
+
+                END_DOCUMENT -> {
+                    state = State.EOF
+                    return
+                }
+                TEXT -> {
+                    pushText('<', !token)
+                    if (isWhitespace) {
+                        _eventType = IGNORABLE_WHITESPACE
+                    } else {
+                        error("Non-whitespace text after end of document")
+                    }
+                    return
+                }
+
+                else -> {
+                    _eventType = parseLegacy(token)
+                    check(_eventType != START_DOCUMENT)
+                    return
                 }
             }
         }
@@ -528,13 +676,22 @@ public class KtXmlReader internal constructor(
     }
 
     private fun peekType(): EventType {
-        if (_eventType == null) return START_DOCUMENT
+        // This forces a startDocument
+//        if (_eventType == null) return START_DOCUMENT
         return when (peek(0)) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
             '<'.code -> when (peek(1)) {
                 '/'.code -> END_ELEMENT
-                '?'.code -> PROCESSING_INSTRUCTION
+                '?'.code -> when {
+                    // order backwards to ensure
+                    peek(2) == '2'.code && peek(3) == 'm'.code &&
+                            peek(4) == 'l'.code && !isNameCode(peek(5)) ->
+                        START_DOCUMENT
+
+                    else -> PROCESSING_INSTRUCTION
+                }
+
                 '!'.code -> COMMENT
                 else -> START_ELEMENT
             }
@@ -569,10 +726,6 @@ public class KtXmlReader internal constructor(
     }
 
     private fun pushChar(c: Char) {
-        if (isWhitespace) {
-            isWhitespace = isXmlWhitespace(c)
-        }
-
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf((txtBufPos * 5) / 3 + 4)
         }
@@ -589,9 +742,6 @@ public class KtXmlReader internal constructor(
 
     private fun pushCodePoint(c: Int) {
         if (c < 0) error("UNEXPECTED EOF")
-        if (isWhitespace) {
-            isWhitespace = isXmlWhitespace(c.toChar())
-        }
 
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
             txtBuf = txtBuf.copyOf((txtBufPos * 5) / 3 + 4)
@@ -789,7 +939,6 @@ public class KtXmlReader internal constructor(
      * @param resolveEntities `true` if entities should be resolved inline, `false` if entity is a start of
      */
     private fun pushText(delimiter: Char, resolveEntities: Boolean) {
-        var isAllWs = true
 //        if (delimiter == ' ') return pushTextWsDelim(resolveEntities)
 
         var bufCount = srcBufCount
@@ -805,6 +954,7 @@ public class KtXmlReader internal constructor(
         var notFinished = true
 
         outer@while(curPos<bufCount && notFinished) { // loop through all buffer iterations
+            var continueInNonWSMode = false
             inner@while (curPos < innerLoopEnd) {
                 when(val nextChar = bufLeft[curPos]) {
                     ' ', '\t', '\r', '\n' -> {
@@ -818,7 +968,7 @@ public class KtXmlReader internal constructor(
                     }
 
                     else -> {
-                        isAllWs = false
+                        continueInNonWSMode = true
                         right = curPos
                         break@inner
                     }
@@ -839,13 +989,14 @@ public class KtXmlReader internal constructor(
                 bufCount = srcBufCount
                 innerLoopEnd = minOf(bufCount, BUF_SIZE)
             }
-            if (! isAllWs) {
+            if (continueInNonWSMode) {
                 srcBufPos = curPos
                 return pushNonWSText(delimiter, resolveEntities)
             }
             left = curPos
 
         }
+        // We didn't return through pushNonWSText, so it is WS
         isWhitespace = true
         srcBufPos = curPos
     }
@@ -1305,7 +1456,14 @@ public class KtXmlReader internal constructor(
         isWhitespace = true
         txtBufPos = 0
         token = true
-        nextImpl()
+        when (state) {
+            State.BEFORE_START,
+            State.START_DOC,
+            State.DOCTYPE_DECL -> nextImplPreamble()
+            State.BODY -> nextImplBody()
+            State.POST -> nextImplPost()
+            State.EOF -> error("Reading past end of file")
+        }
         return eventType
     }
 
@@ -1493,5 +1651,20 @@ public class KtXmlReader internal constructor(
             attributes.data[index * 4 + 3] = value
         }
 
+
+    private enum class State {
+        /** Parsing hasn't started yet */
+        BEFORE_START,
+        /** At or past parsing the xml header */
+        START_DOC,
+        /** At or past parsing the document type definition */
+        DOCTYPE_DECL,
+        /** Parsing the main document element */
+        BODY,
+        /** At end of main document element end tag, or after it*/
+        POST,
+        /** At end of file */
+        EOF
+    }
 
 }
