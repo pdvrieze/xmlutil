@@ -158,6 +158,10 @@ public class KtXmlReader internal constructor(
 
     private var elementStack: ElementStack = ElementStack()
 
+    // variables so we don't need readCName to return a pair
+    private var readPrefix: String? = null
+    private var readLocalname: String? = null
+
     /** Target buffer for storing incoming text (including aggregated resolved entities)  */
     private var txtBuf = CharArray(256)
 
@@ -491,14 +495,14 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private fun readTagContentUntil(delim: Char, push: Boolean) {
+    private fun readTagContentUntil(delim: Char) {
         var c = read()
         while (c >= 0) {
-            if (c == delim.code && peek(0) == '>'.code) {
+            if (c == delim.code && peek() == '>'.code) {
                 read()
                 return
             }
-            if (push) pushChar(c.toChar())
+            pushChar(c.toChar())
             c = read()
         }
         error(UNEXPECTED_EOF)
@@ -507,7 +511,7 @@ public class KtXmlReader internal constructor(
     private fun parsePI() {
         read() // <
         read() // '?'
-        readTagContentUntil('?', true)
+        readTagContentUntil('?')
     }
 
     private fun parseComment() {
@@ -518,9 +522,9 @@ public class KtXmlReader internal constructor(
 
         var c = read()
         while (c >= 0) {
-            if (c == '-'.code && peek(0) == '-'.code && (!relaxed || peek(1) == '>'.code)) {
+            if (c == '-'.code && peek() == '-'.code) {
                 if (peek(1) != '>'.code) {
-                    exception("illegal comment delimiter: --->")
+                    error("illegal comment delimiter: --->")
                 } else {
                     read()
                     read()
@@ -631,7 +635,7 @@ public class KtXmlReader internal constructor(
         read() // '<'
         read() // '/'
 //        val fullName = readName()
-        val (prefix, localName) = readCName()
+        readCName()
         skip()
         read('>')
         val spIdx = depth - 1
@@ -644,16 +648,16 @@ public class KtXmlReader internal constructor(
             val expectedPrefix = elementStack[spIdx].prefix //?: exception("Missing prefix")
             val expectedLocalName = elementStack[spIdx].localName ?: exception("Missing localname")
 
-            if (prefix != expectedPrefix || localName != expectedLocalName) {
+            if (readPrefix != expectedPrefix || readLocalname != expectedLocalName) {
                 val expectedFullName = fullname(expectedPrefix, expectedLocalName)
-                val fullName = fullname(prefix, localName)
+                val fullName = fullname(readPrefix, readLocalname!!)
                 error("expected: /${expectedFullName} read: $fullName")
             }
         }
     }
 
     private fun peekType(): EventType {
-        return when (peek(0)) {
+        return when (peek()) {
             -1 -> END_DOCUMENT
             '&'.code -> ENTITY_REF
             '<'.code -> when (peek(1)) {
@@ -687,11 +691,13 @@ public class KtXmlReader internal constructor(
         return txtBuf.concatToString(pos, txtBufPos)
     }
 
+    private fun pop() { --txtBufPos }
+
     private fun pushRange(buffer: CharArray, start: Int, endExcl: Int) {
         val count = endExcl - start
         val minSizeNeeded = txtBufPos + count
         if (minSizeNeeded + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            txtBuf = txtBuf.copyOf((minSizeNeeded * 5) / 3 + 4)
+            growOutputBuf(minSizeNeeded)
         }
 
         buffer.copyInto(txtBuf, txtBufPos, start, endExcl)
@@ -701,7 +707,7 @@ public class KtXmlReader internal constructor(
     private fun push(s: String) {
         val minSizeNeeded = txtBufPos + s.length
         if (minSizeNeeded >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            txtBuf = txtBuf.copyOf((minSizeNeeded * 5) / 3 + 4)
+            growOutputBuf(minSizeNeeded)
         }
         for (c in s) {
             txtBuf[txtBufPos++] = c
@@ -710,7 +716,7 @@ public class KtXmlReader internal constructor(
 
     private fun pushChar(c: Char) {
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            txtBuf = txtBuf.copyOf((txtBufPos * 5) / 3 + 4)
+            growOutputBuf()
         }
         txtBuf[txtBufPos++] = c
     }
@@ -727,7 +733,7 @@ public class KtXmlReader internal constructor(
         if (c < 0) error("UNEXPECTED EOF")
 
         if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            txtBuf = txtBuf.copyOf((txtBufPos * 5) / 3 + 4)
+            growOutputBuf()
         }
         if (c > 0xffff) { // This comparison works as surrogates are in the 0xd800-0xdfff range
             // write high Unicode value as surrogate pair
@@ -748,9 +754,9 @@ public class KtXmlReader internal constructor(
             prefix = null
             localName = readName()
         } else {
-            val t = readCName()
-            prefix = t.first
-            localName = t.second
+            readCName()
+            prefix = readPrefix
+            localName = readLocalname!!
         }
         attributes.clear(0)
         while (true) {
@@ -792,7 +798,8 @@ public class KtXmlReader internal constructor(
 
                 else -> when {
                     isNameStartChar(c.toChar()) -> {
-                        val (aPrefix, aLocalName) = readCName()
+                        readCName()
+                        val aLocalName = readLocalname!!
 
                         if (aLocalName.isEmpty()) {
                             error("attr name expected")
@@ -801,11 +808,11 @@ public class KtXmlReader internal constructor(
                         }
                         skip()
                         if (peek(0) != '='.code) {
-                            val fullname = fullname(aPrefix, aLocalName)
+                            val fullname = fullname(readPrefix, aLocalName)
                             if (!relaxed) {
                                 error("Attr.value missing '='. $fullname, found: ${peek(0).toChar()}")
                             }
-                            attributes.addNoNS(aPrefix, aLocalName, fullname)
+                            attributes.addNoNS(readPrefix, aLocalName, fullname)
                         } else {
                             read('=')
                             skip()
@@ -827,7 +834,7 @@ public class KtXmlReader internal constructor(
                             }
 
 
-                            attributes.addNoNS(aPrefix, aLocalName, getOffset(p))
+                            attributes.addNoNS(readPrefix, aLocalName, getOffset(p))
 
                             txtBufPos = p
                         }
@@ -1215,6 +1222,58 @@ public class KtXmlReader internal constructor(
         }
     }
 
+    private fun readAndPush(): Char {
+        val pos = srcBufPos
+        if (pos >= srcBufCount) exception(UNEXPECTED_EOF)
+        if (pos + 2 >= BUF_SIZE) return readAcross().also(::pushChar).toChar() // use the slow path for this case
+
+        if (txtBufPos >= txtBuf.size) {
+            val minNeeded = txtBufPos
+            growOutputBuf(minNeeded)
+        }
+
+        val next = pos + 1
+        when (val ch = bufLeft[pos]) {
+            '\u0000' -> { // should not happen at end of file (or really generally at all)
+                srcBufPos = next + 1
+                return bufLeft[next].also { txtBuf[txtBufPos++] = it }
+            }
+
+            '\r' -> {
+                bufLeft[srcBufPos] = '\n'
+                if (next < srcBufCount && bufLeft[next] == '\n') {
+                    bufLeft[next] = '\u0000'
+                    srcBufPos = next + 1
+                } else {
+                    srcBufPos = next
+                }
+                if (!ignorePos) {
+                    line += 1
+                    column = 0
+                }
+                return '\n'.also { txtBuf[txtBufPos++] = it }
+            }
+
+            '\n' -> {
+                srcBufPos = next
+                if (!ignorePos) {
+                    line += 1
+                    column = 0
+                }
+                return '\n'.also { txtBuf[txtBufPos++] = it }
+            }
+
+            else -> {
+                srcBufPos = next
+                return ch.also { txtBuf[txtBufPos++] = it }
+            }
+        }
+    }
+
+    private fun growOutputBuf(minNeeded: Int = txtBufPos) {
+        txtBuf = txtBuf.copyOf((minNeeded * 5) / 3 + 4)
+    }
+
     private fun swapInputBuffer() {
         val oldLeft = bufLeft
         bufLeft = bufRight
@@ -1306,6 +1365,20 @@ public class KtXmlReader internal constructor(
         return -1
     }
 
+    /** Does never read more than needed  */
+    private fun peek(): Int {
+        // In this case we *may* need the right buffer, otherwise not
+        // optimize this implementation for the "happy" path
+        val current = srcBufPos
+        if (current >= srcBufCount) return -1
+        if (current >= BUF_SIZE) return peekAcross(0)
+
+        return when (val chr: Char = bufLeft[current]) {
+            '\r' -> '\n'.code
+            else -> chr.code
+        }
+    }
+
     /**
      * Pessimistic implementation of peek that allows checks across into the "right" buffer
      */
@@ -1349,44 +1422,43 @@ public class KtXmlReader internal constructor(
     }
 
     private fun readName(): String {
-        var c = peek(0)
+        var c = peek()
         if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
         do {
-            pushChar(read().toChar())
-            c = peek(0)
+            readAndPush()
+            c = peek()
         } while (c >= 0 && isNameChar11(c.toChar()))
         val result = get()
         txtBufPos = 0
         return result
     }
 
-    private fun readCName(): Pair<String?, String> {
+    private fun readCName() {
         var prefix: String? = null
 
-        peek(0).let { c ->
+        peek().let { c ->
             if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
         }
 
         while (true) {
-//            pushChar(read().toChar())
-            when (val c = peek(0)) {
+            when (val c = peek()) {
                 -1 -> error(UNEXPECTED_EOF)
 
-                ':'.code -> if (PROCESS_NAMESPACES){
+                ':'.code -> if (PROCESS_NAMESPACES) {
                     prefix = get()
                     read()
                     txtBufPos = 0
-                } else pushChar(read())
+                } else readAndPush()
 
                 else -> when {
-                    isNameChar11(c.toChar()) -> pushChar(read())
+                    isNameChar11(c.toChar()) -> readAndPush()
                     else -> break
                 }
             }
         }
-        val localName = get()
+        readPrefix = prefix
+        readLocalname = get()
         txtBufPos = 0
-        return prefix to localName
     }
 
     private fun skip() {
