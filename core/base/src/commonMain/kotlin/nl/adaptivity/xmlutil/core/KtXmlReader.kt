@@ -496,16 +496,13 @@ public class KtXmlReader internal constructor(
     }
 
     private fun readTagContentUntil(delim: Char) {
-        var c = read()
-        while (c >= 0) {
-            if (c == delim.code && peek() == '>'.code) {
-                read()
-                return
-            }
-            pushChar(c.toChar())
-            c = read()
-        }
-        error(UNEXPECTED_EOF)
+        var c: Char
+        do {
+            c = readAndPush()
+        } while (c != delim || peek() != '>'.code)
+        popOutput()
+        read() // '>'
+        return
     }
 
     private fun parsePI() {
@@ -520,21 +517,19 @@ public class KtXmlReader internal constructor(
         read() // '-
         read('-')
 
-        var c = read()
-        while (c >= 0) {
-            if (c == '-'.code && peek() == '-'.code) {
-                if (peek(1) != '>'.code) {
-                    error("illegal comment delimiter: --->")
-                } else {
-                    read()
-                    read()
-                    return
-                }
-            }
-            pushChar(c.toChar())
-            c = read()
+        var c: Char
+        do {
+            c = readAndPush()
+        } while (c != '-' || peek() != '-'.code)
+        if (peek(1) != '>'.code) {
+            error("illegal comment delimiter: --->")
         }
-        error(UNEXPECTED_EOF)
+        popOutput() // '-'
+        read() // '-'
+        read() // '>'
+
+        read() // '>'
+        return
     }
 
     private fun parseCData() {
@@ -542,17 +537,14 @@ public class KtXmlReader internal constructor(
         read() // '['
         read("[CDATA[")
 
-        var c = read()
-        while (c >= 0) {
-            if (c == ']'.code && peek(0) == ']'.code && peek(1) == '>'.code) {
-                read()
-                read()
-                return
-            }
-            pushChar(c.toChar())
-            c = read()
-        }
-        error(UNEXPECTED_EOF)
+        var c: Char
+        do {
+            c = readAndPush()
+        } while (c != ']' || peek() != ']'.code || peek(1) != '>'.code)
+        popOutput() // ']'
+        read() // ']'
+        read() // '>'
+        return
     }
 
     /** precondition: &lt! consumed  */
@@ -560,7 +552,6 @@ public class KtXmlReader internal constructor(
         var nesting = 1
         var quote: Char? = null
 
-        // read();
         while (true) {
             val i = read()
             when (i) {
@@ -691,7 +682,7 @@ public class KtXmlReader internal constructor(
         return txtBuf.concatToString(pos, txtBufPos)
     }
 
-    private fun pop() { --txtBufPos }
+    private fun popOutput() { --txtBufPos }
 
     private fun pushRange(buffer: CharArray, start: Int, endExcl: Int) {
         val count = endExcl - start
@@ -715,17 +706,15 @@ public class KtXmlReader internal constructor(
     }
 
     private fun pushChar(c: Char) {
-        if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
-            growOutputBuf()
-        }
+        if (txtBufPos >= txtBuf.size) growOutputBuf()
+
         txtBuf[txtBufPos++] = c
     }
 
     private fun pushChar(cp: Int) {
-        if (cp < 0) {
-            error(UNEXPECTED_EOF)
-        } else {
-            pushChar(cp.toChar())
+        when {
+            cp < 0 -> error(UNEXPECTED_EOF)
+            else -> pushChar(cp.toChar())
         }
     }
 
@@ -991,9 +980,26 @@ public class KtXmlReader internal constructor(
             var continueInNonWSMode = false
             inner@ while (curPos < innerLoopEnd) {
                 when (val nextChar = bufLeft[curPos]) {
-                    ' ', '\t', '\r', '\n' -> {
-                        ++curPos
+                    '\r' -> {
+                        // pushRange doesn't do normalization, so use push the preceding chars,
+                        // then handle the CR separately
+                        if (right > left + 1) pushRange(bufLeft, left, right - 1)
+                        when (curPos + 1) {
+                            bufCount -> curPos++
+                            BUF_SIZE -> {
+                                swapInputBuffer()
+                                curPos = if (bufLeft[0] == '\n') 1 else 0
+                                bufCount = srcBufCount
+                                innerLoopEnd = minOf(bufCount, BUF_SIZE)
+                            }
+                            else -> curPos++
+                        }
+                        pushChar('\n')
+                        left = curPos
+                        right = -1
                     }
+
+                    ' ', '\t', '\n' -> ++curPos
 
                     delimiter -> {
                         notFinished = false
@@ -1011,7 +1017,7 @@ public class KtXmlReader internal constructor(
             if (curPos == innerLoopEnd) {
                 right = curPos
             }
-            if (right > 0) {
+            if (right > left) {
                 pushRange(bufLeft, left, right) // ws delimited is never WS
                 right = -1
             }
@@ -1225,7 +1231,11 @@ public class KtXmlReader internal constructor(
     private fun readAndPush(): Char {
         val pos = srcBufPos
         if (pos >= srcBufCount) exception(UNEXPECTED_EOF)
-        if (pos + 2 >= BUF_SIZE) return readAcross().also(::pushChar).toChar() // use the slow path for this case
+
+        if (pos + 1 >= BUF_SIZE) { // +1 to also account for CRLF across the boundary
+            return readAcross().also(::pushChar).toChar() // use the slow path for this case
+        }
+        val ch = bufLeft[pos]
 
         if (txtBufPos >= txtBuf.size) {
             val minNeeded = txtBufPos
@@ -1233,25 +1243,25 @@ public class KtXmlReader internal constructor(
         }
 
         val next = pos + 1
-        when (val ch = bufLeft[pos]) {
+        when (ch) {
             '\u0000' -> { // should not happen at end of file (or really generally at all)
                 srcBufPos = next + 1
                 return bufLeft[next].also { txtBuf[txtBufPos++] = it }
             }
 
             '\r' -> {
-                bufLeft[srcBufPos] = '\n'
-                if (next < srcBufCount && bufLeft[next] == '\n') {
-                    bufLeft[next] = '\u0000'
-                    srcBufPos = next + 1
-                } else {
-                    srcBufPos = next
+                srcBufPos = when {
+                    next < srcBufCount && bufLeft[next] == '\n' -> next + 1
+                    else -> next
                 }
+
                 if (!ignorePos) {
                     line += 1
                     column = 0
                 }
-                return '\n'.also { txtBuf[txtBufPos++] = it }
+
+                txtBuf[txtBufPos++] = '\n'
+                return '\n'
             }
 
             '\n' -> {
@@ -1260,7 +1270,8 @@ public class KtXmlReader internal constructor(
                     line += 1
                     column = 0
                 }
-                return '\n'.also { txtBuf[txtBufPos++] = it }
+                txtBuf[txtBufPos++] = '\n'
+                return '\n'
             }
 
             else -> {
@@ -1271,6 +1282,9 @@ public class KtXmlReader internal constructor(
     }
 
     private fun growOutputBuf(minNeeded: Int = txtBufPos) {
+        check(minNeeded < 50000) {
+            "Excessive output buffer"
+        }
         txtBuf = txtBuf.copyOf((minNeeded * 5) / 3 + 4)
     }
 
