@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.benchmark
 import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import kotlinx.benchmark.*
 import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapperImpl
 import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapper
 import nl.adaptivity.xmlutil.benchmark.util.testXmlSchemaUrls
@@ -65,41 +66,45 @@ open class Parsing {
 
     protected fun benchParseSchemas(bh: BlackholeWrapper) {
         for ((_, url) in suites) {
-            url.openStream().use { instr ->
-                KtXmlReader(instr).use { r: KtXmlReader ->
-                    for (e: EventType in r) {
-                        when (e) {
-                            EventType.START_DOCUMENT -> {
-                                bh.consume(r.version)
-                                bh.consume(r.relaxed)
-                                bh.consume(r.standalone)
-                            }
+            try {
+                url.openStream().use { instr ->
+                    KtXmlReader(instr).use { r: KtXmlReader ->
+                        for (e: EventType in r) {
+                            when (e) {
+                                EventType.START_DOCUMENT -> {
+                                    bh.consume(r.version)
+                                    bh.consume(r.relaxed)
+                                    bh.consume(r.standalone)
+                                }
 
-                            EventType.END_ELEMENT, EventType.START_ELEMENT -> {
-                                for (i in 0 until r.attributeCount) {
+                                EventType.END_ELEMENT, EventType.START_ELEMENT -> {
+                                    for (i in 0 until r.attributeCount) {
+                                        bh.consume(r.localName)
+                                        bh.consume(r.namespaceURI)
+                                        bh.consume(r.prefix)
+                                        bh.consume(r.getAttributeValue(i))
+                                    }
                                     bh.consume(r.localName)
                                     bh.consume(r.namespaceURI)
                                     bh.consume(r.prefix)
-                                    bh.consume(r.getAttributeValue(i))
                                 }
-                                bh.consume(r.localName)
-                                bh.consume(r.namespaceURI)
-                                bh.consume(r.prefix)
-                            }
 
-                            EventType.TEXT, EventType.CDSECT, EventType.ENTITY_REF, EventType.IGNORABLE_WHITESPACE, EventType.PROCESSING_INSTRUCTION, EventType.COMMENT -> {
-                                bh.consume(r.text)
-                            }
+                                EventType.TEXT, EventType.CDSECT, EventType.ENTITY_REF, EventType.IGNORABLE_WHITESPACE, EventType.PROCESSING_INSTRUCTION, EventType.COMMENT -> {
+                                    bh.consume(r.text)
+                                }
 
-                            EventType.DOCDECL -> {
-                                bh.consume(r.text)
-                            }
+                                EventType.DOCDECL -> {
+                                    bh.consume(r.text)
+                                }
 
-                            EventType.END_DOCUMENT -> {}
-                            EventType.ATTRIBUTE -> error("unexpected attribute")
+                                EventType.END_DOCUMENT -> {}
+                                EventType.ATTRIBUTE -> error("unexpected attribute")
+                            }
                         }
                     }
                 }
+            } catch (e : Exception) {
+                throw XmlException("Failure parsing $url", e)
             }
         }
     }
