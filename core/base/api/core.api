@@ -871,6 +871,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmluti
 	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
 	public fun remove ()V
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun setIgnorePos (Z)V
 	public fun toString ()Ljava/lang/String;
 }
 

@@ -51,23 +51,31 @@ public class KtXmlReader internal constructor(
 
     public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
 
-    private var line: Int
-    private var column: Int
-    private var offset: Int
+    private var line: Int = 1
+    private var column: Int = 1
+    private var offset: Int = 0
+
+    public var ignorePos: Boolean
+        get() = offset < 0
+        set(value) {
+            if (value) {
+                line = -1
+                column = -1
+                offset = -1
+            } else {
+                line = 1
+                column = 1
+                offset = 0
+            }
+        }
 
     init {
         if (ignorePos) {
             line = -1
             column = -1
             offset = -1
-        } else {
-            line = 1
-            column = 1
-            offset = 0
         }
     }
-
-    public val ignorePos: Boolean get() = offset < 0
 
     private var _eventType: EventType? = null //START_DOCUMENT // Already have this state
     public override val eventType: EventType
@@ -785,9 +793,9 @@ public class KtXmlReader internal constructor(
                     if (xmldecl) error("/ found to close xml declaration")
                     isSelfClosing = true
                     readAssert('/')
-                    if (relaxed) {
-                        error = "ERR: Whitespace between empty content tag closing elements"
-                        while (isXmlWhitespace(peek(0).toChar())) read()
+                    if (isXmlWhitespace(peek().toChar())) {
+                        error("ERR: Whitespace between empty content tag closing elements")
+                        while (isXmlWhitespace(peek().toChar())) read()
                     }
                     read('>')
                     break
@@ -821,7 +829,7 @@ public class KtXmlReader internal constructor(
                         skip()
                         if (peek() != '='.code) {
                             val fullname = fullname(readPrefix, aLocalName)
-                            error("Attr.value missing in ${fullname(prefix, localName)} '='. $fullname, found: ${peek(0).toChar()}")
+                            error("Attr.value missing in $fullname '='. Found: ${peek(0).toChar()}")
 
                             attributes.addNoNS(readPrefix, aLocalName, fullname)
                         } else {
@@ -837,7 +845,7 @@ public class KtXmlReader internal constructor(
                                 }
 
                                 else -> {
-                                    if (!relaxed) error("attr value delimiter missing!")
+                                    error("attr value delimiter missing!")
                                     resetOutputBuffer()
                                     pushWSDelimAttrValue()
                                 }
@@ -980,7 +988,6 @@ public class KtXmlReader internal constructor(
         while (curPos < innerLoopEnd) {
             when (bufLeft[curPos]) {
                 ' ', '\t', '\n', '\r' -> break // whitespace
-                '\u0000' -> ++curPos
 
                 else -> return pushNonWSText(delimiter, resolveEntities = false)
             }
@@ -997,7 +1004,7 @@ public class KtXmlReader internal constructor(
                     '\r' -> {
                         // pushRange doesn't do normalization, so use push the preceding chars,
                         // then handle the CR separately
-                        if (right > left + 1) pushRange(bufLeft, left, right - 1)
+                        if (right > left + 1) pushRange(bufLeft, left, right)
                         right = -1
                         val peekChar = when (curPos + 1) {
                             bufCount -> '\u0000'
@@ -1197,7 +1204,18 @@ public class KtXmlReader internal constructor(
 
             inner@ while (curPos < leftEnd) {
                 when (bufLeft[curPos]) {
-                    '\u0000', ' ', '\t', '\r', '\n', '>' -> {
+                    '\r' -> {
+                        srcBufPos = curPos
+                        if (peek() == '\n'.code) {
+                            ++srcBufPos
+                            ++offset
+                        }
+                        right = curPos
+                        curPos = srcBufPos
+                        notFinished = false
+                        break@inner
+                    }
+                    ' ', '\t', '\n', '>' -> {
                         right = curPos
                         ++curPos
                         notFinished = false
@@ -1247,7 +1265,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun readAssert(c: Char) {
-        val a = read()
+        /*val a = */read()
 //        assert(a == c.code) { "This should have parsed as '$c', but was '${a.toChar()}'" }
     }
 
