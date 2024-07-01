@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
 import nl.adaptivity.xmlutil.core.internal.isNameCodepoint
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
@@ -31,6 +32,8 @@ import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmStatic
 
 private const val BUF_SIZE = 4096
+private const val ALT_BUF_SIZE = 512
+private const val outputBufLeft = 0
 
 @ExperimentalXmlUtilApi
 /**
@@ -59,7 +62,7 @@ public class KtXmlReader internal constructor(
             offset = -1
         } else {
             line = 1
-            column = 0
+            column = 1
             offset = 0
         }
     }
@@ -138,6 +141,7 @@ public class KtXmlReader internal constructor(
 
         if (bufLeft[0].code == 0x0feff) {
             srcBufPos = 1 /* drop BOM */
+            offset = 1 // but also contain the BOM in the offset
         }
     }
 
@@ -163,10 +167,10 @@ public class KtXmlReader internal constructor(
     private var readLocalname: String? = null
 
     /** Target buffer for storing incoming text (including aggregated resolved entities)  */
-    private var txtBuf = CharArray(256)
+    private var outputBuf = CharArray(ALT_BUF_SIZE)
 
     /** Write position   */
-    private var txtBufPos = 0
+    private var outputBufRight = 0
 
     private var isWhitespace = false
 
@@ -186,6 +190,21 @@ public class KtXmlReader internal constructor(
 
     override fun close() {
         //NO-Op
+    }
+
+    private fun incCol() {
+        if (!ignorePos) {
+            offset += 1
+            column += 1
+        }
+    }
+
+    private fun incLine(offsetAdd: Int =1) {
+        if (!ignorePos) {
+            offset += offsetAdd
+            column = 1
+            line += 1
+        }
     }
 
     private fun adjustNsp(prefix: String?, localName: String): Boolean {
@@ -343,8 +362,8 @@ public class KtXmlReader internal constructor(
 
         val eventType = peekType()
         if (eventType == START_DOCUMENT) {
-            read() // <
-            read() // ?
+            readAssert('<') // <
+            readAssert('?') // ?
             parseStartTag(true)
             if (attributeCount < 1 || "version" != attributes[0].localName) error("version expected")
             version = attributes[0].value
@@ -363,7 +382,6 @@ public class KtXmlReader internal constructor(
             }
             if (pos != attributeCount) error("illegal xmldecl")
             isWhitespace = true
-            txtBufPos = 0
         } // if it is not a doc start synthesize an event.
         _eventType = START_DOCUMENT
         state = State.START_DOC
@@ -390,6 +408,7 @@ public class KtXmlReader internal constructor(
 
             START_ELEMENT -> {
                 state = State.BODY // this must start the body
+                readAssert('<')
                 parseStartTag(false)
             }
 
@@ -437,7 +456,10 @@ public class KtXmlReader internal constructor(
 
             ENTITY_REF -> pushEntity()
 
-            START_ELEMENT -> parseStartTag(false)
+            START_ELEMENT -> {
+                readAssert('<')
+                parseStartTag(false)
+            }
 
             END_ELEMENT -> {
                 parseEndTag()
@@ -501,22 +523,24 @@ public class KtXmlReader internal constructor(
             c = readAndPush()
         } while (c != delim || peek() != '>'.code)
         popOutput()
-        read() // '>'
+        readAssert('>') // '>'
         return
     }
 
     private fun parsePI() {
-        read() // <
-        read() // '?'
+        readAssert('<') // <
+        readAssert('?') // '?'
+        resetOutputBuffer()
         readTagContentUntil('?')
     }
 
     private fun parseComment() {
-        read() // <
-        read() // '!'
-        read() // '-
+        readAssert('<') // <
+        readAssert('!') // '!'
+        readAssert('-') // '-
         read('-')
 
+        resetOutputBuffer()
         var c: Char
         do {
             c = readAndPush()
@@ -525,25 +549,25 @@ public class KtXmlReader internal constructor(
             error("illegal comment delimiter: --->")
         }
         popOutput() // '-'
-        read() // '-'
-        read() // '>'
+        readAssert('-') // '-'
+        readAssert('>') // '>'
 
-        read() // '>'
         return
     }
 
     private fun parseCData() {
-        read() // <
-        read() // '['
+        readAssert('<') // <
+        readAssert('!') // '['
         read("[CDATA[")
 
+        resetOutputBuffer()
         var c: Char
         do {
             c = readAndPush()
         } while (c != ']' || peek() != ']'.code || peek(1) != '>'.code)
         popOutput() // ']'
-        read() // ']'
-        read() // '>'
+        readAssert(']') // ']'
+        readAssert('>') // '>'
         return
     }
 
@@ -623,9 +647,10 @@ public class KtXmlReader internal constructor(
 
     /* precondition: &lt;/ consumed */
     private fun parseEndTag() {
-        read() // '<'
-        read() // '/'
-//        val fullName = readName()
+        readAssert('<') // '<'
+        readAssert('/') // '/'
+
+        resetOutputBuffer()
         readCName()
         skip()
         read('>')
@@ -675,40 +700,52 @@ public class KtXmlReader internal constructor(
     }
 
     private fun get(): String {
-        return txtBuf.concatToString(0, txtBufPos)
+        return outputBuf.concatToString(outputBufLeft, outputBufRight)
     }
 
     private fun getOffset(pos: Int): String {
-        return txtBuf.concatToString(pos, txtBufPos)
+        return outputBuf.concatToString(outputBufLeft + pos, outputBufRight)
     }
 
-    private fun popOutput() { --txtBufPos }
+    private fun popOutput() { --outputBufRight }
+
+    private fun resetOutputBuffer() {
+        // Do not reset it for speed reasons
+        // if (outputBuf.size != ALT_BUF_SIZE) {
+        //     outputBuf = CharArray(ALT_BUF_SIZE)
+        // }
+        outputBufRight = 0
+    }
 
     private fun pushRange(buffer: CharArray, start: Int, endExcl: Int) {
         val count = endExcl - start
-        val minSizeNeeded = txtBufPos + count
-        if (minSizeNeeded + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
+        val minSizeNeeded = outputBufRight + count
+        if (minSizeNeeded >= outputBuf.size) {
             growOutputBuf(minSizeNeeded)
         }
 
-        buffer.copyInto(txtBuf, txtBufPos, start, endExcl)
-        txtBufPos += count
+        buffer.copyInto(outputBuf, outputBufRight, start, endExcl)
+        outputBufRight += count
     }
 
     private fun push(s: String) {
-        val minSizeNeeded = txtBufPos + s.length
-        if (minSizeNeeded >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
+        val minSizeNeeded = outputBufRight + s.length
+        if (minSizeNeeded > outputBuf.size) {
             growOutputBuf(minSizeNeeded)
         }
-        for (c in s) {
-            txtBuf[txtBufPos++] = c
+
+        for(c in s) {
+            outputBuf[outputBufRight++] = c
         }
     }
 
     private fun pushChar(c: Char) {
-        if (txtBufPos >= txtBuf.size) growOutputBuf()
+        val newPos = outputBufRight
 
-        txtBuf[txtBufPos++] = c
+        // +1 for surrogates; if we don't have enough space in
+        if (newPos >= outputBuf.size) growOutputBuf()
+
+        outputBuf[outputBufRight++] = c
     }
 
     private fun pushChar(cp: Int) {
@@ -721,24 +758,27 @@ public class KtXmlReader internal constructor(
     private fun pushCodePoint(c: Int) {
         if (c < 0) error("UNEXPECTED EOF")
 
-        if (txtBufPos + 1 >= txtBuf.size) { // +1 to have enough space for 2 surrogates, if needed
+        val newPos = outputBufRight
+
+        if (newPos + 1 >= outputBuf.size) { // +1 for surrogates; if we don't have enough space in
             growOutputBuf()
         }
+
         if (c > 0xffff) { // This comparison works as surrogates are in the 0xd800-0xdfff range
             // write high Unicode value as surrogate pair
             val offset = c - 0x010000
-            txtBuf[txtBufPos++] = ((offset ushr 10) + 0xd800).toChar() // high surrogate
-            txtBuf[txtBufPos++] = ((offset and 0x3ff) + 0xdc00).toChar() // low surrogate
+            outputBuf[outputBufRight++] = ((offset ushr 10) + 0xd800).toChar() // high surrogate
+            outputBuf[outputBufRight++] = ((offset and 0x3ff) + 0xdc00).toChar() // low surrogate
         } else {
-            txtBuf[txtBufPos++] = c.toChar()
+            outputBuf[outputBufRight++] = c.toChar()
         }
     }
 
     /** Sets name and attributes  */
     private fun parseStartTag(xmldecl: Boolean) {
-        read() // < or ?
         val prefix: String?
         val localName: String
+        resetOutputBuffer()
         if (xmldecl) {
             prefix = null
             localName = readName()
@@ -753,7 +793,7 @@ public class KtXmlReader internal constructor(
             when (val c = peek(0)) {
                 '?'.code -> {
                     if (!xmldecl) error("? found outside of xml declaration")
-                    read()
+                    readAssert('?')
                     read('>')
                     return
                 }
@@ -761,7 +801,7 @@ public class KtXmlReader internal constructor(
                 '/'.code -> {
                     if (xmldecl) error("/ found to close xml declaration")
                     isSelfClosing = true
-                    read()
+                    readAssert('/')
                     if (relaxed) {
                         error = "ERR: Whitespace between empty content tag closing elements"
                         while (isXmlWhitespace(peek(0).toChar())) read()
@@ -772,7 +812,7 @@ public class KtXmlReader internal constructor(
 
                 '>'.code -> {
                     if (xmldecl) error("xml declaration must be closed by '?>', not '>'")
-                    read()
+                    readAssert('>')
                     break
                 }
 
@@ -787,6 +827,7 @@ public class KtXmlReader internal constructor(
 
                 else -> when {
                     isNameStartChar(c.toChar()) -> {
+                        resetOutputBuffer()
                         readCName()
                         val aLocalName = readLocalname!!
 
@@ -796,36 +837,35 @@ public class KtXmlReader internal constructor(
                             break
                         }
                         skip()
-                        if (peek(0) != '='.code) {
+                        if (peek() != '='.code) {
                             val fullname = fullname(readPrefix, aLocalName)
-                            if (!relaxed) {
-                                error("Attr.value missing '='. $fullname, found: ${peek(0).toChar()}")
-                            }
+                            error("Attr.value missing in ${fullname(prefix, localName)} '='. $fullname, found: ${peek(0).toChar()}")
+
                             attributes.addNoNS(readPrefix, aLocalName, fullname)
                         } else {
                             read('=')
                             skip()
-                            val delimiter = peek(0)
-                            val p = txtBufPos
-                            check(p == 0)
+                            val delimiter = peek()
+
                             when (delimiter) {
                                 '\''.code, '"'.code -> {
-                                    read()
+                                    readAssert(delimiter.toChar())
                                     // This is an attribute, we don't care about whitespace content
+                                    resetOutputBuffer()
                                     pushNonWSText(delimiter.toChar(), resolveEntities = true)
-                                    read()
+                                    readAssert(delimiter.toChar())
                                 }
 
                                 else -> {
                                     if (!relaxed) error("attr value delimiter missing!")
+                                    resetOutputBuffer()
                                     pushWSDelimAttrValue()
                                 }
                             }
 
 
-                            attributes.addNoNS(readPrefix, aLocalName, getOffset(p))
+                            attributes.addNoNS(readPrefix, aLocalName, get())
 
-                            txtBufPos = p
                         }
 
                     }
@@ -833,7 +873,7 @@ public class KtXmlReader internal constructor(
                     else -> {
                         val fullName = fullname(prefix, localName)
                         error("unexpected character in tag($fullName): '${c.toChar()}'")
-                        read()
+                        readAssert(c.toChar())
                     }
                 }
             }
@@ -858,7 +898,7 @@ public class KtXmlReader internal constructor(
      * the name of the entity is stored in "name"
      */
     private fun pushEntity() {
-        read()
+        readAssert('&')
         val first = peek(0)
 
         when {
@@ -881,7 +921,7 @@ public class KtXmlReader internal constructor(
         while (true) {
             val c = peek(0)
             if (c == ';'.code) {
-                read()
+                readAssert(';')
                 break
             }
             if (!isNameChar11(c.toChar())) {
@@ -905,7 +945,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun pushCharEntity() {
-        read() // #
+        readAssert('#') // #
         val codeBuilder = StringBuilder(8)
 
         var isHex = false
@@ -923,7 +963,7 @@ public class KtXmlReader internal constructor(
             when (val c = peek(0)) {
                 -1 -> error(UNEXPECTED_EOF)
                 ';'.code -> {
-                    read()
+                    readAssert(';')
                     break
                 }
 
@@ -984,22 +1024,31 @@ public class KtXmlReader internal constructor(
                         // pushRange doesn't do normalization, so use push the preceding chars,
                         // then handle the CR separately
                         if (right > left + 1) pushRange(bufLeft, left, right - 1)
-                        when (curPos + 1) {
-                            bufCount -> curPos++
-                            BUF_SIZE -> {
-                                swapInputBuffer()
-                                curPos = if (bufLeft[0] == '\n') 1 else 0
-                                bufCount = srcBufCount
-                                innerLoopEnd = minOf(bufCount, BUF_SIZE)
-                            }
-                            else -> curPos++
-                        }
-                        pushChar('\n')
-                        left = curPos
                         right = -1
+                        val peekChar = when (curPos + 1) {
+                            bufCount -> '\u0000'
+                            BUF_SIZE -> bufRight[0]
+                            else -> bufLeft[curPos + 1]
+                        }
+                        if (peekChar != '\n') {
+                            pushChar('\n')
+                            incLine() // Increase positions here
+                        } else {
+                            ++offset // just ignore this character, but add it to the offset
+                        }
+                        left = curPos + 1
+                        ++curPos
                     }
 
-                    ' ', '\t', '\n' -> ++curPos
+                    '\n' -> {
+                        incLine()
+                        ++curPos
+                    }
+
+                    ' ', '\t' -> {
+                        incCol()
+                        ++curPos
+                    }
 
                     delimiter -> {
                         notFinished = false
@@ -1058,14 +1107,37 @@ public class KtXmlReader internal constructor(
 
         outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
             inner@ while (curPos < innerLoopEnd) {
-                when (bufLeft[curPos]) {
+                when (val ch = bufLeft[curPos]) {
                     delimiter -> {
                         notFinished = false
                         right = curPos
                         break@inner // outer will actually give the result.
                     }
 
-                    ' ', '\t', '\r', '\n' -> ++curPos
+                    '\r' -> {
+                        pushRange(bufLeft, left, curPos)
+
+                        val nextIsCR = when(val next = curPos + 1) {
+                            bufCount -> false // EOF
+                            BUF_SIZE -> bufRight[0] == '\n' // EOB
+                            else -> bufLeft[next] == '\n'
+                        }
+                        if (nextIsCR) {
+                            incLine(2)
+                            curPos += 2
+                        } else {
+                            incLine()
+                            curPos += 1
+                        }
+                        pushChar('\n')
+                        right = -1
+                    }
+
+                    ' ', '\t', '\n' -> {
+                        incLine()
+                        ++curPos
+                    }
+
                     '&' -> {
                         if (resolveEntities) {
                             if (left == curPos) { // start with entity
@@ -1085,16 +1157,19 @@ public class KtXmlReader internal constructor(
                     }
 
                     ']' -> {
+                        incCol()
                         ++cbrCount
                         ++curPos
                     }
 
                     '>' -> {
+                        incCol()
                         if (cbrCount >= 2) error("Illegal ]]>")
                         ++curPos
                     }
 
                     else -> {
+                        incCol()
                         ++curPos
                     }
                 }
@@ -1109,7 +1184,7 @@ public class KtXmlReader internal constructor(
                 right = -1
             }
 
-            if (curPos == BUF_SIZE) { // swap the buffers
+            if (curPos >= BUF_SIZE) { // swap the buffers, use ge to allow for extra '\n' after '\r'
                 srcBufPos = curPos
                 swapInputBuffer()
                 curPos = srcBufPos
@@ -1185,6 +1260,11 @@ public class KtXmlReader internal constructor(
         if (a != c.code) error("expected: '" + c + "' actual: '" + a.toChar() + "'")
     }
 
+    private fun readAssert(c: Char) {
+        val a = read()
+//        assert(a == c.code) { "This should have parsed as '$c', but was '${a.toChar()}'" }
+    }
+
     private fun read(): Int {
         val pos = srcBufPos
         if (pos >= srcBufCount) return -1
@@ -1192,36 +1272,28 @@ public class KtXmlReader internal constructor(
 
         val next = pos + 1
         when (val ch = bufLeft[pos]) {
-            '\u0000' -> { // should not happen at end of file (or really generally at all)
-                srcBufPos = next + 1
-                return bufLeft[next].code
-            }
-
             '\r' -> {
                 bufLeft[srcBufPos] = '\n'
                 if (next < srcBufCount && bufLeft[next] == '\n') {
                     bufLeft[next] = '\u0000'
                     srcBufPos = next + 1
+                    incLine(2)
                 } else {
                     srcBufPos = next
-                }
-                if (!ignorePos) {
-                    line += 1
-                    column = 0
+                    incLine()
                 }
                 return '\n'.code
             }
 
             '\n' -> {
                 srcBufPos = next
-                if (!ignorePos) {
-                    line += 1
-                    column = 0
-                }
+                incLine()
                 return '\n'.code
             }
 
             else -> {
+                incCol()
+
                 srcBufPos = next
                 return ch.code
             }
@@ -1237,55 +1309,51 @@ public class KtXmlReader internal constructor(
         }
         val ch = bufLeft[pos]
 
-        if (txtBufPos >= txtBuf.size) {
-            val minNeeded = txtBufPos
+        if (outputBufRight >= outputBuf.size) {
+            val minNeeded = outputBufRight-outputBufLeft
             growOutputBuf(minNeeded)
         }
 
         val next = pos + 1
         when (ch) {
-            '\u0000' -> { // should not happen at end of file (or really generally at all)
-                srcBufPos = next + 1
-                return bufLeft[next].also { txtBuf[txtBufPos++] = it }
-            }
-
             '\r' -> {
                 srcBufPos = when {
-                    next < srcBufCount && bufLeft[next] == '\n' -> next + 1
-                    else -> next
+                    next < srcBufCount && bufLeft[next] == '\n' -> {
+                        incLine(2)
+                        next + 1
+                    }
+                    else -> {
+                        incLine()
+                        next
+                    }
                 }
 
-                if (!ignorePos) {
-                    line += 1
-                    column = 0
-                }
-
-                txtBuf[txtBufPos++] = '\n'
+                outputBuf[outputBufRight++] = '\n'
                 return '\n'
             }
 
             '\n' -> {
                 srcBufPos = next
-                if (!ignorePos) {
-                    line += 1
-                    column = 0
-                }
-                txtBuf[txtBufPos++] = '\n'
+                incLine()
+                outputBuf[outputBufRight++] = '\n' // it is
                 return '\n'
             }
 
             else -> {
+                incCol()
                 srcBufPos = next
-                return ch.also { txtBuf[txtBufPos++] = it }
+                outputBuf[outputBufRight++] = ch
+                return ch
             }
         }
     }
 
-    private fun growOutputBuf(minNeeded: Int = txtBufPos) {
+    private fun growOutputBuf(minNeeded: Int = outputBufRight) {
         check(minNeeded < 50000) {
             "Excessive output buffer"
         }
-        txtBuf = txtBuf.copyOf((minNeeded * 5) / 3 + 4)
+
+        outputBuf = outputBuf.copyOf((minNeeded * 5) / 3 + 4)
     }
 
     private fun swapInputBuffer() {
@@ -1324,26 +1392,22 @@ public class KtXmlReader internal constructor(
                 if (next < srcBufCount && getBuf(next) == '\n') {
                     setBuf(next, '\u0000')
                     srcBufPos = next + 1
+                    incLine(2)
                 } else {
                     srcBufPos = next
-                }
-                if (!ignorePos) {
-                    line += 1
-                    column = 0
+                    incLine()
                 }
                 return '\n'.code
             }
 
             '\n' -> {
                 srcBufPos = next
-                if (!ignorePos) {
-                    line += 1
-                    column = 0
-                }
+                incLine()
                 return '\n'.code
             }
 
             else -> {
+                incCol()
                 srcBufPos = next
                 return ch.code
             }
@@ -1443,7 +1507,7 @@ public class KtXmlReader internal constructor(
             c = peek()
         } while (c >= 0 && isNameChar11(c.toChar()))
         val result = get()
-        txtBufPos = 0
+        resetOutputBuffer()
         return result
     }
 
@@ -1460,8 +1524,8 @@ public class KtXmlReader internal constructor(
 
                 ':'.code -> if (PROCESS_NAMESPACES) {
                     prefix = get()
-                    read()
-                    txtBufPos = 0
+                    readAssert(':')
+                    resetOutputBuffer()
                 } else readAndPush()
 
                 else -> when {
@@ -1472,14 +1536,14 @@ public class KtXmlReader internal constructor(
         }
         readPrefix = prefix
         readLocalname = get()
-        txtBufPos = 0
     }
 
     private fun skip() {
         while (true) {
-            val c = peek(0)
+            val c = peek()
             if (c == -1 || !isXmlWhitespace(c.toChar())) break // More sane
-            read()
+
+            readAssert(c.toChar())
         }
     }
 
@@ -1530,7 +1594,7 @@ public class KtXmlReader internal constructor(
             }
         }
         if (offset >= 0) {
-            buf.append("@$line:$column in ")
+            buf.append("@$line:$column [$offset] in ")
         }
         buf.append(reader.toString())
         return buf.toString()
@@ -1615,8 +1679,9 @@ public class KtXmlReader internal constructor(
 
     override fun next(): EventType {
         isWhitespace = true
-        txtBufPos = 0
 
+        // reset the output buffer
+        resetOutputBuffer()
         when (state) {
             State.BEFORE_START -> nextImplDocStart()
 
@@ -1627,6 +1692,7 @@ public class KtXmlReader internal constructor(
             State.POST -> nextImplPost()
             State.EOF -> error("Reading past end of file")
         }
+        assert((offset - srcBufPos) % BUF_SIZE == 0) { "Offset error: ($offset - $srcBufPos) % $BUF_SIZE != 0" }
         return eventType
     }
 
