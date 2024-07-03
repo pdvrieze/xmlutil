@@ -22,9 +22,9 @@ package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
+import nl.adaptivity.xmlutil.core.impl.EntityMap
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
 import nl.adaptivity.xmlutil.core.internal.isNameCodepoint
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
@@ -153,7 +153,7 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private var entityMap = HashMap(INITIAL_ENTITY_MAP)
+    private var entityMap = EntityMap()
 
     private val namespaceHolder = NamespaceHolder()
 
@@ -1702,7 +1702,7 @@ public class KtXmlReader internal constructor(
             State.POST -> nextImplPost()
             State.EOF -> error("Reading past end of file")
         }
-        assert((offset - srcBufPos) % BUF_SIZE == 0) { "Offset error: ($offset - $srcBufPos) % $BUF_SIZE != 0" }
+//        assert((offset - srcBufPos) % BUF_SIZE == 0) { "Offset error: ($offset - $srcBufPos) % $BUF_SIZE != 0" }
         return eventType
     }
 
@@ -1732,14 +1732,6 @@ public class KtXmlReader internal constructor(
         const val ILLEGAL_TYPE = "Wrong event type"
 
         const val PROCESS_NAMESPACES = true
-
-        val INITIAL_ENTITY_MAP = HashMap<String, String>(8).also {
-            it["amp"] = "&"
-            it["apos"] = "'"
-            it["gt"] = ">"
-            it["lt"] = "<"
-            it["quot"] = "\""
-        }
 
         @JvmStatic
         private fun fullname(prefix: String?, localName: String): String = when(prefix) {
