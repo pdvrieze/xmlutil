@@ -721,15 +721,15 @@ internal open class XmlDecoderBase internal constructor(
 
         protected var stage = STAGE_INIT
 
-        private val tagNameToMembers: Map<QName, Int>
-        private val attrNameToMembers: Map<QName, Int>
-        private val polyChildren: Map<QName, PolyInfo> = xmlDescriptor.polyMap
+        private val tagNameToMembers: QNameMap<Int>
+        private val attrNameToMembers: QNameMap<Int>
+        private val polyChildren: QNameMap<PolyInfo> = xmlDescriptor.polyMap
         private val contextualDescriptors: Array<XmlDescriptor?>
 
         init {
             if (xmlDescriptor.contextualChildren.isNotEmpty()) {
-                val tagNameMap: MutableMap<QName, Int> = xmlDescriptor.tagNameMap.toMutableMap()
-                val attrNameMap: MutableMap<QName, Int> = xmlDescriptor.attrMap.toMutableMap()
+                val tagNameMap: QNameMap<Int> = xmlDescriptor.tagNameMap.copyOf()
+                val attrNameMap: QNameMap<Int> = xmlDescriptor.attrMap.copyOf()
                 val contextList = arrayOfNulls<XmlDescriptor>(xmlDescriptor.elementsCount)
 
                 for (idx in xmlDescriptor.contextualChildren) {
@@ -941,7 +941,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
-        open fun indexOf(name: QName, inputType: InputKind): Int {
+        open fun indexOf(namespace: String, localName: String, inputType: InputKind): Int {
 
             val isNameOfAttr = inputType == InputKind.Attribute
 
@@ -951,14 +951,12 @@ internal open class XmlDecoderBase internal constructor(
             val tagNameMap = tagNameToMembers
             val attrNameMap = attrNameToMembers
 
-            val normalizedName = name.normalize()
-
             val nameMap = if (isNameOfAttr) attrNameMap else tagNameMap
 
-            nameMap[normalizedName]?.let { return it.checkRepeatAndOrder(inputType) }
+            nameMap.get(namespace, localName)?.let { return it.checkRepeatAndOrder(inputType) }
 
             if (!isNameOfAttr) {
-                polyMap[normalizedName]?.let {
+                polyMap.get(namespace, localName)?.let {
                     return it.index.checkRepeatAndOrder(inputType).apply {
                         currentPolyInfo = it
                     }
@@ -968,11 +966,11 @@ internal open class XmlDecoderBase internal constructor(
             val containingNamespaceUri = serialName.namespaceURI
             // Allow attributes in the null namespace to match candidates with a name that is that of the parent tag
             if (isNameOfAttr && !config.policy.isStrictAttributeNames) {
-                if (name.namespaceURI.isEmpty()) {
-                    val attrName = normalizedName.copy(namespaceURI = containingNamespaceUri)
-                    nameMap[attrName]?.let { return it.checkRepeat() }
+                if (namespace.isEmpty()) {
+                    nameMap.get(containingNamespaceUri, localName)?.let { return it.checkRepeat() }
                 }
 
+/*
                 if (name.prefix.isEmpty()) {
                     val emptyNsPrefix = input.getNamespaceURI("")
                     if (emptyNsPrefix != null) {
@@ -980,21 +978,21 @@ internal open class XmlDecoderBase internal constructor(
                         nameMap[attrName]?.let { return it.checkRepeat() }
                     }
                 }
+*/
             }
 
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
-            if (!config.policy.isStrictAttributeNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
-                nameMap[QName(name.getLocalPart())]?.let { return it.checkRepeatAndOrder(inputType) }
+            if (!config.policy.isStrictAttributeNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == namespace) {
+                nameMap["", localName]?.let { return it.checkRepeatAndOrder(inputType) }
             }
 
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
                 val other = otherAttrIndex
                 if (other >= 0) return other
             } else {
-                xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
-                    return valueChildIdx.checkRepeat()
-                }
+                val vc = xmlDescriptor.getValueChild()
+                if (vc >= 0) return vc.checkRepeat()
             }
 
             // Hook that will normally throw an exception on an unknown name.
@@ -1002,7 +1000,7 @@ internal open class XmlDecoderBase internal constructor(
                 input,
                 inputType,
                 xmlDescriptor,
-                name,
+                QName(namespace, localName),
                 (attrNameMap.map { (k, v) ->
                     PolyInfo(k, v, xmlDescriptor.getElementDescriptor(v))
                 } + tagNameMap.map { (k, v) ->
@@ -1116,27 +1114,32 @@ internal open class XmlDecoderBase internal constructor(
 
                 if (lastAttrIndex in 0 until attrCount) {
 
-                    val name = input.getAttributeName(lastAttrIndex)
+                    val attrNS = input.getAttributeNamespace(lastAttrIndex)
+                    val attrPrefix = input.getAttributePrefix(lastAttrIndex)
+                    val attrLName = input.getAttributeLocalName(lastAttrIndex)
 
-                    if (name == typeDiscriminatorName || name.getNamespaceURI() == XMLNS_ATTRIBUTE_NS_URI ||
-                        name.prefix == XMLNS_ATTRIBUTE ||
-                        (name.prefix.isEmpty() && name.localPart == XMLNS_ATTRIBUTE)
+                    if (attrNS == XMLNS_ATTRIBUTE_NS_URI ||
+                        attrPrefix == XMLNS_ATTRIBUTE ||
+                        (attrPrefix.isEmpty() && attrLName == XMLNS_ATTRIBUTE) ||
+                        typeDiscriminatorName.let {
+                            it !=null && attrNS == it.namespaceURI && attrLName == it.localPart
+                        }
                     ) {
                         // Ignore namespace decls and the type discriminator attribute, just recursively call the function itself
                         return decodeElementIndex()
-                    } else if (name.getNamespaceURI() == XML_NS_URI && name.localPart == "space") {
+                    } else if (attrNS == XML_NS_URI && attrLName == "space") {
                         when (input.getAttributeValue(lastAttrIndex)) {
                             "preserve" -> preserveWhitespace = true
                             "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
                         }
                         // If this was explicitly declared as attribute use that as index, otherwise
                         // just skip the attribute.
-                        return attrNameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex()
+                        return attrNameToMembers[QName(attrNS, attrLName)]?.also { seenItems[it] = true } ?: decodeElementIndex()
                     }
 
                     // The ifNegative function will recursively call this function if we didn't find it (and the handler
                     // didn't throw an exception). This allows for ignoring unknown elements.
-                    return indexOf(name, InputKind.Attribute).markSeenOrHandleUnknown { decodeElementIndex() }
+                    return indexOf(attrNS, attrLName, InputKind.Attribute).markSeenOrHandleUnknown { decodeElementIndex() }
 
                 }
                 stage = STAGE_CONTENT // no more attributes
@@ -1198,11 +1201,12 @@ internal open class XmlDecoderBase internal constructor(
                         }
 
                         EventType.ATTRIBUTE -> return indexOf(
-                            input.name,
+                            input.namespaceURI,
+                            input.localName,
                             InputKind.Attribute
                         ).markSeenOrHandleUnknown { decodeElementIndex() }
 
-                        EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
+                        EventType.START_ELEMENT -> when (val i = indexOf(input.namespaceURI, input.localName, InputKind.Element)) {
                             // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
                             // as a shortcut.
                             CompositeDecoder.UNKNOWN_NAME -> {

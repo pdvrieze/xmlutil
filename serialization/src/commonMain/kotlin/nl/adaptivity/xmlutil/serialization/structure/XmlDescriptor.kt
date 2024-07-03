@@ -40,6 +40,7 @@ import nl.adaptivity.xmlutil.serialization.XmlCodecBase.Companion.declRequestedN
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.ActualNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.impl.OrderMatrix
+import nl.adaptivity.xmlutil.serialization.impl.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
@@ -171,16 +172,16 @@ public sealed class XmlDescriptor(
     private val decoderProperties: DecoderProperties by lazy { DecoderProperties(codecConfig, this) }
 
     /** Map between tag name and polymorphic info */
-    internal val polyMap: Map<QName, PolyInfo> get() = decoderProperties.polyMap
+    internal val polyMap: QNameMap<PolyInfo> get() = decoderProperties.polyMap
 
     /** Array of children that are contextual and need delayed resolution */
     internal val contextualChildren: IntArray get() = decoderProperties.contextualChildren
 
     /** Map between tag names and element index. */
-    internal val tagNameMap: Map<QName, Int> get() = decoderProperties.tagNameMap
+    internal val tagNameMap: QNameMap<Int> get() = decoderProperties.tagNameMap
 
     /** Map between attribute names and element index. */
-    internal val attrMap: Map<QName, Int> get() = decoderProperties.attrMap
+    internal val attrMap: QNameMap<Int> get() = decoderProperties.attrMap
 
     /**
      * This retrieves the descriptor of the actually visible tag (omitting transparent elements).
@@ -236,18 +237,18 @@ public sealed class XmlDescriptor(
     }
 
     private class DecoderProperties(codecConfig: XmlCodecConfig, xmlDescriptor: XmlDescriptor) {
-        val polyMap: Map<QName, PolyInfo>
-        val tagNameMap: Map<QName, Int>
-        val attrMap: Map<QName, Int>
+        val polyMap: QNameMap<PolyInfo>
+        val tagNameMap: QNameMap<Int>
+        val attrMap: QNameMap<Int>
         val contextualChildren: IntArray
 
         init {
             val isUnchecked = codecConfig.config.isUnchecked
 
             val seenTagNames = HashSet<QName>()
-            val localPolyMap = HashMap<QName, PolyInfo>()
-            val localTagNameMap = HashMap<QName, Int>()
-            val localAttrMap = HashMap<QName, Int>()
+            val localPolyMap = QNameMap<PolyInfo>()
+            val localTagNameMap = QNameMap<Int>()
+            val localAttrMap = QNameMap<Int>()
             val contextualChildren = mutableListOf<Int>()
 
             for (idx in 0 until xmlDescriptor.elementsCount) {
