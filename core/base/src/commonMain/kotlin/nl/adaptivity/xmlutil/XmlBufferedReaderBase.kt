@@ -29,9 +29,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
 
     init { // Record also for the first element
         if (delegate.isStarted) {
-            for (ns in delegate.namespaceContext) {
-                namespaceHolder.addPrefixToContext(ns)
-            }
+            namespaceHolder.addPrefixesToContext(delegate.namespaceContext)
         }
     }
 
@@ -169,9 +167,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
             EventType.START_ELEMENT -> {
                 namespaceHolder.incDepth()
                 val start = event as StartElementEvent
-                for (ns in start.namespaceDecls) {
-                    namespaceHolder.addPrefixToContext(ns)
-                }
+                namespaceHolder.addPrefixesToContext(start.namespaceDecls)
             }
             EventType.END_ELEMENT -> namespaceHolder.decDepth()
             else -> {

@@ -112,6 +112,30 @@ public open class NamespaceHolder : Iterable<Namespace> {
         addPrefixToContext(ns.prefix, ns.namespaceURI)
     }
 
+    public fun addPrefixesToContext(namespaces: Iterable<Namespace>) {
+        val iter = namespaces.iterator()
+        if (!iter.hasNext()) return // short circuit empty list
+        val prevCounts = if (depth >= 1) namespaceCounts[depth - 1] else 0
+        if (true || prevCounts != 0) { // pessimistic path if there are already namespaces at this level
+            for (n in iter) addPrefixToContext(n)
+            return
+        }
+        var nextIdx = namespaceCounts[depth]*2
+        if (namespaces is Collection) {
+            while (nextIdx + (namespaces.size * 2) >= nameSpaces.size) enlargeNamespaceBuffer()
+            for(n in iter) {
+                setPrefix(nextIdx++, n.prefix)
+                setNamespace(nextIdx++, n.namespaceURI)
+            }
+        } else {
+            for(n in iter) {
+                if (nextIdx+1 >= nameSpaces.size) enlargeNamespaceBuffer()
+                setPrefix(nextIdx++, n.prefix)
+                setNamespace(nextIdx++, n.namespaceURI)
+            }
+        }
+    }
+
 
     public fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
         val prevCounts = if (depth >= 1) namespaceCounts[depth - 1] else 0

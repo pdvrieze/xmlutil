@@ -38,7 +38,7 @@ public class XmlBufferReader private constructor(
     public constructor(buffer: List<XmlEvent>, initialContext: IterableNamespaceContext): this(
         buffer,
         NamespaceHolder().also {
-            initialContext.forEach { ns -> it.addPrefixToContext(ns) }
+            it.addPrefixesToContext(initialContext)
         }
     )
 
@@ -120,18 +120,20 @@ public class XmlBufferReader private constructor(
     override fun hasNext(): Boolean = currentPos + 1 < buffer.size
 
     override fun next(): EventType {
-        if (currentPos >= 0 && buffer[currentPos] is EndElementEvent) namespaceHolder.decDepth()
+        val buffer = buffer
+        var cp = currentPos
 
-        currentPos++
-        if (currentPos >= buffer.size) throw NoSuchElementException("Reading beyond the end of the reader")
+        if (cp >= 0 && buffer[cp] is EndElementEvent) namespaceHolder.decDepth()
 
-        val current = buffer[currentPos]
+        cp += 1
+        currentPos = cp
+        if (cp >= buffer.size) throw NoSuchElementException("Reading beyond the end of the reader")
+
+        val current = buffer[cp]
         when (current) {
             is StartElementEvent -> {
                 namespaceHolder.incDepth()
-                for (ns in current.namespaceDecls) {
-                    namespaceHolder.addPrefixToContext(ns)
-                }
+                namespaceHolder.addPrefixesToContext(current.namespaceDecls)
             }
 
             else -> { // ignore
