@@ -46,7 +46,6 @@ public class KtXmlReader internal constructor(
     private val reader: Reader,
     encoding: String?,
     public val relaxed: Boolean = false,
-    ignorePos: Boolean = false
 ) : XmlReader {
 
     public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
@@ -55,26 +54,6 @@ public class KtXmlReader internal constructor(
     private val column: Int get() = offset - lastColumnStart + 1
     private var lastColumnStart = 0
     private var offset: Int = 0
-
-    public var ignorePos: Boolean
-        get() = offset < 0
-        set(value) {
-            if (value) {
-                line = -1
-                offset = -1
-            } else {
-                line = 1
-                lastColumnStart = 0
-                offset = 0
-            }
-        }
-
-    init {
-        if (ignorePos) {
-            line = -1
-            offset = -1
-        }
-    }
 
     private var _eventType: EventType? = null //START_DOCUMENT // Already have this state
     public override val eventType: EventType
@@ -199,12 +178,10 @@ public class KtXmlReader internal constructor(
     }
 
     private fun incLine(offsetAdd: Int = 1) {
-        if (!ignorePos) {
-            val newOffset = offset + offsetAdd
-            offset = newOffset
-            lastColumnStart = newOffset
-            line += 1
-        }
+        val newOffset = offset + offsetAdd
+        offset = newOffset
+        lastColumnStart = newOffset
+        line += 1
     }
 
     private fun adjustNsp(prefix: String?, localName: String): Boolean {
@@ -1521,7 +1498,8 @@ public class KtXmlReader internal constructor(
         var prefix: String? = null
 
         peek().let { c ->
-            if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
+            if (c < 0 || c == ':'.code || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
+            readAndPush() // just read it here as that avoids a namechar check
         }
 
         while (true) {

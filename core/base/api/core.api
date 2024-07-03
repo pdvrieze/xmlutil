@@ -846,7 +846,6 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmluti
 	public fun getEncoding ()Ljava/lang/String;
 	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
 	public fun getExtLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
-	public final fun getIgnorePos ()Z
 	public final fun getLineNumber ()I
 	public fun getLocalName ()Ljava/lang/String;
 	public fun getLocationInfo ()Ljava/lang/String;
@@ -871,7 +870,6 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmluti
 	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
 	public fun remove ()V
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
-	public final fun setIgnorePos (Z)V
 	public fun toString ()Ljava/lang/String;
 }
 
