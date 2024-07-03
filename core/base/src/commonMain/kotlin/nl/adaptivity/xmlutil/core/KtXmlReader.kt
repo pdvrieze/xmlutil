@@ -193,18 +193,14 @@ public class KtXmlReader internal constructor(
     }
 
     private fun incCol() {
-        if (!ignorePos) {
-            offset += 1
-//            column += 1
-        }
+        offset += 1
     }
 
-    private fun incLine(offsetAdd: Int =1) {
+    private fun incLine(offsetAdd: Int = 1) {
         if (!ignorePos) {
             val newOffset = offset + offsetAdd
             offset = newOffset
             lastColumnStart = newOffset
-//            column = 1
             line += 1
         }
     }
@@ -251,11 +247,12 @@ public class KtXmlReader internal constructor(
 
                     val attrPrefix = attrIn.prefix
 
-                    if (attrPrefix == "" && !relaxed) {
-                        throw RuntimeException("illegal attribute name: ${fullname(attrPrefix, attrLocalName)} at $this")
+                    if (attrPrefix == "") {
+                        error("illegal attribute name: ${fullname(attrPrefix, attrLocalName)} at $this")
+                        attrOut.namespace = "" // always true for null namespace
                     } else if (attrPrefix != null) {
                         val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
-                        if (attrNs == null && !relaxed) throw RuntimeException("Undefined Prefix: $attrPrefix in $this")
+                        if (attrNs == null) error("Undefined Prefix: $attrPrefix in $this")
                         attrOut.namespace = attrNs
                     } else {
                         attrOut.namespace = ""
@@ -781,7 +778,7 @@ public class KtXmlReader internal constructor(
             prefix = readPrefix
             localName = readLocalname!!
         }
-        attributes.clear(0)
+        attributes.clear()
         while (true) {
             skip()
             when (val c = peek(0)) {
@@ -871,8 +868,6 @@ public class KtXmlReader internal constructor(
         val d = depth
         namespaceHolder.incDepth()
         elementStack.ensureCapacity(depth)
-
-        elementStack[d].fullName = fullname(prefix, localName)
 
         if (PROCESS_NAMESPACES) {
             adjustNsp(prefix, localName)
@@ -1313,16 +1308,16 @@ public class KtXmlReader internal constructor(
         if (nextSrcPos >= BUF_SIZE) { // +1 to also account for CRLF across the boundary
             return readAcross().also(::pushChar).toChar() // use the slow path for this case
         }
-        val bufLeft = bufLeft
-        val ch = bufLeft[pos]
 
         var outRight = outputBufRight
         if (outRight >= outputBuf.size) {
             growOutputBuf(outRight - outputBufLeft)
         }
 
+        val bufLeft = bufLeft
+
         val result: Char
-        when (ch) {
+        when (val ch = bufLeft[pos]) {
             '\r' -> {
                 srcBufPos = when {
                     nextSrcPos < srcBufCount && bufLeft[nextSrcPos] == '\n' -> {
@@ -1690,7 +1685,6 @@ public class KtXmlReader internal constructor(
 
         // reset the output buffer
         resetOutputBuffer()
-        attributes.clear()
 
         when (state) {
             State.BEFORE_START -> nextImplDocStart()
@@ -1754,16 +1748,16 @@ public class KtXmlReader internal constructor(
     }
 
     private class ElementStack {
-        var data: Array<String?> = arrayOfNulls(16)
+        var data: Array<String?> = arrayOfNulls(48)
             private set
 
         operator fun get(idx: Int) = ElementDelegate(idx)
 
         fun ensureCapacity(required: Int) {
-            val requiredCapacity = required * 4
+            val requiredCapacity = required * 3
             if (data.size >= requiredCapacity) return
 
-            data = data.copyOf(requiredCapacity + 16)
+            data = data.copyOf(requiredCapacity + 12)
         }
 
     }
@@ -1773,29 +1767,29 @@ public class KtXmlReader internal constructor(
 
     private var ElementDelegate.namespace: String?
         get() {
-            if (index !in 0..depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 4]
+            if (index >= depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 3]
         }
         set(value) {
-            elementStack.data[index * 4] = value
+            elementStack.data[index * 3] = value
         }
 
     private var ElementDelegate.prefix: String?
         get() {
-            if (index !in 0..depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 4 + 1]
+            if (index >= depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 3 + 1]
         }
         set(value) {
-            elementStack.data[index * 4 + 1] = value
+            elementStack.data[index * 3 + 1] = value
         }
 
     private var ElementDelegate.localName: String?
         get() {
-            if (index !in 0..depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 4 + 2]
+            if (index >= depth) throw IndexOutOfBoundsException()
+            return elementStack.data[index * 3 + 2]
         }
         set(value) {
-            elementStack.data[index * 4 + 2] = value
+            elementStack.data[index * 3 + 2] = value
         }
 
     private var ElementDelegate.fullName: String?
@@ -1824,6 +1818,7 @@ public class KtXmlReader internal constructor(
         fun clear(newSize: Int = -1) {
             if (size > 0) {
                 data.fill(null, 0, size * 4)
+        fun clear() {
             }
             size = newSize
         }
