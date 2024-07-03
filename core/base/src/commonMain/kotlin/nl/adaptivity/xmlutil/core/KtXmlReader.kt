@@ -52,9 +52,7 @@ public class KtXmlReader internal constructor(
     public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
 
     private var line: Int = 1
-    private val column: Int
-        get() = offset - lastColumnStart + 1
-//        set(value) {}
+    private val column: Int get() = offset - lastColumnStart + 1
     private var lastColumnStart = 0
     private var offset: Int = 0
 
@@ -63,11 +61,9 @@ public class KtXmlReader internal constructor(
         set(value) {
             if (value) {
                 line = -1
-//                column = -1
                 offset = -1
             } else {
                 line = 1
-//                column = 1
                 lastColumnStart = 0
                 offset = 0
             }
@@ -76,7 +72,6 @@ public class KtXmlReader internal constructor(
     init {
         if (ignorePos) {
             line = -1
-//            column = -1
             offset = -1
         }
     }
@@ -154,6 +149,7 @@ public class KtXmlReader internal constructor(
         if (bufLeft[0].code == 0x0feff) {
             srcBufPos = 1 /* drop BOM */
             offset = 1 // but also contain the BOM in the offset
+            lastColumnStart = 1
         }
     }
 
