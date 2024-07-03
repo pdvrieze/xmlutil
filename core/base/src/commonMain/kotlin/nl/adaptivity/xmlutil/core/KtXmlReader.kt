@@ -111,8 +111,10 @@ public class KtXmlReader internal constructor(
 
     private var isSelfClosing = false
 
-    override val attributeCount: Int
-        get() = attributes.size
+    override var attributeCount: Int = 0
+        private set
+
+    private var attrData: Array<String?> = arrayOfNulls(16)
 
     private var attributes: AttributesCollection = AttributesCollection()
 
@@ -211,7 +213,7 @@ public class KtXmlReader internal constructor(
         // Loop through all attributes to collect namespace attributes and split name into prefix/localName.
         // Namespaces will not be set yet (as the namespace declaring attribute may be afterwards)
         var attrIdx = 0
-        while (attrIdx < (attributes.size)) {
+        while (attrIdx < attributeCount) {
             val attr = attributes[attrIdx++]
 
             val aLocalName: String = attr.localName!!
@@ -235,7 +237,7 @@ public class KtXmlReader internal constructor(
 
             // This gradually copies the attributes to remove namespace declarations
             // use while loop as we need the final size afterwards
-            while (attrInIdx < attributes.size) {
+            while (attrInIdx < attributeCount) {
                 val attrIn = attributes[attrInIdx++]
                 val attrLocalName = attrIn.localName
                 if (attrLocalName != null) {
@@ -680,7 +682,7 @@ public class KtXmlReader internal constructor(
                     else -> PROCESSING_INSTRUCTION
                 }
 
-                '!'.code -> when(peek(2)) {
+                '!'.code -> when (peek(2)) {
                     '-'.code -> COMMENT
                     '['.code -> CDSECT
                     else -> DOCDECL
@@ -697,7 +699,9 @@ public class KtXmlReader internal constructor(
         return outputBuf.concatToString(outputBufLeft, outputBufRight)
     }
 
-    private fun popOutput() { --outputBufRight }
+    private fun popOutput() {
+        --outputBufRight
+    }
 
     private fun resetOutputBuffer() {
         // Do not reset it for speed reasons
@@ -831,7 +835,7 @@ public class KtXmlReader internal constructor(
                             val fullname = fullname(readPrefix, aLocalName)
                             error("Attr.value missing in $fullname '='. Found: ${peek(0).toChar()}")
 
-                            attributes.addNoNS(readPrefix, aLocalName, fullname)
+                            attributes.addNsUnresolved(readPrefix, aLocalName, fullname)
                         } else {
                             read('=')
                             skip()
@@ -851,7 +855,7 @@ public class KtXmlReader internal constructor(
                                 }
                             }
 
-                            attributes.addNoNS(readPrefix, aLocalName, get())
+                            attributes.addNsUnresolved(readPrefix, aLocalName, get())
                         }
                     }
 
@@ -1098,7 +1102,7 @@ public class KtXmlReader internal constructor(
                     '\r' -> {
                         pushRange(bufLeft, left, curPos)
 
-                        val nextIsCR = when(val next = curPos + 1) {
+                        val nextIsCR = when (val next = curPos + 1) {
                             bufCount -> false // EOF
                             BUF_SIZE -> bufRight[0] == '\n' // EOB
                             else -> bufLeft[next] == '\n'
@@ -1213,6 +1217,7 @@ public class KtXmlReader internal constructor(
                         notFinished = false
                         break@inner
                     }
+
                     ' ', '\t', '\n', '>' -> {
                         right = curPos
                         ++curPos
@@ -1570,7 +1575,7 @@ public class KtXmlReader internal constructor(
                 if (elementStack[depth].prefix != null) buf.append("{$namespaceURI}$prefix:")
                 buf.append(name)
 
-                for (x in 0 until attributes.size) {
+                for (x in 0 until attributeCount) {
                     buf.append(' ')
                     val a = attributes[x]
                     if (a.namespace != null) {
@@ -1671,7 +1676,7 @@ public class KtXmlReader internal constructor(
     }
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
-        for (attrIdx in 0 until attributes.size) {
+        for (attrIdx in 0 until attributeCount) {
             val attr = attributes[attrIdx]
             if (attr.localName == localName && (nsUri == null || attr.namespace == nsUri)) {
                 return attr.value
@@ -1728,7 +1733,7 @@ public class KtXmlReader internal constructor(
         const val PROCESS_NAMESPACES = true
 
         @JvmStatic
-        private fun fullname(prefix: String?, localName: String): String = when(prefix) {
+        private fun fullname(prefix: String?, localName: String): String = when (prefix) {
             null -> localName
             else -> "$prefix:$localName"
         }
@@ -1792,115 +1797,88 @@ public class KtXmlReader internal constructor(
             elementStack.data[index * 3 + 2] = value
         }
 
-    private var ElementDelegate.fullName: String?
-        get() {
-            if (index !in 0..depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 4 + 3]
-        }
-        set(value) {
-            elementStack.data[index * 4 + 3] = value
-        }
+    private inner class AttributesCollection {
 
-    private class AttributesCollection {
-        var data: Array<String?> = arrayOfNulls(16)
-            private set
-
-        var size: Int = 0
-            private set
-
-        operator fun get(index: Int): AttributeDelegate = AttributeDelegate(index)
-
-        fun removeAttr(attr: AttributeDelegate) {
-            data.copyInto(data, attr.index * 4, attr.index * 4 + 4, ((size--) * 4))
-            data.fill(null, size * 4, size * 4 + 4)
-        }
-
-        fun clear(newSize: Int = -1) {
-            if (size > 0) {
-                data.fill(null, 0, size * 4)
         fun clear() {
+            val oldSize = attributeCount
+            if (oldSize > 0) {
+                attrData.fill(null, 0, oldSize * 4)
             }
-            size = newSize
+            attributeCount = 0
         }
 
         fun shrink(newSize: Int) {
-            data.fill(null, newSize * 4, size * 4)
-            size = newSize
+            attrData.fill(null, newSize * 4, attributeCount * 4)
+            attributeCount = newSize
         }
 
         fun ensureCapacity(required: Int) {
             val requiredSize = required * 4
-            if (data.size >= requiredSize) return
+            val oldData = attrData
+            if (oldData.size >= requiredSize) return
 
-            data = data.copyOf(requiredSize + 16)
+            attrData = oldData.copyOf(requiredSize + 16)
         }
 
-        fun addNoNS(attrName: String, attrValue: String) {
-            size = if (size < 0) 1 else size + 1
+        fun addNsUnresolved(attrPrefix: String?, attrLocalName: String, attrValue: String) {
+            val oldSize = attributeCount
+            val newSize = if (oldSize < 0) 1 else oldSize + 1
+            attributeCount = newSize
 
-            ensureCapacity(size)
-            var i = size * 4 - 4
+            ensureCapacity(newSize)
+            var i = newSize * 4 - 4
 
-            data[i++] = ""
-            data[i++] = null
-            data[i++] = attrName
-            data[i] = attrValue
-        }
-
-        fun addNoNS(attrPrefix: String?, attrLocalName: String, attrValue: String) {
-            size = if (size < 0) 1 else size + 1
-
-            ensureCapacity(size)
-            var i = size * 4 - 4
-
-            data[i++] = null
-            data[i++] = attrPrefix
-            data[i++] = attrLocalName
-            data[i] = attrValue
+            val d = attrData
+            d[i++] = null
+            d[i++] = attrPrefix
+            d[i++] = attrLocalName
+            d[i] = attrValue
         }
 
         fun copyNotNs(fromIdx: Int, toIdx: Int) {
-            data.copyInto(data, toIdx * 4 + 1, fromIdx * 4 + 1, fromIdx * 4 + 4)
+            attrData.copyInto(attrData, toIdx * 4 + 1, fromIdx * 4 + 1, fromIdx * 4 + 4)
         }
     }
 
     @JvmInline
     private value class AttributeDelegate(val index: Int)
 
+    private operator fun AttributesCollection.get(index: Int): AttributeDelegate = AttributeDelegate(index)
+
     private var AttributeDelegate.namespace: String?
         get() {
-            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
-            return attributes.data[index * 4]
+            if (index >= attributeCount) throw IndexOutOfBoundsException()
+            return attrData[index * 4]
         }
         set(value) {
-            attributes.data[index * 4] = value
+            attrData[index * 4] = value
         }
 
     private var AttributeDelegate.prefix: String?
         get() {
-            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
-            return attributes.data[index * 4 + 1]
+            if (index >= attributeCount) throw IndexOutOfBoundsException()
+            return attrData[index * 4 + 1]
         }
         set(value) {
-            attributes.data[index * 4 + 1] = value
+            attrData[index * 4 + 1] = value
         }
 
     private var AttributeDelegate.localName: String?
         get() {
-            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
-            return attributes.data[index * 4 + 2]
+            if (index >= attributeCount) throw IndexOutOfBoundsException()
+            return attrData[index * 4 + 2]
         }
         set(value) {
-            attributes.data[index * 4 + 2] = value
+            attrData[index * 4 + 2] = value
         }
 
     private var AttributeDelegate.value: String?
         get() {
-            if (index !in 0..attributes.size) throw IndexOutOfBoundsException()
-            return attributes.data[index * 4 + 3]
+            if (index >= attributeCount) throw IndexOutOfBoundsException()
+            return attrData[index * 4 + 3]
         }
         set(value) {
-            attributes.data[index * 4 + 3] = value
+            attrData[index * 4 + 3] = value
         }
 
 
