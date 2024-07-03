@@ -49,7 +49,7 @@ private constructor(
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     public val indentString: String = "",
     public val policy: XmlSerializationPolicy,
-    public val nilAttribute: Pair<QName, String>? = null,
+    nilAttribute: Pair<QName, String>? = null,
     public val xmlVersion: XmlVersion = XmlVersion.XML11,
     cachingEnabled: Boolean = true,
 ) {
@@ -78,6 +78,11 @@ private constructor(
         cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache()
         else -> FormatCache.Dummy
     }
+
+    public val nilAttributeName: QName? = nilAttribute?.first
+    public val nilAttributeValue: String? = nilAttribute?.second
+
+    public val nilAttribute: Pair<QName, String>? get() = nilAttributeName?.run { Pair(nilAttributeName, nilAttributeValue!!) }
 
     /**
      * This property determines whether the serialization will collect all used namespaces and

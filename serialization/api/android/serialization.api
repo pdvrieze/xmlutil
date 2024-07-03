@@ -416,6 +416,8 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public final fun getIndent ()I
 	public final fun getIndentString ()Ljava/lang/String;
 	public final fun getNilAttribute ()Lkotlin/Pair;
+	public final fun getNilAttributeName ()Ljavax/xml/namespace/QName;
+	public final fun getNilAttributeValue ()Ljava/lang/String;
 	public final fun getOmitXmlDecl ()Z
 	public final fun getPolicy ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
 	public final fun getRepairNamespaces ()Z

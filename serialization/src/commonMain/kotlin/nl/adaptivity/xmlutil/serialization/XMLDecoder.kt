@@ -22,9 +22,14 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.ChunkedDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
@@ -58,14 +63,31 @@ internal open class XmlDecoderBase internal constructor(
 
     fun hasNullMark(): Boolean {
         if (input.eventType == EventType.START_ELEMENT) {
-            val hasNilAttr = (0 until input.attributeCount).any { i ->
-                (input.getAttributeNamespace(i) == XSI_NS_URI &&
-                        input.getAttributeLocalName(i) == "nil" &&
-                        input.getAttributeValue(i) == "true") ||
-                        (input.getAttributeName(i) == config.nilAttribute?.first &&
-                                input.getAttributeValue(i) == config.nilAttribute?.second)
+            val declNilAttr: QName = config.nilAttributeName
+                ?: return when(input.getAttributeValue(XSI_NS_URI, "nil")) {
+                    "true", "1" -> true
+                    else -> false
+                }
+
+            val targetNS = declNilAttr.namespaceURI
+            val targetName = declNilAttr.localPart
+
+            for (i in 0 until input.attributeCount) {
+                val ns = input.getAttributeNamespace(i)
+                when (ns) {
+                    targetNS -> if (input.getAttributeLocalName(i) == targetName) {
+                        return input.getAttributeValue(i) == config.nilAttributeValue
+                    }
+
+                    XSI_NS_URI -> if(input.getAttributeLocalName(i) == "nil") {
+                        return when(input.getAttributeValue(i)) {
+                            "true", "1" -> true
+                            else -> false
+                        }
+                    }
+                }
             }
-            if (hasNilAttr) return true // we detected a nullable element
+            return false
         }
         return false
     }
@@ -762,8 +784,8 @@ internal open class XmlDecoderBase internal constructor(
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
             val isValueChild = index == xmlDescriptor.getValueChild()
-            return when {
-                effectiveDeserializer.descriptor.kind is PrimitiveKind ->
+            return when (effectiveDeserializer.descriptor.kind) {
+                 is PrimitiveKind ->
                     XmlDecoder(childXmlDescriptor, currentPolyInfo, isValueChild, lastAttrIndex)
 
                 else -> {
@@ -805,7 +827,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val result: T = when (effectiveDeserializer) {
                 is XmlDeserializationStrategy -> {
-                    check(! input.hasPeekItems)
+                    check(!input.hasPeekItems)
                     check(input.eventType == EventType.START_ELEMENT)
                     val expectedDepth = when {
                         isValueChild -> input.depth + 1
