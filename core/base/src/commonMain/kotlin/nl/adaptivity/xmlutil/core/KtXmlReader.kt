@@ -248,12 +248,10 @@ public class KtXmlReader internal constructor(
         }
 
         val ns = when {
-            PROCESS_NAMESPACES -> namespaceHolder.getNamespaceUri(prefix ?: "") ?: run {
-                if (prefix != null) error("undefined prefix: ${prefix}")
-                XMLConstants.NULL_NS_URI
-            }
+            PROCESS_NAMESPACES -> namespaceHolder.getNamespaceUri(prefix ?: "")
+                ?: XMLConstants.NULL_NS_URI.also { if (prefix != null) error("undefined prefix: $prefix") }
 
-            else -> ""
+            else -> XMLConstants.NULL_NS_URI
         }
 
         val d = depth - 1
@@ -619,27 +617,59 @@ public class KtXmlReader internal constructor(
 
     /* precondition: &lt;/ consumed */
     private fun parseEndTag() {
-        readAssert('<') // '<'
-        readAssert('/') // '/'
-
-        resetOutputBuffer()
-        readCName()
-        skip()
-        read('>')
-        val spIdx = depth - 1
         if (depth == 0) {
             error("element stack empty")
             _eventType = COMMENT
             return
         }
+
+        readAssert('<') // '<'
+        readAssert('/') // '/'
+
+        resetOutputBuffer()
+        val spIdx = depth - 1
+        val expectedPrefix = elementStack[spIdx].prefix //?: exception("Missing prefix")
+        val expectedLocalName = elementStack[spIdx].localName ?: exception("Missing localname")
+        val expectedLength = (expectedPrefix?.run { length + 1 } ?: 0) + expectedLocalName.length
+
+        val expectedEnd = srcBufPos + expectedLength
+        if (expectedEnd>srcBufCount) exception(UNEXPECTED_EOF)
+        if (expectedEnd < BUF_SIZE) { // fast path implementation that just verifies the tags
+            // (rather than parsing them directly without that knowledge of expectation)
+            val left2: Int
+            if (expectedPrefix != null) {
+                val left = srcBufPos
+                for (i in expectedPrefix.indices)
+                if (bufLeft[left + i] != expectedPrefix[i]) {
+                    val expectedFullName = fullname(expectedPrefix, expectedLocalName)
+                    error("expected: $expectedFullName read: ${readName()}")
+                }
+                left2 = left + expectedPrefix.length + 1
+            } else {
+                left2 = srcBufPos
+            }
+
+            for (i in expectedLocalName.indices) {
+                if (bufLeft[left2 + i] != expectedLocalName[i]) {
+                    val expectedFullName = fullname(expectedPrefix, expectedLocalName)
+                    error("expected: $expectedFullName read: ${readName()}")
+                }
+            }
+            srcBufPos = left2 + expectedLocalName.length
+            skip()
+            read('>')
+            return
+        }
+
+        readCName()
+        skip()
+        read('>')
         if (!relaxed) {
-            val expectedPrefix = elementStack[spIdx].prefix //?: exception("Missing prefix")
-            val expectedLocalName = elementStack[spIdx].localName ?: exception("Missing localname")
 
             if (readPrefix != expectedPrefix || readLocalname != expectedLocalName) {
                 val expectedFullName = fullname(expectedPrefix, expectedLocalName)
                 val fullName = fullname(readPrefix, readLocalname!!)
-                error("expected: /${expectedFullName} read: $fullName")
+                error("expected: ${expectedFullName} read: $fullName")
             }
         }
     }
@@ -821,7 +851,7 @@ public class KtXmlReader internal constructor(
                                     readAssert(delimiter.toChar())
                                     // This is an attribute, we don't care about whitespace content
                                     resetOutputBuffer()
-                                    pushNonWSText(delimiter.toChar(), resolveEntities = true)
+                                    pushRegularText(delimiter.toChar(), resolveEntities = true)
                                     readAssert(delimiter.toChar())
                                 }
 
@@ -968,7 +998,7 @@ public class KtXmlReader internal constructor(
             when (bufLeft[curPos]) {
                 ' ', '\t', '\n', '\r' -> break // whitespace
 
-                else -> return pushNonWSText(delimiter, resolveEntities = false)
+                else -> return pushRegularText(delimiter, resolveEntities = false)
             }
         }
 
@@ -1041,7 +1071,7 @@ public class KtXmlReader internal constructor(
 
             if (continueInNonWSMode) {
                 srcBufPos = curPos
-                return pushNonWSText(delimiter, resolveEntities = false)
+                return pushRegularText(delimiter, resolveEntities = false)
             }
 
             left = curPos
@@ -1053,11 +1083,12 @@ public class KtXmlReader internal constructor(
     }
 
     /**
+     * Specialisation of pushText that does not recognize whitespace (thus able to be used at that point)
      * @param delimiter The "stopping" delimiter
      * @param resolveEntities Whether entities should be resolved directly (in attributes) or exposed as entity
      *                        references (content text).
      */
-    private fun pushNonWSText(delimiter: Char, resolveEntities: Boolean) {
+    private fun pushRegularText(delimiter: Char, resolveEntities: Boolean) {
         var bufCount = srcBufCount
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
@@ -1081,7 +1112,7 @@ public class KtXmlReader internal constructor(
 
                         val nextIsCR = when (val next = curPos + 1) {
                             bufCount -> false // EOF
-                            BUF_SIZE -> bufRight[0] == '\n' // EOB
+                            BUF_SIZE -> bufRight[0] == '\n' // EOB, look at right buffer
                             else -> bufLeft[next] == '\n'
                         }
 
@@ -1482,18 +1513,58 @@ public class KtXmlReader internal constructor(
         }
     }
 
+    @Suppress("DuplicatedCode")
     private fun readName(): String {
-        var c = peek()
-        if (c < 0 || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
-        do {
-            readAndPush()
-            c = peek()
-        } while (c >= 0 && isNameChar11(c.toChar()))
-        val result = get()
-        resetOutputBuffer()
-        return result
+        var left = srcBufPos
+
+        var bufEnd: Int
+        run {
+            val cnt = srcBufCount
+            if (BUF_SIZE < cnt) {
+                if (left == BUF_SIZE) {
+                    swapInputBuffer()
+                    left = 0
+                    bufEnd = minOf(BUF_SIZE, srcBufCount)
+                } else {
+                    bufEnd = BUF_SIZE
+                }
+            } else {
+                if (left >= cnt) exception(UNEXPECTED_EOF)
+                bufEnd = cnt
+            }
+        }
+
+        var srcBuf = bufLeft
+
+        if (!isNameStartChar(srcBuf[left])) error("name expected, found: $srcBuf[left]")
+
+        var right = left + 1
+
+        while (true) {
+            if (right == bufEnd) {
+                pushRange(srcBuf, left, right)
+                if (bufEnd >= srcBufCount) error(UNEXPECTED_EOF)
+                srcBufPos = right // this is not technically needed, but this should be infrequent anytime
+                swapInputBuffer()
+                bufEnd = minOf(BUF_SIZE, srcBufCount)
+                if (bufEnd == 0) break // end of file
+                left = 0
+                right = 0
+                srcBuf = bufLeft
+            }
+            when {
+                isNameChar11(srcBuf[right]) -> right += 1
+                else -> {
+                    pushRange(srcBuf, left, right)
+                    break
+                }
+            }
+        }
+        srcBufPos = right
+        return get()
     }
 
+    @Suppress("DuplicatedCode")
     private fun readCName() {
         var left = srcBufPos
 
