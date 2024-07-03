@@ -52,7 +52,10 @@ public class KtXmlReader internal constructor(
     public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
 
     private var line: Int = 1
-    private var column: Int = 1
+    private val column: Int
+        get() = offset - lastColumnStart + 1
+//        set(value) {}
+    private var lastColumnStart = 0
     private var offset: Int = 0
 
     public var ignorePos: Boolean
@@ -60,11 +63,12 @@ public class KtXmlReader internal constructor(
         set(value) {
             if (value) {
                 line = -1
-                column = -1
+//                column = -1
                 offset = -1
             } else {
                 line = 1
-                column = 1
+//                column = 1
+                lastColumnStart = 0
                 offset = 0
             }
         }
@@ -72,7 +76,7 @@ public class KtXmlReader internal constructor(
     init {
         if (ignorePos) {
             line = -1
-            column = -1
+//            column = -1
             offset = -1
         }
     }
@@ -195,14 +199,16 @@ public class KtXmlReader internal constructor(
     private fun incCol() {
         if (!ignorePos) {
             offset += 1
-            column += 1
+//            column += 1
         }
     }
 
     private fun incLine(offsetAdd: Int =1) {
         if (!ignorePos) {
-            offset += offsetAdd
-            column = 1
+            val newOffset = offset + offsetAdd
+            offset = newOffset
+            lastColumnStart = newOffset
+//            column = 1
             line += 1
         }
     }
@@ -710,13 +716,14 @@ public class KtXmlReader internal constructor(
 
     private fun pushRange(buffer: CharArray, start: Int, endExcl: Int) {
         val count = endExcl - start
-        val minSizeNeeded = outputBufRight + count
+        val outRight = outputBufRight
+        val minSizeNeeded = outRight + count
         if (minSizeNeeded >= outputBuf.size) {
             growOutputBuf(minSizeNeeded)
         }
 
-        buffer.copyInto(outputBuf, outputBufRight, start, endExcl)
-        outputBufRight += count
+        buffer.copyInto(outputBuf, outRight, start, endExcl)
+        outputBufRight = outRight + count
     }
 
     private fun push(s: String) {
@@ -1306,53 +1313,58 @@ public class KtXmlReader internal constructor(
         val pos = srcBufPos
         if (pos >= srcBufCount) exception(UNEXPECTED_EOF)
 
-        if (pos + 1 >= BUF_SIZE) { // +1 to also account for CRLF across the boundary
+        val nextSrcPos = pos + 1
+        if (nextSrcPos >= BUF_SIZE) { // +1 to also account for CRLF across the boundary
             return readAcross().also(::pushChar).toChar() // use the slow path for this case
         }
+        val bufLeft = bufLeft
         val ch = bufLeft[pos]
 
-        if (outputBufRight >= outputBuf.size) {
-            val minNeeded = outputBufRight-outputBufLeft
-            growOutputBuf(minNeeded)
+        var outRight = outputBufRight
+        if (outRight >= outputBuf.size) {
+            growOutputBuf(outRight - outputBufLeft)
         }
 
-        val next = pos + 1
+        val result: Char
         when (ch) {
             '\r' -> {
                 srcBufPos = when {
-                    next < srcBufCount && bufLeft[next] == '\n' -> {
+                    nextSrcPos < srcBufCount && bufLeft[nextSrcPos] == '\n' -> {
                         incLine(2)
-                        next + 1
+                        nextSrcPos + 1
                     }
 
                     else -> {
                         incLine()
-                        next
+                        nextSrcPos
                     }
                 }
 
-                outputBuf[outputBufRight++] = '\n'
-                return '\n'
+                outputBuf[outRight++] = '\n'
+                result = '\n'
             }
 
             '\n' -> {
-                srcBufPos = next
+                srcBufPos = nextSrcPos
                 incLine()
-                outputBuf[outputBufRight++] = '\n' // it is
-                return '\n'
+                outputBuf[outRight++] = '\n' // it is
+                result = '\n'
             }
 
             else -> {
                 incCol()
-                srcBufPos = next
-                outputBuf[outputBufRight++] = ch
-                return ch
+                srcBufPos = nextSrcPos
+                outputBuf[outRight++] = ch
+                result = ch
             }
         }
+        outputBufRight = outRight
+        return result
     }
 
     private fun growOutputBuf(minNeeded: Int = outputBufRight) {
-        outputBuf = outputBuf.copyOf((minNeeded * 5) / 3 + 4)
+        val newSize = maxOf(outputBuf.size * 2, (minNeeded * 5) / 4)
+        outputBuf = outputBuf.copyOf(newSize)
     }
 
     private fun swapInputBuffer() {
