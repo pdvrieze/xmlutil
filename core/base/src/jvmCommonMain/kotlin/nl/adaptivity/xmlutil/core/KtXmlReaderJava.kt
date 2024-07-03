@@ -38,8 +38,9 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relax
         inputStream is BufferedInputStream && inputStream.markSupported() -> inputStream
         else -> BufferedInputStream(inputStream, 4096)
     }
-    bufferedInput.mark(4000)
-    val srcBuf = CharArray(4000)
+    bufferedInput.mark(500) // This should be sufficient as the document must start with a
+    // document declaration, and it only has 3 parameters
+    val srcBuf = CharArray(500)
     var srcBufCount = 0
     var enc = encoding
 
