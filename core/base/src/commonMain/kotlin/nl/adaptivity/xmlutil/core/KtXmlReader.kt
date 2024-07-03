@@ -1840,20 +1840,22 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private class ElementStack {
-        var data: Array<String?> = arrayOfNulls(48)
-            private set
+    private var elementData: Array<String?> = arrayOfNulls(48)
 
-        operator fun get(idx: Int) = ElementDelegate(idx)
+    private inner class ElementStack {
+
+        operator fun get(idx: Int) = element(idx)
 
         fun ensureCapacity(required: Int) {
-            val requiredCapacity = required * 3
-            if (data.size >= requiredCapacity) return
+            val requiredCapacity = required * 3 // three slots per element
+            if (elementData.size >= requiredCapacity) return
 
-            data = data.copyOf(requiredCapacity + 12)
+            elementData = elementData.copyOf(requiredCapacity + 12)
         }
 
     }
+
+    private fun element(idx: Int) = ElementDelegate(idx)
 
     @JvmInline
     private value class ElementDelegate(val index: Int)
@@ -1861,28 +1863,28 @@ public class KtXmlReader internal constructor(
     private var ElementDelegate.namespace: String?
         get() {
             if (index >= depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 3]
+            return elementData[index * 3]
         }
         set(value) {
-            elementStack.data[index * 3] = value
+            elementData[index * 3] = value
         }
 
     private var ElementDelegate.prefix: String?
         get() {
             if (index >= depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 3 + 1]
+            return elementData[index * 3 + 1]
         }
         set(value) {
-            elementStack.data[index * 3 + 1] = value
+            elementData[index * 3 + 1] = value
         }
 
     private var ElementDelegate.localName: String?
         get() {
             if (index >= depth) throw IndexOutOfBoundsException()
-            return elementStack.data[index * 3 + 2]
+            return elementData[index * 3 + 2]
         }
         set(value) {
-            elementStack.data[index * 3 + 2] = value
+            elementData[index * 3 + 2] = value
         }
 
     private inner class AttributesCollection {
