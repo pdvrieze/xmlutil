@@ -1497,27 +1497,66 @@ public class KtXmlReader internal constructor(
     private fun readCName() {
         var prefix: String? = null
 
-        peek().let { c ->
-            if (c < 0 || c == ':'.code || !isNameStartChar(c.toChar())) error("name expected, found: ${c.toChar()}")
-            readAndPush() // just read it here as that avoids a namechar check
+        var left = srcBufPos
+
+        var bufEnd: Int
+        run {
+            val cnt = srcBufCount
+            if (BUF_SIZE < cnt) {
+                if (left == BUF_SIZE) {
+                    swapInputBuffer()
+                    left = 0
+                    bufEnd = minOf(BUF_SIZE, srcBufCount)
+                } else {
+                    bufEnd = BUF_SIZE
+                }
+            } else {
+                if (left >= cnt) exception(UNEXPECTED_EOF)
+                bufEnd = cnt
+            }
         }
 
-        while (true) {
-            when (val c = peek()) {
-                -1 -> error(UNEXPECTED_EOF)
+        var srcBuf = bufLeft
 
-                ':'.code -> if (PROCESS_NAMESPACES) {
+        srcBuf[left].let { c ->
+            if (c == ':' || !isNameStartChar(c)) error("name expected, found: $c")
+        }
+
+        var right = left + 1
+
+        while (true) {
+            if (right == bufEnd) {
+                pushRange(srcBuf, left, right)
+                if (bufEnd >= srcBufCount) error(UNEXPECTED_EOF)
+                srcBufPos = right // this is not technically needed, but this should be infrequent anytime
+                swapInputBuffer()
+                bufEnd = minOf(BUF_SIZE, srcBufCount)
+                if (bufEnd == 0) break // end of file
+                left = 0
+                right = 0
+                srcBuf = bufLeft
+            }
+            when (val c = srcBuf[right]) {
+                ':' -> if (PROCESS_NAMESPACES) {
+                    pushRange(srcBuf, left, right)
+                    right += 1
+                    left = right
                     prefix = get()
-                    readAssert(':')
                     resetOutputBuffer()
-                } else readAndPush()
+                } else {
+                    right += 1
+                }
 
                 else -> when {
-                    isNameChar11(c.toChar()) -> readAndPush()
-                    else -> break
+                    isNameChar11(c) -> right += 1
+                    else -> {
+                        pushRange(srcBuf, left, right)
+                        break
+                    }
                 }
             }
         }
+        srcBufPos = right
         readPrefix = prefix
         readLocalname = get()
     }
