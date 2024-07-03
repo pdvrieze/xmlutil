@@ -1495,8 +1495,6 @@ public class KtXmlReader internal constructor(
     }
 
     private fun readCName() {
-        var prefix: String? = null
-
         var left = srcBufPos
 
         var bufEnd: Int
@@ -1523,6 +1521,8 @@ public class KtXmlReader internal constructor(
         }
 
         var right = left + 1
+
+        var prefix: String? = null
 
         while (true) {
             if (right == bufEnd) {
