@@ -191,7 +191,7 @@ public class KtXmlReader internal constructor(
         // Namespaces will not be set yet (as the namespace declaring attribute may be afterwards)
         var attrIdx = 0
         while (attrIdx < attributeCount) {
-            val attr = attributes[attrIdx++]
+            val attr = attribute(attrIdx++)
 
             val aLocalName: String = attr.localName!!
             val aPrefix: String? = attr.prefix
@@ -215,10 +215,10 @@ public class KtXmlReader internal constructor(
             // This gradually copies the attributes to remove namespace declarations
             // use while loop as we need the final size afterwards
             while (attrInIdx < attributeCount) {
-                val attrIn = attributes[attrInIdx++]
+                val attrIn = attribute(attrInIdx++)
                 val attrLocalName = attrIn.localName
                 if (attrLocalName != null) {
-                    val attrOut = attributes[attrOutIdx++]
+                    val attrOut = attribute(attrOutIdx++)
 
                     if (attrIn != attrOut) {
                         attributes.copyNotNs(attrIn.index, attrOut.index)
@@ -339,15 +339,15 @@ public class KtXmlReader internal constructor(
             readAssert('<') // <
             readAssert('?') // ?
             parseStartTag(true)
-            if (attributeCount < 1 || "version" != attributes[0].localName) error("version expected")
-            version = attributes[0].value
+            if (attributeCount < 1 || "version" != attribute(0).localName) error("version expected")
+            version = attribute(0).value
             var pos = 1
-            if (pos < attributeCount && "encoding" == attributes[1].localName) {
-                encoding = attributes[1].value
+            if (pos < attributeCount && "encoding" == attribute(1).localName) {
+                encoding = attribute(1).value
                 pos++
             }
-            if (pos < attributeCount && "standalone" == attributes[pos].localName) {
-                when (val st = attributes[pos].value) {
+            if (pos < attributeCount && "standalone" == attribute(pos).localName) {
+                when (val st = attribute(pos).value) {
                     "yes" -> standalone = true
                     "no" -> standalone = false
                     else -> error("illegal standalone value: $st")
@@ -1665,7 +1665,7 @@ public class KtXmlReader internal constructor(
 
                 for (x in 0 until attributeCount) {
                     buf.append(' ')
-                    val a = attributes[x]
+                    val a = attribute(x)
                     if (a.namespace != null) {
                         buf.append('{').append(a.namespace).append('}').append(a.prefix).append(':')
                     }
@@ -1748,24 +1748,24 @@ public class KtXmlReader internal constructor(
     }
 
     override fun getAttributeNamespace(index: Int): String {
-        return attributes[index].namespace!!
+        return attribute(index).namespace!!
     }
 
     override fun getAttributeLocalName(index: Int): String {
-        return attributes[index].localName!!
+        return attribute(index).localName!!
     }
 
     override fun getAttributePrefix(index: Int): String {
-        return attributes[index].prefix ?: ""
+        return attribute(index).prefix ?: ""
     }
 
     override fun getAttributeValue(index: Int): String {
-        return attributes[index].value!!
+        return attribute(index).value!!
     }
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
         for (attrIdx in 0 until attributeCount) {
-            val attr = attributes[attrIdx]
+            val attr = attribute(attrIdx)
             if (attr.localName == localName && (nsUri == null || attr.namespace == nsUri)) {
                 return attr.value
             }
@@ -1931,7 +1931,7 @@ public class KtXmlReader internal constructor(
     @JvmInline
     private value class AttributeDelegate(val index: Int)
 
-    private operator fun AttributesCollection.get(index: Int): AttributeDelegate = AttributeDelegate(index)
+    private fun attribute(index: Int): AttributeDelegate = AttributeDelegate(index)
 
     private var AttributeDelegate.namespace: String?
         get() {
