@@ -157,17 +157,39 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
     }
 
     override fun getNamespaceURI(prefix: String): String? {
-        return when (prefix) {
-            XML_NS_PREFIX -> XML_NS_URI
-            XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
-            else -> indices.reversed()
-                .filter { getPrefix(it) == prefix }
-                .firstOrNull()
-                ?.let { getNamespaceURI(it) }
+        when (prefix) {
+            XML_NS_PREFIX -> return XML_NS_URI
+            XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
+            else -> {
+                var i = size - 1
+                while (i >= 0) {
+                    if (getPrefix(i) == prefix) {
+                        return getNamespaceURI(i)
+                    }
+                    i -= 1
+                }
+                return null
+            }
         }
     }
 
-    override fun getPrefix(namespaceURI: String): String? = getPrefixSequence(namespaceURI).firstOrNull()
+    override fun getPrefix(namespaceURI: String): String? {
+        when (namespaceURI) {
+            XML_NS_URI -> return XML_NS_PREFIX
+            NULL_NS_URI -> return DEFAULT_NS_PREFIX
+            XMLNS_ATTRIBUTE_NS_URI -> return XMLNS_ATTRIBUTE
+            else -> {
+                var i = size - 1
+                while (i >= 0) {
+                    if (getNamespaceURI(i) == namespaceURI) {
+                        return getPrefix(i)
+                    }
+                    i -= 1
+                }
+                return null
+            }
+        }
+    }
 
     /**
      * Get all prefixes for this particular namespace in the namespace context.
