@@ -36,18 +36,6 @@ internal class QNameMap<T : Any>  private constructor(
     override var size: Int = size
         private set
 
-    fun reOrder() {
-        if (namespaceCount <= 1) return
-        val change = IntArray(namespaceCount) { it }.sortedBy { -maps[it]!!.size }
-        val newNamespaces = arrayOfNulls<String?>(namespaces.size)
-        val newMaps = arrayOfNulls<HashMap<String,T>?>(maps.size)
-        for (new in change.indices) {
-            val orig = change[new]
-            newNamespaces[new] = namespaces[orig]
-            newMaps[new] = maps[orig]
-        }
-    }
-
     override val entries = object : MutableSet<MutableMap.MutableEntry<QName, T>> {
         override val size: Int get() = this@QNameMap.size
 
@@ -254,8 +242,8 @@ internal class QNameMap<T : Any>  private constructor(
     }
 
     operator fun get(namespace: String, localPart: String): T? {
-        withNamespace(namespace) {
-            maps[it]!!.get(localPart)?.let { return it }
+        withNamespace(namespace) { ns ->
+            maps[ns]!![localPart]?.let { return it }
         }
         return null
     }
@@ -283,8 +271,14 @@ internal class QNameMap<T : Any>  private constructor(
     }
 
     fun put(namespace: String, localPart: String, value: T): T? {
-        withNamespace(namespace) {
-            val old = maps[it]!!.put(localPart, value)
+        withNamespace(namespace) { idx ->
+            val newMap = maps[idx]
+            // Auto sort (mostly, it only moves one at a time)
+            if (idx > 0 && newMap!!.size >= maps[idx - 1]!!.size) {
+                maps[idx] = maps[idx - 1]
+                maps[idx - 1] = newMap
+            }
+            val old = newMap!!.put(localPart, value)
             if (old != null) ++size
             return old
         }
