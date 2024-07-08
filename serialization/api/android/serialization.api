@@ -412,6 +412,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDefaultToGenericParser ()Z
 	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 	public final fun getIndent ()I
 	public final fun getIndentString ()Ljava/lang/String;
@@ -423,6 +424,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public final fun getRepairNamespaces ()Z
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public final fun isAlwaysDecodeXsiNil ()Z
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
 	public final fun isUnchecked ()Z
@@ -444,7 +446,12 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun defaultPolicy (Lkotlin/jvm/functions/Function1;)V
+	public final fun fast ()V
+	public final fun fast (Lkotlin/jvm/functions/Function1;)V
+	public final fun fast_0_90_2 ()V
+	public final fun fast_0_90_2 (Lkotlin/jvm/functions/Function1;)V
 	public final fun getAutoPolymorphic ()Ljava/lang/Boolean;
+	public final fun getDefaultToGenericParser ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getIndent ()I
 	public final fun getIndentString ()Ljava/lang/String;
@@ -455,6 +462,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public final fun isAlwaysDecodeXsiNil ()Z
 	public final fun isCachingEnabled ()Z
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z
@@ -468,9 +476,11 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun recommended_0_87_0 (Lkotlin/jvm/functions/Function1;)V
 	public final fun recommended_0_90_2 ()V
 	public final fun recommended_0_90_2 (Lkotlin/jvm/functions/Function1;)V
+	public final fun setAlwaysDecodeXsiNil (Z)V
 	public final fun setAutoPolymorphic (Ljava/lang/Boolean;)V
 	public final fun setCachingEnabled (Z)V
 	public final fun setCollectingNSAttributes (Z)V
+	public final fun setDefaultToGenericParser (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
 	public final fun setIndent (I)V
 	public final fun setIndentString (Ljava/lang/String;)V

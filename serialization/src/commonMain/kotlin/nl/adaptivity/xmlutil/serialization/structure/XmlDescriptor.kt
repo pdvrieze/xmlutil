@@ -212,6 +212,15 @@ public sealed class XmlDescriptor(
 
     override fun iterator(): Iterator<XmlDescriptor> = ElementIterator()
 
+    internal fun overrideDescriptor(codecConfig: XmlCodecConfig, overriddenDescriptor: SerialDescriptor): XmlDescriptor {
+        val ns = tagParent.namespace
+        val typeDescriptor = codecConfig.config.lookupTypeDesc(ns, overriddenDescriptor)
+
+        val overriddenParentInfo: SafeParentInfo = DetachedParent(ns, typeDescriptor, useNameInfo)
+
+        return from(codecConfig, overriddenParentInfo, tagParent, outputKind == OutputKind.Attribute)
+    }
+
     internal abstract fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>)
 
     final override fun toString(): String {

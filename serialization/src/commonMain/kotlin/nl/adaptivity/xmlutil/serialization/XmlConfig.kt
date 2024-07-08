@@ -82,7 +82,10 @@ private constructor(
     public val nilAttributeName: QName? = nilAttribute?.first
     public val nilAttributeValue: String? = nilAttribute?.second
 
-    public val nilAttribute: Pair<QName, String>? get() = nilAttributeName?.run { Pair(nilAttributeName, nilAttributeValue!!) }
+    public val nilAttribute: Pair<QName, String>?
+        get() = nilAttributeName?.run {
+            Pair(nilAttributeName, nilAttributeValue!!)
+        }
 
     /**
      * This property determines whether the serialization will collect all used namespaces and
@@ -98,6 +101,12 @@ private constructor(
      * serial format. This does not disable the checking
      */
     public var isUnchecked: Boolean = false
+        private set
+
+    public var isAlwaysDecodeXsiNil: Boolean = true
+        private set
+
+    public var defaultToGenericParser: Boolean = false
         private set
 
     @Suppress("DEPRECATION")
@@ -212,6 +221,8 @@ private constructor(
         isInlineCollapsed = builder.isInlineCollapsed
         isCollectingNSAttributes = builder.isCollectingNSAttributes
         isUnchecked = builder.isUnchecked
+        isAlwaysDecodeXsiNil = builder.isAlwaysDecodeXsiNil
+        defaultToGenericParser = builder.defaultToGenericParser
     }
 
     internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
@@ -413,10 +424,17 @@ private constructor(
         public var isCollectingNSAttributes: Boolean = false
 
         /**
+         * Default parsing to the optimized generic parser rather than using the platform specific one
+         */
+        public var defaultToGenericParser: Boolean = false
+
+        /**
          * This property can be used to disable various checks on the correctness of the serializer descriptions.
          * This should speed up processing, but may give surprising results in the presence of an error.
          */
         public var isUnchecked: Boolean = false
+
+        public var isAlwaysDecodeXsiNil: Boolean = true
 
         public var indent: Int
             @Deprecated("Use indentString for better accuracy")
@@ -449,6 +467,22 @@ private constructor(
          */
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             recommended_0_90_2(configurePolicy)
+        }
+
+        /**
+         * Configure the parser using the latest recommended settings for fast (en/de)coding. Note that this function has
+         * no guarantee of stability.
+         */
+        public fun fast() {
+            fast { }
+        }
+
+        /**
+         * Configure the policy and the config builder with the latest recommended settings and policy.
+         * Note that this function has no guarantee of stability.
+         */
+        public inline fun fast(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            fast_0_90_2(configurePolicy)
         }
 
         /**
@@ -516,6 +550,31 @@ private constructor(
                 xmlVersion = XmlVersion.XML11
                 xmlDeclMode = XmlDeclMode.Minimal
                 isStrictBoolean = true
+                configurePolicy()
+            }
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        public fun fast_0_90_2() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            fast_0_90_2 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
+         * required for XML 1.1 (otherwise it reverts to 1.0).
+         */
+        public inline fun fast_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            isCachingEnabled = true
+            isAlwaysDecodeXsiNil = false
+            isUnchecked = true
+            isCollectingNSAttributes = false
+            defaultToGenericParser = true
+            recommended_0_90_2 {
                 configurePolicy()
             }
         }

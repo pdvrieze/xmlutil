@@ -56,20 +56,26 @@ open class Deserialization {
         }
     }
 
-    @Param("true")
-    var unchecked: Boolean = false
+    @Param("true", "false")
+    var fast: Boolean = false
 
     @Setup
     fun setup() {
-        println("Setup called (unchecked: $unchecked)")
+        println("Setup called (fast: $fast)")
         retainedXml = XML {
-            isUnchecked = unchecked
+            when {
+                fast -> fast_0_90_2()
+                else -> recommended_0_90_2()
+            }
+//            isUnchecked = unchecked
+/*
             defaultPolicy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true
                 verifyElementOrder = true
                 isStrictAttributeNames = true
             }
+*/
         }
     }
 
@@ -78,10 +84,11 @@ open class Deserialization {
 
     fun testDeserializeGenericSpeedImpl(bh: BlackholeWrapper) {
         val xml = XML {
-            isUnchecked = unchecked
-            defaultPolicy {
-                autoPolymorphic = true
-                throwOnRepeatedElement = true
+            when {
+                fast -> fast_0_90_2()
+                else -> recommended_0_90_2 {
+                    throwOnRepeatedElement = true
+                }
             }
         }
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
@@ -94,7 +101,6 @@ open class Deserialization {
         testDeserializeGenericSpeedImpl(BlackholeWrapperImpl(bh))
 
     fun testDeserializeGenericSpeedRetainedXml(bh : BlackholeWrapper) {
-        check(retainedXml.config.isUnchecked == unchecked)
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
         testDeserializeAndParseSpeed(bh, retainedXml)
         xmlStreaming.setFactory(null)
@@ -104,7 +110,6 @@ open class Deserialization {
     fun testDeserializeNoparseRetained(bh : Blackhole) = testDeserializeNoparseRetained(BlackholeWrapperImpl(bh))
 
     fun testDeserializeNoparseRetained(bh : BlackholeWrapper) {
-        check(retainedXml.config.isUnchecked == unchecked)
         testDeserializeOnlySpeed(bh, retainedXml)
     }
 
@@ -113,9 +118,11 @@ open class Deserialization {
 
     fun testDeserializeStaxSpeed(bh : BlackholeWrapper) {
         val xml = XML {
-            defaultPolicy {
-                autoPolymorphic = true
-                throwOnRepeatedElement = true
+            when {
+                fast -> fast_0_90_2()
+                else -> recommended_0_90_2 {
+                    throwOnRepeatedElement = true
+                }
             }
         }
         xmlStreaming.setFactory(StAXStreamingFactory())

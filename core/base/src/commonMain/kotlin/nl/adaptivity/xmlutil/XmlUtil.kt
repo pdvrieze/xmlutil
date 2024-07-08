@@ -184,7 +184,7 @@ public fun XmlReader.isXml(): Boolean {
     return true
 }
 
-public fun CharSequence.xmlEncode(): String = buildString {
+public fun CharSequence.xmlEncode(): String = buildString(length.let { it + (it shr 4) }) {
     for (c in this@xmlEncode) {
         when (c) {
             '<' -> append("&lt;")
