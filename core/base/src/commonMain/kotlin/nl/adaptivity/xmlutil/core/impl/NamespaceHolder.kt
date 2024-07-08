@@ -116,24 +116,25 @@ public open class NamespaceHolder : Iterable<Namespace> {
         val iter = namespaces.iterator()
         if (!iter.hasNext()) return // short circuit empty list
         val prevCounts = if (depth >= 1) namespaceCounts[depth - 1] else 0
-        if (true || prevCounts != 0) { // pessimistic path if there are already namespaces at this level
+        if (prevCounts != 0) { // pessimistic path if there are already namespaces at this level
             for (n in iter) addPrefixToContext(n)
             return
         }
-        var nextIdx = namespaceCounts[depth]*2
+        var nextIdx = namespaceCounts[depth] * 2
         if (namespaces is Collection) {
             while (nextIdx + (namespaces.size * 2) >= nameSpaces.size) enlargeNamespaceBuffer()
-            for(n in iter) {
-                setPrefix(nextIdx++, n.prefix)
-                setNamespace(nextIdx++, n.namespaceURI)
+            for (n in iter) {
+                nameSpaces[nextIdx++] = n.prefix
+                nameSpaces[nextIdx++] = n.namespaceURI
             }
         } else {
-            for(n in iter) {
-                if (nextIdx+1 >= nameSpaces.size) enlargeNamespaceBuffer()
-                setPrefix(nextIdx++, n.prefix)
-                setNamespace(nextIdx++, n.namespaceURI)
+            for (n in iter) {
+                if (nextIdx + 2 >= nameSpaces.size) enlargeNamespaceBuffer()
+                nameSpaces[nextIdx++] = n.prefix
+                nameSpaces[nextIdx++] = n.namespaceURI
             }
         }
+        namespaceCounts[depth] = nextIdx / 2
     }
 
 
@@ -169,7 +170,7 @@ public open class NamespaceHolder : Iterable<Namespace> {
 
         @Suppress("UNCHECKED_CAST")
         override fun freeze(): IterableNamespaceContext =
-            SimpleNamespaceContext(nameSpaces.copyOfRange(0, totalNamespaceCount*2) as Array<String>)
+            SimpleNamespaceContext(nameSpaces.copyOfRange(0, totalNamespaceCount * 2) as Array<String>)
 
         override fun iterator(): Iterator<Namespace> = this@NamespaceHolder.iterator()
 
