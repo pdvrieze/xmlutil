@@ -279,7 +279,7 @@ internal class QNameMap<T : Any>  private constructor(
                 maps[idx - 1] = newMap
             }
             val old = newMap!!.put(localPart, value)
-            if (old != null) ++size
+            if (old == null) ++size
             return old
         }
         if (namespaceCount == namespaces.size) {
@@ -290,6 +290,7 @@ internal class QNameMap<T : Any>  private constructor(
         namespaces[namespaceCount] = namespace
         val r: T?
         maps[namespaceCount++] = HashMap<String, T>().apply { r = put(localPart, value) }
+        ++size
         return r
     }
 
@@ -308,7 +309,19 @@ internal class QNameMap<T : Any>  private constructor(
     fun remove(namespace: String, localPart: String): T? {
         for (i in 0 until namespaceCount) {
             if (namespaces[i] == namespace) {
-                return maps[i]!!.remove(localPart)?.also { size -= 1 }
+                val m = maps[i]
+                val removed = m!!.remove(localPart)
+                if (removed != null) {
+                    size -= 1
+                    if (m.isEmpty()) {
+                        namespaces.copyInto(namespaces, i, i + 1, namespaceCount)
+                        maps.copyInto(maps, i, i + 1, namespaceCount)
+                        namespaces[--namespaceCount] = null
+                        maps[namespaceCount] = null
+                    }
+                }
+
+                return removed
             }
         }
         return null
@@ -382,4 +395,15 @@ internal class QNameMap<T : Any>  private constructor(
             pos <namespaceCount -> maps[pos]!!.iterator()
             else -> null
         }
+
+    override fun toString(): String = buildString {
+        append('{')
+        (0 until namespaceCount).forEach { i ->
+            val ns = namespaces[i]
+            maps[i]!!.entries.joinTo(this) {
+                "{$ns}${it.key} = \"${it.value}\""
+            }
+        }
+        append('}')
+    }
 }
