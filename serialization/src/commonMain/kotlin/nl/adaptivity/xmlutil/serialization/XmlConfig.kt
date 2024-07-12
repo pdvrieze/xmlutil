@@ -570,12 +570,12 @@ private constructor(
          */
         public inline fun fast_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             isCachingEnabled = true
-            isAlwaysDecodeXsiNil = false
-            isUnchecked = true
-            isCollectingNSAttributes = false
-            defaultToGenericParser = true
-            indentString = ""
             recommended_0_90_2 {
+                isAlwaysDecodeXsiNil = false
+                isUnchecked = true
+                isCollectingNSAttributes = false
+                defaultToGenericParser = true
+                indentString = ""
                 configurePolicy()
             }
         }
