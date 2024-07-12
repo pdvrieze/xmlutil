@@ -44,7 +44,7 @@ open class SerializationTest : Serialization() {
 
     @Test
     fun testSerializeGenericSpeed() {
-        measure("serialize to StringWriter",5) { testSerializeGenericSpeedImpl(DummyBlackHole) }
+        measure("serialize to StringWriter",20) { testSerializeGenericSpeedImpl(DummyBlackHole) }
     }
 
 }

@@ -541,8 +541,9 @@ public class KtXmlWriter(
         triggerStartDocument() // whitespace is not allowed before the xml declaration
 
         for (c in text) {
-            if (!(c == '\n' || c == '\r' || c == '\t' || c == ' ')) {
-                throw IllegalArgumentException("\"$text\" is not ignorable whitespace")
+            when (c) {
+                ' ', '\t', '\r', '\n' -> {}
+                else -> throw IllegalArgumentException("\"$text\" is not ignorable whitespace")
             }
         }
 

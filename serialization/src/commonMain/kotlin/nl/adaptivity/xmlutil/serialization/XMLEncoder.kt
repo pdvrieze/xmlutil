@@ -49,6 +49,15 @@ internal open class XmlEncoderBase internal constructor(
         else -> serialize(encoder, value)
     }
 
+    fun <T> SerializationStrategy<T>.safeDefer(encoder: XmlEncoder, value: T, isValueChild: Boolean): DeferredWrite {
+        return when (this) {
+            is XmlSerializationStrategy<T> ->
+                DeferredWriteXmlSerializable(encoder, this, value, isValueChild)
+
+            else -> DeferredWriteSerializable(encoder, this, value)
+        }
+    }
+
     /**
      * Encoder class for all primitives (except for initial values). It does not handle attributes. This does not
      * implement XmlOutput as
@@ -113,7 +122,8 @@ internal open class XmlEncoderBase internal constructor(
                         }
                         // Write the xml preserve attribute if the values starts or ends with whitespace
                         if (!xmlDescriptor.preserveSpace &&
-                            (value.first().isWhitespace() || value.last().isWhitespace())) {
+                            (value.first().isWhitespace() || value.last().isWhitespace())
+                        ) {
                             // this uses attribute directly as no namespace declaration is valid/needed
                             target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
                         }
@@ -407,9 +417,7 @@ internal open class XmlEncoderBase internal constructor(
     ) : XmlEncoder(parent.xmlDescriptor.getElementDescriptor(childIndex), childIndex, null) {
         override fun encodeString(value: String) {
             val d = xmlDescriptor.getElementDescriptor(0)
-            parent.defer(childIndex, d) {
-                parent.encodeStringElement(d, childIndex, value)
-            }
+            parent.defer(childIndex, d, DeferredWriteString(value))
         }
 
         override fun <T> encodeSerializableValue(
@@ -417,9 +425,9 @@ internal open class XmlEncoderBase internal constructor(
             value: T
         ) {
             val d = xmlDescriptor.getElementDescriptor(0)
-            parent.defer(childIndex, d) {
-                parent.encodeSerializableElement(d, childIndex, serializer, value)
-            }
+
+            // just don't defer as that will be done on the parent anyway
+            parent.encodeSerializableElement(d, childIndex, serializer, value)
         }
 
         @ExperimentalSerializationApi
@@ -498,7 +506,7 @@ internal open class XmlEncoderBase internal constructor(
             return this@XmlEncoderBase.ensureNamespace(qName, isAttr)
         }
 
-        private val deferredBuffer = arrayOfNulls<CompositeEncoder.() -> Unit>(xmlDescriptor.elementsCount)
+        private val deferredBuffer = arrayOfNulls<DeferredWrite>(xmlDescriptor.elementsCount)
 
         private val reorderInfo =
             (xmlDescriptor as? XmlCompositeDescriptor)?.childReorderMap
@@ -523,22 +531,30 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
+        open fun defer(index: Int, deferred: DeferredWrite) {
+            defer(index, xmlDescriptor.getElementDescriptor(index), deferred)
+        }
+
         @OptIn(ExperimentalSerializationApi::class)
-        open fun defer(index: Int, itemDescriptor: XmlDescriptor = xmlDescriptor.getElementDescriptor(index), deferred: CompositeEncoder.() -> Unit) {
+        open fun defer(
+            index: Int,
+            itemDescriptor: XmlDescriptor = xmlDescriptor.getElementDescriptor(index),
+            deferred: DeferredWrite
+        ) {
             if (itemDescriptor.doInline) {
                 // Don't defer inline values as it has a problem with the value serializer deferring
                 // This is needed as we allow manual inline that is not a value class (and thus
                 // doesn't call encodeInlineElement).
-                deferred()
+                deferred(this, xmlDescriptor.serialDescriptor, index)
             } else if (!deferring) { // We should never defer if we are processing deferred elements
-                deferred()
+                deferred(this, xmlDescriptor.serialDescriptor, index)
             } else if (reorderInfo != null) {
                 deferredBuffer[reorderInfo[index]] = deferred
             } else {
                 val outputKind =
                     itemDescriptor.outputKind
                 if (outputKind == OutputKind.Attribute) {
-                    deferred()
+                    deferred(this, xmlDescriptor.serialDescriptor, index)
                 } else {
                     deferredBuffer[index] = deferred
                 }
@@ -569,20 +585,7 @@ internal open class XmlEncoderBase internal constructor(
             val effectiveSerializer =
                 xmlDescriptor.getElementDescriptor(index).effectiveSerializationStrategy(serializer)
 
-            defer(index) { effectiveSerializer.serializeSafe(encoder, value, isValueChild(index)) }
-/*
-            when (effectiveSerializer) {
-                is XmlSerializationStrategy -> defer(index) {
-                    effectiveSerializer.serializeXML(encoder, target, value, xmlDescriptor.getValueChild() == index)
-                }
-
-                QNameSerializer -> encodeQName(elementDescriptor, index, value as QName)
-
-                else -> defer(index) {
-                    effectiveSerializer.serialize(encoder, value)
-                }
-            }
-*/
+            defer(index, effectiveSerializer.safeDefer(encoder, value, isValueChild(index)))
         }
 
         @ExperimentalSerializationApi
@@ -669,25 +672,13 @@ internal open class XmlEncoderBase internal constructor(
                 // In such case cast it to accept a null parameter and serialize through the serializer, not
                 // indirectly.
                 @Suppress("UNCHECKED_CAST")
-                defer(index) {
-                    (serializer as SerializationStrategy<T?>).serializeSafe(encoder, null, isValueChild(index))
-                }
+                val defer = (serializer as SerializationStrategy<T?>).safeDefer(encoder, null, isValueChild(index))
+                defer(index, defer)
             } else if (nilAttr != null && elemDescriptor.effectiveOutputKind == OutputKind.Element) {
-                defer(index) {
-                    target.smartStartTag(elemDescriptor.tagName) {
-                        smartWriteAttribute(nilAttr.first, nilAttr.second)
-                    }
-                }
+                defer(index, DeferredWriteNilTag(elemDescriptor.tagName, nilAttr))
             }
 
             // Null is the absense of values, no need to do more
-        }
-
-        private fun encodeQName(elementDescriptor: XmlDescriptor, index: Int, value: QName) {
-            val effectiveQName: QName = ensureNamespace(value, false)
-
-            val encoder = XmlEncoder(elementDescriptor, index)
-            defer(index) { QNameSerializer.serializeXML(encoder, target, effectiveQName, isValueChild(index)) }
         }
 
         protected fun isValueChild(index: Int) = xmlDescriptor.getValueChild() == index
@@ -707,19 +698,7 @@ internal open class XmlEncoderBase internal constructor(
 
             when (elementDescriptor.outputKind) {
                 OutputKind.Inline, // Treat inline as if it was element if it occurs (shouldn't happen)
-                OutputKind.Element -> defer(index) {
-                    target.smartStartTag(elementDescriptor.tagName) {
-                        // Write the xml preserve attribute if the values starts or ends with whitespace
-                        if (!elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last()
-                                .isWhitespace())
-                        ) {
-                            // this uses attribute directly as no namespace declaration is valid/needed
-                            target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
-                        }
-
-                        if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
-                    }
-                }
+                OutputKind.Element -> defer(index, DeferredWriteStringElement(elementDescriptor, value))
 
                 OutputKind.Attribute -> doWriteAttribute(index, elementDescriptor.tagName, value)
                 OutputKind.Mixed,
@@ -731,9 +710,7 @@ internal open class XmlEncoderBase internal constructor(
                         // this uses attribute directly as no namespace declaration is valid/needed
                         target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
                     }
-                    defer(index) {
-                        if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
-                    }
+                    defer(index, DeferredWriteText(value))
                 }
             }
         }
@@ -748,8 +725,10 @@ internal open class XmlEncoderBase internal constructor(
             deferring = false
 
 //            val actions = deferredBuffer.sortedBy { it.first }
-            for (deferred in deferredBuffer) {
-                deferred?.invoke(this)
+            val serialDescriptor = xmlDescriptor.serialDescriptor
+            for (deferredIdx in deferredBuffer.indices) {
+                val deferred = deferredBuffer[deferredIdx]
+                deferred?.invoke(this, serialDescriptor, deferredIdx)
             }
         }
 
@@ -765,15 +744,91 @@ internal open class XmlEncoderBase internal constructor(
             }
 
             if (reorderInfo != null) {
-                deferredBuffer[reorderInfo[index]] = { smartWriteAttribute(actualAttrName, value) }
+                // set directly as otherwise defer will write attributes
+                deferredBuffer[reorderInfo[index]] = DeferredWriteAttribute(actualAttrName, value)
             } else {
                 smartWriteAttribute(actualAttrName, value)
             }
         }
 
-
     }
 
+    internal class DefaultDeferredWrite(private val action: CompositeEncoder.() -> Unit) : DeferredWrite() {
+        override operator fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            compositeEncoder.action()
+        }
+    }
+
+    internal inner class DeferredWriteAttribute(val attrName: QName, val value: String) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            smartWriteAttribute(attrName, value)
+        }
+    }
+
+    internal abstract class DeferredWrite {
+        abstract operator fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int)
+    }
+
+    internal class DeferredWriteString(val value: String) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            compositeEncoder.encodeStringElement(descriptor, index, this.value)
+        }
+    }
+
+    internal class DeferredWriteText(val value: String) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            val target = compositeEncoder.target
+            when {
+                compositeEncoder.xmlDescriptor.getElementDescriptor(index).isCData -> target.cdsect(value)
+                else -> target.text(value)
+            }
+        }
+    }
+
+    internal inner class DeferredWriteStringElement(val elementDescriptor: XmlDescriptor, val value: String) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            target.smartStartTag(elementDescriptor.tagName) {
+                // Write the xml preserve attribute if the values starts or ends with whitespace
+                if (!elementDescriptor.preserveSpace &&
+                    (value.first().isWhitespace() || value.last().isWhitespace())
+                ) {
+                    // this uses attribute directly as no namespace declaration is valid/needed
+                    target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
+                }
+
+                if (elementDescriptor.isCData) target.cdsect(value) else target.text(value)
+            }
+        }
+    }
+
+    internal inner class DeferredWriteNilTag(val tagName: QName, val nilAttr: Pair<QName, String>) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            target.smartStartTag(tagName) {
+                smartWriteAttribute(nilAttr.first, nilAttr.second)
+            }
+        }
+    }
+
+    internal class DeferredWriteSerializable<T>(
+        val encoder: Encoder,
+        val serializer: SerializationStrategy<T>,
+        val value: T
+    ) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            serializer.serialize(encoder, value)
+        }
+    }
+
+    internal class DeferredWriteXmlSerializable<T>(
+        val encoder: Encoder,
+        val serializer: XmlSerializationStrategy<T>,
+        val value: T,
+        val isValueChild: Boolean
+    ) : DeferredWrite() {
+        override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
+            serializer.serializeXML(encoder, compositeEncoder.target, value, isValueChild)
+        }
+    }
 
     private fun NamespaceContext.nextAutoPrefix(): String {
         var prefix: String
@@ -897,11 +952,6 @@ internal open class XmlEncoderBase internal constructor(
             deferring = false
         ), XML.XmlOutput {
 
-        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
-            // Polymorphic types are "hardcoded" so don't need deferring
-            deferred()
-        }
-
         override fun writeBegin() {
             // write the container if we're in tag mode (not type attribute/transparent)
             if (xmlDescriptor.polymorphicMode == PolymorphicMode.TAG) super.writeBegin()
@@ -983,10 +1033,6 @@ internal open class XmlEncoderBase internal constructor(
         TagEncoder<XmlDescriptor>(xmlDescriptor, null) {
 
         private lateinit var entryKey: QName
-        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
-            // a map, where deferring is never needed
-            deferred()
-        }
 
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             when (index % 2) {
@@ -1062,11 +1108,6 @@ internal open class XmlEncoderBase internal constructor(
             }
         }
 
-        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
-            // This is a list, deferring is not relevant.
-            deferred()
-        }
-
         override fun writeBegin() {}
 
         override fun <T> encodeSerializableElement(
@@ -1117,11 +1158,6 @@ internal open class XmlEncoderBase internal constructor(
     ) : TagEncoder<XmlListDescriptor>(xmlDescriptor, discriminatorName, deferring = false), XML.XmlOutput {
 
         private val parentXmlDescriptor: XmlDescriptor? get() = xmlDescriptor.tagParent.descriptor as? XmlDescriptor
-
-        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
-            // Deferring in a list is not needed (this is for list elements, not the list itself.
-            deferred()
-        }
 
         override fun writeBegin() {
             if (!xmlDescriptor.isListEluded) { // Do the default thing if the children name has been specified
@@ -1178,11 +1214,6 @@ internal open class XmlEncoderBase internal constructor(
         private lateinit var keySerializer: SerializationStrategy<*>
         private var keyValue: Any? = null
 
-        override fun defer(index: Int, itemDescriptor: XmlDescriptor, deferred: CompositeEncoder.() -> Unit) {
-            // deferring is never valid in a map, ther should not be any reordering either
-            deferred()
-        }
-
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             when (index % 2) {
                 0 -> {
@@ -1218,22 +1249,19 @@ internal open class XmlEncoderBase internal constructor(
 
                 val keyDescriptor = xmlDescriptor.getElementDescriptor(0)
                 if (mapDescriptor.isValueCollapsed) {
-                    defer(index) {
-                        target.smartStartTag(valueDescriptor.tagName) {
-                            // Use the primitive encoder to just get the serialized attribute value. This
-                            // avoids issues with xml nesting.
-                            val keyEncoder = PrimitiveEncoder(serializersModule, keyDescriptor)
-                            @Suppress("UNCHECKED_CAST") // it has been stored so cannot be typed
-                            keyEncoder.encodeSerializableValue(keySerializer as SerializationStrategy<Any?>, keyValue)
+                    target.smartStartTag(valueDescriptor.tagName) {
+                        // Use the primitive encoder to just get the serialized attribute value. This
+                        // avoids issues with xml nesting.
+                        val keyEncoder = PrimitiveEncoder(serializersModule, keyDescriptor)
+                        @Suppress("UNCHECKED_CAST") // it has been stored so cannot be typed
+                        keyEncoder.encodeSerializableValue(keySerializer as SerializationStrategy<Any?>, keyValue)
 
-                            val serializedKey = keyEncoder.output.toString()
-                            smartWriteAttribute(keyDescriptor.tagName, serializedKey)
+                        val serializedKey = keyEncoder.output.toString()
+                        smartWriteAttribute(keyDescriptor.tagName, serializedKey)
 
-                            // Use an inline encoder here as we write the outer tag manually (to add the key attribute)
-                            effectiveSerializer.serializeSafe(InlineEncoder(this@MapEncoder, 1), value)
-                        }
+                        // Use an inline encoder here as we write the outer tag manually (to add the key attribute)
+                        effectiveSerializer.serializeSafe(InlineEncoder(this@MapEncoder, 1), value)
                     }
-
                 } else {
                     target.smartStartTag(mapDescriptor.entryName) { // Tag name is not good
                         val keyEncoder = XmlEncoder(keyDescriptor, index - 1)

@@ -493,7 +493,7 @@ public fun XmlWriter.writeAttribute(name: String, value: Any?) {
 }
 
 public fun XmlWriter.writeAttribute(name: QName, value: String?) {
-    value?.let {
+    if (value != null) {
         if (name.namespaceURI.isEmpty() && name.prefix.isEmpty()) {
             attribute(null, name.localPart, null, value)
         } else {
