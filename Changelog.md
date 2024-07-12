@@ -1,5 +1,10 @@
 #0.90.2-SNAPSHOT
 Changes:
+- Extensive optimization of decoding (serialization), parsing
+  (KtXmlReader) including the creation of the xmlDescriptors.
+- Add a new preset `fast` for a config/policy that chooses speed over
+  verification (such as element order). It still requires "correct"
+  xml files.
 - Add "work in progress" xml schema module to the dev branch. This
   is not yet ready for release (but will parse most xml schemas)
 - Have the XmlReader.{version,standalone,encoding} properties be
