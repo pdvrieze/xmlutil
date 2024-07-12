@@ -69,6 +69,7 @@ tasks.withType<KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
 }
 
+/*
 afterEvaluate {
     rootProject.plugins.withType(YarnPlugin::class.java) {
         rootProject.the<YarnRootExtension>().apply {
@@ -79,6 +80,7 @@ afterEvaluate {
         }
     }
 }
+*/
 
 tasks.register<Copy>("pages") {
     group="documentation"
