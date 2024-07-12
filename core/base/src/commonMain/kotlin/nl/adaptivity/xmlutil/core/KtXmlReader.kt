@@ -231,7 +231,14 @@ public class KtXmlReader internal constructor(
                         attrOut.namespace = "" // always true for null namespace
                     } else if (attrPrefix != null) {
                         val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
-                        if (attrNs == null) error("Undefined Prefix: $attrPrefix in $this")
+                        if (attrNs == null) {
+                            elementStack[depth-1].also {
+                                it.localName = localName
+                                it.prefix = prefix
+                                it.namespace = "<not yet set>"
+                            }
+                            error("Undefined Prefix: $attrPrefix in $this")
+                        }
                         attrOut.namespace = attrNs
                     } else {
                         attrOut.namespace = ""
@@ -1660,7 +1667,7 @@ public class KtXmlReader internal constructor(
                 if (isSelfClosing) buf.append("(empty) ")
                 buf.append('<')
                 if (et == END_ELEMENT) buf.append('/')
-                if (elementStack[depth].prefix != null) buf.append("{$namespaceURI}$prefix:")
+                if (elementStack[depth - 1].prefix != null) buf.append("{$namespaceURI}$prefix:")
                 buf.append(name)
 
                 for (x in 0 until attributeCount) {
