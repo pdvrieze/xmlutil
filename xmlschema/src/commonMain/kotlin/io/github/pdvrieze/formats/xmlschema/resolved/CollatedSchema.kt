@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
+import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 
 internal open class NamespaceHolder(val namespace: String, var loading: Boolean)
 
