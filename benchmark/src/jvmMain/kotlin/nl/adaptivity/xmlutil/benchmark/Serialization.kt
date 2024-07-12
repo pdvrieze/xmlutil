@@ -56,7 +56,7 @@ open class Serialization {
     }
 
     @Param("true"/*, "false"*/)
-    var fast: Boolean = false
+    var fast: Boolean = true
 
     @Setup
     fun setup() {

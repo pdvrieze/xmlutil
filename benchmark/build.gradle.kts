@@ -80,6 +80,9 @@ benchmark {
             include("nl.adaptivity.xmlutil.benchmark.Deserialization.testDeserializeGenericSpeedRetainedXml")
             include("nl.adaptivity.xmlutil.benchmark.Deserialization.testDeserializeNoparseRetained")
         }
+        create("serialization") {
+            include("nl.adaptivity.xmlutil.benchmark.Serialization")
+        }
     }
 }
 

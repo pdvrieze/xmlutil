@@ -41,12 +41,14 @@ open class DeserializationTest: Deserialization() {
         super.setup()
     }
     @Test
-    fun testDeserializeGenericSpeedImpl() =
-        repeat(5) { testDeserializeGenericSpeedImpl(DummyBlackHole) }
+    fun testDeserializeGenericSpeedImpl() {
+        measure("Deserialize with fresh configuration",5) { testDeserializeGenericSpeedImpl(DummyBlackHole) }
+    }
 
     @Test
-    fun testDeserializeGenericSpeedRetainedXml() =
-        repeat(5) { testDeserializeGenericSpeedImpl(DummyBlackHole) }
+    fun testDeserializeGenericSpeedRetainedXml() {
+        measure("Deserialize with retained configuration",5) { testDeserializeGenericSpeedImpl(DummyBlackHole) }
+    }
 
     @Test
     fun testDeserializeNoparseRetained() {
