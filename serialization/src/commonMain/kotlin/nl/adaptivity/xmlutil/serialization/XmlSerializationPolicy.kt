@@ -502,8 +502,7 @@ private constructor(
             ?.getXmlOverride()
             ?: serializerParent.elementSerialDescriptor
 
-        return when (val overrideOutputKind =
-            serializerParent.elementUseOutputKind) {
+        return when (val overrideOutputKind = serializerParent.elementUseOutputKind) {
             null -> {
                 val isValue = tagParent.useAnnIsValue == true
                 var parentChildDesc = tagParent.elementSerialDescriptor
@@ -514,13 +513,12 @@ private constructor(
                 val elementKind = parentChildDesc.kind
                 // If we can't be an attribue
                 when {
-                    elementKind == StructureKind.CLASS
-                    -> OutputKind.Element
+                    elementKind == StructureKind.CLASS -> OutputKind.Element
 
                     isValue -> OutputKind.Mixed
 
-                    !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute)
-                    -> handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
+                    !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute) ->
+                        handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
 
                     !canBeAttribute -> OutputKind.Element
 
