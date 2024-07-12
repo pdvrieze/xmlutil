@@ -212,10 +212,79 @@ public class KtXmlWriter(
         }
     }
 
-    private fun writeEscapedText(s: String, mode: EscapeMode) {
-        loop@ for (c in s.asCodePoints()) {
-            writer.appendXmlCodepoint(c, mode)
+    private fun Appendable.appendXmlChar(char: Char, mode: EscapeMode) {
+
+        fun appendNumCharRef(code: Int) {
+            append("&#x").append(code.toString(16)).append(';')
         }
+
+        fun throwInvalid(code: Int): Nothing {
+            throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
+        }
+
+        if (char < ' ' && ! isXmlWhitespace(char)) {
+            throw IllegalArgumentException("Invalid character with code 0x${char.code.toString(16)}")
+        }
+
+        when {
+            char.code >= ESCAPED_CHARS.size -> {
+                when {
+                    char.code in 0xD800..0xDFFF || char.code == 0xFFFE || char.code == 0xFFFF -> throwInvalid(char.code)
+                    else -> append(char)
+                }
+            }
+
+            !ESCAPED_CHARS[char.code] -> {
+                append(char)
+            }
+
+            char == '&' -> append("&amp;")
+            char == '<' && mode != EscapeMode.MINIMAL -> append("&lt;")
+            char == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
+            char == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
+            char == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
+            char.code in 0x1..0x8 || char.code == 0xB || char.code == 0xC || char.code in 0xE..0x1F -> when (xmlVersion) {
+                XmlVersion.XML10 -> throwInvalid(char.code)
+                XmlVersion.XML11 -> appendNumCharRef(char.code)
+            }
+            char.code in 0x7f..0x84 || char.code in 0x86..0x9f -> when (xmlVersion) {
+                XmlVersion.XML10 -> append(char)
+                XmlVersion.XML11 -> appendNumCharRef(char.code)
+            }
+            else -> appendNumCharRef(char.code)
+        } // should never be touched
+
+    }
+
+    private fun writeEscapedText(s: String, mode: EscapeMode) {
+        var start = 0
+
+        var i = 0
+        val l = s.length
+        while (i < l) {
+            val c = s[i]
+            when {
+                c.isHighSurrogate() -> {
+                    if (start < i) { writer.append(s, start, i) }
+                    val codePoint = 0x10000u + ((c.code.toUInt() - 0xD800u) shl 10) +
+                            (s[i + 1].code.toUInt() - 0xDC00u)
+                    writer.appendXmlCodepoint(codePoint, mode)
+                    start = i + 2
+                    ++i
+                }
+
+                c.code >= ESCAPED_CHARS.size || ESCAPED_CHARS[c.code] -> {
+                    if (start < i) {
+                        writer.append(s, start, i)
+                    }
+                    writer.appendXmlChar(c, mode)
+                    start = i + 1
+                }
+            }
+            ++i
+        }
+
+        if (start < l) writer.append(s, start, l)
     }
 
     private fun triggerStartDocument() {
@@ -589,6 +658,24 @@ public class KtXmlWriter(
         /** Not a tag: -1 */
         private const val TAG_DEPTH_NOT_TAG = -1
         private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+
+        private val ESCAPED_CHARS = BooleanArray(255).also {
+            for (i in 1 until '\t'.code) it[i] = true
+            // 0x9 is tab, 0xa is LF, 0xd is CR
+            it[0xb] = true
+            it[0xc] = true
+            for (i in 0xe until 0x1f) it[i] = true
+            it['<'.code] = true
+            it['>'.code] = true
+            it['&'.code] = true
+            it['\''.code] = true
+            it['"'.code] = true
+
+            // Escaped in xml 1.1
+            for (i in 0x7f..0x84) it[i] = true
+            for (i in 0x86..0x9f) it[i] = true
+        }
+
     }
 
 
