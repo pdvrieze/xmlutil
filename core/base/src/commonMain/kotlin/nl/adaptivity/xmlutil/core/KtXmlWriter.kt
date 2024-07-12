@@ -310,17 +310,9 @@ public class KtXmlWriter(
     }
 
     private fun writeIndent(newDepth: Int = depth) {
-        val indentSeq = indentSequence
-        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != depth) {
+        if (lastTagDepth >= 0 && _indentString.isNotEmpty() && lastTagDepth != depth) {
             ignorableWhitespace("\n")
-            try {
-                indentSequence = emptyList()
-//                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
-                val merged = indentSeq.joinRepeated(depth)
-                merged.forEach { it.writeTo(this) }
-            } finally {
-                indentSequence = indentSeq
-            }
+            for (i in 0 until depth) writer.append(_indentString)
         }
         lastTagDepth = newDepth
     }

@@ -27,17 +27,27 @@ import nl.adaptivity.xmlutil.*
 @XmlUtilInternal
 public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent> = emptyList()) : XmlWriter {
     public var indentSequence: List<XmlEvent.TextEvent> = indentSequence.toList()
-
-    final override var indentString: String
-        @Deprecated("Use indentSequence", level = DeprecationLevel.ERROR)
-        get() {
-            return indentSequence.joinToString { ev ->
+        set(value) {
+            field = value
+            _indentString = value.joinToString("") { ev ->
                 when (ev.eventType) {
                     EventType.COMMENT -> "<!--${ev.text}-->"
                     else -> ev.text
                 }
             }
+
         }
+
+    protected var _indentString: String = indentSequence.joinToString("") { ev ->
+        when (ev.eventType) {
+            EventType.COMMENT -> "<!--${ev.text}-->"
+            else -> ev.text
+        }
+    }
+
+    final override var indentString: String
+        @Deprecated("Use indentSequence", level = DeprecationLevel.ERROR)
+        get() = _indentString
         set(value) {
             indentSequence = value.toIndentSequence()
         }

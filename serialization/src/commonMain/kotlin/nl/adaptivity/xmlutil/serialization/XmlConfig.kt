@@ -574,6 +574,7 @@ private constructor(
             isUnchecked = true
             isCollectingNSAttributes = false
             defaultToGenericParser = true
+            indentString = ""
             recommended_0_90_2 {
                 configurePolicy()
             }
