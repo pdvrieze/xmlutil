@@ -97,8 +97,8 @@ class AllDerivationSerializer2 : KSerializer<Set<VDerivationControl>> {
 }
 
 class ComplexDerivationSerializer : KSerializer<Set<Complex>> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("Set<T_TypeDerviationControl.ComplexBase>", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Set<T_TypeDerviationControl.ComplexBase>", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Set<Complex> {
         return when (val s = decoder.decodeString().trim()) {
