@@ -30,6 +30,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.descriptors.capturedKClass
 import kotlinx.serialization.encoding.ChunkedDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
@@ -46,6 +47,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
+import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -1965,9 +1967,27 @@ internal open class XmlDecoderBase internal constructor(
                             input.eventType == EventType.CDSECT)
                     -> "kotlin.String" // hardcode handling text input polymorphically
 
-                    polyInfo == null -> error("PolyInfo is null for a transparent polymorphic decoder")
+                    polyInfo != null -> polyInfo.describedName
 
-                    else -> polyInfo.describedName
+                    else -> {
+                        if (isMixed && input.eventType == EventType.START_ELEMENT) {
+                            val matches = xmlDescriptor.polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
+                                if (xmlDesc.tagName.isEquivalent(input.name)) return typeName
+                                val baseClass = xmlDescriptor.serialDescriptor.capturedKClass
+                                if (baseClass == null) {
+                                    null
+                                } else {
+                                    val ser = serializersModule.getPolymorphic(baseClass, typeName)
+                                    if (ser is XmlSerializer) typeName else null
+                                }
+                            }
+                            when (matches.size) {
+                                0 -> error("No XmlSerializable found to handle unrecognized value tag ${input.name} in polymorphic context")
+                                1 -> matches.first()
+                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context")
+                            }
+                        } else error("PolyInfo is null for a transparent polymorphic decoder")
+                    }
                 }
 
                 else -> when { // In a mixed context, pure text content doesn't need a wrapper

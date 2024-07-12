@@ -9,6 +9,10 @@ Changes:
 - Make the value of the `depth` property of `XmlReader` consistent
   for EndElement values. The depth of an endEvent uses the android
   XmlPullParser semantics
+- In the case of a polymorphic value child (or list of polymorphic
+  children as value child), when an unknown tag is encountered, allow
+  this to be matched against a single! `XmlSerializer` from the module.
+  This aids #225.
 
 Fixes:
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
