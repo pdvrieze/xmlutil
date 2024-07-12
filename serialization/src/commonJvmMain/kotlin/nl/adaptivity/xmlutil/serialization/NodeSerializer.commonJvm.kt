@@ -35,6 +35,10 @@ import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@Deprecated(
+    message = "Please use nl.adaptivity.xmlutil.dom2.Node.serializer() in the core module",
+    replaceWith = ReplaceWith("Node.serializer()", "nl.adaptivity.xmlutil.dom2.Node")
+)
 public actual object NodeSerializer : XmlSerializer<Node1> {
     private val delegate = Node2.serializer() as XmlSerializer<Node2>
     private val helperDoc = createDocument(QName("XX")) as IDocument
@@ -62,6 +66,6 @@ public actual object NodeSerializer : XmlSerializer<Node1> {
         previousValue: Node1?,
         isValueChild: Boolean
     ): Node1 {
-        return delegate.deserializeXML(decoder, input, previousValue as INode, isValueChild) as INode
+        return delegate.deserializeXML(decoder, input, previousValue as INode?, isValueChild) as INode
     }
 }

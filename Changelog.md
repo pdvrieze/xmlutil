@@ -15,6 +15,8 @@ Changes:
   This aids #225.
 
 Fixes:
+- Fix NodeSerializer in the serialization module to properly forward
+  to the actual implementation.
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
   workaround for a regresion in 2.0 that doesn't allow resolving enum
   constants in this case.
