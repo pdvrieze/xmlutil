@@ -219,10 +219,17 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
     val prefix = reader.prefix
     if (!missingNamespaces.containsKey(prefix)) {
         val uri = reader.namespaceURI
-        if (getNamespaceUri(prefix) == uri && reader.isPrefixDeclaredInElement(prefix)) {
-            return
-        } else {
+        if (getNamespaceUri(prefix) != uri || !reader.isPrefixDeclaredInElement(prefix)) {
             missingNamespaces[prefix] = uri
+        }
+    }
+    for (attrIdx in 0 until reader.attributeCount) {
+        val prefix = reader.getAttributePrefix(attrIdx)
+        if (prefix.isNotEmpty() && ! missingNamespaces.containsKey(prefix)) {
+            val uri = reader.getAttributeNamespace(attrIdx)
+            if (getNamespaceUri(prefix) != uri || !reader.isPrefixDeclaredInElement(prefix)) {
+                missingNamespaces[prefix] = uri
+            }
         }
     }
 }
