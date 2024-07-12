@@ -294,7 +294,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
             for (node in partition) { nodesInPartition[node.elementIdx] = true}
 
             val forwardQueue = partition
-                .filterTo(ArrayList(partition.size)) { it.predecessors.isEmpty() }
+                .filterTo(ArrayList(partition.size)) { it.predecessors.none { nodesInPartition[it.elementIdx] } }
 
             val predsSorted = BooleanArray(children.size)
             while (forwardQueue.isNotEmpty()) {
