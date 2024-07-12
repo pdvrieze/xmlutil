@@ -926,7 +926,7 @@ public class KtXmlReader internal constructor(
                 break
             }
             if (!isNameChar11(c.toChar())) {
-                error("unterminated entity ref")
+                error("unterminated entity ref ($codeBuilder)")
 
                 return
             }
