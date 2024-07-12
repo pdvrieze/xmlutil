@@ -119,10 +119,11 @@ public sealed class XmlDescriptor(
         codecConfig.config.policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
     }
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "OPT_IN_USAGE")
     internal fun <V> effectiveSerializationStrategy(fallback: SerializationStrategy<V>): SerializationStrategy<V> {
-        if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
-        return (overriddenSerializer ?: fallback) as SerializationStrategy<V>
+        val oSer = (overriddenSerializer ?: return fallback) as SerializationStrategy<V>
+        if (oSer.descriptor.isNullable && oSer == (fallback as? KSerializer<Any>)?.nullable) return fallback
+        return oSer
     }
 
     @OptIn(ExperimentalSerializationApi::class)
