@@ -247,11 +247,11 @@ public class KtXmlWriter(
                 XmlVersion.XML10 -> throwInvalid(char.code)
                 XmlVersion.XML11 -> appendNumCharRef(char.code)
             }
-            char.code in 0x7f..0x84 || char.code in 0x86..0x9f -> when (xmlVersion) {
-                XmlVersion.XML10 -> append(char)
-                XmlVersion.XML11 -> appendNumCharRef(char.code)
-            }
-            else -> appendNumCharRef(char.code)
+
+            xmlVersion == XmlVersion.XML11 &&
+                    (char.code in 0x7f..0x84 || char.code in 0x86..0x9f) -> appendNumCharRef(char.code)
+
+            else -> append(char) // when escaping wasn't actually needed (depending on mode)
         } // should never be touched
 
     }
@@ -263,28 +263,30 @@ public class KtXmlWriter(
         val l = s.length
         while (i < l) {
             val c = s[i]
-            when {
-                c.isHighSurrogate() -> {
-                    if (start < i) { writer.append(s, start, i) }
-                    val codePoint = 0x10000u + ((c.code.toUInt() - 0xD800u) shl 10) +
-                            (s[i + 1].code.toUInt() - 0xDC00u)
-                    writer.appendXmlCodepoint(codePoint, mode)
-                    start = i + 2
-                    ++i
-                }
 
-                c.code >= ESCAPED_CHARS.size || ESCAPED_CHARS[c.code] -> {
-                    if (start < i) {
-                        writer.append(s, start, i)
+            if (c.code >= ESCAPED_CHARS.size || ESCAPED_CHARS[c.code]) {
+                if (start < i) {
+                    writer.append(s, start, i)
+                }
+                when {
+                    c.isHighSurrogate() -> {
+                        val codePoint = 0x10000u + ((c.code.toUInt() - 0xD800u) shl 10) +
+                                (s[i + 1].code.toUInt() - 0xDC00u)
+                        writer.appendXmlCodepoint(codePoint, mode)
+                        start = i + 2
+                        ++i
                     }
-                    writer.appendXmlChar(c, mode)
-                    start = i + 1
+
+                    else -> {
+                        writer.appendXmlChar(c, mode)
+                        start = i + 1
+                    }
                 }
             }
             ++i
         }
 
-        if (start < l) writer.append(s, start, l)
+        if (start < l) writer.append(s.substring(start, l))
     }
 
     private fun triggerStartDocument() {
