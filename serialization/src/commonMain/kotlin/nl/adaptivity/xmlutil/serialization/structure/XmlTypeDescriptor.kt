@@ -50,6 +50,26 @@ public class XmlTypeDescriptor internal constructor(
     public var typeAnnCData: Boolean? = null
         private set
 
+    @ExperimentalXmlUtilApi
+    public var typeAnnIsXmlValue: Boolean? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnIsId: Boolean = false
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnIsElement: Boolean? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnChildrenName: XmlChildrenName? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnPolyChildren: XmlPolyChildren? = null
+        private set
+
     init {
         @OptIn(ExperimentalSerializationApi::class)
         for (a in serialDescriptor.annotations) {
@@ -57,6 +77,11 @@ public class XmlTypeDescriptor internal constructor(
                 is XmlNamespaceDeclSpec -> typeAnnNsDecls = a.namespaces
                 is XmlSerialName -> typeAnnXmlSerialName = a
                 is XmlCData -> typeAnnCData = a.value
+                is XmlValue -> typeAnnIsXmlValue = a.value
+                is XmlId -> typeAnnIsId = true
+                is XmlElement -> typeAnnIsElement = a.value
+                is XmlChildrenName -> typeAnnChildrenName = a
+                is XmlPolyChildren -> typeAnnPolyChildren = a
             }
         }
         if (typeAnnXmlSerialName==null) {

@@ -523,7 +523,7 @@ private constructor(
                     !canBeAttribute -> OutputKind.Element
 
                     else -> tagParent.elementUseOutputKind
-                        ?: serialDescriptor.declOutputKind()
+                        ?: serializerParent.elementTypeDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
                 }
             }
@@ -537,7 +537,7 @@ private constructor(
                     }
                 } else {
                     val outputKind = tagParent.elementUseOutputKind
-                        ?: serialDescriptor.declOutputKind()
+                        ?: serializerParent.elementTypeDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
 
                     when (outputKind) {
