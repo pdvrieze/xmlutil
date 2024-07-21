@@ -86,7 +86,7 @@ class XSSchema : XSOpenAttrsBase {
 
     constructor(
         attributeFormDefault: VFormChoice? = null,
-        blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
+        blockDefault: Set<VDerivationControl.T_BlockSetValues>? = null,
         defaultAttributes: SerializableQName? = null,
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         elementFormDefault: VFormChoice? = null,
