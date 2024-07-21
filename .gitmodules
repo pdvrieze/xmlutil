@@ -1,4 +1,8 @@
 [submodule "pages"]
 	path = pages
-	url = git@github.com:pdvrieze/xmlutil.git
+	url = ./
 	branch = pages
+
+[submodule "xsdtests"]
+	path = schemaTests/src/jvmMain/resources/xsts
+	url = https://github.com/w3c/xsdtests.git

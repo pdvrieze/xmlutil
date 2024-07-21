@@ -1,28 +1,38 @@
 [versions]
 apiVersion = "1.8"
 binaryValidator = "0.15.0-Beta.2"
+dateTime = "0.4.1"
 dokka = "1.9.20"
 javaVersion = "8"
+jmh = "0.7.2"
+jmh-core = "1.37"
+benchmark = "0.4.11"
 junit5-jupiter = "5.10.2"
 kotlin = "2.0.0"
 kotlinx-serialization = "1.7.0"
 kxml2 = "2.3.0"
 woodstox = "6.6.2"
-xmlutil = "0.90.1"
+xmlutil = "0.90.2-beta1"
 
 [libraries]
-woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
+jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
 kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
+woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5-jupiter" }
 
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "dateTime" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
+benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "benchmark"}
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
 
 [plugins]
 binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryValidator" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+jmh = { id = "me.champeau.jmh", version.ref = "jmh" }
+benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "benchmark" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }

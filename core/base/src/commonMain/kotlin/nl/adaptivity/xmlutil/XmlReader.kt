@@ -154,10 +154,28 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /** The current namespace context */
     public val namespaceContext: IterableNamespaceContext
 
+    /**
+     * The declared encoding for the document. Unlike general parsing, this value is accessible
+     * after reading the document element. The document element must be the first non-whitespace
+     * element. The value for this property before document element presence is known is
+     * implementation defined (and may change).
+     */
     public val encoding: String?
 
+    /**
+     * The declared standalone status for the document. Unlike general parsing, this value is accessible
+     * after reading the document element. The document element must be the first non-whitespace
+     * element. The value for this property before document element presence is known is
+     * implementation defined (and may change).
+     */
     public val standalone: Boolean?
 
+    /**
+     * The declared xml version for the document. Unlike general parsing, this value is accessible
+     * after reading the document element. The document element must be the first non-whitespace
+     * element. The value for this property before document element presence is known is
+     * implementation defined (and may change).
+     */
     public val version: String?
 
     public interface LocationInfo
@@ -339,16 +357,16 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
  *
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
-public fun XmlBufferedReader.allConsecutiveTextContent(): String {
+public fun XmlPeekingReader.allConsecutiveTextContent(): String {
     if (eventType == EventType.END_ELEMENT) return ""
     val t = this
     return buildString {
         if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) append(text)
 
-        var event: XmlEvent? = null
+        var eventType: EventType?
 
-        loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
-            when (event?.eventType) {
+        loop@ while ((t.peekNextEvent().also { eventType = it }) !== EventType.END_ELEMENT) {
+            when (eventType) {
                 EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT -> {
                     t.next();Unit
@@ -368,7 +386,7 @@ public fun XmlBufferedReader.allConsecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $event")
+                else -> throw XmlException("Found unexpected child tag: $eventType")
             }//ignore
 
         }

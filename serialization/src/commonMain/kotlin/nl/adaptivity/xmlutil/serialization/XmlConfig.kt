@@ -21,12 +21,14 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -47,9 +49,65 @@ private constructor(
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     public val indentString: String = "",
     public val policy: XmlSerializationPolicy,
-    public val nilAttribute: Pair<QName, String>? = null,
-    public val xmlVersion: XmlVersion = XmlVersion.XML11
+    nilAttribute: Pair<QName, String>? = null,
+    public val xmlVersion: XmlVersion = XmlVersion.XML11,
+    cachingEnabled: Boolean = true,
 ) {
+
+    /**
+     * Determines whether inline classes are merged with their content. Note that inline classes
+     * may still determine the tag name used for the data even if the actual contents come from
+     * the child content. The actual name used is ultimately determined by the [policy] in use.
+     *
+     * If the value is `false` inline classes will be handled like non-inline classes
+     */
+    public var isInlineCollapsed: Boolean = true
+        private set
+
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use indentString for better accuracy")
+    public val indent: Int
+        get() = indentString.countIndentedLength()
+
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use xmlDeclMode with more options")
+    public val omitXmlDecl: Boolean
+        get() = xmlDeclMode == XmlDeclMode.None
+
+    public val formatCache: FormatCache = when {
+        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache()
+        else -> FormatCache.Dummy
+    }
+
+    public val nilAttributeName: QName? = nilAttribute?.first
+    public val nilAttributeValue: String? = nilAttribute?.second
+
+    public val nilAttribute: Pair<QName, String>?
+        get() = nilAttributeName?.run {
+            Pair(nilAttributeName, nilAttributeValue!!)
+        }
+
+    /**
+     * This property determines whether the serialization will collect all used namespaces and
+     * emits all namespace attributes on the root tag.
+     */
+    public var isCollectingNSAttributes: Boolean = false
+        private set
+
+    /**
+     * This property can be used to disable various checks on the correctness of the serializer descriptions.
+     * This should speed up processing, but may give surprising results in the presence of an error. Note that
+     * this doesn't disable all checks, but mainly expensive ones on matters like order, or checks on
+     * serial format. This does not disable the checking
+     */
+    public var isUnchecked: Boolean = false
+        private set
+
+    public var isAlwaysDecodeXsiNil: Boolean = true
+        private set
+
+    public var defaultToGenericParser: Boolean = false
+        private set
 
     @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
@@ -99,16 +157,6 @@ private constructor(
         nilAttribute
     )
 
-    /**
-     * Determines whether inline classes are merged with their content. Note that inline classes
-     * may still determine the tag name used for the data even if the actual contents come from
-     * the child content. The actual name used is ultimately determined by the [policy] in use.
-     *
-     * If the value is `false` inline classes will be handled like non-inline classes
-     */
-    public var isInlineCollapsed: Boolean = true
-        private set
-
     @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
     @Deprecated("Use the primary constructor that takes a recoverable child handler")
@@ -120,12 +168,6 @@ private constructor(
         unknownChildHandler: NonRecoveryUnknownChildHandler,
         policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic),
     ) : this(repairNamespaces, xmlDeclMode, indentString, autoPolymorphic, unknownChildHandler.asRecoverable(), policy)
-
-    /**
-     * This property determines whether the serialization will collect all used namespaces and
-     * emits all namespace attributes on the root tag.
-     */
-    public var isCollectingNSAttributes: Boolean = false
 
     @ExperimentalXmlUtilApi
     @Suppress("DEPRECATION")
@@ -173,21 +215,21 @@ private constructor(
             unknownChildHandler = builder.unknownChildHandler ?: DEFAULT_UNKNOWN_CHILD_HANDLER
         ),
         nilAttribute = builder.nilAttribute,
-        xmlVersion = builder.xmlVersion
+        xmlVersion = builder.xmlVersion,
+        cachingEnabled = builder.isCachingEnabled,
     ) {
         isInlineCollapsed = builder.isInlineCollapsed
         isCollectingNSAttributes = builder.isCollectingNSAttributes
+        isUnchecked = builder.isUnchecked
+        isAlwaysDecodeXsiNil = builder.isAlwaysDecodeXsiNil
+        defaultToGenericParser = builder.defaultToGenericParser
     }
 
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use indentString for better accuracy")
-    public val indent: Int
-        get() = indentString.countIndentedLength()
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use xmlDeclMode with more options")
-    public val omitXmlDecl: Boolean
-        get() = xmlDeclMode == XmlDeclMode.None
+    internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
+        return formatCache.lookupType(parentNamespace, serialDescriptor) {
+            XmlTypeDescriptor(this, serialDescriptor, parentNamespace)
+        }
+    }
 
     /**
      * Configuration for the xml parser.
@@ -226,6 +268,9 @@ private constructor(
                     if (value is DefaultXmlSerializationPolicy && value.autoPolymorphic != autoPolymorphic) {
                         this.autoPolymorphic = value.autoPolymorphic
                     }
+                }
+                if (value is DefaultXmlSerializationPolicy && value.formatCache == FormatCache.Dummy && isCachingEnabled) {
+                    isCachingEnabled = false
                 }
             }
 
@@ -286,6 +331,7 @@ private constructor(
             this.isInlineCollapsed = config.isInlineCollapsed
             this.isCollectingNSAttributes = config.isCollectingNSAttributes
             this.xmlVersion = config.xmlVersion
+            this.isUnchecked = config.isUnchecked
         }
 
 
@@ -358,11 +404,37 @@ private constructor(
 
         public var xmlVersion: XmlVersion = XmlVersion.XML11
 
+        public var isCachingEnabled: Boolean = true
+            set(value) {
+                if (field != value) {
+                    field = value
+
+                    // If this is changed, also update the policy
+                    val p = policy
+                    if (p is DefaultXmlSerializationPolicy) {
+                        policy = p.builder().apply { isCachingEnabled = value }.build()
+                    }
+                }
+            }
+
         /**
          * This property determines whether the serialization will collect all used namespaces and
          * emits all namespace attributes on the root tag.
          */
         public var isCollectingNSAttributes: Boolean = false
+
+        /**
+         * Default parsing to the optimized generic parser rather than using the platform specific one
+         */
+        public var defaultToGenericParser: Boolean = false
+
+        /**
+         * This property can be used to disable various checks on the correctness of the serializer descriptions.
+         * This should speed up processing, but may give surprising results in the presence of an error.
+         */
+        public var isUnchecked: Boolean = false
+
+        public var isAlwaysDecodeXsiNil: Boolean = true
 
         public var indent: Int
             @Deprecated("Use indentString for better accuracy")
@@ -394,7 +466,23 @@ private constructor(
          * Note that this function has no guarantee of stability.
          */
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            recommended_0_87_0(configurePolicy)
+            recommended_0_90_2(configurePolicy)
+        }
+
+        /**
+         * Configure the parser using the latest recommended settings for fast (en/de)coding. Note that this function has
+         * no guarantee of stability.
+         */
+        public fun fast() {
+            fast { }
+        }
+
+        /**
+         * Configure the policy and the config builder with the latest recommended settings and policy.
+         * Note that this function has no guarantee of stability.
+         */
+        public inline fun fast(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            fast_0_90_2(configurePolicy)
         }
 
         /**
@@ -438,6 +526,56 @@ private constructor(
             repairNamespaces = false
             recommended_0_86_3 {
                 isStrictOtherAttributes = true
+                configurePolicy()
+            }
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        public fun recommended_0_90_2() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            recommended_0_90_2 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
+         * required for XML 1.1 (otherwise it reverts to 1.0).
+         */
+        public inline fun recommended_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            repairNamespaces = false
+            recommended_0_87_0 {
+                xmlVersion = XmlVersion.XML11
+                xmlDeclMode = XmlDeclMode.Minimal
+                isStrictBoolean = true
+                configurePolicy()
+            }
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        public fun fast_0_90_2() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            fast_0_90_2 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
+         * required for XML 1.1 (otherwise it reverts to 1.0).
+         */
+        public inline fun fast_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            isCachingEnabled = true
+            recommended_0_90_2 {
+                isAlwaysDecodeXsiNil = false
+                isUnchecked = true
+                isCollectingNSAttributes = false
+                defaultToGenericParser = true
+                indentString = ""
                 configurePolicy()
             }
         }

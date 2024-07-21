@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.*
 import org.xmlpull.v1.XmlPullParserException
+import org.xmlpull.v1.XmlPullParserFactory
 import java.io.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
@@ -60,7 +61,7 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(reader: Reader): XmlReader {
         try {
-            return KtXmlReader(reader)
+            return AndroidXmlReader(reader)
         } catch (e: XmlPullParserException) {
             throw XmlException(e)
         }
@@ -70,7 +71,10 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(inputStream: InputStream): XmlReader {
         try {
-            return KtXmlReader(inputStream)
+            val parser = XmlPullParserFactory.newInstance().newPullParser().also {
+                it.setInput(inputStream, null)
+            }
+            return AndroidXmlReader(parser)
         } catch (e: XmlPullParserException) {
             throw XmlException(e)
         }
@@ -80,7 +84,7 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     @Throws(XmlException::class)
     override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         try {
-            return KtXmlReader(inputStream, encoding)
+            return AndroidXmlReader(inputStream, encoding)
         } catch (e: XmlPullParserException) {
             throw XmlException(e)
         }
@@ -88,6 +92,7 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     }
 
     internal companion object {
+        @Suppress("unused")
         internal val DEFAULT_INSTANCE = AndroidStreamingFactory()
     }
 }

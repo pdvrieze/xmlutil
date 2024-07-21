@@ -25,9 +25,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 @OptIn(ExperimentalXmlUtilApi::class)
 class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
@@ -53,10 +51,17 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
         val expectedMsgStart = "Could not find a field for name " +
                 "(nl.adaptivity.xml.serialization.SimpleDataTest.Address) address/" +
                 "unknown (Attribute)\n" +
-                "  candidates: houseNumber (Attribute), street (Attribute), city (Attribute), status (Attribute) at position "
-        val msgSubstring = e.message?.let { it.substring(0, minOf(it.length, expectedMsgStart.length)) }
+                "  candidates: "
+        val expectedCandidates = listOf("city (Attribute)", "houseNumber (Attribute)", "status (Attribute)", "street (Attribute)")
+
+        val msgSubstring = assertNotNull(e.message).let { it.substring(0, minOf(it.length, expectedMsgStart.length)) }
+
+        val foundCandidates = e.message!!
+            .substringBeforeLast(" at position ")
+            .substringAfterLast("candidates: ").split(",").map { it.trim() }.sorted()
 
         assertEquals(expectedMsgStart, msgSubstring)
+        assertContentEquals(expectedCandidates, foundCandidates)
     }
 
 

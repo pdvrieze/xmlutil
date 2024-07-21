@@ -45,14 +45,43 @@ public fun isXmlWhitespace(data: CharSequence): Boolean = data.all { isXmlWhites
 
 public fun xmlCollapseWhitespace(original: String): String = buildString(original.length) {
     var last = ' ' // Start with space, to trim start of symbol
-    for(c in original) {
-        last = when (c) {
-            '\t', '\n', '\r', ' ' -> { if(last!=' ') append(' '); ' ' }
-
-            else -> { append(c); c }
+    for (c in original) {
+        if (c == '\t' || c == '\n' || c == '\r' || c == ' ') {
+            if (last != ' ') append(' ')
+            last = ' '
+        } else {
+            last = c
+            append(c)
         }
     }
     if (last == ' ' && isNotEmpty()) this.deleteAt(this.length - 1) // make sure to trim
+}
+
+public fun xmlTrimWhitespace(original: String): String = buildString(original.length) {
+    var start = -1
+    for (i in original.indices) {
+        when (original[i]) {
+            '\t', '\n', '\r', ' ' -> {}
+            else -> {
+                start = i; break
+            }
+        }
+    }
+    if (start < 0) return "" // loop finished
+    var end = -1
+    for (i in original.indices.reversed()) {
+        when (original[i]) {
+            '\t', '\n', '\r', ' ' -> {}
+            else -> { end = i; break }
+        }
+    }
+    for(i in start..end) {
+        when (val c = original[i]) {
+            '\t', '\n', '\r', ' ' -> append(' ')
+
+            else -> append(c)
+        }
+    }
 }
 
 
@@ -155,7 +184,7 @@ public fun XmlReader.isXml(): Boolean {
     return true
 }
 
-public fun CharSequence.xmlEncode(): String = buildString {
+public fun CharSequence.xmlEncode(): String = buildString(length.let { it + (it shr 4) }) {
     for (c in this@xmlEncode) {
         when (c) {
             '<' -> append("&lt;")

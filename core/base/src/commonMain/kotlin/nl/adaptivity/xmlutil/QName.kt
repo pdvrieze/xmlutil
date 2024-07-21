@@ -80,8 +80,8 @@ public object QNameSerializer : XmlSerializer<QName> {
         val prefixedName = decoder.decodeString().trim()
         val cIndex = prefixedName.indexOf(':')
 
-        val prefix:String
-        val namespace:String
+        val prefix: String
+        val namespace: String
         val localPart: String
 
         when {
@@ -90,7 +90,8 @@ public object QNameSerializer : XmlSerializer<QName> {
                 localPart = prefixedName
                 namespace = namespaceContext.getNamespaceURI("") ?: ""
             }
-            else       -> {
+
+            else -> {
                 prefix = prefixedName.substring(0, cIndex)
                 localPart = prefixedName.substring(cIndex + 1)
                 namespace = namespaceContext.getNamespaceURI(prefix)

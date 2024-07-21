@@ -21,10 +21,13 @@
 package nl.adaptivity.xmlutil
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TestKtXmlReader : TestCommonReader() {
 
@@ -76,6 +79,21 @@ class TestKtXmlReader : TestCommonReader() {
     }
 
     @Test
+    fun testReadEntityInAttribute() {
+        val data = "<tag attr=\"&lt;xx&gt;\"/>"
+        val reader = KtXmlReader(StringReader(data))
+        var e = reader.next()
+        if (e == EventType.START_DOCUMENT) e = reader.next()
+        assertEquals(EventType.START_ELEMENT, e)
+        assertEquals("tag", reader.localName)
+        assertEquals(1, reader.attributeCount)
+        assertEquals("attr", reader.getAttributeLocalName(0))
+        assertEquals("<xx>", reader.getAttributeValue(0))
+
+        assertEquals(EventType.END_ELEMENT, reader.next())
+    }
+
+    @Test
     fun testProcessingInstructionDom() {
         val domWriter = DomWriter()
         testProcessingInstruction(::createReader) { domWriter }
@@ -106,4 +124,17 @@ class TestKtXmlReader : TestCommonReader() {
         testReadToDom(::createReader)
     }
 
+    @Test
+    fun testXmlDecl() {
+        val reader = KtXmlReader(StringReader("<?xml version=\"1.1\" standalone=\"yes\"?>\r<foo>bar</foo>"))
+        assertEquals(EventType.START_DOCUMENT, reader.next())
+        assertEquals("1.1", reader.version)
+        assertEquals(true, reader.standalone)
+
+        assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+        assertEquals("\n", reader.text)
+
+        assertEquals(EventType.START_ELEMENT, reader.next())
+        assertEquals("foo", reader.localName)
+    }
 }

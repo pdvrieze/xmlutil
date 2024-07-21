@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XmlDelegatingReader
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.util.impl.FragmentNamespaceContext
 import java.io.CharArrayReader
 import java.io.Reader
@@ -120,7 +121,7 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
             }
 
             val actualInput = CombiningReader(StringReader(wrapper), reader, StringReader("</$WRAPPERPPREFIX:wrapper>"))
-            return xmlStreaming.newReader(actualInput)
+            return KtXmlReader(actualInput)
         }
 
         @JvmStatic

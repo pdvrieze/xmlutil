@@ -10,23 +10,26 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-strategy:
-  matrix:
-#    jdk11:
-#      jdk_version: "1.11"
-    jdk17:
-        jdk_version: "1.17"
-  maxParallel: 2
+#strategy:
+#  matrix:
+##    jdk11:
+##      jdk_version: "1.11"
+#    jdk17:
+#        jdk_version: "1.17"
+#  maxParallel: 2
 
 steps:
-- task: Gradle@2
+- checkout: self
+  submodules: true
+- task: Gradle@3
   inputs:
     workingDirectory: ''
     gradleWrapperFile: 'gradlew'
     gradleOptions: '-Xmx2048m'
     javaHomeOption: 'JDKVersion'
-    jdkVersionOption: $(jdk_version)
+    jdkVersionOption: "1.17"
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
     tasks: 'build'
+    options: '-PexcludeSchema'

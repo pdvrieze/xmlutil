@@ -42,7 +42,14 @@ public open class NamespaceHolder : Iterable<Namespace> {
         private set
 
     public val namespacesAtCurrentDepth: List<Namespace>
-        get() = namespaceIndicesAt(depth).map { XmlEvent.NamespaceImpl(getPrefix(it), getNamespace(it)) }
+        get() {
+            val startIdx = if(depth == 0) 0 else (arrayUseAtDepth(depth - 1) shr 1)
+            val endIdx = (arrayUseAtDepth(depth) shr 1)
+            return List(endIdx-startIdx) { offset ->
+                val i = startIdx+offset
+                XmlEvent.NamespaceImpl(getPrefix(i), getNamespace(i))
+            }
+        }
 
     public fun incDepth() {
         ++depth
@@ -105,6 +112,31 @@ public open class NamespaceHolder : Iterable<Namespace> {
         addPrefixToContext(ns.prefix, ns.namespaceURI)
     }
 
+    public fun addPrefixesToContext(namespaces: Iterable<Namespace>) {
+        val iter = namespaces.iterator()
+        if (!iter.hasNext()) return // short circuit empty list
+        val prevCounts = if (depth >= 1) namespaceCounts[depth - 1] else 0
+        if (prevCounts != 0) { // pessimistic path if there are already namespaces at this level
+            for (n in iter) addPrefixToContext(n)
+            return
+        }
+        var nextIdx = namespaceCounts[depth] * 2
+        if (namespaces is Collection) {
+            while (nextIdx + (namespaces.size * 2) >= nameSpaces.size) enlargeNamespaceBuffer()
+            for (n in iter) {
+                nameSpaces[nextIdx++] = n.prefix
+                nameSpaces[nextIdx++] = n.namespaceURI
+            }
+        } else {
+            for (n in iter) {
+                if (nextIdx + 2 >= nameSpaces.size) enlargeNamespaceBuffer()
+                nameSpaces[nextIdx++] = n.prefix
+                nameSpaces[nextIdx++] = n.namespaceURI
+            }
+        }
+        namespaceCounts[depth] = nextIdx / 2
+    }
+
 
     public fun addPrefixToContext(prefix: CharSequence?, namespaceUri: CharSequence?) {
         val prevCounts = if (depth >= 1) namespaceCounts[depth - 1] else 0
@@ -118,7 +150,7 @@ public open class NamespaceHolder : Iterable<Namespace> {
         setPrefix(nextPair, prefix)
         setNamespace(nextPair, namespaceUri)
 
-        namespaceCounts[depth]++
+        namespaceCounts[depth]+=1
     }
 
     private fun enlargeNamespaceBuffer() {
@@ -136,7 +168,9 @@ public open class NamespaceHolder : Iterable<Namespace> {
             return this@NamespaceHolder.getPrefix(namespaceURI)
         }
 
-        override fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this@NamespaceHolder)
+        @Suppress("UNCHECKED_CAST")
+        override fun freeze(): IterableNamespaceContext =
+            SimpleNamespaceContext(nameSpaces.copyOfRange(0, totalNamespaceCount * 2) as Array<String>)
 
         override fun iterator(): Iterator<Namespace> = this@NamespaceHolder.iterator()
 
@@ -150,13 +184,17 @@ public open class NamespaceHolder : Iterable<Namespace> {
     }
 
     public fun getNamespaceUri(prefix: CharSequence): String? {
-        return when (val prefixStr = prefix.toString()) {
-            XML_NS_PREFIX -> return XML_NS_URI
-            XMLNS_ATTRIBUTE -> return XMLNS_ATTRIBUTE_NS_URI
+        val prefixStr = prefix.toString()
+        var nsIdx = totalNamespaceCount
+        while (--nsIdx >= 0) {
+            if (prefixStr == getPrefix(nsIdx)) return getNamespace(nsIdx)
+        }
 
-            else -> ((totalNamespaceCount - 1) downTo 0)
-                .firstOrNull { getPrefix(it) == prefixStr }
-                ?.let { getNamespace(it) } ?: if (prefixStr.isEmpty()) NULL_NS_URI else null
+        return when (prefixStr) {
+            XML_NS_PREFIX -> XML_NS_URI
+            XMLNS_ATTRIBUTE -> XMLNS_ATTRIBUTE_NS_URI
+            "" -> ""
+            else -> null
         }
     }
 

@@ -151,3 +151,7 @@ public actual annotation class MpJvmDefaultWithoutCompatibility
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 public actual annotation class MpJvmDefaultWithCompatibility
+
+public actual inline fun <K, V> MutableMap<K, V>.computeIfAbsent(key: K, defaultValue: () -> V): V {
+    return getOrPut(key, defaultValue)
+}

@@ -18,13 +18,21 @@
  * under the License.
  */
 
+import net.devrieze.gradle.ext.configureDokka
+import net.devrieze.gradle.ext.envAndroid
+import net.devrieze.gradle.ext.envJvm
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
+import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     repositories {
@@ -61,6 +69,7 @@ tasks.withType<KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
 }
 
+/*
 afterEvaluate {
     rootProject.plugins.withType(YarnPlugin::class.java) {
         rootProject.the<YarnRootExtension>().apply {
@@ -71,6 +80,7 @@ afterEvaluate {
         }
     }
 }
+*/
 
 tasks.register<Copy>("pages") {
     group="documentation"

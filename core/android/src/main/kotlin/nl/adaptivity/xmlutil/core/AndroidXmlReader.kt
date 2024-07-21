@@ -43,8 +43,8 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
         parser.setInput(input, encoding)
     }
 
-    override val eventType: EventType
-        get() = DELEGATE_TO_LOCAL[parser.eventType]
+    override lateinit var eventType: EventType
+        private set
 
     override fun getAttributeValue(nsUri: String?, localName: String): String? {
         return parser.getAttributeValue(nsUri, localName)
@@ -55,14 +55,36 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
     @Throws(XmlException::class)
     override fun hasNext(): Boolean {
         // TODO make this more robust (if needed)
-        return eventType !== EventType.END_DOCUMENT
+        return !isStarted || eventType !== EventType.END_DOCUMENT
     }
 
     @Throws(XmlException::class)
-    override fun next(): EventType = DELEGATE_TO_LOCAL[parser.nextToken()].also { isStarted = true }
+    override fun next(): EventType {
+        val nextToken = when (val n = parser.nextToken()) {
+            XmlPullParser.TEXT -> when {
+                isXmlWhitespace(parser.text) -> { XmlPullParser.IGNORABLE_WHITESPACE }
+                else -> XmlPullParser.TEXT
+            }
+            else -> n
+        }
+        return DELEGATE_TO_LOCAL[nextToken].also {
+            eventType = it
+            if (it == EventType.START_DOCUMENT) version = parser.getAttributeValue(null, "version")
+            isStarted = true
+        }
+    }
 
     @Throws(XmlException::class)
-    override fun nextTag(): EventType = DELEGATE_TO_LOCAL[parser.nextTag()].also { isStarted = true }
+    override fun nextTag(): EventType {
+        var et = next()
+        while (et == EventType.IGNORABLE_WHITESPACE || (et == EventType.TEXT && isXmlWhitespace(text))) {
+            et = next()
+        }
+        if (et != EventType.START_ELEMENT && et != EventType.END_ELEMENT) {
+            throw XmlException("Unexpected event $et while looking for next tag event")
+        }
+        return et
+    }
 
     override val depth: Int
         get() = parser.depth
@@ -146,8 +168,8 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
     override val encoding: String?
         get() = parser.inputEncoding
 
-    override val version: String?
-        get() = null
+    override var version: String? = null
+        private set
 
     /**
      * This method creates a new immutable context, so keeping the context around is valid. For

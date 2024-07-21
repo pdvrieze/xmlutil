@@ -45,8 +45,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         extLocationInfo: XmlReader.LocationInfo?,
         override val eventType: EventType,
         public val text: String
-    ) :
-        XmlEvent(extLocationInfo) {
+    ) : XmlEvent(extLocationInfo) {
 
         public constructor(locationInfo: String, eventType: EventType, text: String) :
                 this(locationInfo.let(XmlReader::StringLocationInfo), eventType, text)
@@ -212,7 +211,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
             namespaceDecls
         )
 
-        private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls.asIterable())
+        private val namespaceHolder: SimpleNamespaceContext = SimpleNamespaceContext(namespaceDecls)
 
         public constructor(
             name: QName,
@@ -376,11 +375,13 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         }
     }
 
-    public class NamespaceImpl(namespacePrefix: CharSequence, namespaceUri: CharSequence) : Namespace {
+    public class NamespaceImpl public constructor(namespacePrefix: String, namespaceUri: String) : Namespace {
 
-        override val prefix: String = namespacePrefix.toString()
+        override val prefix: String = namespacePrefix
+        override val namespaceURI: String = namespaceUri
 
-        override val namespaceURI: String = namespaceUri.toString()
+        public constructor(namespacePrefix: CharSequence, namespaceUri: CharSequence) :
+                this(namespacePrefix.toString(), namespaceUri.toString())
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

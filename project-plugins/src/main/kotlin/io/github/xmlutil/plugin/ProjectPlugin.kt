@@ -70,6 +70,7 @@ class ProjectPlugin: Plugin<Project> {
             dokkaModuleName.convention(project.provider { project.name })
             dokkaVersion.convention(project.provider { project.version.toString() })
             applyLayout.convention(true)
+            kotlinApiVersion.convention(KotlinVersion.KOTLIN_1_8)
         }
         project.plugins.all {
             when (this) {
@@ -87,7 +88,7 @@ class ProjectPlugin: Plugin<Project> {
                     project.extensions.configure<KotlinJvmProjectExtension> {
                         compilerOptions {
                             jvmTarget = JvmTarget.JVM_1_8
-                            apiVersion = KotlinVersion.KOTLIN_1_8
+                            apiVersion = e.kotlinApiVersion
                             configureCompilerOptions(project, "project ${project.name}")
                         }
 
@@ -121,7 +122,10 @@ class ProjectPlugin: Plugin<Project> {
                             this.compilations.configureEach {
                                 compileTaskProvider.configure {
                                     compilerOptions {
-                                        apiVersion = if (isJvm) KotlinVersion.KOTLIN_1_8 else KotlinVersion.KOTLIN_2_0
+                                        when {
+                                            isJvm -> apiVersion = e.kotlinApiVersion
+                                            else -> apiVersion = KotlinVersion.KOTLIN_2_0
+                                        }
                                     }
                                 }
                             }
@@ -202,4 +206,5 @@ abstract class ProjectConfigurationExtension {
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
     abstract val applyLayout: Property<Boolean>
+    abstract val kotlinApiVersion: Property<KotlinVersion>
 }

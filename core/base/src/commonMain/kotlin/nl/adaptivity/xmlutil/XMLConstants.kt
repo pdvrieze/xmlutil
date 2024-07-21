@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024.
  *
- * This file is part of xmlutil.
+ * This file is part of XmlUtil.
  *
  * This file is licenced to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -38,4 +38,14 @@ public object XMLConstants {
 
     public const val XSD_PREFIX: String = "xsd"
     public const val XSD_NS_URI: String = "http://www.w3.org/2001/XMLSchema"
+
+    public const val XLINK_PREFIX: String = "xlink"
+    public const val XLINK_NAMESPACE: String = "http://www.w3.org/1999/xlink"
+
+    public const val XPATH_FUNCTIONS_PREFIX: String = "fn"
+    public const val XPATH_FUNCTIONS_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions"
+
+    public const val XHTML_PREFIX: String = "xhtml"
+    public const val XHTML_NAMESPACE: String = "http://www.w3.org/1999/xhtml"
+
 }

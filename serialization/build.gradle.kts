@@ -165,7 +165,6 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 compileOnly(libs.kxml2)
-                runtimeOnly(projects.coreAndroid)
             }
         }
 
@@ -174,6 +173,7 @@ kotlin {
                 implementation(kotlin("test-junit5"))
                 runtimeOnly(libs.kxml2)
 
+//                implementation(projects.coreAndroid)
                 implementation(libs.junit5.api)
                 implementation(libs.kotlin.reflect)
 

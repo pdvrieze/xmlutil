@@ -19,3 +19,6 @@ ij_wrap_on_typing = false
 [{*.markdown,*.md}]
 max_line_length = 80
 ij_visual_guides = 70, 80
+
+[xmlschema/src/jvmTest/resources/override.*]
+indent_size = 2

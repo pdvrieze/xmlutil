@@ -21,16 +21,77 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.*
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.core.impl.multiplatform.maybeAnnotations
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.toNamespace
 
-public class XmlTypeDescriptor internal constructor(public val serialDescriptor: SerialDescriptor, parentNamespace: Namespace?) {
+public class XmlTypeDescriptor internal constructor(
+    config: XmlConfig,
+    public val serialDescriptor: SerialDescriptor,
+    parentNamespace: Namespace?
+) {
+    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    @ExperimentalXmlUtilApi
+    public var typeAnnNsDecls: List<Namespace>? = null
+        private set
+
+    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    @ExperimentalXmlUtilApi
+    public var typeAnnXmlSerialName: XmlSerialName? = null
+        private set
+
+    /** Value of the [XmlCData] annotation */
+    @ExperimentalXmlUtilApi
+    public var typeAnnCData: Boolean? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnIsXmlValue: Boolean? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnIsId: Boolean = false
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnIsElement: Boolean? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnChildrenName: XmlChildrenName? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public var typeAnnPolyChildren: XmlPolyChildren? = null
+        private set
+
+    init {
+        @OptIn(ExperimentalSerializationApi::class)
+        for (a in serialDescriptor.annotations) {
+            when (a) {
+                is XmlNamespaceDeclSpec -> typeAnnNsDecls = a.namespaces
+                is XmlSerialName -> typeAnnXmlSerialName = a
+                is XmlCData -> typeAnnCData = a.value
+                is XmlValue -> typeAnnIsXmlValue = a.value
+                is XmlId -> typeAnnIsId = true
+                is XmlElement -> typeAnnIsElement = a.value
+                is XmlChildrenName -> typeAnnChildrenName = a
+                is XmlPolyChildren -> typeAnnPolyChildren = a
+            }
+        }
+        if (typeAnnXmlSerialName==null) {
+            @OptIn(ExperimentalSerializationApi::class)
+            typeAnnXmlSerialName = serialDescriptor.capturedKClass?.maybeAnnotations?.firstOrNull<XmlSerialName>()
+        }
+    }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace)
+    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace, typeAnnXmlSerialName)
 
     @OptIn(ExperimentalSerializationApi::class)
     public val serialName: String
@@ -41,6 +102,16 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     @OptIn(ExperimentalSerializationApi::class)
     public val elementsCount: Int
         get() = serialDescriptor.elementsCount
+
+    internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy {
+        config.policy.initialChildReorderMap(serialDescriptor)
+    }
+
+    internal fun getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
+        @OptIn(ExperimentalSerializationApi::class)
+        return serialDescriptor.getNameInfo(parentNamespace, typeAnnXmlSerialName)
+    }
+
 
     public operator fun get(index: Int): XmlTypeDescriptor {
         return children[index]
@@ -65,9 +136,15 @@ public class XmlTypeDescriptor internal constructor(public val serialDescriptor:
     private val children by lazy {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) { idx ->
-            XmlTypeDescriptor(serialDescriptor.getElementDescriptor(idx).getXmlOverride(), typeQname?.toNamespace() ?: parentNamespace)
+            val desc = serialDescriptor.getElementDescriptor(idx).getXmlOverride()
+            val ns = typeQname?.toNamespace() ?: parentNamespace
+            config.formatCache.lookupType(ns, desc) {
+                XmlTypeDescriptor(config, desc, ns)
+            }
         }
     }
 
-
+    override fun toString(): String {
+        return "TypeDescriptor($typeQname, ${serialDescriptor.kind})"
+    }
 }

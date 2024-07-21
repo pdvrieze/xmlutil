@@ -231,6 +231,8 @@ public class DomReader(public val delegate: Node2) : XmlReader {
     }
 
     override fun next(): EventType {
+        if (eventType == EventType.END_ELEMENT) --depth
+
         _namespaceAttrs = null // reset lazy value
         val c = current
         if (c == null) {
@@ -272,7 +274,9 @@ public class DomReader(public val delegate: Node2) : XmlReader {
             if (nodeType != NodeConsts.ELEMENT_NODE && nodeType != NodeConsts.DOCUMENT_NODE) {
                 atEndOfElement = true // No child elements for things like text
             }
-            return c2.toEventType(atEndOfElement)
+            return c2.toEventType(atEndOfElement).also {
+                if (it == EventType.START_ELEMENT) { ++depth }
+            }
         }
     }
 

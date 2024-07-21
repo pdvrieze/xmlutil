@@ -74,7 +74,7 @@ class TestBooleanSerialization {
 
     @Test
     fun testDeserializeBooleanNormalOne() {
-        val xml = XML { recommended() }
+        val xml = XML { recommended { isStrictBoolean = false } }
         val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>1</BooleanHolder>")
         assertEquals(BooleanHolder(false), decoded)
     }

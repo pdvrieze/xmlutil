@@ -25,25 +25,25 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.Namespace
-import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeXmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.toQname
 
 internal abstract class XmlCodecBase internal constructor(
-    val serializersModule: SerializersModule,
-    val config: XmlConfig
-) {
+    override val serializersModule: SerializersModule,
+    override val config: XmlConfig
+) : XML.XmlCodecConfig {
 
     internal abstract val namespaceContext: NamespaceContext
 
     companion object {
 
         @OptIn(ExperimentalSerializationApi::class)
-        internal fun SerialDescriptor.declRequestedName(parentNamespace: Namespace): QName {
-            annotations.firstOrNull<XmlSerialName>()?.let { return it.toQName(serialName, parentNamespace) }
+        internal fun SerialDescriptor.declRequestedName(
+            parentNamespace: Namespace,
+            annotation: XmlSerialName?
+        ): QName {
+            annotation?.let { return it.toQName(serialName, parentNamespace) }
             return serialName.substringAfterLast('.').toQname(parentNamespace)
         }
 
@@ -98,8 +98,9 @@ internal abstract class XmlCodecBase internal constructor(
 
         protected abstract val namespaceContext: NamespaceContext
 
-        internal fun QName.normalize(): QName {
-            return copy(prefix = "")
+        internal fun QName.normalize(): QName = when {
+            prefix.isEmpty() -> this
+            else -> copy(prefix = "")
         }
 
     }

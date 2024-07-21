@@ -38,7 +38,7 @@ public class XmlBufferReader private constructor(
     public constructor(buffer: List<XmlEvent>, initialContext: IterableNamespaceContext): this(
         buffer,
         NamespaceHolder().also {
-            initialContext.forEach { ns -> it.addPrefixToContext(ns) }
+            it.addPrefixesToContext(initialContext)
         }
     )
 
@@ -87,31 +87,54 @@ public class XmlBufferReader private constructor(
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext
 
-    override val encoding: String?
-        get() = current<StartDocumentEvent>().encoding
+    override var encoding: String? = null
+        private set
 
-    override val standalone: Boolean?
-        get() = current<StartDocumentEvent>().standalone
+    override var standalone: Boolean? = null
+        private set
 
-    override val version: String?
-        get() = current<StartDocumentEvent>().version
+    override var version: String? = null
+        private set
+
+    init {
+        var p = 0
+        while (p < buffer.size && buffer[p].eventType == EventType.IGNORABLE_WHITESPACE) {
+            ++p
+        }
+        if (p < buffer.size && buffer[p].eventType == EventType.START_DOCUMENT) {
+            val d = buffer[p] as StartDocumentEvent
+            encoding = d.encoding
+            version = d.version
+            standalone = d.standalone
+        }
+    }
+
+    /**
+     * Reset the reader to the start
+     */
+    public fun reset() {
+        currentPos = -1
+        namespaceHolder.clear()
+    }
 
     override fun hasNext(): Boolean = currentPos + 1 < buffer.size
 
     override fun next(): EventType {
-        currentPos++
-        if (currentPos >= buffer.size) throw NoSuchElementException("Reading beyond the end of the reader")
+        val buffer = buffer
+        var cp = currentPos
 
-        val current = buffer[currentPos]
+        if (cp >= 0 && buffer[cp] is EndElementEvent) namespaceHolder.decDepth()
+
+        cp += 1
+        currentPos = cp
+        if (cp >= buffer.size) throw NoSuchElementException("Reading beyond the end of the reader")
+
+        val current = buffer[cp]
         when (current) {
             is StartElementEvent -> {
                 namespaceHolder.incDepth()
-                for (ns in current.namespaceDecls) {
-                    namespaceHolder.addPrefixToContext(ns)
-                }
+                namespaceHolder.addPrefixesToContext(current.namespaceDecls)
             }
-
-            is EndElementEvent -> namespaceHolder.decDepth()
 
             else -> { // ignore
             }

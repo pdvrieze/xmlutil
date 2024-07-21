@@ -39,7 +39,6 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
-import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
@@ -81,6 +80,13 @@ public class XML(
 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
+    private val codecConfig: XmlCodecConfig = object : XmlCodecConfig {
+        override val serializersModule: SerializersModule
+            get() = this@XML.serializersModule
+        override val config: XmlConfig
+            get() = this@XML.config
+    }
+
     @Suppress("DEPRECATION")
     public constructor(
         serializersModule: SerializersModule = EmptySerializersModule(),
@@ -106,7 +112,11 @@ public class XML(
      */
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, prefix: String?): String {
         val stringWriter = StringWriter()
-        xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
+        val xw = when {
+            config.defaultToGenericParser -> xmlStreaming.newGenericWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
+            else -> xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
+        }
+        xw.use { xmlWriter ->
             encodeToWriter(xmlWriter, serializer, value, prefix)
         }
         return stringWriter.toString()
@@ -121,7 +131,12 @@ public class XML(
      */
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String {
         val stringWriter = StringWriter()
-        xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode).use { xmlWriter ->
+        val xw = when {
+            config.defaultToGenericParser -> xmlStreaming.newGenericWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
+            else -> xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
+        }
+
+        xw.use { xmlWriter ->
             encodeToWriter(xmlWriter, serializer, value, rootName)
         }
         return stringWriter.toString()
@@ -155,7 +170,7 @@ public class XML(
         target.indentString = config.indentString
 
         if (prefix != null) {
-            val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor)
+            val root = XmlRootDescriptor(codecConfig, serializer.descriptor)
 
             val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
 
@@ -207,7 +222,7 @@ public class XML(
             config.policy.serialTypeNameToQName(declNameInfo, DEFAULT_NAMESPACE)
 
         val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
-        val root = XmlRootDescriptor(config, serializersModule, serializer.descriptor, rootNameInfo)
+        val root = XmlRootDescriptor(codecConfig, serializer.descriptor, rootNameInfo)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -222,7 +237,7 @@ public class XML(
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
                 val newRootName = rootNameInfo.remapPrefix(prefixMap)
 
-                val newRoot = XmlRootDescriptor(newConfig, serializersModule, serializer.descriptor, newRootName)
+                val newRoot = XmlRootDescriptor(remappedEncoderBase, serializer.descriptor, newRootName)
                 val newDescriptor = newRoot.getElementDescriptor(0)
 
 
@@ -351,7 +366,12 @@ public class XML(
      * @param string The string input
      */
     override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML", "", "") string: String): T {
-        return decodeFromReader(deserializer, xmlStreaming.newReader(string))
+        val xr = when {
+            config.defaultToGenericParser -> xmlStreaming.newGenericReader(string)
+            else -> xmlStreaming.newReader(string)
+        }
+
+        return decodeFromReader(deserializer, xr)
     }
 
     /**
@@ -366,7 +386,11 @@ public class XML(
         @Language("XML") string: String,
         rootName: QName?
     ): T {
-        return decodeFromReader(deserializer, xmlStreaming.newReader(string), rootName)
+        val xr = when {
+            config.defaultToGenericParser -> xmlStreaming.newGenericReader(string)
+            else -> xmlStreaming.newReader(string)
+        }
+        return decodeFromReader(deserializer, xr, rootName)
     }
 
     /**
@@ -392,7 +416,7 @@ public class XML(
         }
 
         val tmpRoot =
-            XmlRootDescriptor(config, serializersModule, descriptor, DeclaredNameInfo(localName.localPart))
+            XmlRootDescriptor(codecConfig, descriptor, DeclaredNameInfo(localName.localPart))
 
         val realName = tmpRoot.typeDescriptor.typeQname ?: localName
 
@@ -420,7 +444,7 @@ public class XML(
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
         val rootNameInfo = rootNameInfo(deserializer.descriptor, rootName, reader.name)
-        val rootDescriptor = XmlRootDescriptor(config, serializersModule, deserializer.descriptor, rootNameInfo)
+        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, rootNameInfo)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
 
@@ -461,7 +485,7 @@ public class XML(
     private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
         val nameInfo = DeclaredNameInfo(rootName?.localPart ?: serialDescriptor.serialName, rootName, false)
 
-        return XmlRootDescriptor(config, serializersModule, serialDescriptor, nameInfo)
+        return XmlRootDescriptor(codecConfig, serialDescriptor, nameInfo)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)
@@ -1090,7 +1114,14 @@ public class XML(
         public fun getNamespaceURI(prefix: String): String? = input.namespaceContext.getNamespaceURI(prefix)
     }
 
-
+    /**
+     * Class to support recovery in parsing.
+     * @property elementIndex The index of the child element that is the data that is parsed
+     * @property value The value for the particular property
+     * @property unParsed It is also possible to just provide a property index. In this case the value
+     *                    of this property should be `true` and the value of the [value] property is ignored (should
+     *                    be null)
+     */
     @ExperimentalXmlUtilApi
     public data class ParsedData<T>(public val elementIndex: Int, public val value: T, val unParsed: Boolean = false)
 

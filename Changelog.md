@@ -1,3 +1,34 @@
+# 0.90.2-beta1 Rocketpower!
+Changes:
+- Extensive optimization of decoding (serialization), parsing
+  (KtXmlReader) including the creation of the xmlDescriptors.
+- Add a new preset `fast` for a config/policy that chooses speed over
+  verification (such as element order). It still requires "correct"
+  xml files.
+- Add "work in progress" xml schema module to the dev branch. This
+  is not yet ready for release (but will parse most xml schemas)
+- Have the XmlReader.{version,standalone,encoding} properties be
+  retained by all readers (as existing parsers behave); reading these
+  values before the document declaration was seen (or known to not be
+  present) is non-deterministic.
+- Make the value of the `depth` property of `XmlReader` consistent
+  for EndElement values. The depth of an endEvent uses the android
+  XmlPullParser semantics
+- In the case of a polymorphic value child (or list of polymorphic
+  children as value child), when an unknown tag is encountered, allow
+  this to be matched against a single! `XmlSerializer` from the module.
+  This aids #225.
+
+Fixes:
+- Fix NodeSerializer in the serialization module to properly forward
+  to the actual implementation.
+- Don't make the companion of `XmlDeclMode` internal (#219). This is a
+  workaround for a regresion in 2.0 that doesn't allow resolving enum
+  constants in this case.
+- Fix deserialization with contextual serializer #220 
+- Fix `NamespaceHolder.namespacesAtCurrentDepth` for nested
+  declarations.
+
 # 0.90.1 Fix Android
 - Fix android plugin dependency.
 
@@ -228,6 +259,10 @@ Features:
   this attribute over default behaviour for that type.
 - Support custom delimiters by allowing a list of delimiters to be specified
   the policy.
+
+Changes:
+- The tagname for value children is used for the use, not for the type of the
+  value child (often compactFragment). 
 
 Fixes:
 - Make actual serialization of maps (that are not attributes) work

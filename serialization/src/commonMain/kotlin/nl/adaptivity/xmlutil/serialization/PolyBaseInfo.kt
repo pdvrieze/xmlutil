@@ -20,17 +20,22 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 
 internal data class PolyBaseInfo(
     val tagName: QName,
-    val descriptor: SerialDescriptor
+    val elementTypeDescriptor: XmlTypeDescriptor
 ) {
 
-    @OptIn(ExperimentalSerializationApi::class)
+    val useNameInfo: XmlSerializationPolicy.DeclaredNameInfo
+        get() = XmlSerializationPolicy.DeclaredNameInfo(elementTypeDescriptor.serialName, tagName, false)
+
+    val descriptor: SerialDescriptor
+        get() = elementTypeDescriptor.serialDescriptor
+
     val describedName
-        get() = descriptor.serialName
+        get() = elementTypeDescriptor.serialName
 
 }

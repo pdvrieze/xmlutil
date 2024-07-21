@@ -23,21 +23,18 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
-
 @XmlUtilInternal
-public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader {
+public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader, XmlPeekingReader {
     private val namespaceHolder = NamespaceHolder()
 
     init { // Record also for the first element
         if (delegate.isStarted) {
-            for (ns in delegate.namespaceContext) {
-                namespaceHolder.addPrefixToContext(ns)
-            }
+            namespaceHolder.addPrefixesToContext(delegate.namespaceContext)
         }
     }
 
     @XmlUtilInternal
-    protected abstract val hasPeekItems: Boolean
+    public override abstract val hasPeekItems: Boolean
 
     @XmlUtilInternal
     protected var current: XmlEvent?
@@ -143,13 +140,13 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         }
 
     override val encoding: String?
-        get() = (current as StartDocumentEvent).encoding
+        get() = (current as? StartDocumentEvent)?.encoding ?: delegate.encoding
 
     override val standalone: Boolean?
-        get() = (current as StartDocumentEvent).standalone
+        get() = (current as? StartDocumentEvent)?.standalone ?: delegate.standalone
 
     override val version: String?
-        get() = (current as StartDocumentEvent).version
+        get() = (current as? StartDocumentEvent)?.version ?: delegate.version
 
     public fun nextEvent(): XmlEvent {
         if (hasPeekItems) {
@@ -170,9 +167,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
             EventType.START_ELEMENT -> {
                 namespaceHolder.incDepth()
                 val start = event as StartElementEvent
-                for (ns in start.namespaceDecls) {
-                    namespaceHolder.addPrefixToContext(ns)
-                }
+                namespaceHolder.addPrefixesToContext(start.namespaceDecls)
             }
             EventType.END_ELEMENT -> namespaceHolder.decDepth()
             else -> {
@@ -191,10 +186,14 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         return peekFirst()
     }
 
+    override fun peekNextEvent(): EventType? {
+        return peek()?.eventType
+    }
+
     /**
      * Put the current element in the peek buffer. This is basically a very limited pushback
      */
-    public abstract fun pushBackCurrent()
+    public abstract override fun pushBackCurrent()
 
     /**
      * Get the next event to add to the queue. Children can override this to customize the events that are added to the

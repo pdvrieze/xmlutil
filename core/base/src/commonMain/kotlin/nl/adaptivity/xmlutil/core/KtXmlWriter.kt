@@ -38,16 +38,44 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 public class KtXmlWriter(
     private val writer: Appendable,
     public val isRepairNamespaces: Boolean = true,
-    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    public val xmlDeclMode: XmlDeclMode,
     xmlVersion: XmlVersion = XmlVersion.XML11
 ) : PlatformXmlWriterBase(), XmlWriter {
 
     public constructor(
         writer: Writer,
         isRepairNamespaces: Boolean = true,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+        xmlDeclMode: XmlDeclMode,
         xmlVersion: XmlVersion = XmlVersion.XML11
     ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want" +
+            "to omit it, do so expressly")
+    public constructor(
+        writer: Writer,
+        isRepairNamespaces: Boolean = true,
+        xmlVersion: XmlVersion
+    ) : this((writer as Appendable), isRepairNamespaces, XmlDeclMode.None, xmlVersion)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want" +
+            "to omit it, do so expressly")
+    public constructor(
+        writer: Appendable,
+        isRepairNamespaces: Boolean = true,
+        xmlVersion: XmlVersion
+    ) : this(writer, isRepairNamespaces, XmlDeclMode.None, xmlVersion)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want to omit it, do so expressly")
+    public constructor(
+        writer: Writer,
+        isRepairNamespaces: Boolean = true,
+    ) : this((writer as Appendable), isRepairNamespaces, XmlDeclMode.None, XmlVersion.XML11)
+
+    @Deprecated("When using XML 1.1 a document type declaration is required. If you want to omit it, do so expressly")
+    public constructor(
+        writer: Appendable,
+        isRepairNamespaces: Boolean = true,
+    ) : this(writer, isRepairNamespaces, XmlDeclMode.None, XmlVersion.XML11)
 
     /**
      * The version of XML to generate. By default XML 1.1.
@@ -184,10 +212,81 @@ public class KtXmlWriter(
         }
     }
 
-    private fun writeEscapedText(s: String, mode: EscapeMode) {
-        loop@ for (c in s.asCodePoints()) {
-            writer.appendXmlCodepoint(c, mode)
+    private fun Appendable.appendXmlChar(char: Char, mode: EscapeMode) {
+
+        fun appendNumCharRef(code: Int) {
+            append("&#x").append(code.toString(16)).append(';')
         }
+
+        fun throwInvalid(code: Int): Nothing {
+            throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
+        }
+
+        if (char.code < 0x20 && ! isXmlWhitespace(char)) {
+            throw IllegalArgumentException("Invalid character with code 0x${char.code.toString(16)}")
+        }
+
+        when {
+            char.code >= ESCAPED_CHARS.size -> {
+                when {
+                    char.code in 0xD800..0xDFFF || char.code == 0xFFFE || char.code == 0xFFFF -> throwInvalid(char.code)
+                    else -> append(char)
+                }
+            }
+
+            !ESCAPED_CHARS[char.code] -> {
+                append(char)
+            }
+
+            char == '&' -> append("&amp;")
+            char == '<' && mode != EscapeMode.MINIMAL -> append("&lt;")
+            char == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
+            char == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
+            char == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
+            char.code in 0x1..0x8 || char.code == 0xB || char.code == 0xC || char.code in 0xE..0x1F -> when (xmlVersion) {
+                XmlVersion.XML10 -> throwInvalid(char.code)
+                XmlVersion.XML11 -> appendNumCharRef(char.code)
+            }
+
+            xmlVersion == XmlVersion.XML11 &&
+                    (char.code in 0x7f..0x84 || char.code in 0x86..0x9f) -> appendNumCharRef(char.code)
+
+            else -> append(char) // when escaping wasn't actually needed (depending on mode)
+        } // should never be touched
+
+    }
+
+    private fun writeEscapedText(s: String, mode: EscapeMode) {
+        var start = 0
+
+        var i = 0
+        val l = s.length
+        while (i < l) {
+            val c = s[i]
+
+            if (c.code >= ESCAPED_CHARS.size || ESCAPED_CHARS[c.code]) {
+                if (start < i) {
+                    writer.append(s, start, i)
+                }
+                when {
+                    c.isHighSurrogate() -> {
+                        val codePoint = 0x10000u + ((c.code.toUInt() - 0xD800u) shl 10) +
+                                (s[i + 1].code.toUInt() - 0xDC00u)
+                        writer.appendXmlCodepoint(codePoint, mode)
+                        start = i + 2
+                        ++i
+                    }
+
+                    else -> {
+                        writer.appendXmlChar(c, mode)
+                        start = i + 1
+                    }
+                }
+            }
+            ++i
+        }
+
+        if (start < l) writer.append(s.substring(start, l))
     }
 
     private fun triggerStartDocument() {
@@ -195,7 +294,12 @@ public class KtXmlWriter(
         when (state) {
             WriteState.BeforeDocument -> {
                 if (xmlDeclMode != XmlDeclMode.None) {
-                    startDocument(null, null, null)
+                    // It is only xml 1.1 if it has a version attribute with value 1.1
+                    if (xmlVersion == XmlVersion.XML11 || xmlDeclMode != XmlDeclMode.Minimal) {
+                        startDocument(xmlVersion.versionString, null, null)
+                    } else {
+                        startDocument()
+                    }
                 }
                 state = WriteState.AfterXmlDecl
             }
@@ -206,17 +310,9 @@ public class KtXmlWriter(
     }
 
     private fun writeIndent(newDepth: Int = depth) {
-        val indentSeq = indentSequence
-        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != depth) {
+        if (lastTagDepth >= 0 && _indentString.isNotEmpty() && lastTagDepth != depth) {
             ignorableWhitespace("\n")
-            try {
-                indentSequence = emptyList()
-//                repeat(depth) { indentSeq.forEach { it.writeTo(this) } }
-                val merged = indentSeq.joinRepeated(depth)
-                merged.forEach { it.writeTo(this) }
-            } finally {
-                indentSequence = indentSeq
-            }
+            for (i in 0 until depth) writer.append(_indentString)
         }
         lastTagDepth = newDepth
     }
@@ -437,8 +533,9 @@ public class KtXmlWriter(
         triggerStartDocument() // whitespace is not allowed before the xml declaration
 
         for (c in text) {
-            if (!(c == '\n' || c == '\r' || c == '\t' || c == ' ')) {
-                throw IllegalArgumentException("\"$text\" is not ignorable whitespace")
+            when (c) {
+                ' ', '\t', '\r', '\n' -> {}
+                else -> throw IllegalArgumentException("\"$text\" is not ignorable whitespace")
             }
         }
 
@@ -556,6 +653,24 @@ public class KtXmlWriter(
         /** Not a tag: -1 */
         private const val TAG_DEPTH_NOT_TAG = -1
         private const val TAG_DEPTH_FORCE_INDENT_NEXT = Int.MAX_VALUE
+
+        private val ESCAPED_CHARS = BooleanArray(255).also {
+            for (i in 1 until '\t'.code) it[i] = true
+            // 0x9 is tab, 0xa is LF, 0xd is CR
+            it[0xb] = true
+            it[0xc] = true
+            for (i in 0xe until 0x1f) it[i] = true
+            it['<'.code] = true
+            it['>'.code] = true
+            it['&'.code] = true
+            it['\''.code] = true
+            it['"'.code] = true
+
+            // Escaped in xml 1.1
+            for (i in 0x7f..0x84) it[i] = true
+            for (i in 0x86..0x9f) it[i] = true
+        }
+
     }
 
 

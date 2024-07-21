@@ -22,9 +22,15 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.*
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.descriptors.capturedKClass
 import kotlinx.serialization.encoding.ChunkedDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
@@ -41,7 +47,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
-import kotlin.collections.set
+import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -51,7 +57,7 @@ internal open class XmlDecoderBase internal constructor(
     input: XmlReader
 ) : XmlCodecBase(context, config) {
 
-    val input = XmlBufferedReader(input)
+    val input: XmlPeekingReader = PseudoBufferedReader(input)
 
     override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -59,14 +65,34 @@ internal open class XmlDecoderBase internal constructor(
 
     fun hasNullMark(): Boolean {
         if (input.eventType == EventType.START_ELEMENT) {
-            val hasNilAttr = (0 until input.attributeCount).any { i ->
-                (input.getAttributeNamespace(i) == XSI_NS_URI &&
-                        input.getAttributeLocalName(i) == "nil" &&
-                        input.getAttributeValue(i) == "true") ||
-                        (input.getAttributeName(i) == config.nilAttribute?.first &&
-                                input.getAttributeValue(i) == config.nilAttribute.second)
+            val declNilAttr: QName = config.nilAttributeName
+                ?: return when {
+                    !config.isAlwaysDecodeXsiNil -> false
+                    else -> when (input.getAttributeValue(XSI_NS_URI, "nil")) {
+                        "true", "1" -> true
+                        else -> false
+                    }
+                }
+
+            val targetNS = declNilAttr.namespaceURI
+            val targetName = declNilAttr.localPart
+
+            for (i in 0 until input.attributeCount) {
+                val ns = input.getAttributeNamespace(i)
+                when (ns) {
+                    targetNS -> if (input.getAttributeLocalName(i) == targetName) {
+                        return input.getAttributeValue(i) == config.nilAttributeValue
+                    }
+
+                    XSI_NS_URI -> if(config.isAlwaysDecodeXsiNil && input.getAttributeLocalName(i) == "nil") {
+                        return when(input.getAttributeValue(i)) {
+                            "true", "1" -> true
+                            else -> false
+                        }
+                    }
+                }
             }
-            if (hasNilAttr) return true // we detected a nullable element
+            return false
         }
         return false
     }
@@ -75,9 +101,19 @@ internal open class XmlDecoderBase internal constructor(
         decoder: Decoder,
         previousValue: T? = null,
         isValueChild: Boolean = false
-    ): T = when (this) {
-        is XmlDeserializationStrategy -> deserializeXML(decoder, input, previousValue, isValueChild)
-        else -> deserialize(decoder)
+    ): T {
+        val initialDepth = if (input.eventType == EventType.START_ELEMENT) input.depth - 1 else input.depth
+        val r = when (this) {
+            is XmlDeserializationStrategy -> {
+                deserializeXML(decoder, input, previousValue, isValueChild)
+            }
+
+            else -> deserialize(decoder)
+        }
+        if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT && initialDepth == input.depth) {
+            input.pushBackCurrent()
+        }
+        return r
     }
 
     abstract inner class DecodeCommons(
@@ -85,7 +121,7 @@ internal open class XmlDecoderBase internal constructor(
     ) : XmlCodec<XmlDescriptor>(xmlDescriptor), XML.XmlInput, Decoder {
         final override val config: XmlConfig get() = this@XmlDecoderBase.config
         final override val serializersModule: SerializersModule get() = this@XmlDecoderBase.serializersModule
-        final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
+        final override val input: XmlPeekingReader get() = this@XmlDecoderBase.input
 
         override fun decodeNull(): Nothing? {
             // We don't write nulls, so if we know that we have a null we just return it
@@ -145,7 +181,8 @@ internal open class XmlDecoderBase internal constructor(
     XmlDecoder @OptIn(ExperimentalXmlUtilApi::class) constructor(
         xmlDescriptor: XmlDescriptor,
         protected val polyInfo: PolyInfo? = null,
-        val attrIndex: Int = -1
+        protected val isValueChild: Boolean = false,
+        val attrIndex: Int = -1,
     ) : DecodeCommons(xmlDescriptor), Decoder, XML.XmlInput, ChunkedDecoder {
 
         private var triggerInline = false
@@ -163,7 +200,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun decodeNull(): Nothing? {
             if (hasNullMark()) { // we have a nullable element marked nil using a nil attribute
                 input.nextTag()
-                input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                if (!config.isUnchecked) input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
                 return null
             }
             return super.decodeNull()
@@ -184,7 +221,7 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 when (descOutputKind) {
                     OutputKind.Element -> { // This may occur with list values.
-                        input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                        if (!config.isUnchecked) input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElement()
                     }
 
@@ -222,7 +259,7 @@ internal open class XmlDecoderBase internal constructor(
             } else {
                 when (xmlDescriptor.outputKind) {
                     OutputKind.Element -> {
-                        input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                        if (!config.isUnchecked) input.require(EventType.START_ELEMENT, serialName.namespaceURI, serialName.localPart)
                         input.readSimpleElementChunked(consumeChunk)
                         return
                     }
@@ -256,15 +293,23 @@ internal open class XmlDecoderBase internal constructor(
              * But only if decodeInline was called previously.
              */
             val desc = when {
+                xmlDescriptor is XmlContextualDescriptor ->
+                    xmlDescriptor.resolve(this, deserializer.descriptor)
+
                 triggerInline && xmlDescriptor is XmlInlineDescriptor
                 -> xmlDescriptor.getElementDescriptor(0)
 
                 else -> xmlDescriptor
 
             }
+            val startsWithTag = input.eventType == EventType.START_ELEMENT
+            val startDepth = input.depth
             val serialValueDecoder =
-                SerialValueDecoder(effectiveDeserializer, desc, polyInfo, attrIndex, typeDiscriminatorName)
+                SerialValueDecoder(effectiveDeserializer, desc, polyInfo, attrIndex, typeDiscriminatorName, isValueChild)
             val value = effectiveDeserializer.deserializeSafe(serialValueDecoder)
+            if (startsWithTag && !input.hasPeekItems && input.depth < startDepth) {
+                input.pushBackCurrent()
+            }
 
             val tagId = serialValueDecoder.tagIdHolder?.tagId
             if (tagId != null) {
@@ -280,8 +325,7 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         private val locationInfo: XmlReader.LocationInfo?,
         private val stringValue: String
-    ) :
-        Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
+    ) : Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             throw UnsupportedOperationException("Strings cannot be decoded to structures")
@@ -301,7 +345,7 @@ internal open class XmlDecoderBase internal constructor(
             return stringValue
         }
 
-        fun getInputWrapper(locationInfo: XmlReader.LocationInfo?): XmlReader {
+        private fun getInputWrapper(locationInfo: XmlReader.LocationInfo?): XmlReader {
             return XmlStringReader(locationInfo, stringValue)
         }
 
@@ -316,6 +360,10 @@ internal open class XmlDecoderBase internal constructor(
         }
     }
 
+    /**
+     * Implementation of XmlReader that only reads a string. This is provided to allow XmlSerializers
+     * to work in cases such as an attribute list of QNames.
+     */
     private inner class XmlStringReader(
         override val extLocationInfo: XmlReader.LocationInfo?,
         private val stringValue: String
@@ -395,15 +443,11 @@ internal open class XmlDecoderBase internal constructor(
         override val namespaceContext: IterableNamespaceContext
             get() = input.namespaceContext
 
-        override val encoding: Nothing
-            get() = throw XmlSerialException("Strings have no document declarations")
+        override val encoding: Nothing? get() = null
 
+        override val standalone: Nothing? get() = null
 
-        override val standalone: Nothing
-            get() = throw XmlSerialException("Strings have no document declarations")
-
-        override val version: Nothing
-            get() = throw XmlSerialException("Strings have no document declarations")
+        override val version: Nothing? get() = null
     }
 
     internal interface TagIdHolder {
@@ -411,7 +455,7 @@ internal open class XmlDecoderBase internal constructor(
     }
 
     /**
-     * Wrapper decoder that expects to be used to decode a serial value
+     * Wrapper decoder that expects to be used to decode a *single* serial value
      */
     @OptIn(ExperimentalXmlUtilApi::class)
     private open inner class SerialValueDecoder(
@@ -419,10 +463,12 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlDescriptor,
         polyInfo: PolyInfo?,
         attrIndex: Int,/* = -1*/
-        override val typeDiscriminatorName: QName?
-    ) : XmlDecoder(xmlDescriptor, polyInfo, attrIndex) {
+        override val typeDiscriminatorName: QName?,
+        isValueChild: Boolean
+    ) : XmlDecoder(xmlDescriptor, polyInfo, isValueChild, attrIndex) {
         private var notNullChecked = false
 
+        /** Object that allows recording id attributes */
         var tagIdHolder: TagIdHolder? = null
 
         private val ignoredAttributes: MutableList<QName> = mutableListOf()
@@ -445,12 +491,14 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
-            !notNullChecked -> super.decodeSerializableValue(deserializer)
-            else -> deserializer.deserializeSafe(this)
+            // This is needed to avoid loops with [kotlinx.serialization.internal.NullableSerializer]
+            notNullChecked -> deserializer.deserializeSafe(this)
+            else -> super.decodeSerializableValue(deserializer)
         }
 
         @ExperimentalSerializationApi
         override fun decodeInline(descriptor: SerialDescriptor): Decoder {
+            // TODO is this valid
             tagIdHolder = object : TagIdHolder {
                 override var tagId: String? = null
             }
@@ -465,41 +513,37 @@ internal open class XmlDecoderBase internal constructor(
             ).also { tagIdHolder = it }
 
             return when {
-                xmlDescriptor.kind is PrimitiveKind
-                -> throw AssertionError("A primitive is not a composite")
+                xmlDescriptor.kind is PrimitiveKind ->
+                    throw AssertionError("A primitive is not a composite")
 
-                xmlDescriptor is XmlPolymorphicDescriptor
-                -> PolymorphicDecoder(deserializer, xmlDescriptor, polyInfo).also { tagIdHolder = it }
+                xmlDescriptor is XmlPolymorphicDescriptor ->
+                    PolymorphicDecoder(deserializer, xmlDescriptor, polyInfo, isValueChild).also { tagIdHolder = it }
 
-                xmlDescriptor is XmlListDescriptor
-                -> {
-                    when {
-                        xmlDescriptor.outputKind == OutputKind.Attribute ->
-                            AttributeListDecoder(
-                                deserializer,
-                                xmlDescriptor,
-                                input.extLocationInfo,
-                                attrIndex
-                            ).also { tagIdHolder = it }
-
-                        xmlDescriptor.outputKind == OutputKind.Text ->
-                            ValueListDecoder(deserializer, xmlDescriptor, input.extLocationInfo)
-
-                        xmlDescriptor.isListEluded ->
-                            AnonymousListDecoder(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName).also {
-                                tagIdHolder = it
-                            }
-
-                        else -> NamedListDecoder(
+                xmlDescriptor is XmlListDescriptor -> when {
+                    xmlDescriptor.outputKind == OutputKind.Attribute ->
+                        AttributeListDecoder(
                             deserializer,
                             xmlDescriptor,
-                            typeDiscriminatorName
+                            input.extLocationInfo,
+                            attrIndex
                         ).also { tagIdHolder = it }
-                    }
+
+                    xmlDescriptor.outputKind == OutputKind.Text ->
+                        ValueListDecoder(deserializer, xmlDescriptor, input.extLocationInfo)
+
+                    xmlDescriptor.isListEluded ->
+                        AnonymousListDecoder(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName, isValueChild).also {
+                            tagIdHolder = it
+                        }
+
+                    else -> NamedListDecoder(
+                        deserializer,
+                        xmlDescriptor,
+                        typeDiscriminatorName
+                    ).also { tagIdHolder = it }
                 }
 
-                xmlDescriptor is XmlMapDescriptor
-                -> when {
+                xmlDescriptor is XmlMapDescriptor -> when {
                     xmlDescriptor.isListEluded ->
                         AnonymousMapDecoder(
                             deserializer,
@@ -531,8 +575,8 @@ internal open class XmlDecoderBase internal constructor(
      * Special class that handles null values that are not mere primitives. Nice side-effect is that XmlDefault values
      * are actually parsed as XML and can be complex
      */
-    private inner class NullDecoder(xmlDescriptor: XmlDescriptor, val isValueChild: Boolean) :
-        XmlDecoder(xmlDescriptor), CompositeDecoder {
+    private inner class NullDecoder(xmlDescriptor: XmlDescriptor, isValueChild: Boolean) :
+        XmlDecoder(xmlDescriptor, isValueChild = isValueChild), CompositeDecoder {
 
         override fun decodeNotNullMark() = (xmlDescriptor as? XmlValueDescriptor)?.default != null
 
@@ -554,8 +598,9 @@ internal open class XmlDecoderBase internal constructor(
             deserializer: DeserializationStrategy<T>,
             previousValue: T?
         ): T {
-            val default =
-                (xmlDescriptor as? XmlValueDescriptor)?.defaultValue(this@XmlDecoderBase, deserializer) ?: previousValue
+            val default = (xmlDescriptor as? XmlValueDescriptor)
+                ?.defaultValue(this@XmlDecoderBase, deserializer) ?: previousValue
+
             @Suppress("UNCHECKED_CAST")
             return default as T
         }
@@ -627,36 +672,38 @@ internal open class XmlDecoderBase internal constructor(
         typeDiscriminatorName: QName?
     ) : TagDecoderBase<D>(deserializer, xmlDescriptor, typeDiscriminatorName) {
 
-        private val readTagName = input.name
+        private val readTagName = if(config.isUnchecked) xmlDescriptor.tagName else input.name
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            if (!decodeElementIndexCalled) {
-                val index = decodeElementIndex(descriptor)
+            // If we aren't in the closed stage, we read the index again to check that we are finished
+            if (stage < STAGE_CLOSE) {
+                stage = STAGE_NULLS
+                val index = decodeElementIndex()
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
-            input.require(EventType.END_ELEMENT, readTagName)
+            if (!config.isUnchecked) input.require(EventType.END_ELEMENT, readTagName)
         }
 
     }
 
     @OptIn(ExperimentalXmlUtilApi::class)
     internal abstract inner class TagDecoderBase<D : XmlDescriptor>(
-        val deserializer: DeserializationStrategy<*>,
+        private val deserializer: DeserializationStrategy<*>,
         xmlDescriptor: D,
         protected val typeDiscriminatorName: QName?
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput, TagIdHolder {
 
         override var tagId: String? = null
-        private val ignoredAttributes: MutableList<QName> = mutableListOf()
-        private val tagNameToMembers: Map<QName, Int>
-        private val attrNameToMembers: Map<QName, Int>
-        private val polyChildren: Map<QName, PolyInfo>
-        private val contextualDescriptors: Array<XmlDescriptor?>
+        private val ignoredAttributes: MutableList<QName> = ArrayList(2)
 
+        /**
+         * Determine whether whitespace is preserved in the content of the tag. This is a var as it
+         * may be changed by an xml:space attribute.
+         */
         private var preserveWhitespace = xmlDescriptor.preserveSpace
 
         protected val attrCount: Int = if (input.eventType == EventType.START_ELEMENT) input.attributeCount else 0
-        private val tagDepth: Int = input.depth
+        protected val tagDepth: Int = input.depth
 
         /**
          * Array that records for each child element whether it has been encountered. After processing the entire tag
@@ -677,95 +724,55 @@ internal open class XmlDecoderBase internal constructor(
         @OptIn(ExperimentalXmlUtilApi::class)
         private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
-        protected var decodeElementIndexCalled = false
+        protected var stage = STAGE_INIT
 
-        private fun XmlDescriptor.toNonTransparentChild(): XmlDescriptor {
-            var result = this
-            while (result is XmlInlineDescriptor || // Inline descriptors are only used when we actually elude the inline content
-                (result is XmlListDescriptor && result.isListEluded)
-            ) { // Lists may or may not be eluded
-
-                result = result.getElementDescriptor(0)
-            }
-            if (result is XmlMapDescriptor && result.isListEluded && result.isValueCollapsed) { // some transparent tags
-                return result.getElementDescriptor(1).toNonTransparentChild()
-            }
-            return result
-        }
+        private val tagNameToMembers: QNameMap<Int>
+        private val attrNameToMembers: QNameMap<Int>
+        private val polyChildren: QNameMap<PolyInfo> = xmlDescriptor.polyMap
+        private val contextualDescriptors: Array<XmlDescriptor?>
 
         init {
-            val polyMap: MutableMap<QName, PolyInfo> = mutableMapOf()
-            val tagNameMap: MutableMap<QName, Int> = mutableMapOf()
-            val attrNameMap: MutableMap<QName, Int> = mutableMapOf()
-            val contextList = arrayOfNulls<XmlDescriptor>(xmlDescriptor.elementsCount)
-            val seenTagNames = HashSet<QName>()
-            val seenAttrNames = HashSet<QName>()
+            if (xmlDescriptor.contextualChildren.isNotEmpty()) {
+                val tagNameMap: QNameMap<Int> = xmlDescriptor.tagNameMap.copyOf()
+                val attrNameMap: QNameMap<Int> = xmlDescriptor.attrMap.copyOf()
+                val contextList = arrayOfNulls<XmlDescriptor>(xmlDescriptor.elementsCount)
 
-            for (idx in 0 until xmlDescriptor.elementsCount) {
-                val child = xmlDescriptor.getElementDescriptor(idx).toNonTransparentChild()
-
-                if (child is XmlPolymorphicDescriptor && child.isTransparent) {
-                    for ((_, childDescriptor) in child.polyInfo) {
-                        /*
-                         * For polymorphic value classes this cannot be a multi-value inline. Get
-                         * the tag name from the child (even if it is inline).
-                        */
-
-                        val tagName = childDescriptor.tagName.normalize()
-                        check(seenTagNames.add(tagName)) {
-                            "Duplicate name $tagName as polymorphic child in ${xmlDescriptor.serialDescriptor.serialName}"
-                        }
-                        polyMap[tagName] = PolyInfo(tagName, idx, childDescriptor)
-                    }
-                } else if (xmlDescriptor.serialKind !is PolymorphicKind && child is XmlContextualDescriptor) {
+                for (idx in xmlDescriptor.contextualChildren) {
+                    val child = xmlDescriptor.getElementDescriptor(idx) as XmlContextualDescriptor
+                    // This uses a "workaround" to find the actual deserializer.
                     val childSer = deserializer.findChildSerializer(idx, serializersModule)
-                    val resolved = child.resolve(childSer.descriptor, config, serializersModule)
+                    val resolved = child.resolve(this, childSer.descriptor)
                     val childName = resolved.tagName.normalize()
                     when (resolved.effectiveOutputKind) {
                         OutputKind.Attribute -> {
-                            check(seenAttrNames.add(childName)) {
+                            check(attrNameMap.put(childName, idx) == null || config.isUnchecked) {
                                 "Duplicate attribute name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
                             }
-                            attrNameMap[childName] = idx
                         }
 
                         else -> {
-                            check(seenTagNames.add(childName)) {
+                            check(
+                                (tagNameMap.put(childName, idx) == null || config.isUnchecked)
+                                        && (config.isUnchecked || childName !in polyChildren)
+                            ) {
                                 "Duplicate tag name $childName as contextual child in ${xmlDescriptor.serialDescriptor.serialName}"
                             }
-                            tagNameMap[childName] = idx
                         }
-
                     }
-
-                    contextList[idx] = resolved
-                } else {
-                    when (child.effectiveOutputKind) {
-                        OutputKind.Attribute -> {
-                            check(seenAttrNames.add(child.tagName)) {
-                                "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
-                            }
-                            attrNameMap[child.tagName.normalize()] = idx
-                        }
-
-                        else -> {
-                            check(seenTagNames.add(child.tagName)) {
-                                "Duplicate name ${child.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
-                            }
-                            tagNameMap[child.tagName.normalize()] = idx
-                        }
-
-                    }
-
                 }
+
+                tagNameToMembers = tagNameMap
+                attrNameToMembers = attrNameMap
+                contextualDescriptors = contextList
+
+            } else {
+                tagNameToMembers = xmlDescriptor.tagNameMap
+                attrNameToMembers = xmlDescriptor.attrMap
+                contextualDescriptors = arrayOfNulls(xmlDescriptor.elementsCount)
             }
-            polyChildren = polyMap
-            tagNameToMembers = tagNameMap
-            attrNameToMembers = attrNameMap
-            contextualDescriptors = contextList
         }
 
-        final override val input: XmlBufferedReader get() = this@XmlDecoderBase.input
+        final override val input: XmlPeekingReader get() = this@XmlDecoderBase.input
 
         override val namespaceContext: NamespaceContext get() = input.namespaceContext
 
@@ -778,19 +785,24 @@ internal open class XmlDecoderBase internal constructor(
 
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
 
+            // The deserializer is provided as fallback/default
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
-            return when {
-                effectiveDeserializer.descriptor.kind is PrimitiveKind ->
-                    XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+            val isValueChild = index == xmlDescriptor.getValueChild()
+            return when (effectiveDeserializer.descriptor.kind) {
+                is PrimitiveKind ->
+                    XmlDecoder(childXmlDescriptor, currentPolyInfo, isValueChild, lastAttrIndex)
 
-                else -> SerialValueDecoder(
-                    effectiveDeserializer,
-                    childXmlDescriptor,
-                    currentPolyInfo,
-                    lastAttrIndex,
-                    null
-                )
+                else -> {
+                    SerialValueDecoder(
+                        effectiveDeserializer,
+                        childXmlDescriptor,
+                        currentPolyInfo,
+                        lastAttrIndex,
+                        null,
+                        isValueChild
+                    )
+                }
             }
         }
 
@@ -805,25 +817,17 @@ internal open class XmlDecoderBase internal constructor(
             @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return it as T }
 
-            val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
+            val initialChildXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
 
-            val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
+            val effectiveDeserializer = initialChildXmlDescriptor.effectiveDeserializationStrategy(deserializer)
+
+            val childXmlDescriptor = when {
+                effectiveDeserializer == deserializer -> initialChildXmlDescriptor
+                else -> initialChildXmlDescriptor.overrideDescriptor(this, effectiveDeserializer.descriptor)
+            }
+
 
             val isValueChild = xmlDescriptor.getValueChild() == index
-
-            if (false && ((effectiveDeserializer as DeserializationStrategy<*>) == DeprecatedCompactFragmentSerializer) &&
-                isValueChild
-            ) {
-                // handle missing compact fragments
-                @Suppress("UNCHECKED_CAST")
-                if (nulledItemsIdx >= 0) return (CompactFragment("") as T)
-//                input.require(EventType.START_ELEMENT, null)
-                return input.siblingsToFragment().let {
-                    input.pushBackCurrent() // Make the closing tag again be the next read.
-                    @Suppress("UNCHECKED_CAST")
-                    (it as? CompactFragment ?: CompactFragment(it)) as T
-                }
-            }
 
             val decoder: Decoder = if (lastAttrIndex >= 0 && childXmlDescriptor is XmlAttributeMapDescriptor) {
                 AttributeMapDecoder(effectiveDeserializer, childXmlDescriptor, lastAttrIndex)
@@ -834,12 +838,20 @@ internal open class XmlDecoderBase internal constructor(
 
             val result: T = when (effectiveDeserializer) {
                 is XmlDeserializationStrategy -> {
-                    val r = effectiveDeserializer
-                        .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
+                    check(!input.hasPeekItems)
+                    check(input.eventType == EventType.START_ELEMENT)
+                    val expectedDepth = when {
+                        isValueChild -> input.depth + 1
+                        else -> input.depth
+                    }
 
-                    // Make sure that the (end tag is not consumed) - it will be consumed by the endStructure function
-                    if (input.eventType == EventType.END_ELEMENT && /*isValueChild && */input.depth < tagDepth) {
-                        input.pushBackCurrent()
+                    val r = effectiveDeserializer.deserializeXML(decoder, input, previousValue, isValueChild)
+
+                    // Make sure that the end tag is not consumed - it will be consumed by the endStructure function
+                    if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT) {
+                        if (input.depth < expectedDepth) {
+                            input.pushBackCurrent()
+                        }
                     }
 
                     r
@@ -853,6 +865,7 @@ internal open class XmlDecoderBase internal constructor(
                 } catch (e: XmlException) {
                     throw e
                 } catch (e: Exception) {
+                    if (input.hasPeekItems) input.next()
                     throw XmlException(
                         "In: ${xmlDescriptor.tagName}/${descriptor.getElementName(index)} Error: ${input.extLocationInfo} - ${e.message}",
                         input.extLocationInfo,
@@ -881,6 +894,10 @@ internal open class XmlDecoderBase internal constructor(
         ): T? {
             @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return it as T }
+
+            if (stage == STAGE_NULLS) {
+                return null
+            }
 
             if (hasNullMark()) { // process the element
                 if (input.nextTag() != EventType.END_ELEMENT)
@@ -921,31 +938,25 @@ internal open class XmlDecoderBase internal constructor(
             handleRecovery<Any?>(index) { return DummyDecoder(it) }
 
             val childXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
+            val isValueChild = index == xmlDescriptor.getValueChild()
             return when (descriptor.kind) {
-                is PrimitiveKind -> XmlDecoder(childXmlDescriptor, currentPolyInfo, lastAttrIndex)
+                is PrimitiveKind -> XmlDecoder(childXmlDescriptor, currentPolyInfo, isValueChild, lastAttrIndex)
 
-                else -> SerialValueDecoder(
-                    deserializer,
-                    childXmlDescriptor,
-                    currentPolyInfo,
-                    lastAttrIndex,
-                    typeDiscriminatorName
-                )
+                else -> {
+                    SerialValueDecoder(
+                        deserializer,
+                        childXmlDescriptor,
+                        currentPolyInfo,
+                        lastAttrIndex,
+                        typeDiscriminatorName,
+                        isValueChild
+                    )
+                }
             }
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
-        open fun indexOf(name: QName, inputType: InputKind): Int {
-            // Two functions that allow matching only if the input kind matches the outputkind of the candidate
-
-            fun Int.checkInputType(): Int? {
-                val desc = contextualDescriptors[this] ?: xmlDescriptor.getElementDescriptor(this)
-                return if (inputType.mapsTo(desc)) this else null
-            }
-
-            fun PolyInfo.checkInputType(): PolyInfo? {
-                return if (inputType.mapsTo(this.descriptor)) this else null
-            }
+        open fun indexOf(namespace: String, localName: String, inputType: InputKind): Int {
 
             val isNameOfAttr = inputType == InputKind.Attribute
 
@@ -955,52 +966,38 @@ internal open class XmlDecoderBase internal constructor(
             val tagNameMap = tagNameToMembers
             val attrNameMap = attrNameToMembers
 
-            val normalizedName = name.normalize()
-
             val nameMap = if (isNameOfAttr) attrNameMap else tagNameMap
 
-            nameMap[normalizedName]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
+            nameMap[namespace, localName]?.let { return it.checkRepeatAndOrder(inputType) }
 
-            polyMap[normalizedName]?.checkInputType()?.let {
-                return it.index.checkRepeatAndOrder(inputType).apply {
-                    currentPolyInfo = it
+            if (!isNameOfAttr) {
+                polyMap[namespace, localName]?.let {
+                    return it.index.checkRepeatAndOrder(inputType).apply {
+                        currentPolyInfo = it
+                    }
                 }
             }
 
             val containingNamespaceUri = serialName.namespaceURI
             // Allow attributes in the null namespace to match candidates with a name that is that of the parent tag
             if (isNameOfAttr && !config.policy.isStrictAttributeNames) {
-                if (name.namespaceURI.isEmpty()) {
-                    val attrName = normalizedName.copy(namespaceURI = containingNamespaceUri)
-                    nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
-                    polyMap[attrName]?.checkInputType()?.let {
-                        currentPolyInfo = it
-                        return it.index.checkRepeat()
-                    }
-                }
-
-                if (name.prefix.isEmpty()) {
-                    val emptyNsPrefix = input.getNamespaceURI("")
-                    if (emptyNsPrefix != null) {
-                        val attrName = normalizedName.copy(namespaceURI = emptyNsPrefix)
-                        nameMap[attrName]?.checkInputType()?.let { return it.checkRepeat() }
-                        polyMap[attrName]?.checkInputType()?.let { return it.index.checkRepeat() }
-                    }
+                if (namespace.isEmpty()) {
+                    nameMap[containingNamespaceUri, localName]?.let { return it.checkRepeat() }
                 }
             }
 
             // If the parent namespace uri is the same as the namespace uri of the element, try looking for an element
             // with a null namespace instead
-            if (!config.policy.isStrictAttributeNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == name.namespaceURI) {
-                nameMap[QName(name.getLocalPart())]?.checkInputType()?.let { return it.checkRepeatAndOrder(inputType) }
+            if (!config.policy.isStrictAttributeNames && containingNamespaceUri.isNotEmpty() && containingNamespaceUri == namespace) {
+                nameMap["", localName]?.let { return it.checkRepeatAndOrder(inputType) }
             }
 
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
-                otherAttrIndex.takeIf { it >= 0 }?.let { return it }
+                val other = otherAttrIndex
+                if (other >= 0) return other
             } else {
-                xmlDescriptor.getValueChild().takeIf { it >= 0 }?.let { valueChildIdx ->
-                    return valueChildIdx.checkRepeat()
-                }
+                val vc = xmlDescriptor.getValueChild()
+                if (vc >= 0) return vc.checkRepeat()
             }
 
             // Hook that will normally throw an exception on an unknown name.
@@ -1008,7 +1005,7 @@ internal open class XmlDecoderBase internal constructor(
                 input,
                 inputType,
                 xmlDescriptor,
-                name,
+                QName(namespace, localName),
                 (attrNameMap.map { (k, v) ->
                     PolyInfo(k, v, xmlDescriptor.getElementDescriptor(v))
                 } + tagNameMap.map { (k, v) ->
@@ -1035,19 +1032,22 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         protected open fun Int.checkRepeatAndOrder(inputType: InputKind): Int = also { idx ->
-            checkRepeat()
-            if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
-                if (xmlDescriptor is XmlCompositeDescriptor) {
-                    val constraints = xmlDescriptor.childConstraints
-                    if (constraints != null) {
-                        for (childIdx in seenItems.indices) {
-                            if (seenItems[childIdx]) {
-                                if (constraints.isOrderedAfter(childIdx, this)) {
-                                    throw XmlSerialException(
-                                        "In ${xmlDescriptor.tagName}, found element ${
-                                            xmlDescriptor.friendlyChildName(childIdx)
-                                        } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints"
-                                    )
+            if (!config.isUnchecked) {
+                checkRepeat()
+                if (config.policy.verifyElementOrder && inputType == InputKind.Element) {
+                    if (xmlDescriptor is XmlCompositeDescriptor) {
+                        // TODO optimize by caching ordering.
+                        val constraints = xmlDescriptor.childConstraints
+                        if (constraints != null) {
+                            for (childIdx in seenItems.indices) {
+                                if (seenItems[childIdx]) {
+                                    if (constraints.isOrderedAfter(childIdx, this)) {
+                                        throw XmlSerialException(
+                                            "In ${xmlDescriptor.tagName}, found element ${
+                                                xmlDescriptor.friendlyChildName(childIdx)
+                                            } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints"
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1066,14 +1066,19 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
+        /**
+         * Rather than descriptor the code should use the xmlDescriptor
+         */
+        final override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            return decodeElementIndex()
+        }
 
         @OptIn(ExperimentalXmlUtilApi::class)
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            if (!decodeElementIndexCalled && input.depth < tagDepth) {
+        protected open fun decodeElementIndex(): Int {
+            if (stage == STAGE_CLOSE) {
                 return CompositeDecoder.DECODE_DONE
             }
 
-            decodeElementIndexCalled = true
             /* Decoding works in 4 stages: pending injected elements, attributes,
              * child content, null values.
              * Pending injected elements allow for handling unexpected content, and should be
@@ -1085,135 +1090,154 @@ internal open class XmlDecoderBase internal constructor(
             if (pendingRecovery.isNotEmpty()) {
                 return pendingRecovery.first().elementIndex
             }
-            if (nulledItemsIdx >= 0) {
-                // This processes all "missing" elements.
+            if (stage == STAGE_NULLS) {
+                if (nulledItemsIdx >= 0) {
+                    // This processes all "missing" elements.
+                    if (!config.isUnchecked) input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
 
-                input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
+                    if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.DECODE_DONE
 
-                if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.DECODE_DONE
-
-                return nulledItemsIdx.also {// return the current index, and then move to the next value
-                    nextNulledItemsIdx()
+                    return nulledItemsIdx.also {// return the current index, and then move to the next value
+                        nextNulledItemsIdx()
+                    }
+                } else {
+                    stage = STAGE_CLOSE
                 }
             }
 
-            // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
-            lastAttrIndex++
+            if (stage <= STAGE_ATTRS) {
+                // Move to next attribute. Continuing to increase is harmless (given less than 2^31 children)
+                lastAttrIndex++
 
-            // Allow for ignoring attributes (like keys on collapsed maps).
-            // This must be separate as it may be the last attribute that is ignored
-            while (lastAttrIndex in 0 until attrCount &&
-                ignoredAttributes.any { it isEquivalent input.getAttributeName(lastAttrIndex) }
-            ) {
-                ++lastAttrIndex
-            }
-
-            if (lastAttrIndex in 0 until attrCount) {
-
-                val name = input.getAttributeName(lastAttrIndex)
-
-                if (name == typeDiscriminatorName || name.getNamespaceURI() == XMLNS_ATTRIBUTE_NS_URI ||
-                    name.prefix == XMLNS_ATTRIBUTE ||
-                    (name.prefix.isEmpty() && name.localPart == XMLNS_ATTRIBUTE)
+                // Allow for ignoring attributes (like keys on collapsed maps).
+                // This must be separate as it may be the last attribute that is ignored
+                while (lastAttrIndex in 0 until attrCount &&
+                    ignoredAttributes.any { it isEquivalent input.getAttributeName(lastAttrIndex) }
                 ) {
-                    // Ignore namespace decls, just recursively call the function itself
-                    return decodeElementIndex(descriptor)
-                } else if (name.getNamespaceURI() == XML_NS_URI && name.localPart == "space") {
-                    when (input.getAttributeValue(lastAttrIndex)) {
-                        "preserve" -> preserveWhitespace = true
-                        "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
-                    }
-                    // If this was explicitly declared as attribute use that as index, otherwise
-                    // just skip the attribute.
-                    return attrNameToMembers[name]?.also { seenItems[it] = true } ?: decodeElementIndex(descriptor)
+                    ++lastAttrIndex
                 }
 
-                // The ifNegative function will recursively call this function if we didn't find it (and the handler
-                // didn't throw an exception). This allows for ignoring unknown elements.
-                return indexOf(name, InputKind.Attribute).markSeenOrHandleUnknown { decodeElementIndex(descriptor) }
+                if (lastAttrIndex in 0 until attrCount) {
 
-            }
-            lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
+                    val attrIdx = lastAttrIndex
+                    val attrNS = input.getAttributeNamespace(attrIdx)
+                    val attrPrefix = input.getAttributePrefix(attrIdx)
+                    val attrLName = input.getAttributeLocalName(attrIdx)
 
-            val valueChild = descriptor.getValueChild()
-            // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
-            // treated as such).
-            if (valueChild >= 0 && /*input.peek() is XmlEvent.EndElementEvent &&*/ !seenItems[valueChild]) {
-                val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
-                // Lists/maps need to be empty (treated as null/missing)
-                if ((!valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
-                    // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
-                    seenItems[valueChild] = true
-                    return valueChild
-                }
-            }
-            for (eventType in input) {
-                when (eventType) {
-                    EventType.END_ELEMENT -> {
-                        return readElementEnd(descriptor)
+                    if (attrNS == XMLNS_ATTRIBUTE_NS_URI ||
+                        attrPrefix == XMLNS_ATTRIBUTE ||
+                        (attrPrefix.isEmpty() && attrLName == XMLNS_ATTRIBUTE) ||
+                        typeDiscriminatorName.let {
+                            it != null && attrNS == it.namespaceURI && attrLName == it.localPart
+                        }
+                    ) {
+                        // Ignore namespace decls and the type discriminator attribute, just recursively call the function itself
+                        return decodeElementIndex()
+                    } else if (attrNS == XML_NS_URI && attrLName == "space") {
+                        when (input.getAttributeValue(attrIdx)) {
+                            "preserve" -> preserveWhitespace = true
+                            "default" -> preserveWhitespace = xmlDescriptor.preserveSpace
+                        }
+                        // If this was explicitly declared as attribute use that as index, otherwise
+                        // just skip the attribute.
+                        return attrNameToMembers[QName(attrNS, attrLName)]?.also { seenItems[it] = true }
+                            ?: decodeElementIndex()
                     }
 
-                    EventType.START_DOCUMENT,
-                    EventType.COMMENT,
-                    EventType.DOCDECL,
-                    EventType.PROCESSING_INSTRUCTION -> {
-                    } // do nothing/ignore
+                    // The ifNegative function will recursively call this function if we didn't find it (and the handler
+                    // didn't throw an exception). This allows for ignoring unknown elements.
+                    return indexOf(
+                        attrNS,
+                        attrLName,
+                        InputKind.Attribute
+                    ).markSeenOrHandleUnknown { decodeElementIndex() }
 
-                    EventType.ENTITY_REF,
-                    EventType.CDSECT,
-                    EventType.IGNORABLE_WHITESPACE,
-                    EventType.TEXT -> {
-                        // The android reader doesn't check whitespaceness. This code should throw
-                        if (input.isWhitespace()) {
-                            if (valueChild != CompositeDecoder.UNKNOWN_NAME &&
-                                preserveWhitespace
-                            ) {
-                                val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
-                                if (valueKind == StructureKind.LIST || valueKind is PrimitiveKind
-                                ) { // this allows all primitives (
-                                    seenItems[valueChild] = true
-                                    return valueChild // We can handle whitespace
+                }
+                stage = STAGE_CONTENT // no more attributes
+                lastAttrIndex = Int.MIN_VALUE // Ensure to reset here, this should not practically get bigger than 0
+            }
+
+            if (stage <= STAGE_CONTENT) {
+                stage = STAGE_CONTENT
+                val valueChild = xmlDescriptor.getValueChild()
+                // Handle the case of an empty tag for a value child. This is not a nullable item (so shouldn't be
+                // treated as such).
+                if (valueChild >= 0 && !seenItems[valueChild]) {
+                    val valueChildDesc = xmlDescriptor.getElementDescriptor(valueChild)
+                    // Lists/maps need to be empty (treated as null/missing)
+                    if ((!valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
+                        // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
+                        seenItems[valueChild] = true
+                        return valueChild
+                    }
+                }
+                for (eventType in input) {
+                    when (eventType) {
+                        EventType.END_ELEMENT -> return readElementEnd()
+
+                        EventType.START_DOCUMENT,
+                        EventType.COMMENT,
+                        EventType.DOCDECL,
+                        EventType.PROCESSING_INSTRUCTION -> {
+                        } // do nothing/ignore
+
+                        EventType.ENTITY_REF,
+                        EventType.CDSECT,
+                        EventType.IGNORABLE_WHITESPACE,
+                        EventType.TEXT -> {
+                            // The android reader doesn't check whitespaceness. This code should throw
+                            if (input.isWhitespace()) {
+                                if (valueChild != CompositeDecoder.UNKNOWN_NAME && preserveWhitespace) {
+                                    val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
+                                    if (valueKind == StructureKind.LIST || valueKind is PrimitiveKind
+                                    ) { // this allows all primitives (
+                                        seenItems[valueChild] = true
+                                        return valueChild // We can handle whitespace
+                                    }
+                                }
+                            } else if (!input.isWhitespace()) {
+                                return valueChild.markSeenOrHandleUnknown {
+                                    config.policy.handleUnknownContentRecovering(
+                                        input,
+                                        InputKind.Text,
+                                        xmlDescriptor,
+                                        QName("<CDATA>"),
+                                        emptyList()
+                                    ).let { pendingRecovery.addAll(it) }
+                                    decodeElementIndex() // if this doesn't throw, recursively continue
                                 }
                             }
-                        } else if (!input.isWhitespace()) {
-                            return valueChild.markSeenOrHandleUnknown {
-                                config.policy.handleUnknownContentRecovering(
-                                    input,
-                                    InputKind.Text,
-                                    xmlDescriptor,
-                                    QName("<CDATA>"),
-                                    emptyList()
-                                ).let { pendingRecovery.addAll(it) }
-                                decodeElementIndex(descriptor) // if this doesn't throw, recursively continue
-                            }
-                        }
-                    }
-
-                    EventType.ATTRIBUTE -> return indexOf(
-                        input.name,
-                        InputKind.Attribute
-                    ).markSeenOrHandleUnknown { decodeElementIndex(descriptor) }
-
-                    EventType.START_ELEMENT -> when (val i = indexOf(input.name, InputKind.Element)) {
-                        // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
-                        // as a shortcut.
-                        CompositeDecoder.UNKNOWN_NAME -> {
-                            if (pendingRecovery.isNotEmpty()) {
-                                return pendingRecovery.first().elementIndex
-                            }
-                            input.elementContentToFragment()
                         }
 
-                        else -> return i.also { seenItems[i] = true }
-                    }
+                        EventType.ATTRIBUTE -> return indexOf(
+                            input.namespaceURI,
+                            input.localName,
+                            InputKind.Attribute
+                        ).markSeenOrHandleUnknown { decodeElementIndex() }
 
-                    EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
+                        EventType.START_ELEMENT -> when (val i =
+                            indexOf(input.namespaceURI, input.localName, InputKind.Element)) {
+                            // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
+                            // as a shortcut.
+                            CompositeDecoder.UNKNOWN_NAME -> {
+                                if (pendingRecovery.isNotEmpty()) {
+                                    return pendingRecovery.first().elementIndex
+                                }
+                                input.elementContentToFragment()
+                            }
+
+                            else -> return i.also { seenItems[i] = true }
+                        }
+
+                        EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
+                    }
                 }
             }
             return CompositeDecoder.DECODE_DONE
         }
 
         private fun nextNulledItemsIdx() {
+            val seenItems = seenItems
             for (i in (nulledItemsIdx + 1) until seenItems.size) {
                 // Items that have been seen don't need to be passed as null
                 // Items that are declared as optional, don't need to be passed as ull
@@ -1229,11 +1253,11 @@ internal open class XmlDecoderBase internal constructor(
 
                             // If there is no child descriptor and it is missing this can only be because it is
                             // either a list or nullable. It can be treated as such.
-                            childDesc.isNullable || when (childDesc.kind) {
+                            when (childDesc.kind) {
                                 StructureKind.LIST,
                                 StructureKind.MAP -> true
 
-                                else -> false
+                                else -> childDesc.isNullable
                             }
                         }
                     }
@@ -1243,22 +1267,27 @@ internal open class XmlDecoderBase internal constructor(
                     }
                 }
             }
+            stage = STAGE_CLOSE // finished processing nulls
             nulledItemsIdx = seenItems.size
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
-            if (!decodeElementIndexCalled) {
-                val index = decodeElementIndex(descriptor)
+            if (stage < STAGE_CLOSE) {
+                val index = decodeElementIndex()
                 if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
             }
-            if (typeDiscriminatorName == null) {
-                input.require(EventType.END_ELEMENT, serialName)
-            } else { // if there is a type discriminator we have an inherited name
-                input.require(EventType.END_ELEMENT, null)
+            if (!config.isUnchecked) {
+                if (typeDiscriminatorName == null) {
+                    input.require(EventType.END_ELEMENT, serialName)
+                } else { // if there is a type discriminator we have an inherited name
+                    input.require(EventType.END_ELEMENT, null)
+                }
             }
         }
 
-        open fun readElementEnd(desc: SerialDescriptor): Int {
+        open fun readElementEnd(): Int {
+            // We are now in the null/default reading stage
+            stage = STAGE_NULLS
             // this is triggered on endTag, so we increase the null index to be 0 or higher.
             // We use this function as we still need to do the skipping of the relevant children
             nextNulledItemsIdx()
@@ -1319,12 +1348,12 @@ internal open class XmlDecoderBase internal constructor(
                 OutputKind.Mixed,
                 OutputKind.Text -> {
                     input.allConsecutiveTextContent().also { // add some checks that we only have text content
-                        val peek = input.peek()
-                        if (peek !is XmlEvent.EndElementEvent) {
+                        val peek = input.peekNextEvent()
+                        if (peek != EventType.END_ELEMENT) {
                             throw XmlSerialException("Missing end tag after text only content (found: ${peek})")
-                        } else if (peek.localName != serialName.localPart) {
+                        } /*else if (peek.localName != serialName.localPart) {
                             throw XmlSerialException("Expected end tag local name ${serialName.localPart}, found ${peek.localName}")
-                        }
+                        }*/
                     }
                 }
 
@@ -1392,7 +1421,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = 1
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int = when (nextIndex) {
+        override fun decodeElementIndex(): Int = when (nextIndex) {
             0, 1 -> nextIndex++
             else -> CompositeDecoder.DECODE_DONE
         }
@@ -1544,23 +1573,18 @@ internal open class XmlDecoderBase internal constructor(
         xmlDescriptor: XmlListDescriptor,
         private val polyInfo: PolyInfo?,
         typeDiscriminatorName: QName?,
+        private val isValueChild: Boolean,
     ) : TagDecoderBase<XmlListDescriptor>(deserializer, xmlDescriptor, typeDiscriminatorName) {
 
         private val parentXmlDescriptor: XmlDescriptor get() = xmlDescriptor.tagParent.descriptor as XmlDescriptor
-        private val listChildIdx: Int = (0 until parentXmlDescriptor.elementsCount)
-            .firstOrNull {
-                parentXmlDescriptor.serialDescriptor.getElementAnnotations(it).firstOrNull<XmlValue>()?.value == true
-            } ?: -1
 
         private var finished: Boolean = false
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            return when {
-                finished -> CompositeDecoder.DECODE_DONE
-                else -> { // lists are always decoded as single element lists
-                    finished = true; 0
-                }
-            }
+        override fun decodeElementIndex(): Int = when {
+            finished -> CompositeDecoder.DECODE_DONE
+
+            // lists are always decoded as single element lists
+            else -> 0.also { finished = true }
         }
 
         override fun <T> decodeSerializableElement(
@@ -1577,17 +1601,9 @@ internal open class XmlDecoderBase internal constructor(
 
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
-            @Suppress("DEPRECATION")
-            if ((effectiveDeserializer is DeprecatedCompactFragmentSerializer) &&
-                (parentXmlDescriptor.getValueChild() == listChildIdx)
-            ) {
-                return input.elementToFragment().let {
-                    @Suppress("UNCHECKED_CAST")
-                    (it as? CompactFragment ?: CompactFragment(it)) as T
-                }
-            } else if ((effectiveDeserializer is CompactFragmentSerializer) &&
-                (parentXmlDescriptor.getValueChild() == listChildIdx)
-            ) {
+            if (isValueChild && (effectiveDeserializer is DeprecatedCompactFragmentSerializer ||
+                        effectiveDeserializer is CompactFragmentSerializer)) {
+
                 return input.elementToFragment().let {
                     @Suppress("UNCHECKED_CAST")
                     (it as? CompactFragment ?: CompactFragment(it)) as T
@@ -1599,10 +1615,11 @@ internal open class XmlDecoderBase internal constructor(
                 childXmlDescriptor,
                 polyInfo,
                 Int.MIN_VALUE,
-                typeDiscriminatorName
+                typeDiscriminatorName,
+                isValueChild
             )
 
-            val result = deserializer.deserializeSafe(decoder, previousValue)
+            val result = deserializer.deserializeSafe(decoder, previousValue, false && isValueChild)
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
@@ -1630,10 +1647,10 @@ internal open class XmlDecoderBase internal constructor(
 
         private var childCount = 0
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-            decodeElementIndexCalled = true
+        override fun decodeElementIndex(): Int {
+            stage = STAGE_CONTENT
             return when (input.nextTag()) {
-                EventType.END_ELEMENT -> CompositeDecoder.DECODE_DONE
+                EventType.END_ELEMENT -> CompositeDecoder.DECODE_DONE.also { stage = STAGE_CLOSE }
                 else -> childCount++ // This is important to ensure appending in the list.
             }
         }
@@ -1653,7 +1670,8 @@ internal open class XmlDecoderBase internal constructor(
                 childXmlDescriptor,
                 super.currentPolyInfo,
                 super.lastAttrIndex,
-                null
+                null,
+                false
             )
 
             // TODO make merging more reliable
@@ -1722,7 +1740,8 @@ internal open class XmlDecoderBase internal constructor(
                 valueDescriptor,
                 polyInfo,
                 Int.MIN_VALUE,
-                typeDiscriminatorName
+                typeDiscriminatorName,
+                false // TODO: this might need to be more specific.
             )
             if (xmlDescriptor.isValueCollapsed) {
                 decoder.ignoreAttribute(keyDescriptor.tagName)
@@ -1750,7 +1769,7 @@ internal open class XmlDecoderBase internal constructor(
     ) : MapDecoderBase(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName) {
 
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        override fun decodeElementIndex(): Int {
             if (!xmlDescriptor.isValueCollapsed) {
                 if (lastIndex < 0) {
                     check(input.eventType == EventType.START_ELEMENT)
@@ -1759,12 +1778,11 @@ internal open class XmlDecoderBase internal constructor(
                             "Map entry not found. Found ${input.name}@${input.extLocationInfo} instead",
                             input.extLocationInfo
                         )
-                }
-                if (lastIndex % 2 == 0) assert(xmlDescriptor.entryName isEquivalent input.name) {
+                } else if (lastIndex % 2 == 0) assert(xmlDescriptor.entryName isEquivalent input.name) {
                     "${xmlDescriptor.entryName} != ${input.name}"
                 }
                 // Use the default, but correct the index (map serializer is dumb)
-                val rawIndex = super.decodeElementIndex(descriptor)
+                val rawIndex = super.decodeElementIndex()
 
                 if (rawIndex < 0) return rawIndex
                 lastIndex = lastIndex - (lastIndex % 2) + (rawIndex % 2)
@@ -1804,35 +1822,48 @@ internal open class XmlDecoderBase internal constructor(
     ) : MapDecoderBase(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName) {
         override fun Int.checkRepeat(): Int = this
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        override fun decodeElementIndex(): Int {
 
             if (!xmlDescriptor.isValueCollapsed) {
-                while (input.peek()?.eventType == EventType.IGNORABLE_WHITESPACE) input.next()
-
                 if (lastIndex.mod(2) == 1) {
-                    when (input.peek()?.eventType) {
-                        EventType.START_ELEMENT -> {
-                            input.next()
-                            require(input.name.isEquivalent(xmlDescriptor.entryName))
-                            return super.decodeElementIndex(descriptor).also {
-                                require(it >= 0) { "Map entry must contain a (key) child" }
+                    while (input.hasNext()) {
+                        when (val e = input.peekNextEvent()) {
+                            EventType.START_ELEMENT -> {
+                                input.next()
+                                if (!config.isUnchecked) require(input.name.isEquivalent(xmlDescriptor.entryName))
+                                return super.decodeElementIndex().also {
+                                    require(it >= 0) { "Map entry must contain a (key) child" }
+                                }
                             }
-                        }
 
-                        else -> {
-                            check(super.decodeElementIndex(descriptor) == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
-                            return CompositeDecoder.DECODE_DONE // should be the value
+                            EventType.IGNORABLE_WHITESPACE -> input.next()
+
+                            EventType.TEXT -> {
+                                input.next()
+                                require(input.isWhitespace()) {
+                                    "Non-ignorable text content found in map: '${input.text}'"
+                                }
+                            }
+
+                            EventType.END_ELEMENT -> {
+                                check(super.decodeElementIndex() == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
+                                return CompositeDecoder.DECODE_DONE // should be the value
+                            }
+
+                            else -> {
+                                throw IllegalArgumentException("Unexpected event ${e} in map content")
+                            }
                         }
                     }
                 } else { // value (is inside entry)
-                    return super.decodeElementIndex(descriptor).also {
+                    return super.decodeElementIndex().also {
                         require(it >= 0) { "Map entry must contain a value child" }
                     }
                 }
             } else {
 
                 // Use the default, but correct the index (map serializer is dumb)
-                if (lastIndex.mod(2) == 1 && super.decodeElementIndex(descriptor) < 0) {
+                if (lastIndex.mod(2) == 1 && super.decodeElementIndex() < 0) {
                     return CompositeDecoder.DECODE_DONE // should be the value
                 }
             }
@@ -1870,14 +1901,15 @@ internal open class XmlDecoderBase internal constructor(
     private inner class PolymorphicDecoder(
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: XmlPolymorphicDescriptor,
-        private val polyInfo: PolyInfo?
+        private val polyInfo: PolyInfo?,
+        private val isValueChild: Boolean,
     ) : TagDecoderBase<XmlPolymorphicDescriptor>(deserializer, xmlDescriptor, null) {
 
         private var nextIndex = 0
         private var detectedPolyType: String? = null
         private var polyTypeAttrname: QName? = null
 
-        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        override fun decodeElementIndex(): Int {
             when (val polyMode = xmlDescriptor.polymorphicMode) {
                 PolymorphicMode.TRANSPARENT -> return when (nextIndex) {
                     0, 1 -> nextIndex++
@@ -1901,14 +1933,13 @@ internal open class XmlDecoderBase internal constructor(
                                     input.extLocationInfo,
                                     input.getAttributeValue(i)
                                 )
-                                val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true)
 
-                                val childQnames = xmlDescriptor.polyInfo.map { (childSerialName, childDesc) ->
-                                    childSerialName to config.policy.typeQName(childDesc)
-                                }
+                                // The QName corresponding to the type serialized
+                                val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true).normalize()
 
-                                detectedPolyType = childQnames.firstOrNull { it.second == typeQName }?.first
-                                    ?: throw XmlSerialException("Could not find child for type with qName: $typeQName. Candidates are: ${childQnames.joinToString()}")
+                                detectedPolyType = xmlDescriptor.typeQNameToSerialName[typeQName]
+                                    ?: throw XmlSerialException("Could not find child for type with qName: $typeQName. " +
+                                            "Candidates are: ${xmlDescriptor.typeQNameToSerialName.keys.sortedBy { it.localPart }.joinToString()}")
 
                                 polyTypeAttrname = attrName
                                 nextIndex = 1
@@ -1917,7 +1948,7 @@ internal open class XmlDecoderBase internal constructor(
                             }
                         }
                     }
-                    return super.decodeElementIndex(descriptor).also { nextIndex = it + 1 }
+                    return super.decodeElementIndex().also { nextIndex = it + 1 }
                 }
             }
         }
@@ -1940,9 +1971,27 @@ internal open class XmlDecoderBase internal constructor(
                             input.eventType == EventType.CDSECT)
                     -> "kotlin.String" // hardcode handling text input polymorphically
 
-                    polyInfo == null -> error("PolyInfo is null for a transparent polymorphic decoder")
+                    polyInfo != null -> polyInfo.describedName
 
-                    else -> polyInfo.describedName
+                    else -> {
+                        if (isMixed && input.eventType == EventType.START_ELEMENT) {
+                            val matches = xmlDescriptor.polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
+                                if (xmlDesc.tagName.isEquivalent(input.name)) return typeName
+                                val baseClass = xmlDescriptor.serialDescriptor.capturedKClass
+                                if (baseClass == null) {
+                                    null
+                                } else {
+                                    val ser = serializersModule.getPolymorphic(baseClass, typeName)
+                                    if (ser is XmlSerializer) typeName else null
+                                }
+                            }
+                            when (matches.size) {
+                                0 -> error("No XmlSerializable found to handle unrecognized value tag ${input.name} in polymorphic context")
+                                1 -> matches.first()
+                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context")
+                            }
+                        } else error("PolyInfo is null for a transparent polymorphic decoder")
+                    }
                 }
 
                 else -> when { // In a mixed context, pure text content doesn't need a wrapper
@@ -1972,7 +2021,8 @@ internal open class XmlDecoderBase internal constructor(
                 childXmlDescriptor,
                 currentPolyInfo,
                 lastAttrIndex,
-                polyTypeAttrname
+                polyTypeAttrname,
+                isValueChild
             )
         }
 
@@ -1992,11 +2042,13 @@ internal open class XmlDecoderBase internal constructor(
                     childXmlDescriptor,
                     currentPolyInfo,
                     lastAttrIndex,
-                    polyTypeAttrname
+                    polyTypeAttrname,
+                    isValueChild
                 )
                 nextIndex = 2
                 val result = when (deserializer) {
-                    is XmlDeserializationStrategy -> deserializer.deserializeXML(decoder, input)
+                    is XmlDeserializationStrategy ->
+                        deserializer.deserializeXML(decoder, input, isValueChild = isValueChild)
                     else -> deserializer.deserialize(decoder)
                 }
 
@@ -2010,16 +2062,17 @@ internal open class XmlDecoderBase internal constructor(
             }
 
             if (!xmlDescriptor.isTransparent) {
-                input.require(EventType.START_ELEMENT, null, "value")
+                if (!config.isUnchecked) input.require(EventType.START_ELEMENT, null, "value")
                 return super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
             }
 
             val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
+            val isValueChild = index == xmlDescriptor.getValueChild()
 
             return when {
                 isMixed && deserializer.descriptor.kind is PrimitiveKind -> {
                     val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
-                    deserializer.deserialize(XmlDecoder(childXmlDescriptor))
+                    deserializer.deserialize(XmlDecoder(childXmlDescriptor, isValueChild = isValueChild))
                 }
 
                 else ->
@@ -2029,14 +2082,14 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun endStructure(descriptor: SerialDescriptor) {
             if (!xmlDescriptor.isTransparent) {
-                input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
+                if (!config.isUnchecked) input.require(EventType.END_ELEMENT, serialName.namespaceURI, serialName.localPart)
             } else {
                 val isMixed = xmlDescriptor.outputKind == OutputKind.Mixed
 
                 if (!isMixed || !xmlDescriptor.isTransparent) { // Don't check in mixed mode as we could have just had raw text
                     val t = polyInfo?.tagName
                     if (t != null) {
-                        input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
+                        if (!config.isUnchecked) input.require(EventType.END_ELEMENT, t.namespaceURI, t.localPart)
                     } else {
                         super.endStructure(descriptor)
                     }
@@ -2077,3 +2130,10 @@ internal fun XmlDescriptor.friendlyChildName(idx: Int): String = when (val c = g
 
     else -> c.tagName.toString()
 }
+
+private const val STAGE_INIT = 1
+private const val STAGE_ATTRS = 2
+private const val STAGE_CONTENT = 3
+private const val STAGE_NULLS = 4
+private const val STAGE_CLOSE = 5
+

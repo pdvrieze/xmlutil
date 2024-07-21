@@ -138,6 +138,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit5.api)
+                implementation(projects.coreJdk)
 
                 runtimeOnly(libs.junit5.engine)
                 runtimeOnly(libs.woodstox)

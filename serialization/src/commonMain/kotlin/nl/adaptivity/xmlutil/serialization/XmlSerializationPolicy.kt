@@ -27,6 +27,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.*
@@ -111,6 +112,7 @@ public interface XmlSerializationPolicy {
         val isDefaultNamespace: Boolean/* = false*/
     ) {
         internal constructor(serialName: String) : this(serialName, null, false)
+        internal constructor(name: QName): this(name.localPart, name, false)
 
         @OptIn(ExperimentalSerializationApi::class)
         internal constructor(descriptor: SerialDescriptor) : this(descriptor.serialName, (descriptor as? XmlSerialDescriptor)?.serialQName, false)
@@ -325,6 +327,7 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  */
 public open class DefaultXmlSerializationPolicy
 private constructor(
+    internal val formatCache: FormatCache,
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean,
     public val encodeDefault: XmlEncodeDefault,
@@ -351,6 +354,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
+        formatCache = DefaultFormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -415,6 +419,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
+        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -433,7 +438,14 @@ private constructor(
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
+    @Deprecated("Use version that takes a FormatCache parameter")
     protected constructor(builder: Builder) : this(
+        if (builder.isCachingEnabled) DefaultFormatCache() else FormatCache.Dummy,
+        builder
+    )
+
+    protected constructor(formatCache: FormatCache, builder: Builder): this(
+        formatCache = formatCache,
         pedantic = builder.pedantic,
         autoPolymorphic = builder.autoPolymorphic,
         encodeDefault = builder.encodeDefault,
@@ -446,7 +458,10 @@ private constructor(
         isStrictOtherAttributes = builder.isStrictOtherAttributes
     )
 
-    public constructor(config: Builder.() -> Unit) : this(Builder().apply(config))
+    @Deprecated("Use/implement version that takes a FormatCache parameter")
+    public constructor(config: Builder.() -> Unit) : this(DefaultFormatCache(),config)
+
+    public constructor(formatCache: FormatCache, config: Builder.() -> Unit) : this(formatCache, Builder().apply(config))
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
         return typeDiscriminatorName
@@ -456,12 +471,9 @@ private constructor(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
     ): Boolean {
-        val useAnnotations = tagParent.elementUseAnnotations
-        val isMixed = useAnnotations.firstOrNull<XmlValue>()?.value == true
-        if (isMixed) return true
+        if (tagParent.useAnnIsValue == true) return true
 
-        val reqChildrenName =
-            useAnnotations.firstOrNull<XmlChildrenName>()?.toQName()
+        val reqChildrenName = tagParent.useAnnChildrenName?.toQName()
         return reqChildrenName == null
     }
 
@@ -469,9 +481,7 @@ private constructor(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
     ): Boolean {
-        val xmlPolyChildren =
-            tagParent.elementUseAnnotations.firstOrNull<XmlPolyChildren>()
-        return autoPolymorphic || xmlPolyChildren != null
+        return autoPolymorphic || tagParent.useAnnPolyChildren != null
     }
 
     @Deprecated("Don't use or implement this, use the 3 parameter version")
@@ -492,12 +502,9 @@ private constructor(
             ?.getXmlOverride()
             ?: serializerParent.elementSerialDescriptor
 
-        return when (val overrideOutputKind =
-            serializerParent.elementUseOutputKind) {
+        return when (val overrideOutputKind = serializerParent.elementUseOutputKind) {
             null -> {
-                val useAnnotations = tagParent.elementUseAnnotations
-                val isValue =
-                    useAnnotations.firstOrNull<XmlValue>()?.value == true
+                val isValue = tagParent.useAnnIsValue == true
                 var parentChildDesc = tagParent.elementSerialDescriptor
                 while (parentChildDesc.isInline) {
                     parentChildDesc =
@@ -506,18 +513,17 @@ private constructor(
                 val elementKind = parentChildDesc.kind
                 // If we can't be an attribue
                 when {
-                    elementKind == StructureKind.CLASS
-                    -> OutputKind.Element
+                    elementKind == StructureKind.CLASS -> OutputKind.Element
 
                     isValue -> OutputKind.Mixed
 
-                    !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute)
-                    -> handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
+                    !canBeAttribute && (tagParent.elementUseOutputKind == OutputKind.Attribute) ->
+                        handleAttributeOrderConflict(serializerParent, tagParent, OutputKind.Attribute)
 
                     !canBeAttribute -> OutputKind.Element
 
                     else -> tagParent.elementUseOutputKind
-                        ?: serialDescriptor.declOutputKind()
+                        ?: serializerParent.elementTypeDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
                 }
             }
@@ -531,7 +537,7 @@ private constructor(
                     }
                 } else {
                     val outputKind = tagParent.elementUseOutputKind
-                        ?: serialDescriptor.declOutputKind()
+                        ?: serializerParent.elementTypeDescriptor.declOutputKind()
                         ?: defaultOutputKind(serialDescriptor.kind)
 
                     when (outputKind) {
@@ -649,20 +655,12 @@ private constructor(
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun overrideSerializerOrNull(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo
-    ): KSerializer<*>? =
-        when (serializerParent.elementSerialDescriptor.serialName) {
-            "javax.xml.namespace.QName?",
-            "javax.xml.namespace.QName" -> when {
-                serializerParent.elementSerialDescriptor.isNullable -> QNameSerializer.nullable
-                else -> QNameSerializer
-            }
-
-            else -> null
-        }
+    ): KSerializer<*>? {
+        return null
+    }
 
     /**
      * Default implementation that uses [XmlBefore] and [XmlAfter]. It does
@@ -672,10 +670,11 @@ private constructor(
     override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
     ): Collection<XmlOrderConstraint>? {
-        val nameToIdx =
-            (0 until parentDescriptor.elementsCount).associateBy {
-                parentDescriptor.getElementName(it)
-            }
+        val mapCapacity = parentDescriptor.elementsCount*2
+        val nameToIdx = HashMap<String, Int>(mapCapacity)
+        for (i in 0 until parentDescriptor.elementsCount) {
+            nameToIdx[parentDescriptor.getElementName(i)] = i
+        }
 
         fun String.toChildIndex(): Int = when (this) {
             "*" -> XmlOrderConstraint.OTHERS
@@ -683,8 +682,9 @@ private constructor(
                 ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
 
-        val orderConstraints = HashSet<XmlOrderConstraint>()
-        val orderNodes = mutableMapOf<String, XmlOrderNode>()
+        val orderConstraints = HashSet<XmlOrderConstraint>(mapCapacity)
+        val orderNodes = HashMap<String, XmlOrderNode>(mapCapacity)
+
         for (elementIdx in 0 until parentDescriptor.elementsCount) {
             var xmlBefore: Array<out String>? = null
             var xmlAfter: Array<out String>? = null
@@ -703,7 +703,7 @@ private constructor(
                     xmlAfter = annotation.value
                 }
                 if (xmlBefore != null || xmlAfter != null) {
-                    val node = orderNodes.getOrPut(
+                    val node = orderNodes.computeIfAbsent(
                         parentDescriptor.getElementName(elementIdx)
                     ) {
                         XmlOrderNode(
@@ -713,14 +713,14 @@ private constructor(
                     if (xmlBefore != null) {
                         val befores = Array(xmlBefore.size) {
                             val name = xmlBefore[it]
-                            orderNodes.getOrPut(name) { XmlOrderNode(name.toChildIndex()) }
+                            orderNodes.computeIfAbsent(name) { XmlOrderNode(name.toChildIndex()) }
                         }
                         node.addSuccessors(*befores)
                     }
                     if (xmlAfter != null) {
                         val afters = Array(xmlAfter.size) {
                             val name = xmlAfter[it]
-                            orderNodes.getOrPut(name) { XmlOrderNode(name.toChildIndex()) }
+                            orderNodes.computeIfAbsent(name) { XmlOrderNode(name.toChildIndex()) }
                         }
                         node.addPredecessors(*afters)
                     }
@@ -733,24 +733,29 @@ private constructor(
         return if (orderConstraints.isEmpty()) null else orderConstraints.toList()
     }
 
+/*
     override fun updateReorderMap(
         original: Collection<XmlOrderConstraint>,
         children: List<XmlDescriptor>
     ): Collection<XmlOrderConstraint> {
-
-        fun Int.isAttribute(): Boolean = children[this].outputKind == OutputKind.Attribute
+        fun Int.isAttribute(): Boolean = children[this].effectiveOutputKind == OutputKind.Attribute
 
         return original.filter { constraint ->
-            val (isBeforeAttribute, isAfterAttribute) = constraint.map(Int::isAttribute)
+            if (constraint.before == XmlOrderConstraint.OTHERS || constraint.after == XmlOrderConstraint.OTHERS) {
+                true
+            } else {
+                val (isBeforeAttribute, isAfterAttribute) = constraint.map { it.isAttribute() }
 
-            isBeforeAttribute || (!isAfterAttribute)
+                isBeforeAttribute || (!isAfterAttribute)
+            }
         }
     }
+*/
 
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
-        serializerParent.elementUseAnnotations.firstOrNull<XmlIgnoreWhitespace>()?.apply { return !value }
+        serializerParent.useAnnIgnoreWhitespace?.let { return !it }
         return !(serializerParent.elementSerialDescriptor.annotations
             .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
     }
@@ -760,7 +765,7 @@ private constructor(
     }
 
     override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
-        val childAnnotation = serializerParent.elementUseAnnotations.firstOrNull<XmlChildrenName>()
+        val childAnnotation = serializerParent.useAnnChildrenName
         val childrenName = childAnnotation?.toQName()
         return DeclaredNameInfo("value", childrenName, childAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
     }
@@ -772,13 +777,16 @@ private constructor(
         return QName(serializerParent.namespace.namespaceURI, "entry")
     }
 
+    @Suppress("DEPRECATION")
+    private val pseudoConfig = XmlConfig(XmlConfig.Builder(policy = this))
+
     @OptIn(ExperimentalSerializationApi::class)
     override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
         val keyDescriptor = mapParent.elementSerialDescriptor.getElementDescriptor(0)
         val keyUseName = mapKeyName(mapParent)
 
         val pseudoKeyParent =
-            InjectedParentTag(0, XmlTypeDescriptor(keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
+            InjectedParentTag(0, XmlTypeDescriptor(pseudoConfig, keyDescriptor, mapParent.namespace), keyUseName, mapParent.namespace)
         val keyEffectiveOutputKind = effectiveOutputKind(pseudoKeyParent, pseudoKeyParent, true)
         if (!keyEffectiveOutputKind.isTextual) return false
 
@@ -795,13 +803,10 @@ private constructor(
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun elementNamespaceDecls(serializerParent: SafeParentInfo): List<Namespace> {
-        val annotations = (serializerParent.elementUseAnnotations.asSequence() +
-                serializerParent.elementSerialDescriptor.annotations)
-        return annotations
-            .filterIsInstance<XmlNamespaceDeclSpec>()
-            .flatMap { decl ->
-                decl.namespaces
-            }.toList()
+        return buildList {
+            serializerParent.useAnnNsDecls?.let { addAll(it) }
+            serializerParent.elementTypeDescriptor.typeAnnNsDecls?.let { addAll(it) }
+        }
     }
 
     override fun ignoredSerialInfo(message: String) {
@@ -886,6 +891,7 @@ private constructor(
         public var isStrictAttributeNames: Boolean,
         public var isStrictBoolean: Boolean,
         public var isStrictOtherAttributes: Boolean,
+        internal var isCachingEnabled: Boolean,
     ) {
         /**
          * Constructor for default builder. To set any values, use the property setters. The primary constructor
@@ -902,6 +908,7 @@ private constructor(
             isStrictAttributeNames = false,
             isStrictBoolean = false,
             isStrictOtherAttributes = false,
+            isCachingEnabled = true
         )
 
         @ExperimentalXmlUtilApi
@@ -916,6 +923,7 @@ private constructor(
             policy.isStrictAttributeNames,
             policy.isStrictOtherAttributes,
             policy.isStrictBoolean,
+            policy.formatCache != FormatCache.Dummy
         )
 
         public fun ignoreUnknownChildren() {

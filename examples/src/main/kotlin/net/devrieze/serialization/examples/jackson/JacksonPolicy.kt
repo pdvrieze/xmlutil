@@ -48,8 +48,7 @@ object JacksonPolicy : DefaultXmlSerializationPolicy(
         return when {
             // Do take into account the XmlElement annotation
             r == OutputKind.Attribute &&
-                    serializerParent.elementUseAnnotations.mapNotNull { it as? XmlElement }
-                        .firstOrNull()?.value != false ->
+                    serializerParent.useAnnIsElement != false ->
                 OutputKind.Element
 
             else -> r

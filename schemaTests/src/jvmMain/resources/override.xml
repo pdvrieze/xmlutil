@@ -1,0 +1,796 @@
+<!--
+  ~ Copyright (c) 2023.
+  ~
+  ~ This file is part of xmlutil.
+  ~
+  ~ This file is licenced to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You should have received a copy of the license with the source distribution.
+  ~ Alternatively, you may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<overrides xmlns="http://pdvrieze.github.io/xmlutil/testoverride">
+  <test path="Missing/missing001/missing001">
+    <expected validity="lax" annotation="Allow missing types"/>
+  </test>
+  <test path="Missing/missing002/missing002">
+    <expected validity="lax" annotation="Allow missing substitution group heads"/>
+  </test>
+  <test path="Missing/missing003/missing003">
+    <expected validity="lax" annotation="Allow missing substitution group heads"/>
+  </test>
+  <test path="Missing/missing004/missing004">
+    <expected validity="invalidlax" annotation="Don't allow missing base in lax mode"/>
+  </test>
+  <test path="Missing/missing005/missing005">
+    <expected validity="invalidlax" annotation="Don't allow missing base in lax mode"/>
+  </test>
+  <test path="Missing/missing006/missing006">
+    <expected validity="invalidlax" annotation="Allow missing item type"/>
+  </test>
+  <test path="anyAttribute/s3_10_6si02/s3_10_6si02s">
+    <expected version="1.0" validity="indeterminate"/>
+  </test>
+  <test path="MS-Schema2006-07-15/schU1/schU1">
+    <expected validity="implementation-dependent" annotation="Recursive redefines are problematic"/>
+  </test>
+  <test path="MS-Additional2006-07-15/addB194/addB194">
+    <expected validity="invalid" annotation="This contains a non-deterministic choice group"/>
+  </test>
+  <test path="MS-Additional2006-07-15/addB182/addB182">
+    <expected validity="indeterminate" annotation="Targets xmlschema namespace but also imports string"/>
+  </test>
+  <test path="MS-SimpleType2006-07-15/stZ007/stZ007">
+    <expected validity="invalid" version="1.1" exception="IllegalArgumentException" message="Complex type with simple content may not be a restriction of special types"/>
+  </test>
+  <test path="MS-SimpleType2006-07-15/ste110/ste110">
+    <expected validity="invalid" exception="IllegalArgumentException"/>
+  </test>
+  <test path="MS-Schema2006-07-15/schN12/schN12">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="Redefined model group \(ResolvedGlobalGroup\(\{ns-b\}c-g2, .*\)\) is not a valid restriction of its redefined base \(ResolvedGlobalGroup\(\{ns-b\}c-g2,.*\)\)"/>
+  </test>
+  <test path="MS-Schema2006-07-15/schL10/schL10">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="Redefined model group \(ResolvedGlobalGroup\(\{ns-a\}b-g3,.*\) is not a valid restriction of its redefined base \(ResolvedGlobalGroup\(\{ns-a\}b-g3, \(.*\)\)"/>
+  </test>
+  <test path="MS-Schema2006-07-15/schG11/schG11">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Duplicate element with name \{ns-a\}foo"/>
+  </test>
+  <test path="MS-Schema2006-07-15/schJ2/schJ2">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Redefine of simple type \([^)]*\) must use original as base"/>
+  </test>
+  <test path="MS-Particles2006-07-15/particlesV020/particlesV020">
+    <expected validity="valid" version="1.1" annotation="It is not clear why this is invalid at 1.1, it can be parsed"/>
+  </test>
+  <test path="MS-Particles2006-07-15/particlesZ001/particlesZ001">
+    <expected validity="invalid" version="1.0" annotation="Not valid in 1.0 due to cardinality mismatch"/>
+  </test>
+  <test path="MS-Particles2006-07-15/particlesZ033_g/particlesZ033_g">
+    <expected validity="valid" version="1.1" annotation="This can be handled correctly as we use long for maxOccurs"/>
+  </test>
+  <test path="MS-Element2006-07-15/elemZ026/elemZ026">
+    <expected validity="invalid" version="1.0" annotation="1.0 substitution checks are more strict"/>
+    <expected validity="valid" version="1.1"
+              annotation="XMLSchema is a bit more strict than our algorithm (only 1.1), they are actually compatible"/>
+  </test>
+  <test path="suntest/test001/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test002/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test002/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test002/test.4.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test002/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test003/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test003/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test003/test.4.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test003/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test004/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test004/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test004/test.4.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test004/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test005/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test005/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test005/test.4.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test005/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.10.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.11.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.12.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.13.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.14.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.15.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.16.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.17.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.18.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.19.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.20.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.21.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.22.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.23.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.24.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.25.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.26.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.27.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.28.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.29.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.30.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.31.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.32.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.33.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.34.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.4.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.6.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.7.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.8.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test006/test.9.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test007/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test007/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test007/test.4.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test007/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test007/test.7.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test007/test.8.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.1.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.10.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.11.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.12.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.5.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.7.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.8.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test008/test.9.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test009/test.13.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/test009/test.8.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/identitytestsuitetest001/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/identitytestsuitetest002/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/identitytestsuitetest003/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/identitytestsuitetest004/test.2.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/identitytestsuitetest004/test.3.n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc001.nogen/idc001.nogen.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc002.e/idc002.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No identity constraint with name \{http://www.publishing.org\}BookDB_ISBN exists"/>
+  </test>
+  <test path="suntest/idc002b.e/idc002b.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No identity constraint with name \{http://www.w3.org/2001/XMLSchema\}BookDB_ISBN exists"/>
+  </test>
+  <test path="suntest/idc003.e/idc003.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No identity constraint with name \{http://www.publishing.org\}ISBNnumber exists"/>
+  </test>
+  <test path="suntest/idc004.nogen/idc004.nogen.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc004.nogen/idc004.nogen.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc004.nogen/idc004.nogen.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc004.nogen/idc004.nogen.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc004a.e/idc004a.e">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="Key\(\{http://www.vehicle.org\}regKey\) and keyrefs\(\{http://www.vehicle.org\}carRef\) must have equal field counts"/>
+  </test>
+  <test path="suntest/idc005.nogen/idc005.nogen.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc005.nogen/idc005.nogen.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc006.nogen/idc006.nogen.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/idc006.nogen/idc006.nogen.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n04" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n05" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n06" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd001/xsd001.n07" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd002/xsd002.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd002/xsd002.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd002/xsd002.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd003-1.e/xsd003-1.e">
+    <expected validity="invalid" exception="UnknownXmlFieldException"
+              message="^Could not find a field for name.*\{http://www.w3.org/2001/XMLSchema\}redefine/\{http://www.w3.org/2001/XMLSchema\}element\W"/>
+  </test>
+  <test path="suntest/xsd003-2.e/xsd003-2.e">
+    <expected validity="invalid" exception="UnknownXmlFieldException"
+              message="^Could not find a field for name.*\{http://www.w3.org/2001/XMLSchema\}redefine/\{http://www.w3.org/2001/XMLSchema\}attribute\W"/>
+  </test>
+  <test path="suntest/xsd003b.e/xsd003b.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="^No simple type with name \{http://www.w3.org/2001/XMLSchema\}undefined found$"/>
+  </test>
+  <test path="suntest/xsd003b/xsd003b.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd003b/xsd003b.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n04" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n05" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n06" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n07" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n08" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n09" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n10" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n11" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd004/xsd004.n12" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n04" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n05" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd005/xsd005.n06" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n04" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n05" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n06" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n07" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n08" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n09" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n10" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd006/xsd006.n11" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd007.e/xsd007.e">
+    <expected validity="invalid" exception="IllegalArgumentException" message=".*[rR]ecursive.*type.*"/>
+  </test>
+  <test path="suntest/xsd008/xsd008.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd008/xsd008.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd008/xsd008.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd009.e/xsd009.e">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Recursive substitution group \(\{foo\}bar, \{foo\}foo\)"/>
+  </test>
+  <test path="suntest/xsd010.e/xsd010.e">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Recursive substitution group \(\{foo\}bar, \{foo\}foo, \{foo\}zot\)"/>
+  </test>
+  <test path="suntest/xsd011/xsd011.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd011/xsd011.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd011/xsd011.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd011/xsd011.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd011/xsd011.n04" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd012/xsd012.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd013.e/xsd013.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No element with name \{http://www.w3.org/2001/XMLSchema\}root found"/>
+  </test>
+  <test path="suntest/xsd014.e/xsd014.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No element with name \{http://www.w3.org/2001/XMLSchema\}undef found"/>
+  </test>
+  <test path="suntest/xsd015.e/xsd015.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="^No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
+  </test>
+  <test path="suntest/xsd016.e/xsd016.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="^No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
+  </test>
+  <test path="suntest/xsd017.e/xsd017.e">
+    <expected validity="invalid" exception="NoSuchElementException" message="No type with name '\{foo\}def' found"/>
+  </test>
+  <test path="suntest/xsd018.e/xsd018.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
+  </test>
+  <test path="suntest/xsd019.e/xsd019.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No type with name '\{http://www.w3.org/2001/XMLSchema\}abc' found"/>
+  </test>
+  <test path="suntest/xsd020-2.e/xsd020-2.e">
+    <expected validity="invalid" exception="NoSuchElementException" message="No attribute with name \{foo\}abc found"/>
+  </test>
+  <test path="suntest/xsd020-3.e/xsd020-3.e">
+    <expected validity="invalid" exception="NoSuchElementException" message="No group with name \{foo\}abc found"/>
+  </test>
+  <test path="suntest/xsd020-4.e/xsd020-4.e">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No attribute group with name \{foo\}abc found"/>
+  </test>
+  <test path="suntest/xsd020.e/xsd020.e">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Invalid derivation of ELEMENT_ONLY by simple"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n01" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n02" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n03" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n04" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n05" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n06" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n07" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n08" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n09" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n10" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd021/xsd021.n11" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd022/xsd022.n00" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="suntest/xsd023.e/xsd023.e">
+    <expected validity="invalid" exception="IllegalArgumentException" message="[rR]ecursive.*type.*abc"/>
+  </test>
+  <test path="AGroupDef/ag_attrusens00101m1_n/AG_attrUseNS00101m1_n">
+    <expected validity="invalid" exception="SerializationException"
+              message="Missing namespace for prefix wrongNS in QName value"/>
+  </test>
+  <test path="AGroupDef/ag_name00101m1_n/AG_name00101m1_n">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No attribute group with name \{AttrGroup/name\}wrongName found"/>
+  </test>
+  <test path="AGroupDef/ag_targetns00101m1_n/AG_targetNS00101m1_n">
+    <expected validity="invalid" exception="XmlException"
+              message="Missing namespace for prefix wrongNS in QName value"/>
+  </test>
+  <test path="AGroupDef/annotation00101m2/annotation00101m2">
+    <expected validity="invalid" exception="XmlSerialException"
+              message="Duplicate child \(\{http://www.w3.org/2001/XMLSchema\}annotation.*"/>
+  </test>
+  <test path="AGroupDef/annotation00101m3/annotation00101m3">
+    <expected validity="invalid" exception="XmlSerialException"
+              message="In .*attributeGroup, found element .*attributes before .*annotation in conflict with ordering constraints"/>
+  </test>
+  <test path="AGroupDef/annotation00101m5/annotation00101m5">
+    <expected validity="invalid" exception="XmlSerialException"
+              message="Duplicate child \(\{http://www.w3.org/2001/XMLSchema\}annotation"/>
+  </test>
+  <test path="AGroupDef/annotation00101m6/annotation00101m6">
+    <expected validity="invalid" exception="XmlSerialException"
+              message="In .*attributeGroup, found element .*attributes before .*annotation in conflict with ordering constraints"/>
+  </test>
+  <test path="AttrDecl/ad_name00101m1/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_name00101m2/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_name00101m3/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_name00101m4/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_scope00101m2/AD_scope00101m2">
+    <expected validity="invalid" exception="NoSuchElementException"
+              message="No attribute with name \{AttrDecl/scope\}number found"/>
+  </test>
+  <test path="AttrDecl/ad_targetns00101m/AD_targetNS00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_targetns00101m/AD_targetNS00101m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_targetns00101m/AD_targetNS00101m3_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_type00101m/AD_type00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_type00101m/AD_type00101m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_type00102m/AD_type00102m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_type00102m/AD_type00102m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_valconstr00101m/AD_valConstr00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_valconstr00101m/AD_valConstr00101m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="AttrDecl/ad_valconstr00201m1/AD_valConstr00201m1">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="Attributes may not have both default and fixed values"/>
+  </test>
+  <test path="AttrDecl/ad_valconstr00201m2/AD_valConstr00201m2">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="For attributes with default and use must have optional as use value"/>
+  </test>
+  <test path="AttrDecl/ad_valconstr00201m4/AD_valConstr00201m4">
+    <expected validity="invalid" exception="IllegalStateException"
+              message="Attributes may not have both default and fixed values"/>
+  </test>
+  <test path="AttrDecl/ad_valconstr00201m5/AD_valConstr00201m5">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Invalid &quot;open&quot; attribute name use"/>
+  </test>
+  <test path="CType/abstract00101m1/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/abstract00101m2/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/annotation00101m3/annotation00101m3">
+    <expected validity="invalid" exception="XmlSerialException"
+              message="In [^ ]*complexType, found element term\([^\)]*sequence[^\)]*\) before [^ ]*annotation in conflict with ordering constraints"/>
+  </test>
+  <test path="CType/annotation00101m4/annotation00101m4">
+    <expected validity="invalid" exception="XmlSerialException"
+              message="In [^ ]*complexType, found element term\([^\)]*sequence[^\)]*\) before [^ ]*annotation in conflict with ordering constraints"/>
+  </test>
+  <test path="CType/attributeuses00101m1/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/basetd00101m1/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/basetd00101m2/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/basetd00101m3/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/basetd00101m4/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/contenttype00101m/contentType00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/contenttype00201m/contentType00201m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/contenttype00301m/contentType00301m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/contenttype00401m/contentType00401m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/derivationmethod00101m1/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/derivationmethod00101m2/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/derivationmethod00102m1/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/derivationmethod00102m2/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/final00101m2/final00101m2">
+    <expected validity="invalid" exception="IllegalArgumentException" message="Type \{final\}A is final for extension"/>
+  </test>
+  <test path="CType/final00101m3/Negative" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/final00101m4/final00101m4">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Type \{final\}A is final for restriction"/>
+  </test>
+  <test path="CType/final00101m5/final00101m5">
+    <expected validity="invalid" exception="IllegalArgumentException"
+              message="Type \{final\}A is final for restriction"/>
+  </test>
+  <test path="CType/final00101m6/final00101m6">
+    <expected validity="invalid" exception="IllegalArgumentException" message="Type \{final\}A is final for extension"/>
+  </test>
+  <test path="CType/name00101m/name00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00101m/pSubstitutions00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00101m/pSubstitutions00101m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00102m/pSubstitutions00102m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00102m/pSubstitutions00102m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00103m/pSubstitutions00103m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00103m/pSubstitutions00103m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00104m/pSubstitutions00104m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/psubstitutions00104m/pSubstitutions00104m2_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+  <test path="CType/targetns00101m/targetNS00101m1_n" isInstance="true">
+    <expected validity="invalid" exception="xx" message="yy"/>
+  </test>
+</overrides>

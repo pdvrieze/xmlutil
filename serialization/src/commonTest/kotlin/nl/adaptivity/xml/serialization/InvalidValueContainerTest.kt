@@ -42,7 +42,7 @@ class InvalidValueContainerTest {
         val e = assertFails {
             format.encodeToString(serializer, data)
         }
-        assertTrue(e is XmlSerialException)
+        assertTrue(e is XmlSerialException, "Expected XmlSerialException, but found ($e)")
         assertTrue(e.message?.contains("@XmlValue") == true)
     }
 

@@ -96,6 +96,7 @@ internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerial
         typeDiscriminatorName = null
         pedantic = true
     }
+    xmlDeclMode = XmlDeclMode.None
 }
 
 internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
@@ -120,6 +121,7 @@ abstract class XmlTestBase<T>(
             autoPolymorphic = false
             typeDiscriminatorName = null
         }
+        xmlDeclMode = XmlDeclMode.None
     }
 ) {
     abstract val expectedXML: String
@@ -169,6 +171,7 @@ abstract class TestBase<T> constructor(
             autoPolymorphic = true
             typeDiscriminatorName = null
         }
+        xmlDeclMode = XmlDeclMode.None
     },
     private val baseJsonFormat: Json = Json {
         defaultJsonTestConfiguration()
@@ -214,6 +217,7 @@ abstract class TestPolymorphicBase<T>(
         recommended {
             typeDiscriminatorName = null
         }
+        xmlDeclMode = XmlDeclMode.None
     },
     baseJsonFormat
 ) {
@@ -251,6 +255,7 @@ abstract class TestPolymorphicBase<T>(
                 pedantic = false
                 typeDiscriminatorName = xsiType
             }
+            xmlDeclMode = XmlDeclMode.None
         }
         val serialized = xml.encodeToString(serializer, value)
             .normalizeXml()
@@ -265,6 +270,7 @@ abstract class TestPolymorphicBase<T>(
                 pedantic = false
                 typeDiscriminatorName = xsiType
             }
+            xmlDeclMode = XmlDeclMode.None
         }.decodeFromString(serializer, expectedXSIPolymorphicXML)
 
         assertEquals(value, actualValue)
@@ -279,6 +285,7 @@ abstract class TestPolymorphicBase<T>(
                 pedantic = false
                 typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi")
             }
+            xmlDeclMode = XmlDeclMode.None
         }.decodeFromString(serializer, modifiedXml)
 
         assertEquals(value, actualValue)
@@ -287,6 +294,7 @@ abstract class TestPolymorphicBase<T>(
     @Test
     open fun xsi_deserialization_should_work_implicitly() {
         val actualValue = XML(serializersModule = serializersModule) {
+            xmlDeclMode = XmlDeclMode.None
             recommended {
                 autoPolymorphic = false
                 pedantic = false

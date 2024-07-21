@@ -43,6 +43,10 @@ kotlin {
     jvm("android")
     js {
         browser()
+        compilerOptions {
+            sourceMap = true
+            verbose = true
+        }
     }
 
     targets.all {
@@ -58,6 +62,15 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.core)
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-annotations-common"))
+                implementation(projects.testutil)
+                implementation(projects.serialization)
             }
         }
 

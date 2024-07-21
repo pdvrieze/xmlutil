@@ -110,6 +110,7 @@ class BlendedQNameValuesTest : PlatformXmlTestBase<BlendedQNameValuesTest.Contai
 
             override fun deserialize(decoder: Decoder): PseudoList {
                 val input = decoder as XML.XmlInput
+                val namespaceContext = input.input.namespaceContext.freeze()
                 val elems = decoder.decodeString().trim()
                     .splitToSequence(' ')
                     .mapTo(mutableListOf()) {
@@ -118,7 +119,7 @@ class BlendedQNameValuesTest : PlatformXmlTestBase<BlendedQNameValuesTest.Contai
                             cIndex >= 0 -> {
                                 val prefix = it.substring(0, cIndex)
                                 val localName = it.substring(cIndex + 1)
-                                val ns = input.getNamespaceURI(prefix)
+                                val ns = namespaceContext.getNamespaceURI(prefix)
                                     ?: throw SerializationException("Could not find namespace for prefix $prefix")
                                 QName(ns, localName, prefix)
                             }

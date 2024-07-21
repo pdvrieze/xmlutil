@@ -29,9 +29,11 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
+import org.jetbrains.kotlin.konan.library.impl.buildLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
 
 enum class Host {
@@ -239,6 +241,12 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
                 }
                 project.logger.debug("Configuring ${path} with hostTarget: ${hostTarget.visibleName} to depend on ${testTasks.joinToString { it.path}}")
                 dependsOn(testTasks)
+            }
+
+            targets.withType<KotlinNativeTarget>().configureEach {
+                binaries {
+                    sharedLib(listOf(DEBUG))
+                }
             }
         }
 

@@ -24,6 +24,7 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.Test
@@ -73,26 +74,26 @@ class EmptyTagWithValueChild {
 
 
     @Serializable
-    @SerialName("Outer")
+    @XmlSerialName("Outer")
     private data class OuterStr(val inner: InnerStr)
 
     @Serializable
-    @SerialName("Inner")
+    @XmlSerialName("Inner")
     private data class InnerStr(@XmlValue val value: String)
 
     @Serializable
-    @SerialName("Outer")
+    @XmlSerialName("Outer")
     private data class OuterFrags(val inner: InnerFrags)
 
     @Serializable
-    @SerialName("Inner")
+    @XmlSerialName("Inner")
     private data class InnerFrags(@XmlValue val values: List<CompactFragment>)
 
     @Serializable
-    @SerialName("Inner")
+    @XmlSerialName("Inner")
     private data class InnerFrag(@XmlValue val value: CompactFragment)
 
     @Serializable
-    @SerialName("Outer")
+    @XmlSerialName("Outer")
     private data class OuterFrag(val inner: InnerFrag)
 }
