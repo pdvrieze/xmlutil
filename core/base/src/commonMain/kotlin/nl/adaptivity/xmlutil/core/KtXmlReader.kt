@@ -1132,6 +1132,7 @@ public class KtXmlReader internal constructor(
                         }
                         pushChar('\n')
                         right = -1
+                        left = curPos
                     }
 
                     ' ', '\t' -> {
