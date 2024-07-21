@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 
 @OptIn(XPathInternal::class)
 class XPathTest {
@@ -131,7 +133,13 @@ class XPathTest {
             assertPath {
                 assertStep("para") {
                     assertPredicate {
-                        assertFunctionCall("last")
+                        val path = assertIs<LocationPath>(expr)
+                        assertEquals(1, path.steps.size)
+                        val filter = assertIs<FilterExpr>(path.steps[0])
+                        assertEquals(0, filter.predicates.size)
+                        val funcCall = assertIs<FunctionCall>(filter.primaryExpr)
+                        assertEquals(0, funcCall.args.size)
+                        assertQNameEquivalent(QName("last"), funcCall.name)
                     }
                 }
             }
