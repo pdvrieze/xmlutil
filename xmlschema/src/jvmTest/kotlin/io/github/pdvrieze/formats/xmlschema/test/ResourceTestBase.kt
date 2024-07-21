@@ -21,8 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlStreaming
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.InputStreamReader
 
 abstract class ResourceTestBase(val baseDir: String) {
@@ -48,6 +50,7 @@ abstract class ResourceTestBase(val baseDir: String) {
         val format = XML {
             autoPolymorphic = true
             indent = 4
+            xmlDeclMode = XmlDeclMode.None
 //            isCollectingNSAttributes = true
         }
     }

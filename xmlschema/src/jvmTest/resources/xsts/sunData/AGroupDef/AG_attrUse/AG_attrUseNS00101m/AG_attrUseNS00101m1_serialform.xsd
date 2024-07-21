@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="AttrGroup/attrUse"
+            xmlns:tn="AttrGroup/attrUse">
+
+    <xsd:element name="root"/>
+    <xsd:element name="elementWithAttr">
+        <xsd:complexType>
+            <xsd:attribute name="good" type="xsd:string"/>
+            <xsd:attributeGroup ref="tn:aGr"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:attribute name="number" type="xsd:integer"/>
+
+    <xsd:attributeGroup name="aGr">
+        <xsd:attribute ref="tn:number"/>
+        <xsd:attribute name="height" type="xsd:decimal"/>
+    </xsd:attributeGroup>
+
+</xsd:schema>
+

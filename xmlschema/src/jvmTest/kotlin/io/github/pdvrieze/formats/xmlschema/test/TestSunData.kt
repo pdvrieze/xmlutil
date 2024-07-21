@@ -44,7 +44,8 @@ class TestSunData {
 
             @Test
             fun testDeserializeValid() {
-                assertEquals(AGAttrUseDefaults.expectedSchema, deserializeXsd("AG_attrUseNS00101m1_p.xsd"))
+                val actual = deserializeXsd("AG_attrUseNS00101m1_p.xsd")
+                assertEquals(AGAttrUseDefaults.expectedSchema, actual)
             }
 
             @Test
