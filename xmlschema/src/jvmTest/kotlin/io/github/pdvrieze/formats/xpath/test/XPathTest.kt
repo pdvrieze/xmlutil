@@ -37,7 +37,7 @@ class XPathTest {
     fun testMissingSelector() {
         val e = assertThrows<IllegalArgumentException> { XPathExpression("child::") }
 
-        assertContains(e.message?:"", "Empty name in path step")
+        assertContains(e.message ?: "", "Missing node test in step")
 
     }
 

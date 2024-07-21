@@ -536,12 +536,19 @@ class XPathExpression private constructor(
                     }
 
                     c == '/' -> {
-                        if (start == i) rooted = true
+                        val other: Char?
+                        if (start == i) {
+                            rooted = true
+                            other = if (i + 1 < str.length) str[i + 1] else null
+                        } else {
+                            other = str[i - 1]
+                        }
 
-                        ++i
-                        if (peekCurrent('/')) { // shortcut
+                        if (other == '/') { // shortcut
+                            if (rooted) ++i
                             steps.add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE)))
                         } else {
+                            ++i
                             skipWhitespace()
                             steps.add(parseStep(steps.size))
                         }
