@@ -895,6 +895,10 @@ internal open class XmlDecoderBase internal constructor(
             @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return it as T }
 
+            if (stage == STAGE_NULLS) {
+                return null
+            }
+
             if (hasNullMark()) { // process the element
                 if (input.nextTag() != EventType.END_ELEMENT)
                     throw SerializationException("Elements with nil tags may not have content")
