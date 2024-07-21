@@ -222,7 +222,7 @@ public class KtXmlWriter(
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
-        if (char < ' ' && ! isXmlWhitespace(char)) {
+        if (char.code < 0x20 && ! isXmlWhitespace(char)) {
             throw IllegalArgumentException("Invalid character with code 0x${char.code.toString(16)}")
         }
 
