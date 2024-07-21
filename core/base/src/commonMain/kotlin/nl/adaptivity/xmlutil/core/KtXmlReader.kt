@@ -393,7 +393,7 @@ public class KtXmlReader internal constructor(
             }
 
             DOCDECL -> {
-                read("DOCTYPE")
+                read("<!DOCTYPE")
                 parseDoctype()
             }
 
