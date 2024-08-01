@@ -1974,7 +1974,7 @@ internal open class XmlDecoderBase internal constructor(
                     polyInfo != null -> polyInfo.describedName
 
                     else -> {
-                        if (isMixed && input.eventType == EventType.START_ELEMENT) {
+                        if (input.eventType == EventType.START_ELEMENT) {
                             val matches = xmlDescriptor.polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
                                 if (xmlDesc.tagName.isEquivalent(input.name)) return typeName
                                 val baseClass = xmlDescriptor.serialDescriptor.capturedKClass
@@ -1990,7 +1990,7 @@ internal open class XmlDecoderBase internal constructor(
                                 1 -> matches.first()
                                 else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context")
                             }
-                        } else error("PolyInfo is null for a transparent polymorphic decoder")
+                        } else error("PolyInfo is null for a transparent polymorphic decoder and not in start element context")
                     }
                 }
 
