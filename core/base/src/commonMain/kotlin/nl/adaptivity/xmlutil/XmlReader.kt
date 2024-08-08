@@ -72,13 +72,13 @@ public interface XmlReader : Closeable, Iterator<EventType> {
             eventType != type ->
                 throw XmlException("Type $eventType does not match expected type \"$type\" ($extLocationInfo)")
 
-            namespace != null &&
-                    namespaceURI != namespace ->
-                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\" ($extLocationInfo)")
-
             name != null &&
                     localName != name ->
-                throw XmlException("local name $localName does not match expected \"$name\" ($extLocationInfo)")
+                throw XmlException("local name \"$localName\" does not match expected \"$name\" ($extLocationInfo)")
+
+            namespace != null &&
+                    namespaceURI != namespace ->
+                throw XmlException("Namespace \"$namespaceURI\" does not match expected \"$namespace\" ($extLocationInfo)")
         }
     }
 
