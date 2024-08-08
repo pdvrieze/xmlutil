@@ -7,44 +7,51 @@
 
 // Library unique name: <io.github.pdvrieze.xmlutil:serialutil>
 abstract class <#A: kotlin/Any?, #B: kotlin/Any?> nl.adaptivity.serialutil/DelegatingSerializer : kotlinx.serialization/KSerializer<#A> { // nl.adaptivity.serialutil/DelegatingSerializer|null[0]
-    abstract fun (#A).toDelegate(): #B // nl.adaptivity.serialutil/DelegatingSerializer.toDelegate|toDelegate@1:0(){}[0]
-    abstract fun fromDelegate(#B): #A // nl.adaptivity.serialutil/DelegatingSerializer.fromDelegate|fromDelegate(1:1){}[0]
     constructor <init>(kotlinx.serialization/KSerializer<#B>) // nl.adaptivity.serialutil/DelegatingSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:1>){}[0]
+
     final val delegateSerializer // nl.adaptivity.serialutil/DelegatingSerializer.delegateSerializer|{}delegateSerializer[0]
         final fun <get-delegateSerializer>(): kotlinx.serialization/KSerializer<#B> // nl.adaptivity.serialutil/DelegatingSerializer.delegateSerializer.<get-delegateSerializer>|<get-delegateSerializer>(){}[0]
-    open fun deserialize(kotlinx.serialization.encoding/Decoder): #A // nl.adaptivity.serialutil/DelegatingSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    open fun serialize(kotlinx.serialization.encoding/Encoder, #A) // nl.adaptivity.serialutil/DelegatingSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
     open val descriptor // nl.adaptivity.serialutil/DelegatingSerializer.descriptor|{}descriptor[0]
         open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/DelegatingSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    abstract fun (#A).toDelegate(): #B // nl.adaptivity.serialutil/DelegatingSerializer.toDelegate|toDelegate@1:0(){}[0]
+    abstract fun fromDelegate(#B): #A // nl.adaptivity.serialutil/DelegatingSerializer.fromDelegate|fromDelegate(1:1){}[0]
+    open fun deserialize(kotlinx.serialization.encoding/Decoder): #A // nl.adaptivity.serialutil/DelegatingSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    open fun serialize(kotlinx.serialization.encoding/Encoder, #A) // nl.adaptivity.serialutil/DelegatingSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
 }
+
 abstract class <#A: kotlin/Any?> nl.adaptivity.serialutil/DelegateSerializer : kotlinx.serialization/KSerializer<#A> { // nl.adaptivity.serialutil/DelegateSerializer|null[0]
     constructor <init>(kotlinx.serialization/KSerializer<#A>) // nl.adaptivity.serialutil/DelegateSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
     final val delegate // nl.adaptivity.serialutil/DelegateSerializer.delegate|{}delegate[0]
         final fun <get-delegate>(): kotlinx.serialization/KSerializer<#A> // nl.adaptivity.serialutil/DelegateSerializer.delegate.<get-delegate>|<get-delegate>(){}[0]
-    open fun deserialize(kotlinx.serialization.encoding/Decoder): #A // nl.adaptivity.serialutil/DelegateSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    open fun serialize(kotlinx.serialization.encoding/Encoder, #A) // nl.adaptivity.serialutil/DelegateSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
     open val descriptor // nl.adaptivity.serialutil/DelegateSerializer.descriptor|{}descriptor[0]
         open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/DelegateSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    open fun deserialize(kotlinx.serialization.encoding/Decoder): #A // nl.adaptivity.serialutil/DelegateSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    open fun serialize(kotlinx.serialization.encoding/Encoder, #A) // nl.adaptivity.serialutil/DelegateSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
 }
+
 final class nl.adaptivity.serialutil.encoders/HashFormat : kotlinx.serialization/SerialFormat { // nl.adaptivity.serialutil.encoders/HashFormat|null[0]
     constructor <init>(kotlinx.serialization.modules/SerializersModule) // nl.adaptivity.serialutil.encoders/HashFormat.<init>|<init>(kotlinx.serialization.modules.SerializersModule){}[0]
-    final fun <#A1: kotlin/Any?> hashCode(kotlinx.serialization/KSerializer<#A1>, #A1): kotlin/Int // nl.adaptivity.serialutil.encoders/HashFormat.hashCode|hashCode(kotlinx.serialization.KSerializer<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final object Companion : kotlinx.serialization/SerialFormat { // nl.adaptivity.serialutil.encoders/HashFormat.Companion|null[0]
-        final fun <#A2: kotlin/Any?> hashCode(kotlinx.serialization/KSerializer<#A2>, #A2): kotlin/Int // nl.adaptivity.serialutil.encoders/HashFormat.Companion.hashCode|hashCode(kotlinx.serialization.KSerializer<0:0>;0:0){0§<kotlin.Any?>}[0]
-        final val serializersModule // nl.adaptivity.serialutil.encoders/HashFormat.Companion.serializersModule|{}serializersModule[0]
-            final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.serialutil.encoders/HashFormat.Companion.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
-    }
+
     final val serializersModule // nl.adaptivity.serialutil.encoders/HashFormat.serializersModule|{}serializersModule[0]
         final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.serialutil.encoders/HashFormat.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    final fun <#A1: kotlin/Any?> hashCode(kotlinx.serialization/KSerializer<#A1>, #A1): kotlin/Int // nl.adaptivity.serialutil.encoders/HashFormat.hashCode|hashCode(kotlinx.serialization.KSerializer<0:0>;0:0){0§<kotlin.Any?>}[0]
+
+    final object Companion : kotlinx.serialization/SerialFormat { // nl.adaptivity.serialutil.encoders/HashFormat.Companion|null[0]
+        final val serializersModule // nl.adaptivity.serialutil.encoders/HashFormat.Companion.serializersModule|{}serializersModule[0]
+            final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.serialutil.encoders/HashFormat.Companion.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+        final fun <#A2: kotlin/Any?> hashCode(kotlinx.serialization/KSerializer<#A2>, #A2): kotlin/Int // nl.adaptivity.serialutil.encoders/HashFormat.Companion.hashCode|hashCode(kotlinx.serialization.KSerializer<0:0>;0:0){0§<kotlin.Any?>}[0]
+    }
 }
+
 final class nl.adaptivity.serialutil/SimpleSerialClassDesc : kotlinx.serialization.descriptors/SerialDescriptor { // nl.adaptivity.serialutil/SimpleSerialClassDesc|null[0]
     constructor <init>(kotlin/String, kotlinx.serialization.descriptors/SerialKind = ..., kotlin.collections/List<kotlin/Annotation>, kotlin/Array<out kotlin/Pair<kotlin/String, kotlinx.serialization/KSerializer<*>>>...) // nl.adaptivity.serialutil/SimpleSerialClassDesc.<init>|<init>(kotlin.String;kotlinx.serialization.descriptors.SerialKind;kotlin.collections.List<kotlin.Annotation>;kotlin.Array<out|kotlin.Pair<kotlin.String,kotlinx.serialization.KSerializer<*>>>...){}[0]
     constructor <init>(kotlinx.serialization.descriptors/SerialKind = ..., kotlin/String, kotlin.collections/List<kotlin/Annotation>, kotlin/Array<out kotlin/Pair<kotlin/String, kotlinx.serialization.descriptors/SerialDescriptor>>...) // nl.adaptivity.serialutil/SimpleSerialClassDesc.<init>|<init>(kotlinx.serialization.descriptors.SerialKind;kotlin.String;kotlin.collections.List<kotlin.Annotation>;kotlin.Array<out|kotlin.Pair<kotlin.String,kotlinx.serialization.descriptors.SerialDescriptor>>...){}[0]
-    final fun getElementAnnotations(kotlin/Int): kotlin.collections/List<kotlin/Annotation> // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementAnnotations|getElementAnnotations(kotlin.Int){}[0]
-    final fun getElementDescriptor(kotlin/Int): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
-    final fun getElementIndex(kotlin/String): kotlin/Int // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementIndex|getElementIndex(kotlin.String){}[0]
-    final fun getElementName(kotlin/Int): kotlin/String // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementName|getElementName(kotlin.Int){}[0]
-    final fun isElementOptional(kotlin/Int): kotlin/Boolean // nl.adaptivity.serialutil/SimpleSerialClassDesc.isElementOptional|isElementOptional(kotlin.Int){}[0]
+
     final val annotations // nl.adaptivity.serialutil/SimpleSerialClassDesc.annotations|{}annotations[0]
         final fun <get-annotations>(): kotlin.collections/List<kotlin/Annotation> // nl.adaptivity.serialutil/SimpleSerialClassDesc.annotations.<get-annotations>|<get-annotations>(){}[0]
     final val elements // nl.adaptivity.serialutil/SimpleSerialClassDesc.elements|{}elements[0]
@@ -55,21 +62,95 @@ final class nl.adaptivity.serialutil/SimpleSerialClassDesc : kotlinx.serializati
         final fun <get-kind>(): kotlinx.serialization.descriptors/SerialKind // nl.adaptivity.serialutil/SimpleSerialClassDesc.kind.<get-kind>|<get-kind>(){}[0]
     final val serialName // nl.adaptivity.serialutil/SimpleSerialClassDesc.serialName|{}serialName[0]
         final fun <get-serialName>(): kotlin/String // nl.adaptivity.serialutil/SimpleSerialClassDesc.serialName.<get-serialName>|<get-serialName>(){}[0]
+
+    final fun getElementAnnotations(kotlin/Int): kotlin.collections/List<kotlin/Annotation> // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementAnnotations|getElementAnnotations(kotlin.Int){}[0]
+    final fun getElementDescriptor(kotlin/Int): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
+    final fun getElementIndex(kotlin/String): kotlin/Int // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementIndex|getElementIndex(kotlin.String){}[0]
+    final fun getElementName(kotlin/Int): kotlin/String // nl.adaptivity.serialutil/SimpleSerialClassDesc.getElementName|getElementName(kotlin.Int){}[0]
+    final fun isElementOptional(kotlin/Int): kotlin/Boolean // nl.adaptivity.serialutil/SimpleSerialClassDesc.isElementOptional|isElementOptional(kotlin.Int){}[0]
 }
+
 final class nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive : kotlinx.serialization.descriptors/SerialDescriptor { // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive|null[0]
     constructor <init>(kotlinx.serialization.descriptors/PrimitiveKind, kotlin/String) // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.<init>|<init>(kotlinx.serialization.descriptors.PrimitiveKind;kotlin.String){}[0]
-    final fun getElementAnnotations(kotlin/Int): kotlin/Nothing // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementAnnotations|getElementAnnotations(kotlin.Int){}[0]
-    final fun getElementDescriptor(kotlin/Int): kotlin/Nothing // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
-    final fun getElementIndex(kotlin/String): kotlin/Int // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementIndex|getElementIndex(kotlin.String){}[0]
-    final fun getElementName(kotlin/Int): kotlin/Nothing // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementName|getElementName(kotlin.Int){}[0]
-    final fun isElementOptional(kotlin/Int): kotlin/Boolean // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.isElementOptional|isElementOptional(kotlin.Int){}[0]
+
     final val elementsCount // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.elementsCount|{}elementsCount[0]
         final fun <get-elementsCount>(): kotlin/Int // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.elementsCount.<get-elementsCount>|<get-elementsCount>(){}[0]
     final val kind // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.kind|{}kind[0]
         final fun <get-kind>(): kotlinx.serialization.descriptors/PrimitiveKind // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.kind.<get-kind>|<get-kind>(){}[0]
     final val serialName // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.serialName|{}serialName[0]
         final fun <get-serialName>(): kotlin/String // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.serialName.<get-serialName>|<get-serialName>(){}[0]
+
+    final fun getElementAnnotations(kotlin/Int): kotlin/Nothing // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementAnnotations|getElementAnnotations(kotlin.Int){}[0]
+    final fun getElementDescriptor(kotlin/Int): kotlin/Nothing // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
+    final fun getElementIndex(kotlin/String): kotlin/Int // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementIndex|getElementIndex(kotlin.String){}[0]
+    final fun getElementName(kotlin/Int): kotlin/Nothing // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.getElementName|getElementName(kotlin.Int){}[0]
+    final fun isElementOptional(kotlin/Int): kotlin/Boolean // nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive.isElementOptional|isElementOptional(kotlin.Int){}[0]
 }
+
+sealed class <#A: out kotlin/Any?> nl.adaptivity.serialutil/MixedContent { // nl.adaptivity.serialutil/MixedContent|null[0]
+    constructor <init>() // nl.adaptivity.serialutil/MixedContent.<init>|<init>(){}[0]
+
+    final class <#A1: kotlin/Any?> Object : nl.adaptivity.serialutil/MixedContent<#A1> { // nl.adaptivity.serialutil/MixedContent.Object|null[0]
+        constructor <init>(#A1) // nl.adaptivity.serialutil/MixedContent.Object.<init>|<init>(1:0){}[0]
+
+        final val data // nl.adaptivity.serialutil/MixedContent.Object.data|{}data[0]
+            final fun <get-data>(): #A1 // nl.adaptivity.serialutil/MixedContent.Object.data.<get-data>|<get-data>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.serialutil/MixedContent.Object.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // nl.adaptivity.serialutil/MixedContent.Object.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // nl.adaptivity.serialutil/MixedContent.Object.toString|toString(){}[0]
+
+        final object Companion : kotlinx.serialization.internal/SerializerFactory, kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Object<kotlin/Any>> { // nl.adaptivity.serialutil/MixedContent.Object.Companion|null[0]
+            final val descriptor // nl.adaptivity.serialutil/MixedContent.Object.Companion.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/MixedContent.Object.Companion.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun <#A3: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A3>): kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Object<#A3>> // nl.adaptivity.serialutil/MixedContent.Object.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.serialutil/MixedContent.Object<kotlin/Any> // nl.adaptivity.serialutil/MixedContent.Object.Companion.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.serialutil/MixedContent.Object<kotlin/Any>) // nl.adaptivity.serialutil/MixedContent.Object.Companion.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.serialutil.MixedContent.Object<kotlin.Any>){}[0]
+            final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // nl.adaptivity.serialutil/MixedContent.Object.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        }
+    }
+
+    final class Text : nl.adaptivity.serialutil/MixedContent<kotlin/Nothing> { // nl.adaptivity.serialutil/MixedContent.Text|null[0]
+        constructor <init>(kotlin/String) // nl.adaptivity.serialutil/MixedContent.Text.<init>|<init>(kotlin.String){}[0]
+
+        final val data // nl.adaptivity.serialutil/MixedContent.Text.data|{}data[0]
+            final fun <get-data>(): kotlin/String // nl.adaptivity.serialutil/MixedContent.Text.data.<get-data>|<get-data>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.serialutil/MixedContent.Text.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // nl.adaptivity.serialutil/MixedContent.Text.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // nl.adaptivity.serialutil/MixedContent.Text.toString|toString(){}[0]
+
+        final object Companion : kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Text> { // nl.adaptivity.serialutil/MixedContent.Text.Companion|null[0]
+            final val descriptor // nl.adaptivity.serialutil/MixedContent.Text.Companion.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/MixedContent.Text.Companion.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.serialutil/MixedContent.Text // nl.adaptivity.serialutil/MixedContent.Text.Companion.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.serialutil/MixedContent.Text) // nl.adaptivity.serialutil/MixedContent.Text.Companion.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.serialutil.MixedContent.Text){}[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Text> // nl.adaptivity.serialutil/MixedContent.Text.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory, kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent<kotlin/Any>> { // nl.adaptivity.serialutil/MixedContent.Companion|null[0]
+        final val descriptor // nl.adaptivity.serialutil/MixedContent.Companion.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/MixedContent.Companion.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent<#A2>> // nl.adaptivity.serialutil/MixedContent.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun decodeSequentially(kotlinx.serialization.encoding/CompositeDecoder): nl.adaptivity.serialutil/MixedContent<kotlin/Any> // nl.adaptivity.serialutil/MixedContent.Companion.decodeSequentially|decodeSequentially(kotlinx.serialization.encoding.CompositeDecoder){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.serialutil/MixedContent<kotlin/Any> // nl.adaptivity.serialutil/MixedContent.Companion.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.serialutil/MixedContent<kotlin/Any>) // nl.adaptivity.serialutil/MixedContent.Companion.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.serialutil.MixedContent<kotlin.Any>){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // nl.adaptivity.serialutil/MixedContent.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+final object nl.adaptivity.serialutil/CharArrayAsStringSerializer : kotlinx.serialization/KSerializer<kotlin/CharArray> { // nl.adaptivity.serialutil/CharArrayAsStringSerializer|null[0]
+    final val descriptor // nl.adaptivity.serialutil/CharArrayAsStringSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/CharArrayAsStringSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin/CharArray // nl.adaptivity.serialutil/CharArrayAsStringSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/CharArray) // nl.adaptivity.serialutil/CharArrayAsStringSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.CharArray){}[0]
+}
+
 final fun (kotlinx.serialization.descriptors/SerialDescriptor).nl.adaptivity.serialutil/withName(kotlin/String): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/withName|withName@kotlinx.serialization.descriptors.SerialDescriptor(kotlin.String){}[0]
 final fun (kotlinx.serialization.encoding/CompositeDecoder).nl.adaptivity.serialutil/readNullableString(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int, kotlin/String? = ...): kotlin/String? // nl.adaptivity.serialutil/readNullableString|readNullableString@kotlinx.serialization.encoding.CompositeDecoder(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int;kotlin.String?){}[0]
 final fun (kotlinx.serialization.encoding/CompositeEncoder).nl.adaptivity.serialutil/encodeNullableStringElement(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int, kotlin/String?) // nl.adaptivity.serialutil/encodeNullableStringElement|encodeNullableStringElement@kotlinx.serialization.encoding.CompositeEncoder(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int;kotlin.String?){}[0]
@@ -88,52 +169,3 @@ final inline fun <#A: reified kotlin/Any?> nl.adaptivity.serialutil/simpleSerial
 final inline fun <#A: reified kotlin/Any?> nl.adaptivity.serialutil/simpleSerialClassDesc(kotlin/Array<out kotlin/Pair<kotlin/String, kotlinx.serialization/KSerializer<*>>>...): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/simpleSerialClassDesc|simpleSerialClassDesc(kotlin.Array<out|kotlin.Pair<kotlin.String,kotlinx.serialization.KSerializer<*>>>...){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> nl.adaptivity.serialutil/simpleSerialClassDesc(kotlinx.serialization.descriptors/SerialKind, kotlin.collections/List<kotlin/Annotation>, kotlin/Array<out kotlin/Pair<kotlin/String, kotlinx.serialization.descriptors/SerialDescriptor>>...): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/simpleSerialClassDesc|simpleSerialClassDesc(kotlinx.serialization.descriptors.SerialKind;kotlin.collections.List<kotlin.Annotation>;kotlin.Array<out|kotlin.Pair<kotlin.String,kotlinx.serialization.descriptors.SerialDescriptor>>...){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> nl.adaptivity.serialutil/simpleSerialClassDesc(kotlinx.serialization.descriptors/SerialKind, kotlin/Array<out kotlin/Pair<kotlin/String, kotlinx.serialization.descriptors/SerialDescriptor>>...): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/simpleSerialClassDesc|simpleSerialClassDesc(kotlinx.serialization.descriptors.SerialKind;kotlin.Array<out|kotlin.Pair<kotlin.String,kotlinx.serialization.descriptors.SerialDescriptor>>...){0§<kotlin.Any?>}[0]
-final object nl.adaptivity.serialutil/CharArrayAsStringSerializer : kotlinx.serialization/KSerializer<kotlin/CharArray> { // nl.adaptivity.serialutil/CharArrayAsStringSerializer|null[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin/CharArray // nl.adaptivity.serialutil/CharArrayAsStringSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/CharArray) // nl.adaptivity.serialutil/CharArrayAsStringSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.CharArray){}[0]
-    final val descriptor // nl.adaptivity.serialutil/CharArrayAsStringSerializer.descriptor|{}descriptor[0]
-        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/CharArrayAsStringSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-}
-sealed class <#A: out kotlin/Any?> nl.adaptivity.serialutil/MixedContent { // nl.adaptivity.serialutil/MixedContent|null[0]
-    constructor <init>() // nl.adaptivity.serialutil/MixedContent.<init>|<init>(){}[0]
-    final class <#A1: kotlin/Any?> Object : nl.adaptivity.serialutil/MixedContent<#A1> { // nl.adaptivity.serialutil/MixedContent.Object|null[0]
-        constructor <init>(#A1) // nl.adaptivity.serialutil/MixedContent.Object.<init>|<init>(1:0){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.serialutil/MixedContent.Object.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // nl.adaptivity.serialutil/MixedContent.Object.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // nl.adaptivity.serialutil/MixedContent.Object.toString|toString(){}[0]
-        final object Companion : kotlinx.serialization.internal/SerializerFactory, kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Object<kotlin/Any>> { // nl.adaptivity.serialutil/MixedContent.Object.Companion|null[0]
-            final fun <#A3: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A3>): kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Object<#A3>> // nl.adaptivity.serialutil/MixedContent.Object.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.serialutil/MixedContent.Object<kotlin/Any> // nl.adaptivity.serialutil/MixedContent.Object.Companion.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.serialutil/MixedContent.Object<kotlin/Any>) // nl.adaptivity.serialutil/MixedContent.Object.Companion.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.serialutil.MixedContent.Object<kotlin.Any>){}[0]
-            final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // nl.adaptivity.serialutil/MixedContent.Object.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-            final val descriptor // nl.adaptivity.serialutil/MixedContent.Object.Companion.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/MixedContent.Object.Companion.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-        }
-        final val data // nl.adaptivity.serialutil/MixedContent.Object.data|{}data[0]
-            final fun <get-data>(): #A1 // nl.adaptivity.serialutil/MixedContent.Object.data.<get-data>|<get-data>(){}[0]
-    }
-    final class Text : nl.adaptivity.serialutil/MixedContent<kotlin/Nothing> { // nl.adaptivity.serialutil/MixedContent.Text|null[0]
-        constructor <init>(kotlin/String) // nl.adaptivity.serialutil/MixedContent.Text.<init>|<init>(kotlin.String){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.serialutil/MixedContent.Text.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // nl.adaptivity.serialutil/MixedContent.Text.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // nl.adaptivity.serialutil/MixedContent.Text.toString|toString(){}[0]
-        final object Companion : kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Text> { // nl.adaptivity.serialutil/MixedContent.Text.Companion|null[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.serialutil/MixedContent.Text // nl.adaptivity.serialutil/MixedContent.Text.Companion.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.serialutil/MixedContent.Text) // nl.adaptivity.serialutil/MixedContent.Text.Companion.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.serialutil.MixedContent.Text){}[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent.Text> // nl.adaptivity.serialutil/MixedContent.Text.Companion.serializer|serializer(){}[0]
-            final val descriptor // nl.adaptivity.serialutil/MixedContent.Text.Companion.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/MixedContent.Text.Companion.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-        }
-        final val data // nl.adaptivity.serialutil/MixedContent.Text.data|{}data[0]
-            final fun <get-data>(): kotlin/String // nl.adaptivity.serialutil/MixedContent.Text.data.<get-data>|<get-data>(){}[0]
-    }
-    final object Companion : kotlinx.serialization.internal/SerializerFactory, kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent<kotlin/Any>> { // nl.adaptivity.serialutil/MixedContent.Companion|null[0]
-        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<nl.adaptivity.serialutil/MixedContent<#A2>> // nl.adaptivity.serialutil/MixedContent.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
-        final fun decodeSequentially(kotlinx.serialization.encoding/CompositeDecoder): nl.adaptivity.serialutil/MixedContent<kotlin/Any> // nl.adaptivity.serialutil/MixedContent.Companion.decodeSequentially|decodeSequentially(kotlinx.serialization.encoding.CompositeDecoder){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.serialutil/MixedContent<kotlin/Any> // nl.adaptivity.serialutil/MixedContent.Companion.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.serialutil/MixedContent<kotlin/Any>) // nl.adaptivity.serialutil/MixedContent.Companion.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.serialutil.MixedContent<kotlin.Any>){}[0]
-        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // nl.adaptivity.serialutil/MixedContent.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-        final val descriptor // nl.adaptivity.serialutil/MixedContent.Companion.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.serialutil/MixedContent.Companion.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-}
