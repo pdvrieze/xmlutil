@@ -28,6 +28,7 @@ Fixes:
 - Fix deserialization with contextual serializer #220 
 - Fix `NamespaceHolder.namespacesAtCurrentDepth` for nested
   declarations.
+- Fix infinite recursion issue with xmlStreaming.newWriter / newReader
 
 # 0.90.0 2.0 will go
 *(June 13, 2024)
