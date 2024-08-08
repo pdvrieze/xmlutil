@@ -68,6 +68,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     @Throws(XmlException::class)
     public fun require(type: EventType, namespace: String?, name: String?) {
         when {
+            ! isStarted -> throw XmlException("Parsing not started yet")
             eventType != type ->
                 throw XmlException("Type $eventType does not match expected type \"$type\" ($extLocationInfo)")
 
@@ -223,7 +224,9 @@ public val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
 
 public val XmlReader.qname: QName get() = text.toQname()
 
-public fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean = namespaceDecls.any { it.prefix == prefix }
+public fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
+    return namespaceDecls.any { it.prefix == prefix }
+}
 
 public fun XmlReader.isElement(elementname: QName): Boolean {
     return isElement(
