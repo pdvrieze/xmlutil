@@ -219,18 +219,29 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
     val prefix = reader.prefix
     if (!missingNamespaces.containsKey(prefix)) {
         val uri = reader.namespaceURI
-        if (getNamespaceUri(prefix) != uri || !reader.isPrefixDeclaredInElement(prefix)) {
-            missingNamespaces[prefix] = uri
-        }
+        // the uri must be non-empty and also not already present in the output.
+        if (uri.isNotEmpty() && getNamespaceUri(prefix) != uri) missingNamespaces[prefix] = uri
     }
+
+    val localPrefixes = mutableListOf<String>()
+
     for (attrIdx in 0 until reader.attributeCount) {
         val prefix = reader.getAttributePrefix(attrIdx)
-        if (prefix.isNotEmpty() && prefix != "xmlns" && !missingNamespaces.containsKey(prefix)) {
-            val uri = reader.getAttributeNamespace(attrIdx)
-            if (getNamespaceUri(prefix) != uri || !reader.isPrefixDeclaredInElement(prefix)) {
-                missingNamespaces[prefix] = uri
+        when (prefix) {
+            "" -> if (reader.getAttributeLocalName(attrIdx) == "xmlns") localPrefixes.add("")
+
+            "xmlns" -> localPrefixes.add(reader.getAttributeLocalName(attrIdx))
+
+            else -> if (!missingNamespaces.containsKey(prefix)) {
+                val uri = reader.getAttributeNamespace(attrIdx)
+                if (getNamespaceUri(prefix) != uri || !reader.isPrefixDeclaredInElement(prefix)) {
+                    missingNamespaces[prefix] = uri
+                }
             }
         }
+    }
+    for (prefix in localPrefixes) {
+        missingNamespaces.remove(prefix)
     }
 }
 
