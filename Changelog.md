@@ -20,6 +20,8 @@ Changes:
   This aids #225.
 
 Fixes:
+- More reluctant caching of extended type descriptors such that type
+  parameters work correctly with caching.
 - Fix NodeSerializer in the serialization module to properly forward
   to the actual implementation.
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
