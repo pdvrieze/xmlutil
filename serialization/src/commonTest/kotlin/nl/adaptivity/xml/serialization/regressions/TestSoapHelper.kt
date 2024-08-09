@@ -20,14 +20,13 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import nl.adaptivity.xml.serialization.regressions.soap.Envelope
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.siblingsToFragment
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.text.trim
 
 
 /**
@@ -44,9 +43,9 @@ class TestSoapHelper {
 
     @Test
     fun testRoundtripSoapResponse() {
-        val xml: XML = XML { indent = 2; autoPolymorphic = true }
+        val xml = XML { indent = 2; autoPolymorphic = true }
         val serializer = Envelope.Serializer(CompactFragmentSerializer)
-        val env: Envelope<CompactFragment> = XML.decodeFromString(serializer, SOAP_RESPONSE1)
+        val env: Envelope<CompactFragment> = xml.decodeFromString(serializer, SOAP_RESPONSE1)
         assertXmlEquals(SOAP_RESPONSE1_BODY, env.body.child.contentString.trim())
 
         val serialized = XML.encodeToString(serializer, env)
@@ -56,11 +55,12 @@ class TestSoapHelper {
     @Test
     fun testRoundtripSoapResponse2() {
         val xml: XML = XML { indent = 2; autoPolymorphic = true }
-        val serializer = Envelope.Serializer(CompactFragmentSerializer)
-        val env = Envelope.deserialize(xmlStreaming.newReader(SOAP_RESPONSE2))
+        val env: Envelope<CompactFragment> = Envelope.deserialize(xmlStreaming.newReader(SOAP_RESPONSE2))
         val sw = StringWriter()
-        val out = xmlStreaming.newWriter(sw)
-        XML.Companion.encodeToWriter(out, env)
+        xmlStreaming.newWriter(sw).use { out ->
+            xml.encodeToWriter(out, env, null)
+        }
+        sw.flush()
         assertXmlEquals(SOAP_RESPONSE2, sw.toString())
     }
 
@@ -104,7 +104,7 @@ class TestSoapHelper {
         reader.require(EventType.START_ELEMENT, "http://www.w3.org/2003/05/soap-rpc", "result")
         val parseResult = reader.siblingsToFragment()
         assertEquals("<rpc:result xmlns:rpc=\"http://www.w3.org/2003/05/soap-rpc\">result</rpc:result>", parseResult.contentString)
-        assertFalse(parseResult.namespaces.iterator().hasNext(), "Unexpected namespaces: ${parseResult.namespaces.joinToString()}")
+        assertFalse(parseResult.namespaces.iterator().hasNext(), "Unexpected namespaces: ${parseResult.namespaces.joinToString()} - '${parseResult.contentString}'")
     }
 
     companion object {

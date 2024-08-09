@@ -31,6 +31,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
+import nl.adaptivity.xmlutil.dom2.firstChild
+import nl.adaptivity.xmlutil.dom2.nextSibling
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
 import org.w3c.dom.parsing.XMLSerializer
@@ -119,7 +121,9 @@ public actual object XmlStreaming : IXmlStreaming {
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
-        return WriterXmlWriter(writer, DomWriter(xmlStreaming.genericDomImplementation.createDocument(), xmlDeclMode = xmlDeclMode))
+        val document = xmlStreaming.genericDomImplementation.createDocument()
+        @Suppress("DEPRECATION")
+        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode))
     }
 
     actual override val genericDomImplementation: DOMImplementation
@@ -177,14 +181,26 @@ internal class AppendingWriter(private val target: Appendable, private val deleg
     }
 }
 
-internal class WriterXmlWriter(private val target: Writer, private val delegate: DomWriter) : XmlWriter by delegate {
+internal class WriterXmlWriter(private val target: Writer, delegate: DomWriter) : XmlWriter by delegate {
+
+    private val delegate = delegate
+
+    private val owner: Node2 = delegate.currentNode ?: delegate.target
+
     override fun close() {
         try {
             val xmls = XMLSerializer()
 
             if (delegate.currentNode != null) {
+                val domText = buildString {
+                    var c = owner.firstChild
+                    while (c != null) {
+                        append(xmls.serializeToString(c.unWrap()))
+                        c = c.nextSibling
+                    }
+                }
 
-                val domText = xmls.serializeToString((delegate.target as IDocument).delegate)
+//                val domText2 = xmls.serializeToString((delegate.target as IDocument).delegate)
 
                 val xmlDeclMode = delegate.xmlDeclMode
                 if (xmlDeclMode != XmlDeclMode.None) {
