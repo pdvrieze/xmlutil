@@ -38,10 +38,10 @@ import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
 import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.ICompactFragment
 import kotlin.jvm.JvmStatic
@@ -77,7 +77,7 @@ import kotlin.jvm.JvmStatic
  *                   setter.
  */
 @Serializable(Envelope.Serializer::class)
-class Envelope<T : Any>(
+class Envelope<out T : Any>(
     val body: Body<T>,
     val header: Header = Header(),
     val otherAttributes: Map<QName, String> = emptyMap(),
@@ -93,7 +93,7 @@ class Envelope<T : Any>(
 
         @OptIn(XmlUtilInternal::class)
         override val descriptor: SerialDescriptor =
-            buildClassSerialDescriptor(Envelope::class.name, bodyContentSerializer.descriptor) {
+            buildClassSerialDescriptor("org.w3c.dom.Envelope", bodyContentSerializer.descriptor) {
                 annotations = SoapSerialObjects.envelopeAnnotations
                 element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, isOptional = true)
                 element<Header>("header", isOptional = true)
@@ -224,7 +224,7 @@ class Envelope<T : Any>(
         const val MIMETYPE = "application/soap+xml"
 
         @JvmStatic
-        fun deserialize(reader: XmlReader): Envelope<out ICompactFragment> {
+        fun deserialize(reader: XmlReader): Envelope<CompactFragment> {
             return XML { indent = 2; autoPolymorphic = true }.decodeFromReader(
                 serializer(CompactFragmentSerializer),
                 reader

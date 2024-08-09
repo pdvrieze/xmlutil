@@ -27,14 +27,15 @@ package nl.adaptivity.xml.serialization.regressions.soap
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
-import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
+import kotlinx.serialization.encoding.encodeStructure
 import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -64,7 +65,7 @@ import nl.adaptivity.xmlutil.util.CompactFragment
  * ```
  *
  */
-class Body<T: Any>(
+class Body<out T: Any>(
     @XmlValue(true)
     val child: T,
     val encodingStyle: String? = "http://www.w3.org/2003/05/soap-encoding",
@@ -84,13 +85,13 @@ class Body<T: Any>(
     class Serializer<T: Any>(private val contentSerializer: KSerializer<T>): XmlSerializer<Body<T>> {
 
         @OptIn(ExperimentalSerializationApi::class, XmlUtilInternal::class)
-        override val descriptor: SerialDescriptor = buildClassSerialDescriptor(Body::class.name) {
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("org.w3c.dom.Body") {
             annotations = SoapSerialObjects.bodyAnnotations
             element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
             element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, isOptional = true)
             element("child", contentSerializer.descriptor, SoapSerialObjects.valueAnnotations)
         }.xml(
-            buildClassSerialDescriptor(Body::class.name) {
+            buildClassSerialDescriptor("org.w3c.dom.Body") {
                 annotations = SoapSerialObjects.bodyAnnotations
                 element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
                 element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlElement(false)), isOptional = true)

@@ -26,13 +26,11 @@ package nl.adaptivity.xml.serialization.regressions.soap
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
@@ -103,7 +101,7 @@ class Header(
         private val blockSerializer = ListSerializer(CompactFragmentSerializer)
 
         @OptIn(ExperimentalSerializationApi::class, nl.adaptivity.xmlutil.XmlUtilInternal::class)
-        override val descriptor: SerialDescriptor = buildClassSerialDescriptor(Header::class.name) {
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("org.w3c.dom.Header") {
             annotations = SoapSerialObjects.headerAnnotations
             element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
             element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, isOptional = true)
