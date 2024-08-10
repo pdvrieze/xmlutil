@@ -47,7 +47,7 @@ internal class DefaultFormatCache : FormatCache() {
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc.serialName, serialDesc.hashCode()), serialDesc.kind, defaultValue)
+        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
     /**
@@ -56,7 +56,7 @@ internal class DefaultFormatCache : FormatCache() {
      */
     @OptIn(ExperimentalSerializationApi::class)
     override fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(parentName.namespaceURI, serialDesc.serialName, serialDesc.hashCode()), serialDesc.kind, defaultValue)
+        return lookupType(TypeKey(parentName.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -107,11 +107,11 @@ internal class DefaultFormatCache : FormatCache() {
         val canBeAttribute: Boolean
     )
 
-    private data class TypeKey(val namespace: String, val serialName: String, val descriptorHash: Int)
+    private data class TypeKey(val namespace: String, val descriptor: SerialDescriptor)
 
     companion object {
         @JvmStatic
-        private fun TypeKey(namespace: String?, serialName: String, descriptorHash: Int) =
-            DefaultFormatCache.TypeKey(namespace ?: "", serialName, descriptorHash)
+        private fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
+            DefaultFormatCache.TypeKey(namespace ?: "", descriptor)
     }
 }
