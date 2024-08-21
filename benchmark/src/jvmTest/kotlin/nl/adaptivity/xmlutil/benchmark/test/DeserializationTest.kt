@@ -40,6 +40,7 @@ open class DeserializationTest: Deserialization() {
     override fun setup() {
         super.setup()
     }
+
     @Test
     fun testDeserializeGenericSpeedImpl() {
         measure("Deserialize with fresh configuration",5) { testDeserializeGenericSpeedImpl(DummyBlackHole) }
