@@ -34,6 +34,10 @@ import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
+@Deprecated(
+    "used for more cross-platform stable version",
+    ReplaceWith("Node.serializer()", "nl.adaptivity.xmlutil.dom2.Node.serializer()")
+)
 public actual object NodeSerializer : XmlSerializer<Node1> {
     private val delegate = Node2.serializer() as XmlSerializer<Node2>
     private val helperDoc = createDocument(QName("XX")) as IDocument

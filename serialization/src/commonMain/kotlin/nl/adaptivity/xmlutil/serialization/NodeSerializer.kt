@@ -33,6 +33,10 @@ import nl.adaptivity.xmlutil.dom.Node
 
 public typealias SerializableNode = @Serializable(NodeSerializer::class) Node
 
+@Deprecated(
+    "used for more cross-platform stable version",
+    ReplaceWith("Node.serializer()", "nl.adaptivity.xmlutil.dom2.Node.serializer()")
+)
 public expect object NodeSerializer : XmlSerializer<Node> {
     override val descriptor: SerialDescriptor
 
