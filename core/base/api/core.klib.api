@@ -1242,9 +1242,6 @@ open class nl.adaptivity.xmlutil/XmlException : nl.adaptivity.xmlutil.core.impl.
 }
 
 sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|null[0]
-    constructor <init>(kotlin/String?) // nl.adaptivity.xmlutil/XmlEvent.<init>|<init>(kotlin.String?){}[0]
-    constructor <init>(nl.adaptivity.xmlutil/XmlReader.LocationInfo?) // nl.adaptivity.xmlutil/XmlEvent.<init>|<init>(nl.adaptivity.xmlutil.XmlReader.LocationInfo?){}[0]
-
     abstract val eventType // nl.adaptivity.xmlutil/XmlEvent.eventType|{}eventType[0]
         abstract fun <get-eventType>(): nl.adaptivity.xmlutil/EventType // nl.adaptivity.xmlutil/XmlEvent.eventType.<get-eventType>|<get-eventType>(){}[0]
     final val extLocationInfo // nl.adaptivity.xmlutil/XmlEvent.extLocationInfo|{}extLocationInfo[0]
