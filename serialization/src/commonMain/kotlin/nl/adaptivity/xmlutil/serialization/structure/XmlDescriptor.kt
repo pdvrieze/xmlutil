@@ -1207,7 +1207,11 @@ public class XmlPolymorphicDescriptor internal constructor(
                 for (childDesc in childDescriptors) {
                     val childTypeDescriptor = codecConfig.config.lookupTypeDesc(tagParent.namespace, childDesc)
 
-                    val childNameInfo = wrapperUseName ?: childTypeDescriptor.getNameInfo(tagName.toNamespace())
+                    val childNameInfo = wrapperUseName ?: run {
+                        tagName.toNamespace()
+                        childTypeDescriptor.typeNameInfo//        @OptIn(ExperimentalSerializationApi::class)
+                        //        return serialDescriptor.getNameInfo(config, parentNamespace, typeAnnXmlSerialName)
+                    }
 
                     val childSerializerParent =
                         DetachedParent(
@@ -1321,13 +1325,20 @@ internal fun getElementNameInfo(
  * Determines the type name information. This means it will
  */
 @ExperimentalSerializationApi
-internal fun SerialDescriptor.getNameInfo(parentNamespace: Namespace?, annotation: XmlSerialName?): DeclaredNameInfo {
+internal fun SerialDescriptor.getNameInfo(
+    config: XmlConfig,
+    parentNamespace: Namespace?,
+    annotation: XmlSerialName?
+): DeclaredNameInfo {
     val realSerialName = when {
         isNullable && serialName.endsWith('?') -> serialName.dropLast(1)
         else -> capturedKClass?.maybeSerialName ?: serialName
     }
 
-    val qName = annotation?.toQName(realSerialName, parentNamespace) ?: (this as? XmlSerialDescriptor)?.serialQName
+    val policySerialName =
+        config.policy.serialTypeNameToQName(DeclaredNameInfo(realSerialName), parentNamespace?: DEFAULT_NAMESPACE).localPart
+
+    val qName = annotation?.toQName(policySerialName, parentNamespace) ?: (this as? XmlSerialDescriptor)?.serialQName
     return DeclaredNameInfo(realSerialName, qName, annotation?.namespace == UNSET_ANNOTATION_VALUE)
 }
 
@@ -2004,7 +2015,7 @@ private fun polyTagName(
 
     val name: QName = when {
         eqPos < 0 -> {
-            descriptor.declRequestedName(parentNamespace, elementTypeDescriptor.typeAnnXmlSerialName)
+            descriptor.declRequestedName(codecConfig, parentNamespace, elementTypeDescriptor.typeAnnXmlSerialName)
         }
 
         else -> QName(parentTag.namespaceURI, localPart, prefix)

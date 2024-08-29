@@ -20,6 +20,9 @@ Changes:
   This aids #225.
 
 Fixes:
+- Better support `XmlSerialName` where value (localname) is defaulted.
+  Change this behaviour to actually use the same algorithm as normally
+  (not using the FQCN).
 - More reluctant caching of extended type descriptors such that type
   parameters work correctly with caching.
 - Fix NodeSerializer in the serialization module to properly forward

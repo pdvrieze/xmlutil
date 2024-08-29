@@ -91,7 +91,11 @@ public class XmlTypeDescriptor internal constructor(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(parentNamespace, typeAnnXmlSerialName)
+    public val typeNameInfo: DeclaredNameInfo = serialDescriptor.getNameInfo(
+        config,
+        parentNamespace,
+        typeAnnXmlSerialName
+    )
 
     @OptIn(ExperimentalSerializationApi::class)
     public val serialName: String
@@ -105,11 +109,6 @@ public class XmlTypeDescriptor internal constructor(
 
     internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy {
         config.policy.initialChildReorderMap(serialDescriptor)
-    }
-
-    internal fun getNameInfo(parentNamespace: Namespace?): DeclaredNameInfo {
-        @OptIn(ExperimentalSerializationApi::class)
-        return serialDescriptor.getNameInfo(parentNamespace, typeAnnXmlSerialName)
     }
 
 
