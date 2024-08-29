@@ -946,8 +946,6 @@ open class nl.adaptivity.xmlutil.serialization/XmlSerialException : kotlinx.seri
 }
 
 sealed class nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode { // nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode|null[0]
-    constructor <init>() // nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode.<init>|<init>(){}[0]
-
     final class ATTR : nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode { // nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode.ATTR|null[0]
         constructor <init>(nl.adaptivity.xmlutil/QName) // nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode.ATTR.<init>|<init>(nl.adaptivity.xmlutil.QName){}[0]
 
@@ -975,8 +973,6 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode { // 
 }
 
 sealed class nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor : kotlin.collections/Iterable<nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor>, nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor|null[0]
-    constructor <init>(nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo = ...) // nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor.<init>|<init>(nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
-
     abstract val isIdAttr // nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor.isIdAttr|{}isIdAttr[0]
         abstract fun <get-isIdAttr>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor.isIdAttr.<get-isIdAttr>|<get-isIdAttr>(){}[0]
     final val namespaceDecls // nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor.namespaceDecls|{}namespaceDecls[0]
@@ -1010,8 +1006,6 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor : kotli
 }
 
 sealed class nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor|null[0]
-    constructor <init>(nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo = ...) // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.<init>|<init>(nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
-
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.preserveSpace|{}preserveSpace[0]
@@ -1024,8 +1018,6 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor
 }
 
 sealed class nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor|null[0]
-    constructor <init>(nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo) // nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor.<init>|<init>(nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
-
     final val default // nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor.default|{}default[0]
         final fun <get-default>(): kotlin/String? // nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor.default.<get-default>|<get-default>(){}[0]
     final val isCData // nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor.isCData|{}isCData[0]

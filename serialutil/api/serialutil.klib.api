@@ -88,8 +88,6 @@ final class nl.adaptivity.serialutil/SimpleSerialClassDescPrimitive : kotlinx.se
 }
 
 sealed class <#A: out kotlin/Any?> nl.adaptivity.serialutil/MixedContent { // nl.adaptivity.serialutil/MixedContent|null[0]
-    constructor <init>() // nl.adaptivity.serialutil/MixedContent.<init>|<init>(){}[0]
-
     final class <#A1: kotlin/Any?> Object : nl.adaptivity.serialutil/MixedContent<#A1> { // nl.adaptivity.serialutil/MixedContent.Object|null[0]
         constructor <init>(#A1) // nl.adaptivity.serialutil/MixedContent.Object.<init>|<init>(1:0){}[0]
 

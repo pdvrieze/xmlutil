@@ -1,5 +1,6 @@
 #0.90.2-SNAPSHOT
 Changes:
+- Update to Kotlin 2.0.20 / kotlinx.serialization 1.7.2
 - Extensive optimization of decoding (serialization), parsing
   (KtXmlReader) including the creation of the xmlDescriptors.
 - Add a new preset `fast` for a config/policy that chooses speed over
