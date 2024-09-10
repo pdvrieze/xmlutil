@@ -245,7 +245,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
 
             targets.withType<KotlinNativeTarget>().configureEach {
                 binaries {
-                    sharedLib(listOf(DEBUG))
+                    sharedLib(listOf(DEBUG, RELEASE))
                 }
             }
         }
