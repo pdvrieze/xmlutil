@@ -34,7 +34,62 @@ class ElementChildren237 {
 
     @Test
     fun testDeserializedElement() {
-        val extensions = xml.decodeFromString<Base.Extensions>(XMLSTRING)
+        val extensions = xml.decodeFromString<Extensions>(XMLSTRING)
+
+        val extension = assertNotNull(extensions.extension)
+
+        assertEquals(1, extension.size)
+        val extValue = extension.single()
+
+        assertEquals("AdVerifications", extValue.type)
+
+        val elems = extValue.value
+        assertEquals(1, elems.size)
+
+        val elem = elems.single()
+        val adVerChildren = elem.childNodes
+        assertEquals(3, adVerChildren.getLength())
+
+        adVerChildren[0].assertWS()
+        adVerChildren[2].assertWS()
+        val verification = assertIs<Element>(adVerChildren[1])
+
+        assertEquals("Verification", verification.localName)
+        assertEquals(1, verification.attributes.getLength())
+        assertEquals("Something", verification.getAttribute("vendor"))
+
+        val jsResource = assertIs<Element>(
+            assertIs<Text>(verification.firstChild).assertWS()
+                .nextSibling
+        )
+        assertEquals("JavaScriptResource", jsResource.localName)
+        assertEquals(2, jsResource.attributes.getLength())
+        assertEquals("omid", jsResource.getAttribute("apiFramework"))
+        assertEquals("true", jsResource.getAttribute("browserOptional"))
+
+        val cdata = assertIs<Text>(
+            jsResource.firstChild.assertWS().nextSibling
+        )
+        assertEquals("https://google.com/video.js", cdata.data)
+        assertNull(cdata.nextSibling.assertWS().nextSibling)
+
+
+        val verParams = assertIs<Element>(
+            jsResource.nextSibling.assertWS().nextSibling
+        )
+        assertEquals("VerificationParameters", verParams.localName)
+        assertEquals(0, verParams.attributes.getLength())
+
+        val keys = assertIs<Text>(
+            verParams.firstChild.assertWS().nextSibling
+        )
+        assertEquals("""{"key":"21649"}""", keys.data )
+        assertNull(keys.nextSibling.assertWS().nextSibling)
+    }
+
+    @Test
+    fun testDeserializedElementIgnoreWhitespace() {
+        val extensions = xml.decodeFromString<ExtensionsIgnoreWS>(XMLSTRING)
 
         val extension = assertNotNull(extensions.extension)
 
@@ -89,21 +144,29 @@ class ElementChildren237 {
 
 
     @Serializable
-    class Base {
-        var extensions: Extensions? = null
+    class Extensions {
+        var extension: List<Extension>? = null
 
         @Serializable
-        class Extensions {
-            var extension: List<Extension>? = null
+        class Extension {
+            var type: String? = null
 
-            @Serializable
-            @XmlIgnoreWhitespace
-            class Extension {
-                var type: String? = null
+            @XmlValue
+            val value: List<Element> = emptyList()
+        }
+    }
 
-                @XmlValue
-                val value: List<Element> = emptyList()
-            }
+    @Serializable
+    class ExtensionsIgnoreWS {
+        var extension: List<Extension>? = null
+
+        @Serializable
+        @XmlIgnoreWhitespace
+        class Extension {
+            var type: String? = null
+
+            @XmlValue
+            val value: List<Element> = emptyList()
         }
     }
 

@@ -1181,16 +1181,31 @@ internal open class XmlDecoderBase internal constructor(
                         EventType.PROCESSING_INSTRUCTION -> {
                         } // do nothing/ignore
 
+                        EventType.CDSECT -> { // cdata is never whitespace
+                            // The android reader doesn't check whitespaceness. This code should throw
+                            return valueChild.markSeenOrHandleUnknown {
+                                config.policy.handleUnknownContentRecovering(
+                                    input,
+                                    InputKind.Text,
+                                    xmlDescriptor,
+                                    QName("<CDATA>"),
+                                    emptyList()
+                                ).let { pendingRecovery.addAll(it) }
+                                decodeElementIndex() // if this doesn't throw, recursively continue
+                            }
+                        }
                         EventType.ENTITY_REF,
-                        EventType.CDSECT,
                         EventType.IGNORABLE_WHITESPACE,
                         EventType.TEXT -> {
                             // The android reader doesn't check whitespaceness. This code should throw
                             if (input.isWhitespace()) {
                                 if (valueChild != CompositeDecoder.UNKNOWN_NAME && preserveWhitespace) {
-                                    val valueKind = xmlDescriptor.getElementDescriptor(valueChild).kind
-                                    if (valueKind == StructureKind.LIST || valueKind is PrimitiveKind
-                                    ) { // this allows all primitives (
+                                    var valueDesc = xmlDescriptor.getElementDescriptor(valueChild)
+                                    while (valueDesc is XmlListDescriptor && valueDesc.isListEluded) {
+                                        valueDesc = valueDesc.getElementDescriptor(0)
+                                    }
+                                    val outputKind = valueDesc.outputKind
+                                    if (outputKind == OutputKind.Text || outputKind == OutputKind.Mixed) { // this allows all primitives (
                                         seenItems[valueChild] = true
                                         return valueChild // We can handle whitespace
                                     }
