@@ -67,11 +67,11 @@ internal class DocumentTypeImpl(
     }
 
     override fun lookupPrefix(namespace: String): String? {
-        return getParentNode()?.lookupPrefix(namespace)
+        return parentNode?.lookupPrefix(namespace)
     }
 
     override fun lookupNamespaceURI(prefix: String): String? {
-        return getParentNode()?.lookupNamespaceURI(prefix)
+        return parentNode?.lookupNamespaceURI(prefix)
     }
 
     override fun appendChild(node: INode): Nothing {

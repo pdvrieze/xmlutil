@@ -31,6 +31,8 @@ internal abstract class NodeImpl(
     abstract override var parentNode: INode?
         internal set
 
+    override fun getParentNode(): INode? = parentNode
+
     final override fun getOwnerDocument(): DocumentImpl = ownerDocument
 
     override fun getPreviousSibling(): INode? {
