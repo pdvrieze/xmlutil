@@ -39,6 +39,7 @@ import kotlinx.serialization.encoding.encodeStructure
 import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -77,9 +78,11 @@ import kotlin.jvm.JvmStatic
  *                   setter.
  */
 @Serializable(Envelope.Serializer::class)
+@XmlSerialName(Envelope.ELEMENTLOCALNAME, Envelope.NAMESPACE, Envelope.PREFIX)
 class Envelope<out T : Any>(
     val body: Body<T>,
     val header: Header = Header(),
+    @XmlOtherAttributes
     val otherAttributes: Map<QName, String> = emptyMap(),
 ) {
 
@@ -95,7 +98,8 @@ class Envelope<out T : Any>(
         override val descriptor: SerialDescriptor =
             buildClassSerialDescriptor("org.w3c.dom.Envelope", bodyContentSerializer.descriptor) {
                 annotations = SoapSerialObjects.envelopeAnnotations
-                element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, isOptional = true)
+                element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, isOptional = true)
+                element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlOtherAttributes()), isOptional = true)
                 element<Header>("header", isOptional = true)
                 element("body", bodySerializer.descriptor)
             }
@@ -112,8 +116,10 @@ class Envelope<out T : Any>(
                         0 -> otherAttributes =
                             decodeSerializableElement(descriptor, idx, SoapSerialObjects.attrsSerializer)
 
-                        1 -> header = decodeSerializableElement(descriptor, idx, Header.serializer())
-                        2 -> body = decodeSerializableElement(descriptor, idx, bodySerializer)
+                        1 -> encodingStyle = decodeStringElement(descriptor, idx)
+
+                        2 -> header = decodeSerializableElement(descriptor, idx, Header.serializer())
+                        3 -> body = decodeSerializableElement(descriptor, idx, bodySerializer)
                     }
                 }
             }
@@ -187,9 +193,9 @@ class Envelope<out T : Any>(
                     value.otherAttributes
                 )
                 if (value.header.blocks.isNotEmpty() || value.header.otherAttributes.isNotEmpty()) {
-                    encodeSerializableElement(descriptor, 1, Header.serializer(), value.header)
+                    encodeSerializableElement(descriptor, 2, Header.serializer(), value.header)
                 }
-                encodeSerializableElement(descriptor, 2, bodySerializer, value.body)
+                encodeSerializableElement(descriptor, 3, bodySerializer, value.body)
             }
         }
 
@@ -242,6 +248,8 @@ internal object SoapSerialObjects {
     val headerAnnotations = listOf(XmlSerialName(Header.ELEMENTLOCALNAME, Envelope.NAMESPACE, Envelope.PREFIX))
 
     val bodyAnnotations = listOf(XmlSerialName(Body.ELEMENTLOCALNAME, Envelope.NAMESPACE, Envelope.PREFIX))
+
+    val faultAnnotations = listOf(XmlSerialName("Fault", Envelope.NAMESPACE, Envelope.PREFIX))
 
     val encodingStyleAnnotations = listOf(XmlSerialName("encodingStyle", Envelope.NAMESPACE, Envelope.PREFIX))
 

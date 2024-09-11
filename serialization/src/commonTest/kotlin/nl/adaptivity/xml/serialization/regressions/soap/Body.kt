@@ -143,11 +143,12 @@ class Body<out T: Any>(
                         else -> true
                     }
                 }.associate { QName(it.namespaceUri, it.localName, it.prefix) to it.value }
-
-                child = decodeSerializableElement(descriptor, 2, contentSerializer, null)
-                if (input.nextTag() != EventType.END_ELEMENT) throw SerializationException("Extra content in body")
+                if (input.nextTag() != EventType.END_ELEMENT) {
+                    child = decodeSerializableElement(descriptor, 2, contentSerializer, null)
+                    if (input.nextTag() != EventType.END_ELEMENT) throw SerializationException("Extra content in body")
+                }
             }
-            return Body(child)
+            return Body(child, encodingStyle, otherAttributes)
         }
 
         override fun serialize(encoder: Encoder, value: Body<T>) {
