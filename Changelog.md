@@ -21,6 +21,8 @@ Changes:
   This aids #225.
 
 Fixes:
+- Fix siblingsToFragment for native/js so that it terminates on end of
+  stream, even if this doesn't include DocumentEnd event.
 - Make `@XmlValue` work with regular types (to support generic parsing
   of element content of variable type, some including mixed/text content)
 - Better support `XmlSerialName` where value (localname) is defaulted.

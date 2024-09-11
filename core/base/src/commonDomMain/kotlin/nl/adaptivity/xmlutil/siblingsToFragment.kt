@@ -43,7 +43,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
 
 
         var type: EventType? = eventType
-        while (type !== EventType.END_DOCUMENT && type !== EventType.END_ELEMENT && depth >= initialDepth) {
+        while (type !== EventType.END_DOCUMENT && (type !== EventType.END_ELEMENT || depth > initialDepth)) {
             when (type) {
                 EventType.START_ELEMENT ->
                     KtXmlWriter(appendable, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
@@ -66,7 +66,7 @@ public actual fun XmlReader.siblingsToFragment(): CompactFragment {
                 else -> {
                 } // ignore
             }
-            type = if (hasNext()) next() else null
+            type = if (hasNext()) next() else break
         }
 
         if (missingNamespaces[""] == "") missingNamespaces.remove("")
