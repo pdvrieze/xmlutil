@@ -24,21 +24,9 @@
 
 package nl.adaptivity.xml.serialization.regressions.soap
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.descriptors.element
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
-import kotlinx.serialization.encoding.encodeStructure
-import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.*
-import nl.adaptivity.xmlutil.util.CompactFragment
 
 
 /**
@@ -78,124 +66,11 @@ class Body<out T: Any>(
         otherAttributes: Map<QName, String> = this.otherAttributes,
     ): Body<T> = Body(child, encodingStyle, otherAttributes)
 
-    fun <U: Any> copy(
+    fun <U : Any> copy(
         child: U,
         encodingStyle: String? = this.encodingStyle,
         otherAttributes: Map<QName, String> = this.otherAttributes,
     ): Body<U> = Body(child, encodingStyle, otherAttributes)
-
-    class Serializer<T: Any>(private val contentSerializer: KSerializer<T>): KSerializer<Body<T>> {
-
-        @OptIn(ExperimentalSerializationApi::class, XmlUtilInternal::class)
-        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("org.w3c.dom.Body") {
-            annotations = SoapSerialObjects.bodyAnnotations
-            element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
-            element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlElement(false), XmlOtherAttributes()), isOptional = true)
-            element("child", contentSerializer.descriptor, SoapSerialObjects.valueAnnotations)
-        }/*.xml(
-            buildClassSerialDescriptor("org.w3c.dom.Body") {
-                annotations = SoapSerialObjects.bodyAnnotations
-                element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
-                element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlElement(false), XmlOtherAttributes()), isOptional = true)
-                element("child", contentSerializer.descriptor, SoapSerialObjects.valueAnnotations)
-            }
-        )*/
-
-        override fun deserialize(decoder: Decoder): Body<T> {
-            var encodingStyle: String? = null
-            var otherAttributes: Map<QName, String> = emptyMap()
-            lateinit var child: T
-            decoder.decodeStructure(descriptor) {
-                decodeElements(this) { idx ->
-                    when (idx) {
-                        0 -> encodingStyle = decodeStringElement(descriptor, idx)
-                        1 -> otherAttributes = decodeSerializableElement(
-                            descriptor, idx,
-                            SoapSerialObjects.attrsSerializer, otherAttributes
-                        )
-
-                        2 -> child = decodeSerializableElement(descriptor, idx, contentSerializer)
-                    }
-                }
-            }
-            return Body(child)
-        }
-
-        /*override*/ fun deserializeXML(
-            decoder: Decoder,
-            input: XmlReader,
-            previousValue: Body<T>?,
-            isValueChild: Boolean
-        ): Body<T> {
-            val descriptor = descriptor.getElementDescriptor(-1)
-            var encodingStyle: String? = null
-            var otherAttributes: Map<QName, String> = emptyMap()
-            lateinit var child: T
-            decoder.decodeStructure(descriptor) {
-                otherAttributes = input.attributes.filter {
-                    when {
-                        it.prefix == XMLConstants.XMLNS_ATTRIBUTE ||
-                                (it.prefix == "" && it.localName == XMLConstants.XMLNS_ATTRIBUTE) -> false
-
-                        it.namespaceUri != Envelope.NAMESPACE -> true
-                        it.localName == "encodingStyle" -> {
-                            encodingStyle = it.value; false
-                        }
-
-                        else -> true
-                    }
-                }.associate { QName(it.namespaceUri, it.localName, it.prefix) to it.value }
-                if (input.nextTag() != EventType.END_ELEMENT) {
-//                    child = (decoder as XML.XmlInput).delegateFormat().decodeFromReader(contentSerializer, input)
-                    child = decodeSerializableElement(descriptor, 2, contentSerializer, null)
-                    if (input.nextTag() != EventType.END_ELEMENT) throw SerializationException("Extra content in body")
-                }
-            }
-            return Body(child, encodingStyle, otherAttributes)
-        }
-
-        override fun serialize(encoder: Encoder, value: Body<T>) {
-            encoder.encodeStructure(descriptor) {
-                value.encodingStyle?.also { style ->
-                    encodeStringElement(descriptor, 0, style)
-                }
-                if (value.otherAttributes.isNotEmpty() || shouldEncodeElementDefault(descriptor, 1)) {
-                    encodeSerializableElement(
-                        descriptor,
-                        1,
-                        SoapSerialObjects.attrsSerializer,
-                        value.otherAttributes
-                    )
-                }
-                encodeSerializableElement(descriptor, 2, contentSerializer, value.child)
-            }
-        }
-
-        /*override*/ fun serializeXML(encoder: Encoder, output: XmlWriter, value: Body<T>, isValueChild: Boolean) {
-            output.smartStartTag(ELEMENTNAME) {
-                value.encodingStyle?.also { style ->
-                    output.attribute(Envelope.NAMESPACE, "encodingStyle", Envelope.PREFIX, style.toString())
-                }
-                for ((aName, aValue) in value.otherAttributes) {
-                    output.writeAttribute(aName, aValue)
-                }
-                val child = value.child
-                when (child) {
-                    is CompactFragment -> {
-                        for (ns in child.namespaces) {
-                            if (output.getNamespaceUri(ns.prefix) != ns.namespaceURI) {
-                                output.namespaceAttr(ns)
-                            }
-                        }
-                        child.serialize(output)
-                    }
-
-                    else -> (encoder as XML.XmlOutput).delegateFormat().encodeToWriter(output, contentSerializer, child)
-                }
-
-            }
-        }
-    }
 
     companion object {
 
