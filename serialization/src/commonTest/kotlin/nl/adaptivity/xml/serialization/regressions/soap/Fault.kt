@@ -21,21 +21,61 @@
 package nl.adaptivity.xml.serialization.regressions.soap
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 
 @Serializable
 @XmlSerialName("Fault", Envelope.NAMESPACE, Envelope.PREFIX)
 class Fault(
     @XmlSerialName("Code", Envelope.NAMESPACE)
-    val code: Element,
+    val code: Code,
     @XmlSerialName("Reason", Envelope.NAMESPACE)
-    val reason: Element,
+    val reason: Reason,
     @XmlSerialName("Node", Envelope.NAMESPACE)
     val node: Element? = null,
     @XmlSerialName("Role", Envelope.NAMESPACE)
     val role: Element? = null,
     @XmlSerialName("Detail", Envelope.NAMESPACE)
-    val detail: Element? = null,
+    val detail: Detail? = null,
 ) {
+
+    @Serializable
+    @XmlSerialName("Code", Envelope.NAMESPACE, Envelope.PREFIX)
+    class Code(
+        @XmlElement(true)
+        @XmlSerialName("Value", Envelope.NAMESPACE, Envelope.PREFIX)
+        val value: SerializableQName,
+        @XmlSerialName("Subcode", Envelope.NAMESPACE, Envelope.PREFIX)
+        val subcode: Code? = null
+    )
+
+    @Serializable
+    @XmlSerialName("Reason", Envelope.NAMESPACE, Envelope.PREFIX)
+    class Reason(val texts: List<Text>)
+
+    @Serializable
+    @XmlSerialName("Text", Envelope.NAMESPACE, Envelope.PREFIX)
+    class Text(
+        @XmlValue
+        val value: String,
+        @XmlSerialName("lang", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
+        val lang: String? = null
+    )
+
+    @Serializable
+    @XmlSerialName("Detail", Envelope.NAMESPACE, Envelope.PREFIX)
+    class Detail(
+        @XmlOtherAttributes
+        val attributes: Map<SerializableQName, String>,
+        @XmlValue
+        val content: List<Node>,
+    )
+
 }

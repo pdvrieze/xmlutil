@@ -116,15 +116,14 @@ class TestSoapHelper {
         assertNull(fault.role)
         assertNull(fault.node)
 
-        assertEquals("s:Client", fault.code.textContent)
-        val ns = fault.code.lookupNamespaceURI("s")
-        assertEquals(Envelope.NAMESPACE, ns)
+        assertEquals("Client", fault.code.value.localPart)
+        assertEquals(Envelope.NAMESPACE, fault.code.value.namespaceURI)
 
-        val reasonText = assertIs<Element>(fault.reason.childNodes.singleOrNull { ! (it is Text && isXmlWhitespace(it.data))} )
-        val reason = assertIs<Text>(reasonText.childNodes.singleOrNull())
-        assertEquals("UPnPError", reason.textContent)
+        val reasonText = assertIs<Fault.Text>(fault.reason.texts.singleOrNull())
+        assertEquals("en", reasonText.lang)
+        assertEquals("UPnPError", reasonText.value)
 
-        val detail = assertIs<Element>(fault.detail?.childNodes?.singleOrNull { (it !is Text) || !isXmlWhitespace(it.data) })
+        val detail = assertIs<Element>(fault.detail?.content?.singleOrNull { (it !is Text) || !isXmlWhitespace(it.data) })
         assertEquals("UPnPError", detail.localName)
         assertEquals("urn:schemas-upnp-org:control-1-0", detail.namespaceURI)
 
@@ -182,7 +181,7 @@ class TestSoapHelper {
                 |                    <errorDescription>Invalid Action</errorDescription>
                 |                </UPnPError>
                 |            </s:Detail>
-                |            <s:Code>s:Client</s:Code>
+                |            <s:Code><s:Value>s:Client</s:Value></s:Code>
                 |            <s:Reason>
                 |                <s:Text xml:lang="en">UPnPError</s:Text>
                 |            </s:Reason>
