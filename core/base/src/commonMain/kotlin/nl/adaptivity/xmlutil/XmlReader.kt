@@ -361,10 +361,12 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
 public fun XmlPeekingReader.allConsecutiveTextContent(): String {
-    if (eventType == EventType.END_ELEMENT) return ""
+    val et = if (hasPeekItems) null else eventType
+
+    if (et == EventType.END_ELEMENT) return ""
     val t = this
     return buildString {
-        if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) append(text)
+        if (et != null && (et.isTextElement || et == EventType.IGNORABLE_WHITESPACE)) append(text)
 
         var eventType: EventType?
 
