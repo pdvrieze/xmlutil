@@ -44,7 +44,6 @@ public object CompactFragmentSerializer : XmlSerializer<CompactFragment> {
     ): CompactFragment {
         return when {
             isValueChild -> {
-                input.next()
                 input.siblingsToFragment()
             }
 

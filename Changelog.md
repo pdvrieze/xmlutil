@@ -21,6 +21,8 @@ Changes:
   This aids #225.
 
 Fixes:
+- Make `@XmlValue` work with regular types (to support generic parsing
+  of element content of variable type, some including mixed/text content)
 - Better support `XmlSerialName` where value (localname) is defaulted.
   Change this behaviour to actually use the same algorithm as normally
   (not using the FQCN).

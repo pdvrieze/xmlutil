@@ -92,7 +92,7 @@ class Envelope<out T : Any>(
     constructor(content: T) : this(Body<T>(content))
 
     public class Serializer<T : Any>(bodyContentSerializer: KSerializer<T>) : /*Xml*/KSerializer<Envelope<T>> {
-        private val bodySerializer: KSerializer<Body<T>> = Body.Serializer(bodyContentSerializer)
+        private val bodySerializer: KSerializer<Body<T>> = Body.serializer(bodyContentSerializer)
 
         @OptIn(XmlUtilInternal::class)
         override val descriptor: SerialDescriptor =

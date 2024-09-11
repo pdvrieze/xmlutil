@@ -57,7 +57,10 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
         "Use extLocationInfo as that allows more detailed information",
         replaceWith = ReplaceWith("extLocationInfo?.toString()")
     )
-    override val locationInfo: String? get() = ifNotPeeking { locationInfo }
+    override val locationInfo: String? get() = delegate.locationInfo
+
+    override val extLocationInfo: XmlReader.LocationInfo?
+        get() = delegate.extLocationInfo
 
     override fun hasNext(): Boolean = hasPeekItems || delegate.hasNext()
 

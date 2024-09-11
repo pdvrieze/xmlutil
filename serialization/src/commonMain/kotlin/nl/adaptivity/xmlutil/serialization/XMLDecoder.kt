@@ -47,7 +47,6 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
-import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -121,7 +120,6 @@ internal open class XmlDecoderBase internal constructor(
     ) : XmlCodec<XmlDescriptor>(xmlDescriptor), XML.XmlInput, Decoder {
         final override val config: XmlConfig get() = this@XmlDecoderBase.config
         final override val serializersModule: SerializersModule get() = this@XmlDecoderBase.serializersModule
-        final override val input: XmlPeekingReader get() = this@XmlDecoderBase.input
 
         override fun decodeNull(): Nothing? {
             // We don't write nulls, so if we know that we have a null we just return it
@@ -184,6 +182,7 @@ internal open class XmlDecoderBase internal constructor(
         protected val isValueChild: Boolean = false,
         val attrIndex: Int = -1,
     ) : DecodeCommons(xmlDescriptor), Decoder, XML.XmlInput, ChunkedDecoder {
+        final override val input: XmlPeekingReader get() = this@XmlDecoderBase.input
 
         private var triggerInline = false
 
@@ -326,6 +325,7 @@ internal open class XmlDecoderBase internal constructor(
         private val locationInfo: XmlReader.LocationInfo?,
         private val stringValue: String
     ) : Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor) {
+        override val input: XmlPeekingReader by lazy { PseudoBufferedReader(XmlStringReader(locationInfo, stringValue)) }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             throw UnsupportedOperationException("Strings cannot be decoded to structures")
@@ -345,15 +345,11 @@ internal open class XmlDecoderBase internal constructor(
             return stringValue
         }
 
-        private fun getInputWrapper(locationInfo: XmlReader.LocationInfo?): XmlReader {
-            return XmlStringReader(locationInfo, stringValue)
-        }
-
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             val effectiveDeserializationStrategy = xmlDescriptor.effectiveDeserializationStrategy(deserializer)
             return when (effectiveDeserializationStrategy) {
                 is XmlDeserializationStrategy ->
-                    effectiveDeserializationStrategy.deserializeXML(this, getInputWrapper(locationInfo))
+                    effectiveDeserializationStrategy.deserializeXML(this, input)
 
                 else -> effectiveDeserializationStrategy.deserialize(this)
             }
@@ -669,18 +665,24 @@ internal open class XmlDecoderBase internal constructor(
     internal inner class TagDecoder<D : XmlDescriptor>(
         deserializer: DeserializationStrategy<*>,
         xmlDescriptor: D,
-        typeDiscriminatorName: QName?
+        typeDiscriminatorName: QName?,
     ) : TagDecoderBase<D>(deserializer, xmlDescriptor, typeDiscriminatorName) {
 
         private val readTagName = if(config.isUnchecked) xmlDescriptor.tagName else input.name
 
         override fun endStructure(descriptor: SerialDescriptor) {
             // If we aren't in the closed stage, we read the index again to check that we are finished
-            if (stage < STAGE_CLOSE) {
+            // Don't do the check for custom strategies
+            if (stage < STAGE_CLOSE && deserializer !is XmlDeserializationStrategy) {
                 stage = STAGE_NULLS
                 val index = decodeElementIndex()
-                if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
+                if (true && index != CompositeDecoder.DECODE_DONE) throw XmlSerialException(
+                    "Unexpected content in end structure: ${
+                        xmlDescriptor.friendlyChildName(index)
+                    }"
+                )
             }
+            check(input.depth == tagDepth) { "Unexpected tag depth: ${input.depth} (expected: ${tagDepth})" }
             if (!config.isUnchecked) input.require(EventType.END_ELEMENT, readTagName)
         }
 
@@ -688,7 +690,7 @@ internal open class XmlDecoderBase internal constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     internal abstract inner class TagDecoderBase<D : XmlDescriptor>(
-        private val deserializer: DeserializationStrategy<*>,
+        protected val deserializer: DeserializationStrategy<*>,
         xmlDescriptor: D,
         protected val typeDiscriminatorName: QName?
     ) : XmlTagCodec<D>(xmlDescriptor), CompositeDecoder, XML.XmlInput, TagIdHolder {
@@ -816,6 +818,7 @@ internal open class XmlDecoderBase internal constructor(
         ): T {
             @Suppress("UNCHECKED_CAST")
             handleRecovery<Any?>(index) { return it as T }
+            require(stage < STAGE_CLOSE) { "Reading content in end state" }
 
             val initialChildXmlDescriptor = xmlDescriptor.getElementDescriptor(index)
 
@@ -829,38 +832,41 @@ internal open class XmlDecoderBase internal constructor(
 
             val isValueChild = xmlDescriptor.getValueChild() == index
 
-            val decoder: Decoder = if (lastAttrIndex >= 0 && childXmlDescriptor is XmlAttributeMapDescriptor) {
-                AttributeMapDecoder(effectiveDeserializer, childXmlDescriptor, lastAttrIndex)
-            } else {
-                serialElementDecoder(descriptor, index, effectiveDeserializer)
-                    ?: NullDecoder(childXmlDescriptor, isValueChild)
+            val decoder = when {
+                stage == STAGE_NULLS -> NullDecoder(childXmlDescriptor, isValueChild)
+
+                lastAttrIndex >= 0 && childXmlDescriptor is XmlAttributeMapDescriptor -> {
+                    AttributeMapDecoder(effectiveDeserializer, childXmlDescriptor, lastAttrIndex)
+                }
+
+                // handle empty value children separately
+                isValueChild && input.hasPeekItems && input.peekNextEvent() == EventType.END_ELEMENT ->
+                    StringDecoder(childXmlDescriptor, input.extLocationInfo, "")
+
+                else -> {
+                    serialElementDecoder(descriptor, index, effectiveDeserializer)
+                        ?: NullDecoder(childXmlDescriptor, isValueChild)
+                }
+            }
+
+            val effectiveInput: XmlPeekingReader = when (decoder) {
+                is NullDecoder -> decoder.input
+                is StringDecoder -> decoder.input
+                else -> input
             }
 
             val result: T = when (effectiveDeserializer) {
-                is XmlDeserializationStrategy -> {
-                    check(!input.hasPeekItems)
-                    check(input.eventType == EventType.START_ELEMENT)
-                    val expectedDepth = when {
-                        isValueChild -> input.depth + 1
-                        else -> input.depth
-                    }
-
-                    val r = effectiveDeserializer.deserializeXML(decoder, input, previousValue, isValueChild)
-
-                    // Make sure that the end tag is not consumed - it will be consumed by the endStructure function
-                    if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT) {
-                        if (input.depth < expectedDepth) {
-                            input.pushBackCurrent()
-                        }
-                    }
-
-                    r
-                }
+                is XmlDeserializationStrategy ->
+                    effectiveDeserializer.deserializeXML(decoder, effectiveInput, previousValue, isValueChild)
 
                 is AbstractCollectionSerializer<*, T, *> ->
                     effectiveDeserializer.merge(decoder, previousValue)
 
                 else -> try {
+                    // For value children ignore whitespace content
+                    if (isValueChild && !input.hasPeekItems && input.eventType == EventType.IGNORABLE_WHITESPACE) {
+                        input.next()
+                    }
                     effectiveDeserializer.deserialize(decoder)
                 } catch (e: XmlException) {
                     throw e
@@ -871,6 +877,18 @@ internal open class XmlDecoderBase internal constructor(
                         input.extLocationInfo,
                         e
                     )
+                }
+            }
+
+            if (stage == STAGE_CONTENT) {
+                if (!input.hasPeekItems) {
+                    if (isValueChild && input.eventType == EventType.END_ELEMENT && input.depth == tagDepth) {
+                        input.pushBackCurrent() // unread the end of the containing element tag
+                    }
+                } else { //has peek items
+                    if (input.peekNextEvent() == EventType.END_ELEMENT && input.depth > tagDepth + 1) {
+                        input.next() // consume peeked event if needed
+                    }
                 }
             }
 
@@ -1091,17 +1109,17 @@ internal open class XmlDecoderBase internal constructor(
                 return pendingRecovery.first().elementIndex
             }
             if (stage == STAGE_NULLS) {
-                if (nulledItemsIdx >= 0) {
+                nextNulledItemsIdx()
+                if (stage == STAGE_NULLS) { // still reading nulls
                     // This processes all "missing" elements.
-                    if (!config.isUnchecked) input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
+                    if (!config.isUnchecked && !input.hasPeekItems) input.require(EventType.END_ELEMENT, xmlDescriptor.tagName)
 
-                    if (nulledItemsIdx >= seenItems.size) return CompositeDecoder.DECODE_DONE
-
-                    return nulledItemsIdx.also {// return the current index, and then move to the next value
-                        nextNulledItemsIdx()
+                    if (nulledItemsIdx >= seenItems.size) {
+                        stage = STAGE_CLOSE
+                        return CompositeDecoder.DECODE_DONE
                     }
-                } else {
-                    stage = STAGE_CLOSE
+
+                    return nulledItemsIdx
                 }
             }
 
@@ -1168,12 +1186,21 @@ internal open class XmlDecoderBase internal constructor(
                     if ((!valueChildDesc.isNullable) && valueChildDesc.kind !is StructureKind.LIST && valueChildDesc.kind !is StructureKind.MAP) {
                         // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
                         seenItems[valueChild] = true
+
+                        if(input.next() == EventType.END_ELEMENT) {
+                            // empty value
+                            input.pushBackCurrent()
+                        }
+
                         return valueChild
                     }
                 }
                 for (eventType in input) {
                     when (eventType) {
-                        EventType.END_ELEMENT -> return readElementEnd()
+                        EventType.END_ELEMENT -> {
+                            stage = STAGE_NULLS
+                            return decodeElementIndex()
+                        }
 
                         EventType.START_DOCUMENT,
                         EventType.COMMENT,
@@ -1346,7 +1373,7 @@ internal open class XmlDecoderBase internal constructor(
                     tagId = xmlCollapseWhitespace(a)
                 }
                 return a
-            } else if (nulledItemsIdx >= 0) { // Now reading nulls
+            } else if (stage == STAGE_NULLS) { // Now reading nulls
                 val default = (childDesc as? XmlValueDescriptor)?.default
                 return when {
                     default != null -> default
@@ -1838,7 +1865,7 @@ internal open class XmlDecoderBase internal constructor(
         override fun Int.checkRepeat(): Int = this
 
         override fun decodeElementIndex(): Int {
-
+            if (stage > STAGE_CONTENT) return CompositeDecoder.DECODE_DONE
             if (!xmlDescriptor.isValueCollapsed) {
                 if (lastIndex.mod(2) == 1) {
                     while (input.hasNext()) {
@@ -1862,6 +1889,7 @@ internal open class XmlDecoderBase internal constructor(
 
                             EventType.END_ELEMENT -> {
                                 check(super.decodeElementIndex() == CompositeDecoder.DECODE_DONE) { "Finished parsing map" }
+                                stage = STAGE_CLOSE // no nulls
                                 return CompositeDecoder.DECODE_DONE // should be the value
                             }
 
@@ -1879,6 +1907,7 @@ internal open class XmlDecoderBase internal constructor(
 
                 // Use the default, but correct the index (map serializer is dumb)
                 if (lastIndex.mod(2) == 1 && super.decodeElementIndex() < 0) {
+                    stage = STAGE_CLOSE
                     return CompositeDecoder.DECODE_DONE // should be the value
                 }
             }

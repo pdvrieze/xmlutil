@@ -18,6 +18,7 @@ package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.serializer
 import nl.adaptivity.xml.serialization.regressions.soap.Envelope
 import nl.adaptivity.xml.serialization.regressions.soap.Fault
 import nl.adaptivity.xmlutil.*
@@ -45,7 +46,7 @@ class TestSoapHelper {
     @Test
     fun testRoundtripSoapResponse() {
         val xml = XML { indent = 2; autoPolymorphic = true }
-        val serializer = Envelope.Serializer(CompactFragmentSerializer)
+        val serializer = serializer<Envelope<CompactFragment>>()
         val env: Envelope<CompactFragment> = xml.decodeFromString(serializer, SOAP_RESPONSE1)
         assertXmlEquals(SOAP_RESPONSE1_BODY, env.body.child.contentString.trim())
 

@@ -26,6 +26,7 @@ package nl.adaptivity.xml.serialization.regressions.soap
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -36,9 +37,7 @@ import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
 import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
 
@@ -65,11 +64,14 @@ import nl.adaptivity.xmlutil.util.CompactFragment
  * ```
  *
  */
+@Serializable
 class Body<out T: Any>(
     @XmlValue(true)
     val child: T,
+    @XmlSerialName("encodingStyle", Envelope.NAMESPACE, Envelope.PREFIX)
     val encodingStyle: String? = "http://www.w3.org/2003/05/soap-encoding",
-    val otherAttributes: Map<QName, String> = emptyMap(),
+    @XmlOtherAttributes
+    val otherAttributes: Map<SerializableQName, String> = emptyMap(),
 ) {
     fun copy(
         encodingStyle: String? = this.encodingStyle,
@@ -82,22 +84,22 @@ class Body<out T: Any>(
         otherAttributes: Map<QName, String> = this.otherAttributes,
     ): Body<U> = Body(child, encodingStyle, otherAttributes)
 
-    class Serializer<T: Any>(private val contentSerializer: KSerializer<T>): XmlSerializer<Body<T>> {
+    class Serializer<T: Any>(private val contentSerializer: KSerializer<T>): KSerializer<Body<T>> {
 
         @OptIn(ExperimentalSerializationApi::class, XmlUtilInternal::class)
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("org.w3c.dom.Body") {
             annotations = SoapSerialObjects.bodyAnnotations
             element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
-            element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, isOptional = true)
+            element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlElement(false), XmlOtherAttributes()), isOptional = true)
             element("child", contentSerializer.descriptor, SoapSerialObjects.valueAnnotations)
-        }.xml(
+        }/*.xml(
             buildClassSerialDescriptor("org.w3c.dom.Body") {
                 annotations = SoapSerialObjects.bodyAnnotations
                 element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
-                element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlElement(false)), isOptional = true)
+                element("otherAttributes", SoapSerialObjects.attrsSerializer.descriptor, listOf(XmlElement(false), XmlOtherAttributes()), isOptional = true)
                 element("child", contentSerializer.descriptor, SoapSerialObjects.valueAnnotations)
             }
-        )
+        )*/
 
         override fun deserialize(decoder: Decoder): Body<T> {
             var encodingStyle: String? = null
@@ -119,7 +121,7 @@ class Body<out T: Any>(
             return Body(child)
         }
 
-        override fun deserializeXML(
+        /*override*/ fun deserializeXML(
             decoder: Decoder,
             input: XmlReader,
             previousValue: Body<T>?,
@@ -144,6 +146,7 @@ class Body<out T: Any>(
                     }
                 }.associate { QName(it.namespaceUri, it.localName, it.prefix) to it.value }
                 if (input.nextTag() != EventType.END_ELEMENT) {
+//                    child = (decoder as XML.XmlInput).delegateFormat().decodeFromReader(contentSerializer, input)
                     child = decodeSerializableElement(descriptor, 2, contentSerializer, null)
                     if (input.nextTag() != EventType.END_ELEMENT) throw SerializationException("Extra content in body")
                 }
@@ -168,7 +171,7 @@ class Body<out T: Any>(
             }
         }
 
-        override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Body<T>, isValueChild: Boolean) {
+        /*override*/ fun serializeXML(encoder: Encoder, output: XmlWriter, value: Body<T>, isValueChild: Boolean) {
             output.smartStartTag(ELEMENTNAME) {
                 value.encodingStyle?.also { style ->
                     output.attribute(Envelope.NAMESPACE, "encodingStyle", Envelope.PREFIX, style.toString())
