@@ -25,7 +25,8 @@ Fixes:
   stream, even if this doesn't include DocumentEnd event.
 - Make `@XmlValue` work with regular types (to support generic parsing
   of element content of variable type, some including mixed/text content)
-- Better support `XmlSerialName` where value (localname) is defaulted.
+  – probably also fixes #238.
+- Better support `@XmlSerialName` where value (localname) is defaulted.
   Change this behaviour to actually use the same algorithm as normally
   (not using the FQCN).
 - More reluctant caching of extended type descriptors such that type
