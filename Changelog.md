@@ -19,6 +19,7 @@ Changes:
   children as value child), when an unknown tag is encountered, allow
   this to be matched against a single! `XmlSerializer` from the module.
   This aids #225.
+- Capture format parsing errors in XmlParsingException #228
 
 Fixes:
 - Fix siblingsToFragment for native/js so that it terminates on end of

@@ -102,17 +102,31 @@ internal open class XmlDecoderBase internal constructor(
         isValueChild: Boolean = false
     ): T {
         val initialDepth = if (input.eventType == EventType.START_ELEMENT) input.depth - 1 else input.depth
-        val r = when (this) {
-            is XmlDeserializationStrategy -> {
-                deserializeXML(decoder, input, previousValue, isValueChild)
-            }
+        val r = handleParseError {
+            when (this) {
+                is XmlDeserializationStrategy ->
+                    deserializeXML(decoder, input, previousValue, isValueChild)
 
-            else -> deserialize(decoder)
+
+                else -> deserialize(decoder)
+            }
         }
         if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT && initialDepth == input.depth) {
             input.pushBackCurrent()
         }
         return r
+    }
+
+    private inline fun <R> handleParseError(body: () -> R): R {
+        try {
+            return body()
+        } catch (e: XmlSerialException) {
+            throw e
+        } catch (e: XmlException) {
+            throw XmlParsingException(e.locationInfo, e.message ?: "<unknown>", e)
+        } catch (e: Exception) {
+            throw XmlParsingException(input.extLocationInfo, e.message ?: "<unknown>", e)
+        }
     }
 
     abstract inner class DecodeCommons(
@@ -126,40 +140,63 @@ internal open class XmlDecoderBase internal constructor(
             return null
         }
 
-        override fun decodeBoolean(): Boolean = when {
-            config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(this)
-            else -> decodeStringCollapsed().toBoolean()
+        override fun decodeBoolean(): Boolean = handleParseError {
+            when {
+                config.policy.isStrictBoolean -> XmlBooleanSerializer.deserialize(this)
+                else -> decodeStringCollapsed().toBoolean()
+            }
         }
 
-        override fun decodeByte(): Byte = when {
-            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toUByte().toByte()
-            else -> decodeStringCollapsed().toByte()
+        override fun decodeByte(): Byte = handleParseError {
+            val str = decodeStringCollapsed()
+            when (xmlDescriptor.isUnsigned) {
+                true -> str.toUByte().toByte()
+                else -> str.toByte()
+            }
         }
 
-        override fun decodeShort(): Short = when {
-            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toUShort().toShort()
-            else -> decodeStringCollapsed().toShort()
+        override fun decodeShort(): Short = handleParseError {
+            val str = decodeStringCollapsed()
+            when (xmlDescriptor.isUnsigned) {
+                true -> str.toUShort().toShort()
+                else -> str.toShort()
+            }
         }
 
-        override fun decodeInt(): Int = when {
-            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toUInt().toInt()
-            else -> decodeStringCollapsed().toInt()
+        override fun decodeInt(): Int = handleParseError {
+            val str = decodeStringCollapsed()
+            when (xmlDescriptor.isUnsigned) {
+                true -> str.toUInt().toInt()
+                else -> str.toInt()
+            }
         }
 
-        override fun decodeLong(): Long = when {
-            xmlDescriptor.isUnsigned -> decodeStringCollapsed().toULong().toLong()
-            else -> decodeStringCollapsed().toLong()
+        override fun decodeLong(): Long = handleParseError {
+            val str = decodeStringCollapsed()
+            when (xmlDescriptor.isUnsigned) {
+                true -> str.toULong().toLong()
+                else -> str.toLong()
+            }
         }
 
-        override fun decodeFloat(): Float = decodeStringCollapsed().toFloat()
-        override fun decodeDouble(): Double = decodeStringCollapsed().toDouble()
-        override fun decodeChar(): Char = decodeStringCollapsed().single()
+        override fun decodeFloat(): Float = handleParseError {
+            decodeStringCollapsed().toFloat()
+        }
+
+        override fun decodeDouble(): Double = handleParseError {
+            decodeStringCollapsed().toDouble()
+        }
+
+        override fun decodeChar(): Char = handleParseError {
+            decodeStringCollapsed().single()
+        }
+
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
             val stringName = decodeStringCollapsed()
             for (i in 0 until enumDescriptor.elementsCount) {
                 if (stringName == config.policy.enumEncoding(enumDescriptor, i)) return i
             }
-            throw SerializationException("No enum constant found for name $stringName in ${enumDescriptor.serialName}")
+            throw XmlSerialException("No enum constant found for name $stringName in ${enumDescriptor.serialName}", input.extLocationInfo)
         }
 
         fun decodeStringCollapsed(defaultOverEmpty: Boolean = true): String =
@@ -295,8 +332,8 @@ internal open class XmlDecoderBase internal constructor(
                 xmlDescriptor is XmlContextualDescriptor ->
                     xmlDescriptor.resolve(this, deserializer.descriptor)
 
-                triggerInline && xmlDescriptor is XmlInlineDescriptor
-                -> xmlDescriptor.getElementDescriptor(0)
+                triggerInline && xmlDescriptor is XmlInlineDescriptor ->
+                    xmlDescriptor.getElementDescriptor(0)
 
                 else -> xmlDescriptor
 
@@ -1403,7 +1440,7 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int {
+        override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).toInt()
         }
 
@@ -1419,27 +1456,27 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte {
+        override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).toByte()
         }
 
-        override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short {
+        override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).toShort()
         }
 
-        override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long {
+        override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).toLong()
         }
 
-        override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float {
+        override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).toFloat()
         }
 
-        override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double {
+        override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).toDouble()
         }
 
-        override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char {
+        override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = handleParseError {
             return decodeStringElementCollapsed(descriptor, index).single()
         }
 
