@@ -1,7 +1,7 @@
 [versions]
 apiVersion = "1.8"
 binaryValidator = "0.15.0-Beta.2"
-dateTime = "0.4.1"
+dateTime = "0.6.1"
 dokka = "1.9.20"
 javaVersion = "8"
 jmh = "0.7.2"
