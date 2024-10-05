@@ -214,6 +214,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
                         iosSimulatorArm64()
                         iosX64()
 
+                        watchosDeviceArm64()
                         watchosSimulatorArm64()
                         watchosX64()
                         watchosArm32()
@@ -226,7 +227,15 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
 
                     if (nativeState != NativeState.HOST || host == Host.Windows) {
                         logger.lifecycle("Adding Windows x64 target")
-                        mingwX64 { }
+                        mingwX64()
+                    }
+
+                    if (nativeState != NativeState.HOST) {
+                        logger.lifecycle("Adding Android native targets")
+                        androidNativeArm32()
+                        androidNativeArm64()
+                        androidNativeX86()
+                        androidNativeX64()
                     }
                 }
             }
