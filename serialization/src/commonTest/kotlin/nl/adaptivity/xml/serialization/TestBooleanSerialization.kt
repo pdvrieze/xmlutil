@@ -25,6 +25,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlParsingException
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.XmlBoolean
 import kotlin.test.Test
@@ -124,7 +125,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeBooleanStrictTrueCaps() {
         val xml = XML { recommended { isStrictBoolean = true } }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>TRUE</BooleanHolder>")
             assertEquals(BooleanHolder(true), decoded)
         }
@@ -147,7 +148,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeBooleanStrictFalseCaps() {
         val xml = XML { recommended { isStrictBoolean = true } }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>FALSE</BooleanHolder>")
             assertEquals(BooleanHolder(false), decoded)
         }
@@ -165,7 +166,7 @@ class TestBooleanSerialization {
         val xml = XML { recommended {
             isStrictBoolean = true
         } }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder></BooleanHolder>")
             assertEquals(BooleanHolder(false), decoded)
         }
@@ -176,7 +177,7 @@ class TestBooleanSerialization {
         val xml = XML { recommended {
             isStrictBoolean = true
         } }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>    </BooleanHolder>")
             assertEquals(BooleanHolder(false), decoded)
         }
@@ -185,7 +186,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeBooleanStrictRandom() {
         val xml = XML { recommended { isStrictBoolean = true } }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<BooleanHolder>("<BooleanHolder>some Random value</BooleanHolder>")
             assertEquals(BooleanHolder(false), decoded)
         }
@@ -201,7 +202,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeXmlBooleanTrueCaps() {
         val xml = XML { recommended() }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<XmlBooleanHolder>("<XmlBooleanHolder>TRUE</XmlBooleanHolder>")
             assertEquals(XmlBooleanHolder(true), decoded)
         }
@@ -224,7 +225,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeXmlBooleanFalseCaps() {
         val xml = XML { recommended() }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<XmlBooleanHolder>("<XmlBooleanHolder>FALSE</XmlBooleanHolder>")
             assertEquals(XmlBooleanHolder(false), decoded)
         }
@@ -240,7 +241,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeXmlBooleanEmpty() {
         val xml = XML { recommended() }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<XmlBooleanHolder>("<XmlBooleanHolder></XmlBooleanHolder>")
             assertEquals(XmlBooleanHolder(false), decoded)
         }
@@ -249,7 +250,7 @@ class TestBooleanSerialization {
     @Test
     fun testDeserializeXmlBooleanRandom() {
         val xml = XML { recommended() }
-        assertFailsWith<NumberFormatException> {
+        assertFailsWith<XmlParsingException> {
             val decoded = xml.decodeFromString<XmlBooleanHolder>("<XmlBooleanHolder>some Random value</XmlBooleanHolder>")
             assertEquals(XmlBooleanHolder(false), decoded)
         }
