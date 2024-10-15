@@ -1,0 +1,363 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>IDateTime</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../../index.html">
+                            xmlutil
+                    </a>            </div>
+            <div class="library-version">0.90.2
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":xmlschema:dokkaHtmlPartial/commonMain">Common</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="xmlschema::io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/IDateTime///PointingToDeclaration//1895583437">
+  <div class="breadcrumbs"><a href="../../index.html">xmlschema</a><span class="delimiter">/</span><a href="../index.html">io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances</a><span class="delimiter">/</span><span class="current">IDateTime</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>IDate</span><wbr><span><span>Time</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">IDateTime</a> : <a href="../-v-any-atomic-type/index.html">VAnyAtomicType</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/xmlschema/src/commonMain/kotlin/io/github/pdvrieze/formats/xmlschema/datatypes/primitiveInstances/IDateTime.kt#L9">source</a>)</span></span></div><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-date/index.html">VDate</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-date-time/index.html">VDateTime</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-g-day/index.html">VGDay</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-g-month/index.html">VGMonth</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-g-month-day/index.html">VGMonthDay</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-g-year/index.html">VGYear</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-g-year-month/index.html">VGYearMonth</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-v-time/index.html">VTime</a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="985326892%2FClasslikes%2F1895583437" anchor-label="Companion" id="985326892%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="985326892%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-2074749495%2FProperties%2F1895583437" anchor-label="day" id="-2074749495%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="day.html"><span><span>day</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2074749495%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="day.html">day</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-u-int/index.html">UInt</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">1..31 or further restricted on month</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1297116465%2FProperties%2F1895583437" anchor-label="hour" id="1297116465%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="hour.html"><span><span>hour</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1297116465%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="hour.html">hour</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-u-int/index.html">UInt</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">0..23</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="461438209%2FProperties%2F1895583437" anchor-label="minute" id="461438209%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="minute.html"><span><span>minute</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="461438209%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="minute.html">minute</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-u-int/index.html">UInt</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">0..59</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2046028443%2FProperties%2F1895583437" anchor-label="month" id="-2046028443%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="month.html"><span><span>month</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2046028443%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="month.html">month</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-u-int/index.html">UInt</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">1..12</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-785495391%2FProperties%2F1895583437" anchor-label="second" id="-785495391%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="second.html"><span><span>second</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-785495391%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="second.html">second</a><span class="token operator">: </span><a href="../-v-decimal/index.html">VDecimal</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">A decimal [0.0, 60.0&gt;</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="546427945%2FProperties%2F1895583437" anchor-label="timezoneOffset" id="546427945%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="timezone-offset.html"><span>timezone</span><wbr><span><span>Offset</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="546427945%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="timezone-offset.html">timezoneOffset</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">Minutes offset from UTC</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1179265381%2FProperties%2F1895583437" anchor-label="xmlString" id="1179265381%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-v-any-simple-type/xml-string.html"><span>xml</span><wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1179265381%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-v-any-simple-type/xml-string.html">xmlString</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="689897720%2FProperties%2F1895583437" anchor-label="year" id="689897720%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="year.html"><span><span>year</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="689897720%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="year.html">year</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">any integer</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="587505461%2FFunctions%2F1895583437" anchor-label="compareTo" id="587505461%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="compare-to.html"><span>compare</span><wbr><span><span>To</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="587505461%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator </span><span class="token keyword">fun </span><a href="compare-to.html"><span class="token function">compareTo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">other<span class="token operator">: </span><a href="index.html">IDateTime</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-710181385%2FFunctions%2F1895583437" anchor-label="dayFrag" id="-710181385%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="day-frag.html"><span>day</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-710181385%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="day-frag.html"><span class="token function">dayFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-415489697%2FFunctions%2F1895583437" anchor-label="hourFrag" id="-415489697%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="hour-frag.html"><span>hour</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-415489697%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="hour-frag.html"><span class="token function">hourFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-100432092%2FFunctions%2F1895583437" anchor-label="instant" id="-100432092%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="instant.html"><span><span>instant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-100432092%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="instant.html"><span class="token function">instant</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="134236463%2FFunctions%2F1895583437" anchor-label="minuteFrag" id="134236463%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="minute-frag.html"><span>minute</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="134236463%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="minute-frag.html"><span class="token function">minuteFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1933537389%2FFunctions%2F1895583437" anchor-label="monthFrag" id="-1933537389%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="month-frag.html"><span>month</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1933537389%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="month-frag.html"><span class="token function">monthFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1695401679%2FFunctions%2F1895583437" anchor-label="secondFrag" id="1695401679%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="second-frag.html"><span>second</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1695401679%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="second-frag.html"><span class="token function">secondFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1434945718%2FFunctions%2F1895583437" anchor-label="timeZoneFrag" id="-1434945718%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="time-zone-frag.html"><span>time</span><wbr><span>Zone</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1434945718%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="time-zone-frag.html"><span class="token function">timeZoneFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1316845990%2FFunctions%2F1895583437" anchor-label="yearFrag" id="1316845990%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="year-frag.html"><span>year</span><wbr><span><span>Frag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1316845990%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="year-frag.html"><span class="token function">yearFrag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

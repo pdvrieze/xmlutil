@@ -1,0 +1,414 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>io.github.pdvrieze.formats.xmlschema.resolved.facets</title>
+<link href="../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../index.html">
+                            xmlutil
+                    </a>            </div>
+            <div class="library-version">0.90.2
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":xmlschema:dokkaHtmlPartial/commonMain">Common</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="package" id="content" pageids="xmlschema::io.github.pdvrieze.formats.xmlschema.resolved.facets////PointingToDeclaration//1895583437">
+  <div class="breadcrumbs"><a href="../index.html">xmlschema</a><span class="delimiter">/</span><span class="current">io.github.pdvrieze.formats.xmlschema.resolved.facets</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="837898741%2FClasslikes%2F1895583437" anchor-label="FacetList" id="837898741%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-facet-list/index.html"><span>Facet</span><wbr><span><span>List</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="837898741%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-facet-list/index.html">FacetList</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>assertions<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-resolved-assertion-facet/index.html">ResolvedAssertionFacet</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>minConstraint<span class="token operator">: </span><a href="-resolved-min-bound-facet/index.html">ResolvedMinBoundFacet</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>maxConstraint<span class="token operator">: </span><a href="-resolved-max-bound-facet/index.html">ResolvedMaxBoundFacet</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>enumeration<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-resolved-enumeration/index.html">ResolvedEnumeration</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>explicitTimezone<span class="token operator">: </span><a href="-resolved-explicit-timezone/index.html">ResolvedExplicitTimezone</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>fractionDigits<span class="token operator">: </span><a href="-resolved-fraction-digits/index.html">ResolvedFractionDigits</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>minLength<span class="token operator">: </span><a href="-i-resolved-min-length/index.html">IResolvedMinLength</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>maxLength<span class="token operator">: </span><a href="-i-resolved-max-length/index.html">IResolvedMaxLength</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>patterns<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-resolved-pattern/index.html">ResolvedPattern</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>totalDigits<span class="token operator">: </span><a href="-resolved-total-digits/index.html">ResolvedTotalDigits</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>whiteSpace<span class="token operator">: </span><a href="-resolved-white-space/index.html">ResolvedWhiteSpace</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>otherFacets<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="-resolved-facet/index.html">ResolvedFacet</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="854477423%2FClasslikes%2F1895583437" anchor-label="IResolvedMaxLength" id="854477423%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-i-resolved-max-length/index.html"><span>IResolved</span><wbr><span>Max</span><wbr><span><span>Length</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="854477423%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-i-resolved-max-length/index.html">IResolvedMaxLength</a> : <a href="../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/index.html">ResolvedAnnotated</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-808866879%2FClasslikes%2F1895583437" anchor-label="IResolvedMinLength" id="-808866879%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-i-resolved-min-length/index.html"><span>IResolved</span><wbr><span>Min</span><wbr><span><span>Length</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-808866879%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-i-resolved-min-length/index.html">IResolvedMinLength</a> : <a href="../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/index.html">ResolvedAnnotated</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1431342997%2FClasslikes%2F1895583437" anchor-label="ResolvedAssertionFacet" id="-1431342997%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-assertion-facet/index.html"><span>Resolved</span><wbr><span>Assertion</span><wbr><span><span>Facet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1431342997%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-assertion-facet/index.html">ResolvedAssertionFacet</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-assertion-facet/index.html">XSAssertionFacet</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="297001496%2FClasslikes%2F1895583437" anchor-label="ResolvedBoundBaseFacet" id="297001496%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-bound-base-facet/index.html"><span>Resolved</span><wbr><span>Bound</span><wbr><span>Base</span><wbr><span><span>Facet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="297001496%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-resolved-bound-base-facet/index.html">ResolvedBoundBaseFacet</a> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1408043077%2FClasslikes%2F1895583437" anchor-label="ResolvedEnumeration" id="-1408043077%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-enumeration/index.html"><span>Resolved</span><wbr><span><span>Enumeration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1408043077%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-enumeration/index.html">ResolvedEnumeration</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="-resolved-enumeration/index.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-enumeration/index.html">XSEnumeration</a><span class="token punctuation">, </span></span><span class="parameter ">dataType<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/index.html">ResolvedSimpleType</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1756047667%2FClasslikes%2F1895583437" anchor-label="ResolvedExplicitTimezone" id="1756047667%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-explicit-timezone/index.html"><span>Resolved</span><wbr><span>Explicit</span><wbr><span><span>Timezone</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1756047667%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-explicit-timezone/index.html">ResolvedExplicitTimezone</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-explicit-timezone/index.html">XSExplicitTimezone</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1077629707%2FClasslikes%2F1895583437" anchor-label="ResolvedFacet" id="1077629707%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-facet/index.html"><span>Resolved</span><wbr><span><span>Facet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1077629707%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-resolved-facet/index.html">ResolvedFacet</a> : <a href="../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/index.html">ResolvedAnnotated</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="610229784%2FClasslikes%2F1895583437" anchor-label="ResolvedFractionDigits" id="610229784%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-fraction-digits/index.html"><span>Resolved</span><wbr><span>Fraction</span><wbr><span><span>Digits</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="610229784%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-fraction-digits/index.html">ResolvedFractionDigits</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-fraction-digits/index.html">XSFractionDigits</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-700778118%2FClasslikes%2F1895583437" anchor-label="ResolvedLength" id="-700778118%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-length/index.html"><span>Resolved</span><wbr><span><span>Length</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-700778118%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-length/index.html">ResolvedLength</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-length/index.html">XSLength</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-length-base/index.html">ResolvedLengthBase</a>, <a href="-i-resolved-min-length/index.html">IResolvedMinLength</a>, <a href="-i-resolved-max-length/index.html">IResolvedMaxLength</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1960103127%2FClasslikes%2F1895583437" anchor-label="ResolvedLengthBase" id="-1960103127%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-length-base/index.html"><span>Resolved</span><wbr><span>Length</span><wbr><span><span>Base</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1960103127%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-resolved-length-base/index.html">ResolvedLengthBase</a> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="520154917%2FClasslikes%2F1895583437" anchor-label="ResolvedMaxBoundFacet" id="520154917%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-max-bound-facet/index.html"><span>Resolved</span><wbr><span>Max</span><wbr><span>Bound</span><wbr><span><span>Facet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="520154917%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-resolved-max-bound-facet/index.html">ResolvedMaxBoundFacet</a> : <a href="-resolved-bound-base-facet/index.html">ResolvedBoundBaseFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="449695238%2FClasslikes%2F1895583437" anchor-label="ResolvedMaxExclusive" id="449695238%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-max-exclusive/index.html"><span>Resolved</span><wbr><span>Max</span><wbr><span><span>Exclusive</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="449695238%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-max-exclusive/index.html">ResolvedMaxExclusive</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-max-exclusive/index.html">XSMaxExclusive</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>value<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/-v-any-simple-type/index.html">VAnySimpleType</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-max-bound-facet/index.html">ResolvedMaxBoundFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="618628728%2FClasslikes%2F1895583437" anchor-label="ResolvedMaxInclusive" id="618628728%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-max-inclusive/index.html"><span>Resolved</span><wbr><span>Max</span><wbr><span><span>Inclusive</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="618628728%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-max-inclusive/index.html">ResolvedMaxInclusive</a> : <a href="-resolved-max-bound-facet/index.html">ResolvedMaxBoundFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1546987976%2FClasslikes%2F1895583437" anchor-label="ResolvedMaxLength" id="-1546987976%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-max-length/index.html"><span>Resolved</span><wbr><span>Max</span><wbr><span><span>Length</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1546987976%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-max-length/index.html">ResolvedMaxLength</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-max-length/index.html">XSMaxLength</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-length-base/index.html">ResolvedLengthBase</a>, <a href="-i-resolved-max-length/index.html">IResolvedMaxLength</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="835147639%2FClasslikes%2F1895583437" anchor-label="ResolvedMinBoundFacet" id="835147639%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-min-bound-facet/index.html"><span>Resolved</span><wbr><span>Min</span><wbr><span>Bound</span><wbr><span><span>Facet</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="835147639%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">class </span><a href="-resolved-min-bound-facet/index.html">ResolvedMinBoundFacet</a> : <a href="-resolved-bound-base-facet/index.html">ResolvedBoundBaseFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1202711692%2FClasslikes%2F1895583437" anchor-label="ResolvedMinExclusive" id="-1202711692%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-min-exclusive/index.html"><span>Resolved</span><wbr><span>Min</span><wbr><span><span>Exclusive</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1202711692%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-min-exclusive/index.html">ResolvedMinExclusive</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-min-exclusive/index.html">XSMinExclusive</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>value<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/-v-any-simple-type/index.html">VAnySimpleType</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-min-bound-facet/index.html">ResolvedMinBoundFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1033778202%2FClasslikes%2F1895583437" anchor-label="ResolvedMinInclusive" id="-1033778202%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-min-inclusive/index.html"><span>Resolved</span><wbr><span>Min</span><wbr><span><span>Inclusive</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1033778202%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-min-inclusive/index.html">ResolvedMinInclusive</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-min-inclusive/index.html">XSMinInclusive</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>value<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/-v-any-simple-type/index.html">VAnySimpleType</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-min-bound-facet/index.html">ResolvedMinBoundFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1084635018%2FClasslikes%2F1895583437" anchor-label="ResolvedMinLength" id="1084635018%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-min-length/index.html"><span>Resolved</span><wbr><span>Min</span><wbr><span><span>Length</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1084635018%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-min-length/index.html">ResolvedMinLength</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-min-length/index.html">XSMinLength</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-length-base/index.html">ResolvedLengthBase</a>, <a href="-i-resolved-min-length/index.html">IResolvedMinLength</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-298611950%2FClasslikes%2F1895583437" anchor-label="ResolvedPattern" id="-298611950%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-pattern/index.html"><span>Resolved</span><wbr><span><span>Pattern</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-298611950%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-pattern/index.html">ResolvedPattern</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-pattern/index.html">XSPattern</a><span class="token punctuation">, </span></span><span class="parameter ">version<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.resolved/-schema-version/index.html">SchemaVersion</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-888411624%2FClasslikes%2F1895583437" anchor-label="ResolvedTotalDigits" id="-888411624%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-total-digits/index.html"><span>Resolved</span><wbr><span>Total</span><wbr><span><span>Digits</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-888411624%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-total-digits/index.html">ResolvedTotalDigits</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-total-digits/index.html">XSTotalDigits</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1298955677%2FClasslikes%2F1895583437" anchor-label="ResolvedWhiteSpace" id="-1298955677%2FClasslikes%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-resolved-white-space/index.html"><span>Resolved</span><wbr><span>White</span><wbr><span><span>Space</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1298955677%2FClasslikes%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="-resolved-white-space/index.html">ResolvedWhiteSpace</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rawPart<span class="token operator">: </span><a href="../io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets/-x-s-white-space/index.html">XSWhiteSpace</a></span></span><span class="token punctuation">)</span> : <a href="-resolved-facet/index.html">ResolvedFacet</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

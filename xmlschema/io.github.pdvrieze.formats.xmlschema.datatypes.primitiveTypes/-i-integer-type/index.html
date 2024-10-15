@@ -1,0 +1,479 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>IIntegerType</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../../index.html">
+                            xmlutil
+                    </a>            </div>
+            <div class="library-version">0.90.2
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":xmlschema:dokkaHtmlPartial/commonMain">Common</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="xmlschema::io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes/IIntegerType///PointingToDeclaration//1895583437">
+  <div class="breadcrumbs"><a href="../../index.html">xmlschema</a><span class="delimiter">/</span><a href="../index.html">io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes</a><span class="delimiter">/</span><span class="current">IIntegerType</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>IInteger</span><wbr><span><span>Type</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">interface </span><a href="index.html">IIntegerType</a> : <a href="../-i-decimal-type/index.html">IDecimalType</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/xmlschema/src/commonMain/kotlin/io/github/pdvrieze/formats/xmlschema/datatypes/primitiveTypes/builtins.kt#L458">source</a>)</span></span></div><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-integer-type/index.html">IntegerType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-long-type/index.html">LongType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-int-type/index.html">IntType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-short-type/index.html">ShortType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-byte-type/index.html">ByteType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-non-negative-integer-type/index.html">NonNegativeIntegerType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-positive-integer-type/index.html">PositiveIntegerType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-unsigned-long-type/index.html">UnsignedLongType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-unsigned-int-type/index.html">UnsignedIntType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-unsigned-short-type/index.html">UnsignedShortType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-unsigned-byte-type/index.html">UnsignedByteType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-non-positive-integer-type/index.html">NonPositiveIntegerType</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-negative-integer-type/index.html">NegativeIntegerType</a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="377933100%2FProperties%2F1895583437" anchor-label="annotations" id="377933100%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/annotations.html"><span><span>annotations</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="377933100%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/annotations.html">annotations</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotation/index.html">ResolvedAnnotation</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1316227697%2FProperties%2F1895583437" anchor-label="id" id="-1316227697%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/id.html"><span><span>id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1316227697%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing/index.html">Nothing</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="467553619%2FProperties%2F1895583437" anchor-label="isSpecial" id="467553619%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-type/is-special.html"><span>is</span><wbr><span><span>Special</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="467553619%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-type/is-special.html">isSpecial</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2085650556%2FProperties%2F1895583437" anchor-label="mdlAnnotations" id="-2085650556%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/mdl-annotations.html"><span>mdl</span><wbr><span><span>Annotations</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2085650556%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/mdl-annotations.html">mdlAnnotations</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotation/index.html">ResolvedAnnotation</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2041877373%2FProperties%2F1895583437" anchor-label="mdlBaseTypeDefinition" id="2041877373%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-base-type-definition.html"><span>mdl</span><wbr><span>Base</span><wbr><span>Type</span><wbr><span><span>Definition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2041877373%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-base-type-definition.html">mdlBaseTypeDefinition</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/index.html">ResolvedType</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1630798335%2FProperties%2F1895583437" anchor-label="mdlFacets" id="1630798335%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-facets.html"><span>mdl</span><wbr><span><span>Facets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1630798335%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-facets.html">mdlFacets</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved.facets/-facet-list/index.html">FacetList</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1005483753%2FProperties%2F1895583437" anchor-label="mdlFinal" id="1005483753%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-final.html"><span>mdl</span><wbr><span><span>Final</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1005483753%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-final.html">mdlFinal</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><a href="../../io.github.pdvrieze.formats.xmlschema.types/-v-derivation-control/-type/index.html">VDerivationControl.Type</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1868890498%2FProperties%2F1895583437" anchor-label="mdlFundamentalFacets" id="-1868890498%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-fundamental-facets.html"><span>mdl</span><wbr><span>Fundamental</span><wbr><span><span>Facets</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1868890498%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-fundamental-facets.html">mdlFundamentalFacets</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.types/-fundamental-facets/index.html">FundamentalFacets</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1395570939%2FProperties%2F1895583437" anchor-label="mdlItemTypeDefinition" id="1395570939%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-item-type-definition.html"><span>mdl</span><wbr><span>Item</span><wbr><span>Type</span><wbr><span><span>Definition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1395570939%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-item-type-definition.html">mdlItemTypeDefinition</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/index.html">ResolvedSimpleType</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-165299917%2FProperties%2F1895583437" anchor-label="mdlMemberTypeDefinitions" id="-165299917%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-member-type-definitions.html"><span>mdl</span><wbr><span>Member</span><wbr><span>Type</span><wbr><span><span>Definitions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-165299917%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-member-type-definitions.html">mdlMemberTypeDefinitions</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/index.html">ResolvedSimpleType</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-6392661%2FProperties%2F1895583437" anchor-label="mdlPrimitiveTypeDefinition" id="-6392661%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-primitive-type-definition.html"><span>mdl</span><wbr><span>Primitive</span><wbr><span>Type</span><wbr><span><span>Definition</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-6392661%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-primitive-type-definition.html">mdlPrimitiveTypeDefinition</a><span class="token operator">: </span><a href="../-any-primitive-datatype/index.html">AnyPrimitiveDatatype</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1394857832%2FProperties%2F1895583437" anchor-label="mdlQName" id="-1394857832%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-named-part/mdl-q-name.html"><span>mdl</span><wbr><span><span>QName</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1394857832%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-named-part/mdl-q-name.html">mdlQName</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1938583605%2FProperties%2F1895583437" anchor-label="mdlScope" id="-1938583605%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-scope.html"><span>mdl</span><wbr><span><span>Scope</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1938583605%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-scope.html">mdlScope</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-v-simple-type-scope/-global/index.html">VSimpleTypeScope.Global</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2100467671%2FProperties%2F1895583437" anchor-label="mdlVariety" id="2100467671%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-variety.html"><span>mdl</span><wbr><span><span>Variety</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2100467671%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/mdl-variety.html">mdlVariety</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/-variety/index.html">ResolvedSimpleType.Variety</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1595423522%2FProperties%2F1895583437" anchor-label="model" id="-1595423522%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/model.html"><span><span>model</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1595423522%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/model.html">model</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/-i-model/index.html">ResolvedAnnotated.IModel</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-944650728%2FProperties%2F1895583437" anchor-label="otherAttrs" id="-944650728%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/other-attrs.html"><span>other</span><wbr><span><span>Attrs</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-944650728%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/other-attrs.html">otherAttrs</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map</a><span class="token operator">&lt;</span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing/index.html">Nothing</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-85660444%2FProperties%2F1895583437" anchor-label="simpleDerivation" id="-85660444%2FProperties%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/simple-derivation.html"><span>simple</span><wbr><span><span>Derivation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-85660444%2FProperties%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/simple-derivation.html">simpleDerivation</a><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/-derivation/index.html">ResolvedSimpleType.Derivation</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="1359005538%2FFunctions%2F1895583437" anchor-label="checkAnnotated" id="1359005538%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/check-annotated.html"><span>check</span><wbr><span><span>Annotated</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1359005538%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-annotated/check-annotated.html"><span class="token function">checkAnnotated</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">version<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-schema-version/index.html">SchemaVersion</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-36327822%2FFunctions%2F1895583437" anchor-label="checkType" id="-36327822%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/check-type.html"><span>check</span><wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-36327822%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-builtin-simple-type/check-type.html"><span class="token function">checkType</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">checkHelper<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved.checking/-check-helper/index.html">CheckHelper</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="916568029%2FFunctions%2F1895583437" anchor-label="isValidlyDerivedFrom" id="916568029%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/is-validly-derived-from.html"><span>is</span><wbr><span>Validly</span><wbr><span>Derived</span><wbr><span><span>From</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="916568029%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/is-validly-derived-from.html"><span class="token function">isValidlyDerivedFrom</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">simpleBase<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/index.html">ResolvedType</a><span class="token punctuation">, </span></span><span class="parameter ">asRestriction<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Defined by 3.4.6.5</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="68392734%2FFunctions%2F1895583437" anchor-label="isValidRestrictionOf" id="68392734%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/is-valid-restriction-of.html"><span>is</span><wbr><span>Valid</span><wbr><span>Restriction</span><wbr><span><span>Of</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="68392734%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/is-valid-restriction-of.html"><span class="token function">isValidRestrictionOf</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">other<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/index.html">ResolvedType</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Defined in 3.3.4.2 last paragraph</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1803998818%2FFunctions%2F1895583437" anchor-label="isValidSubtitutionFor" id="1803998818%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/is-valid-subtitution-for.html"><span>is</span><wbr><span>Valid</span><wbr><span>Subtitution</span><wbr><span><span>For</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1803998818%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/is-valid-subtitution-for.html"><span class="token function">isValidSubtitutionFor</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">other<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/index.html">ResolvedType</a><span class="token punctuation">, </span></span><span class="parameter ">asRestriction<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Defined in 3.3.4.2</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1129761265%2FFunctions%2F1895583437" anchor-label="transitiveUnionMembership" id="-1129761265%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/transitive-union-membership.html"><span>transitive</span><wbr><span>Union</span><wbr><span><span>Membership</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1129761265%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/transitive-union-membership.html"><span class="token function">transitiveUnionMembership</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">collector<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-set/index.html">MutableSet</a><span class="token operator">&lt;</span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/index.html">ResolvedSimpleType</a><span class="token operator">&gt;</span><span class="token operator"> = </span>mutableSetOf()</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-simple-type/index.html">ResolvedSimpleType</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="562516184%2FFunctions%2F1895583437" anchor-label="validate" id="562516184%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/validate.html"><span><span>validate</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="562516184%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/validate.html"><span class="token function">validate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">representation<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/-v-string/index.html">VString</a><span class="token punctuation">, </span></span><span class="parameter ">version<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-schema-version/index.html">SchemaVersion</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1267849685%2FFunctions%2F1895583437" anchor-label="validateValue" id="-1267849685%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/validate-value.html"><span>validate</span><wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1267849685%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-resolved-type/validate-value.html"><span class="token function">validateValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span></span><span class="parameter ">version<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.resolved/-schema-version/index.html">SchemaVersion</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-256142560%2FFunctions%2F1895583437" anchor-label="value" id="-256142560%2FFunctions%2F1895583437" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain"></a>
+          <div class="table-row" data-filterable-current=":xmlschema:dokkaHtmlPartial/commonMain" data-filterable-set=":xmlschema:dokkaHtmlPartial/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-i-decimal-type/value.html"><span><span>value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-256142560%2FFunctions%2F1895583437"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":xmlschema:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-i-decimal-type/value.html"><span class="token function">value</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">representation<span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/-v-string/index.html">VString</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances/-v-decimal/index.html">VDecimal</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

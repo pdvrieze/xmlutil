@@ -1,0 +1,708 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>StAXReader</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+<a class="library-name--link" href="../../../index.html">
+                            xmlutil
+                    </a>            </div>
+            <div class="library-version">0.90.2
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":coreJdk:dokkaHtmlPartial/main">Jdk</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="core-jdk::nl.adaptivity.xmlutil.jdk/StAXReader///PointingToDeclaration//2023502552">
+  <div class="breadcrumbs"><a href="../../index.html">core-jdk</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil.jdk</a><span class="delimiter">/</span><span class="current">StAXReader</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>St</span><wbr><span><span>AXReader</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">StAXReader</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/javax/xml/stream/XMLStreamReader.html">XMLStreamReader</a></span></span><span class="token punctuation">)</span> : <a href="../../../core/nl.adaptivity.xmlutil/-xml-reader/index.html">XmlReader</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/core/jdk/src/main/kotlin/nl/adaptivity/xmlutil/jdk/StAXReader.kt#L34">source</a>)</span></span></div><p class="paragraph">An implementation of <a href="../../../core/nl.adaptivity.xmlutil/-xml-reader/index.html">XmlReader</a> based upon the JDK StAX implementation.</p><span class="kdoc-tag"><h4 class="">Author</h4><p class="paragraph">Created by pdvrieze on 16/11/15.</p></span></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="-901961088%2FConstructors%2F2023502552" anchor-label="StAXReader" id="-901961088%2FConstructors%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-st-a-x-reader.html"><span>St</span><wbr><span><span>AXReader</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-901961088%2FConstructors%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/io/Reader.html">Reader</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html">InputStream</a><span class="token punctuation">, </span></span><span class="parameter ">encoding<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Create a new reader</p></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">source<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/javax/xml/transform/Source.html">Source</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/javax/xml/stream/XMLStreamReader.html">XMLStreamReader</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1472668408%2FProperties%2F2023502552" anchor-label="attributeCount" id="-1472668408%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="attribute-count.html"><span>attribute</span><wbr><span><span>Count</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1472668408%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="attribute-count.html">attributeCount</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2062951810%2FProperties%2F2023502552" anchor-label="characterEncodingScheme" id="-2062951810%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="character-encoding-scheme.html"><span>character</span><wbr><span>Encoding</span><wbr><span><span>Scheme</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2062951810%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="character-encoding-scheme.html">characterEncodingScheme</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-830239012%2FProperties%2F2023502552" anchor-label="depth" id="-830239012%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="depth.html"><span><span>depth</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-830239012%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="depth.html">depth</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1346928136%2FProperties%2F2023502552" anchor-label="encoding" id="1346928136%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="encoding.html"><span><span>encoding</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1346928136%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="encoding.html">encoding</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-360228661%2FProperties%2F2023502552" anchor-label="eventType" id="-360228661%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="event-type.html"><span>event</span><wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-360228661%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="event-type.html">eventType</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-event-type/index.html">EventType</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="540026747%2FProperties%2F2023502552" anchor-label="extLocationInfo" id="540026747%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="ext-location-info.html"><span>ext</span><wbr><span>Location</span><wbr><span><span>Info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="540026747%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="ext-location-info.html">extLocationInfo</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-reader/-location-info/index.html">XmlReader.LocationInfo</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2104857908%2FProperties%2F2023502552" anchor-label="isStandalone" id="-2104857908%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-standalone.html"><span>is</span><wbr><span><span>Standalone</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2104857908%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="is-standalone.html">isStandalone</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-307150040%2FProperties%2F2023502552" anchor-label="isStarted" id="-307150040%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-started.html"><span>is</span><wbr><span><span>Started</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-307150040%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="is-started.html">isStarted</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1864134580%2FProperties%2F2023502552" anchor-label="isWhiteSpace" id="1864134580%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-white-space.html"><span>is</span><wbr><span>White</span><wbr><span><span>Space</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1864134580%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="is-white-space.html">isWhiteSpace</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-931378327%2FProperties%2F2023502552" anchor-label="localName" id="-931378327%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="local-name.html"><span>local</span><wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-931378327%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="local-name.html">localName</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="456007142%2FProperties%2F2023502552" anchor-label="location" id="456007142%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="location.html"><span><span>location</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="456007142%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="location.html">location</a><span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/javax/xml/stream/Location.html">Location</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1762578128%2FProperties%2F2023502552" anchor-label="name" id="1762578128%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="name.html"><span><span>name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1762578128%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="name.html">name</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1691968679%2FProperties%2F2023502552" anchor-label="namespaceContext" id="1691968679%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="namespace-context.html"><span>namespace</span><wbr><span><span>Context</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1691968679%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="namespace-context.html">namespaceContext</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-iterable-namespace-context/index.html">IterableNamespaceContext</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1344523059%2FProperties%2F2023502552" anchor-label="namespaceDecls" id="-1344523059%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="namespace-decls.html"><span>namespace</span><wbr><span><span>Decls</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1344523059%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="namespace-decls.html">namespaceDecls</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../../../core/nl.adaptivity.xmlutil/-namespace/index.html">Namespace</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="849632266%2FProperties%2F2023502552" anchor-label="namespaceURI" id="849632266%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="namespace-u-r-i.html"><span>namespace</span><wbr><span><span>URI</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="849632266%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="namespace-u-r-i.html">namespaceURI</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-232021096%2FProperties%2F2023502552" anchor-label="piData" id="-232021096%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="pi-data.html"><span>pi</span><wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-232021096%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="pi-data.html">piData</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1098073681%2FProperties%2F2023502552" anchor-label="piTarget" id="1098073681%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="pi-target.html"><span>pi</span><wbr><span><span>Target</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1098073681%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="pi-target.html">piTarget</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1280703191%2FProperties%2F2023502552" anchor-label="prefix" id="-1280703191%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="prefix.html"><span><span>prefix</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1280703191%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="prefix.html">prefix</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1941272618%2FProperties%2F2023502552" anchor-label="standalone" id="-1941272618%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="standalone.html"><span><span>standalone</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1941272618%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="standalone.html">standalone</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1234575762%2FProperties%2F2023502552" anchor-label="text" id="-1234575762%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="text.html"><span><span>text</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1234575762%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="text.html">text</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1027277340%2FProperties%2F2023502552" anchor-label="textCharacters" id="-1027277340%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="text-characters.html"><span>text</span><wbr><span><span>Characters</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1027277340%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="text-characters.html">textCharacters</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-char-array/index.html">CharArray</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1425815015%2FProperties%2F2023502552" anchor-label="version" id="1425815015%2FProperties%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="version.html"><span><span>version</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1425815015%2FProperties%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="version.html">version</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="-1084747449%2FFunctions%2F2023502552" anchor-label="close" id="-1084747449%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="close.html"><span><span>close</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1084747449%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="close.html"><span class="token function">close</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1046911765%2FFunctions%2F2023502552" anchor-label="forEachRemaining" id="-1046911765%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1046911765%2FFunctions%2F2023502552"><span>for</span><wbr><span>Each</span><wbr><span><span>Remaining</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1046911765%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="index.html#-1046911765%2FFunctions%2F2023502552"><span class="token function">forEachRemaining</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">p0<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Consumer.html">Consumer</a><span class="token operator">&lt;</span><span class="token keyword">in </span><a href="../../../core/nl.adaptivity.xmlutil/-event-type/index.html">EventType</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1536201165%2FFunctions%2F2023502552" anchor-label="getAttributeLocalName" id="1536201165%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-attribute-local-name.html"><span>get</span><wbr><span>Attribute</span><wbr><span>Local</span><wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1536201165%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-attribute-local-name.html"><span class="token function">getAttributeLocalName</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1993745240%2FFunctions%2F2023502552" anchor-label="getAttributeName" id="-1993745240%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-attribute-name.html"><span>get</span><wbr><span>Attribute</span><wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1993745240%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-attribute-name.html"><span class="token function">getAttributeName</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="598621928%2FFunctions%2F2023502552" anchor-label="getAttributeNamespace" id="598621928%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-attribute-namespace.html"><span>get</span><wbr><span>Attribute</span><wbr><span><span>Namespace</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="598621928%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-attribute-namespace.html"><span class="token function">getAttributeNamespace</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1857646271%2FFunctions%2F2023502552" anchor-label="getAttributePrefix" id="-1857646271%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-attribute-prefix.html"><span>get</span><wbr><span>Attribute</span><wbr><span><span>Prefix</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1857646271%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-attribute-prefix.html"><span class="token function">getAttributePrefix</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1139384518%2FFunctions%2F2023502552" anchor-label="getAttributeValue" id="1139384518%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#229878060%2FFunctions%2F2023502552"><span>get</span><wbr><span>Attribute</span><wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1139384518%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="index.html#229878060%2FFunctions%2F2023502552"><span class="token function">getAttributeValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">name<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-attribute-value.html"><span class="token function">getAttributeValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-attribute-value.html"><span class="token function">getAttributeValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">nsUri<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">localName<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1570768192%2FFunctions%2F2023502552" anchor-label="getNamespacePrefix" id="-1570768192%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-namespace-prefix.html"><span>get</span><wbr><span>Namespace</span><wbr><span><span>Prefix</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1570768192%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-namespace-prefix.html"><span class="token function">getNamespacePrefix</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceUri<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1235797780%2FFunctions%2F2023502552" anchor-label="getNamespaceURI" id="-1235797780%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-namespace-u-r-i.html"><span>get</span><wbr><span>Namespace</span><wbr><span><span>URI</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1235797780%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="get-namespace-u-r-i.html"><span class="token function">getNamespaceURI</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-494688334%2FFunctions%2F2023502552" anchor-label="hasNext" id="-494688334%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="has-next.html"><span>has</span><wbr><span><span>Next</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-494688334%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><a href="has-next.html"><span class="token function">hasNext</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-61021113%2FFunctions%2F2023502552" anchor-label="isCharacters" id="-61021113%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-characters.html"><span>is</span><wbr><span><span>Characters</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-61021113%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="is-characters.html"><span class="token function">isCharacters</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1533495056%2FFunctions%2F2023502552" anchor-label="isEndElement" id="-1533495056%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-end-element.html"><span>is</span><wbr><span>End</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1533495056%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="is-end-element.html"><span class="token function">isEndElement</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1424554871%2FFunctions%2F2023502552" anchor-label="isStartElement" id="1424554871%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-start-element.html"><span>is</span><wbr><span>Start</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1424554871%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="is-start-element.html"><span class="token function">isStartElement</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2068716652%2FFunctions%2F2023502552" anchor-label="isWhitespace" id="-2068716652%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-whitespace.html"><span>is</span><wbr><span><span>Whitespace</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2068716652%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="is-whitespace.html"><span class="token function">isWhitespace</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1098218648%2FFunctions%2F2023502552" anchor-label="next" id="-1098218648%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="next.html"><span><span>next</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1098218648%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">operator override </span><span class="token keyword">fun </span><a href="next.html"><span class="token function">next</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-event-type/index.html">EventType</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1347442168%2FFunctions%2F2023502552" anchor-label="nextTag" id="1347442168%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="next-tag.html"><span>next</span><wbr><span><span>Tag</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1347442168%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="next-tag.html"><span class="token function">nextTag</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-event-type/index.html">EventType</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1217004914%2FFunctions%2F2023502552" anchor-label="require" id="1217004914%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#357133754%2FFunctions%2F2023502552"><span><span>require</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1217004914%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="index.html#357133754%2FFunctions%2F2023502552"><span class="token function">require</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">type<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-event-type/index.html">EventType</a><span class="token punctuation">, </span></span><span class="parameter ">name<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="index.html#846275424%2FFunctions%2F2023502552"><span class="token function">require</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">type<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-event-type/index.html">EventType</a><span class="token punctuation">, </span></span><span class="parameter ">namespace<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">name<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="793646863%2FFunctions%2F2023502552" anchor-label="toString" id="793646863%2FFunctions%2F2023502552" data-filterable-set=":coreJdk:dokkaHtmlPartial/main"></a>
+          <div class="table-row" data-filterable-current=":coreJdk:dokkaHtmlPartial/main" data-filterable-set=":coreJdk:dokkaHtmlPartial/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="to-string.html"><span>to</span><wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="793646863%2FFunctions%2F2023502552"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="to-string.html"><span class="token function">toString</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
