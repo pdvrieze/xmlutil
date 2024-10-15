@@ -30,12 +30,12 @@ import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
+    alias(libs.plugins.dokka)
     id("projectPlugin")
     kotlin("multiplatform")
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
-    alias(libs.plugins.dokka)
     idea
     alias(libs.plugins.binaryValidator)
 }

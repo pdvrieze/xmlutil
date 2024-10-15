@@ -1,5 +1,3 @@
-import net.devrieze.gradle.ext.addNativeTargets
-
 /*
  * Copyright (c) 2024.
  *
@@ -26,7 +24,7 @@ plugins {
     id("projectPlugin")
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.allopen)
-    alias(libs.plugins.dokka)
+//    alias(libs.plugins.dokka)
 //    alias(libs.plugins.jmh)
     signing
 }

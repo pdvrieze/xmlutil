@@ -186,10 +186,13 @@ class ProjectPlugin: Plugin<Project> {
                     }
 
                 }
+
+                is DokkaPlugin -> {
+                    project.logger.info("Automatically configuring dokka from the project plugin for ${project.name}")
+                    project.configureDokka(e.dokkaModuleName, e.dokkaVersion)
+                }
             }
         }
-        project.plugins.apply(DokkaPlugin::class.java)
-        project.configureDokka(e.dokkaModuleName, e.dokkaVersion)
     }
 
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {

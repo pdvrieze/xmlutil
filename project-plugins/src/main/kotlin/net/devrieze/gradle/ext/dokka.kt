@@ -24,7 +24,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder
 import java.net.URI
 import java.net.URL
@@ -34,7 +34,7 @@ fun Project.configureDokka(
     myModuleVersion: Provider<String>
 ) {
     logger.info("Configuring dokka for project($name)")
-    tasks.withType<AbstractDokkaLeafTask> {
+    tasks.withType<DokkaTask>() {
         moduleName.convention(myModuleName)
         moduleVersion.convention(myModuleVersion)
 
