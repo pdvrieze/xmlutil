@@ -46,19 +46,19 @@ public fun IXmlStreaming.newWriter(
     encoding: String,
     repairNamespaces: Boolean = false
 ): XmlWriter =
-    (this as XmlStreamingJavaCommon).newWriter(outputStream, encoding, repairNamespaces)
+    (this as XmlStreaming).newWriter(outputStream, encoding, repairNamespaces)
 
 public fun IXmlStreaming.newWriter(
     writer: MPWriter,
     repairNamespaces: Boolean = false,
     xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ): XmlWriter =
-    (this as XmlStreamingJavaCommon).newWriter(writer, repairNamespaces, xmlDeclMode)
+    (this as XmlStreaming).newWriter(writer, repairNamespaces, xmlDeclMode)
 
 
 @Suppress("DEPRECATION")
 public fun IXmlStreaming.newReader(inputStream: InputStream, encoding: String): XmlReader =
-    (this as XmlStreamingJavaCommon).newReader(inputStream, encoding)
+    (this as XmlStreaming).newReader(inputStream, encoding)
 
 @Suppress("DEPRECATION")
 public fun IXmlStreaming.newReader(source: Source): XmlReader =

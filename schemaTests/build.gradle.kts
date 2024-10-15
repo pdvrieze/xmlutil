@@ -24,8 +24,8 @@ plugins {
     kotlin("multiplatform")
     id("projectPlugin")
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.dokka)
-    signing
+//    alias(libs.plugins.dokka)
+//    signing
 }
 
 base {

@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     id("projectPlugin")
@@ -40,6 +41,10 @@ plugins {
 
 base {
     archivesName = "xmltestutil"
+}
+
+config {
+    kotlinApiVersion = KotlinVersion.DEFAULT
 }
 
 val moduleName = "io.github.pdvrieze.testutil"

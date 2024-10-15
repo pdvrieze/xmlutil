@@ -6,35 +6,51 @@
 // - Show declarations: true
 
 // Library unique name: <io.github.pdvrieze.xmlutil:xmlserializable>
+open annotation class nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer : kotlin/Annotation { // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer|null[0]
+    constructor <init>(kotlin.reflect/KClass<out nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory<*>>) // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer.<init>|<init>(kotlin.reflect.KClass<out|nl.adaptivity.xmlutil.xmlserializable.XmlDeserializerFactory<*>>){}[0]
+
+    final val value // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer.value|{}value[0]
+        final fun <get-value>(): kotlin.reflect/KClass<out nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory<*>> // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer.value.<get-value>|<get-value>(){}[0]
+}
+
 abstract interface <#A: kotlin/Any?> nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory : nl.adaptivity.xmlutil/XmlDeserializerFactory<#A> { // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory|null[0]
     abstract fun deserialize(nl.adaptivity.xmlutil/XmlReader): #A // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory.deserialize|deserialize(nl.adaptivity.xmlutil.XmlReader){}[0]
 }
+
 abstract interface nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider : nl.adaptivity.xmlutil.util/SerializationProvider { // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider|null[0]
     abstract fun <#A1: kotlin/Any> deSerializer(kotlin.reflect/KClass<#A1>): nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.XmlDeserializerFun? // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.deSerializer|deSerializer(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     abstract fun <#A1: kotlin/Any> serializer(kotlin.reflect/KClass<#A1>): nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.XmlSerializerFun<#A1>? // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.serializer|serializer(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+
     abstract fun interface <#A1: in kotlin/Any> XmlSerializerFun : nl.adaptivity.xmlutil.util/SerializationProvider.XmlSerializerFun<#A1> { // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.XmlSerializerFun|null[0]
         abstract fun invoke(nl.adaptivity.xmlutil/XmlWriter, #A1) // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.XmlSerializerFun.invoke|invoke(nl.adaptivity.xmlutil.XmlWriter;1:0){}[0]
     }
+
     abstract interface XmlDeserializerFun : nl.adaptivity.xmlutil.util/SerializationProvider.XmlDeserializerFun { // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.XmlDeserializerFun|null[0]
         abstract fun <#A2: kotlin/Any> invoke(nl.adaptivity.xmlutil/XmlReader, kotlin.reflect/KClass<#A2>): #A2 // nl.adaptivity.xmlutil.xmlserializable.util/SerializationProvider.XmlDeserializerFun.invoke|invoke(nl.adaptivity.xmlutil.XmlReader;kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     }
 }
+
 abstract interface nl.adaptivity.xmlutil.xmlserializable/ExtXmlDeserializable : nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable { // nl.adaptivity.xmlutil.xmlserializable/ExtXmlDeserializable|null[0]
     abstract fun deserializeChildren(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil.xmlserializable/ExtXmlDeserializable.deserializeChildren|deserializeChildren(nl.adaptivity.xmlutil.XmlReader){}[0]
 }
+
 abstract interface nl.adaptivity.xmlutil.xmlserializable/SimpleXmlDeserializable : nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable { // nl.adaptivity.xmlutil.xmlserializable/SimpleXmlDeserializable|null[0]
     open fun deserializeChild(nl.adaptivity.xmlutil/XmlReader): kotlin/Boolean // nl.adaptivity.xmlutil.xmlserializable/SimpleXmlDeserializable.deserializeChild|deserializeChild(nl.adaptivity.xmlutil.XmlReader){}[0]
     open fun deserializeChildText(kotlin/CharSequence): kotlin/Boolean // nl.adaptivity.xmlutil.xmlserializable/SimpleXmlDeserializable.deserializeChildText|deserializeChildText(kotlin.CharSequence){}[0]
 }
+
 abstract interface nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable { // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable|null[0]
     abstract val elementName // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable.elementName|{}elementName[0]
         abstract fun <get-elementName>(): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable.elementName.<get-elementName>|<get-elementName>(){}[0]
+
     open fun deserializeAttribute(kotlin/String?, kotlin/String, kotlin/String): kotlin/Boolean // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable.deserializeAttribute|deserializeAttribute(kotlin.String?;kotlin.String;kotlin.String){}[0]
     open fun onBeforeDeserializeChildren(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializable.onBeforeDeserializeChildren|onBeforeDeserializeChildren(nl.adaptivity.xmlutil.XmlReader){}[0]
 }
+
 abstract interface nl.adaptivity.xmlutil.xmlserializable/XmlSerializable : nl.adaptivity.xmlutil/XmlSerializable { // nl.adaptivity.xmlutil.xmlserializable/XmlSerializable|null[0]
     abstract fun serialize(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil.xmlserializable/XmlSerializable.serialize|serialize(nl.adaptivity.xmlutil.XmlWriter){}[0]
 }
+
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil.xmlserializable/toString(nl.adaptivity.xmlutil.xmlserializable/XmlSerializable): kotlin/String // nl.adaptivity.xmlutil.xmlserializable/toString|toString@nl.adaptivity.xmlutil.IXmlStreaming(nl.adaptivity.xmlutil.xmlserializable.XmlSerializable){}[0]
 final fun (nl.adaptivity.xmlutil/XmlStreaming).nl.adaptivity.xmlutil.xmlserializable/toString(nl.adaptivity.xmlutil.xmlserializable/XmlSerializable): kotlin/String // nl.adaptivity.xmlutil.xmlserializable/toString|toString@nl.adaptivity.xmlutil.XmlStreaming(nl.adaptivity.xmlutil.xmlserializable.XmlSerializable){}[0]
 final fun (nl.adaptivity.xmlutil/XmlStreaming).nl.adaptivity.xmlutil.xmlserializable/toString(nl.adaptivity.xmlutil/XmlSerializable): kotlin/String // nl.adaptivity.xmlutil.xmlserializable/toString|toString@nl.adaptivity.xmlutil.XmlStreaming(nl.adaptivity.xmlutil.XmlSerializable){}[0]
@@ -47,8 +63,3 @@ final fun <#A: nl.adaptivity.xmlutil.xmlserializable/XmlSerializable> (nl.adapti
 final fun <#A: nl.adaptivity.xmlutil.xmlserializable/XmlSerializable> (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil.xmlserializable/serializeAll(kotlin.sequences/Sequence<#A>) // nl.adaptivity.xmlutil.xmlserializable/serializeAll|serializeAll@nl.adaptivity.xmlutil.XmlWriter(kotlin.sequences.Sequence<0:0>){0§<nl.adaptivity.xmlutil.xmlserializable.XmlSerializable>}[0]
 final fun nl.adaptivity.xmlutil.xmlserializable/CompactFragment(nl.adaptivity.xmlutil.xmlserializable/XmlSerializable): nl.adaptivity.xmlutil.util/CompactFragment // nl.adaptivity.xmlutil.xmlserializable/CompactFragment|CompactFragment(nl.adaptivity.xmlutil.xmlserializable.XmlSerializable){}[0]
 final fun nl.adaptivity.xmlutil.xmlserializable/CompactFragment(nl.adaptivity.xmlutil/XmlSerializable): nl.adaptivity.xmlutil.util/CompactFragment // nl.adaptivity.xmlutil.xmlserializable/CompactFragment|CompactFragment(nl.adaptivity.xmlutil.XmlSerializable){}[0]
-open annotation class nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer : kotlin/Annotation { // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer|null[0]
-    constructor <init>(kotlin.reflect/KClass<out nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory<*>>) // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer.<init>|<init>(kotlin.reflect.KClass<out|nl.adaptivity.xmlutil.xmlserializable.XmlDeserializerFactory<*>>){}[0]
-    final val value // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer.value|{}value[0]
-        final fun <get-value>(): kotlin.reflect/KClass<out nl.adaptivity.xmlutil.xmlserializable/XmlDeserializerFactory<*>> // nl.adaptivity.xmlutil.xmlserializable/XmlDeserializer.value.<get-value>|<get-value>(){}[0]
-}

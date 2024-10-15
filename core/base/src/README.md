@@ -1,8 +1,11 @@
-# Module base
+# Module core
 Core Xml wrapper that provides xmlpull parsing functionality. This module
 is designed to wrap the actually present xml functionality in the platform.
-In addition, this module provides a platform independent implementation
-based upon the Android code.
+
+In this version the core module is sufficient, and separate JVM/Android modules
+are not needed. In such case the platform independent implementation is always
+used. However, if the android/jvm module is used then service loaders will cause
+platform specific implementations to be used by default.
 
 # Package nl.adaptivity.js.util
 Package with various extension functions to make working with DOM nodes

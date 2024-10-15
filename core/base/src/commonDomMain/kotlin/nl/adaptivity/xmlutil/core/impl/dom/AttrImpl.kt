@@ -116,11 +116,11 @@ internal class AttrImpl(
     }
 
     override fun lookupPrefix(namespace: String): String? {
-        return getOwnerElement()?.lookupPrefix(namespace)
+        return ownerElement?.lookupPrefix(namespace)
     }
 
     override fun lookupNamespaceURI(prefix: String): String? {
-        return getOwnerElement()?.lookupNamespaceURI(prefix)
+        return ownerElement?.lookupNamespaceURI(prefix)
     }
 
     override fun toString(): String {

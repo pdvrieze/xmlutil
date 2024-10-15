@@ -20,10 +20,8 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
@@ -39,9 +37,6 @@ public abstract class FormatCache internal constructor(){
      * @param parentName A key
      */
     internal abstract fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
-
-    @OptIn(ExperimentalSerializationApi::class)
-    internal abstract fun lookupType(name: QName, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
     internal abstract fun lookupDescriptor(
         overridenSerializer: KSerializer<*>?,
@@ -68,13 +63,6 @@ public abstract class FormatCache internal constructor(){
         override fun lookupType(
             parentName: QName,
             serialDesc: SerialDescriptor,
-            defaultValue: () -> XmlTypeDescriptor
-        ): XmlTypeDescriptor = defaultValue()
-
-        @OptIn(ExperimentalSerializationApi::class)
-        override fun lookupType(
-            name: QName,
-            kind: SerialKind,
             defaultValue: () -> XmlTypeDescriptor
         ): XmlTypeDescriptor = defaultValue()
 

@@ -33,7 +33,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
-import org.jetbrains.kotlin.konan.library.impl.buildLibrary
 import org.jetbrains.kotlin.konan.target.HostManager
 
 enum class Host {
@@ -214,6 +213,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
                         iosSimulatorArm64()
                         iosX64()
 
+                        watchosDeviceArm64()
                         watchosSimulatorArm64()
                         watchosX64()
                         watchosArm32()
@@ -226,7 +226,15 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
 
                     if (nativeState != NativeState.HOST || host == Host.Windows) {
                         logger.lifecycle("Adding Windows x64 target")
-                        mingwX64 { }
+                        mingwX64()
+                    }
+
+                    if (nativeState != NativeState.HOST) {
+                        logger.lifecycle("Adding Android native targets")
+                        androidNativeArm32()
+                        androidNativeArm64()
+                        androidNativeX86()
+                        androidNativeX64()
                     }
                 }
             }
@@ -245,7 +253,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
 
             targets.withType<KotlinNativeTarget>().configureEach {
                 binaries {
-                    sharedLib(listOf(DEBUG))
+                    sharedLib(listOf(DEBUG, RELEASE))
                 }
             }
         }

@@ -293,6 +293,7 @@ internal class ElementImpl(
         _attributes.firstOrNull { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI && it.getValue() == namespace }
             ?.let { return it.getLocalName() }
 
+        // Cast is needed as we don't want to match Document/DocumentFragment (infinite recursion)
         return (getParentNode() as? Element1)?.lookupPrefix(namespace)
     }
 
@@ -313,6 +314,7 @@ internal class ElementImpl(
             }?.let { return it.getValue().takeUnless(String::isEmpty) }
         }
 
+        // Cast is needed as we don't want to match Document/DocumentFragment (infinite recursion)
         return (getParentNode() as? IElement)?.lookupNamespaceURI(prefix)
     }
 

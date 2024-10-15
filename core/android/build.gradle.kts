@@ -37,6 +37,11 @@ base {
     archivesName = "core-android"
 }
 
+config {
+    dokkaModuleName = "core-android"
+    dokkaOverrideTarget = "Android"
+}
+
 val autoModuleName = "net.devrieze.xmlutil.core.android"
 
 kotlin {
@@ -89,7 +94,7 @@ publishing {
         create<MavenPublication>("mavenKotlin") {
             artifactId = "core-android"
             from(components["java"])
-            artifact(tasks["kotlinSourcesJar"])
+            artifact(tasks.named("kotlinSourcesJar"))
         }
     }
 }

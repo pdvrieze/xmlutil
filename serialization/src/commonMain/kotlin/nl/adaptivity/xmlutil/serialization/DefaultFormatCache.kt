@@ -27,7 +27,6 @@ import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
@@ -48,7 +47,7 @@ internal class DefaultFormatCache : FormatCache() {
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
+        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
     /**
@@ -57,12 +56,7 @@ internal class DefaultFormatCache : FormatCache() {
      */
     @OptIn(ExperimentalSerializationApi::class)
     override fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(parentName.namespaceURI, serialDesc.serialName), serialDesc.kind, defaultValue)
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    override fun lookupType(name: QName, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        return lookupType(TypeKey(name.namespaceURI, name.localPart), kind, defaultValue)
+        return lookupType(TypeKey(parentName.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -91,8 +85,6 @@ internal class DefaultFormatCache : FormatCache() {
         // This has to be getOrPut rather than `computeIfAbsent` as computeIfAbsent prevents other
         // changes to different types. GetOrPut does not have that property (but is technically slower)
         return elemDescCache.getOrPut(key) {
-//            val parentName = serializerParent.descriptor?.typeDescriptor?.run { typeQname ?: serialName }
-//            println("Calculating new descriptor for $parentName/${serializerParent.elementSerialDescriptor.serialName}")
             defaultValue()
         }.also {
             pendingDescs.remove(key)
@@ -106,9 +98,6 @@ internal class DefaultFormatCache : FormatCache() {
         preserveSpace: Boolean
     ): XmlCompositeDescriptor {
         return XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
-//        return lookupDescriptor(null, serializerParent, tagParent, false) {
-//            XmlCompositeDescriptor(config, serializersModule, serializerParent, tagParent, preserveSpace)
-//        } as XmlCompositeDescriptor
     }
 
     internal data class DescKey(
@@ -118,11 +107,11 @@ internal class DefaultFormatCache : FormatCache() {
         val canBeAttribute: Boolean
     )
 
-    private data class TypeKey(val namespace: String, val serialName: String)
+    private data class TypeKey(val namespace: String, val descriptor: SerialDescriptor)
 
     companion object {
         @JvmStatic
-        private fun TypeKey(namespace: String?, serialName: String) =
-            DefaultFormatCache.TypeKey(namespace ?: "", serialName)
+        private fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
+            DefaultFormatCache.TypeKey(namespace ?: "", descriptor)
     }
 }

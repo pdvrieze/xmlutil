@@ -68,16 +68,17 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     @Throws(XmlException::class)
     public fun require(type: EventType, namespace: String?, name: String?) {
         when {
+            ! isStarted -> throw XmlException("Parsing not started yet")
             eventType != type ->
                 throw XmlException("Type $eventType does not match expected type \"$type\" ($extLocationInfo)")
 
-            namespace != null &&
-                    namespaceURI != namespace ->
-                throw XmlException("Namespace $namespaceURI does not match expected \"$namespace\" ($extLocationInfo)")
-
             name != null &&
                     localName != name ->
-                throw XmlException("local name $localName does not match expected \"$name\" ($extLocationInfo)")
+                throw XmlException("local name \"$localName\" does not match expected \"$name\" ($extLocationInfo)")
+
+            namespace != null &&
+                    namespaceURI != namespace ->
+                throw XmlException("Namespace \"$namespaceURI\" does not match expected \"$namespace\" ($extLocationInfo)")
         }
     }
 
@@ -223,7 +224,9 @@ public val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
 
 public val XmlReader.qname: QName get() = text.toQname()
 
-public fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean = namespaceDecls.any { it.prefix == prefix }
+public fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
+    return namespaceDecls.any { it.prefix == prefix }
+}
 
 public fun XmlReader.isElement(elementname: QName): Boolean {
     return isElement(
@@ -358,10 +361,12 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
  * @throws XmlException If reading breaks, or an unexpected element was found.
  */
 public fun XmlPeekingReader.allConsecutiveTextContent(): String {
-    if (eventType == EventType.END_ELEMENT) return ""
+    val et = if (hasPeekItems) null else eventType
+
+    if (et == EventType.END_ELEMENT) return ""
     val t = this
     return buildString {
-        if (eventType.isTextElement || eventType == EventType.IGNORABLE_WHITESPACE) append(text)
+        if (et != null && (et.isTextElement || et == EventType.IGNORABLE_WHITESPACE)) append(text)
 
         var eventType: EventType?
 

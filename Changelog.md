@@ -1,5 +1,11 @@
+# 0.90.2 Mooor Rocketpower!
+Changes:
+- Update to Kotlin 2.0.21 / Kotlinx.serialization 1.7.3
+- Add support for Android native targets (@whyoleg in #242)
+
 # 0.90.2-beta1 Rocketpower!
 Changes:
+- Update to Kotlin 2.0.20 / kotlinx.serialization 1.7.2
 - Extensive optimization of decoding (serialization), parsing
   (KtXmlReader) including the creation of the xmlDescriptors.
 - Add a new preset `fast` for a config/policy that chooses speed over
@@ -18,8 +24,19 @@ Changes:
   children as value child), when an unknown tag is encountered, allow
   this to be matched against a single! `XmlSerializer` from the module.
   This aids #225.
+- Capture format parsing errors in XmlParsingException #228
 
 Fixes:
+- Fix siblingsToFragment for native/js so that it terminates on end of
+  stream, even if this doesn't include DocumentEnd event.
+- Make `@XmlValue` work with regular types (to support generic parsing
+  of element content of variable type, some including mixed/text content)
+  – probably also fixes #238.
+- Better support `@XmlSerialName` where value (localname) is defaulted.
+  Change this behaviour to actually use the same algorithm as normally
+  (not using the FQCN).
+- More reluctant caching of extended type descriptors such that type
+  parameters work correctly with caching.
 - Fix NodeSerializer in the serialization module to properly forward
   to the actual implementation.
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
@@ -28,6 +45,7 @@ Fixes:
 - Fix deserialization with contextual serializer #220 
 - Fix `NamespaceHolder.namespacesAtCurrentDepth` for nested
   declarations.
+- Fix infinite recursion issue with xmlStreaming.newWriter / newReader
 
 # 0.90.1 Fix Android
 - Fix android plugin dependency.

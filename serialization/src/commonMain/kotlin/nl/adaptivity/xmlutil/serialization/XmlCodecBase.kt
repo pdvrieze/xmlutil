@@ -40,11 +40,15 @@ internal abstract class XmlCodecBase internal constructor(
 
         @OptIn(ExperimentalSerializationApi::class)
         internal fun SerialDescriptor.declRequestedName(
+            codecConfig: XML.XmlCodecConfig,
             parentNamespace: Namespace,
             annotation: XmlSerialName?
         ): QName {
-            annotation?.let { return it.toQName(serialName, parentNamespace) }
-            return serialName.substringAfterLast('.').toQname(parentNamespace)
+            // First determine the non-annotated name to allow the default of "value" to be consistently
+            // determined.
+            val nonAnnotatedName = codecConfig.config.policy.serialTypeNameToQName(XmlSerializationPolicy.DeclaredNameInfo(serialName), parentNamespace)
+            annotation?.let { return it.toQName(nonAnnotatedName.localPart, parentNamespace) }
+            return nonAnnotatedName
         }
 
         /**

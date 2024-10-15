@@ -607,7 +607,7 @@
     <expected validity="invalid" exception="IllegalArgumentException" message="[rR]ecursive.*type.*abc"/>
   </test>
   <test path="AGroupDef/ag_attrusens00101m1_n/AG_attrUseNS00101m1_n">
-    <expected validity="invalid" exception="SerializationException"
+    <expected validity="invalid" exception="XmlParsingException"
               message="Missing namespace for prefix wrongNS in QName value"/>
   </test>
   <test path="AGroupDef/ag_name00101m1_n/AG_name00101m1_n">
@@ -615,7 +615,7 @@
               message="No attribute group with name \{AttrGroup/name\}wrongName found"/>
   </test>
   <test path="AGroupDef/ag_targetns00101m1_n/AG_targetNS00101m1_n">
-    <expected validity="invalid" exception="XmlException"
+    <expected validity="invalid" exception="XmlParsingException"
               message="Missing namespace for prefix wrongNS in QName value"/>
   </test>
   <test path="AGroupDef/annotation00101m2/annotation00101m2">
@@ -690,7 +690,7 @@
               message="Attributes may not have both default and fixed values"/>
   </test>
   <test path="AttrDecl/ad_valconstr00201m5/AD_valConstr00201m5">
-    <expected validity="invalid" exception="IllegalArgumentException"
+    <expected validity="invalid" exception="XmlParsingException"
               message="Invalid &quot;open&quot; attribute name use"/>
   </test>
   <test path="CType/abstract00101m1/Negative" isInstance="true">

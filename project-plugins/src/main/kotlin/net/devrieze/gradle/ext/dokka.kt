@@ -31,15 +31,22 @@ import java.net.URL
 
 fun Project.configureDokka(
     myModuleName: Provider<String>,
-    myModuleVersion: Provider<String>
+    myModuleVersion: Provider<String>,
+    dokkaOverrideTarget: Provider<String?>
 ) {
-    logger.info("Configuring dokka for project($name)")
-    tasks.withType<AbstractDokkaLeafTask> {
-        moduleName.convention(myModuleName)
-        moduleVersion.convention(myModuleVersion)
+    logger.lifecycle("Configuring dokka for project($name)")
+    tasks.withType<AbstractDokkaLeafTask>().configureEach {
+        if (this is AbstractDokkaLeafTask) {
+            logger.info("Configuring dokka task: ${this.name}")
+            moduleName.convention(myModuleName)
+            moduleVersion.convention(myModuleVersion)
 
-        dokkaSourceSets.configureEach {
-            this@configureDokka.configureDokkaSourceSet(this)
+            dokkaSourceSets.configureEach {
+                this@configureDokka.configureDokkaSourceSet(this, dokkaOverrideTarget.getOrNull())
+            }
+
+        } else if ("dokka" in name.lowercase()) {
+            logger.error("Non-configured dokka task: ${project.name}:${name} : ${this.javaClass.name}")
         }
     }
 }
@@ -47,10 +54,11 @@ fun Project.configureDokka(
 private fun Project.url(value: String): URL = URI(value).toURL()
 
 private fun Project.configureDokkaSourceSet(
-    sourceSet: GradleDokkaSourceSetBuilder
+    sourceSet: GradleDokkaSourceSetBuilder,
+    dokkaOverrideTarget: String?
 ) {
     if (!sourceSet.suppress.get()) {
-        logger.info("Configuring sourceSet:${project.name}:${sourceSet.name}")
+        logger.info("Configuring dokkaSourceSet:${project.name}:${sourceSet.name}")
         with(sourceSet) {
             if (name.startsWith("android")) {
                 noAndroidSdkLink.set(false)
@@ -60,13 +68,18 @@ private fun Project.configureDokkaSourceSet(
                 noJdkLink.set(false)
             }
             displayName.set(
-                when (val dn = displayName.get()) {
+                dokkaOverrideTarget ?: when (val dn = displayName.get()?.lowercase()) {
                     "jdk" -> "JVM"
-                    "jvm" -> "JVM"
+                    "jvm",
+                    "javashared",
+                    "commonjvm",
+                    "jvmcommon" -> "JVM"
                     "android" -> "Android"
                     "common" -> "Common"
                     "js" -> "JS"
                     "native" -> "Native"
+                    "commondom" -> "Native"
+                    "wasmcommon" -> "Wasm"
                     else -> dn
                 }
             )
@@ -106,5 +119,7 @@ private fun Project.configureDokkaSourceSet(
                 }
             }
         }
+    } else {
+        logger.warn("Sourceset ${project.name}:${sourceSet.name} suppressed")
     }
 }

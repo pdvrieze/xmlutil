@@ -35,6 +35,11 @@ base {
     archivesName = "xmlutil"
 }
 
+config {
+    dokkaModuleName = "core-jdk"
+    dokkaOverrideTarget = "Jdk"
+}
+
 val autoModuleName = "net.devrieze.xmlutil.core.jdk"
 
 kotlin {
@@ -87,7 +92,7 @@ publishing {
         create<MavenPublication>("mavenKotlin") {
             artifactId = "core-jdk"
             from(components["java"])
-            artifact(tasks["kotlinSourcesJar"])
+            artifact(tasks.named("kotlinSourcesJar"))
         }
     }
 }

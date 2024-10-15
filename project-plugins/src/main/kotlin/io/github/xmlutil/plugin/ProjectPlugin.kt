@@ -38,10 +38,7 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.LanguageSettingsBuilder
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
@@ -69,8 +66,10 @@ class ProjectPlugin: Plugin<Project> {
         val e = project.extensions.create<ProjectConfigurationExtension>("config").apply {
             dokkaModuleName.convention(project.provider { project.name })
             dokkaVersion.convention(project.provider { project.version.toString() })
+            dokkaOverrideTarget.convention(project.provider { null })
             applyLayout.convention(true)
             kotlinApiVersion.convention(KotlinVersion.KOTLIN_1_8)
+            kotlinTestVersion.convention(KotlinVersion.DEFAULT)
         }
         project.plugins.all {
             when (this) {
@@ -102,6 +101,15 @@ class ProjectPlugin: Plugin<Project> {
                                 attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
                                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
                             }
+                            compilations.named(KotlinCompilation.TEST_COMPILATION_NAME) {
+                                project.logger.debug("Compilation ${project.name}:$name to be set to default Kotlin API: ${e.kotlinTestVersion.get()}")
+                                compileTaskProvider.configure {
+                                    compilerOptions {
+                                        languageVersion = e.kotlinTestVersion
+                                        apiVersion = e.kotlinTestVersion
+                                    }
+                                }
+                            }
                             mavenPublication {
                                 version = xmlutil_version
                                 project.logger.info("Setting maven publication ($artifactId) version to $xmlutil_version")
@@ -120,11 +128,18 @@ class ProjectPlugin: Plugin<Project> {
                         targets.configureEach {
                             val isJvm = this is KotlinJvmTarget
                             this.compilations.configureEach {
+                                val isTest = name == KotlinCompilation.TEST_COMPILATION_NAME
                                 compileTaskProvider.configure {
                                     compilerOptions {
                                         when {
+                                            isTest -> {
+                                                languageVersion = e.kotlinTestVersion
+                                                apiVersion = e.kotlinTestVersion
+                                            }
+
                                             isJvm -> apiVersion = e.kotlinApiVersion
-                                            else -> apiVersion = KotlinVersion.KOTLIN_2_0
+
+                                            else -> apiVersion = KotlinVersion.DEFAULT
                                         }
                                     }
                                 }
@@ -172,10 +187,13 @@ class ProjectPlugin: Plugin<Project> {
                     }
 
                 }
+
+                is DokkaPlugin -> {
+                    project.logger.info("Automatically configuring dokka from the project plugin for ${project.name}")
+                    project.configureDokka(e.dokkaModuleName, e.dokkaVersion, e.dokkaOverrideTarget)
+                }
             }
         }
-        project.plugins.apply(DokkaPlugin::class.java)
-        project.configureDokka(e.dokkaModuleName, e.dokkaVersion)
     }
 
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
@@ -205,6 +223,8 @@ class ProjectPlugin: Plugin<Project> {
 abstract class ProjectConfigurationExtension {
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
+    abstract val dokkaOverrideTarget: Property<String?>
     abstract val applyLayout: Property<Boolean>
     abstract val kotlinApiVersion: Property<KotlinVersion>
+    abstract val kotlinTestVersion: Property<KotlinVersion>
 }

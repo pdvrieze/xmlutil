@@ -25,11 +25,11 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 
 plugins {
+    alias(libs.plugins.dokka)
     id("projectPlugin")
     kotlin("multiplatform")
     `maven-publish`
     signing
-    alias(libs.plugins.dokka)
     idea
 }
 
