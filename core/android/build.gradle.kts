@@ -37,6 +37,10 @@ base {
     archivesName = "core-android"
 }
 
+config {
+    dokkaOverrideTarget = "Android"
+}
+
 val autoModuleName = "net.devrieze.xmlutil.core.android"
 
 kotlin {

@@ -66,6 +66,7 @@ class ProjectPlugin: Plugin<Project> {
         val e = project.extensions.create<ProjectConfigurationExtension>("config").apply {
             dokkaModuleName.convention(project.provider { project.name })
             dokkaVersion.convention(project.provider { project.version.toString() })
+            dokkaOverrideTarget.convention(project.provider { null })
             applyLayout.convention(true)
             kotlinApiVersion.convention(KotlinVersion.KOTLIN_1_8)
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
@@ -101,7 +102,7 @@ class ProjectPlugin: Plugin<Project> {
                                 attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
                             }
                             compilations.named(KotlinCompilation.TEST_COMPILATION_NAME) {
-                                project.logger.lifecycle("Compilation ${project.name}:$name to be set to default Kotlin API: ${e.kotlinTestVersion}")
+                                project.logger.debug("Compilation ${project.name}:$name to be set to default Kotlin API: ${e.kotlinTestVersion.get()}")
                                 compileTaskProvider.configure {
                                     compilerOptions {
                                         languageVersion = e.kotlinTestVersion
@@ -189,7 +190,7 @@ class ProjectPlugin: Plugin<Project> {
 
                 is DokkaPlugin -> {
                     project.logger.info("Automatically configuring dokka from the project plugin for ${project.name}")
-                    project.configureDokka(e.dokkaModuleName, e.dokkaVersion)
+                    project.configureDokka(e.dokkaModuleName, e.dokkaVersion, e.dokkaOverrideTarget)
                 }
             }
         }
@@ -222,6 +223,7 @@ class ProjectPlugin: Plugin<Project> {
 abstract class ProjectConfigurationExtension {
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
+    abstract val dokkaOverrideTarget: Property<String?>
     abstract val applyLayout: Property<Boolean>
     abstract val kotlinApiVersion: Property<KotlinVersion>
     abstract val kotlinTestVersion: Property<KotlinVersion>

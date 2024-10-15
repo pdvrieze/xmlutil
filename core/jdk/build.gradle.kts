@@ -35,6 +35,10 @@ base {
     archivesName = "xmlutil"
 }
 
+config {
+    dokkaOverrideTarget = "Jdk"
+}
+
 val autoModuleName = "net.devrieze.xmlutil.core.jdk"
 
 kotlin {
