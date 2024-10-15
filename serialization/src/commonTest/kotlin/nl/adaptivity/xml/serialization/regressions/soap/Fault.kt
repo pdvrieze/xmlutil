@@ -21,7 +21,6 @@
 package nl.adaptivity.xml.serialization.regressions.soap
 
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.Element

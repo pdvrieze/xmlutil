@@ -25,7 +25,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class TestCachedDescriptorCache {
 

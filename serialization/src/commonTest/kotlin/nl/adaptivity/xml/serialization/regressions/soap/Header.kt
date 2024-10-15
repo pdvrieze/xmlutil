@@ -36,7 +36,6 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
-import nl.adaptivity.xmlutil.util.CompactFragmentSerializer.descriptor
 
 
 /**

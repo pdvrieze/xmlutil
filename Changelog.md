@@ -1,4 +1,11 @@
-#0.90.2-SNAPSHOT
+# 0.90.3-SNAPSHOT
+
+# 0.90.2 Mooor Rocketpower!
+Changes:
+- Update to Kotlin 2.0.21 / Kotlinx.serialization 1.7.3
+- Add support for Android native targets (@whyoleg in #242)
+
+# 0.90.2-beta1 Rocketpower!
 Changes:
 - Update to Kotlin 2.0.20 / kotlinx.serialization 1.7.2
 - Extensive optimization of decoding (serialization), parsing
@@ -41,6 +48,9 @@ Fixes:
 - Fix `NamespaceHolder.namespacesAtCurrentDepth` for nested
   declarations.
 - Fix infinite recursion issue with xmlStreaming.newWriter / newReader
+
+# 0.90.1 Fix Android
+- Fix android plugin dependency.
 
 # 0.90.0 2.0 will go
 *(June 13, 2024)
