@@ -38,6 +38,7 @@ base {
 }
 
 config {
+    dokkaModuleName = "core-android"
     dokkaOverrideTarget = "Android"
 }
 
@@ -93,7 +94,7 @@ publishing {
         create<MavenPublication>("mavenKotlin") {
             artifactId = "core-android"
             from(components["java"])
-            artifact(tasks["kotlinSourcesJar"])
+            artifact(tasks.named("kotlinSourcesJar"))
         }
     }
 }

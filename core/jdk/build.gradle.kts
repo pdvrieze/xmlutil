@@ -36,6 +36,7 @@ base {
 }
 
 config {
+    dokkaModuleName = "core-jdk"
     dokkaOverrideTarget = "Jdk"
 }
 
@@ -91,7 +92,7 @@ publishing {
         create<MavenPublication>("mavenKotlin") {
             artifactId = "core-jdk"
             from(components["java"])
-            artifact(tasks["kotlinSourcesJar"])
+            artifact(tasks.named("kotlinSourcesJar"))
         }
     }
 }
