@@ -28,6 +28,10 @@ public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer
 	public static final synthetic fun serializer (Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;)Lkotlinx/serialization/KSerializer;
 }
 
+public final class nl/adaptivity/xmlutil/serialization/DefaultFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> ()V
+}
+
 public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {
 	public static final fun getPlatformDefaultModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
@@ -93,6 +97,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun build ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final fun getAutoPolymorphic ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 	public final fun getPedantic ()Z
 	public final fun getThrowOnRepeatedElement ()Z
 	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
@@ -105,6 +110,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun isStrictOtherAttributes ()Z
 	public final fun setAutoPolymorphic (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
+	public final fun setFormatCache (Lnl/adaptivity/xmlutil/serialization/FormatCache;)V
 	public final fun setPedantic (Z)V
 	public final fun setStrictAttributeNames (Z)V
 	public final fun setStrictBoolean (Z)V
@@ -129,6 +135,14 @@ public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : nl/ad
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/FormatCache {
+}
+
+public final class nl/adaptivity/xmlutil/serialization/FormatCache$Dummy : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/FormatCache$Dummy;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/FormatCache_javaSharedKt {
+	public static final fun defaultSharedFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
@@ -199,6 +213,10 @@ public final class nl/adaptivity/xmlutil/serialization/PolyInfo {
 	public final fun getTagName ()Ljavax/xml/namespace/QName;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/ThreadLocalFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> (Ljava/util/function/Supplier;)V
 }
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/UnknownChildHandler {

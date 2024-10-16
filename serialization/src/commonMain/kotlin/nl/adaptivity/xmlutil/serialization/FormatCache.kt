@@ -29,6 +29,17 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 
+/**
+ * The FormatCache caches the calculations needed to determine the correct format for a specific
+ * serializable tree. There are 3 options provided by default:
+ *
+ * - [Dummy] This is a cache that doesn't actually cache, it disables caching
+ * - [DefaultFormatCache] This is a simple cache that does **not** use any locking enabling thread safety
+ * - [defaultSharedFormatCache] This function will provide wrapper for the default cache that
+ *   uses threadLocals for native/jvm/android to provide thread safety (at the cost of performance). Note
+ *   that the native implementation is not particularly in the case of individual formats.
+ *
+ */
 public abstract class FormatCache internal constructor(){
     internal abstract fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
@@ -53,7 +64,7 @@ public abstract class FormatCache internal constructor(){
         preserveSpace: Boolean,
     ): XmlCompositeDescriptor
 
-    internal object Dummy: FormatCache() {
+    public object Dummy: FormatCache() {
         override fun lookupType(
             namespace: Namespace?,
             serialDesc: SerialDescriptor,
@@ -83,3 +94,7 @@ public abstract class FormatCache internal constructor(){
     }
 }
 
+/**
+ * Get an instance of the default format cache that where supported uses threadlocals for thread safety.
+ */
+public expect fun defaultSharedFormatCache(): FormatCache

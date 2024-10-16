@@ -354,7 +354,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
-        formatCache = DefaultFormatCache(),
+        formatCache = defaultSharedFormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -419,7 +419,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
-        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache(),
+        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: defaultSharedFormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -438,12 +438,13 @@ private constructor(
     )
 
     @OptIn(ExperimentalXmlUtilApi::class)
-    @Deprecated("Use version that takes a FormatCache parameter")
     protected constructor(builder: Builder) : this(
-        if (builder.isCachingEnabled) DefaultFormatCache() else FormatCache.Dummy,
+        builder.formatCache,
         builder
     )
 
+    @Deprecated("The builder now contains the format cache, so no need to use the multi-parameter version")
+    @OptIn(ExperimentalXmlUtilApi::class)
     protected constructor(formatCache: FormatCache, builder: Builder): this(
         formatCache = formatCache,
         pedantic = builder.pedantic,
@@ -459,7 +460,7 @@ private constructor(
     )
 
     @Deprecated("Use/implement version that takes a FormatCache parameter")
-    public constructor(config: Builder.() -> Unit) : this(DefaultFormatCache(),config)
+    public constructor(config: Builder.() -> Unit) : this(defaultSharedFormatCache(),config)
 
     public constructor(formatCache: FormatCache, config: Builder.() -> Unit) : this(formatCache, Builder().apply(config))
 
@@ -891,7 +892,8 @@ private constructor(
         public var isStrictAttributeNames: Boolean,
         public var isStrictBoolean: Boolean,
         public var isStrictOtherAttributes: Boolean,
-        internal var isCachingEnabled: Boolean,
+        @ExperimentalXmlUtilApi
+        public var formatCache: FormatCache,
     ) {
         /**
          * Constructor for default builder. To set any values, use the property setters. The primary constructor
@@ -908,7 +910,7 @@ private constructor(
             isStrictAttributeNames = false,
             isStrictBoolean = false,
             isStrictOtherAttributes = false,
-            isCachingEnabled = true
+            formatCache = defaultSharedFormatCache()
         )
 
         @ExperimentalXmlUtilApi
@@ -923,7 +925,7 @@ private constructor(
             policy.isStrictAttributeNames,
             policy.isStrictOtherAttributes,
             policy.isStrictBoolean,
-            policy.formatCache != FormatCache.Dummy
+            policy.formatCache,
         )
 
         public fun ignoreUnknownChildren() {
@@ -934,6 +936,11 @@ private constructor(
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
         }
 
-        public fun build(): DefaultXmlSerializationPolicy = DefaultXmlSerializationPolicy(this)
+        public fun build(): DefaultXmlSerializationPolicy {
+            return DefaultXmlSerializationPolicy(
+                formatCache,
+                this
+            )
+        }
     }
 }

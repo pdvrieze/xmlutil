@@ -70,6 +70,9 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
  * package name of the class that represents the parent. Attributes get their use site name which is either the property
  * name or the name modified through [SerialName]
  *
+ * **Note** When using caching (default) this is not threadsafe within the same xml instance. This can be resolved using
+ * a different FormatCache implementation that is threadsafe, or one using threadlocals.
+ *
  * @property serializersModule The serialization context used to resolve serializers etc.
  * @property config The configuration of the various options that may apply.
  */
@@ -705,7 +708,7 @@ public class XML(
 
     public companion object : StringFormat {
 
-        public val defaultInstance: XML = XML {}
+        public val defaultInstance: XML = XML { policy = DefaultXmlSerializationPolicy(defaultSharedFormatCache()) {} }
         override val serializersModule: SerializersModule
             get() = defaultInstance.serializersModule
 

@@ -40,7 +40,7 @@ import kotlin.jvm.JvmStatic
  * intended to be stored on the config, thus reused through multiple serializations.
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
-internal class DefaultFormatCache : FormatCache() {
+public class DefaultFormatCache : FormatCache() {
     private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
     private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
     private val pendingDescs = HashSet<DescKey>()
@@ -109,9 +109,10 @@ internal class DefaultFormatCache : FormatCache() {
 
     private data class TypeKey(val namespace: String, val descriptor: SerialDescriptor)
 
-    companion object {
+    private companion object {
         @JvmStatic
         private fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
             DefaultFormatCache.TypeKey(namespace ?: "", descriptor)
     }
 }
+

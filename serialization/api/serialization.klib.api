@@ -325,7 +325,9 @@ abstract class <#A: kotlin/Any?> nl.adaptivity.xmlutil.serialization/AbstractXml
     final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // nl.adaptivity.xmlutil.serialization/AbstractXmlSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
 }
 
-abstract class nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/FormatCache|null[0]
+abstract class nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/FormatCache|null[0]
+    final object Dummy : nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/FormatCache.Dummy|null[0]
+}
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor|null[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.doInline|{}doInline[0]
@@ -545,6 +547,10 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor { //
     final fun get(kotlin/Int): nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.get|get(kotlin.Int){}[0]
     final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.toString|toString(){}[0]
+}
+
+final class nl.adaptivity.xmlutil.serialization/DefaultFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/DefaultFormatCache|null[0]
+    constructor <init>() // nl.adaptivity.xmlutil.serialization/DefaultFormatCache.<init>|<init>(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization/PolyInfo { // nl.adaptivity.xmlutil.serialization/PolyInfo|null[0]
@@ -906,6 +912,9 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
         final var encodeDefault // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.encodeDefault|{}encodeDefault[0]
             final fun <get-encodeDefault>(): nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.XmlEncodeDefault // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.encodeDefault.<get-encodeDefault>|<get-encodeDefault>(){}[0]
             final fun <set-encodeDefault>(nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.XmlEncodeDefault) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.encodeDefault.<set-encodeDefault>|<set-encodeDefault>(nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault){}[0]
+        final var formatCache // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.formatCache|{}formatCache[0]
+            final fun <get-formatCache>(): nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.formatCache.<get-formatCache>|<get-formatCache>(){}[0]
+            final fun <set-formatCache>(nl.adaptivity.xmlutil.serialization/FormatCache) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.formatCache.<set-formatCache>|<set-formatCache>(nl.adaptivity.xmlutil.serialization.FormatCache){}[0]
         final var isStrictAttributeNames // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isStrictAttributeNames|{}isStrictAttributeNames[0]
             final fun <get-isStrictAttributeNames>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isStrictAttributeNames.<get-isStrictAttributeNames>|<get-isStrictAttributeNames>(){}[0]
             final fun <set-isStrictAttributeNames>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isStrictAttributeNames.<set-isStrictAttributeNames>|<set-isStrictAttributeNames>(kotlin.Boolean){}[0]
@@ -1077,5 +1086,14 @@ final fun (nl.adaptivity.xmlutil.serialization/XmlSerialName).nl.adaptivity.xmlu
 final fun (nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy).nl.adaptivity.xmlutil.serialization/typeQName(nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/typeQName|typeQName@nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy(nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor){}[0]
 final fun (nl.adaptivity.xmlutil.util/CompactFragment.Companion).nl.adaptivity.xmlutil.serialization/serializer(): kotlinx.serialization/KSerializer<nl.adaptivity.xmlutil.util/CompactFragment> // nl.adaptivity.xmlutil.serialization/serializer|serializer@nl.adaptivity.xmlutil.util.CompactFragment.Companion(){}[0]
 final fun <#A: kotlin/Any> (#A).nl.adaptivity.xmlutil.serialization/writeAsXml(nl.adaptivity.xmlutil/XmlWriter, kotlinx.serialization/SerializationStrategy<#A>) // nl.adaptivity.xmlutil.serialization/writeAsXml|writeAsXml@0:0(nl.adaptivity.xmlutil.XmlWriter;kotlinx.serialization.SerializationStrategy<0:0>){0§<kotlin.Any>}[0]
+final fun nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache(): nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache|defaultSharedFormatCache(){}[0]
 final fun nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule|getPlatformDefaultModule(){}[0]
 final inline fun <#A: reified kotlin/Any> (#A).nl.adaptivity.xmlutil.serialization/writeAsXML(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil.serialization/writeAsXML|writeAsXML@0:0(nl.adaptivity.xmlutil.XmlWriter){0§<kotlin.Any>}[0]
+
+// Targets: [linuxX64]
+final class nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Function0<nl.adaptivity.xmlutil.serialization/FormatCache> = ...) // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache.<init>|<init>(kotlin.Int;kotlin.Function0<nl.adaptivity.xmlutil.serialization.FormatCache>){}[0]
+
+    final val capacity // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache.capacity|{}capacity[0]
+        final fun <get-capacity>(): kotlin/Int // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache.capacity.<get-capacity>|<get-capacity>(){}[0]
+}

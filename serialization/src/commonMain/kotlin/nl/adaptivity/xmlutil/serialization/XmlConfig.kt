@@ -75,7 +75,7 @@ private constructor(
         get() = xmlDeclMode == XmlDeclMode.None
 
     public val formatCache: FormatCache = when {
-        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: DefaultFormatCache()
+        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: defaultSharedFormatCache()
         else -> FormatCache.Dummy
     }
 
