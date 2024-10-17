@@ -596,7 +596,7 @@ private constructor(
 
         val parentSerialKind = tagParent.descriptor?.serialKind
 
-        return when {
+        val name = when {
             outputKind == OutputKind.Attribute -> when {
                 useName.isDefaultNamespace -> QName(useName.annotatedName?.getLocalPart() ?: useName.serialName)
                 useName.annotatedName != null -> useName.annotatedName
@@ -618,6 +618,13 @@ private constructor(
 
             else -> serialTypeNameToQName(typeNameInfo, parentNamespace)
         }
+
+        if (pedantic) {
+            require(name.localPart !in ILLEGALNAMES) { "QNames may not have reserved names as value :${name.localPart}" }
+            require(name.prefix !in ILLEGALNAMES) { "QNames may not have reserved names as prefix :${name.prefix}" }
+        }
+
+        return name
     }
 
     override fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean {
@@ -977,4 +984,9 @@ private constructor(
             return DefaultXmlSerializationPolicy(this)
         }
     }
+
+    private companion object {
+        val ILLEGALNAMES = arrayOf("xml", "xmlns")
+    }
+
 }
