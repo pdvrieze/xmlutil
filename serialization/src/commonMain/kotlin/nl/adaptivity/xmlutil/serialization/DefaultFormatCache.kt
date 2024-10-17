@@ -84,6 +84,7 @@ public class DefaultFormatCache : FormatCache() {
     ): XmlDescriptor {
         val key = DescKey(overridenSerializer, serializerParent, tagParent.takeIf { it !== serializerParent }, canBeAttribute)
 
+        @OptIn(ExperimentalSerializationApi::class)
         check(pendingDescs.add(key)) {
             "Recursive lookup of ${serializerParent.elementSerialDescriptor.serialName}"
         }
