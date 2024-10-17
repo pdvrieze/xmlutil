@@ -34,6 +34,14 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
 
     private val threadLocal = ThreadLocal.withInitial(baseCacheFactory)
 
+    override fun copy(): ThreadLocalFormatCache {
+        return ThreadLocalFormatCache(baseCacheFactory)
+    }
+
+    override fun unsafeCache(): FormatCache {
+        return threadLocal.get()
+    }
+
     override fun lookupType(
         namespace: Namespace?,
         serialDesc: SerialDescriptor,

@@ -22,7 +22,6 @@ package nl.adaptivity.xmlutil.serialization
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
@@ -32,9 +31,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.*
 
-
 /**
- *
+ * Policies allow for customizing the behaviour of the xml serialization
  */
 public interface XmlSerializationPolicy {
 
@@ -327,7 +325,7 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  */
 public open class DefaultXmlSerializationPolicy
 private constructor(
-    internal val formatCache: FormatCache,
+    internal val formatCache2: FormatCache,
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean,
     public val encodeDefault: XmlEncodeDefault,
@@ -354,7 +352,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
-        formatCache = defaultSharedFormatCache(),
+        formatCache2 = defaultSharedFormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -419,7 +417,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
-        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache ?: defaultSharedFormatCache(),
+        formatCache2 = (original as? DefaultXmlSerializationPolicy)?.formatCache2?.copy() ?: defaultSharedFormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -437,6 +435,7 @@ private constructor(
         isStrictOtherAttributes = original?.isStrictOtherAttributes ?: false
     )
 
+    @Suppress("DEPRECATION")
     @OptIn(ExperimentalXmlUtilApi::class)
     protected constructor(builder: Builder) : this(
         builder.formatCache,
@@ -446,7 +445,7 @@ private constructor(
     @Deprecated("The builder now contains the format cache, so no need to use the multi-parameter version")
     @OptIn(ExperimentalXmlUtilApi::class)
     protected constructor(formatCache: FormatCache, builder: Builder): this(
-        formatCache = formatCache,
+        formatCache2 = formatCache,
         pedantic = builder.pedantic,
         autoPolymorphic = builder.autoPolymorphic,
         encodeDefault = builder.encodeDefault,
@@ -462,6 +461,7 @@ private constructor(
     @Deprecated("Use/implement version that takes a FormatCache parameter")
     public constructor(config: Builder.() -> Unit) : this(defaultSharedFormatCache(),config)
 
+    @Suppress("DEPRECATION")
     public constructor(formatCache: FormatCache, config: Builder.() -> Unit) : this(formatCache, Builder().apply(config))
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -862,6 +862,43 @@ private constructor(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as DefaultXmlSerializationPolicy
+
+        if (formatCache2 != other.formatCache2) return false
+        if (pedantic != other.pedantic) return false
+        if (autoPolymorphic != other.autoPolymorphic) return false
+        if (encodeDefault != other.encodeDefault) return false
+        if (unknownChildHandler != other.unknownChildHandler) return false
+        if (typeDiscriminatorName != other.typeDiscriminatorName) return false
+        if (throwOnRepeatedElement != other.throwOnRepeatedElement) return false
+        if (verifyElementOrder != other.verifyElementOrder) return false
+        if (isStrictAttributeNames != other.isStrictAttributeNames) return false
+        if (isStrictBoolean != other.isStrictBoolean) return false
+        if (isStrictOtherAttributes != other.isStrictOtherAttributes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = formatCache2.hashCode()
+        result = 31 * result + pedantic.hashCode()
+        result = 31 * result + autoPolymorphic.hashCode()
+        result = 31 * result + encodeDefault.hashCode()
+        result = 31 * result + unknownChildHandler.hashCode()
+        result = 31 * result + (typeDiscriminatorName?.hashCode() ?: 0)
+        result = 31 * result + throwOnRepeatedElement.hashCode()
+        result = 31 * result + verifyElementOrder.hashCode()
+        result = 31 * result + isStrictAttributeNames.hashCode()
+        result = 31 * result + isStrictBoolean.hashCode()
+        result = 31 * result + isStrictOtherAttributes.hashCode()
+        return result
+    }
+
+
     /**
      * A configuration builder for the default serialization policy.
      *
@@ -915,17 +952,17 @@ private constructor(
 
         @ExperimentalXmlUtilApi
         public constructor(policy: DefaultXmlSerializationPolicy) : this(
-            policy.pedantic,
-            policy.autoPolymorphic,
-            policy.encodeDefault,
-            policy.unknownChildHandler,
-            policy.typeDiscriminatorName,
-            policy.throwOnRepeatedElement,
-            policy.verifyElementOrder,
-            policy.isStrictAttributeNames,
-            policy.isStrictOtherAttributes,
-            policy.isStrictBoolean,
-            policy.formatCache,
+            pedantic = policy.pedantic,
+            autoPolymorphic = policy.autoPolymorphic,
+            encodeDefault = policy.encodeDefault,
+            unknownChildHandler = policy.unknownChildHandler,
+            typeDiscriminatorName = policy.typeDiscriminatorName,
+            throwOnRepeatedElement = policy.throwOnRepeatedElement,
+            verifyElementOrder = policy.verifyElementOrder,
+            isStrictAttributeNames = policy.isStrictAttributeNames,
+            isStrictBoolean = policy.isStrictOtherAttributes,
+            isStrictOtherAttributes = policy.isStrictBoolean,
+            formatCache = policy.formatCache2.copy(),
         )
 
         public fun ignoreUnknownChildren() {
@@ -937,10 +974,7 @@ private constructor(
         }
 
         public fun build(): DefaultXmlSerializationPolicy {
-            return DefaultXmlSerializationPolicy(
-                formatCache,
-                this
-            )
+            return DefaultXmlSerializationPolicy(this)
         }
     }
 }

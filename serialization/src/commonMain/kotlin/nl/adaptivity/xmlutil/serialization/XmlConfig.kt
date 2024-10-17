@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.internal.countIndentedLength
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
+import nl.adaptivity.xmlutil.serialization.impl.ShadowPolicy
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 import kotlin.jvm.JvmOverloads
@@ -48,7 +49,7 @@ private constructor(
     public val repairNamespaces: Boolean = true,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     public val indentString: String = "",
-    public val policy: XmlSerializationPolicy,
+    policy: XmlSerializationPolicy,
     nilAttribute: Pair<QName, String>? = null,
     public val xmlVersion: XmlVersion = XmlVersion.XML11,
     cachingEnabled: Boolean = true,
@@ -74,9 +75,15 @@ private constructor(
     public val omitXmlDecl: Boolean
         get() = xmlDeclMode == XmlDeclMode.None
 
-    public val formatCache: FormatCache = when {
-        cachingEnabled -> (policy as? DefaultXmlSerializationPolicy)?.formatCache ?: defaultSharedFormatCache()
-        else -> FormatCache.Dummy
+    public val policy: XmlSerializationPolicy = when (policy) {
+        is ShadowPolicy -> policy.basePolicy
+        else -> policy
+    }
+
+    public val formatCache: FormatCache = when (policy) {
+        is DefaultXmlSerializationPolicy -> policy.formatCache2
+        is ShadowPolicy -> policy.cache
+        else -> if (cachingEnabled) defaultSharedFormatCache() else FormatCache.Dummy
     }
 
     public val nilAttributeName: QName? = nilAttribute?.first
@@ -231,6 +238,51 @@ private constructor(
         }
     }
 
+    internal fun shadowCache(cache: FormatCache): XmlConfig {
+        return XmlConfig(Builder(this).apply {
+            policy = ShadowPolicy(this@XmlConfig.policy, cache)
+        })
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XmlConfig
+
+        if (repairNamespaces != other.repairNamespaces) return false
+        if (xmlDeclMode != other.xmlDeclMode) return false
+        if (indentString != other.indentString) return false
+        if (policy != other.policy) return false
+        if (xmlVersion != other.xmlVersion) return false
+        if (isInlineCollapsed != other.isInlineCollapsed) return false
+        if (nilAttributeName != other.nilAttributeName) return false
+        if (nilAttributeValue != other.nilAttributeValue) return false
+        if (isCollectingNSAttributes != other.isCollectingNSAttributes) return false
+        if (isUnchecked != other.isUnchecked) return false
+        if (isAlwaysDecodeXsiNil != other.isAlwaysDecodeXsiNil) return false
+        if (defaultToGenericParser != other.defaultToGenericParser) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = repairNamespaces.hashCode()
+        result = 31 * result + xmlDeclMode.hashCode()
+        result = 31 * result + indentString.hashCode()
+        result = 31 * result + policy.hashCode()
+        result = 31 * result + xmlVersion.hashCode()
+        result = 31 * result + isInlineCollapsed.hashCode()
+        result = 31 * result + (nilAttributeName?.hashCode() ?: 0)
+        result = 31 * result + (nilAttributeValue?.hashCode() ?: 0)
+        result = 31 * result + isCollectingNSAttributes.hashCode()
+        result = 31 * result + isUnchecked.hashCode()
+        result = 31 * result + isAlwaysDecodeXsiNil.hashCode()
+        result = 31 * result + defaultToGenericParser.hashCode()
+        return result
+    }
+
+
     /**
      * Configuration for the xml parser.
      *
@@ -269,7 +321,7 @@ private constructor(
                         this.autoPolymorphic = value.autoPolymorphic
                     }
                 }
-                if (value is DefaultXmlSerializationPolicy && value.formatCache == FormatCache.Dummy && isCachingEnabled) {
+                if (value is DefaultXmlSerializationPolicy && value.formatCache2 == FormatCache.Dummy && isCachingEnabled) {
                     isCachingEnabled = false
                 }
             }
@@ -320,20 +372,29 @@ private constructor(
         @Suppress("DEPRECATION")
         @OptIn(ExperimentalXmlUtilApi::class)
         public constructor(config: XmlConfig) : this(
-            config.repairNamespaces,
-            config.xmlDeclMode,
-            config.indentString,
-            (config.policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic,
-            null,
-            config.policy
+            repairNamespaces = config.repairNamespaces,
+            xmlDeclMode = config.xmlDeclMode,
+            indentString = config.indentString,
+            autoPolymorphic = (config.policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic,
+            unknownChildHandler = (config.policy as? DefaultXmlSerializationPolicy)?.unknownChildHandler,
+            policy = config.policy
         ) {
             this.nilAttribute = config.nilAttribute
             this.isInlineCollapsed = config.isInlineCollapsed
             this.isCollectingNSAttributes = config.isCollectingNSAttributes
             this.xmlVersion = config.xmlVersion
             this.isUnchecked = config.isUnchecked
+            this.isAlwaysDecodeXsiNil = config.isAlwaysDecodeXsiNil
+            this.defaultToGenericParser = config.defaultToGenericParser
         }
-
+/*
+repairNamespaces
+xmlDeclMode
+indentString
+autoPolymorphic
+unknownChildHandler
+policy
+ */
 
         @Suppress("DEPRECATION")
         @ExperimentalXmlUtilApi
@@ -580,6 +641,10 @@ private constructor(
             }
         }
 
+        /**
+         * This function allows configuring the policy based on the default (or previous configuration).
+         * Note that this doesn't make changes from previously set.
+         */
         @OptIn(ExperimentalXmlUtilApi::class)
         public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             val defaultPolicy = policyBuilder().apply(configure).build()

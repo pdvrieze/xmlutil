@@ -45,6 +45,12 @@ public class DefaultFormatCache : FormatCache() {
     private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
     private val pendingDescs = HashSet<DescKey>()
 
+    override fun copy(): DefaultFormatCache = DefaultFormatCache()
+
+    override fun unsafeCache(): DefaultFormatCache {
+        return this
+    }
+
     @OptIn(ExperimentalSerializationApi::class)
     override fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
         return lookupType(TypeKey(namespace?.namespaceURI, serialDesc), serialDesc.kind, defaultValue)

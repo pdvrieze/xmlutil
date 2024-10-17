@@ -83,11 +83,11 @@ public class XML(
 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
-    private val codecConfig: XmlCodecConfig = object : XmlCodecConfig {
+    private fun unsafeCodecConfig(): XmlCodecConfig = object : XmlCodecConfig {
         override val serializersModule: SerializersModule
             get() = this@XML.serializersModule
-        override val config: XmlConfig
-            get() = this@XML.config
+
+        override val config: XmlConfig = this@XML.config.shadowCache(this@XML.config.formatCache.unsafeCache())
     }
 
     @Suppress("DEPRECATION")
@@ -172,6 +172,8 @@ public class XML(
     ) {
         target.indentString = config.indentString
 
+        val codecConfig = unsafeCodecConfig()
+
         if (prefix != null) {
             val root = XmlRootDescriptor(codecConfig, serializer.descriptor)
 
@@ -199,6 +201,17 @@ public class XML(
         value: T,
         rootName: QName?,
     ) {
+        encodeToWriter(unsafeCodecConfig(), target, serializer, value, rootName)
+    }
+
+    private fun <T> encodeToWriter(
+        codecConfig: XmlCodecConfig,
+        target: XmlWriter,
+        serializer: SerializationStrategy<T>,
+        value: T,
+        rootName: QName?,
+    ) {
+        val config = codecConfig.config
         target.indentString = config.indentString
 
         if (target.depth == 0) {
@@ -419,7 +432,7 @@ public class XML(
         }
 
         val tmpRoot =
-            XmlRootDescriptor(codecConfig, descriptor, DeclaredNameInfo(localName.localPart))
+            XmlRootDescriptor(unsafeCodecConfig(), descriptor, DeclaredNameInfo(localName.localPart))
 
         val realName = tmpRoot.typeDescriptor.typeQname ?: localName
 
@@ -440,6 +453,8 @@ public class XML(
         reader: XmlReader,
         rootName: QName? = null
     ): T {
+        val (config, serializersModule) = unsafeCodecConfig()
+
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
         // what to parse (before calling readSerializableValue on the value)
@@ -488,7 +503,7 @@ public class XML(
     private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
         val nameInfo = DeclaredNameInfo(rootName?.localPart ?: serialDescriptor.serialName, rootName, false)
 
-        return XmlRootDescriptor(codecConfig, serialDescriptor, nameInfo)
+        return XmlRootDescriptor(unsafeCodecConfig(), serialDescriptor, nameInfo)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)
@@ -1057,6 +1072,9 @@ public class XML(
          */
         public fun delegateFormat(): XML = XML(config, serializersModule)
     }
+
+    internal operator fun XmlCodecConfig.component1() = config
+    internal operator fun XmlCodecConfig.component2() = serializersModule
 
     /**
      * An interface that allows custom serializers to special case being serialized to XML and retrieve the underlying

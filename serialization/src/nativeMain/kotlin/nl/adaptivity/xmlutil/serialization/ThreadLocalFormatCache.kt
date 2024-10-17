@@ -55,6 +55,14 @@ public class ThreadLocalFormatCache(
             return formatCache
         }
 
+    override fun copy(): ThreadLocalFormatCache {
+        return ThreadLocalFormatCache(capacity, baseCacheFactory)
+    }
+
+    override fun unsafeCache(): FormatCache {
+        return threadLocal
+    }
+
     override fun lookupType(
         namespace: Namespace?,
         serialDesc: SerialDescriptor,

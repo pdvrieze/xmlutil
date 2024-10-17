@@ -24,6 +24,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.FormatCache.Dummy
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
@@ -40,8 +41,13 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
  *   that the native implementation is not particularly in the case of individual formats.
  *
  */
-public abstract class FormatCache internal constructor(){
+public abstract class FormatCache internal constructor() {
     internal abstract fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
+
+    internal abstract fun copy(): FormatCache
+
+    /** Retrieve a cache implementation that is not thread safe. Used by the format to avoid looking up thread locals. */
+    internal abstract fun unsafeCache(): FormatCache
 
     /**
      * Lookup a type descriptor for this type with the given namespace.
@@ -65,6 +71,11 @@ public abstract class FormatCache internal constructor(){
     ): XmlCompositeDescriptor
 
     public object Dummy: FormatCache() {
+
+        override fun copy(): FormatCache = this
+
+        override fun unsafeCache(): Dummy = this
+
         override fun lookupType(
             namespace: Namespace?,
             serialDesc: SerialDescriptor,
