@@ -1,4 +1,6 @@
-# 0.90.3-SNAPSHOT
+# 0.90.4-SNAPSHOT
+
+# 0.90.3
 Changes:
 - In pedantic mode check that xml/xmlns are not used as names (they
   are always invalid). Note that namespaces can be specified using
