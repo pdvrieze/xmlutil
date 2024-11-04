@@ -12,7 +12,7 @@ kotlin = "2.0.21"
 kotlinx-serialization = "1.7.3"
 kxml2 = "2.3.0"
 woodstox = "6.6.2"
-xmlutil = "0.90.2"
+xmlutil = "0.90.3"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}

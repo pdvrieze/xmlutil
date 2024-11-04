@@ -24,13 +24,30 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.serialization.FormatCache.Dummy
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
 
-public abstract class FormatCache internal constructor(){
+/**
+ * The FormatCache caches the calculations needed to determine the correct format for a specific
+ * serializable tree. There are 3 options provided by default:
+ *
+ * - [Dummy] This is a cache that doesn't actually cache, it disables caching
+ * - [DefaultFormatCache] This is a simple cache that does **not** use any locking enabling thread safety
+ * - [defaultSharedFormatCache] This function will provide wrapper for the default cache that
+ *   uses threadLocals for native/jvm/android to provide thread safety (at the cost of performance). Note
+ *   that the native implementation is not particularly in the case of individual formats.
+ *
+ */
+public abstract class FormatCache internal constructor() {
     internal abstract fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
+
+    internal abstract fun copy(): FormatCache
+
+    /** Retrieve a cache implementation that is not thread safe. Used by the format to avoid looking up thread locals. */
+    internal abstract fun unsafeCache(): FormatCache
 
     /**
      * Lookup a type descriptor for this type with the given namespace.
@@ -53,7 +70,12 @@ public abstract class FormatCache internal constructor(){
         preserveSpace: Boolean,
     ): XmlCompositeDescriptor
 
-    internal object Dummy: FormatCache() {
+    public object Dummy: FormatCache() {
+
+        override fun copy(): FormatCache = this
+
+        override fun unsafeCache(): Dummy = this
+
         override fun lookupType(
             namespace: Namespace?,
             serialDesc: SerialDescriptor,
@@ -83,3 +105,7 @@ public abstract class FormatCache internal constructor(){
     }
 }
 
+/**
+ * Get an instance of the default format cache that where supported uses threadlocals for thread safety.
+ */
+public expect fun defaultSharedFormatCache(): FormatCache

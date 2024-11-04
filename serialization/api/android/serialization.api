@@ -28,6 +28,12 @@ public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer
 	public static final synthetic fun serializer (Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;)Lkotlinx/serialization/KSerializer;
 }
 
+public final class nl/adaptivity/xmlutil/serialization/DefaultFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> ()V
+	public synthetic fun copy$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
+	public synthetic fun unsafeCache$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
+}
+
 public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {
 	public static final fun getPlatformDefaultModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
@@ -58,6 +64,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun elementNamespaceDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
+	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAutoPolymorphic ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getPedantic ()Z
@@ -67,6 +74,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun getVerifyElementOrder ()Z
 	public fun handleUnknownContent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Ljavax/xml/namespace/QName;Ljava/util/Collection;)V
 	public fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
+	public fun hashCode ()I
 	public fun ignoredSerialInfo (Ljava/lang/String;)V
 	public fun initialChildReorderMap (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
 	public fun isListEluded (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
@@ -93,6 +101,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun build ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final fun getAutoPolymorphic ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 	public final fun getPedantic ()Z
 	public final fun getThrowOnRepeatedElement ()Z
 	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
@@ -105,6 +114,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun isStrictOtherAttributes ()Z
 	public final fun setAutoPolymorphic (Z)V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
+	public final fun setFormatCache (Lnl/adaptivity/xmlutil/serialization/FormatCache;)V
 	public final fun setPedantic (Z)V
 	public final fun setStrictAttributeNames (Z)V
 	public final fun setStrictBoolean (Z)V
@@ -129,6 +139,15 @@ public final class nl/adaptivity/xmlutil/serialization/ElementSerializer : nl/ad
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/FormatCache {
+}
+
+public final class nl/adaptivity/xmlutil/serialization/FormatCache$Dummy : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/FormatCache$Dummy;
+	public synthetic fun unsafeCache$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/FormatCache_javaSharedKt {
+	public static final fun defaultSharedFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/ICompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
@@ -199,6 +218,11 @@ public final class nl/adaptivity/xmlutil/serialization/PolyInfo {
 	public final fun getTagName ()Ljavax/xml/namespace/QName;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/ThreadLocalFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> (Ljava/util/function/Supplier;)V
+	public synthetic fun copy$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/serialization/UnknownChildHandler {
@@ -412,6 +436,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public synthetic fun <init> (ZZIZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;)V
 	public synthetic fun <init> (ZZLjava/lang/String;ZLkotlin/jvm/functions/Function4;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDefaultToGenericParser ()Z
 	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 	public final fun getIndent ()I
@@ -424,6 +449,7 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig {
 	public final fun getRepairNamespaces ()Z
 	public final fun getXmlDeclMode ()Lnl/adaptivity/xmlutil/XmlDeclMode;
 	public final fun getXmlVersion ()Lnl/adaptivity/xmlutil/core/XmlVersion;
+	public fun hashCode ()I
 	public final fun isAlwaysDecodeXsiNil ()Z
 	public final fun isCollectingNSAttributes ()Z
 	public final fun isInlineCollapsed ()Z

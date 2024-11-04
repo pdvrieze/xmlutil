@@ -277,6 +277,8 @@ internal class QNameMap<T : Any>  private constructor(
             if (idx > 0 && newMap!!.size >= maps[idx - 1]!!.size) {
                 maps[idx] = maps[idx - 1]
                 maps[idx - 1] = newMap
+                namespaces[idx] = namespaces[idx -1]
+                namespaces[idx -1] = namespace
             }
             val old = newMap!!.put(localPart, value)
             if (old == null) ++size

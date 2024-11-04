@@ -33,7 +33,6 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 class ListAttributeTest : PlatformTestBase<ListAttributeTest.Container>(
     Container(listOf("a", "b")),
@@ -76,9 +75,9 @@ class ListAttributeTest : PlatformTestBase<ListAttributeTest.Container>(
             }
         }
         val inputs = testDelimiters.map { "<container xmlns=\"urn:example.org\" elements=\"a${it}b\" />" }
-        for (input in inputs) {
+        for ((index, input ) in inputs.withIndex()) {
             val actual = xml.decodeFromString(serializer, input)
-            assertEquals(value, actual)
+            assertEquals(value, actual, "Error handling custom delimiter <${testDelimiters[index]}>")
         }
 
         val actualXML = xml.encodeToString(serializer, value)
