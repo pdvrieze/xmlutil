@@ -1,7 +1,17 @@
 # 0.90.3-SNAPSHOT
+Changes:
+- In pedantic mode check that xml/xmlns are not used as names (they
+  are always invalid). Note that namespaces can be specified using
+  `@XmlSerialName` (for tags) and `@XmlNamespaceDeclSpec` (for 
+  additional names).
+- The cache to use can now be configured. By default it uses the
+  threadLocal version, but the thread unsafe default is also available,
+  as is the `FormatCache.Dummy` cache that does no caching.
 Fixes:
 - Fix support for multiple namespaces inside a single tag (QNameMap)
   as reported in #249.
+- Use threadlocals for caching document structures by default. This should avoid
+  multithreading issues when reusing the format (recommended for speed)
 
 # 0.90.2 Mooor Rocketpower!
 Changes:
