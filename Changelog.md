@@ -1,4 +1,7 @@
 # 0.90.3-SNAPSHOT
+Fixes:
+- Fix support for multiple namespaces inside a single tag (QNameMap)
+  as reported in #249.
 
 # 0.90.2 Mooor Rocketpower!
 Changes:
