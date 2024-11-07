@@ -833,7 +833,7 @@ internal open class XmlEncoderBase internal constructor(
     private fun NamespaceContext.nextAutoPrefix(): String {
         var prefix: String
         do {
-            prefix = "n$nextAutoPrefixNo"
+            prefix = "n${nextAutoPrefixNo++}"
         } while (getNamespaceURI(prefix) != null)
         return prefix
     }
@@ -930,6 +930,7 @@ internal open class XmlEncoderBase internal constructor(
     private fun smartWriteAttribute(name: QName, value: String) {
         val argPrefix = name.getPrefix()
         val resolvedNamespace = target.getNamespaceUri(argPrefix)
+        val existingPrefix = target.getPrefix(name.getNamespaceURI())
 
         val effectiveQName: QName = when {
             name.namespaceURI.isEmpty() -> QName(name.localPart)
@@ -937,7 +938,8 @@ internal open class XmlEncoderBase internal constructor(
             // handle case with qname with default prefix but not default namespace (illegal for args)
             argPrefix.isEmpty() -> ensureNamespace(name, true)
 
-            resolvedNamespace != null -> name
+            // If the prefix doesn't resolve to a namespace use the existing name
+            resolvedNamespace == null && existingPrefix!=null -> name.copy(prefix = existingPrefix)
 
             else -> ensureNamespace(name, true)
         }

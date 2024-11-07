@@ -1,5 +1,11 @@
 # 0.90.4-SNAPSHOT
 
+Fixes:
+- Fix automatic prefix generation for attributes (was an infinite 
+  loop: #251). Make it reuse existing prefixes if present rather than
+  write a new prefix. If reuse is not desirable, explicitly declare
+  the prefixes on the element using `@XmlNamespaceDeclSpec`
+
 # 0.90.3
 Changes:
 - In pedantic mode check that xml/xmlns are not used as names (they
