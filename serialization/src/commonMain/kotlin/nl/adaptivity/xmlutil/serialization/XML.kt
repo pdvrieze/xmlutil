@@ -1164,9 +1164,16 @@ public fun XmlSerialName.toQName(serialName: String, parentNamespace: Namespace?
     else -> QName(namespace, value, prefix)
 }
 
-public fun XmlChildrenName.toQName(): QName = when {
-    namespace == UNSET_ANNOTATION_VALUE -> QName(value)
-    prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
+public fun XmlChildrenName.toQName(): QName {
+    return toQName(null)
+}
+
+internal fun XmlChildrenName.toQName(parentNamespace: Namespace?): QName = when {
+    namespace == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
+    prefix == UNSET_ANNOTATION_VALUE -> {
+        val p = parentNamespace?.let { ns -> ns.prefix.takeIf { ns.namespaceURI == namespace }}
+        QName(namespace, value, p ?: "")
+    }
     else -> QName(namespace, value, prefix)
 }
 

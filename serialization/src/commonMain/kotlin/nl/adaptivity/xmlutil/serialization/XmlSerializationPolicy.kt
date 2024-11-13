@@ -474,8 +474,7 @@ private constructor(
     ): Boolean {
         if (tagParent.useAnnIsValue == true) return true
 
-        val reqChildrenName = tagParent.useAnnChildrenName?.toQName()
-        return reqChildrenName == null
+        return tagParent.useAnnChildrenName == null
     }
 
     override fun isTransparentPolymorphic(
@@ -774,7 +773,7 @@ private constructor(
 
     override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
         val childAnnotation = serializerParent.useAnnChildrenName
-        val childrenName = childAnnotation?.toQName()
+        val childrenName = childAnnotation?.toQName(serializerParent.namespace)
         return DeclaredNameInfo("value", childrenName, childAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
     }
 

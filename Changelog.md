@@ -5,6 +5,13 @@ Fixes:
   loop: #251). Make it reuse existing prefixes if present rather than
   write a new prefix. If reuse is not desirable, explicitly declare
   the prefixes on the element using `@XmlNamespaceDeclSpec`
+- Fix (make consistent) the handling of `@XmlChildrenName` when the
+  namespace attribute is left out/default (#252). It would use the
+  empty/null namespace rather than the behaviour of `XmlSerialName`
+  which defaults to the namespace of the parent tag. The behaviour
+  is now consistent. For those cases where the original behaviour
+  is needed, just specify the namespace explitly to be the empty
+  string. 
 
 # 0.90.3
 Changes:

@@ -1511,7 +1511,7 @@ public class XmlListDescriptor internal constructor(
         val useNameInfo = when {
             childrenNameAnnotation != null -> DeclaredNameInfo(
                 childrenNameAnnotation.value,
-                childrenNameAnnotation.toQName(),
+                childrenNameAnnotation.toQName(tagName.toNamespace()),
                 childrenNameAnnotation.namespace == UNSET_ANNOTATION_VALUE
             )
 
