@@ -89,7 +89,7 @@ implementations and depend on (publishing) the `jvmCommon` package.
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.90.3")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:0.90.3")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
