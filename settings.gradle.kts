@@ -63,6 +63,7 @@ include("coreAndroid")
 include("coreKXIO")
 
 include(":serialization")
+include(":serialization-io")
 include(":xmlserializable")
 include(":testutil")
 include(":examples")

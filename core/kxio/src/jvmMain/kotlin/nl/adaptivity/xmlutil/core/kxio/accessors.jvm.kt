@@ -40,9 +40,8 @@ public actual fun IXmlStreaming.newWriter(
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode,
 ): XmlWriter {
-    return OutputStreamWriter(target.asOutputStream(), Charsets.UTF_8).let { output ->
-        newWriter(output, repairNamespaces, xmlDeclMode)
-    }
+    val output = OutputStreamWriter(target.asOutputStream(), Charsets.UTF_8)
+    return newWriter(output, repairNamespaces, xmlDeclMode).onClose { output.close() }
 }
 
 public actual fun IXmlStreaming.newGenericWriter(
@@ -50,7 +49,6 @@ public actual fun IXmlStreaming.newGenericWriter(
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode,
 ): XmlWriter {
-    return OutputStreamWriter(target.asOutputStream(), Charsets.UTF_8).let { output ->
-        newGenericWriter(output, repairNamespaces, xmlDeclMode)
-    }
+    val output = OutputStreamWriter(target.asOutputStream(), Charsets.UTF_8)
+    return newGenericWriter(output, repairNamespaces, xmlDeclMode).onClose { output.close() }
 }
