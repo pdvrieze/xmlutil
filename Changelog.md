@@ -1,5 +1,8 @@
 # 0.90.4-SNAPSHOT
 
+Features:
+- Add a new core-io module that supports using kotlinx.io
+
 Fixes:
 - Fix automatic prefix generation for attributes (was an infinite 
   loop: #251). Make it reuse existing prefixes if present rather than

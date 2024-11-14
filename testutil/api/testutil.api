@@ -13,3 +13,17 @@ public final class io/github/pdvrieze/xmlutil/testutil/AssertXmlEqualsKt {
 	public static synthetic fun assertXmlEquals$default (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 }
 
+public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
+	public fun <init> ()V
+	protected final fun testIgnorableWhitespace (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testNamespaceDecls (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testProcessingInstruction (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)V
+	protected final fun testReadCompactFragment (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testReadCompactFragmentWithNamespaceInOuter (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testReadEntity (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testReadSingleTag (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testReadToDom (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testReadUnknownEntity (Lkotlin/jvm/functions/Function1;)V
+	protected final fun testReaderWithBOM (Lkotlin/jvm/functions/Function1;)V
+}
+

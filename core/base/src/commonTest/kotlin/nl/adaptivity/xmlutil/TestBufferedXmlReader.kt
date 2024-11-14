@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
+import nl.adaptivity.xmlutil.test.TestCommonReader
 import kotlin.test.Test
 
 class TestBufferedXmlReader : TestCommonReader() {

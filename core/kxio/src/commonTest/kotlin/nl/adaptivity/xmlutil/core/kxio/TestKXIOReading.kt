@@ -18,16 +18,18 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.core.kxio
 
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.test.TestCommonReader
+import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 
-class TestXmlReader : TestCommonReader() {
-    
-    private fun createReader(it: String): XmlReader = xmlStreaming.newReader(it)
+class TestKXIOReading: TestCommonReader() {
+
+    private fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
 
     @Test
     fun testReadCompactFragmentWithNamespaceInOuter() {
@@ -38,7 +40,6 @@ class TestXmlReader : TestCommonReader() {
     fun testNamespaceDecls() {
         testNamespaceDecls(::createReader)
     }
-
 
     @Test
     fun testReadCompactFragment() {
@@ -51,8 +52,13 @@ class TestXmlReader : TestCommonReader() {
     }
 
     @Test
-    fun testReadEntity() {
+    fun testGenericReadEntity() {
         testReadEntity(::createReader)
+    }
+
+    @Test
+    fun testReadUnknownEntity() {
+        testReadUnknownEntity(::createReader)
     }
 
     @Test
@@ -71,13 +77,14 @@ class TestXmlReader : TestCommonReader() {
     }
 
     @Test
-    fun testProcessingInstructionDom() {
-        testProcessingInstruction(::createReader) { DomWriter() }
+    fun testReadEntity() {
+        testReadEntity(::createReader)
     }
 
     @Test
     fun testReadToDom() {
         testReadToDom(::createReader)
     }
+
 
 }

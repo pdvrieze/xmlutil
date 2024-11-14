@@ -18,8 +18,9 @@
  * under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.test
 
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom2.*
@@ -104,11 +105,11 @@ abstract class TestCommonReader {
 
             assertTrue(reader.hasNext())
             @Suppress("DEPRECATION")
-            assertEquals(
+            (assertEquals(
                 EventType.END_DOCUMENT,
                 reader.next(),
                 "Expected end of document, location: ${reader.locationInfo}"
-            )
+            ))
 
             assertFalse(reader.hasNext())
 
