@@ -268,6 +268,7 @@ public class XML(
         }
 
         encoder.encodeSerializableValue(serializer, value)
+        target.flush()
     }
 
     private fun <T> collectNamespaces(

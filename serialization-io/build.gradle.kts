@@ -28,6 +28,7 @@ plugins {
     alias(libs.plugins.dokka)
     id("projectPlugin")
     kotlin("multiplatform")
+    alias(libs.plugins.kotlinSerialization)
     `maven-publish`
     signing
     idea
@@ -61,7 +62,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.serialization)
-//                api(projects.core.kxio)
+                api(projects.coreKXIO)
             }
         }
 

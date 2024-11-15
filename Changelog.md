@@ -1,7 +1,12 @@
 # 0.90.4-SNAPSHOT
 
 Features:
-- Add a new core-io module that supports using kotlinx.io
+- Add a core-io and serialization-io modules that support using kotlinx.io
+
+Changes:
+- `encodeToWriter` will now flush the writer. This is particularly
+  relevant in the context of `OutputStreamWriter` that doesn't write
+  content until flushed or closed.
 
 Fixes:
 - Fix automatic prefix generation for attributes (was an infinite 

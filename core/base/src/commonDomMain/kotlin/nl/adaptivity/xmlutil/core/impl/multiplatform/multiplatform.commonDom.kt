@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import kotlin.reflect.KClass
 
-public actual abstract class Reader {
+public actual abstract class Reader protected actual constructor() {
     public actual open fun read(): Int {
         val b = CharArray(1)
         if (read(b, 0, 1) < 0) return -1
@@ -30,6 +30,8 @@ public actual abstract class Reader {
     }
 
     public actual abstract fun read(buf: CharArray, offset: Int, len: Int): Int
+
+    public actual abstract fun close()
 }
 
 public actual interface AutoCloseable {
@@ -135,6 +137,8 @@ public actual open class StringReader(private val source: CharSequence) : Reader
         pos += count
         return count
     }
+
+    actual override fun close() {}
 }
 
 @MpJvmDefaultWithoutCompatibility

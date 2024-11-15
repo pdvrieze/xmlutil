@@ -21,40 +21,45 @@
 package nl.adaptivity.xmlutil.core.kxio
 
 import kotlinx.io.Source
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.IOException
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 
 /**
  * An implementation of a reader that reads UTF data from a kotlinx.io.Source
  */
+@XmlUtilInternal
 internal class SourceUnicodeReader(public val source: Source) : Reader() {
     private val inputBuffer = ByteArray(INPUT_BYTE_BUFFER_SIZE)
     private var inputBufferOffset = 0
     private var inputBufferEnd = 0
     private var pendingLowSurrogate: Char = '\u0000'
-    private var eof: Boolean = false
 
     private fun reloadBuffer() {
-        if (!eof) {
+        if (! source.exhausted()) {
             if (inputBufferOffset < inputBufferEnd) {
                 inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
-                inputBufferOffset = inputBufferEnd - inputBufferOffset
+                inputBufferEnd -= inputBufferOffset
+                inputBufferOffset = 0
             }
             val readCount = source.readAtMostTo(inputBuffer, inputBufferOffset, (inputBuffer.size - inputBufferOffset))
             if (readCount < 0) {
-                eof = true
                 return
             }
-            inputBufferOffset += readCount
+            inputBufferEnd = inputBufferOffset + readCount
         }
     }
 
     private fun nextByte(): Int = peekByte().also { if (it >= 0) inputBufferOffset++ }
 
     private fun peekByte(): Int {
-        if (inputBufferOffset == inputBufferEnd) reloadBuffer()
-        if (inputBufferOffset == inputBufferEnd) return -1
-        return inputBuffer[inputBufferOffset].toInt()
+        try {
+            if (inputBufferOffset == inputBufferEnd) reloadBuffer()
+            if (inputBufferOffset == inputBufferEnd) return -1
+            return inputBuffer[inputBufferOffset].toInt()
+        } catch (e: IndexOutOfBoundsException) {
+            throw IllegalStateException("Unexpected indexing error: offset: $inputBufferOffset, bufferSize: ${inputBuffer.size}", e)
+        }
     }
 
     private fun continuationByte(): UInt {
@@ -111,7 +116,7 @@ internal class SourceUnicodeReader(public val source: Source) : Reader() {
         }
         while (outPos < endPos) {
             val code = nextByte()
-            if (code < 0) return outPos - offset
+            if (code < 0) return -1
 
             if (code and 0x80 != 0) { // It is an UTF 8 number
                 val codePoint: UInt = readMultiByteFrom(code)
@@ -171,7 +176,12 @@ internal class SourceUnicodeReader(public val source: Source) : Reader() {
         return codePoint
     }
 
+
+    override fun close() {
+        source.close()
+    }
+
+    private companion object {
+        private const val INPUT_BYTE_BUFFER_SIZE = 0x2000
+    }
 }
-
-private const val INPUT_BYTE_BUFFER_SIZE = 0x2000
-
