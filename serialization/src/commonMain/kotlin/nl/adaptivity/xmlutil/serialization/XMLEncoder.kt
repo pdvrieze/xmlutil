@@ -930,16 +930,21 @@ internal open class XmlEncoderBase internal constructor(
     private fun smartWriteAttribute(name: QName, value: String) {
         val argPrefix = name.getPrefix()
         val resolvedNamespace = target.getNamespaceUri(argPrefix)
-        val existingPrefix = target.getPrefix(name.getNamespaceURI())
+        val existingPrefix = target.getPrefix(name.namespaceURI)?.takeIf { it.isNotEmpty() }
 
         val effectiveQName: QName = when {
+            // Default namespace uses default prefix
             name.namespaceURI.isEmpty() -> QName(name.localPart)
 
             // handle case with qname with default prefix but not default namespace (illegal for args)
-            argPrefix.isEmpty() -> ensureNamespace(name, true)
+            // when the existing prefix is set (which cannot be empty) use that, otherwise ensureNamespace
+            // is more robust.
+            argPrefix.isEmpty() -> existingPrefix?.let { name.copy(it) } ?: ensureNamespace(name, true)
 
-            // If the prefix doesn't resolve to a namespace use the existing name
-            resolvedNamespace == null && existingPrefix!=null -> name.copy(prefix = existingPrefix)
+            // If the prefix doesn't resolve to a namespace use the existing name (for non-empty prefix)
+            // this means argPrefix maps to a different namespace (resolvedNamespace == null), but
+            // existingPrefix maps to the correct namespace.
+            resolvedNamespace == null && existingPrefix != null -> name.copy(prefix = existingPrefix)
 
             else -> ensureNamespace(name, true)
         }
