@@ -81,7 +81,7 @@ private constructor(
     }
 
     public val formatCache: FormatCache = when (policy) {
-        is DefaultXmlSerializationPolicy -> policy.formatCache2
+        is DefaultXmlSerializationPolicy -> policy.formatCache
         is ShadowPolicy -> policy.cache
         else -> if (cachingEnabled) defaultSharedFormatCache() else FormatCache.Dummy
     }
@@ -321,7 +321,7 @@ private constructor(
                         this.autoPolymorphic = value.autoPolymorphic
                     }
                 }
-                if (value is DefaultXmlSerializationPolicy && value.formatCache2 == FormatCache.Dummy && isCachingEnabled) {
+                if (value is DefaultXmlSerializationPolicy && value.formatCache == FormatCache.Dummy && isCachingEnabled) {
                     isCachingEnabled = false
                 }
             }

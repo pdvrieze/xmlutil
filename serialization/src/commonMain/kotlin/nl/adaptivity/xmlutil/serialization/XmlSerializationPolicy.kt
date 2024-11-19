@@ -325,7 +325,7 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  */
 public open class DefaultXmlSerializationPolicy
 private constructor(
-    internal val formatCache2: FormatCache,
+    internal val formatCache: FormatCache,
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean,
     public val encodeDefault: XmlEncodeDefault,
@@ -352,7 +352,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
-        formatCache2 = defaultSharedFormatCache(),
+        formatCache = defaultSharedFormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -417,7 +417,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
-        formatCache2 = (original as? DefaultXmlSerializationPolicy)?.formatCache2?.copy() ?: defaultSharedFormatCache(),
+        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache?.copy() ?: defaultSharedFormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -445,7 +445,7 @@ private constructor(
     @Deprecated("The builder now contains the format cache, so no need to use the multi-parameter version")
     @OptIn(ExperimentalXmlUtilApi::class)
     protected constructor(formatCache: FormatCache, builder: Builder): this(
-        formatCache2 = formatCache,
+        formatCache = formatCache,
         pedantic = builder.pedantic,
         autoPolymorphic = builder.autoPolymorphic,
         encodeDefault = builder.encodeDefault,
@@ -874,7 +874,7 @@ private constructor(
 
         other as DefaultXmlSerializationPolicy
 
-        if (formatCache2 != other.formatCache2) return false
+        if (formatCache != other.formatCache) return false
         if (pedantic != other.pedantic) return false
         if (autoPolymorphic != other.autoPolymorphic) return false
         if (encodeDefault != other.encodeDefault) return false
@@ -890,7 +890,7 @@ private constructor(
     }
 
     override fun hashCode(): Int {
-        var result = formatCache2.hashCode()
+        var result = formatCache.hashCode()
         result = 31 * result + pedantic.hashCode()
         result = 31 * result + autoPolymorphic.hashCode()
         result = 31 * result + encodeDefault.hashCode()
@@ -953,7 +953,7 @@ private constructor(
             isStrictAttributeNames = false,
             isStrictBoolean = false,
             isStrictOtherAttributes = false,
-            formatCache = defaultSharedFormatCache()
+            formatCache = try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy }
         )
 
         @ExperimentalXmlUtilApi
@@ -968,7 +968,7 @@ private constructor(
             isStrictAttributeNames = policy.isStrictAttributeNames,
             isStrictBoolean = policy.isStrictOtherAttributes,
             isStrictOtherAttributes = policy.isStrictBoolean,
-            formatCache = policy.formatCache2.copy(),
+            formatCache = policy.formatCache.copy(),
         )
 
         public fun ignoreUnknownChildren() {

@@ -724,7 +724,9 @@ public class XML(
 
     public companion object : StringFormat {
 
-        public val defaultInstance: XML = XML { policy = DefaultXmlSerializationPolicy(defaultSharedFormatCache()) {} }
+        public val defaultInstance: XML = XML {
+            policy = DefaultXmlSerializationPolicy(try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy }) {}
+        }
         override val serializersModule: SerializersModule
             get() = defaultInstance.serializersModule
 
