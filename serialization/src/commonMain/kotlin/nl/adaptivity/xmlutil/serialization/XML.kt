@@ -126,6 +126,20 @@ public class XML(
     }
 
     /**
+     * Encode the given string value with the given root element name.
+     */
+    public inline fun <reified T> encodeToString(value: T, rootName: QName): String {
+        return encodeToString(serializersModule.serializer<T>(), value, rootName)
+    }
+
+    /**
+     * Encode the given string value with the given prefix.
+     */
+    public inline fun <reified T> encodeToString(value: T, prefix: String?): String {
+        return encodeToString(serializersModule.serializer<T>(), value, prefix)
+    }
+
+    /**
      * Transform into a string. This function is expected to be called indirectly.
      *
      * @param value The actual object
@@ -408,6 +422,13 @@ public class XML(
             else -> xmlStreaming.newReader(string)
         }
         return decodeFromReader(deserializer, xr, rootName)
+    }
+
+    /**
+     * Decode the given string value with the expected root name.
+     */
+    public inline fun <reified T> decodeFromString(string: String, rootName: QName?): T {
+        return decodeFromString(serializersModule.serializer<T>(), string, rootName)
     }
 
     /**

@@ -623,6 +623,9 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
     final inline fun <#A1: reified kotlin/Any> stringify(#A1, kotlin/String? = ...): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.stringify|stringify(0:0;kotlin.String?){0§<kotlin.Any>}[0]
     final inline fun <#A1: reified kotlin/Any> toXml(#A1, nl.adaptivity.xmlutil/XmlWriter, kotlin/String? = ...) // nl.adaptivity.xmlutil.serialization/XML.toXml|toXml(0:0;nl.adaptivity.xmlutil.XmlWriter;kotlin.String?){0§<kotlin.Any>}[0]
     final inline fun <#A1: reified kotlin/Any> toXml(nl.adaptivity.xmlutil/XmlWriter, #A1, kotlin/String? = ...) // nl.adaptivity.xmlutil.serialization/XML.toXml|toXml(nl.adaptivity.xmlutil.XmlWriter;0:0;kotlin.String?){0§<kotlin.Any>}[0]
+    final inline fun <#A1: reified kotlin/Any?> decodeFromString(kotlin/String, nl.adaptivity.xmlutil/QName?): #A1 // nl.adaptivity.xmlutil.serialization/XML.decodeFromString|decodeFromString(kotlin.String;nl.adaptivity.xmlutil.QName?){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: reified kotlin/Any?> encodeToString(#A1, kotlin/String?): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.encodeToString|encodeToString(0:0;kotlin.String?){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: reified kotlin/Any?> encodeToString(#A1, nl.adaptivity.xmlutil/QName): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.encodeToString|encodeToString(0:0;nl.adaptivity.xmlutil.QName){0§<kotlin.Any?>}[0]
 
     abstract interface XmlCodecConfig { // nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig|null[0]
         abstract val config // nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig.config|{}config[0]

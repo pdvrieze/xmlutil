@@ -2,6 +2,9 @@
 
 Features:
 - Add a core-io and serialization-io modules that support using kotlinx.io
+- Add inline function shortcuts for encodeToString/decodeFromString with
+  prefix/qname parameter that also take their serializer from the type
+  parameter instead of as explicit parameter. 
 
 Changes:
 - `encodeToWriter` will now flush the writer. This is particularly
