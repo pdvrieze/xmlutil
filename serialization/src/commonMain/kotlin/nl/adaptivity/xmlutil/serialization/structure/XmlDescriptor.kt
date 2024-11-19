@@ -906,12 +906,14 @@ internal constructor(
     private val initialChildReorderInfo: Collection<XmlOrderConstraint>?
         get() = typeDescriptor.initialChildReorderInfo
 
-    private val lazyProps: LazyProps by lazy {
+    private val _lazyProps: Lazy<LazyProps> = lazy {
         when (val roInfo = initialChildReorderInfo) {
             null -> createElementDescriptors(codecConfig)
             else -> getReorderedElementDescriptors(codecConfig, roInfo)
         }
     }
+
+    private val lazyProps: LazyProps get() = _lazyProps.value
 
     private val children: List<XmlDescriptor> get() = lazyProps.children
 
@@ -1026,10 +1028,14 @@ internal constructor(
             append(tagName.toString())
                 .appendLine(" (")
             var first = true
-            for (child in children) {
-                if (first) first = false else appendLine(',')
-                appendIndent(indent)
-                child.toString(this, indent + 4, seen)
+            if (_lazyProps.isInitialized()) {
+                for (child in children) {
+                    if (first) first = false else appendLine(',')
+                    appendIndent(indent)
+                    child.toString(this, indent + 4, seen)
+                }
+            } else {
+                append("<..uninitialized..>")
             }
             appendLine().appendIndent(indent - 4).append(')')
         }
@@ -1946,6 +1952,14 @@ public class ParentInfo(
             useAnnCData == true -> OutputKind.Element
             else -> null
         }
+    }
+
+    override fun toString(): String = buildString {
+        append("ParentInfo(")
+        append(descriptor.tagName.toCName())
+        append('/')
+        append(descriptor.serialDescriptor.getElementDescriptor(index).serialName)
+        append(")")
     }
 }
 
