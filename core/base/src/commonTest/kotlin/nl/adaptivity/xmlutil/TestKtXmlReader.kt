@@ -32,52 +32,7 @@ import kotlin.test.assertEquals
 
 class TestKtXmlReader : TestCommonReader() {
 
-    private fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
-
-    @Test
-    fun testReadCompactFragmentWithNamespaceInOuter() {
-        testReadCompactFragmentWithNamespaceInOuter(::createReader)
-    }
-
-    @Test
-    fun testNamespaceDecls() {
-        testNamespaceDecls(::createReader)
-    }
-
-    @Test
-    fun testReadCompactFragment() {
-        testReadCompactFragment(::createReader)
-    }
-
-    @Test
-    fun testReadSingleTag() {
-        testReadSingleTag(::createReader)
-    }
-
-    @Test
-    fun testGenericReadEntity() {
-        testReadEntity(::createReader)
-    }
-
-    @Test
-    fun testReadUnknownEntity() {
-        testReadUnknownEntity(::createReader)
-    }
-
-    @Test
-    fun testIgnorableWhitespace() {
-        testIgnorableWhitespace(::createReader)
-    }
-
-    @Test
-    fun testReaderWithBOM() {
-        testReaderWithBOM(::createReader)
-    }
-
-    @Test
-    fun testProcessingInstruction() {
-        testProcessingInstruction(::createReader) { KtXmlWriter(StringWriter()) }
-    }
+    override fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
 
     @Test
     fun testReadEntityInAttribute() {
@@ -95,7 +50,7 @@ class TestKtXmlReader : TestCommonReader() {
     }
 
     @Test
-    fun testProcessingInstructionDom() {
+    override fun testProcessingInstructionDom() {
         val domWriter = DomWriter()
         testProcessingInstruction(::createReader) { domWriter }
 
@@ -109,7 +64,7 @@ class TestKtXmlReader : TestCommonReader() {
         assertXmlEquals(expected, actual)
 
         val fromDom = StringWriter()
-        KtXmlWriter(fromDom).use { writer ->
+        KtXmlWriter(fromDom, xmlDeclMode = XmlDeclMode.None).use { writer ->
             xmlStreaming.newReader(domWriter.target).use { reader ->
                 while (reader.hasNext()) {
                     reader.next()
@@ -118,11 +73,6 @@ class TestKtXmlReader : TestCommonReader() {
             }
         }
         assertXmlEquals(expectedXml, fromDom.toString())
-    }
-
-    @Test
-    fun testReadToDom() {
-        testReadToDom(::createReader)
     }
 
     @Test

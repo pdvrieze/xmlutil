@@ -15,15 +15,28 @@ public final class io/github/pdvrieze/xmlutil/testutil/AssertXmlEqualsKt {
 
 public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
 	public fun <init> ()V
+	protected abstract fun createReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun testGenericReadEntity ()V
+	public fun testIgnorableWhitespace ()V
 	protected final fun testIgnorableWhitespace (Lkotlin/jvm/functions/Function1;)V
+	public fun testNamespaceDecls ()V
 	protected final fun testNamespaceDecls (Lkotlin/jvm/functions/Function1;)V
+	public fun testProcessingInstruction ()V
 	protected final fun testProcessingInstruction (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;)V
+	public fun testProcessingInstructionDom ()V
+	public fun testReadCompactFragment ()V
 	protected final fun testReadCompactFragment (Lkotlin/jvm/functions/Function1;)V
+	public fun testReadCompactFragmentWithNamespaceInOuter ()V
 	protected final fun testReadCompactFragmentWithNamespaceInOuter (Lkotlin/jvm/functions/Function1;)V
+	public fun testReadEntity ()V
 	protected final fun testReadEntity (Lkotlin/jvm/functions/Function1;)V
+	public fun testReadSingleTag ()V
 	protected final fun testReadSingleTag (Lkotlin/jvm/functions/Function1;)V
+	public fun testReadToDom ()V
 	protected final fun testReadToDom (Lkotlin/jvm/functions/Function1;)V
+	public fun testReadUnknownEntity ()V
 	protected final fun testReadUnknownEntity (Lkotlin/jvm/functions/Function1;)V
+	public fun testReaderWithBOM ()V
 	protected final fun testReaderWithBOM (Lkotlin/jvm/functions/Function1;)V
 }
 

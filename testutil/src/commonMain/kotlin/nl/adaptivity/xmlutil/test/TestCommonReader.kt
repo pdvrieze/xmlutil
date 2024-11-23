@@ -21,13 +21,12 @@
 package nl.adaptivity.xmlutil.test
 
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom2.*
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import kotlin.test.*
 
 abstract class TestCommonReader {
     protected fun testReadCompactFragmentWithNamespaceInOuter(createReader: (String) -> XmlReader) {
@@ -266,5 +265,67 @@ abstract class TestCommonReader {
         assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
         val piEnd = c as ProcessingInstruction
         assertEquals("xpacket", piEnd.getTarget())
+    }
+
+    protected abstract fun createReader(it: String): XmlReader
+
+    @Test
+    open fun testReadCompactFragmentWithNamespaceInOuter() {
+        testReadCompactFragmentWithNamespaceInOuter(::createReader)
+    }
+
+    @Test
+    open fun testNamespaceDecls() {
+        testNamespaceDecls(::createReader)
+    }
+
+    @Test
+    open fun testReadCompactFragment() {
+        testReadCompactFragment(::createReader)
+    }
+
+    @Test
+    open fun testReadSingleTag() {
+        testReadSingleTag(::createReader)
+    }
+
+    @Test
+    open fun testGenericReadEntity() {
+        testReadEntity(::createReader)
+    }
+
+    @Test
+    open fun testReadUnknownEntity() {
+        testReadUnknownEntity(::createReader)
+    }
+
+    @Test
+    open fun testIgnorableWhitespace() {
+        testIgnorableWhitespace(::createReader)
+    }
+
+    @Test
+    open fun testReaderWithBOM() {
+        testReaderWithBOM(::createReader)
+    }
+
+    @Test
+    open fun testProcessingInstruction() {
+        testProcessingInstruction(::createReader) { KtXmlWriter(StringWriter(), xmlDeclMode = XmlDeclMode.None) }
+    }
+
+    @Test
+    open fun testReadToDom() {
+        testReadToDom(::createReader)
+    }
+
+    @Test
+    open fun testReadEntity() {
+        testReadEntity(::createReader)
+    }
+
+    @Test
+    open fun testProcessingInstructionDom() {
+        testProcessingInstruction(::createReader) { DomWriter() }
     }
 }

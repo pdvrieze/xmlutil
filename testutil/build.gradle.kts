@@ -71,8 +71,15 @@ kotlin {
             dependencies {
                 api(libs.serialization.core)
                 api(kotlin("test"))
+                api(kotlin("test-annotations-common"))
                 api(projects.core)
 
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                api(kotlin("test-junit5"))
             }
         }
 
