@@ -426,7 +426,7 @@ public class KtXmlReader internal constructor(
             _eventType = COMMENT
             return
         }
-
+        val lastEvent = _eventType
         val eventType = peekType()
         _eventType = eventType
         when (eventType) {
@@ -445,7 +445,10 @@ public class KtXmlReader internal constructor(
                 if (depth == 1) state = State.POST
             }
 
-            TEXT -> {
+            TEXT -> if (lastEvent == ENTITY_REF) { // Entity refs are part of text, so don't
+                // consider the following text whitespace at all
+                pushRegularText('<', false)
+            } else {
                 pushText('<')
                 if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
             }

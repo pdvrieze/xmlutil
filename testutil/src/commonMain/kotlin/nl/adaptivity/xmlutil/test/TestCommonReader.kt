@@ -328,4 +328,24 @@ abstract class TestCommonReader {
     open fun testProcessingInstructionDom() {
         testProcessingInstruction(::createReader) { DomWriter() }
     }
+
+    @Test
+    open fun testWhiteSpaceWithEntity() {
+        val data = "<x>   &amp;   </x>"
+        val r = createReader(data)
+        r.nextTag()
+        r.require(EventType.START_ELEMENT, "", "x")
+        assertEquals(EventType.TEXT, r.next())
+        r.require(EventType.TEXT, null)
+        if (r.text.isBlank()) { // either parse as 3 parts or as a single text
+            assertEquals("   ", r.text)
+            assertEquals(EventType.ENTITY_REF, r.next())
+            assertEquals("&", r.text)
+            assertEquals(EventType.TEXT, r.next())
+            assertEquals("   ", r.text)
+        } else {
+            assertEquals("   &   ", r.text)
+        }
+
+    }
 }
