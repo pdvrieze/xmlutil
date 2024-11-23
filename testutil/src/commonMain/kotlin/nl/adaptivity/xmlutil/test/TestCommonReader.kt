@@ -331,20 +331,27 @@ abstract class TestCommonReader {
 
     @Test
     open fun testWhiteSpaceWithEntity() {
-        val data = "<x>   &amp;   </x>"
+        val data = "<x>   dude &amp; &lt;dudette&gt;   </x>"
         val r = createReader(data)
         r.nextTag()
         r.require(EventType.START_ELEMENT, "", "x")
         assertEquals(EventType.TEXT, r.next())
         r.require(EventType.TEXT, null)
-        if (r.text.isBlank()) { // either parse as 3 parts or as a single text
-            assertEquals("   ", r.text)
+        if (r.text == "   dude ") { // either parse as 3 parts or as a single text
             assertEquals(EventType.ENTITY_REF, r.next())
             assertEquals("&", r.text)
             assertEquals(EventType.TEXT, r.next())
+            assertEquals(" ", r.text)
+            assertEquals(EventType.ENTITY_REF, r.next())
+            assertEquals("<", r.text)
+            assertEquals(EventType.TEXT, r.next())
+            assertEquals("dudette", r.text)
+            assertEquals(EventType.ENTITY_REF, r.next())
+            assertEquals(">", r.text)
+            assertEquals(EventType.TEXT, r.next())
             assertEquals("   ", r.text)
         } else {
-            assertEquals("   &   ", r.text)
+            assertEquals("   dude & <dudette>   ", r.text)
         }
 
     }
