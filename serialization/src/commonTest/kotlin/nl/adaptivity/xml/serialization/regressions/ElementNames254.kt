@@ -23,6 +23,7 @@ package nl.adaptivity.xml.serialization.regressions
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.FormatCache
@@ -116,7 +117,7 @@ class ElementNames254 {
             parent = Parent(Element("element")),
             otherParent = OtherParent(OtherElement("element")),
         )
-        val deserialized: Root = XML.decodeFromString(EXPECTED)
+        val deserialized: Root = xml.decodeFromString(EXPECTED)
 
         assertEquals(root, deserialized)
     }
