@@ -27,10 +27,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.StructureKind
-import kotlinx.serialization.descriptors.capturedKClass
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.ChunkedDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
@@ -1058,17 +1055,20 @@ internal open class XmlDecoderBase internal constructor(
                 if (vc >= 0) { // only map to a value child for a polymorphic child if it is actually matche
                     var vcdesc = xmlDescriptor.getElementDescriptor(vc)
                     while (vcdesc is XmlListDescriptor && vcdesc.isListEluded) vcdesc = vcdesc.getElementDescriptor(0)
-                    if (vcdesc !is XmlPolymorphicDescriptor || ! vcdesc.isTransparent || vcdesc.polyMap[namespace, localName] !=null) {
+                    if (vcdesc !is XmlPolymorphicDescriptor ||
+                        ! vcdesc.isTransparent ||
+                        vcdesc.kind == PolymorphicKind.SEALED || // sealed classes have no base class
+                        vcdesc.polyMap[namespace, localName] != null) {
+                        return vc.checkRepeat()
+                    }
+                    val m = vcdesc.resolvePolymorphicTypeNameCandidates(input.name, serializersModule)
+                    if (m.size == 1) {
                         return vc.checkRepeat()
                     }
                     val baseClass = vcdesc.serialDescriptor.capturedKClass
                     if (baseClass != null) {
                         val defaultSerializer = serializersModule.getPolymorphic(baseClass, localName)
                         if (defaultSerializer != null) {
-                            return vc.checkRepeat()
-                        }
-                        val m = vcdesc.resolvePolymorphicTypeNameCandidates(input.name, serializersModule)
-                        if (m.size == 1) {
                             return vc.checkRepeat()
                         }
                     }
