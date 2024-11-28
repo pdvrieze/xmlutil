@@ -70,7 +70,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
         when {
             ! isStarted -> throw XmlException("Parsing not started yet")
             eventType != type ->
-                throw XmlException("Type $eventType does not match expected type \"$type\" ($extLocationInfo)")
+                throw XmlException("Type $eventType($localName) does not match expected type \"$type($name)\" ($extLocationInfo)")
 
             name != null &&
                     localName != name ->
@@ -183,6 +183,21 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public class StringLocationInfo(private val str: String) : LocationInfo {
         override fun toString(): String = str
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as StringLocationInfo
+
+            return str == other.str
+        }
+
+        override fun hashCode(): Int {
+            return str.hashCode()
+        }
+
+
     }
 
     /**
@@ -205,6 +220,28 @@ public interface XmlReader : Closeable, Iterator<EventType> {
             }
 
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as ExtLocationInfo
+
+            if (col != other.col) return false
+            if (line != other.line) return false
+            if (offset != other.offset) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = col
+            result = 31 * result + line
+            result = 31 * result + offset
+            return result
+        }
+
+
     }
 }
 

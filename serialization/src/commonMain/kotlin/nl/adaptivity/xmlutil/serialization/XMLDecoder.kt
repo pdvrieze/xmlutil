@@ -761,7 +761,7 @@ internal open class XmlDecoderBase internal constructor(
         private val otherAttrIndex: Int = xmlDescriptor.getAttrMap()
 
         @OptIn(ExperimentalXmlUtilApi::class)
-        private var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
+        protected var pendingRecovery = ArrayDeque<XML.ParsedData<*>>()
 
         protected var stage = STAGE_INIT
 
@@ -1023,8 +1023,10 @@ internal open class XmlDecoderBase internal constructor(
 
             val nameMap = if (isNameOfAttr) attrNameMap else tagNameMap
 
+            // If it is a known (non-polymorphic) child just return the index of the value
             nameMap[namespace, localName]?.let { return it.checkRepeatAndOrder(inputType) }
 
+            // Or if a tag check that hit is known as a polymorphic value
             if (!isNameOfAttr) {
                 polyMap[namespace, localName]?.let {
                     return it.index.checkRepeatAndOrder(inputType).apply {
@@ -1052,7 +1054,20 @@ internal open class XmlDecoderBase internal constructor(
                 if (other >= 0) return other
             } else {
                 val vc = xmlDescriptor.getValueChild()
-                if (vc >= 0) return vc.checkRepeat()
+                if (vc >= 0) { // only map to a value child for a polymorphic child if it is actually matche
+                    var vcdesc = xmlDescriptor.getElementDescriptor(vc)
+                    while (vcdesc is XmlListDescriptor && vcdesc.isListEluded) vcdesc = vcdesc.getElementDescriptor(0)
+                    if (vcdesc !is XmlPolymorphicDescriptor || ! vcdesc.isTransparent || vcdesc.polyMap[namespace, localName] !=null) {
+                        return vc.checkRepeat()
+                    }
+                    val baseClass = vcdesc.serialDescriptor.capturedKClass
+                    if (baseClass != null) {
+                        val defaultSerializer = serializersModule.getPolymorphic(baseClass, localName)
+                        if (defaultSerializer != null) {
+                            return vc.checkRepeat()
+                        }
+                    }
+                }
             }
 
             // Hook that will normally throw an exception on an unknown name.
@@ -1268,10 +1283,12 @@ internal open class XmlDecoderBase internal constructor(
                                     while (valueDesc is XmlListDescriptor && valueDesc.isListEluded) {
                                         valueDesc = valueDesc.getElementDescriptor(0)
                                     }
-                                    val outputKind = valueDesc.outputKind
-                                    if (outputKind == OutputKind.Text || outputKind == OutputKind.Mixed) { // this allows all primitives (
-                                        seenItems[valueChild] = true
-                                        return valueChild // We can handle whitespace
+                                    if (valueDesc.preserveSpace) { // if the type is not explicitly marked to ignore whitespace
+                                        val outputKind = valueDesc.outputKind
+                                        if (outputKind == OutputKind.Text || outputKind == OutputKind.Mixed) { // this allows all primitives (
+                                            seenItems[valueChild] = true
+                                            return valueChild // We can handle whitespace
+                                        }
                                     }
                                 }
                             } else if (!input.isWhitespace()) {
@@ -1294,18 +1311,23 @@ internal open class XmlDecoderBase internal constructor(
                             InputKind.Attribute
                         ).markSeenOrHandleUnknown { decodeElementIndex() }
 
-                        EventType.START_ELEMENT -> when (val i =
-                            indexOf(input.namespaceURI, input.localName, InputKind.Element)) {
-                            // If we have an unknown element read it all, but ignore this. We use elementContentToFragment for this
-                            // as a shortcut.
-                            CompositeDecoder.UNKNOWN_NAME -> {
-                                if (pendingRecovery.isNotEmpty()) {
-                                    return pendingRecovery.first().elementIndex
+                        EventType.START_ELEMENT -> {
+                            val startPos = input.extLocationInfo
+                            when (val i = indexOf(input.namespaceURI, input.localName, InputKind.Element)) {
+                                // Note that the recovery must consume the element.
+                                CompositeDecoder.UNKNOWN_NAME -> {
+                                    if (pendingRecovery.isNotEmpty()) {
+                                        return pendingRecovery.first().elementIndex
+                                    }
+                                    // Add a special check to handle recovery that doesn't consume the tag
+                                    // check the event type as a self-closing tag has the same end position.
+                                    if (input.eventType == EventType.START_ELEMENT && startPos != null && startPos == input.extLocationInfo) {
+                                        input.elementContentToFragment()
+                                    }
                                 }
-                                input.elementContentToFragment()
-                            }
 
-                            else -> return i.also { seenItems[i] = true }
+                                else -> return i.also { seenItems[i] = true }
+                            }
                         }
 
                         EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
@@ -2050,15 +2072,15 @@ internal open class XmlDecoderBase internal constructor(
                     isMixed && (input.eventType == EventType.TEXT ||
                             input.eventType == EventType.IGNORABLE_WHITESPACE ||
                             input.eventType == EventType.CDSECT)
-                    -> "kotlin.String" // hardcode handling text input polymorphically
+                        -> "kotlin.String" // hardcode handling text input polymorphically
 
                     polyInfo != null -> polyInfo.describedName
 
                     else -> {
                         if (input.eventType == EventType.START_ELEMENT) {
+                            val baseClass = xmlDescriptor.serialDescriptor.capturedKClass
                             val matches = xmlDescriptor.polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
                                 if (xmlDesc.tagName.isEquivalent(input.name)) return typeName
-                                val baseClass = xmlDescriptor.serialDescriptor.capturedKClass
                                 if (baseClass == null) {
                                     null
                                 } else {
@@ -2069,7 +2091,7 @@ internal open class XmlDecoderBase internal constructor(
                             when (matches.size) {
                                 0 -> error("No XmlSerializable found to handle unrecognized value tag ${input.name} in polymorphic context")
                                 1 -> matches.first()
-                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context")
+                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context (${matches.joinToString()})")
                             }
                         } else error("PolyInfo is null for a transparent polymorphic decoder and not in start element context")
                     }

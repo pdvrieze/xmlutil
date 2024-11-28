@@ -673,12 +673,16 @@ abstract interface nl.adaptivity.xmlutil/XmlReader : kotlin.collections/Iterator
     final class ExtLocationInfo : nl.adaptivity.xmlutil/XmlReader.LocationInfo { // nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo|null[0]
         constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int) // nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
 
+        final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo.toString|toString(){}[0]
     }
 
     final class StringLocationInfo : nl.adaptivity.xmlutil/XmlReader.LocationInfo { // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo|null[0]
         constructor <init>(kotlin/String) // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo.<init>|<init>(kotlin.String){}[0]
 
+        final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo.toString|toString(){}[0]
     }
 }

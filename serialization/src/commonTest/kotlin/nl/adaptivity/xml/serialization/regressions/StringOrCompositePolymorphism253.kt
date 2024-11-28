@@ -20,36 +20,70 @@
 
 package nl.adaptivity.xml.serialization.regressions
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlDeserializationStrategy
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.elementContentToFragment
+import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class StringOrCompositePolymorphism253 {
 
-    val xml = XML(ExtensionDto.module()) { recommended_0_90_2() }
+    val xmlRecoverConsume = XML(ExtensionDto.nodefaultModule()) {
+        recommended_0_90_2 {
+            unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
+                input.elementContentToFragment() // parse the element and drop it
+                emptyList()
+            }
+        }
+    }
+
+    val xmlRecoverBlind = XML(ExtensionDto.nodefaultModule()) {
+        recommended_0_90_2 {
+            unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
+                emptyList()
+            }
+        }
+    }
 
     @Test
-    fun testParse() {
+    fun testParseRecoverConsume() {
+        testParse(xmlRecoverConsume)
+    }
+
+    @Test
+    fun testParseRecoverWithoutConsuming() {
+        testParse(xmlRecoverBlind)
+    }
+
+    private fun testParse(xml: XML) {
         val result = xml.decodeFromString<List<ExtensionDto>>(SAMPLE, QName("Extensions"))
-        assertEquals(2, result.size)
+        assertEquals(3, result.size)
         assertEquals("{\"savedData\":\"\"}", assertIs<String>(result[0].value[0]).trim())
-        for (e in result[1].value) {
-            if(e is String) assertEquals("", e.trim())
+        val e2 = result[1].value
+        assert(e2.isEmpty())
+
+        for (e in result[2].value) {
+            if (e is String) assertEquals("", e.trim())
         }
-        val e2 = result[1].value.filterIsInstance<AdVerificationsDto>().single()
-        assertEquals(1, e2.verifications?.size)
-        assertIs<Element>(e2.verifications?.single())
+
+        val e3 = assertIs<AdVerificationsDto>(result[2].value.single())
+        assertEquals(1, e3.verifications?.size)
+        assertIs<Element>(e3.verifications?.single())
     }
 
 
@@ -62,12 +96,52 @@ class StringOrCompositePolymorphism253 {
         var value: List<@Polymorphic Any> = listOf()
     ) {
         companion object {
-            fun module() = SerializersModule {
+            fun nodefaultModule() = SerializersModule {
                 polymorphic(Any::class) {
+//                    defaultDeserializer { DummyDeserializer }
                     subclass(String::class)
                     subclass(AdVerificationsDto::class)
                 }
             }
+            fun defaultModule() = SerializersModule {
+                polymorphic(Any::class) {
+                    defaultDeserializer { DummyDeserializer }
+                    subclass(String::class)
+                    subclass(AdVerificationsDto::class)
+                }
+            }
+            fun xmlDefaultModule() = SerializersModule {
+                polymorphic(Any::class) {
+                    defaultDeserializer { DummyDeserializer }
+                    subclass(String::class)
+                    subclass(AdVerificationsDto::class)
+                }
+            }
+        }
+    }
+
+    object DummyDeserializer: DeserializationStrategy<Any> {
+        override val descriptor: SerialDescriptor get() = buildClassSerialDescriptor("Dummy")
+
+        override fun deserialize(decoder: Decoder): Any {
+            return Unit
+        }
+    }
+
+    object DummyXmlDeserializer: XmlDeserializationStrategy<Any> {
+        override val descriptor: SerialDescriptor get() = buildClassSerialDescriptor("Dummy")
+
+        override fun deserialize(decoder: Decoder): Any {
+            throw UnsupportedOperationException()
+        }
+
+        override fun deserializeXML(
+            decoder: Decoder,
+            input: XmlReader,
+            previousValue: Any?,
+            isValueChild: Boolean
+        ): Any {
+            return input.elementContentToFragment()
         }
     }
 
@@ -76,6 +150,7 @@ class StringOrCompositePolymorphism253 {
     data class AdVerificationsDto(
         @XmlElement(true)
         @XmlValue
+        @XmlIgnoreWhitespace
         var verifications: MutableList<Element>? = mutableListOf()
     )
 
@@ -83,6 +158,9 @@ class StringOrCompositePolymorphism253 {
         |<Extensions>
         |    <Extension source="mySource">
         |        <![CDATA[{"savedData":""}]]>
+        |    </Extension>
+        |    <Extension>
+        |        <other />
         |    </Extension>
         |    <Extension type="AdVerifications">
         |        <AdVerifications>
