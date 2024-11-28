@@ -1049,6 +1049,7 @@ internal open class XmlDecoderBase internal constructor(
                 nameMap["", localName]?.let { return it.checkRepeatAndOrder(inputType) }
             }
 
+            // TODO check that the attr count test should not be needed
             if (inputType == InputKind.Attribute && lastAttrIndex in 0 until attrCount) {
                 val other = otherAttrIndex
                 if (other >= 0) return other
@@ -1064,6 +1065,10 @@ internal open class XmlDecoderBase internal constructor(
                     if (baseClass != null) {
                         val defaultSerializer = serializersModule.getPolymorphic(baseClass, localName)
                         if (defaultSerializer != null) {
+                            return vc.checkRepeat()
+                        }
+                        val m = vcdesc.resolvePolymorphicTypeNameCandidates(input.name, serializersModule)
+                        if (m.size == 1) {
                             return vc.checkRepeat()
                         }
                     }
@@ -2078,20 +2083,11 @@ internal open class XmlDecoderBase internal constructor(
 
                     else -> {
                         if (input.eventType == EventType.START_ELEMENT) {
-                            val baseClass = xmlDescriptor.serialDescriptor.capturedKClass
-                            val matches = xmlDescriptor.polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
-                                if (xmlDesc.tagName.isEquivalent(input.name)) return typeName
-                                if (baseClass == null) {
-                                    null
-                                } else {
-                                    val ser = serializersModule.getPolymorphic(baseClass, typeName)
-                                    if (ser is XmlSerializer) typeName else null
-                                }
-                            }
-                            when (matches.size) {
+                            val m = xmlDescriptor.resolvePolymorphicTypeNameCandidates(input.name, serializersModule)
+                            when (m.size) {
                                 0 -> error("No XmlSerializable found to handle unrecognized value tag ${input.name} in polymorphic context")
-                                1 -> matches.first()
-                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context (${matches.joinToString()})")
+                                1 -> m.first()
+                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context (${m.joinToString()})")
                             }
                         } else error("PolyInfo is null for a transparent polymorphic decoder and not in start element context")
                     }
@@ -2115,7 +2111,7 @@ internal open class XmlDecoderBase internal constructor(
         ): XmlDecoder {
 
             val childXmlDescriptor = polyInfo?.descriptor
-                ?: xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
+                ?: xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor)
 
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
@@ -2174,7 +2170,7 @@ internal open class XmlDecoderBase internal constructor(
 
             return when {
                 isMixed && deserializer.descriptor.kind is PrimitiveKind -> {
-                    val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor.serialName)
+                    val childXmlDescriptor = xmlDescriptor.getPolymorphicDescriptor(deserializer.descriptor)
                     deserializer.deserialize(XmlDecoder(childXmlDescriptor, isValueChild = isValueChild))
                 }
 

@@ -936,6 +936,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPolymorphicD
 	public final fun getParentSerialName ()Ljava/lang/String;
 	public final fun getPolyInfo ()Ljava/util/Map;
 	public final fun getPolymorphicDescriptor (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public final fun getPolymorphicDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public final fun getPolymorphicMode ()Lnl/adaptivity/xmlutil/serialization/structure/PolymorphicMode;
 	public fun getPreserveSpace ()Z
 	public final fun getTypeQNameToSerialName ()Ljava/util/Map;

@@ -476,6 +476,7 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescript
     final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun getElementDescriptor(kotlin/Int): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
     final fun getPolymorphicDescriptor(kotlin/String): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.getPolymorphicDescriptor|getPolymorphicDescriptor(kotlin.String){}[0]
+    final fun getPolymorphicDescriptor(kotlinx.serialization.descriptors/SerialDescriptor): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.getPolymorphicDescriptor|getPolymorphicDescriptor(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
     final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.hashCode|hashCode(){}[0]
 }
 

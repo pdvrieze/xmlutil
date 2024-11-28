@@ -4,7 +4,13 @@ Features:
 - Add a core-io and serialization-io modules that support using kotlinx.io
 - Add inline function shortcuts for encodeToString/decodeFromString with
   prefix/qname parameter that also take their serializer from the type
-  parameter instead of as explicit parameter. 
+  parameter instead of as explicit parameter.
+- Support both the default polymorphic serializer and handling unknown
+  elements broadly, in particular inside value items (as list). #256.
+  For handling unknown values the implementation now attempts to detect
+  the unknown element handler not consuming the element and will in such
+  case parse the remaining elements (This uses input.location so the
+  reader must support that). 
 
 Changes:
 - `encodeToWriter` will now flush the writer. This is particularly

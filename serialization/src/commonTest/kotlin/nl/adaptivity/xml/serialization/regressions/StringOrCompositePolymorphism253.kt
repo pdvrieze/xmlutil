@@ -24,24 +24,44 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlDeserializationStrategy
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.localName
 import nl.adaptivity.xmlutil.elementContentToFragment
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class StringOrCompositePolymorphism253 {
+
+    val xmlElement = XML(ExtensionDto.elementModule()) {
+        recommended_0_90_2()
+    }
+
+    val xmlDefaultElement = XML(ExtensionDto.elementDefaultModule()) {
+        recommended_0_90_2()
+    }
+
+    val xmlDummyElement = XML(ExtensionDto.defaultModule()) {
+        recommended_0_90_2()
+    }
+
+    val xmlXmlDummyElement = XML(ExtensionDto.xmlDefaultModule()) {
+        recommended_0_90_2()
+    }
 
     val xmlRecoverConsume = XML(ExtensionDto.nodefaultModule()) {
         recommended_0_90_2 {
@@ -62,20 +82,51 @@ class StringOrCompositePolymorphism253 {
 
     @Test
     fun testParseRecoverConsume() {
-        testParse(xmlRecoverConsume)
+        testParse(xmlRecoverConsume) { assertTrue(it.isEmpty()) }
+    }
+
+    @Test
+    fun testParseElement() {
+        testParse(xmlElement) {
+            val elem = assertIs<Element>(it.singleOrNull())
+            assertEquals("other", elem.localName)
+        }
+    }
+
+    @Test
+    fun testParseDefaultElement() {
+        testParse(xmlDefaultElement) {
+            val elem = assertIs<Element>(it.singleOrNull())
+            assertEquals("other", elem.localName)
+        }
+    }
+
+    @Test
+    fun testParseDummyElement() {
+        testParse(xmlDummyElement) {
+            val elem = assertIs<Unit>(it.singleOrNull())
+        }
+    }
+
+    @Test
+    fun testParseXmlDummyElement() {
+        testParse(xmlXmlDummyElement) {
+            val elem = assertIs<CompactFragment>(it.singleOrNull())
+            assertEquals("", elem.contentString)
+        }
     }
 
     @Test
     fun testParseRecoverWithoutConsuming() {
-        testParse(xmlRecoverBlind)
+        testParse(xmlRecoverBlind) { assertTrue(it.isEmpty()) }
     }
 
-    private fun testParse(xml: XML) {
+    private fun testParse(xml: XML, assertE2: (List<Any>) -> Unit) {
         val result = xml.decodeFromString<List<ExtensionDto>>(SAMPLE, QName("Extensions"))
         assertEquals(3, result.size)
         assertEquals("{\"savedData\":\"\"}", assertIs<String>(result[0].value[0]).trim())
         val e2 = result[1].value
-        assert(e2.isEmpty())
+        assertE2(e2)
 
         for (e in result[2].value) {
             if (e is String) assertEquals("", e.trim())
@@ -98,7 +149,20 @@ class StringOrCompositePolymorphism253 {
         companion object {
             fun nodefaultModule() = SerializersModule {
                 polymorphic(Any::class) {
-//                    defaultDeserializer { DummyDeserializer }
+                    subclass(String::class)
+                    subclass(AdVerificationsDto::class)
+                }
+            }
+            fun elementModule() = SerializersModule {
+                polymorphic(Any::class) {
+                    subclass(Element::class)
+                    subclass(String::class)
+                    subclass(AdVerificationsDto::class)
+                }
+            }
+            fun elementDefaultModule() = SerializersModule {
+                polymorphic(Any::class) {
+                    defaultDeserializer { Element.serializer() }
                     subclass(String::class)
                     subclass(AdVerificationsDto::class)
                 }
@@ -112,7 +176,7 @@ class StringOrCompositePolymorphism253 {
             }
             fun xmlDefaultModule() = SerializersModule {
                 polymorphic(Any::class) {
-                    defaultDeserializer { DummyDeserializer }
+                    defaultDeserializer { DummyXmlDeserializer }
                     subclass(String::class)
                     subclass(AdVerificationsDto::class)
                 }
@@ -121,10 +185,19 @@ class StringOrCompositePolymorphism253 {
     }
 
     object DummyDeserializer: DeserializationStrategy<Any> {
-        override val descriptor: SerialDescriptor get() = buildClassSerialDescriptor("Dummy")
+        override val descriptor: SerialDescriptor get() = buildClassSerialDescriptor("Dummy") {
+            element("dummyVal", Unit.serializer().descriptor, isOptional = true)
+        }
 
         override fun deserialize(decoder: Decoder): Any {
-            return Unit
+            return decoder.decodeStructure(descriptor) {
+                var i = decodeElementIndex(descriptor)
+                while (i>=0) {
+                    decodeSerializableElement(descriptor, i, DummyDeserializer)
+                    i = decodeElementIndex(descriptor)
+                }
+                Unit
+            }
         }
     }
 

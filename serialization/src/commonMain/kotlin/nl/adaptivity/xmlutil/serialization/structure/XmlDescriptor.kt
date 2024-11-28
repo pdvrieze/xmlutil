@@ -1101,7 +1101,7 @@ public sealed class PolymorphicMode {
 
 @OptIn(ExperimentalSerializationApi::class)
 public class XmlPolymorphicDescriptor internal constructor(
-    codecConfig: XmlCodecConfig,
+    private val codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
@@ -1260,8 +1260,16 @@ public class XmlPolymorphicDescriptor internal constructor(
     }
 
     public fun getPolymorphicDescriptor(typeName: String): XmlDescriptor {
-        return polyInfo[typeName]
-            ?: throw XmlSerialException("Missing polymorphic information for $typeName")
+        polyInfo[typeName]?.let { return it }
+        throw XmlSerialException("Missing polymorphic information for $typeName")
+    }
+
+    public fun getPolymorphicDescriptor(descriptor: SerialDescriptor): XmlDescriptor {
+        polyInfo[descriptor.serialName]?.let { return it }
+
+        val typeDescriptor = codecConfig.config.lookupTypeDesc(tagParent.namespace, descriptor)
+        val overriddenParentInfo = DetachedParent(tagParent.namespace, typeDescriptor, useNameInfo)
+        return from(codecConfig, overriddenParentInfo, tagParent, false)
     }
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
@@ -1310,6 +1318,24 @@ public class XmlPolymorphicDescriptor internal constructor(
         result = 31 * result + polyInfo.hashCode()
         result = 31 * result + (parentSerialName?.hashCode() ?: 0)
         return result
+    }
+
+    internal fun resolvePolymorphicTypeNameCandidates(name: QName, serializersModule: SerializersModule): List<String> {
+        val baseClass = serialDescriptor.capturedKClass
+        val directMatches = polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
+            if (xmlDesc.tagName.isEquivalent(name)) return listOf(typeName)
+            if (baseClass == null) {
+                null
+            } else {
+                when (serializersModule.getPolymorphic(baseClass, typeName)) {
+                    is XmlSerializer -> typeName
+                    else -> null
+                }
+            }
+        }
+        if (directMatches.isNotEmpty() || baseClass == null) return directMatches
+        val defaultMatch = serializersModule.getPolymorphic(baseClass, name.localPart)
+        return listOfNotNull(defaultMatch?.descriptor?.serialName)
     }
 
 

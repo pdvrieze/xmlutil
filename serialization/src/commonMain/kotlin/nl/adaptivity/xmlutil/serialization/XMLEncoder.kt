@@ -1020,7 +1020,7 @@ internal open class XmlEncoderBase internal constructor(
             value: T
         ) {
             val childXmlDescriptor =
-                xmlDescriptor.getPolymorphicDescriptor(serializer.descriptor.serialName)
+                xmlDescriptor.getPolymorphicDescriptor(serializer.descriptor)
 
             val discriminatorName = (xmlDescriptor.polymorphicMode as? PolymorphicMode.ATTR)?.name
             val encoder = XmlEncoder(childXmlDescriptor, index, discriminatorName)
