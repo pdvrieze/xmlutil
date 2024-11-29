@@ -40,10 +40,7 @@ import nl.adaptivity.xmlutil.dom2.localName
 import nl.adaptivity.xmlutil.elementContentToFragment
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class StringOrCompositePolymorphism253 {
 
@@ -88,6 +85,9 @@ class StringOrCompositePolymorphism253 {
     @Test
     fun testParseElement() {
         testParse(xmlElement) {
+            if (it.any { it is String && it.isBlank() }) {
+                fail("Expected parsing to ignore whitespace, but this didn't happen")
+            }
             val elem = assertIs<Element>(it.singleOrNull())
             assertEquals("other", elem.localName)
         }
@@ -223,8 +223,7 @@ class StringOrCompositePolymorphism253 {
     data class AdVerificationsDto(
         @XmlElement(true)
         @XmlValue
-        @XmlIgnoreWhitespace
-        var verifications: MutableList<Element>? = mutableListOf()
+        var verifications: MutableList<@XmlIgnoreWhitespace Element>? = mutableListOf()
     )
 
     val SAMPLE = """

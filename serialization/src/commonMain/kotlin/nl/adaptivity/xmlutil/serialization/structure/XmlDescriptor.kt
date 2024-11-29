@@ -404,7 +404,7 @@ public sealed class XmlDescriptor(
                         XmlPolymorphicDescriptor(
                             codecConfig,
                             effectiveSerializerParent,
-                            effectiveTagParent
+                            effectiveTagParent,
                         )
 
                     SerialKind.CONTEXTUAL ->
@@ -412,7 +412,7 @@ public sealed class XmlDescriptor(
                             codecConfig,
                             effectiveSerializerParent,
                             effectiveTagParent,
-                            canBeAttribute
+                            canBeAttribute,
                         )
 
                     else -> when {
@@ -1418,7 +1418,7 @@ public sealed class XmlListLikeDescriptor(
 public class XmlMapDescriptor internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo = serializerParent,
+    tagParent: SafeParentInfo = serializerParent
 ) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent) {
 
     override val outputKind: OutputKind get() = OutputKind.Element
@@ -1473,7 +1473,7 @@ public class XmlMapDescriptor internal constructor(
 public class XmlListDescriptor internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo = serializerParent,
+    tagParent: SafeParentInfo = serializerParent
 ) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent) {
 
     override val outputKind: OutputKind
