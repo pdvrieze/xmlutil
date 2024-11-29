@@ -51,6 +51,7 @@ class IOTest {
     fun testDeserialize() {
         val expected = SimpleData("bar")
         val source = Buffer().apply { writeString("<SimpleData>bar</SimpleData>") }
+        assertEquals(28, source.size)
 
         val actual = xml.decodeFromSource<SimpleData>(source)
         assertEquals(expected, actual)

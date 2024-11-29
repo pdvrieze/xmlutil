@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.core.kxio
 
 import kotlinx.io.Buffer
 import kotlinx.io.writeString
+import nl.adaptivity.xmlutil.core.KtXmlReader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -39,5 +40,18 @@ class TestReadSource {
             }
         }
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testKtXmlReaderFromBuffer() {
+        val source = Buffer().apply { writeString("<SimpleData>bar</SimpleData>"); flush() }
+        val r = SourceUnicodeReader(source)
+        val kt = KtXmlReader(r)
+        var cnt = 0
+        while (kt.hasNext()) {
+            kt.next()
+            ++cnt
+        }
+        assertEquals(5, cnt)
     }
 }

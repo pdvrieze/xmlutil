@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
  * An implementation of a reader that reads UTF data from a kotlinx.io.Source
  */
 @XmlUtilInternal
-internal class SourceUnicodeReader(public val source: Source) : Reader() {
+internal class SourceUnicodeReader(val source: Source) : Reader() {
     private val inputBuffer = ByteArray(INPUT_BYTE_BUFFER_SIZE)
     private var inputBufferOffset = 0
     private var inputBufferEnd = 0
@@ -114,9 +114,10 @@ internal class SourceUnicodeReader(public val source: Source) : Reader() {
             buf[outPos++] = pendingLowSurrogate
             pendingLowSurrogate = '\u0000'
         }
+        if (peekByte() < 0) return -1
         while (outPos < endPos) {
             val code = nextByte()
-            if (code < 0) return -1
+            if (code < 0) break
 
             if (code and 0x80 != 0) { // It is an UTF 8 number
                 val codePoint: UInt = readMultiByteFrom(code)
