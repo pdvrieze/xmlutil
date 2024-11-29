@@ -64,7 +64,7 @@ public interface SafeXmlDescriptor {
         get() = serialDescriptor.kind
 
     @ExperimentalXmlUtilApi
-    public val preserveSpace: Boolean
+    public val defaultPreserveSpace: TypePreserveSpace
 
     public val typeDescriptor: XmlTypeDescriptor
     public val tagParent: SafeParentInfo
@@ -83,6 +83,59 @@ public interface SafeXmlDescriptor {
     public fun isElementOptional(index: Int): Boolean =
         serialDescriptor.isElementOptional(index)
 
+}
+
+@ExperimentalXmlUtilApi
+public enum class TypePreserveSpace {
+    /** The default preserve for the type */
+    DEFAULT {
+        override fun withDefault(d: Boolean): Boolean = d
+    },
+    /** Preserve whitespace, specifie as type default, also in children (where relevant) */
+    PRESERVE {
+        override fun withDefault(d: Boolean): Boolean = true
+    },
+    /** Forcibly ignore the whitespace */
+    IGNORE {
+        override fun withDefault(d: Boolean): Boolean = false
+    };
+
+    public abstract fun withDefault(d: Boolean): Boolean
+
+    public fun overrideIgnore(annotatedIgnore: Boolean?): TypePreserveSpace = when (annotatedIgnore) {
+        null -> this
+        true -> IGNORE
+        false -> PRESERVE
+    }
+}
+
+@ExperimentalXmlUtilApi
+public enum class DocumentPreserveSpace {
+    /** The default preserve for the type */
+    DEFAULT {
+        override fun withDefault(d: Boolean): Boolean = d
+    },
+    /** Preserve whitespace, specifie as type default, also in children (where relevant) */
+    DEFAULT_PRESERVE {
+        override fun withDefault(d: Boolean): Boolean = true
+    },
+    /** Preserve whitespace, also in children (where relevant) */
+    DOCUMENT_PRESERVE {
+        override fun withDefault(d: Boolean): Boolean = true
+        override fun withDefault(t: TypePreserveSpace): DocumentPreserveSpace = this
+    },
+    /** Forcibly ignore the whitespace */
+    DEFAULT_IGNORE {
+        override fun withDefault(d: Boolean): Boolean = false
+    };
+
+    public abstract fun withDefault(d: Boolean): Boolean
+
+    public open fun withDefault(t: TypePreserveSpace): DocumentPreserveSpace = when (t) {
+        TypePreserveSpace.DEFAULT -> this
+        TypePreserveSpace.PRESERVE -> DEFAULT_PRESERVE
+        TypePreserveSpace.IGNORE -> DEFAULT_IGNORE
+    }
 }
 
 public sealed class XmlDescriptor(
@@ -374,7 +427,8 @@ public sealed class XmlDescriptor(
                         XmlListDescriptor(
                             codecConfig,
                             effectiveSerializerParent,
-                            effectiveTagParent
+                            effectiveTagParent,
+                            preserveSpace
                         )
 
                     StructureKind.MAP -> {
@@ -383,19 +437,22 @@ public sealed class XmlDescriptor(
                                 XmlAttributeMapDescriptor(
                                     codecConfig,
                                     effectiveSerializerParent,
-                                    effectiveTagParent
+                                    effectiveTagParent,
+                                    preserveSpace
                                 )
 
                             serializerParent.elementUseOutputKind == OutputKind.Attribute -> XmlAttributeMapDescriptor(
                                 codecConfig,
                                 effectiveSerializerParent,
-                                effectiveTagParent
+                                effectiveTagParent,
+                                preserveSpace
                             )
 
                             else -> XmlMapDescriptor(
                                 codecConfig,
                                 effectiveSerializerParent,
-                                effectiveTagParent
+                                effectiveTagParent,
+                                preserveSpace
                             )
                         }
                     }
@@ -405,6 +462,7 @@ public sealed class XmlDescriptor(
                             codecConfig,
                             effectiveSerializerParent,
                             effectiveTagParent,
+                            preserveSpace
                         )
 
                     SerialKind.CONTEXTUAL ->
@@ -413,6 +471,7 @@ public sealed class XmlDescriptor(
                             effectiveSerializerParent,
                             effectiveTagParent,
                             canBeAttribute,
+                            preserveSpace
                         )
 
                     else -> when {
@@ -422,7 +481,8 @@ public sealed class XmlDescriptor(
                                 codecConfig,
                                 effectiveSerializerParent,
                                 effectiveTagParent,
-                                canBeAttribute
+                                canBeAttribute,
+                                preserveSpace
                             )
 
                         else ->
@@ -464,8 +524,8 @@ public class XmlRootDescriptor internal constructor(
         get() = true // effectively a root descriptor is inline
 
     @ExperimentalXmlUtilApi
-    override val preserveSpace: Boolean
-        get() = element.preserveSpace
+    override val defaultPreserveSpace: TypePreserveSpace
+        get() = element.defaultPreserveSpace
 
     override val tagName: QName
         get() {
@@ -546,16 +606,18 @@ public sealed class XmlValueDescriptor(
         @Suppress("UNCHECKED_CAST")
         if (default == null) return null as T
 
+        val ps = DocumentPreserveSpace.DEFAULT.withDefault(defaultPreserveSpace)
+
         return when {
             effectiveOutputKind.let { it != OutputKind.Text && it != OutputKind.Text } ->
                 defaultValue(xmlCodecBase.serializersModule, xmlCodecBase.config, deserializer)
 
             xmlCodecBase is XmlDecoderBase ->
-                deserializer.deserialize(xmlCodecBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default))
+                deserializer.deserialize(xmlCodecBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default, ps))
 
             else -> xmlCodecBase.run {
                 val dec = XmlDecoderBase(serializersModule, config, CompactFragment("").getXmlReader())
-                    .StringDecoder(this@XmlValueDescriptor, XmlReader.ExtLocationInfo(0, 0, 0), default)
+                    .StringDecoder(this@XmlValueDescriptor, XmlReader.ExtLocationInfo(0, 0, 0), default, ps)
 
                 deserializer.deserialize(dec)
             }
@@ -571,13 +633,14 @@ public sealed class XmlValueDescriptor(
             @Suppress("UNCHECKED_CAST")
             if (d != UNSET) return d as T
         }
+        val ps = DocumentPreserveSpace.DEFAULT.withDefault(defaultPreserveSpace)
         val d = when {
             default == null -> null
 
             effectiveOutputKind.let { it == OutputKind.Attribute || it == OutputKind.Text } -> {
                 val xmlDecoderBase =
                     XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader())
-                val dec = xmlDecoderBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default)
+                val dec = xmlDecoderBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default, ps)
                 deserializer.deserialize(dec)
             }
 
@@ -587,7 +650,7 @@ public sealed class XmlValueDescriptor(
                         serializersModule,
                         config,
                         CompactFragment(default).getXmlReader()
-                    ).XmlDecoder(this)
+                    ).XmlDecoder(this, inheritedPreserveWhitespace = ps)
                 deserializer.deserialize(defaultDecoder)
             }
         }
@@ -625,7 +688,7 @@ internal constructor(
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
     canBeAttribute: Boolean,
-    @ExperimentalXmlUtilApi override val preserveSpace: Boolean
+    @ExperimentalXmlUtilApi override val defaultPreserveSpace: TypePreserveSpace
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
 
     override val isIdAttr: Boolean = serializerParent.useAnnIsId
@@ -670,7 +733,9 @@ public class XmlInlineDescriptor internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
-    canBeAttribute: Boolean
+    canBeAttribute: Boolean,
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
 
     override val isIdAttr: Boolean = serializerParent.useAnnIsId
@@ -678,10 +743,6 @@ public class XmlInlineDescriptor internal constructor(
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = true
-
-    @ExperimentalXmlUtilApi
-    override val preserveSpace: Boolean
-        get() = child.preserveSpace
 
     init {
         if (!serializerParent.elementSerialDescriptor.isInline) {
@@ -770,17 +831,15 @@ public class XmlInlineDescriptor internal constructor(
 public class XmlAttributeMapDescriptor internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo
+    tagParent: SafeParentInfo,
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = false
 
     override val isIdAttr: Boolean get() = false
-
-    @ExperimentalXmlUtilApi
-    override val preserveSpace: Boolean
-        get() = true
 
     override val outputKind: OutputKind get() = OutputKind.Attribute
 
@@ -837,7 +896,9 @@ internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
-    private val canBeAttribute: Boolean
+    private val canBeAttribute: Boolean,
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace,
 ) : XmlDescriptor(codecConfig, serializerParent, tagParent) {
     @ExperimentalSerializationApi
     override val doInline: Boolean get() = false
@@ -869,9 +930,6 @@ internal constructor(
         return from(codecConfig, overriddenParentInfo, tagParent, canBeAttribute)
     }
 
-    @ExperimentalXmlUtilApi
-    override val preserveSpace: Boolean get() = false
-
     override val outputKind: OutputKind get() = OutputKind.Inline
 }
 
@@ -880,7 +938,7 @@ internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
     tagParent: SafeParentInfo,
-    @ExperimentalXmlUtilApi override val preserveSpace: Boolean,
+    @ExperimentalXmlUtilApi override val defaultPreserveSpace: TypePreserveSpace,
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
 
     init {
@@ -1103,7 +1161,9 @@ public sealed class PolymorphicMode {
 public class XmlPolymorphicDescriptor internal constructor(
     private val codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo
+    tagParent: SafeParentInfo,
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace,
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
 
     override val isIdAttr: Boolean
@@ -1111,10 +1171,6 @@ public class XmlPolymorphicDescriptor internal constructor(
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
-        get() = false
-
-    @ExperimentalXmlUtilApi
-    override val preserveSpace: Boolean
         get() = false
 
     override val outputKind: OutputKind
@@ -1377,7 +1433,9 @@ internal fun SerialDescriptor.getNameInfo(
 public sealed class XmlListLikeDescriptor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo = serializerParent
+    tagParent: SafeParentInfo = serializerParent,
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace,
 ) : XmlDescriptor(codecConfig, serializerParent, tagParent) {
 
     public open val isListEluded: Boolean = when {
@@ -1387,9 +1445,6 @@ public sealed class XmlListLikeDescriptor(
 
     @ExperimentalSerializationApi
     final override val doInline: Boolean get() = false
-
-    @ExperimentalXmlUtilApi
-    final override val preserveSpace: Boolean get() = false
 
     @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     override fun equals(other: Any?): Boolean {
@@ -1401,7 +1456,7 @@ public sealed class XmlListLikeDescriptor(
 
         if (isListEluded != other.isListEluded) return false
         if (doInline != other.doInline) return false
-        return preserveSpace == other.preserveSpace
+        return defaultPreserveSpace == other.defaultPreserveSpace
     }
 
     @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
@@ -1409,7 +1464,7 @@ public sealed class XmlListLikeDescriptor(
         var result = super.hashCode()
         result = 31 * result + isListEluded.hashCode()
         result = 31 * result + doInline.hashCode()
-        result = 31 * result + preserveSpace.hashCode()
+        result = 31 * result + defaultPreserveSpace.hashCode()
         return result
     }
 
@@ -1418,8 +1473,9 @@ public sealed class XmlListLikeDescriptor(
 public class XmlMapDescriptor internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo = serializerParent
-) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent) {
+    tagParent: SafeParentInfo,
+    preserveSpace: TypePreserveSpace
+) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace) {
 
     override val outputKind: OutputKind get() = OutputKind.Element
 
@@ -1473,8 +1529,9 @@ public class XmlMapDescriptor internal constructor(
 public class XmlListDescriptor internal constructor(
     codecConfig: XmlCodecConfig,
     serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo = serializerParent
-) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent) {
+    tagParent: SafeParentInfo,
+    preserveSpace: TypePreserveSpace
+) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace) {
 
     override val outputKind: OutputKind
 

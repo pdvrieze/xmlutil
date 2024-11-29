@@ -121,7 +121,7 @@ internal open class XmlEncoderBase internal constructor(
                             smartWriteAttribute(discriminatorName, typeRef.toCName())
                         }
                         // Write the xml preserve attribute if the values starts or ends with whitespace
-                        if (!xmlDescriptor.preserveSpace &&
+                        if (!xmlDescriptor.defaultPreserveSpace.withDefault(true) &&
                             (value.first().isWhitespace() || value.last().isWhitespace())
                         ) {
                             // this uses attribute directly as no namespace declaration is valid/needed
@@ -704,8 +704,8 @@ internal open class XmlEncoderBase internal constructor(
                 OutputKind.Mixed,
                 OutputKind.Text -> {
                     // Write the xml preserve attribute if the values starts or ends with whitespace
-                    if (!elementDescriptor.preserveSpace && (value.first().isWhitespace() || value.last()
-                            .isWhitespace())
+                    if (!elementDescriptor.defaultPreserveSpace.withDefault(true) &&
+                        (value.first().isWhitespace() || value.last().isWhitespace())
                     ) {
                         // this uses attribute directly as no namespace declaration is valid/needed
                         target.attribute(XMLConstants.XML_NS_URI, "space", "xml", "preserve")
@@ -789,7 +789,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
             target.smartStartTag(elementDescriptor.tagName) {
                 // Write the xml preserve attribute if the values starts or ends with whitespace
-                if (!elementDescriptor.preserveSpace &&
+                if (!elementDescriptor.defaultPreserveSpace.withDefault(true) &&
                     (value.first().isWhitespace() || value.last().isWhitespace())
                 ) {
                     // this uses attribute directly as no namespace declaration is valid/needed

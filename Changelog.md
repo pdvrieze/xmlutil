@@ -10,7 +10,7 @@ Features:
   For handling unknown values the implementation now attempts to detect
   the unknown element handler not consuming the element and will in such
   case parse the remaining elements (This uses input.location so the
-  reader must support that). 
+  reader must support that).
 
 Changes:
 - `encodeToWriter` will now flush the writer. This is particularly
@@ -18,6 +18,12 @@ Changes:
   content until flushed or closed.
 
 Fixes:
+- Various fixes to handling of `xml:space` and `@XmlIgnoreWhitespace`. Note
+  that xml:space="preserve" in a document overrides handling for all
+  children. xml:space="default" gets back to default handling. Types
+  by default inherit their whitespace handling from their owners. When
+  the `@XmlIgnoreWhitespace` annotation is presented, this will change
+  the default for that type/element and its members.
 - Fix automatic prefix generation for attributes (was an infinite 
   loop: #251). Make it reuse existing prefixes if present rather than
   write a new prefix. If reuse is not desirable, explicitly declare

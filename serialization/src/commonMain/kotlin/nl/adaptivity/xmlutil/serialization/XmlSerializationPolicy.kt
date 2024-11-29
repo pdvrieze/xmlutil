@@ -204,8 +204,8 @@ public interface XmlSerializationPolicy {
     }
 
     @ExperimentalXmlUtilApi
-    public fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
-        return true
+    public fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
+        return tagParent.descriptor?.defaultPreserveSpace ?: TypePreserveSpace.DEFAULT
     }
 
     /** Determine the name of map keys for a given map type */
@@ -761,10 +761,10 @@ private constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
-    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
-        serializerParent.useAnnIgnoreWhitespace?.let { return !it }
-        return !(serializerParent.elementSerialDescriptor.annotations
-            .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
+    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
+        val b = serializerParent.descriptor?.defaultPreserveSpace ?: TypePreserveSpace.DEFAULT
+
+        return b.overrideIgnore(serializerParent.useAnnIgnoreWhitespace)
     }
 
     override fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo {

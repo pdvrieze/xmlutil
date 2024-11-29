@@ -503,7 +503,7 @@ public class XML(
             null
         }
 
-        val decoder = xmlDecoderBase.XmlDecoder(elementDescriptor, polyInfo)
+        val decoder = xmlDecoderBase.XmlDecoder(elementDescriptor, polyInfo, inheritedPreserveWhitespace = DocumentPreserveSpace.DEFAULT)
         return decoder.decodeSerializableValue(deserializer)
     }
 

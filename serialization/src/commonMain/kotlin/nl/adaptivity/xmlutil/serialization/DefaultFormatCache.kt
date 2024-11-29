@@ -29,10 +29,7 @@ import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.jvm.JvmStatic
 
 /**
@@ -102,7 +99,7 @@ public class DefaultFormatCache : FormatCache() {
         codecConfig: XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
-        preserveSpace: Boolean
+        preserveSpace: TypePreserveSpace
     ): XmlCompositeDescriptor {
         return XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }

@@ -24,10 +24,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.native.concurrent.ThreadLocal
 
 
@@ -93,7 +90,7 @@ public class ThreadLocalFormatCache(
         codecConfig: XML.XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
-        preserveSpace: Boolean
+        preserveSpace: TypePreserveSpace
     ): XmlCompositeDescriptor {
         return threadLocal.getCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }

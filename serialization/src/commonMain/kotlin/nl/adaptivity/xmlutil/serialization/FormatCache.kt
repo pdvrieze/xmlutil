@@ -25,10 +25,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.FormatCache.Dummy
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 
 /**
  * The FormatCache caches the calculations needed to determine the correct format for a specific
@@ -67,7 +64,7 @@ public abstract class FormatCache internal constructor() {
         codecConfig: XML.XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
-        preserveSpace: Boolean,
+        preserveSpace: TypePreserveSpace,
     ): XmlCompositeDescriptor
 
     public object Dummy: FormatCache() {
@@ -100,7 +97,7 @@ public abstract class FormatCache internal constructor() {
             codecConfig: XML.XmlCodecConfig,
             serializerParent: SafeParentInfo,
             tagParent: SafeParentInfo,
-            preserveSpace: Boolean
+            preserveSpace: TypePreserveSpace
         ): XmlCompositeDescriptor = XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }
 }

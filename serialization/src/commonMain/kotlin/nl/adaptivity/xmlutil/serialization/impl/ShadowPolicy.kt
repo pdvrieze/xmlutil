@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
+import nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlOrderConstraint
 
@@ -190,7 +191,7 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
     }
 
     @ExperimentalXmlUtilApi
-    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
         return basePolicy.preserveSpace(serializerParent, tagParent)
     }
 

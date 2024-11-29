@@ -144,6 +144,7 @@ class StringOrCompositePolymorphism253 {
         val source: String? = null,
         val type: String? = null,
         @XmlValue
+        @XmlIgnoreWhitespace
         var value: List<@Polymorphic Any> = listOf()
     ) {
         companion object {
@@ -223,7 +224,7 @@ class StringOrCompositePolymorphism253 {
     data class AdVerificationsDto(
         @XmlElement(true)
         @XmlValue
-        var verifications: MutableList<@XmlIgnoreWhitespace Element>? = mutableListOf()
+        var verifications: MutableList<Element>? = mutableListOf()
     )
 
     val SAMPLE = """
