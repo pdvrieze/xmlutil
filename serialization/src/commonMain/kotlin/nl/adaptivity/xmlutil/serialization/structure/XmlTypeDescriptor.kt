@@ -123,8 +123,16 @@ public class XmlTypeDescriptor internal constructor(
 
         other as XmlTypeDescriptor
 
-        if (serialDescriptor != other.serialDescriptor) return false
-        return typeNameInfo == other.typeNameInfo
+        return when {
+            typeNameInfo != other.typeNameInfo -> false
+            serialDescriptor != other.serialDescriptor -> false
+            (0 until serialDescriptor.elementsCount).any {
+                serialDescriptor.getElementName(it) != other.serialDescriptor.getElementName(
+                    it
+                )
+            } -> false
+            else -> true
+        }
     }
 
     override fun hashCode(): Int {

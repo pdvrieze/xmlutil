@@ -41,11 +41,8 @@ class ElementNames254 {
 
     @BeforeTest
     fun setup() {
-        xml= XML {
-            recommended {
-                // TODO Remove this check once a fix exists in the library.
-                formatCache = FormatCache.Dummy
-            }
+        xml = XML {
+            recommended_0_90_2()
             indent = 4
         }
     }

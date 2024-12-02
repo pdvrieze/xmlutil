@@ -111,7 +111,18 @@ public class DefaultFormatCache : FormatCache() {
         val canBeAttribute: Boolean
     )
 
-    private data class TypeKey(val namespace: String, val descriptor: SerialDescriptor)
+    private data class TypeKey(val namespace: String, val descriptor: SerialDescriptor) {
+        override fun equals(other: Any?): Boolean {
+            return when {
+                other !is TypeKey -> false
+                namespace != other.namespace -> false
+                descriptor != other.descriptor -> false
+                (0 until descriptor.elementsCount).any { descriptor.getElementName(it) != other.descriptor.getElementName(it) } -> false
+                else -> true
+            }
+            return super.equals(other)
+        }
+    }
 
     private companion object {
         @JvmStatic

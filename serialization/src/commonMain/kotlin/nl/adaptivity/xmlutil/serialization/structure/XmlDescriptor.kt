@@ -1891,11 +1891,11 @@ public class ParentInfo(
 
         other as ParentInfo
 
-        if (descriptor != other.descriptor) return false
         if (index != other.index) return false
         if (overriddenSerializer != other.overriddenSerializer) return false
         if (elementUseNameInfo != other.elementUseNameInfo) return false
-        return elementUseOutputKind == other.elementUseOutputKind
+        if (elementUseOutputKind != other.elementUseOutputKind) return false
+        return descriptor == other.descriptor
     }
 
     override fun hashCode(): Int {
