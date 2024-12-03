@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) 2024.
+  ~
+  ~ This file is part of xmlutil.
+  ~
+  ~ This file is licenced to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You should have received a copy of the license with the source distribution.
+  ~ Alternatively, you may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<d:multistatus
+        xmlns:d="DAV:"
+        xmlns:s="http://sabredav.org/ns"
+        xmlns:oc="http://owncloud.org/ns"
+        xmlns:nc="http://nextcloud.org/ns">
+    <d:response>
+        <d:href>/remote.php/dav/files/me@example.com/</d:href>
+        <d:propstat>
+            <d:prop>
+                <d:getlastmodified>Mon, 02 Dec 2024 15:44:04 GMT</d:getlastmodified>
+                <d:resourcetype>
+                    <d:collection/>
+                </d:resourcetype>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+        <d:propstat>
+            <d:prop>
+                <d:getcontentlength/>
+                <d:getcontenttype/>
+            </d:prop>
+            <d:status>HTTP/1.1 404 Not Found</d:status>
+        </d:propstat>
+    </d:response>
+    <d:response>
+        <d:href>/remote.php/dav/files/me@example.com/.DS_Store</d:href>
+        <d:propstat>
+            <d:prop>
+                <d:getlastmodified>Wed, 27 Nov 2024 15:50:12 GMT</d:getlastmodified>
+                <d:getcontentlength>6148</d:getcontentlength>
+                <d:getcontenttype>application/octet-stream</d:getcontenttype>
+                <d:resourcetype/>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+    </d:response>
+    <d:response>
+        <d:href>/remote.php/dav/files/me@example.com/._.DS_Store</d:href>
+        <d:propstat>
+            <d:prop>
+                <d:getlastmodified>Wed, 27 Nov 2024 15:49:59 GMT</d:getlastmodified>
+                <d:getcontentlength>4096</d:getcontentlength>
+                <d:getcontenttype>application/octet-stream</d:getcontenttype>
+                <d:resourcetype/>
+            </d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status>
+        </d:propstat>
+    </d:response>
+</d:multistatus>
