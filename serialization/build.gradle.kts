@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import org.jetbrains.kotlin.js.config.SourceMapSourceEmbedding
 
 plugins {
     id("projectPlugin")
@@ -63,7 +62,7 @@ kotlin {
             }
         }
 
-/*
+        /*
         val woodstoxCompilation = compilations.create("woodstoxTest") {
             // This needs to be specified explicitly in 1.9.20
             compilerOptions.options.moduleName = "woodstoxTest"
@@ -75,11 +74,9 @@ kotlin {
                 listOf(woodstoxCompilation)
             )
         }
-*/
+        */
 
     }
-
-    jvm("android")
 
     js {
         browser()
@@ -150,7 +147,7 @@ kotlin {
             }
         }
         val commonJvmMain by getting {}
-/*
+        /*
         val jvmWoodstoxTest by getting {
             dependsOn(commonJvmTest)
             dependsOn(commonJvmMain)
@@ -160,26 +157,7 @@ kotlin {
                 runtimeOnly(libs.woodstox)
             }
         }
-*/
-
-        val androidMain by getting {
-            dependencies {
-                compileOnly(libs.kxml2)
-            }
-        }
-
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                runtimeOnly(libs.kxml2)
-
-//                implementation(projects.coreAndroid)
-                implementation(libs.junit5.api)
-                implementation(libs.kotlin.reflect)
-
-                runtimeOnly(libs.junit5.engine)
-            }
-        }
+        */
 
         val jsMain by getting {
             dependencies {
@@ -217,6 +195,10 @@ kotlin {
         }
     }
 
+}
+
+config {
+    createAndroidCompatComponent = true
 }
 
 addNativeTargets()

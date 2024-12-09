@@ -114,10 +114,15 @@ that mirrors the Java API)
 ```
    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.90.4-SNAPSHOT")
 ```
-#### Android
+#### -Android- (Deprecated - this is dependency only - it has no code)
+** Deprecated **
 ```
    implementation("io.github.pdvrieze.xmlutil:serialization-android:0.90.4-SNAPSHOT")
 ```
+
+This version is merely a dependency to the main module that no longer has the android
+specific artefact as this is not supported by kotlin (and has resolution issues).
+
 #### js
 ```
    implementation("io.github.pdvrieze.xmlutil:serialization-js:0.90.4-SNAPSHOT")

@@ -13,6 +13,9 @@ Features:
   reader must support that).
 
 Changes:
+- Build with Kotlin 2.1.0. This means that except for `core-android`
+  the other `-android` artefacts are now deprecated. They are separate
+  synthetic configurations that only forward dependencies.
 - `encodeToWriter` will now flush the writer. This is particularly
   relevant in the context of `OutputStreamWriter` that doesn't write
   content until flushed or closed.

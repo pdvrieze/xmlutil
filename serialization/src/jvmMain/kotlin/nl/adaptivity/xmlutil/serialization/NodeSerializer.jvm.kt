@@ -36,8 +36,8 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @Deprecated(
-    "used for more cross-platform stable version",
-    ReplaceWith("Node.serializer()", "nl.adaptivity.xmlutil.dom2.Node.serializer()")
+    message = "Please use nl.adaptivity.xmlutil.dom2.Node.serializer() in the core module",
+    replaceWith = ReplaceWith("Node.serializer()", "nl.adaptivity.xmlutil.dom2.Node.serializer()")
 )
 public actual object NodeSerializer : XmlSerializer<Node1> {
     private val delegate = Node2.serializer() as XmlSerializer<Node2>
