@@ -119,6 +119,7 @@ internal open class XmlDecoderBase internal constructor(
 
     private inline fun <R> handleParseError(body: () -> R): R {
         try {
+            val initialLocation = input.extLocationInfo
             return body()
         } catch (e: XmlSerialException) {
             throw e

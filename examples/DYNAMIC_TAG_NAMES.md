@@ -44,21 +44,9 @@ object CompatContainerSerializer: CommonContainerSerializer() {
 [ContainerSerializer](src/main/kotlin/net/devrieze/serialization/examples/dynamictagnames/ContainerSerializer.kt)
 ```kotlin
 /**
- * This version of the serializer uses the new delegateFormat method on [XML.XmlInput] and [XML.XmlOutput]
- * to inherit configuration and serializerModules.
- */
-object ContainerSerializer: CommonContainerSerializer() {
-    override fun delegateFormat(decoder: Decoder) = (decoder as XML.XmlInput).delegateFormat()
-    override fun delegateFormat(encoder: Encoder) = (encoder as XML.XmlOutput).delegateFormat()
-}
-```
-
-[CommonContainerSerializer](src/main/kotlin/net/devrieze/serialization/examples/dynamictagnames/CommonContainerSerializer.kt)
-```kotlin
-/**
  * A common base class that contains the actual code needed to serialize/deserialize the container.
  */
-abstract class CommonContainerSerializer: KSerializer<Container> {
+class ContainerSerializer : XmlSerializer<Container> {
     /** We need to have the serializer for the elements */
     private val elementSerializer = serializer<TestElement>()
 
@@ -69,93 +57,105 @@ abstract class CommonContainerSerializer: KSerializer<Container> {
 
     override fun deserialize(decoder: Decoder): Container {
         // XmlInput is designed as an interface to test for to allow custom serializers
-        if (decoder is XML.XmlInput) { // We treat XML different, using a separate method for clarity
-            return deserializeDynamic(decoder, decoder.input)
-        } else { // Simple default decoder implementation that delegates parsing the data to the ListSerializer
-            val data = decoder.decodeStructure(descriptor) {
-                decodeSerializableElement(descriptor, 0, ListSerializer(elementSerializer))
-            }
-            return Container(data)
+        val data = decoder.decodeStructure(descriptor) {
+            decodeSerializableElement(descriptor, 0, ListSerializer(elementSerializer))
+        }
+        // Simple default decoder implementation that delegates parsing the data to the ListSerializer
+        return Container(data)
+    }
+
+    override fun serialize(encoder: Encoder, value: Container) {
+        encoder.encodeStructure(descriptor) {
+            encodeSerializableElement(descriptor, 0, ListSerializer(elementSerializer), value.data)
         }
     }
 
-    /**
-     * This function is the meat to deserializing the container with dynamic tag names. Note that
-     * because we use xml there is no point in going through the (anonymous) list dance. Doing that
-     * would be an additional complication.
-     */
-    fun deserializeDynamic(decoder: Decoder, reader: XmlReader): Container {
-        val xml = delegateFormat(decoder) // get the format for deserializing
+    override fun deserializeXML(
+        decoder: Decoder,
+        input: XmlReader,
+        previousValue: Container?,
+        isValueChild: Boolean
+    ): Container {
+        // This delegate format allows for reusing the settings from the outer format.
+        val xml = (decoder as XML.XmlInput).delegateFormat()
 
         // We need the descriptor for the element. xmlDescriptor returns a rootDescriptor, so the actual descriptor is
         // its (only) child.
         val elementXmlDescriptor = xml.xmlDescriptor(elementSerializer).getElementDescriptor(0)
-
         // A list to collect the data
         val dataList = mutableListOf<TestElement>()
-
         decoder.decodeStructure(descriptor) {
             // Finding the children is actually not left to the serialization framework, but
             // done by "hand"
-            while (reader.next() != EventType.END_ELEMENT) {
-                when (reader.eventType) {
+            while (input.next() != EventType.END_ELEMENT) {
+                when (input.eventType) {
                     EventType.COMMENT,
                     EventType.IGNORABLE_WHITESPACE -> {
                         // Comments and whitespace are just ignored
                     }
-                    EventType.ENTITY_REF,
-                    EventType.TEXT                 -> if (reader.text.isNotBlank()) {
-                        // Some parsers can return whitespace as text instead of ignorable whitespace
 
-                        // Use the handler from the configuration to throw the exception.
-                        xml.config.unknownChildHandler(reader, InputKind.Text, null, emptyList())
+                    EventType.ENTITY_REF,
+                    EventType.TEXT -> {
+                        if (input.text.isNotBlank()) {
+                            // Some parsers can return whitespace as text instead of ignorable whitespace
+
+                            // Use the handler from the configuration to throw the exception.
+                            @OptIn(ExperimentalXmlUtilApi::class)
+                            xml.config.policy.handleUnknownContentRecovering(
+                                input,
+                                InputKind.Text,
+                                elementXmlDescriptor,
+                                null,
+                                emptyList()
+                            )
+                        }
                     }
                     // It's best to still check the name before parsing
-                    EventType.START_ELEMENT        -> if(reader.namespaceURI.isEmpty() && reader.localName.startsWith("Test_")) {
-                        // When reading the child tag we use the DynamicTagReader to present normalized XML to the
-                        // deserializer for elements
-                        val filter = DynamicTagReader(reader, elementXmlDescriptor)
+                    EventType.START_ELEMENT -> {
+                        if (input.namespaceURI.isEmpty() && input.localName.startsWith("Test_")) {
+                            // When reading the child tag we use the DynamicTagReader to present normalized XML to the
+                            // deserializer for elements
+                            val filter = DynamicTagReader(input, elementXmlDescriptor)
 
-                        // The test element can now be decoded as normal (with the filter applied)
-                        val testElement = xml.decodeFromReader(elementSerializer, filter)
-                        dataList.add(testElement)
-                    } else { // handling unexpected tags
-                        xml.config.unknownChildHandler(reader, InputKind.Element, reader.name, listOf("Test_??"))
+                            // The test element can now be decoded as normal (with the filter applied)
+                            val testElement = xml.decodeFromReader(elementSerializer, filter)
+                            dataList.add(testElement)
+                        } else { // handling unexpected tags
+                            @OptIn(ExperimentalXmlUtilApi::class)
+                            xml.config.policy.handleUnknownContentRecovering(
+                                input,
+                                InputKind.Element,
+                                elementXmlDescriptor,
+                                input.name,
+                                (0 until elementXmlDescriptor.elementsCount).map {
+                                    val e = elementXmlDescriptor.getElementDescriptor(it)
+                                    PolyInfo(e.tagName, it, e)
+                                }
+                            )
+                        }
                     }
-                    else                           -> { // other content that shouldn't happen
+
+                    else -> // other content that shouldn't happen
                         throw XmlException("Unexpected tag content")
-                    }
                 }
             }
         }
         return Container(dataList)
     }
 
-    override fun serialize(encoder: Encoder, value: Container) {
-        if (encoder is XML.XmlOutput) { // When we are using the xml format use the serializeDynamic method
-            return serializeDynamic(encoder, encoder.target, value.data)
-        } else { // Otherwise just manually do the encoding that would have been generated
-            encoder.encodeStructure(descriptor) {
-                encodeSerializableElement(descriptor, 0, ListSerializer(elementSerializer), value.data)
-            }
-        }
-    }
-
-    /**
-     * This function provides the actual dynamic serialization
-     */
-    fun serializeDynamic(encoder: Encoder, target: XmlWriter, data: List<TestElement>) {
-        val xml = delegateFormat(encoder) // get the format for deserializing
+    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Container, isValueChild: Boolean) {
+        val xml =
+            (encoder as XML.XmlOutput).delegateFormat() // This format keeps the settings from the outer serializer, this allows for
+        // serializing the children
 
         // We need the descriptor for the element. xmlDescriptor returns a rootDescriptor, so the actual descriptor is
         // its (only) child.
         val elementXmlDescriptor = xml.xmlDescriptor(elementSerializer).getElementDescriptor(0)
-
         encoder.encodeStructure(descriptor) { // create the structure (will write the tags of Container)
-            for (element in data) { // write each element
+            for (element in value.data) { // write each element
                 // We need a writer that does the renaming from the normal format to the dynamic format
                 // It is passed the string of the id to add.
-                val writer = DynamicTagWriter(target, elementXmlDescriptor, element.id.toString())
+                val writer = DynamicTagWriter(output, elementXmlDescriptor, element.id.toString())
 
                 // Normal delegate writing of the element
                 xml.encodeToWriter(writer, elementSerializer, element)
@@ -163,9 +163,6 @@ abstract class CommonContainerSerializer: KSerializer<Container> {
         }
     }
 
-    // These functions abstract away getting the delegate format in improved or compat way.
-    abstract fun delegateFormat(decoder: Decoder): XML
-    abstract fun delegateFormat(encoder: Encoder): XML
 }
 ```
 
@@ -181,13 +178,11 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
     private var initDepth = reader.depth
     private val filterDepth: Int
         /**
-         * We want to be safe so only handle the content at relative depth 0. The way that depth is determined
-         * means that the depth is the depth after the tag (and end tags are thus one level lower than the tag (and its
-         * content). We correct for that here.
+         * We want to be safe so only handle the content at relative depth 0.
          */
         get() = when (eventType) {
-            EventType.END_ELEMENT -> delegate.depth - initDepth + 1
-            else                  -> delegate.depth - initDepth
+            EventType.END_ELEMENT -> delegate.depth - initDepth
+            else -> delegate.depth - initDepth
         }
 
     /**
@@ -226,9 +221,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributeNamespace(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idAttrName.namespaceURI
+            0 -> idAttrName.namespaceURI
             else -> super.getAttributeNamespace(index - 1)
         }
+
         else -> super.getAttributeNamespace(index)
     }
 
@@ -238,9 +234,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributePrefix(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idAttrName.prefix
+            0 -> idAttrName.prefix
             else -> super.getAttributePrefix(index - 1)
         }
+
         else -> super.getAttributePrefix(index)
     }
 
@@ -250,9 +247,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributeLocalName(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idAttrName.localPart
+            0 -> idAttrName.localPart
             else -> super.getAttributeLocalName(index - 1)
         }
+
         else -> super.getAttributeLocalName(index)
     }
 
@@ -262,9 +260,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      */
     override fun getAttributeValue(index: Int): String = when (filterDepth) {
         0 -> when (index) {
-            0    -> idValue
+            0 -> idValue
             else -> super.getAttributeValue(index - 1)
         }
+
         else -> super.getAttributeValue(index)
     }
 
@@ -276,7 +275,8 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
         filterDepth == 0 &&
                 (nsUri ?: "") == idAttrName.namespaceURI &&
                 localName == idAttrName.localPart -> idValue
-        else                                      -> super.getAttributeValue(nsUri, localName)
+
+        else -> super.getAttributeValue(nsUri, localName)
     }
 
     /**

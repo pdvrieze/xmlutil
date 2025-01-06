@@ -36,4 +36,5 @@ val autoModuleName = "net.devrieze.serialexamples"
 dependencies {
     implementation(projects.serialization)
     implementation(projects.serialutil)
+    testImplementation(projects.testutil)
 }
