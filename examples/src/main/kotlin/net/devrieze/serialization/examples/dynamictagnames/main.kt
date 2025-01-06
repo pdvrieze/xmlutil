@@ -52,7 +52,9 @@ private fun newExample(testElements: List<TestElement>) {
     val serializer = serializer<Container>() // use the default serializer
 
     // Create the configuration for (de)serialization
-    val xml = XML { indent = 2 }
+    val xml = XML {
+        indent = 2
+    }
 
     // Encode and print the output of serialization
     val string = xml.encodeToString(serializer, data)

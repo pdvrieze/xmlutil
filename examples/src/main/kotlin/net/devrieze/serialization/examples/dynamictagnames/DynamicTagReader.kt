@@ -33,12 +33,10 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
     private var initDepth = reader.depth
     private val filterDepth: Int
         /**
-         * We want to be safe so only handle the content at relative depth 0. The way that depth is determined
-         * means that the depth is the depth after the tag (and end tags are thus one level lower than the tag (and its
-         * content). We correct for that here.
+         * We want to be safe so only handle the content at relative depth 0.
          */
         get() = when (eventType) {
-            EventType.END_ELEMENT -> delegate.depth - initDepth + 1
+            EventType.END_ELEMENT -> delegate.depth - initDepth
             else -> delegate.depth - initDepth
         }
 
@@ -141,18 +139,22 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      * When we are at relative depth 0 we return the synthetic name rather than the original.
      */
     override val namespaceURI: String
-        get() = when (filterDepth) {
-            0 -> elementName.namespaceURI
-            else -> super.namespaceURI
+        get() {
+            return when (filterDepth) {
+                0 -> elementName.namespaceURI
+                else -> super.namespaceURI
+            }
         }
 
     /**
      * When we are at relative depth 0 we return the synthetic name rather than the original.
      */
     override val localName: String
-        get() = when (filterDepth) {
-            0 -> elementName.localPart
-            else -> super.localName
+        get() {
+            return when (filterDepth) {
+                0 -> elementName.localPart
+                else -> super.localName
+            }
         }
 
     /**
