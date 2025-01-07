@@ -109,6 +109,10 @@ kotlin {
     }
 }
 
+tasks.named<Test>("jvmTest") {
+    maxHeapSize = "2048m"
+}
+
 addNativeTargets(includeWasm = false, includeWasi = false)
 
 //doPublish()
