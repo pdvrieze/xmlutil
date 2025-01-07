@@ -110,8 +110,6 @@ public final class nl/adaptivity/serialutil/SimpleSerialClassDesc : kotlinx/seri
 	public fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
 	public fun getSerialName ()Ljava/lang/String;
 	public fun isElementOptional (I)Z
-	public fun isInline ()Z
-	public fun isNullable ()Z
 }
 
 public final class nl/adaptivity/serialutil/SimpleSerialClassDescKt {
@@ -120,7 +118,6 @@ public final class nl/adaptivity/serialutil/SimpleSerialClassDescKt {
 
 public final class nl/adaptivity/serialutil/SimpleSerialClassDescPrimitive : kotlinx/serialization/descriptors/SerialDescriptor {
 	public fun <init> (Lkotlinx/serialization/descriptors/PrimitiveKind;Ljava/lang/String;)V
-	public fun getAnnotations ()Ljava/util/List;
 	public fun getElementAnnotations (I)Ljava/lang/Void;
 	public synthetic fun getElementAnnotations (I)Ljava/util/List;
 	public fun getElementDescriptor (I)Ljava/lang/Void;
@@ -133,8 +130,6 @@ public final class nl/adaptivity/serialutil/SimpleSerialClassDescPrimitive : kot
 	public synthetic fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
 	public fun getSerialName ()Ljava/lang/String;
 	public fun isElementOptional (I)Z
-	public fun isInline ()Z
-	public fun isNullable ()Z
 }
 
 public final class nl/adaptivity/serialutil/encoders/HashFormat : kotlinx/serialization/SerialFormat {

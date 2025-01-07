@@ -30,7 +30,7 @@ import nl.adaptivity.serialutil.impl.maybeAnnotations
 import nl.adaptivity.serialutil.impl.name
 import kotlin.jvm.JvmName
 
-@Deprecated("Use the standard library buildSerialDescriptor function")
+@Deprecated("Use the standard library buildSerialDescriptor function", level = DeprecationLevel.ERROR)
 @OptIn(InternalSerializationApi::class)
 @ExperimentalSerializationApi
 inline fun <reified T> simpleSerialClassDesc(
@@ -42,7 +42,7 @@ inline fun <reified T> simpleSerialClassDesc(
     }
 }
 
-@Deprecated("Use the standard library buildSerialDescriptor function")
+@Deprecated("Use the standard library buildSerialDescriptor function", level = DeprecationLevel.ERROR)
 @OptIn(InternalSerializationApi::class)
 @ExperimentalSerializationApi
 inline fun <reified T> simpleSerialClassDesc(
@@ -77,6 +77,7 @@ inline fun <reified T> simpleSerialClassDesc(vararg elements: Pair<String, KSeri
 }
 
 @ExperimentalSerializationApi
+@Deprecated("Use the standard library buildClassSerialDescriptor function")
 @JvmName("simpleSerialClassDescFromSerializer")
 inline fun <reified T> simpleSerialClassDesc(
     entityAnnotations: List<Annotation>,
@@ -98,6 +99,7 @@ inline fun <reified T> simpleSerialClassDesc(
     ),
     DeprecationLevel.HIDDEN
 )
+@OptIn(SealedSerializationApi::class)
 @ExperimentalSerializationApi
 class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, name: String) : SerialDescriptor {
     override val serialName: String = name
@@ -120,6 +122,7 @@ class SimpleSerialClassDescPrimitive(override val kind: PrimitiveKind, name: Str
  * as well, so exported, but not designed for use outside the xmlutil project.
  */
 @Deprecated("This class is no longer needed, it can be replaced by buildSerialDescriptor and buildClassSerialDescriptor")
+@OptIn(SealedSerializationApi::class)
 @ExperimentalSerializationApi
 class SimpleSerialClassDesc(
     override val kind: SerialKind = StructureKind.CLASS,
@@ -162,12 +165,13 @@ class SimpleSerialClassDesc(
 }
 
 @ExperimentalSerializationApi
-fun SerialDescriptor.withName(name: String): SerialDescriptor = RenameDesc(this, name)
+@Deprecated(
+    "Use the kotlinx.serialization implementation instead",
+    ReplaceWith("SerialDescriptor(name, this)", "kotlinx.serialization.descriptors.SerialDescriptor")
+)
+fun SerialDescriptor.withName(name: String): SerialDescriptor = SerialDescriptor(name, this)
 
-@ExperimentalSerializationApi
-private class RenameDesc(val delegate: SerialDescriptor, override val serialName: String) : SerialDescriptor by delegate
-
-abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer<T> {
+public abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer<T> {
     override val descriptor: SerialDescriptor get() = delegate.descriptor
 
     override fun deserialize(decoder: Decoder): T = delegate.deserialize(decoder)

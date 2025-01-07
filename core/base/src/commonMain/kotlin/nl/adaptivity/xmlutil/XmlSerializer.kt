@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SealedSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 
@@ -64,6 +65,8 @@ public annotation class XmlSerialDescriptorMarker
  * This descriptor is internal as implementation is brittle. If you want an instance use
  * [SerialDescriptor.xml].
  */
+@OptIn(SealedSerializationApi::class, ExperimentalSubclassOptIn::class)
+@SubclassOptInRequired(SealedSerializationApi::class)
 @XmlUtilInternal
 public interface XmlSerialDescriptor : SerialDescriptor {
     public val delegate: SerialDescriptor
@@ -81,6 +84,7 @@ public interface XmlSerialDescriptor : SerialDescriptor {
         listOf(XmlSerialDescriptorMarker()) + delegate.annotations
 }
 
+@OptIn(SealedSerializationApi::class)
 private class ExtXmlSerialDescriptor(
     override val delegate: SerialDescriptor,
     xmlDescriptor: SerialDescriptor = delegate,
@@ -106,6 +110,7 @@ private class ExtXmlSerialDescriptor(
     override val isNullable: Boolean get() = delegate.isNullable
 }
 
+@OptIn(SealedSerializationApi::class)
 private class BaseXmlSerialDescriptor(
     override val delegate: SerialDescriptor,
     override val serialQName: QName?
