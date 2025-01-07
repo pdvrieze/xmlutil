@@ -133,17 +133,13 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
+                implementation(projects.coreJdk)
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                runtimeOnly(projects.coreJdk)
-            }
-        }
-        val commonJvmTest by getting {
-            dependencies {
-                implementation(projects.coreJdk)
+                runtimeOnly(projects.core)
             }
         }
         val commonJvmMain by getting {}
