@@ -12,7 +12,7 @@ kotlin = "2.1.0"
 kotlinx-serialization = "1.8.0"
 kotlinx-io = "0.5.4"
 kxml2 = "2.3.0"
-woodstox = "6.6.2"
+woodstox = "7.1.0"
 xmlutil = "0.90.4-SNAPSHOT"
 
 [libraries]
