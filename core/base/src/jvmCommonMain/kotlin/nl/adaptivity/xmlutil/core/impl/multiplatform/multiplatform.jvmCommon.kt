@@ -24,6 +24,6 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 public actual inline fun <K, V> MutableMap<K, V>.computeIfAbsent(key: K, crossinline defaultValue: () -> V): V {
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    return (this as java.util.Map<K, V>).computeIfAbsent(key) { defaultValue() } as V
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
+    return (this as java.util.Map<K, V>).computeIfAbsent(key) { defaultValue() }
 }

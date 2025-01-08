@@ -69,7 +69,7 @@ public actual open class StringWriter actual constructor() : Writer() {
     }
 }
 
-@Suppress("NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS")
+// Note that in non-k2 mode this gives an invalid error message
 public actual typealias Reader = java.io.Reader
 public actual typealias StringReader = java.io.StringReader
 
