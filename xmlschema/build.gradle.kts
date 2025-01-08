@@ -110,7 +110,8 @@ kotlin {
 }
 
 tasks.named<Test>("jvmTest") {
-    maxHeapSize = "2048m"
+//    maxHeapSize = "2048m"
+    jvmArgs = listOf("-XX:+HeapDumpOnOutOfMemoryError")
 }
 
 addNativeTargets(includeWasm = false, includeWasi = false)
