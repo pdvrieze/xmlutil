@@ -123,6 +123,32 @@ private class BaseXmlSerialDescriptor(
         else -> delegate.getElementDescriptor(index)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as BaseXmlSerialDescriptor
+
+        if (delegate != other.delegate) return false
+        if (serialQName != other.serialQName) return false
+
+        for (i in 0 until delegate.elementsCount) {
+            if (delegate.getElementName(i) != other.delegate.getElementName(i)) return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = delegate.hashCode()
+        result = 31 * result + (serialQName?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "BaseXmlSerialDescriptor<$serialQName>($delegate)"
+    }
+
     @ExperimentalSerializationApi
     override val annotations: List<Annotation> get() =
         listOf(XmlSerialDescriptorMarker()) + delegate.annotations
