@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
+@Suppress("DEPRECATION")
 @ExperimentalXmlUtilApi
 public actual fun getPlatformDefaultModule(): SerializersModule = SerializersModule {
     contextual(Element::class, ElementSerializer)

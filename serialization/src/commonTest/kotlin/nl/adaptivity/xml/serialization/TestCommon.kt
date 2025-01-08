@@ -148,7 +148,10 @@ class TestCommon {
     fun deserializeXmlWithEntity() {
         val xml = XML {
             repairNamespaces = true
-            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+            defaultPolicy {
+                pedantic = false
+                autoPolymorphic = false
+            }
         }
 
         val expected = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
@@ -203,7 +206,7 @@ class TestCommon {
         val data = StringHolder("⚠️"/*"\u26a0\ufe0f"*/)
         val expected = "<StringHolder>⚠️</StringHolder>"
         val actual = StringWriter().also { sw ->
-            KtXmlWriter(sw).use { out ->
+            KtXmlWriter(sw, xmlDeclMode = XmlDeclMode.None).use { out ->
                 XML.encodeToWriter(out, data)
             }
         }.toString()
@@ -222,7 +225,7 @@ class TestCommon {
         val data = StringHolder("\uD83D\uDE0A")
         val expected = "<StringHolder>😊</StringHolder>"
         val actual = StringWriter().also { sw ->
-            KtXmlWriter(sw).use { out ->
+            KtXmlWriter(sw, xmlDeclMode = XmlDeclMode.None).use { out ->
                 XML.encodeToWriter(out, data)
             }
         }.toString()
@@ -254,7 +257,10 @@ class TestCommon {
     fun serializeXmlWithEntity() {
         val xml = XML {
             repairNamespaces = true
-            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+            defaultPolicy {
+                pedantic = false
+                autoPolymorphic = false
+            }
         }
 
         val data = StringWithMarkup("Chloroacetic acid, >=99% < 100%")

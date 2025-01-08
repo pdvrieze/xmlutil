@@ -18,6 +18,9 @@
  * under the License.
  */
 
+// suppression as the code still tests the deprecated compact serializer.
+@file:Suppress("DEPRECATION")
+
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
@@ -70,7 +73,8 @@ class TestOtherElementFragments {
 
     @Serializable
     data class ContainerCompat(
-        @XmlValue(true) val children: List<@Serializable(CompactFragmentSerializerCompat::class) CompactFragment>,
+        @XmlValue(true)
+        val children: List<@Serializable(CompactFragmentSerializerCompat::class) CompactFragment>,
         @XmlElement(true)
         val c: String
     )

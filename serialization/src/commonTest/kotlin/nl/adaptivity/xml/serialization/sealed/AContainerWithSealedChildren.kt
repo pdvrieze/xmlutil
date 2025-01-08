@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class AContainerWithSealedChildren : PlatformTestPolymorphicBase<Sealed>(
     Sealed("mySealed", listOf(SealedA("a-data"), SealedB("b-data"))),
     Sealed.serializer(),
-    EmptySerializersModule//sealedModule
+    EmptySerializersModule()//sealedModule
 ) {
     override val expectedXML: String
         get() = "<Sealed name=\"mySealed\"><SealedA data=\"a-data\" extra=\"2\"/><SealedB_renamed main=\"b-data\" ext=\"0.5\"/></Sealed>"

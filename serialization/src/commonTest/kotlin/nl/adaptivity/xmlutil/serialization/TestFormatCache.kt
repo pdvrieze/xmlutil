@@ -226,6 +226,7 @@ public class TestFormatCache : FormatCache() {
 }
 
 
+@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.serialKeyName(): String = when(kind) {
     is PrimitiveKind -> "Primitive<$serialName>"
     SerialKind.ENUM -> "Enum<$serialName>"

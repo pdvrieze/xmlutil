@@ -111,7 +111,7 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
 private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: XML) {
     val expectedDom = parseToDocument(xmlStreaming.newGenericReader(expectedXML))
 
-    val actualReader = DomReader(expectedDom)
+    val actualReader = xmlStreaming.newReader(expectedDom)
 
     assertEquals(value, baseXmlFormat.decodeFromReader(serializer, actualReader))
 }

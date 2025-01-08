@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xml.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -60,6 +61,7 @@ class TestChunkedDecoding {
         @XmlValue(true) val text: String
     )
 
+    @OptIn(ExperimentalSerializationApi::class)
     object ChunkedTextDecoder: KSerializer<String> {
         override val descriptor: SerialDescriptor
             get() = PrimitiveSerialDescriptor("ChunkedString", PrimitiveKind.STRING)
@@ -68,7 +70,7 @@ class TestChunkedDecoding {
             require(decoder is ChunkedDecoder)
             return buildString {
                 decoder.decodeStringChunked {
-                    require(it.length<=16384)
+                    require(it.length <= 16384)
                     append(it)
                 }
             }

@@ -103,7 +103,7 @@ class Header(
         private val blockSerializer = ListSerializer(CompactFragmentSerializer)
         private val otherAttrsSerializer = MapSerializer(QNameSerializer, String.serializer())
 
-        @OptIn(ExperimentalSerializationApi::class, nl.adaptivity.xmlutil.XmlUtilInternal::class)
+        @OptIn(ExperimentalSerializationApi::class, XmlUtilInternal::class)
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("org.w3c.dom.Header") {
             annotations = SoapSerialObjects.headerAnnotations
             element<String>("encodingStyle", SoapSerialObjects.encodingStyleAnnotations, true)
@@ -189,6 +189,7 @@ class BlockSerializer<T: Any>(private val elementSerializer: KSerializer<T>): Xm
 
     override fun deserialize(decoder: Decoder): Header.Block<T> {
         val cf = CompactFragment.serializer().deserialize(decoder)
+        @Suppress("UNCHECKED_CAST")
         return Header.UnsupportedBlock(cf) as Header.Block<T>
     }
 
