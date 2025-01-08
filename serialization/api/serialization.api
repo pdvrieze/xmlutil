@@ -840,6 +840,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/TypePreserve
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMapDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public fun equals (Ljava/lang/Object;)Z
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
@@ -847,6 +848,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMap
 	public final fun getKeyDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public final fun getValueDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public fun hashCode ()I
 	public fun isIdAttr ()Z
 }
 
@@ -865,12 +867,14 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDes
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlContextualDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public fun equals (Ljava/lang/Object;)Z
 	public final fun getContext ()Lkotlin/reflect/KClass;
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z
 	public fun getEffectiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getElementsCount ()I
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun hashCode ()I
 	public fun isIdAttr ()Z
 }
 
@@ -928,8 +932,10 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlListLikeD
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlMapDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor {
+	public fun equals (Ljava/lang/Object;)Z
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun hashCode ()I
 	public fun isIdAttr ()Z
 	public final fun isValueCollapsed ()Z
 }

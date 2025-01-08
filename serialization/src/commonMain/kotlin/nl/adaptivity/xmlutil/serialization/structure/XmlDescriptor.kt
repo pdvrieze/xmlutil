@@ -889,6 +889,28 @@ public class XmlAttributeMapDescriptor internal constructor(
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlAttributeMapDescriptor
+
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+        if (keyDescriptor != other.keyDescriptor) return false
+        if (valueDescriptor != other.valueDescriptor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + defaultPreserveSpace.hashCode()
+        result = 31 * result + keyDescriptor.hashCode()
+        result = 31 * result + valueDescriptor.hashCode()
+        return result
+    }
+
 }
 
 public class XmlContextualDescriptor @ExperimentalXmlUtilApi
@@ -928,6 +950,28 @@ internal constructor(
         val overriddenParentInfo = DetachedParent(tagParent.namespace, typeDescriptor, useNameInfo)
 
         return from(codecConfig, overriddenParentInfo, tagParent, canBeAttribute)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlContextualDescriptor
+
+        if (canBeAttribute != other.canBeAttribute) return false
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+        if (context != other.context) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + canBeAttribute.hashCode()
+        result = 31 * result + defaultPreserveSpace.hashCode()
+        result = 31 * result + (context?.hashCode() ?: 0)
+        return result
     }
 
     override val outputKind: OutputKind get() = OutputKind.Inline
@@ -1523,6 +1567,30 @@ public class XmlMapDescriptor internal constructor(
         builder.append('>')
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlMapDescriptor
+
+        if (isValueCollapsed != other.isValueCollapsed) return false
+        if (entryName != other.entryName) return false
+        if (keyDescriptor != other.keyDescriptor) return false
+        if (valueDescriptor != other.valueDescriptor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + isValueCollapsed.hashCode()
+        result = 31 * result + entryName.hashCode()
+        result = 31 * result + keyDescriptor.hashCode()
+        result = 31 * result + valueDescriptor.hashCode()
+        return result
+    }
+
 
 }
 
@@ -1789,6 +1857,34 @@ internal class InjectedParentTag(
             overriddenSerializer
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as InjectedParentTag
+
+        if (index != other.index) return false
+        if (elementTypeDescriptor != other.elementTypeDescriptor) return false
+        if (elementUseNameInfo != other.elementUseNameInfo) return false
+        if (namespace != other.namespace) return false
+        if (elementUseOutputKind != other.elementUseOutputKind) return false
+        if (overriddenSerializer != other.overriddenSerializer) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = index
+        result = 31 * result + elementTypeDescriptor.hashCode()
+        result = 31 * result + elementUseNameInfo.hashCode()
+        result = 31 * result + namespace.hashCode()
+        result = 31 * result + (elementUseOutputKind?.hashCode() ?: 0)
+        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
+        return result
+    }
+
+
 }
 
 private class DetachedParent(
