@@ -34,6 +34,8 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 /**
  * Policies allow for customizing the behaviour of the xml serialization
  */
+@OptIn(ExperimentalSubclassOptIn::class)
+@SubclassOptInRequired(ExperimentalXmlUtilApi::class)
 public interface XmlSerializationPolicy {
 
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
@@ -335,6 +337,8 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  * @property isStrictBoolean Parse boolean data according to the requirements of XML, rather than the (very lenient)
  *   toBoolean function from the Kotlin standard library.
  */
+@OptIn(ExperimentalSubclassOptIn::class)
+@SubclassOptInRequired(ExperimentalXmlUtilApi::class)
 public open class DefaultXmlSerializationPolicy
 private constructor(
     internal val formatCache: FormatCache,
