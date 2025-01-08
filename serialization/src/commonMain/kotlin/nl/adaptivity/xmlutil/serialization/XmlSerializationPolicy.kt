@@ -104,6 +104,18 @@ public interface XmlSerializationPolicy {
         parentNamespace: Namespace
     ): QName
 
+    /**
+     * Class holding the name information for either an attribute or type
+     *
+     * @property serialName The serialName as provided by the descriptor (element name for attribute,
+     *     type name for type)
+     * @property annotatedName The name provided through the `@XmlSerialName` annotation. The default
+     *     policy always prioritises this over local names.
+     * @property isDefaultNamespace For attribute values, determines whether the attribute would be
+     *     in the default namespace. This allows for `@XmlSerialName` annotations that do not explicitly
+     *     specify the name. It records whether the namespace attribute is the "unset"/default value in
+     *     the annotation.
+     */
     public data class DeclaredNameInfo(
         val serialName: String,
         val annotatedName: QName?,
