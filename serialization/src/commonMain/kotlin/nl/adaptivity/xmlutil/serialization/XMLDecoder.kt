@@ -365,7 +365,9 @@ internal open class XmlDecoderBase internal constructor(
         private val stringValue: String,
         inheritedPreserveWhitespace: DocumentPreserveSpace,
     ) : Decoder, XML.XmlInput, DecodeCommons(xmlDescriptor, inheritedPreserveWhitespace) {
-        override val input: XmlPeekingReader by lazy { PseudoBufferedReader(XmlStringReader(locationInfo, stringValue)) }
+        // Decoding should not involve any threads. This type is internal and should not escape.
+        // Initiating in a custom serializer is not supported
+        override val input: XmlPeekingReader by lazy(LazyThreadSafetyMode.NONE) { PseudoBufferedReader(XmlStringReader(locationInfo, stringValue)) }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
             throw UnsupportedOperationException("Strings cannot be decoded to structures")
@@ -1657,7 +1659,8 @@ internal open class XmlDecoderBase internal constructor(
     ) : TagDecoderBase<XmlListDescriptor>(deserializer, xmlDescriptor, null, inheritedPreserveWhitespace) {
         private var listIndex = 0
 
-        private val textValues by lazy {
+        // This decoder is only used from a single tread and should not "escape"
+        private val textValues by lazy(LazyThreadSafetyMode.NONE) {
             xmlCollapseWhitespace(getTextValue()).split(*xmlDescriptor.delimiters)
         }
 

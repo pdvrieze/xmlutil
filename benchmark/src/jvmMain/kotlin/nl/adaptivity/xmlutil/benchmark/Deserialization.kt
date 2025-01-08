@@ -40,7 +40,7 @@ open class Deserialization {
 
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML { recommended_0_87_0() })
 
-    val readers: List<Pair<URL, XmlBufferReader>> by lazy {
+    val readers: List<Pair<URL, XmlBufferReader>> by lazy(LazyThreadSafetyMode.NONE) {
         suites
             .map { (_, u) ->
             u.openStream().use { input ->

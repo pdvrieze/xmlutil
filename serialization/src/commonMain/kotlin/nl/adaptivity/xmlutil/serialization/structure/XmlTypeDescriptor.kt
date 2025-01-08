@@ -108,7 +108,7 @@ public class XmlTypeDescriptor internal constructor(
     public val elementsCount: Int
         get() = serialDescriptor.elementsCount
 
-    internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy {
+    internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         config.policy.initialChildReorderMap(serialDescriptor)
     }
 
@@ -141,7 +141,7 @@ public class XmlTypeDescriptor internal constructor(
         return result
     }
 
-    private val children by lazy {
+    private val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) { idx ->
             val desc = serialDescriptor.getElementDescriptor(idx).getXmlOverride()

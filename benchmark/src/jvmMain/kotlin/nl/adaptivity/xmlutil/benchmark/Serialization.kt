@@ -43,7 +43,7 @@ open class Serialization {
 
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML { recommended_0_87_0() })
 
-    val schemas: List<Pair<URL, XSSchema>> by lazy {
+    val schemas: List<Pair<URL, XSSchema>> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val xml = XML { recommended_0_90_2() }
         suites
             .map { (_, u) ->

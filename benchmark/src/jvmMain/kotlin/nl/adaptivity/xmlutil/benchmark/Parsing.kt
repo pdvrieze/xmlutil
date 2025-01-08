@@ -45,7 +45,7 @@ open class Parsing {
         recommended_0_87_0()
     }
 
-    val suites: List<Pair<URL, URL>> by lazy {
+    val suites: List<Pair<URL, URL>> by lazy(LazyThreadSafetyMode.NONE) {
         testXmlSchemaUrls(xml)
     }
 

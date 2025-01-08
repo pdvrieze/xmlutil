@@ -168,7 +168,7 @@ public sealed class XmlDescriptor(
     public val namespaceDecls: List<Namespace> =
         codecConfig.config.policy.elementNamespaceDecls(serializerParent)
 
-    override val tagName: QName by lazy {
+    override val tagName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
         codecConfig.config.policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
     }
 
@@ -200,7 +200,7 @@ public sealed class XmlDescriptor(
     override val serialKind: SerialKind
         get() = typeDescriptor.serialDescriptor.kind
 
-    private val decoderProperties: DecoderProperties by lazy { DecoderProperties(codecConfig, this) }
+    private val decoderProperties: DecoderProperties by lazy(LazyThreadSafetyMode.PUBLICATION) { DecoderProperties(codecConfig, this) }
 
     /** Map between tag name and polymorphic info */
     internal val polyMap: QNameMap<PolyInfo> get() = decoderProperties.polyMap
@@ -218,7 +218,7 @@ public sealed class XmlDescriptor(
      * This retrieves the descriptor of the actually visible tag (omitting transparent elements).
      * In many cases this is the descriptor itself.
      */
-    internal val visibleDescendantOrSelf by lazy { toNonTransparentChild() }
+    internal val visibleDescendantOrSelf by lazy(LazyThreadSafetyMode.PUBLICATION) { toNonTransparentChild() }
 
     public open fun getElementDescriptor(index: Int): XmlDescriptor {
         throw IndexOutOfBoundsException("There are no children")
@@ -513,7 +513,7 @@ public class XmlRootDescriptor internal constructor(
         descriptor: SerialDescriptor,
     ) : this(codecConfig, descriptor, DeclaredNameInfo(descriptor))
 
-    private val element: XmlDescriptor by lazy {
+    private val element: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         from(codecConfig, tagParent, canBeAttribute = false)
     }
 
@@ -760,7 +760,7 @@ public class XmlInlineDescriptor internal constructor(
 
 
     @OptIn(ExperimentalSerializationApi::class)
-    private val child: XmlDescriptor by lazy {
+    private val child: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
 
         val effectiveUseNameInfo: DeclaredNameInfo = when {
             useNameInfo.annotatedName != null -> useNameInfo
@@ -795,7 +795,7 @@ public class XmlInlineDescriptor internal constructor(
         return child
     }
 
-    override val isUnsigned: Boolean by lazy {
+    override val isUnsigned: Boolean by lazy(LazyThreadSafetyMode.NONE) {
         serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS || child.isUnsigned
     }
 
@@ -847,7 +847,7 @@ public class XmlAttributeMapDescriptor internal constructor(
      * The descriptor for the key type of the map
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public val keyDescriptor: XmlDescriptor by lazy {
+    public val keyDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         from(
             codecConfig,
             ParentInfo(codecConfig.config, this, 0, useOutputKind = OutputKind.Text),
@@ -860,7 +860,7 @@ public class XmlAttributeMapDescriptor internal constructor(
      * The descriptor for the value type of the map
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public val valueDescriptor: XmlDescriptor by lazy {
+    public val valueDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         from(
             codecConfig,
             ParentInfo(codecConfig.config, this, 1, useOutputKind = OutputKind.Text),
@@ -1344,7 +1344,7 @@ public class XmlPolymorphicDescriptor internal constructor(
         tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.maybeSerialName
 
     @OptIn(WillBePrivate::class) // the type ParentInfo should become internal
-    private val children by lazy {
+    private val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
         List(elementsCount) { index ->
             val canBeAttribute = index == 0
             val overrideOutputKind = if (canBeAttribute) OutputKind.Attribute else OutputKind.Element
@@ -1523,11 +1523,11 @@ public class XmlMapDescriptor internal constructor(
 
     override val isIdAttr: Boolean get() = false
 
-    public val isValueCollapsed: Boolean by lazy {
+    public val isValueCollapsed: Boolean by lazy(LazyThreadSafetyMode.PUBLICATION) {
         codecConfig.config.policy.isMapValueCollapsed(serializerParent, valueDescriptor)
     }
 
-    internal val entryName: QName by lazy {
+    internal val entryName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
         if (isValueCollapsed) {
             valueDescriptor.tagName
         } else {
@@ -1535,14 +1535,14 @@ public class XmlMapDescriptor internal constructor(
         }
     }
 
-    private val keyDescriptor: XmlDescriptor by lazy {
+    private val keyDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val keyNameInfo = codecConfig.config.policy.mapKeyName(serializerParent)
         val parentInfo = ParentInfo(codecConfig.config, this, 0, keyNameInfo)
         val keyTagParent = InjectedParentTag(0, typeDescriptor[0], keyNameInfo, tagParent.namespace)
         from(codecConfig, parentInfo, keyTagParent, canBeAttribute = true)
     }
 
-    private val valueDescriptor: XmlDescriptor by lazy {
+    private val valueDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val valueNameInfo = codecConfig.config.policy.mapValueName(serializerParent, isListEluded)
         val parentInfo = ParentInfo(codecConfig.config, this, 1, valueNameInfo, OutputKind.Element)
         val valueTagParent = InjectedParentTag(0, typeDescriptor[1], valueNameInfo, tagParent.namespace)
@@ -1660,7 +1660,7 @@ public class XmlListDescriptor internal constructor(
         }
     }
 
-    private val childDescriptor: XmlDescriptor by lazy {
+    private val childDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val childrenNameAnnotation = tagParent.useAnnChildrenName
 
         val useNameInfo = when {
@@ -2007,7 +2007,7 @@ public class ParentInfo(
         get() = descriptor.tagName.toNamespace()
 
     @OptIn(ExperimentalSerializationApi::class)
-    override val elementTypeDescriptor: XmlTypeDescriptor by lazy {
+    override val elementTypeDescriptor: XmlTypeDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         when {
             elementSerialDescriptor.kind == SerialKind.CONTEXTUAL ->
                 descriptor.typeDescriptor
