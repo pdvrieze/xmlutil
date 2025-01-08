@@ -1837,7 +1837,7 @@ internal class InjectedParentTag(
 ) : SafeParentInfo {
     override val parentIsInline: Boolean get() = false
 
-    override val descriptor: Nothing? = null
+    override val descriptor: Nothing? get() = null
 
     override val elementUseAnnotations: Collection<Annotation>
         get() = emptyList()
