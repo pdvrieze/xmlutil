@@ -1340,7 +1340,7 @@ public class XmlPolymorphicDescriptor internal constructor(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val parentSerialName: String? =
+    public val parentSerialName: String? get() =
         tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.maybeSerialName
 
     @OptIn(WillBePrivate::class) // the type ParentInfo should become internal
@@ -1406,7 +1406,6 @@ public class XmlPolymorphicDescriptor internal constructor(
         if (outputKind != other.outputKind) return false
         if (polymorphicMode != other.polymorphicMode) return false
         if (polyInfo != other.polyInfo) return false
-        if (parentSerialName != other.parentSerialName) return false
 
         return true
     }
@@ -1416,7 +1415,6 @@ public class XmlPolymorphicDescriptor internal constructor(
         result = 31 * result + outputKind.hashCode()
         result = 31 * result + polymorphicMode.hashCode()
         result = 31 * result + polyInfo.hashCode()
-        result = 31 * result + (parentSerialName?.hashCode() ?: 0)
         return result
     }
 
