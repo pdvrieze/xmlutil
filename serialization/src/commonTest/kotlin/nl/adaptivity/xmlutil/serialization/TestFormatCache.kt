@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2025.
  *
  * This file is part of xmlutil.
  *
@@ -22,13 +22,10 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
 import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.jvm.JvmStatic
 
@@ -37,14 +34,15 @@ import kotlin.jvm.JvmStatic
  * intended to be stored on the config, thus reused through multiple serializations.
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
-public class DefaultFormatCache : FormatCache() {
+public class TestFormatCache : FormatCache() {
     private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
     private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
     private val pendingDescs = HashSet<DescKey>()
+    private val seenSerialDescs = HashMap<String, MutableList<ListKey>>()
 
-    override fun copy(): DefaultFormatCache = DefaultFormatCache()
+    override fun copy(): TestFormatCache = TestFormatCache()
 
-    override fun unsafeCache(): DefaultFormatCache {
+    override fun unsafeCache(): TestFormatCache {
         return this
     }
 
@@ -98,6 +96,12 @@ public class DefaultFormatCache : FormatCache() {
         // This has to be getOrPut rather than `computeIfAbsent` as computeIfAbsent prevents other
         // changes to different types. GetOrPut does not have that property (but is technically slower)
         return elemDescCache.getOrPut(key) {
+            val sn = key.childDescriptor.serialKeyName()
+            val descList = seenSerialDescs.getOrPut(sn) { ArrayList() }
+            descList.add(ListKey(serializerParent.descriptor?.serialDescriptor?.serialName ?: "<root>", key))
+            if(descList.size > 1) {
+                println("LOOKUP_DESCRIPTOR ($sn): Duplicate cache entries (n=${descList.size}) for serial descriptor:\n  ${descList.joinToString(",\n    ")}")
+            }
             defaultValue()
         }.also {
             pendingDescs.remove(key)
@@ -105,7 +109,7 @@ public class DefaultFormatCache : FormatCache() {
     }
 
     override fun getCompositeDescriptor(
-        codecConfig: XmlCodecConfig,
+        codecConfig: XML.XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         preserveSpace: TypePreserveSpace
@@ -212,10 +216,24 @@ public class DefaultFormatCache : FormatCache() {
         }
     }
 
+    private data class ListKey(val parentName: String, val key: DescKey)
+
     private companion object {
         @JvmStatic
         private fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
-            DefaultFormatCache.TypeKey(namespace ?: "", descriptor)
+            TestFormatCache.TypeKey(namespace ?: "", descriptor)
     }
 }
 
+
+private fun SerialDescriptor.serialKeyName(): String = when(kind) {
+    is PrimitiveKind -> "Primitive<$serialName>"
+    SerialKind.ENUM -> "Enum<$serialName>"
+    SerialKind.CONTEXTUAL -> "Contextual<$serialName>"
+    PolymorphicKind.OPEN -> "Poly<$serialName>"
+    PolymorphicKind.SEALED -> "Sealed<$serialName>"
+    StructureKind.CLASS -> serialName
+    StructureKind.OBJECT -> "Object<$serialName>"
+    StructureKind.LIST -> "List<${getElementDescriptor(1).serialKeyName()}>"
+    StructureKind.MAP -> "Map<${getElementDescriptor(0).serialKeyName()}, ${getElementDescriptor(1).serialKeyName()}>)}"
+}

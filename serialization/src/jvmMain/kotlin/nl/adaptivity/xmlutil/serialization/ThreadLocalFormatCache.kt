@@ -25,18 +25,24 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.structure.*
+import java.lang.ref.SoftReference
 import java.util.function.Supplier
 
 public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<FormatCache>) : FormatCache() {
 
-    private val threadLocal = ThreadLocal.withInitial(baseCacheFactory)
+    private var threadLocal = ThreadLocal.withInitial(Weaken(baseCacheFactory))
 
     override fun copy(): ThreadLocalFormatCache {
         return ThreadLocalFormatCache(baseCacheFactory)
     }
 
     override fun unsafeCache(): FormatCache {
-        return threadLocal.get()
+        var f: FormatCache? = threadLocal.get().get()
+        while (f == null) {
+            threadLocal.remove()
+            f = threadLocal.get().get()
+        }
+        return f
     }
 
     override fun lookupType(
@@ -44,7 +50,7 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return threadLocal.get().lookupType(namespace, serialDesc, defaultValue)
+        return unsafeCache().lookupType(namespace, serialDesc, defaultValue)
     }
 
     override fun lookupType(
@@ -52,7 +58,7 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return threadLocal.get().lookupType(parentName, serialDesc, defaultValue)
+        return unsafeCache().lookupType(parentName, serialDesc, defaultValue)
     }
 
     override fun lookupDescriptor(
@@ -62,7 +68,13 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
         canBeAttribute: Boolean,
         defaultValue: () -> XmlDescriptor
     ): XmlDescriptor {
-        return threadLocal.get().lookupDescriptor(overridenSerializer, serializerParent, tagParent, canBeAttribute, defaultValue)
+        return unsafeCache().lookupDescriptor(
+            overridenSerializer,
+            serializerParent,
+            tagParent,
+            canBeAttribute,
+            defaultValue
+        )
     }
 
     override fun getCompositeDescriptor(
@@ -71,6 +83,10 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
         tagParent: SafeParentInfo,
         preserveSpace: TypePreserveSpace
     ): XmlCompositeDescriptor {
-        return threadLocal.get().getCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
+        return unsafeCache().getCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
+    }
+
+    private class Weaken(private val f: Supplier<FormatCache>) : Supplier<SoftReference<FormatCache>> {
+        override fun get() = SoftReference(f.get())
     }
 }
