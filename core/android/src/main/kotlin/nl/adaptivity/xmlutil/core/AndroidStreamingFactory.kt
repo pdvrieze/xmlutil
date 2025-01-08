@@ -49,10 +49,12 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     }
 
     @Throws(XmlException::class)
+    @Deprecated("Usage of results only works on the JVM", level = DeprecationLevel.ERROR)
     override fun newWriter(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         throw UnsupportedOperationException("Results are not supported on Android")
     }
 
+    @Deprecated("Usage of sources only works on the JVM", level = DeprecationLevel.ERROR)
     @Throws(XmlException::class)
     override fun newReader(source: Source): XmlReader {
         throw UnsupportedOperationException("Sources are not supported on Android")
