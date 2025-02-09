@@ -327,7 +327,7 @@ public sealed class XmlDescriptor(
 
             val overridenSerializer = codecConfig.config.policy.overrideSerializerOrNull(serializerParent, tagParent)
 
-            return codecConfig.config.formatCache.lookupDescriptor(
+            return codecConfig.config.formatCache.lookupDescriptorOrStore(
                 overridenSerializer,
                 serializerParent,
                 tagParent,
@@ -1720,7 +1720,7 @@ private class DetachedParent(
         namespace = elementUseNameInfo.annotatedName?.toNamespace(),
         elementTypeDescriptor = (elementUseNameInfo.annotatedName?.toNamespace()
             ?: DEFAULT_NAMESPACE).let { namespace ->
-            codecConfig.config.formatCache.lookupType(namespace, serialDescriptor) {
+            codecConfig.config.formatCache.lookupTypeOrStore(namespace, serialDescriptor) {
                 XmlTypeDescriptor(codecConfig.config, serialDescriptor, namespace)
             }
         },
@@ -2009,7 +2009,7 @@ private fun polyTagName(
         ?: throw XmlException("Missing descriptor for $typename in the serial context")
 
 
-    val elementTypeDescriptor = config.formatCache.lookupType(parentNamespace, descriptor) {
+    val elementTypeDescriptor = config.formatCache.lookupTypeOrStore(parentNamespace, descriptor) {
         XmlTypeDescriptor(config, descriptor, parentNamespace)
     }
 

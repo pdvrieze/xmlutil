@@ -23,3 +23,7 @@ package nl.adaptivity.xmlutil.serialization.impl
 import kotlin.reflect.KClass
 
 internal expect val KClass<*>.maybeSerialName: String?
+
+internal expect class CompatLock() {
+    internal operator fun <R> invoke(action: () -> R): R
+}

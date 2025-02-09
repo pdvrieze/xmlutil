@@ -25,6 +25,7 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
 import kotlinx.serialization.serializerOrNull
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.KClass
 
 @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
@@ -32,3 +33,15 @@ internal actual val KClass<*>.maybeSerialName: String?
     get() = this.serializerOrNull()
         ?.run { descriptor.serialName }
         ?: qualifiedName
+
+internal actual class CompatLock {
+    private val lock = ReentrantLock()
+    internal actual operator fun <R> invoke(action: () -> R): R {
+        lock.lock()
+        try {
+            return action()
+        } finally {
+            lock.unlock()
+        }
+    }
+}

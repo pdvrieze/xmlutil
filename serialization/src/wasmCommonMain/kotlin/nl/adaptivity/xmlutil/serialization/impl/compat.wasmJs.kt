@@ -31,3 +31,7 @@ import kotlin.reflect.KClass
 internal actual val KClass<*>.maybeSerialName: String?
     get() = serializerOrNull()
         ?.run { descriptor.serialName }
+
+internal actual class CompatLock {
+    internal actual operator fun <R> invoke(action: () -> R): R = action()
+}

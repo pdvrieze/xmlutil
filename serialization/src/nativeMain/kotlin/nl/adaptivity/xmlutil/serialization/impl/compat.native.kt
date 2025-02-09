@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
+import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializerOrNull
@@ -30,3 +31,16 @@ internal actual val KClass<*>.maybeSerialName: String?
     get() = this.serializerOrNull()
         ?.run { descriptor.serialName }
         ?: qualifiedName
+
+internal actual class CompatLock {
+    private val lock = ReentrantLock()
+    internal actual operator fun <R> invoke(action: () -> R): R {
+        lock.lock()
+        try {
+            return action()
+        } finally {
+            lock.unlock()
+        }
+    }
+}
+

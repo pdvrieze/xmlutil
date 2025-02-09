@@ -13,6 +13,7 @@ kotlinx-serialization = "1.7.3"
 kxml2 = "2.3.0"
 woodstox = "6.6.2"
 xmlutil = "0.90.3"
+atomicfu = "0.26.1"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
@@ -27,6 +28,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "benchmark"}
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 
 [plugins]
 binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryValidator" }

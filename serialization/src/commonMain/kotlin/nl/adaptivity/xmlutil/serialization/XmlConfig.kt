@@ -233,7 +233,7 @@ private constructor(
     }
 
     internal fun lookupTypeDesc(parentNamespace: Namespace, serialDescriptor: SerialDescriptor): XmlTypeDescriptor {
-        return formatCache.lookupType(parentNamespace, serialDescriptor) {
+        return formatCache.lookupTypeOrStore(parentNamespace, serialDescriptor) {
             XmlTypeDescriptor(this, serialDescriptor, parentNamespace)
         }
     }
