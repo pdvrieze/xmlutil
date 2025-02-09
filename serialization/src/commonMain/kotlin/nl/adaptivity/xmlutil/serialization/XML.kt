@@ -83,11 +83,15 @@ public class XML(
 ) : StringFormat {
     override val serializersModule: SerializersModule = serializersModule + defaultXmlModule
 
-    private fun unsafeCodecConfig(): XmlCodecConfig = object : XmlCodecConfig {
-        override val serializersModule: SerializersModule
-            get() = this@XML.serializersModule
+    private fun <R> useUnsafeCodecConfig(action: (XmlCodecConfig) -> R): R {
+        return this@XML.config.formatCache.useUnsafe { cache ->
+            action(object : XmlCodecConfig {
+                override val serializersModule: SerializersModule
+                    get() = this@XML.serializersModule
 
-        override val config: XmlConfig = this@XML.config.shadowCache(this@XML.config.formatCache.unsafeCache())
+                override val config: XmlConfig = this@XML.config.shadowCache(cache)
+            })
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -186,17 +190,19 @@ public class XML(
     ) {
         target.indentString = config.indentString
 
-        val codecConfig = unsafeCodecConfig()
 
-        if (prefix != null) {
-            val root = XmlRootDescriptor(codecConfig, serializer.descriptor)
+        useUnsafeCodecConfig { codecConfig ->
+            if (prefix != null) {
+                val root =
+                    XmlRootDescriptor(codecConfig, serializer.descriptor)
 
-            val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
+                val serialQName = root.getElementDescriptor(0).tagName.copy(prefix = prefix)
 
-            encodeToWriter(target, serializer, value, serialQName)
+                encodeToWriter(codecConfig, target, serializer, value, serialQName)
 
-        } else {
-            encodeToWriter(target, serializer, value, rootName = null)
+            } else {
+                encodeToWriter(codecConfig, target, serializer, value, rootName = null)
+            }
         }
 
     }
@@ -215,17 +221,19 @@ public class XML(
         value: T,
         rootName: QName?,
     ) {
-        encodeToWriter(unsafeCodecConfig(), target, serializer, value, rootName)
+        useUnsafeCodecConfig { codecConfig ->
+            encodeToWriter(codecConfig, target, serializer, value, rootName)
+        }
     }
 
     private fun <T> encodeToWriter(
-        codecConfig: XmlCodecConfig,
+        unsafeCodecConfig: XmlCodecConfig,
         target: XmlWriter,
         serializer: SerializationStrategy<T>,
         value: T,
         rootName: QName?,
     ) {
-        val config = codecConfig.config
+        val config = unsafeCodecConfig.config
         target.indentString = config.indentString
 
         if (target.depth == 0) {
@@ -251,8 +259,8 @@ public class XML(
         val policyDerivedName =
             config.policy.serialTypeNameToQName(declNameInfo, DEFAULT_NAMESPACE)
 
-        val rootNameInfo = rootNameInfo(serializer.descriptor, rootName, policyDerivedName)
-        val root = XmlRootDescriptor(codecConfig, serializer.descriptor, rootNameInfo)
+        val rootNameInfo = rootNameInfo(unsafeCodecConfig, serializer.descriptor, rootName, policyDerivedName)
+        val root = XmlRootDescriptor(unsafeCodecConfig, serializer.descriptor, rootNameInfo)
 
         val xmlDescriptor = root.getElementDescriptor(0)
 
@@ -448,13 +456,18 @@ public class XML(
      * @param rootName The explicitly given name requirement
      * @param localName The qname from the reader or (for writer derived from the serial name - avoiding captured types)
      */
-    private fun rootNameInfo(descriptor: SerialDescriptor, rootName: QName?, localName: QName): DeclaredNameInfo {
+    private fun rootNameInfo(
+        unsafeCodecConfig: XmlCodecConfig,
+        descriptor: SerialDescriptor,
+        rootName: QName?,
+        localName: QName
+    ): DeclaredNameInfo {
         if (rootName != null) {
             return DeclaredNameInfo(localName.localPart, rootName, false)
         }
 
         val tmpRoot =
-            XmlRootDescriptor(unsafeCodecConfig(), descriptor, DeclaredNameInfo(localName.localPart))
+            XmlRootDescriptor(unsafeCodecConfig, descriptor, DeclaredNameInfo(localName.localPart))
 
         val realName = tmpRoot.typeDescriptor.typeQname ?: localName
 
@@ -475,7 +488,18 @@ public class XML(
         reader: XmlReader,
         rootName: QName? = null
     ): T {
-        val (config, serializersModule) = unsafeCodecConfig()
+        return useUnsafeCodecConfig { codecConfig ->
+            decodeFromReader(codecConfig, deserializer, reader, rootName)
+        }
+    }
+
+    private fun <T> decodeFromReader(
+        unsafeCodecConfig: XmlCodecConfig,
+        deserializer: DeserializationStrategy<T>,
+        reader: XmlReader,
+        rootName: QName? = null
+    ): T {
+        val (config, serializersModule) = unsafeCodecConfig
 
         // We skip all ignorable content here. To get started while supporting direct content we need to put the parser
         // in the correct state of having just read the startTag (that would normally be read by the code that determines
@@ -483,7 +507,7 @@ public class XML(
         reader.skipPreamble()
 
         val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
-        val rootNameInfo = rootNameInfo(deserializer.descriptor, rootName, reader.name)
+        val rootNameInfo = rootNameInfo(unsafeCodecConfig, deserializer.descriptor, rootName, reader.name)
         val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, rootNameInfo)
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
@@ -509,23 +533,27 @@ public class XML(
 
     @JvmOverloads
     public fun xmlDescriptor(serializer: SerializationStrategy<*>, rootName: QName? = null): XmlDescriptor {
-        return xmlDescriptor(serializer.descriptor, rootName)
+        return useUnsafeCodecConfig { xmlDescriptor(it, serializer.descriptor, rootName) }
     }
 
     @JvmOverloads
     public fun xmlDescriptor(deserializer: DeserializationStrategy<*>, rootName: QName? = null): XmlDescriptor {
-        return xmlDescriptor(deserializer.descriptor, rootName)
+        return useUnsafeCodecConfig { xmlDescriptor(it, deserializer.descriptor, rootName) }
     }
 
     @JvmOverloads
     public fun xmlDescriptor(deserializer: KSerializer<*>, rootName: QName? = null): XmlDescriptor {
-        return xmlDescriptor(deserializer.descriptor, rootName)
+        return useUnsafeCodecConfig { xmlDescriptor(it, deserializer.descriptor, rootName) }
     }
 
-    private fun xmlDescriptor(serialDescriptor: SerialDescriptor, rootName: QName? = null): XmlRootDescriptor {
+    private fun xmlDescriptor(
+        unsafeCodecConfig: XmlCodecConfig,
+        serialDescriptor: SerialDescriptor,
+        rootName: QName? = null
+    ): XmlRootDescriptor {
         val nameInfo = DeclaredNameInfo(rootName?.localPart ?: serialDescriptor.serialName, rootName, false)
 
-        return XmlRootDescriptor(unsafeCodecConfig(), serialDescriptor, nameInfo)
+        return XmlRootDescriptor(unsafeCodecConfig, serialDescriptor, nameInfo)
     }
 
     @Deprecated("Use config directly", ReplaceWith("config.repairNamespaces"), DeprecationLevel.HIDDEN)

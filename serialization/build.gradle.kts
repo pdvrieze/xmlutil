@@ -173,6 +173,7 @@ kotlin {
             if (this.name == "nativeMain") {
                 dependencies {
                     api(projects.core)
+                    implementation(libs.kotlinx.atomicfu)
                 }
             }
             if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed

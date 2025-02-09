@@ -36,7 +36,7 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
         return ThreadLocalFormatCache(baseCacheFactory)
     }
 
-    override fun unsafeCache(): FormatCache {
+    private fun unsafeCache(): FormatCache {
         var f: FormatCache? = threadLocal.get().get()
         while (f == null) {
             threadLocal.remove()
@@ -45,30 +45,34 @@ public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<Forma
         return f
     }
 
-    override fun lookupType(
+    override fun <R> useUnsafe(action: (FormatCache) -> R): R {
+        return action(unsafeCache())
+    }
+
+    override fun lookupTypeOrStore(
         namespace: Namespace?,
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return unsafeCache().lookupType(namespace, serialDesc, defaultValue)
+        return unsafeCache().lookupTypeOrStore(namespace, serialDesc, defaultValue)
     }
 
-    override fun lookupType(
+    override fun lookupTypeOrStore(
         parentName: QName,
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return unsafeCache().lookupType(parentName, serialDesc, defaultValue)
+        return unsafeCache().lookupTypeOrStore(parentName, serialDesc, defaultValue)
     }
 
-    override fun lookupDescriptor(
+    override fun lookupDescriptorOrStore(
         overridenSerializer: KSerializer<*>?,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean,
         defaultValue: () -> XmlDescriptor
     ): XmlDescriptor {
-        return unsafeCache().lookupDescriptor(
+        return unsafeCache().lookupDescriptorOrStore(
             overridenSerializer,
             serializerParent,
             tagParent,

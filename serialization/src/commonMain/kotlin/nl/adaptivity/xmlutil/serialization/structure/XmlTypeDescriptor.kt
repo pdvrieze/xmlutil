@@ -146,7 +146,7 @@ public class XmlTypeDescriptor internal constructor(
         Array(serialDescriptor.elementsCount) { idx ->
             val desc = serialDescriptor.getElementDescriptor(idx).getXmlOverride()
             val ns = typeQname?.toNamespace() ?: parentNamespace
-            config.formatCache.lookupType(ns, desc) {
+            config.formatCache.lookupTypeOrStore(ns, desc) {
                 XmlTypeDescriptor(config, desc, ns)
             }
         }

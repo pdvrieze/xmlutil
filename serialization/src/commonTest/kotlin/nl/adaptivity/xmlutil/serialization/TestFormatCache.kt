@@ -42,17 +42,17 @@ public class TestFormatCache : FormatCache() {
 
     override fun copy(): TestFormatCache = TestFormatCache()
 
-    override fun unsafeCache(): TestFormatCache {
-        return this
+    override fun <R> useUnsafe(action: (FormatCache) -> R): R {
+        return action(this)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override fun lookupType(
+    override fun lookupTypeOrStore(
         namespace: Namespace?,
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return lookupType(TypeKey(namespace?.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
+        return lookupTypeOrStore(TypeKey(namespace?.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
     /**
@@ -60,16 +60,16 @@ public class TestFormatCache : FormatCache() {
      * @param parentName A key
      */
     @OptIn(ExperimentalSerializationApi::class)
-    override fun lookupType(
+    override fun lookupTypeOrStore(
         parentName: QName,
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return lookupType(TypeKey(parentName.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
+        return lookupTypeOrStore(TypeKey(parentName.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    private fun lookupType(name: TypeKey, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
+    private fun lookupTypeOrStore(name: TypeKey, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
         return when (kind) {
             StructureKind.MAP,
             StructureKind.LIST -> defaultValue()
@@ -78,7 +78,7 @@ public class TestFormatCache : FormatCache() {
         }
     }
 
-    override fun lookupDescriptor(
+    override fun lookupDescriptorOrStore(
         overridenSerializer: KSerializer<*>?,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,

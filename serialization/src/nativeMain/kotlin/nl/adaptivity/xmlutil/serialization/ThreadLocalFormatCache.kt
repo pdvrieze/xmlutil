@@ -25,10 +25,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.structure.*
-import kotlin.native.concurrent.ThreadLocal
 
 
-@ThreadLocal
+@kotlin.native.concurrent.ThreadLocal
 private var threadLocalFormatCache: ArrayDeque<Pair<ThreadLocalFormatCache, FormatCache>>? = null
 
 /**
@@ -56,34 +55,34 @@ public class ThreadLocalFormatCache(
         return ThreadLocalFormatCache(capacity, baseCacheFactory)
     }
 
-    override fun unsafeCache(): FormatCache {
-        return threadLocal
+    override fun <R> useUnsafe(action: (FormatCache) -> R): R {
+        return action(threadLocal)
     }
 
-    override fun lookupType(
+    override fun lookupTypeOrStore(
         namespace: Namespace?,
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return threadLocal.lookupType(namespace, serialDesc, defaultValue)
+        return threadLocal.lookupTypeOrStore(namespace, serialDesc, defaultValue)
     }
 
-    override fun lookupType(
+    override fun lookupTypeOrStore(
         parentName: QName,
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return threadLocal.lookupType(parentName, serialDesc, defaultValue)
+        return threadLocal.lookupTypeOrStore(parentName, serialDesc, defaultValue)
     }
 
-    override fun lookupDescriptor(
+    override fun lookupDescriptorOrStore(
         overridenSerializer: KSerializer<*>?,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean,
         defaultValue: () -> XmlDescriptor
     ): XmlDescriptor {
-        return threadLocal.lookupDescriptor(overridenSerializer, serializerParent, tagParent, canBeAttribute, defaultValue)
+        return threadLocal.lookupDescriptorOrStore(overridenSerializer, serializerParent, tagParent, canBeAttribute, defaultValue)
     }
 
     override fun getCompositeDescriptor(

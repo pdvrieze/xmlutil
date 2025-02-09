@@ -28,10 +28,9 @@ public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer
 	public static final synthetic fun serializer (Lnl/adaptivity/xmlutil/util/CompactFragment$Companion;)Lkotlinx/serialization/KSerializer;
 }
 
-public final class nl/adaptivity/xmlutil/serialization/DefaultFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+public final class nl/adaptivity/xmlutil/serialization/DefaultFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache, nl/adaptivity/xmlutil/serialization/DelegatableFormatCache {
 	public fun <init> ()V
 	public synthetic fun copy$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
-	public synthetic fun unsafeCache$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {
@@ -143,7 +142,6 @@ public abstract class nl/adaptivity/xmlutil/serialization/FormatCache {
 
 public final class nl/adaptivity/xmlutil/serialization/FormatCache$Dummy : nl/adaptivity/xmlutil/serialization/FormatCache {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/FormatCache$Dummy;
-	public synthetic fun unsafeCache$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/FormatCache_javaSharedKt {
@@ -177,6 +175,10 @@ public final class nl/adaptivity/xmlutil/serialization/KotlinxSerializationProvi
 	public fun <init> ()V
 	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
 	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/LayeredCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> ()V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : nl/adaptivity/xmlutil/XmlSerializer {

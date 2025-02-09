@@ -586,8 +586,12 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor { //
     final fun toString(): kotlin/String // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.toString|toString(){}[0]
 }
 
-final class nl.adaptivity.xmlutil.serialization/DefaultFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/DefaultFormatCache|null[0]
+final class nl.adaptivity.xmlutil.serialization/DefaultFormatCache : nl.adaptivity.xmlutil.serialization/DelegatableFormatCache, nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/DefaultFormatCache|null[0]
     constructor <init>() // nl.adaptivity.xmlutil.serialization/DefaultFormatCache.<init>|<init>(){}[0]
+}
+
+final class nl.adaptivity.xmlutil.serialization/LayeredCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/LayeredCache|null[0]
+    constructor <init>() // nl.adaptivity.xmlutil.serialization/LayeredCache.<init>|<init>(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization/PolyInfo { // nl.adaptivity.xmlutil.serialization/PolyInfo|null[0]
