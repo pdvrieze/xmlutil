@@ -329,6 +329,24 @@ abstract class TestCommonReader {
         testProcessingInstruction(::createReader) { DomWriter() }
     }
 
+    /**
+     * Test that triggers invalid handling of ]]> inside attribute values. #266
+     */
+    @Test
+    open fun testEmbeddedJS() {
+        val data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<mule>\n" +
+                "    <set-variable value=\"#[output application/json indent=false --- vars.dbResult[0][0] mapObject ((value, key) -> {(key): value})]\" />\n" +
+                "</mule>"
+
+        createReader(data).use { reader ->
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals("mule", reader.localName)
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals("set-variable", reader.localName)
+        }
+    }
+
     @Test
     open fun testWhiteSpaceWithEntity() {
         val data = "<x>   dude &amp; &lt;dudette&gt;   </x>"

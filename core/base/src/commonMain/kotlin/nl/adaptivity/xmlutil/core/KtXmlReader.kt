@@ -1105,7 +1105,6 @@ public class KtXmlReader internal constructor(
 
         var left: Int = curPos
         var right: Int = -1
-        var cbrCount = 0
         var notFinished = true
 
         outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
@@ -1166,18 +1165,6 @@ public class KtXmlReader internal constructor(
                             right = curPos
                             break@inner
                         }
-                    }
-
-                    ']' -> {
-                        incCol()
-                        ++cbrCount
-                        ++curPos
-                    }
-
-                    '>' -> {
-                        incCol()
-                        if (cbrCount >= 2) error("Illegal ]]>")
-                        ++curPos
                     }
 
                     else -> {

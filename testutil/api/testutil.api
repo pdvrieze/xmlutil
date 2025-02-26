@@ -16,6 +16,7 @@ public final class io/github/pdvrieze/xmlutil/testutil/AssertXmlEqualsKt {
 public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
 	public fun <init> ()V
 	protected abstract fun createReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun testEmbeddedJS ()V
 	public fun testGenericReadEntity ()V
 	public fun testIgnorableWhitespace ()V
 	protected final fun testIgnorableWhitespace (Lkotlin/jvm/functions/Function1;)V
