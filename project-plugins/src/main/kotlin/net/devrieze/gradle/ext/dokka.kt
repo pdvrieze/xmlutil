@@ -25,7 +25,13 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.dokka.gradle.AbstractDokkaLeafTask
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder
+import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateModuleTask
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.net.URI
 import java.net.URL
 
@@ -35,18 +41,27 @@ fun Project.configureDokka(
     dokkaOverrideTarget: Provider<String?>
 ) {
     logger.lifecycle("Configuring dokka for project($name)")
+    tasks.configureEach {
+        if (name.contains("dokka", ignoreCase = true)) {
+            logger.lifecycle("Dokka task: ${name} (${this.javaClass.simpleName})")
+        }
+    }
     tasks.withType<AbstractDokkaLeafTask>().configureEach {
-        if (this is AbstractDokkaLeafTask) {
-            logger.info("Configuring dokka task: ${this.name}")
-            moduleName.convention(myModuleName)
-            moduleVersion.convention(myModuleVersion)
+        logger.lifecycle("Configuring dokka task: ${name} (${this.javaClass.simpleName})")
+        moduleName.convention(myModuleName)
+        moduleVersion.convention(myModuleVersion)
 
-            dokkaSourceSets.configureEach {
-                this@configureDokka.configureDokkaSourceSet(this, dokkaOverrideTarget.getOrNull())
-            }
+        dokkaSourceSets.configureEach {
+            this@configureDokka.configureDokkaSourceSet(this, dokkaOverrideTarget.getOrNull())
+        }
+    }
+    extensions.configure<DokkaExtension>("dokka") {
+        logger.lifecycle("Configuring dokka task: ${name} (${this.javaClass.simpleName})")
+        moduleName.convention(myModuleName)
+        moduleVersion.convention(myModuleVersion)
 
-        } else if ("dokka" in name.lowercase()) {
-            logger.error("Non-configured dokka task: ${project.name}:${name} : ${this.javaClass.name}")
+        dokkaSourceSets.configureEach {
+            this@configureDokka.configureDokkaSourceSet(this, dokkaOverrideTarget.getOrNull())
         }
     }
 }
@@ -102,6 +117,78 @@ private fun Project.configureDokkaSourceSet(
 
             externalDocumentationLink {
                 url = url("https://kotlinlang.org/api/kotlinx.serialization/")
+            }
+
+            perPackageOption {
+                matchingRegex.set(".*\\.(impl|internal)(|\\..*)")
+                suppress.set(true)
+            }
+            logger.lifecycle("Dokka source set: '$name'")
+            if ("Main" in name) {
+                val readme = project.file(project.relativePath("src/README.md"))
+                if (readme.exists() && readme.canRead()) {
+                    includes.from(listOf(readme))
+                    logger.lifecycle("Adding $readme to sourceSet :${project.name}:${name}(${displayName.orNull})")
+                } else {
+                    logger.warn("Missing $readme for project ${project.name}")
+                }
+            }
+        }
+    } else {
+        logger.warn("Sourceset ${project.name}:${sourceSet.name} suppressed")
+    }
+}
+
+private fun Project.configureDokkaSourceSet(
+    sourceSet: DokkaSourceSetSpec,
+    dokkaOverrideTarget: String?
+) {
+    if (!sourceSet.suppress.get()) {
+        logger.info("Configuring dokkaSourceSet:${project.name}:${sourceSet.name}")
+        with(sourceSet) {
+            if (name.startsWith("android")) {
+                enableAndroidDocumentationLink = true
+                enableJdkDocumentationLink = false
+            } else {
+                enableAndroidDocumentationLink = false
+                enableJdkDocumentationLink = true
+            }
+            displayName.set(
+                dokkaOverrideTarget ?: when (val dn = displayName.get()?.lowercase()) {
+                    "jdk" -> "JVM"
+                    "jvm",
+                    "javashared",
+                    "commonjvm",
+                    "jvmcommon" -> "JVM"
+                    "android" -> "Android"
+                    "common" -> "Common"
+                    "js" -> "JS"
+                    "native" -> "Native"
+                    "commondom" -> "Native"
+                    "wasmcommon" -> "Wasm"
+                    else -> dn
+                }
+            )
+            logger.lifecycle("Configuring dokka on sourceSet: :${project.name}:$name = ${displayName.orNull}")
+
+            documentedVisibilities = setOf(VisibilityModifier.Public, VisibilityModifier.Protected)
+
+            skipEmptyPackages = true
+            skipDeprecated = true
+
+            for (sourceRoot in sourceSet.sourceRoots) {
+                val relativeRoot = sourceRoot.relativeTo(rootProject.projectDir)
+                logger.lifecycle("Adding source link for root: $relativeRoot")
+                sourceLink {
+                    localDirectory = sourceRoot
+                    val relURI = relativeRoot.toURI()
+                    val absUrl = URI.create("https://github.com/pdvrieze/xmlutil/tree/master/").resolve(relURI)
+                    remoteUrl = absUrl
+                }
+            }
+
+            externalDocumentationLinks.apply {
+                url("https://kotlinlang.org/api/kotlinx.serialization/")
             }
 
             perPackageOption {

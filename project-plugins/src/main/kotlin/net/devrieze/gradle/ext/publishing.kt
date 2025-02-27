@@ -43,7 +43,7 @@ fun Project.doPublish(
 
     val javadocJarTask = tasks.create<Jar>("javadocJar") {
         archiveClassifier.set("javadoc")
-        from(tasks.named("dokkaHtml"))
+        from(tasks.named("dokkaGenerateModuleHtml"))
     }
 
     configure<PublishingExtension> {

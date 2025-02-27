@@ -2,7 +2,7 @@
 apiVersion = "1.8"
 binaryValidator = "0.16.3"
 dateTime = "0.6.1"
-dokka = "1.9.20"
+dokka = "2.0.0"
 javaVersion = "8"
 jmh = "0.7.2"
 jmh-core = "1.37"

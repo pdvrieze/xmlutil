@@ -20,6 +20,7 @@
 
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
@@ -105,5 +106,14 @@ idea {
     }
 }
 
-tasks.withType<DokkaMultiModuleTask>().configureEach {
+dependencies {
+    dokka(projects.core)
+    dokka(projects.coreJdk)
+    dokka(projects.coreAndroid)
+    dokka(projects.serialization)
+    dokka(projects.serialutil)
+}
+
+tasks.dokkaHtml {
+    val x: DokkaTask? = this
 }
