@@ -24,7 +24,6 @@ import nl.adaptivity.xmlutil.core.impl.idom.IAttr
 import nl.adaptivity.xmlutil.core.impl.idom.IElement
 import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import org.w3c.dom.NodeList
 import nl.adaptivity.xmlutil.dom.Attr as DomAttr
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import org.w3c.dom.Element as DomElement
@@ -39,8 +38,7 @@ internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate
     override fun getTagName(): String = delegate.tagName
 
     override fun getElementsByTagName(qualifiedName: String): INodeList {
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        return WrappingNodeList(delegate.getElementsByTagName(qualifiedName) as NodeList)
+        return WrappingNodeList(delegate.getElementsByTagName(qualifiedName))
     }
 
     override fun getElementsByTagNameNS(namespace: String?, localName: String): INodeList {
