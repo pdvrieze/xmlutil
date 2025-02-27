@@ -131,7 +131,6 @@ private val defaultXmlUtilHierarchyTemplate  = KotlinHierarchyTemplate {
 val Project.nativeState: NativeState
     get() = rootProject.extraProperties["nativeTargets"] as NativeState
 
-//@OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
 fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean = true) {
     val ideaActive = System.getProperty("idea.active") == "true"
     val nativeState = when(property("native.deploy")?.toString()?.lowercase()) {

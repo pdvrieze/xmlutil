@@ -97,7 +97,7 @@ class ProjectPlugin @Inject constructor(
                 project.extensions.configure<PublishingExtension> {
                     publications {
                         create<MavenPublication>("android") {
-                            artifactId = "${project.name}-android"
+                            artifactId = project.name
                             from(component)
                         }
                     }
