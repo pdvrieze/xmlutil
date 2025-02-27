@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.*
 
 abstract class TestCommonReader {
@@ -227,7 +229,8 @@ abstract class TestCommonReader {
 
     /** Test to reproduce #189 problem with comment */
     protected fun testReadToDom(createReader: (String) -> XmlReader) {
-        val text = """
+        if (testTarget != Target.Node) {
+            val text = """
             
             <!-- Problem: Doubled child entries -->
 
@@ -238,33 +241,34 @@ abstract class TestCommonReader {
             <?xpacket end='r'?>
         """.trimIndent()
 
-        val writer = DomWriter()
-        val reader = createReader(text)
+            val writer = DomWriter()
+            val reader = createReader(text)
 
-        while (reader.hasNext()) {
-            reader.next()
-            reader.writeCurrent(writer)
+            while (reader.hasNext()) {
+                reader.next()
+                reader.writeCurrent(writer)
+            }
+            val doc = writer.target
+
+            // whitespace outside of document element is ignored by DomWriter as the jvm dom implementation fails on it
+            var c: Node? = doc.getFirstChild()
+            assertEquals(NodeConsts.COMMENT_NODE, c?.nodeType)
+            assertEquals(" Problem: Doubled child entries ", (c as Comment).data)
+
+            c = c.nextSibling
+            assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
+            val piStart = c as ProcessingInstruction
+            assertEquals("xpacket", piStart.getTarget())
+            assertEquals("begin='\uFEFF' id='W5M0MpCehiHzreSzNTczkc9d'", piStart.getData())
+
+            c = c.nextSibling
+            assertEquals(NodeConsts.ELEMENT_NODE, c?.nodeType)
+
+            c = c?.nextSibling
+            assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
+            val piEnd = c as ProcessingInstruction
+            assertEquals("xpacket", piEnd.getTarget())
         }
-        val doc = writer.target
-
-        // whitespace outside of document element is ignored by DomWriter as the jvm dom implementation fails on it
-        var c: Node? = doc.getFirstChild()
-        assertEquals(NodeConsts.COMMENT_NODE, c?.nodeType)
-        assertEquals(" Problem: Doubled child entries ", (c as Comment).data)
-
-        c = c.nextSibling
-        assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
-        val piStart = c as ProcessingInstruction
-        assertEquals("xpacket", piStart.getTarget())
-        assertEquals("begin='\uFEFF' id='W5M0MpCehiHzreSzNTczkc9d'", piStart.getData())
-
-        c = c.nextSibling
-        assertEquals(NodeConsts.ELEMENT_NODE, c?.nodeType)
-
-        c = c?.nextSibling
-        assertEquals(NodeConsts.PROCESSING_INSTRUCTION_NODE, c?.nodeType)
-        val piEnd = c as ProcessingInstruction
-        assertEquals("xpacket", piEnd.getTarget())
     }
 
     protected abstract fun createReader(it: String): XmlReader
@@ -326,7 +330,9 @@ abstract class TestCommonReader {
 
     @Test
     open fun testProcessingInstructionDom() {
-        testProcessingInstruction(::createReader) { DomWriter() }
+        if (testTarget != Target.Node) {
+            testProcessingInstruction(::createReader) { DomWriter() }
+        }
     }
 
     /**

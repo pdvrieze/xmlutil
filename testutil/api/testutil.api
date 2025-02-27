@@ -42,3 +42,19 @@ public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
 	public fun testWhiteSpaceWithEntity ()V
 }
 
+public final class nl/adaptivity/xmlutil/test/multiplatform/Platform_commonJvmKt {
+	public static final fun getTestTarget ()Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target : java/lang/Enum {
+	public static final field Browser Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static final field Java Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static final field Native Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static final field Node Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static final field Wasi Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static final field Wasm Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+	public static fun values ()[Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+}
+

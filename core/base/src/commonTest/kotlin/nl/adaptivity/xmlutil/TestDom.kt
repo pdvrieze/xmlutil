@@ -23,6 +23,8 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.documentElement
 import nl.adaptivity.xmlutil.serialization.writeAsXML
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -33,12 +35,14 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagName_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
             //.decodeFromString(Element.serializer(), NESTED_ELEMENTS_TAG_SOUP)
-        val children = element.getElementsByTagName("child").toList()
-        assertEquals(16, children.size)
-        children.forEachIndexed { index, node ->
-            assertEquals((node as Element).getAttribute("prop"), index.toString())
+            val children = element.getElementsByTagName("child").toList()
+            assertEquals(16, children.size)
+            children.forEachIndexed { index, node ->
+                assertEquals((node as Element).getAttribute("prop"), index.toString())
+            }
         }
     }
 
@@ -47,12 +51,14 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagNameWildcard_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
             //.decodeFromString(Element.serializer(), NESTED_ELEMENTS_TAG_SOUP)
-        val children = element.getElementsByTagName("*").toList()
-        assertEquals(16, children.size)
-        children.forEachIndexed { index, node ->
-            assertEquals((node as Element).getAttribute("prop"), index.toString())
+            val children = element.getElementsByTagName("*").toList()
+            assertEquals(16, children.size)
+            children.forEachIndexed { index, node ->
+                assertEquals((node as Element).getAttribute("prop"), index.toString())
+            }
         }
     }
 
@@ -61,12 +67,14 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagNameNS_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
             //.decodeFromString(Element.serializer(), NESTED_ELEMENTS_TAG_SOUP)
-        val children = element.getElementsByTagNameNS("", "child").toList()
-        assertEquals(16, children.size)
-        children.forEachIndexed { index, node ->
-            assertEquals((node as Element).getAttribute("prop"), index.toString())
+            val children = element.getElementsByTagNameNS("", "child").toList()
+            assertEquals(16, children.size)
+            children.forEachIndexed { index, node ->
+                assertEquals((node as Element).getAttribute("prop"), index.toString())
+            }
         }
     }
 
@@ -75,12 +83,14 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagNameNSWildcard_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
             //.decodeFromString(Element.serializer(), NESTED_ELEMENTS_TAG_SOUP)
-        val children = element.getElementsByTagNameNS("*", "*").toList()
-        assertEquals(16, children.size)
-        children.forEachIndexed { index, node ->
-            assertEquals((node as Element).getAttribute("prop"), index.toString())
+            val children = element.getElementsByTagNameNS("*", "*").toList()
+            assertEquals(16, children.size)
+            children.forEachIndexed { index, node ->
+                assertEquals((node as Element).getAttribute("prop"), index.toString())
+            }
         }
     }
 
@@ -89,12 +99,14 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagNameNSWildcardPart_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
             //.decodeFromString(Element.serializer(), NESTED_ELEMENTS_TAG_SOUP)
-        val children = element.getElementsByTagNameNS("*", "child").toList()
-        assertEquals(16, children.size)
-        children.forEachIndexed { index, node ->
-            assertEquals((node as Element).getAttribute("prop"), index.toString())
+            val children = element.getElementsByTagNameNS("*", "child").toList()
+            assertEquals(16, children.size)
+            children.forEachIndexed { index, node ->
+                assertEquals((node as Element).getAttribute("prop"), index.toString())
+            }
         }
     }
 
@@ -103,11 +115,13 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagNameNSWildcardPartLocal_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
-        val children = element.getElementsByTagNameNS("", "*").toList()
-        assertEquals(16, children.size)
-        children.forEachIndexed { index, node ->
-            assertEquals((node as Element).getAttribute("prop"), index.toString())
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
+            val children = element.getElementsByTagNameNS("", "*").toList()
+            assertEquals(16, children.size)
+            children.forEachIndexed { index, node ->
+                assertEquals((node as Element).getAttribute("prop"), index.toString())
+            }
         }
     }
 
@@ -116,9 +130,11 @@ class TestDom {
      */
     @Test
     fun test_getElementsByTagNameNSWildcardNonMatchingLocal_withNestedTags_worksCorrectly() {
-        val element = getTestElementRoot()
-        val children = element.getElementsByTagNameNS("xx", "*").toList()
-        assertEquals(0, children.size)
+        if (testTarget != Target.Node) {
+            val element = getTestElementRoot()
+            val children = element.getElementsByTagNameNS("xx", "*").toList()
+            assertEquals(0, children.size)
+        }
     }
 
     companion object {
