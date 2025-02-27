@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
+import nl.adaptivity.xmlutil.serialization.impl.LRUCache
 import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.jvm.JvmStatic
 
@@ -38,9 +39,12 @@ import kotlin.jvm.JvmStatic
  * intended to be stored on the config, thus reused through multiple serializations.
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
-public class DefaultFormatCache : FormatCache(), DelegatableFormatCache {
-    private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
-    private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
+public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableFormatCache {
+    public constructor() : this(512)
+
+    private val typeDescCache = LRUCache<TypeKey, XmlTypeDescriptor>(cacheSize)
+
+    private val elemDescCache = LRUCache<DescKey, XmlDescriptor>(cacheSize)
     private val pendingDescs = HashSet<DescKey>()
 
     override fun copy(): DefaultFormatCache = DefaultFormatCache()
