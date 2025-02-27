@@ -1137,11 +1137,6 @@ public class KtXmlReader internal constructor(
                         left = curPos
                     }
 
-                    ' ', '\t' -> {
-                        incCol()
-                        ++curPos
-                    }
-
                     '\n' -> {
                         incLine()
                         ++curPos
