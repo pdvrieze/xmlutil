@@ -23,6 +23,7 @@ import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
+import kotlin.text.replace
 
 plugins {
     alias(libs.plugins.dokka)
@@ -33,6 +34,15 @@ plugins {
     signing
     idea
 }
+
+base {
+    archivesName = "core-io"
+}
+
+config {
+    dokkaModuleName = "core-io"
+}
+
 
 val autoModuleName = "net.devrieze.xmlutil.core.kxio"
 
@@ -80,3 +90,11 @@ kotlin {
 addNativeTargets()
 
 doPublish("core-io")
+
+publishing {
+    publications.withType<MavenPublication> {
+        if ("coreKXIO" in artifactId) {
+            artifactId = artifactId.replace("coreKXIO", "core-io")
+        }
+    }
+}
