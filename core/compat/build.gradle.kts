@@ -100,3 +100,12 @@ afterEvaluate {
 addNativeTargets()
 
 doPublish("compat")
+
+publishing {
+    publications.withType<MavenPublication> {
+        if ("coreCompat" in artifactId) {
+            artifactId = artifactId.replace("coreCompat", "core-compat")
+        }
+    }
+
+}
