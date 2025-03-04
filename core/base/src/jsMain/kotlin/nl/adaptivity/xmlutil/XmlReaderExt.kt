@@ -37,6 +37,8 @@ import org.w3c.dom.Document as DomDocument
  * @throws XmlException parsing failed
  */
 public actual fun XmlReader.siblingsToFragment(): CompactFragment {
+    return siblingsToFragmentImpl()
+
     @Suppress("DEPRECATION")
     val d = (this as? DomReader)?.delegate
     val doc: DocumentImpl = when {
