@@ -426,7 +426,7 @@ public class KtXmlReader internal constructor(
             _eventType = COMMENT
             return
         }
-
+        val lastEvent = _eventType
         val eventType = peekType()
         _eventType = eventType
         when (eventType) {
@@ -445,7 +445,10 @@ public class KtXmlReader internal constructor(
                 if (depth == 1) state = State.POST
             }
 
-            TEXT -> {
+            TEXT -> if (lastEvent == ENTITY_REF) { // Entity refs are part of text, so don't
+                // consider the following text whitespace at all
+                pushRegularText('<', false)
+            } else {
                 pushText('<')
                 if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
             }
@@ -1102,7 +1105,6 @@ public class KtXmlReader internal constructor(
 
         var left: Int = curPos
         var right: Int = -1
-        var cbrCount = 0
         var notFinished = true
 
         outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
@@ -1135,11 +1137,6 @@ public class KtXmlReader internal constructor(
                         left = curPos
                     }
 
-                    ' ', '\t' -> {
-                        incCol()
-                        ++curPos
-                    }
-
                     '\n' -> {
                         incLine()
                         ++curPos
@@ -1163,18 +1160,6 @@ public class KtXmlReader internal constructor(
                             right = curPos
                             break@inner
                         }
-                    }
-
-                    ']' -> {
-                        incCol()
-                        ++cbrCount
-                        ++curPos
-                    }
-
-                    '>' -> {
-                        incCol()
-                        if (cbrCount >= 2) error("Illegal ]]>")
-                        ++curPos
                     }
 
                     else -> {

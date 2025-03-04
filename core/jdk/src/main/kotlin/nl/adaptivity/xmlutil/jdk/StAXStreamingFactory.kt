@@ -55,6 +55,7 @@ public class StAXStreamingFactory : XmlStreamingFactory {
     }
 
     @Throws(XmlException::class)
+    @Deprecated("Usage of results only works on the JVM")
     override fun newWriter(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         try {
             return StAXWriter(result, repairNamespaces, xmlDeclMode)
@@ -90,6 +91,7 @@ public class StAXStreamingFactory : XmlStreamingFactory {
     }
 
     @Throws(XmlException::class)
+    @Deprecated("Usage of results only works on the JVM")
     override fun newReader(source: Source): XmlReader {
         try {
             return when (source) {

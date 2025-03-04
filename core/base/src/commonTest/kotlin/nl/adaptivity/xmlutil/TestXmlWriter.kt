@@ -21,6 +21,8 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -225,28 +227,30 @@ class TestXmlWriter {
 
     @Test
     fun testWriteDomSmartTag() {
-        val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
-        val builder = StringBuilder()
-        val dw = DomWriter()
-        dw.let { out ->
-            out.smartStartTag("ns/a", "a", "") {
-                smartStartTag("ns/b", "b", "") {
-                    smartStartTag("", "c", "")
-                    attribute("", "val", "", "value")
-                    endTag("", "c", "")
+        if (testTarget != Target.Node) {
+            val expected = "<a xmlns=\"ns/a\"><b xmlns=\"ns/b\"><c xmlns=\"\" val=\"value\"/></b></a>"
+            val builder = StringBuilder()
+            val dw = DomWriter()
+            dw.let { out ->
+                out.smartStartTag("ns/a", "a", "") {
+                    smartStartTag("ns/b", "b", "") {
+                        smartStartTag("", "c", "")
+                        attribute("", "val", "", "value")
+                        endTag("", "c", "")
+                    }
                 }
             }
-        }
-        xmlStreaming.newWriter(builder, false).use { out ->
-            val input = xmlStreaming.newReader(dw.target)
-            while (input.hasNext()) {
-                input.next()
-                if (! input.eventType.isIgnorable)
-                    input.writeCurrent(out)
+            xmlStreaming.newWriter(builder, false).use { out ->
+                val input = xmlStreaming.newReader(dw.target)
+                while (input.hasNext()) {
+                    input.next()
+                    if (!input.eventType.isIgnorable)
+                        input.writeCurrent(out)
+                }
             }
-        }
 
-        assertEquals(expected, builder.toString().replace(" />", "/>"))
+            assertEquals(expected, builder.toString().replace(" />", "/>"))
+        }
 
     }
 

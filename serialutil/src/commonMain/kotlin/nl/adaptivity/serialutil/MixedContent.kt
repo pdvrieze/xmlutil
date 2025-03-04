@@ -21,7 +21,6 @@
 package nl.adaptivity.serialutil
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
@@ -101,8 +100,7 @@ sealed class MixedContent<out T> {
     }
 
     // TODO make this serializer actually parameterized by the content type.
-    companion object :
-        KSerializer<MixedContent<Any>> {
+    companion object : KSerializer<MixedContent<Any>> {
 
         private val delegate = PolymorphicSerializer(Any::class)
 

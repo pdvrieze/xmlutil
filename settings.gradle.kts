@@ -60,8 +60,10 @@ include("coreCompat")
 include("core")
 include("coreJdk")
 include("coreAndroid")
+include("coreKXIO")
 
 include(":serialization")
+include(":serialization-io")
 include(":xmlserializable")
 include(":testutil")
 include(":examples")
@@ -75,6 +77,7 @@ project(":core").projectDir = file("core/base")
 project(":coreJdk").projectDir = file("core/jdk")
 project(":coreAndroid").projectDir = file("core/android")
 project(":coreCompat").projectDir = file("core/compat")
+project(":coreKXIO").projectDir = file("core/kxio")
 
 gradleEnterprise {
     buildScan {

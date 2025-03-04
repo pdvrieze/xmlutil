@@ -1,3 +1,77 @@
+# 0.91.0-RC1
+
+Features:
+- Add a core-io and serialization-io modules that support using kotlinx.io
+- Add inline function shortcuts for encodeToString/decodeFromString with
+  prefix/qname parameter that also take their serializer from the type
+  parameter instead of as explicit parameter.
+- Support both the default polymorphic serializer and handling unknown
+  elements broadly, in particular inside value items (as list). #256.
+  For handling unknown values the implementation now attempts to detect
+  the unknown element handler not consuming the element and will in such
+  case parse the remaining elements (This uses input.location so the
+  reader must support that).
+- (Finally) support running in node (falling back to the generic
+  implementation rather than the dom implementation). Note that this
+  does not inject a DOM implementation, so DOM handling will not work
+  unless an alternative compatible implementation is already present.
+- The cache feature has been improved: it is now a proper LRU cache; 
+  it has better key matching (more matches)
+- Add further inline shortcuts for encodeToString that take 
+  tagname/prefix parameters.
+- Implement handling of whitespace preservation, including handling
+  the attribute cascading to child tags. Types can now specify their
+  own defaults.
+
+Changes:
+- Build with Kotlin 2.1.10
+- Fix smart attribute writing to not use the null prefix for a 
+  non-null namespace (even when bound to the null-namespace).
+  Attributes with null prefix are always in the null namespace.
+- Build with Kotlin 2.1.0. This means that except for `core-android`
+  the other `-android` artefacts are now deprecated. They are separate
+  synthetic configurations that only forward dependencies.
+- `encodeToWriter` will now flush the writer. This is particularly
+  relevant in the context of `OutputStreamWriter` that doesn't write
+  content until flushed or closed.
+- Serialization no longer loads jdk/android specific modules for 
+  parsing (when loaded they will be used in creating serializers/parsers)
+- getElementsByTagName(Ns) now supports wildcards (*)
+
+Fixes:
+- Make getElementsByTagName(Ns) return all descendents (not only children)
+  per the DOM standard #265.
+- Don't detect end of cdata (incorrectly) inside a string #266.
+- Make recovery work more broadly, including handling text/cdata #253.
+- Make defaultSerializer work #256.
+- Fixed cache keys (this caused inefficiency and memory leaks #264). The
+  memory leaks are also addressed using an LRU cache.
+- When parsing text with entity content don't mark initial/trailing
+  whitespace   as ignorable, even when the result is parsed as
+  separate events. Fixes #241.
+- When creating a default cache doesn't work, fall back to not
+  caching (#255).
+- Some work to handle the misconfiguration of multiple types with
+  equal `SerialName` in the same context leading to invalid cache
+  hits (#254)
+- Various fixes to handling of `xml:space` and `@XmlIgnoreWhitespace`. Note
+  that xml:space="preserve" in a document overrides handling for all
+  children. xml:space="default" gets back to default handling. Types
+  by default inherit their whitespace handling from their owners. When
+  the `@XmlIgnoreWhitespace` annotation is presented, this will change
+  the default for that type/element and its members.
+- Fix automatic prefix generation for attributes (was an infinite 
+  loop: #251). Make it reuse existing prefixes if present rather than
+  write a new prefix. If reuse is not desirable, explicitly declare
+  the prefixes on the element using `@XmlNamespaceDeclSpec`
+- Fix (make consistent) the handling of `@XmlChildrenName` when the
+  namespace attribute is left out/default (#252). It would use the
+  empty/null namespace rather than the behaviour of `XmlSerialName`
+  which defaults to the namespace of the parent tag. The behaviour
+  is now consistent. For those cases where the original behaviour
+  is needed, just specify the namespace explitly to be the empty
+  string. 
+
 # 0.90.3
 Changes:
 - In pedantic mode check that xml/xmlns are not used as names (they

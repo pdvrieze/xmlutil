@@ -31,3 +31,9 @@ internal actual val KClass<*>.maybeSerialName: String?
     get() = serializerOrNull()
         ?.run { descriptor.serialName }
         ?: name.replace('$', '.')
+
+/** Dummy implementation as there are no locks in Javascript */
+internal actual class CompatLock {
+    internal actual operator fun <R> invoke(action: () -> R): R = action()
+}
+

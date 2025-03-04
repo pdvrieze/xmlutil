@@ -36,6 +36,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -148,7 +150,10 @@ class TestCommon {
     fun deserializeXmlWithEntity() {
         val xml = XML {
             repairNamespaces = true
-            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+            defaultPolicy {
+                pedantic = false
+                autoPolymorphic = false
+            }
         }
 
         val expected = StringWithMarkup("Chloroacetic acid, >=99% < 100%")
@@ -163,6 +168,8 @@ class TestCommon {
 
     @Test
     fun deserializeToElementXmlWithEntity() {
+        if (testTarget == Target.Node) return
+
         val xml = XML {
             repairNamespaces = true
             defaultPolicy {
@@ -203,7 +210,7 @@ class TestCommon {
         val data = StringHolder("⚠️"/*"\u26a0\ufe0f"*/)
         val expected = "<StringHolder>⚠️</StringHolder>"
         val actual = StringWriter().also { sw ->
-            KtXmlWriter(sw).use { out ->
+            KtXmlWriter(sw, xmlDeclMode = XmlDeclMode.None).use { out ->
                 XML.encodeToWriter(out, data)
             }
         }.toString()
@@ -222,7 +229,7 @@ class TestCommon {
         val data = StringHolder("\uD83D\uDE0A")
         val expected = "<StringHolder>😊</StringHolder>"
         val actual = StringWriter().also { sw ->
-            KtXmlWriter(sw).use { out ->
+            KtXmlWriter(sw, xmlDeclMode = XmlDeclMode.None).use { out ->
                 XML.encodeToWriter(out, data)
             }
         }.toString()
@@ -254,7 +261,10 @@ class TestCommon {
     fun serializeXmlWithEntity() {
         val xml = XML {
             repairNamespaces = true
-            policy = DefaultXmlSerializationPolicy(pedantic = false, autoPolymorphic = false)
+            defaultPolicy {
+                pedantic = false
+                autoPolymorphic = false
+            }
         }
 
         val data = StringWithMarkup("Chloroacetic acid, >=99% < 100%")

@@ -31,8 +31,8 @@ open internal class XRDecomposedCharSet(
     /** Contains information about number of chars that were read for a codepoint last time */
     private var readCharsForCodePoint = 1
 
-    /** UTF-16 encoding of decomposedChar */
-    private val decomposedCharUTF16: String by lazy {
+    /** UTF-16 encoding of decomposedChar. Regexes processing is not multi-threaded. */
+    private val decomposedCharUTF16: String by lazy(LazyThreadSafetyMode.NONE) {
         val strBuff = StringBuilder()
 
         for (i in 0..decomposedCharLength - 1) {

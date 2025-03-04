@@ -124,13 +124,13 @@ public class DomReader(public val delegate: Node2) : XmlReader {
         get() {
             fun <A : Appendable> helper(node: Node2?, result: A): A = when (node?.nodetype) {
                 null, NodeType.DOCUMENT_NODE
-                -> result
+                    -> result
 
                 NodeType.ELEMENT_NODE
-                -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
+                    -> helper(node.parentNode, result).apply { append('/').append(node.nodeName) }
 
                 NodeType.TEXT_NODE
-                -> helper(node.parentNode, result).apply { append("/text()") }
+                    -> helper(node.parentNode, result).apply { append("/text()") }
 
                 else -> helper(node.parentNode, result).apply { append("/.") }
             }

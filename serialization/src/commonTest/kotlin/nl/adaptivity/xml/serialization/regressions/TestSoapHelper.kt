@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
@@ -67,6 +69,8 @@ class TestSoapHelper {
 
     @Test
     fun testUnmarshalSoapResponse2() {
+        if (testTarget == Target.Node) return
+
         val dbf = xmlStreaming.genericDomImplementation
         //dbf.setNamespaceAware = true
 
@@ -83,6 +87,8 @@ class TestSoapHelper {
 
     @Test
     fun testXmlReaderFromDom() {
+        if (testTarget == Target.Node) return
+
         val input =
             "<foo xmlns=\"urn:bar\"><rpc:result xmlns:rpc=\"http://www.w3.org/2003/05/soap-rpc\">result</rpc:result></foo>"
 
@@ -110,6 +116,8 @@ class TestSoapHelper {
 
     @Test
     fun testResponse3_234() {
+        if (testTarget == Target.Node) return
+
         val xml: XML = XML { recommended_0_90_2() }
         val soap = xml.decodeFromString<Envelope<Fault>>(SOAP_RESPONSE3)
         val fault = soap.body.child

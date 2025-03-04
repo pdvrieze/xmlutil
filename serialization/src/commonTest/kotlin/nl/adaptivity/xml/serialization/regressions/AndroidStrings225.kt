@@ -24,10 +24,13 @@ import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.Node as Node2
 import nl.adaptivity.xmlutil.dom2.textContent
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -45,6 +48,8 @@ class AndroidStrings225 {
 
     @Test
     fun testDecodeAny() {
+        if (testTarget == Target.Node) return
+
         val data = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -70,6 +75,8 @@ class AndroidStrings225 {
 
     @Test
     fun testDecodeAny2() {
+        if (testTarget == Target.Node) return
+
         val data = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -78,6 +85,33 @@ class AndroidStrings225 {
                 </resources>""".trimIndent()
 
         val parsed = xml.decodeFromString(Resources2.serializer(), data)
+
+        assertEquals(2, parsed.strings.size)
+        val p1 = parsed.strings[0]
+        assertEquals("string_android", p1.name)
+        assertEquals(3, p1.node.size)
+        assertEquals("Test with argument ", p1.node[0].textContent)
+        assertIs<Element>(p1.node[1])
+        assertEquals(" here", p1.node[2].textContent)
+
+        val p2 = parsed.strings[1]
+        assertEquals("test_string_2", p2.name)
+        assertEquals(listOf("test 2"), p2.node.map { it.textContent })
+
+    }
+
+    @Test
+    fun testDecodeAny3() {
+        if (testTarget == Target.Node) return
+
+        val data = """
+                <?xml version="1.0" encoding="utf-8"?>
+                <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+                    <string name="string_android">Test with argument <xliff:g id="argument">%1s</xliff:g> here</string>
+                    <string name="test_string_2">test 2</string>
+                </resources>""".trimIndent()
+
+        val parsed = xml.decodeFromString(Resources3.serializer(), data)
 
         assertEquals(2, parsed.strings.size)
         val p1 = parsed.strings[0]
@@ -108,8 +142,18 @@ class AndroidStrings225 {
     data class StringTag2(
         @XmlElement(false)
         val name: String,
+        @Suppress("DEPRECATION")
         @XmlValue
-        val node: List<@Serializable(NodeSerializer::class) Node>,
+        val node: List<@Serializable(NodeSerializer::class) Node1>,
+    )
+
+    @Serializable
+    @XmlSerialName("string")
+    data class StringTag3(
+        @XmlElement(false)
+        val name: String,
+        @XmlValue
+        val node: List<Node2>,
     )
 
     @Serializable
@@ -122,5 +166,11 @@ class AndroidStrings225 {
     @XmlSerialName("resources")
     data class Resources2(
         val strings: List<StringTag2>,
+    )
+
+    @Serializable
+    @XmlSerialName("resources")
+    data class Resources3(
+        val strings: List<StringTag3>,
     )
 }

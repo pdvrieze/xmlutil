@@ -20,67 +20,12 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.core.KtXmlWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
-import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
-import kotlin.test.Test
+import nl.adaptivity.xmlutil.test.TestCommonReader
 
 class TestBufferedXmlReader : TestCommonReader() {
 
-    fun createReader(xml: String) : XmlReader {
-        return XmlBufferedReader(xmlStreaming.newReader(xml))
-    }
-
-    @Test
-    fun testReadCompactFragmentWithNamespaceInOuter() {
-        testReadCompactFragmentWithNamespaceInOuter(::createReader)
-    }
-
-    @Test
-    fun testNamespaceDecls() {
-        testNamespaceDecls(::createReader)
-    }
-
-
-    @Test
-    fun testReadCompactFragment() {
-        testReadCompactFragment(::createReader)
-    }
-
-    @Test
-    fun testReadSingleTag() {
-        testReadSingleTag(::createReader)
-    }
-
-    @Test
-    fun testReadEntity() {
-        testReadEntity(::createReader)
-    }
-
-    @Test
-    fun testReadUnknownEntity() {
-        testReadUnknownEntity { XmlBufferedReader(KtXmlReader(StringReader(it))) }
-    }
-
-    @Test
-    fun testIgnorableWhitespace() {
-        testIgnorableWhitespace(::createReader)
-    }
-
-    @Test
-    fun testProcessingInstruction() {
-        testProcessingInstruction(::createReader) { KtXmlWriter(StringWriter())}
-    }
-
-    @Test
-    fun testProcessingInstructionDom() {
-        testProcessingInstruction(::createReader) { DomWriter() }
-    }
-
-    @Test
-    fun testReadToDom() {
-        testReadToDom(::createReader)
+    override fun createReader(xml: String) : XmlReader {
+        return XmlBufferedReader(xmlStreaming.newGenericReader(xml))
     }
 
 }

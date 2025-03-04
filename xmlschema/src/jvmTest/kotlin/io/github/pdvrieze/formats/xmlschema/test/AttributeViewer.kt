@@ -23,7 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.test
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -231,7 +234,7 @@ class AttributeViewer(
         override fun endStructure(descriptor: SerialDescriptor) {}
 
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {
-            if (index ==0) {
+            if (index == 0) {
                 type = value
             }
         }

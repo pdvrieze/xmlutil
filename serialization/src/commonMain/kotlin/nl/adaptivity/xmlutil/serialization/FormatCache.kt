@@ -24,11 +24,25 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.FormatCache.Dummy
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.serialization.structure.*
+
+/**
+ * Interface for format caches that support being delegated to.
+ */
+@XmlUtilInternal
+public interface DelegatableFormatCache {
+    @XmlUtilInternal
+    public fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor): XmlTypeDescriptor?
+    @XmlUtilInternal
+    public fun lookupType(parentName: QName, serialDesc: SerialDescriptor): XmlTypeDescriptor?
+    @XmlUtilInternal
+    public fun lookupDescriptor(
+        overridenSerializer: KSerializer<*>?,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean): XmlDescriptor?
+}
 
 /**
  * The FormatCache caches the calculations needed to determine the correct format for a specific
@@ -42,20 +56,23 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
  *
  */
 public abstract class FormatCache internal constructor() {
-    internal abstract fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
+    internal abstract fun lookupTypeOrStore(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
     internal abstract fun copy(): FormatCache
 
-    /** Retrieve a cache implementation that is not thread safe. Used by the format to avoid looking up thread locals. */
-    internal abstract fun unsafeCache(): FormatCache
+    /** Perform an operation with a cache implementation that is not thread safe. Used
+     * by the format to avoid looking up thread locals. It will allow uusing the shared cache
+     * on completion.
+     */
+    internal abstract fun <R> useUnsafe(action: (FormatCache) -> R): R
 
     /**
      * Lookup a type descriptor for this type with the given namespace.
      * @param parentName A key
      */
-    internal abstract fun lookupType(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
+    internal abstract fun lookupTypeOrStore(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
-    internal abstract fun lookupDescriptor(
+    internal abstract fun lookupDescriptorOrStore(
         overridenSerializer: KSerializer<*>?,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
@@ -67,28 +84,30 @@ public abstract class FormatCache internal constructor() {
         codecConfig: XML.XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
-        preserveSpace: Boolean,
+        preserveSpace: TypePreserveSpace,
     ): XmlCompositeDescriptor
 
     public object Dummy: FormatCache() {
 
         override fun copy(): FormatCache = this
 
-        override fun unsafeCache(): Dummy = this
+        override fun <R> useUnsafe(action: (FormatCache) -> R): R {
+            return action(this)
+        }
 
-        override fun lookupType(
+        override fun lookupTypeOrStore(
             namespace: Namespace?,
             serialDesc: SerialDescriptor,
             defaultValue: () -> XmlTypeDescriptor
         ): XmlTypeDescriptor = defaultValue()
 
-        override fun lookupType(
+        override fun lookupTypeOrStore(
             parentName: QName,
             serialDesc: SerialDescriptor,
             defaultValue: () -> XmlTypeDescriptor
         ): XmlTypeDescriptor = defaultValue()
 
-        override fun lookupDescriptor(
+        override fun lookupDescriptorOrStore(
             overridenSerializer: KSerializer<*>?,
             serializerParent: SafeParentInfo,
             tagParent: SafeParentInfo,
@@ -100,7 +119,7 @@ public abstract class FormatCache internal constructor() {
             codecConfig: XML.XmlCodecConfig,
             serializerParent: SafeParentInfo,
             tagParent: SafeParentInfo,
-            preserveSpace: Boolean
+            preserveSpace: TypePreserveSpace
         ): XmlCompositeDescriptor = XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }
 }

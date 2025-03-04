@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.dom.Node
 
 @ExperimentalXmlUtilApi
+@Suppress("DEPRECATION")
 public actual fun getPlatformDefaultModule(): SerializersModule = SerializersModule {
     contextual(Element::class, ElementSerializer)
     contextual(Node::class, NodeSerializer)

@@ -84,8 +84,10 @@ public expect abstract class OutputStream : Closeable {
 
 @XmlUtilInternal
 public expect abstract class Reader {
+    protected constructor()
     public open fun read(): Int
     public abstract fun read(buf: CharArray, offset: Int, len: Int): Int
+    public abstract fun close()
 }
 
 @XmlUtilInternal
@@ -100,6 +102,7 @@ public expect abstract class InputStream : Closeable {
 @XmlUtilInternal
 public expect open class StringReader(source: String) : Reader {
     override fun read(buf: CharArray, offset: Int, len: Int): Int
+    override fun close()
 }
 
 @XmlUtilInternal

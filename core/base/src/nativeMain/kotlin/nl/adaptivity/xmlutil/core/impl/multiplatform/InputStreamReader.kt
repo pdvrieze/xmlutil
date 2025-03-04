@@ -47,7 +47,8 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
         if (!inputStream.eof) {
             if (inputBufferOffset < inputBufferEnd) {
                 inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
-                inputBufferOffset = inputBufferEnd - inputBufferOffset
+                inputBufferEnd -= inputBufferOffset
+                inputBufferOffset = 0
             }
             inputBufferEnd = inputBuffer.usePinned { b ->
                 inputStream.read(
@@ -181,6 +182,9 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
         return codePoint
     }
 
+    override fun close() {
+        inputStream.close()
+    }
 }
 
 private const val INPUT_BYTE_BUFFER_SIZE = 0x2000

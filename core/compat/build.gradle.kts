@@ -40,7 +40,6 @@ kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
 
     jvm("jdk")
-    jvm("android")
     js {
         browser()
         compilerOptions {
@@ -80,14 +79,33 @@ kotlin {
             }
         }
 
-        val androidMain by getting {
-            dependencies {
-                api(projects.coreAndroid)
-            }
-        }
+//        val androidMain by getting {
+//            dependencies {
+//                api(projects.coreAndroid)
+//            }
+//        }
+    }
+}
+
+config {
+    createAndroidCompatComponent = true
+}
+
+afterEvaluate {
+    dependencies {
+        "android"(projects.coreAndroid)
     }
 }
 
 addNativeTargets()
 
 doPublish("compat")
+
+publishing {
+    publications.withType<MavenPublication> {
+        if ("coreCompat" in artifactId) {
+            artifactId = artifactId.replace("coreCompat", "core-compat")
+        }
+    }
+
+}

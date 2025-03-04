@@ -41,8 +41,9 @@ sealed interface XSGlobalType: XSIType {
 sealed class XSLocalType: XSIType {
 
     companion object Serializer: KSerializer<XSLocalType> {
+        // multiple copies are valid and should be identical.
         @OptIn(InternalSerializationApi::class)
-        private val delegate: KSerializer<XSLocalType> by lazy {
+        private val delegate: KSerializer<XSLocalType> by lazy(LazyThreadSafetyMode.PUBLICATION) {
             SealedClassSerializer(
                 "io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType",
                 XSLocalType::class,

@@ -88,19 +88,42 @@ internal class ElementImpl(
     }
 
     override fun getElementsByTagName(qualifiedName: String): INodeList {
-        val elems = _childNodes.elements
-            .filter { it is Element1 && it.tagName == qualifiedName }
-            .toMutableList()
+        val matchAll = qualifiedName == "*"
+        val elems = mutableListOf<NodeImpl>()
+
+        fun collect(p: ElementImpl) {
+            for (c in p.childNodes) {
+                if (c is ElementImpl) {
+                    if (matchAll || c.tagName == qualifiedName) {
+                        elems.add(c)
+                    }
+                    collect(c)
+                }
+            }
+        }
+        collect(this)
         return NodeListImpl(elems)
     }
 
     override fun getElementsByTagNameNS(namespace: String?, localName: String): INodeList {
-        val elems = _childNodes.elements
-            .filter {
-                it is Element1 &&
-                        (it.namespaceURI ?: "") == (getNamespaceURI() ?: "") &&
-                        it.localName == localName
-            }.toMutableList()
+        val _namespace = namespace ?: ""
+
+        val matchAllNs = namespace == "*"
+        val matchAllLocalname = localName == "*"
+        val elems = mutableListOf<NodeImpl>()
+
+        fun collect(p: ElementImpl) {
+            for (it in p.childNodes) {
+                if (it is ElementImpl) {
+                    if ((matchAllNs || ((it.namespaceURI ?: "") == _namespace)) &&
+                        (matchAllLocalname || it.localName == localName)) {
+                        elems.add(it)
+                    }
+                    collect(it)
+                }
+            }
+        }
+        collect(this)
         return NodeListImpl(elems)
     }
 

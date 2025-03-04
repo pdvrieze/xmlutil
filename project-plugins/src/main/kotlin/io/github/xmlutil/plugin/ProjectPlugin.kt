@@ -29,21 +29,25 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import javax.inject.Inject
 
-class ProjectPlugin: Plugin<Project> {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+class ProjectPlugin @Inject constructor(
+    private val softwareComponentFactory: SoftwareComponentFactory
+): Plugin<Project> {
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
@@ -70,7 +74,39 @@ class ProjectPlugin: Plugin<Project> {
             applyLayout.convention(true)
             kotlinApiVersion.convention(KotlinVersion.KOTLIN_1_8)
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
+            createAndroidCompatComponent.convention(false)
         }
+
+        project.afterEvaluate {
+            if (e.createAndroidCompatComponent.get()) {
+                project.logger.warn("Creating compatible component")
+                val component = softwareComponentFactory.adhoc("depOnlyComponent")
+                project.components.add(component)
+                val pseudoConfig = project.configurations.dependencyScope("android") {
+                    attributes {
+                        attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envAndroid)
+                        attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
+                    }
+
+                    component.addVariantsFromConfiguration(this) {
+                        mapToMavenScope("compile")
+                    }
+                    dependencies.add(project.dependencyFactory.create("io.github.pdvrieze.xmlutil:${project.name}:${project.version}"))
+                }
+
+                project.extensions.configure<PublishingExtension> {
+                    publications {
+                        create<MavenPublication>("android") {
+                            artifactId = project.name
+                            from(component)
+                        }
+                    }
+                }
+            }
+
+        }
+
+
         project.plugins.all {
             when (this) {
                 is JavaPlugin -> {
@@ -121,6 +157,7 @@ class ProjectPlugin: Plugin<Project> {
 
                 is KotlinMultiplatformPluginWrapper -> {
                     project.the<KotlinMultiplatformExtension>().apply {
+
                         if(e.applyLayout.get()) applyDefaultXmlUtilHierarchyTemplate()
                         compilerOptions {
                             configureCompilerOptions(project, "project ${project.name}")
@@ -194,11 +231,16 @@ class ProjectPlugin: Plugin<Project> {
                 }
             }
         }
+        project.afterEvaluate {
+            for (c in project.components) {
+                project.logger.warn("Found component: ${c.name}")
+            }
+        }
     }
 
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
         progressiveMode = true
-        languageVersion = KotlinVersion.KOTLIN_2_0
+        languageVersion = KotlinVersion.DEFAULT
         configureOptins()
         if (this is KotlinJvmCompilerOptions) {
             project.logger.info("Setting common compilation options for $name")
@@ -227,4 +269,5 @@ abstract class ProjectConfigurationExtension {
     abstract val applyLayout: Property<Boolean>
     abstract val kotlinApiVersion: Property<KotlinVersion>
     abstract val kotlinTestVersion: Property<KotlinVersion>
+    abstract val createAndroidCompatComponent: Property<Boolean>
 }

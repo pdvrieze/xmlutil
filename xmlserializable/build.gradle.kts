@@ -43,6 +43,10 @@ base {
     archivesName = "xmlserializable"
 }
 
+config {
+    createAndroidCompatComponent = true
+}
+
 val serializationVersion: String get() = libs.versions.kotlinx.serialization.get()
 
 val autoModuleName = "net.devrieze.xmlutil.xmlserializable"
@@ -72,17 +76,6 @@ kotlin {
                     attributes("Automatic-Module-Name" to autoModuleName)
                 }
             }
-        }
-    }
-    jvm("android") {
-        compilerOptions {
-            freeCompilerArgs.add("-Xjvm-default=all")
-        }
-        compilations.all {
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
-            }
-            cleanTestTask.dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
         }
     }
     js {
@@ -121,22 +114,6 @@ kotlin {
 
                 runtimeOnly(libs.junit5.engine)
                 runtimeOnly(libs.woodstox)
-            }
-        }
-
-        val androidMain by getting {
-            dependencies {
-                compileOnly(libs.kxml2)
-            }
-        }
-
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
-
-                runtimeOnly(libs.junit5.engine)
-                runtimeOnly(libs.kxml2)
             }
         }
 

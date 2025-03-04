@@ -71,6 +71,9 @@ public actual object XmlStreaming : IXmlStreaming {
     }
 
     public actual override fun newReader(input: CharSequence): XmlReader {
+        // fall back to generic reader for contexts without DOM (Node etc.)
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericReader(input)
+
         val str = when { // Ignore initial BOM (it parses incorrectly without exception)
             input[0] == '\ufeff' -> input.subSequence(1, input.length)
             else -> input
@@ -100,6 +103,9 @@ public actual object XmlStreaming : IXmlStreaming {
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
+        // fall back to generic reader for contexts without DOM (Node etc.)
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(output, repairNamespaces, xmlDeclMode)
+
         return AppendingWriter(output, DomWriter(xmlDeclMode))
     }
 
@@ -120,6 +126,8 @@ public actual object XmlStreaming : IXmlStreaming {
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(writer, repairNamespaces, xmlDeclMode)
+
         val document = xmlStreaming.genericDomImplementation.createDocument()
         @Suppress("DEPRECATION")
         return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode))

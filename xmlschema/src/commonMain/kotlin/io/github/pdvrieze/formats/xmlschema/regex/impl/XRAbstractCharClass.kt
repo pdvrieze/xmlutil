@@ -91,7 +91,7 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
         get() = this
 
 
-    private val surrogates_: XRAbstractCharClass by lazy {
+    private val surrogates_: XRAbstractCharClass by lazy(LazyThreadSafetyMode.NONE) {
         val surrogates = lowHighSurrogates
         val result = object : XRAbstractCharClass() {
             override fun contains(ch: Int): Boolean {

@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.dokka)
@@ -92,6 +92,7 @@ kotlin {
             main = JsMainFunctionExecutionMode.CALL
         }
         browser()
+        nodejs()
     }
 
     @OptIn(ExperimentalWasmDsl::class)

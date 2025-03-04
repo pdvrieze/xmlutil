@@ -32,7 +32,7 @@ public object ICompactFragmentSerializer : XmlSerializer<ICompactFragment> {
     private val delegate = CompactFragmentSerializer
 
     @Suppress("OPT_IN_USAGE")
-    override val descriptor: SerialDescriptor by lazy {
+    override val descriptor: SerialDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         // needed for wasm initialisation
         SerialDescriptor("ICompactFragment", delegate.descriptor)
     }

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
@@ -29,6 +30,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
+import nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlOrderConstraint
 
@@ -63,14 +65,20 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
         return basePolicy.polymorphicDiscriminatorName(serializerParent, tagParent)
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("It is recommended to override serialTypeNameToQName and serialUseNameToQName instead")
     override fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName {
         return basePolicy.serialNameToQName(serialName, parentNamespace)
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Don't use or implement this, use the 3 parameter version")
     override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind {
         return basePolicy.effectiveOutputKind(serializerParent, tagParent)
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Use the recoverable version that allows returning a value")
     override fun handleUnknownContent(
         input: XmlReader,
         inputKind: InputKind,
@@ -88,8 +96,12 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
         get() = basePolicy.defaultPrimitiveOutputKind
     override val defaultObjectOutputKind: OutputKind
         get() = basePolicy.defaultObjectOutputKind
+
+    @Suppress("DEPRECATION")
+    @Deprecated("Use isStrictAttributeNames instead")
     override val isStrictNames: Boolean
         get() = basePolicy.isStrictNames
+
     override val isStrictAttributeNames: Boolean
         get() = basePolicy.isStrictAttributeNames
     override val isStrictBoolean: Boolean
@@ -101,6 +113,7 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
     override val verifyElementOrder: Boolean
         get() = basePolicy.verifyElementOrder
 
+    @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun defaultOutputKind(serialKind: SerialKind): OutputKind {
         return basePolicy.defaultOutputKind(serialKind)
@@ -178,7 +191,7 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
     }
 
     @ExperimentalXmlUtilApi
-    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
+    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
         return basePolicy.preserveSpace(serializerParent, tagParent)
     }
 

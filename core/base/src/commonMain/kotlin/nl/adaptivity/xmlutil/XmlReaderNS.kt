@@ -47,7 +47,62 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
     return CompactFragment("")
 }
 
-public expect fun XmlReader.siblingsToFragment(): CompactFragment
+public fun XmlReader.siblingsToFragment(): CompactFragment {
+    val appendable: Appendable = StringBuilder()
+    if (!isStarted) {
+        if (hasNext()) {
+            next()
+        } else {
+            return CompactFragment("")
+        }
+    }
+
+    val startLocation = extLocationInfo
+    try {
+
+        val missingNamespaces: MutableMap<String, String> = mutableMapOf()
+        // If we are at a start tag, the depth will already have been increased. So in that case, reduce one.
+        val initialDepth = depth - if (eventType === EventType.START_ELEMENT) 1 else 0
+
+
+        var type: EventType? = eventType
+        while (type !== EventType.END_DOCUMENT && (type !== EventType.END_ELEMENT || depth > initialDepth)) {
+            when (type) {
+                EventType.START_ELEMENT ->
+                    KtXmlWriter(appendable, isRepairNamespaces = false, xmlDeclMode = XmlDeclMode.None).use { out ->
+                        out.indentString = "" // disable indents
+                        val namespaceForPrefix = out.getNamespaceUri(prefix)
+                        writeCurrent(out) // writes the start tag
+                        if (namespaceForPrefix != namespaceURI) {
+                            @Suppress("DEPRECATION")
+                            out.addUndeclaredNamespaces(this, missingNamespaces)
+                        }
+                        out.writeElementContent(missingNamespaces, this) // writes the children and end tag
+                    }
+
+                EventType.IGNORABLE_WHITESPACE ->
+                    if (text.isNotEmpty()) appendable.append(text.xmlEncode())
+
+                EventType.TEXT,
+                EventType.CDSECT ->
+                    appendable.append(text.xmlEncode())
+
+                else -> {
+                } // ignore
+            }
+            type = if (hasNext()) next() else break
+        }
+
+        if (missingNamespaces[""] == "") missingNamespaces.remove("")
+
+        return CompactFragment(SimpleNamespaceContext(missingNamespaces), appendable.toString())
+    } catch (e: XmlException) {
+        throw XmlException("Failure to parse children into string at $startLocation", e)
+    } catch (e: RuntimeException) {
+        throw XmlException("Failure to parse children into string at $startLocation", e)
+    }
+}
+
 
 @Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "KotlinRedundantDiagnosticSuppress")
 @Deprecated("This is inefficient in Javascript")

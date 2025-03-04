@@ -34,6 +34,8 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 /**
  * Policies allow for customizing the behaviour of the xml serialization
  */
+@OptIn(ExperimentalSubclassOptIn::class)
+@SubclassOptInRequired(ExperimentalXmlUtilApi::class)
 public interface XmlSerializationPolicy {
 
     public val defaultPrimitiveOutputKind: OutputKind get() = OutputKind.Attribute
@@ -104,6 +106,18 @@ public interface XmlSerializationPolicy {
         parentNamespace: Namespace
     ): QName
 
+    /**
+     * Class holding the name information for either an attribute or type
+     *
+     * @property serialName The serialName as provided by the descriptor (element name for attribute,
+     *     type name for type)
+     * @property annotatedName The name provided through the `@XmlSerialName` annotation. The default
+     *     policy always prioritises this over local names.
+     * @property isDefaultNamespace For attribute values, determines whether the attribute would be
+     *     in the default namespace. This allows for `@XmlSerialName` annotations that do not explicitly
+     *     specify the name. It records whether the namespace attribute is the "unset"/default value in
+     *     the annotation.
+     */
     public data class DeclaredNameInfo(
         val serialName: String,
         val annotatedName: QName?,
@@ -204,8 +218,8 @@ public interface XmlSerializationPolicy {
     }
 
     @ExperimentalXmlUtilApi
-    public fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
-        return true
+    public fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
+        return tagParent.descriptor?.defaultPreserveSpace ?: TypePreserveSpace.DEFAULT
     }
 
     /** Determine the name of map keys for a given map type */
@@ -323,9 +337,11 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  * @property isStrictBoolean Parse boolean data according to the requirements of XML, rather than the (very lenient)
  *   toBoolean function from the Kotlin standard library.
  */
+@OptIn(ExperimentalSubclassOptIn::class)
+@SubclassOptInRequired(ExperimentalXmlUtilApi::class)
 public open class DefaultXmlSerializationPolicy
 private constructor(
-    internal val formatCache2: FormatCache,
+    internal val formatCache: FormatCache,
     public val pedantic: Boolean,
     public val autoPolymorphic: Boolean,
     public val encodeDefault: XmlEncodeDefault,
@@ -352,7 +368,7 @@ private constructor(
         throwOnRepeatedElement: Boolean = false,
         verifyElementOrder: Boolean = false,
     ) : this(
-        formatCache2 = defaultSharedFormatCache(),
+        formatCache = defaultSharedFormatCache(),
         pedantic = pedantic,
         autoPolymorphic = autoPolymorphic,
         encodeDefault = encodeDefault,
@@ -417,7 +433,7 @@ private constructor(
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
-        formatCache2 = (original as? DefaultXmlSerializationPolicy)?.formatCache2?.copy() ?: defaultSharedFormatCache(),
+        formatCache = (original as? DefaultXmlSerializationPolicy)?.formatCache?.copy() ?: defaultSharedFormatCache(),
         pedantic = (original as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
         autoPolymorphic = (original as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
         encodeDefault = (original as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlEncodeDefault.ANNOTATED,
@@ -445,7 +461,7 @@ private constructor(
     @Deprecated("The builder now contains the format cache, so no need to use the multi-parameter version")
     @OptIn(ExperimentalXmlUtilApi::class)
     protected constructor(formatCache: FormatCache, builder: Builder): this(
-        formatCache2 = formatCache,
+        formatCache = formatCache,
         pedantic = builder.pedantic,
         autoPolymorphic = builder.autoPolymorphic,
         encodeDefault = builder.encodeDefault,
@@ -474,8 +490,7 @@ private constructor(
     ): Boolean {
         if (tagParent.useAnnIsValue == true) return true
 
-        val reqChildrenName = tagParent.useAnnChildrenName?.toQName()
-        return reqChildrenName == null
+        return tagParent.useAnnChildrenName == null
     }
 
     override fun isTransparentPolymorphic(
@@ -762,10 +777,10 @@ private constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
-    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean {
-        serializerParent.useAnnIgnoreWhitespace?.let { return !it }
-        return !(serializerParent.elementSerialDescriptor.annotations
-            .firstOrNull<XmlIgnoreWhitespace>()?.value ?: false)
+    override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
+        val b = serializerParent.descriptor?.defaultPreserveSpace ?: TypePreserveSpace.DEFAULT
+
+        return b.overrideIgnore(serializerParent.useAnnIgnoreWhitespace)
     }
 
     override fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo {
@@ -774,7 +789,7 @@ private constructor(
 
     override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): DeclaredNameInfo {
         val childAnnotation = serializerParent.useAnnChildrenName
-        val childrenName = childAnnotation?.toQName()
+        val childrenName = childAnnotation?.toQName(serializerParent.namespace)
         return DeclaredNameInfo("value", childrenName, childAnnotation?.namespace == UNSET_ANNOTATION_VALUE)
     }
 
@@ -875,7 +890,7 @@ private constructor(
 
         other as DefaultXmlSerializationPolicy
 
-        if (formatCache2 != other.formatCache2) return false
+        if (formatCache != other.formatCache) return false
         if (pedantic != other.pedantic) return false
         if (autoPolymorphic != other.autoPolymorphic) return false
         if (encodeDefault != other.encodeDefault) return false
@@ -891,7 +906,7 @@ private constructor(
     }
 
     override fun hashCode(): Int {
-        var result = formatCache2.hashCode()
+        var result = formatCache.hashCode()
         result = 31 * result + pedantic.hashCode()
         result = 31 * result + autoPolymorphic.hashCode()
         result = 31 * result + encodeDefault.hashCode()
@@ -954,7 +969,7 @@ private constructor(
             isStrictAttributeNames = false,
             isStrictBoolean = false,
             isStrictOtherAttributes = false,
-            formatCache = defaultSharedFormatCache()
+            formatCache = try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy }
         )
 
         @ExperimentalXmlUtilApi
@@ -969,7 +984,7 @@ private constructor(
             isStrictAttributeNames = policy.isStrictAttributeNames,
             isStrictBoolean = policy.isStrictOtherAttributes,
             isStrictOtherAttributes = policy.isStrictBoolean,
-            formatCache = policy.formatCache2.copy(),
+            formatCache = policy.formatCache.copy(),
         )
 
         public fun ignoreUnknownChildren() {

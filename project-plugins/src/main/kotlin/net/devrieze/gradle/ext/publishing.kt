@@ -43,7 +43,7 @@ fun Project.doPublish(
 
     val javadocJarTask = tasks.create<Jar>("javadocJar") {
         archiveClassifier.set("javadoc")
-        from(tasks.named("dokkaHtml"))
+        from(tasks.named("dokkaGenerateModuleHtml"))
     }
 
     configure<PublishingExtension> {
@@ -91,14 +91,14 @@ fun Project.doPublish(
 
 
             pom {
-                name.set(pubName)
+                name = pubName
                 description.set(pubDescription)
-                url.set("https://github.com/pdvrieze/xmlutil")
+                url = "https://github.com/pdvrieze/xmlutil"
 
                 licenses {
                     license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                        name = "Apache-2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 developers {

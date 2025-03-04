@@ -42,7 +42,7 @@ internal class XRHangulDecomposedCharSet(
     /**
      * String representing syllable
      */
-    private val decomposedCharUTF16: String by lazy {
+    private val decomposedCharUTF16: String by lazy(LazyThreadSafetyMode.NONE) {
         decomposedChar.concatToString(0, decomposedChar.size)
     }
 

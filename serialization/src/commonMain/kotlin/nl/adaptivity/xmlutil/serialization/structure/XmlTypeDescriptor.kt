@@ -108,7 +108,7 @@ public class XmlTypeDescriptor internal constructor(
     public val elementsCount: Int
         get() = serialDescriptor.elementsCount
 
-    internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy {
+    internal val initialChildReorderInfo: Collection<XmlOrderConstraint>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         config.policy.initialChildReorderMap(serialDescriptor)
     }
 
@@ -123,8 +123,16 @@ public class XmlTypeDescriptor internal constructor(
 
         other as XmlTypeDescriptor
 
-        if (serialDescriptor != other.serialDescriptor) return false
-        return typeNameInfo == other.typeNameInfo
+        return when {
+            typeNameInfo != other.typeNameInfo -> false
+            serialDescriptor != other.serialDescriptor -> false
+            (0 until serialDescriptor.elementsCount).any {
+                serialDescriptor.getElementName(it) != other.serialDescriptor.getElementName(
+                    it
+                )
+            } -> false
+            else -> true
+        }
     }
 
     override fun hashCode(): Int {
@@ -133,12 +141,12 @@ public class XmlTypeDescriptor internal constructor(
         return result
     }
 
-    private val children by lazy {
+    private val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
         @OptIn(ExperimentalSerializationApi::class)
         Array(serialDescriptor.elementsCount) { idx ->
             val desc = serialDescriptor.getElementDescriptor(idx).getXmlOverride()
             val ns = typeQname?.toNamespace() ?: parentNamespace
-            config.formatCache.lookupType(ns, desc) {
+            config.formatCache.lookupTypeOrStore(ns, desc) {
                 XmlTypeDescriptor(config, desc, ns)
             }
         }

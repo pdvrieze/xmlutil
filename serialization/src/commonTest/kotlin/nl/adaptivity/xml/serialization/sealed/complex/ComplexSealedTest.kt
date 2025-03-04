@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 class ComplexSealedTest : PlatformTestBase<ComplexSealedTest.ComplexSealedHolder>(
     ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
     ComplexSealedHolder.serializer(),
-    EmptySerializersModule,
+    EmptySerializersModule(),
     XML { autoPolymorphic = true }
 ) {
     override val expectedXML: String

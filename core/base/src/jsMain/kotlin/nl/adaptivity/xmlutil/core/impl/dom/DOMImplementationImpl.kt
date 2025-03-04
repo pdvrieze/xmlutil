@@ -25,11 +25,17 @@ import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
 import org.w3c.dom.DOMImplementation
+import org.w3c.dom.parsing.DOMParser
 import nl.adaptivity.xmlutil.dom.DOMImplementation as DOMImplementation1
 import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
 
 internal object DOMImplementationImpl : IDOMImplementation {
-    val delegate: DOMImplementation get() = document.implementation
+    val delegate: DOMImplementation by lazy {
+        when (document) {
+            null -> DOMParser().parseFromString("<root></root>", "text/xml").implementation
+            else -> document.implementation
+        }
+    }
 
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 

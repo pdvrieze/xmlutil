@@ -559,6 +559,8 @@ public final class nl/adaptivity/xmlutil/XmlReader$DefaultImpls {
 
 public final class nl/adaptivity/xmlutil/XmlReader$ExtLocationInfo : nl/adaptivity/xmlutil/XmlReader$LocationInfo {
 	public fun <init> (III)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -567,6 +569,8 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader$LocationInfo {
 
 public final class nl/adaptivity/xmlutil/XmlReader$StringLocationInfo : nl/adaptivity/xmlutil/XmlReader$LocationInfo {
 	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 

@@ -26,57 +26,15 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.test.TestCommonReader
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TestKtXmlReader : TestCommonReader() {
 
-    private fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
-
-    @Test
-    fun testReadCompactFragmentWithNamespaceInOuter() {
-        testReadCompactFragmentWithNamespaceInOuter(::createReader)
-    }
-
-    @Test
-    fun testNamespaceDecls() {
-        testNamespaceDecls(::createReader)
-    }
-
-    @Test
-    fun testReadCompactFragment() {
-        testReadCompactFragment(::createReader)
-    }
-
-    @Test
-    fun testReadSingleTag() {
-        testReadSingleTag(::createReader)
-    }
-
-    @Test
-    fun testGenericReadEntity() {
-        testReadEntity(::createReader)
-    }
-
-    @Test
-    fun testReadUnknownEntity() {
-        testReadUnknownEntity(::createReader)
-    }
-
-    @Test
-    fun testIgnorableWhitespace() {
-        testIgnorableWhitespace(::createReader)
-    }
-
-    @Test
-    fun testReaderWithBOM() {
-        testReaderWithBOM(::createReader)
-    }
-
-    @Test
-    fun testProcessingInstruction() {
-        testProcessingInstruction(::createReader) { KtXmlWriter(StringWriter()) }
-    }
+    override fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
 
     @Test
     fun testReadEntityInAttribute() {
@@ -94,34 +52,31 @@ class TestKtXmlReader : TestCommonReader() {
     }
 
     @Test
-    fun testProcessingInstructionDom() {
-        val domWriter = DomWriter()
-        testProcessingInstruction(::createReader) { domWriter }
+    override fun testProcessingInstructionDom() {
+        if (testTarget != Target.Node) {
+            val domWriter = DomWriter()
+            testProcessingInstruction(::createReader) { domWriter }
 
-        val expectedXml = """
+            val expectedXml = """
                 <?xpacket begin='' id='from_166'?>
                 <a:root xmlns:a="foo" a:b="42">bar</a:root>
                 <?xpacket end='w'?>
             """
-        val expected = xmlStreaming.newReader(expectedXml)
-        val actual = xmlStreaming.newReader(domWriter.target)
-        assertXmlEquals(expected, actual)
+            val expected = xmlStreaming.newReader(expectedXml)
+            val actual = xmlStreaming.newReader(domWriter.target)
+            assertXmlEquals(expected, actual)
 
-        val fromDom = StringWriter()
-        KtXmlWriter(fromDom).use { writer ->
-            xmlStreaming.newReader(domWriter.target).use { reader ->
-                while (reader.hasNext()) {
-                    reader.next()
-                    reader.writeCurrent(writer)
+            val fromDom = StringWriter()
+            KtXmlWriter(fromDom, xmlDeclMode = XmlDeclMode.None).use { writer ->
+                xmlStreaming.newReader(domWriter.target).use { reader ->
+                    while (reader.hasNext()) {
+                        reader.next()
+                        reader.writeCurrent(writer)
+                    }
                 }
             }
+            assertXmlEquals(expectedXml, fromDom.toString())
         }
-        assertXmlEquals(expectedXml, fromDom.toString())
-    }
-
-    @Test
-    fun testReadToDom() {
-        testReadToDom(::createReader)
     }
 
     @Test

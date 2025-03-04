@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import org.jetbrains.kotlin.js.config.SourceMapSourceEmbedding
 
 plugins {
     id("projectPlugin")
@@ -63,7 +62,7 @@ kotlin {
             }
         }
 
-/*
+        /*
         val woodstoxCompilation = compilations.create("woodstoxTest") {
             // This needs to be specified explicitly in 1.9.20
             compilerOptions.options.moduleName = "woodstoxTest"
@@ -75,18 +74,17 @@ kotlin {
                 listOf(woodstoxCompilation)
             )
         }
-*/
+        */
 
     }
 
-    jvm("android")
-
     js {
         browser()
+        nodejs()
         @Suppress("OPT_IN_USAGE")
         compilerOptions {
             sourceMap = true
-            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+//            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
             suppressWarnings = false
             verbose = true
             moduleKind = JsModuleKind.MODULE_UMD
@@ -136,21 +134,17 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
+                implementation(projects.coreJdk)
             }
         }
 
         val jvmMain by getting {
             dependencies {
-                runtimeOnly(projects.coreJdk)
-            }
-        }
-        val commonJvmTest by getting {
-            dependencies {
-                implementation(projects.coreJdk)
+                runtimeOnly(projects.core)
             }
         }
         val commonJvmMain by getting {}
-/*
+        /*
         val jvmWoodstoxTest by getting {
             dependsOn(commonJvmTest)
             dependsOn(commonJvmMain)
@@ -160,26 +154,7 @@ kotlin {
                 runtimeOnly(libs.woodstox)
             }
         }
-*/
-
-        val androidMain by getting {
-            dependencies {
-                compileOnly(libs.kxml2)
-            }
-        }
-
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                runtimeOnly(libs.kxml2)
-
-//                implementation(projects.coreAndroid)
-                implementation(libs.junit5.api)
-                implementation(libs.kotlin.reflect)
-
-                runtimeOnly(libs.junit5.engine)
-            }
-        }
+        */
 
         val jsMain by getting {
             dependencies {
@@ -199,6 +174,7 @@ kotlin {
             if (this.name == "nativeMain") {
                 dependencies {
                     api(projects.core)
+                    implementation(libs.kotlinx.atomicfu)
                 }
             }
             if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
@@ -217,6 +193,10 @@ kotlin {
         }
     }
 
+}
+
+config {
+    createAndroidCompatComponent = true
 }
 
 addNativeTargets()

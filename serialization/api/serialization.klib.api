@@ -103,6 +103,35 @@ open annotation class nl.adaptivity.xmlutil.serialization/XmlValue : kotlin/Anno
         final fun <get-value>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlValue.value.<get-value>|<get-value>(){}[0]
 }
 
+abstract enum class nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace : kotlin/Enum<nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace> { // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace|null[0]
+    enum entry DEFAULT // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.DEFAULT|null[0]
+    enum entry DEFAULT_IGNORE // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.DEFAULT_IGNORE|null[0]
+    enum entry DEFAULT_PRESERVE // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.DEFAULT_PRESERVE|null[0]
+    enum entry DOCUMENT_PRESERVE // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.DOCUMENT_PRESERVE|null[0]
+
+    final val entries // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace> // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    abstract fun withDefault(kotlin/Boolean): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.withDefault|withDefault(kotlin.Boolean){}[0]
+    final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace> // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.values|values#static(){}[0]
+    open fun withDefault(nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace): nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/DocumentPreserveSpace.withDefault|withDefault(nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace){}[0]
+}
+
+abstract enum class nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace : kotlin/Enum<nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace> { // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace|null[0]
+    enum entry DEFAULT // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.DEFAULT|null[0]
+    enum entry IGNORE // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.IGNORE|null[0]
+    enum entry PRESERVE // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.PRESERVE|null[0]
+
+    final val entries // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace> // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    abstract fun withDefault(kotlin/Boolean): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.withDefault|withDefault(kotlin.Boolean){}[0]
+    final fun overrideIgnore(kotlin/Boolean?): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.overrideIgnore|overrideIgnore(kotlin.Boolean?){}[0]
+    final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace> // nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace.values|values#static(){}[0]
+}
+
 abstract enum class nl.adaptivity.xmlutil.serialization/InputKind : kotlin/Enum<nl.adaptivity.xmlutil.serialization/InputKind> { // nl.adaptivity.xmlutil.serialization/InputKind|null[0]
     enum entry Attribute // nl.adaptivity.xmlutil.serialization/InputKind.Attribute|null[0]
     enum entry Element // nl.adaptivity.xmlutil.serialization/InputKind.Element|null[0]
@@ -188,6 +217,8 @@ abstract interface nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo 
 }
 
 abstract interface nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor|null[0]
+    abstract val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        abstract fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     abstract val doInline // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.doInline|{}doInline[0]
         abstract fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     abstract val elementsCount // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.elementsCount|{}elementsCount[0]
@@ -196,8 +227,6 @@ abstract interface nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescript
         abstract fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
     abstract val overriddenSerializer // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.overriddenSerializer|{}overriddenSerializer[0]
         abstract fun <get-overriddenSerializer>(): kotlinx.serialization/KSerializer<*>? // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.overriddenSerializer.<get-overriddenSerializer>|<get-overriddenSerializer>(){}[0]
-    abstract val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.preserveSpace|{}preserveSpace[0]
-        abstract fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
     abstract val serialDescriptor // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.serialDescriptor|{}serialDescriptor[0]
         abstract fun <get-serialDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.serialDescriptor.<get-serialDescriptor>|<get-serialDescriptor>(){}[0]
     abstract val serialKind // nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor.serialKind|{}serialKind[0]
@@ -258,7 +287,7 @@ abstract interface nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy { 
     open fun mapValueName(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, kotlin/Boolean): nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.DeclaredNameInfo // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.mapValueName|mapValueName(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;kotlin.Boolean){}[0]
     open fun onElementRepeated(nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor, kotlin/Int) // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.onElementRepeated|onElementRepeated(nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor;kotlin.Int){}[0]
     open fun overrideSerializerOrNull(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): kotlinx.serialization/KSerializer<*>? // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.overrideSerializerOrNull|overrideSerializerOrNull(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
-    open fun preserveSpace(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.preserveSpace|preserveSpace(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
+    open fun preserveSpace(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.preserveSpace|preserveSpace(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
     open fun serialTypeNameToQName(nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.DeclaredNameInfo, nl.adaptivity.xmlutil/Namespace): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.serialTypeNameToQName|serialTypeNameToQName(nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo;nl.adaptivity.xmlutil.Namespace){}[0]
     open fun serialUseNameToQName(nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.DeclaredNameInfo, nl.adaptivity.xmlutil/Namespace): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.serialUseNameToQName|serialUseNameToQName(nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo;nl.adaptivity.xmlutil.Namespace){}[0]
     open fun textListDelimiters(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): kotlin/Array<kotlin/String> // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.textListDelimiters|textListDelimiters(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
@@ -330,6 +359,8 @@ abstract class nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivit
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor|null[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val elementsCount // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.elementsCount|{}elementsCount[0]
@@ -340,12 +371,12 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescrip
         final fun <get-keyDescriptor>(): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.keyDescriptor.<get-keyDescriptor>|<get-keyDescriptor>(){}[0]
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
     final val valueDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.valueDescriptor|{}valueDescriptor[0]
         final fun <get-valueDescriptor>(): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.valueDescriptor.<get-valueDescriptor>|<get-valueDescriptor>(){}[0]
 
+    final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun getElementDescriptor(kotlin/Int): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
+    final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlAttributeMapDescriptor.hashCode|hashCode(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor|null[0]
@@ -355,14 +386,14 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor
         final fun <get-childConstraints>(): nl.adaptivity.xmlutil.serialization.impl/OrderMatrix? // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.childConstraints.<get-childConstraints>|<get-childConstraints>(){}[0]
     final val childReorderMap // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.childReorderMap|{}childReorderMap[0]
         final fun <get-childReorderMap>(): kotlin/IntArray? // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.childReorderMap.<get-childReorderMap>|<get-childReorderMap>(){}[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val isIdAttr // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.isIdAttr|{}isIdAttr[0]
         final fun <get-isIdAttr>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.isIdAttr.<get-isIdAttr>|<get-isIdAttr>(){}[0]
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
     final val valueChild // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.valueChild|{}valueChild[0]
         final fun <get-valueChild>(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor.valueChild.<get-valueChild>|<get-valueChild>(){}[0]
 
@@ -374,6 +405,8 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlCompositeDescriptor
 final class nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor|null[0]
     final val context // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.context|{}context[0]
         final fun <get-context>(): kotlin.reflect/KClass<*>? // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.context.<get-context>|<get-context>(){}[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val effectiveOutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.effectiveOutputKind|{}effectiveOutputKind[0]
@@ -384,11 +417,14 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescripto
         final fun <get-isIdAttr>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.isIdAttr.<get-isIdAttr>|<get-isIdAttr>(){}[0]
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlContextualDescriptor.hashCode|hashCode(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor|null[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val isIdAttr // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.isIdAttr|{}isIdAttr[0]
@@ -397,8 +433,6 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor : 
         final fun <get-isUnsigned>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.isUnsigned.<get-isUnsigned>|<get-isUnsigned>(){}[0]
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
     final val tagName // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.tagName|{}tagName[0]
         final fun <get-tagName>(): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization.structure/XmlInlineDescriptor.tagName.<get-tagName>|<get-tagName>(){}[0]
 
@@ -428,7 +462,9 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlMapDescriptor : nl.
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlMapDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlMapDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
 
+    final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlMapDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun getElementDescriptor(kotlin/Int): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlMapDescriptor.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
+    final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlMapDescriptor.hashCode|hashCode(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlOrderConstraint { // nl.adaptivity.xmlutil.serialization.structure/XmlOrderConstraint|null[0]
@@ -454,6 +490,8 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlOrderConstraint { /
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor|null[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val isIdAttr // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.isIdAttr|{}isIdAttr[0]
@@ -468,18 +506,19 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescript
         final fun <get-polyInfo>(): kotlin.collections/Map<kotlin/String, nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor> // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.polyInfo.<get-polyInfo>|<get-polyInfo>(){}[0]
     final val polymorphicMode // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.polymorphicMode|{}polymorphicMode[0]
         final fun <get-polymorphicMode>(): nl.adaptivity.xmlutil.serialization.structure/PolymorphicMode // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.polymorphicMode.<get-polymorphicMode>|<get-polymorphicMode>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
     final val typeQNameToSerialName // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.typeQNameToSerialName|{}typeQNameToSerialName[0]
         final fun <get-typeQNameToSerialName>(): kotlin.collections/Map<nl.adaptivity.xmlutil/QName, kotlin/String> // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.typeQNameToSerialName.<get-typeQNameToSerialName>|<get-typeQNameToSerialName>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun getElementDescriptor(kotlin/Int): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.getElementDescriptor|getElementDescriptor(kotlin.Int){}[0]
     final fun getPolymorphicDescriptor(kotlin/String): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.getPolymorphicDescriptor|getPolymorphicDescriptor(kotlin.String){}[0]
+    final fun getPolymorphicDescriptor(kotlinx.serialization.descriptors/SerialDescriptor): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.getPolymorphicDescriptor|getPolymorphicDescriptor(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
     final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlPolymorphicDescriptor.hashCode|hashCode(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor|null[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val elementsCount // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.elementsCount|{}elementsCount[0]
@@ -488,14 +527,14 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor
         final fun <get-isIdAttr>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.isIdAttr.<get-isIdAttr>|<get-isIdAttr>(){}[0]
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlPrimitiveDescriptor.hashCode|hashCode(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor|null[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
     final val elementsCount // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.elementsCount|{}elementsCount[0]
@@ -504,8 +543,6 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor : nl
         final fun <get-isIdAttr>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.isIdAttr.<get-isIdAttr>|<get-isIdAttr>(){}[0]
     final val outputKind // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.outputKind|{}outputKind[0]
         final fun <get-outputKind>(): nl.adaptivity.xmlutil.serialization/OutputKind // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.outputKind.<get-outputKind>|<get-outputKind>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
     final val tagName // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.tagName|{}tagName[0]
         final fun <get-tagName>(): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization.structure/XmlRootDescriptor.tagName.<get-tagName>|<get-tagName>(){}[0]
 
@@ -549,8 +586,13 @@ final class nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor { //
     final fun toString(): kotlin/String // nl.adaptivity.xmlutil.serialization.structure/XmlTypeDescriptor.toString|toString(){}[0]
 }
 
-final class nl.adaptivity.xmlutil.serialization/DefaultFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/DefaultFormatCache|null[0]
+final class nl.adaptivity.xmlutil.serialization/DefaultFormatCache : nl.adaptivity.xmlutil.serialization/DelegatableFormatCache, nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/DefaultFormatCache|null[0]
     constructor <init>() // nl.adaptivity.xmlutil.serialization/DefaultFormatCache.<init>|<init>(){}[0]
+    constructor <init>(kotlin/Int) // nl.adaptivity.xmlutil.serialization/DefaultFormatCache.<init>|<init>(kotlin.Int){}[0]
+}
+
+final class nl.adaptivity.xmlutil.serialization/LayeredCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/LayeredCache|null[0]
+    constructor <init>() // nl.adaptivity.xmlutil.serialization/LayeredCache.<init>|<init>(){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization/PolyInfo { // nl.adaptivity.xmlutil.serialization/PolyInfo|null[0]
@@ -623,6 +665,9 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
     final inline fun <#A1: reified kotlin/Any> stringify(#A1, kotlin/String? = ...): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.stringify|stringify(0:0;kotlin.String?){0§<kotlin.Any>}[0]
     final inline fun <#A1: reified kotlin/Any> toXml(#A1, nl.adaptivity.xmlutil/XmlWriter, kotlin/String? = ...) // nl.adaptivity.xmlutil.serialization/XML.toXml|toXml(0:0;nl.adaptivity.xmlutil.XmlWriter;kotlin.String?){0§<kotlin.Any>}[0]
     final inline fun <#A1: reified kotlin/Any> toXml(nl.adaptivity.xmlutil/XmlWriter, #A1, kotlin/String? = ...) // nl.adaptivity.xmlutil.serialization/XML.toXml|toXml(nl.adaptivity.xmlutil.XmlWriter;0:0;kotlin.String?){0§<kotlin.Any>}[0]
+    final inline fun <#A1: reified kotlin/Any?> decodeFromString(kotlin/String, nl.adaptivity.xmlutil/QName?): #A1 // nl.adaptivity.xmlutil.serialization/XML.decodeFromString|decodeFromString(kotlin.String;nl.adaptivity.xmlutil.QName?){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: reified kotlin/Any?> encodeToString(#A1, kotlin/String?): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.encodeToString|encodeToString(0:0;kotlin.String?){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: reified kotlin/Any?> encodeToString(#A1, nl.adaptivity.xmlutil/QName): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.encodeToString|encodeToString(0:0;nl.adaptivity.xmlutil.QName){0§<kotlin.Any?>}[0]
 
     abstract interface XmlCodecConfig { // nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig|null[0]
         abstract val config // nl.adaptivity.xmlutil.serialization/XML.XmlCodecConfig.config|{}config[0]
@@ -903,7 +948,7 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
     open fun onElementRepeated(nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor, kotlin/Int) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.onElementRepeated|onElementRepeated(nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor;kotlin.Int){}[0]
     open fun overrideSerializerOrNull(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): kotlinx.serialization/KSerializer<*>? // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.overrideSerializerOrNull|overrideSerializerOrNull(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
     open fun polymorphicDiscriminatorName(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): nl.adaptivity.xmlutil/QName? // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.polymorphicDiscriminatorName|polymorphicDiscriminatorName(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
-    open fun preserveSpace(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.preserveSpace|preserveSpace(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
+    open fun preserveSpace(nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo, nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.preserveSpace|preserveSpace(nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo;nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo){}[0]
     open fun serialNameToQName(kotlin/String, nl.adaptivity.xmlutil/Namespace): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.serialNameToQName|serialNameToQName(kotlin.String;nl.adaptivity.xmlutil.Namespace){}[0]
     open fun shouldEncodeElementDefault(nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.shouldEncodeElementDefault|shouldEncodeElementDefault(nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor?){}[0]
 
@@ -1022,8 +1067,8 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor : kotli
 sealed class nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor|null[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
-    final val preserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.preserveSpace|{}preserveSpace[0]
-        final fun <get-preserveSpace>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.preserveSpace.<get-preserveSpace>|<get-preserveSpace>(){}[0]
+    open val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        open fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     open val isListEluded // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.isListEluded|{}isListEluded[0]
         open fun <get-isListEluded>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.isListEluded.<get-isListEluded>|<get-isListEluded>(){}[0]
 

@@ -42,13 +42,15 @@ base {
     archivesName = "serialutil"
 }
 
+config {
+    createAndroidCompatComponent = true
+}
+
 val autoModuleName = "net.devrieze.serialutil"
 
 kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
     jvm()
-
-    jvm("android")
 
     js {
         browser()
@@ -86,14 +88,6 @@ kotlin {
             }
         }
 
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
-
-                runtimeOnly(libs.junit5.engine)
-            }
-        }
         val jsTest by getting {
             dependencies {
                 implementation(kotlin("test-js"))

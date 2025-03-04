@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SealedSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 
@@ -64,6 +65,8 @@ public annotation class XmlSerialDescriptorMarker
  * This descriptor is internal as implementation is brittle. If you want an instance use
  * [SerialDescriptor.xml].
  */
+@OptIn(SealedSerializationApi::class, ExperimentalSubclassOptIn::class)
+@SubclassOptInRequired(SealedSerializationApi::class)
 @XmlUtilInternal
 public interface XmlSerialDescriptor : SerialDescriptor {
     public val delegate: SerialDescriptor
@@ -81,6 +84,7 @@ public interface XmlSerialDescriptor : SerialDescriptor {
         listOf(XmlSerialDescriptorMarker()) + delegate.annotations
 }
 
+@OptIn(SealedSerializationApi::class)
 private class ExtXmlSerialDescriptor(
     override val delegate: SerialDescriptor,
     xmlDescriptor: SerialDescriptor = delegate,
@@ -106,6 +110,7 @@ private class ExtXmlSerialDescriptor(
     override val isNullable: Boolean get() = delegate.isNullable
 }
 
+@OptIn(SealedSerializationApi::class)
 private class BaseXmlSerialDescriptor(
     override val delegate: SerialDescriptor,
     override val serialQName: QName?
@@ -116,6 +121,32 @@ private class BaseXmlSerialDescriptor(
     override fun getElementDescriptor(index: Int): SerialDescriptor = when {
         index < 0 -> xmlDescriptor
         else -> delegate.getElementDescriptor(index)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as BaseXmlSerialDescriptor
+
+        if (delegate != other.delegate) return false
+        if (serialQName != other.serialQName) return false
+
+        for (i in 0 until delegate.elementsCount) {
+            if (delegate.getElementName(i) != other.delegate.getElementName(i)) return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = delegate.hashCode()
+        result = 31 * result + (serialQName?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "BaseXmlSerialDescriptor<$serialQName>($delegate)"
     }
 
     @ExperimentalSerializationApi
