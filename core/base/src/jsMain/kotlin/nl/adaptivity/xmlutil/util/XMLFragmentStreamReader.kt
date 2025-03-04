@@ -108,7 +108,7 @@ public actual class XMLFragmentStreamReader(
     )
 
     init {
-        if (delegate.eventType === EventType.START_ELEMENT) extendNamespace()
+        if (delegate.isStarted && delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
     override fun next(): EventType {
