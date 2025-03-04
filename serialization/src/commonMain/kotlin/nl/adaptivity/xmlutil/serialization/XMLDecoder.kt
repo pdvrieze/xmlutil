@@ -44,6 +44,8 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
+import nl.adaptivity.xmlutil.util.XmlDoubleSerializer
+import nl.adaptivity.xmlutil.util.XmlFloatSerializer
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -181,11 +183,25 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeFloat(): Float = handleParseError {
-            decodeStringCollapsed().toFloat()
+            when {
+                config.policy.isXmlFloat -> XmlFloatSerializer.deserialize(this)
+                else -> when (val s = decodeStringCollapsed()) {
+                    "INF" -> Float.POSITIVE_INFINITY
+                    "-INF" -> Float.NEGATIVE_INFINITY
+                    else -> s.toFloat()
+                }
+            }
         }
 
         override fun decodeDouble(): Double = handleParseError {
-            decodeStringCollapsed().toDouble()
+            when {
+                config.policy.isXmlFloat -> XmlDoubleSerializer.deserialize(this)
+                else -> when (val s = decodeStringCollapsed()) {
+                    "INF" -> Double.POSITIVE_INFINITY
+                    "-INF" -> Double.NEGATIVE_INFINITY
+                    else -> s.toDouble()
+                }
+            }
         }
 
         override fun decodeChar(): Char = handleParseError {

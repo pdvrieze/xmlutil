@@ -527,7 +527,7 @@ policy
          * Note that this function has no guarantee of stability.
          */
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            recommended_0_90_2(configurePolicy)
+            recommended_0_91_0(configurePolicy)
         }
 
         /**
@@ -587,6 +587,27 @@ policy
             repairNamespaces = false
             recommended_0_86_3 {
                 isStrictOtherAttributes = true
+                configurePolicy()
+            }
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        public fun recommended_0_91_0() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            recommended_0_91_0 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
+         * required for XML 1.1 (otherwise it reverts to 1.0).
+         */
+        public inline fun recommended_0_91_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            recommended_0_90_2 {
+                isXmlFloat = true
                 configurePolicy()
             }
         }

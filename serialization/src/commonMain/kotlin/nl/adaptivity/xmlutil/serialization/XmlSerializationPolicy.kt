@@ -46,6 +46,12 @@ public interface XmlSerializationPolicy {
     @Suppress("DEPRECATION")
     public val isStrictAttributeNames: Boolean get() = isStrictNames
     public val isStrictBoolean: Boolean get() = false
+
+    /**
+     * Serialize float/double data according to the requirements of XML, rather than the
+     * toFloat/Float.toString/toDouble/Double.toString function from the Kotlin standard library.
+     */
+    public val isXmlFloat: Boolean get() = false
     public val isStrictOtherAttributes: Boolean get() = false
 
     @ExperimentalXmlUtilApi
@@ -336,6 +342,8 @@ public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName
  *   name handling that is a bit more lenient
  * @property isStrictBoolean Parse boolean data according to the requirements of XML, rather than the (very lenient)
  *   toBoolean function from the Kotlin standard library.
+ * @property isXmlFloat Serialize float/double data according to the requirements of XML, rather than the
+ *   toFloat/Float.toString/toDouble/Double.toString function from the Kotlin standard library.
  */
 @OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(ExperimentalXmlUtilApi::class)
@@ -351,6 +359,7 @@ private constructor(
     public override val verifyElementOrder: Boolean,
     public override val isStrictAttributeNames: Boolean,
     public override val isStrictBoolean: Boolean,
+    public override val isXmlFloat: Boolean,
     public override val isStrictOtherAttributes: Boolean,
 ) : XmlSerializationPolicy {
 
@@ -378,6 +387,7 @@ private constructor(
         verifyElementOrder = verifyElementOrder,
         isStrictAttributeNames = false,
         isStrictBoolean = false,
+        isXmlFloat = false,
         isStrictOtherAttributes = false
     )
 
@@ -448,6 +458,7 @@ private constructor(
         verifyElementOrder = original?.verifyElementOrder ?: false,
         isStrictAttributeNames = original?.isStrictAttributeNames ?: false,
         isStrictBoolean = original?.isStrictBoolean ?: false,
+        isXmlFloat = original?.isXmlFloat ?: false,
         isStrictOtherAttributes = original?.isStrictOtherAttributes ?: false
     )
 
@@ -471,6 +482,7 @@ private constructor(
         verifyElementOrder = builder.verifyElementOrder,
         isStrictAttributeNames = builder.isStrictAttributeNames,
         isStrictBoolean = builder.isStrictBoolean,
+        isXmlFloat = builder.isXmlFloat,
         isStrictOtherAttributes = builder.isStrictOtherAttributes
     )
 
@@ -909,6 +921,7 @@ private constructor(
         if (verifyElementOrder != other.verifyElementOrder) return false
         if (isStrictAttributeNames != other.isStrictAttributeNames) return false
         if (isStrictBoolean != other.isStrictBoolean) return false
+        if (this@DefaultXmlSerializationPolicy.isXmlFloat != other.isXmlFloat) return false
         if (isStrictOtherAttributes != other.isStrictOtherAttributes) return false
 
         return true
@@ -925,6 +938,7 @@ private constructor(
         result = 31 * result + verifyElementOrder.hashCode()
         result = 31 * result + isStrictAttributeNames.hashCode()
         result = 31 * result + isStrictBoolean.hashCode()
+        result = 31 * result + this@DefaultXmlSerializationPolicy.isXmlFloat.hashCode()
         result = 31 * result + isStrictOtherAttributes.hashCode()
         return result
     }
@@ -947,6 +961,8 @@ private constructor(
      *   name handling that is a bit more lenient
      * @property isStrictBoolean Parse boolean data according to the requirements of XML, rather than the (very lenient)
      *   toBoolean function from the Kotlin standard library.
+     * @property isXmlFloat Parse float/double data according to the requirements of XML, rather than the
+     *   toFloat/Float.toString functions from the Kotlin standard library.
      */
     @OptIn(ExperimentalXmlUtilApi::class)
     public open class Builder internal constructor(
@@ -959,6 +975,7 @@ private constructor(
         public var verifyElementOrder: Boolean,
         public var isStrictAttributeNames: Boolean,
         public var isStrictBoolean: Boolean,
+        public var isXmlFloat: Boolean,
         public var isStrictOtherAttributes: Boolean,
         @ExperimentalXmlUtilApi
         public var formatCache: FormatCache,
@@ -977,6 +994,7 @@ private constructor(
             verifyElementOrder = false,
             isStrictAttributeNames = false,
             isStrictBoolean = false,
+            isXmlFloat = false,
             isStrictOtherAttributes = false,
             formatCache = try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy }
         )
@@ -991,8 +1009,9 @@ private constructor(
             throwOnRepeatedElement = policy.throwOnRepeatedElement,
             verifyElementOrder = policy.verifyElementOrder,
             isStrictAttributeNames = policy.isStrictAttributeNames,
-            isStrictBoolean = policy.isStrictOtherAttributes,
-            isStrictOtherAttributes = policy.isStrictBoolean,
+            isStrictBoolean = policy.isStrictBoolean,
+            isXmlFloat = policy.isXmlFloat,
+            isStrictOtherAttributes = policy.isStrictOtherAttributes,
             formatCache = policy.formatCache.copy(),
         )
 

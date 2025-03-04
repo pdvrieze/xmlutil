@@ -273,6 +273,8 @@ abstract interface nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy { 
         open fun <get-isStrictNames>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.isStrictNames.<get-isStrictNames>|<get-isStrictNames>(){}[0]
     open val isStrictOtherAttributes // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.isStrictOtherAttributes|{}isStrictOtherAttributes[0]
         open fun <get-isStrictOtherAttributes>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.isStrictOtherAttributes.<get-isStrictOtherAttributes>|<get-isStrictOtherAttributes>(){}[0]
+    open val isXmlFloat // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.isXmlFloat|{}isXmlFloat[0]
+        open fun <get-isXmlFloat>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.isXmlFloat.<get-isXmlFloat>|<get-isXmlFloat>(){}[0]
     open val verifyElementOrder // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.verifyElementOrder|{}verifyElementOrder[0]
         open fun <get-verifyElementOrder>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy.verifyElementOrder.<get-verifyElementOrder>|<get-verifyElementOrder>(){}[0]
 
@@ -877,6 +879,7 @@ final class nl.adaptivity.xmlutil.serialization/XmlConfig { // nl.adaptivity.xml
         final fun recommended_0_86_3() // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_86_3|recommended_0_86_3(){}[0]
         final fun recommended_0_87_0() // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_87_0|recommended_0_87_0(){}[0]
         final fun recommended_0_90_2() // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_90_2|recommended_0_90_2(){}[0]
+        final fun recommended_0_91_0() // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_91_0|recommended_0_91_0(){}[0]
         final inline fun defaultPolicy(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.defaultPolicy|defaultPolicy(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
         final inline fun fast(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.fast|fast(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
         final inline fun fast_0_90_2(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.fast_0_90_2|fast_0_90_2(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
@@ -884,6 +887,7 @@ final class nl.adaptivity.xmlutil.serialization/XmlConfig { // nl.adaptivity.xml
         final inline fun recommended_0_86_3(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_86_3|recommended_0_86_3(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
         final inline fun recommended_0_87_0(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_87_0|recommended_0_87_0(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
         final inline fun recommended_0_90_2(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_90_2|recommended_0_90_2(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
+        final inline fun recommended_0_91_0(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.Builder.recommended_0_91_0|recommended_0_91_0(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
     }
 
     final object Companion { // nl.adaptivity.xmlutil.serialization/XmlConfig.Companion|null[0]
@@ -935,6 +939,8 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
         open fun <get-isStrictNames>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isStrictNames.<get-isStrictNames>|<get-isStrictNames>(){}[0]
     open val isStrictOtherAttributes // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isStrictOtherAttributes|{}isStrictOtherAttributes[0]
         open fun <get-isStrictOtherAttributes>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isStrictOtherAttributes.<get-isStrictOtherAttributes>|<get-isStrictOtherAttributes>(){}[0]
+    open val isXmlFloat // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isXmlFloat|{}isXmlFloat[0]
+        open fun <get-isXmlFloat>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.isXmlFloat.<get-isXmlFloat>|<get-isXmlFloat>(){}[0]
     open val verifyElementOrder // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.verifyElementOrder|{}verifyElementOrder[0]
         open fun <get-verifyElementOrder>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.verifyElementOrder.<get-verifyElementOrder>|<get-verifyElementOrder>(){}[0]
 
@@ -987,6 +993,9 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
         final var isStrictOtherAttributes // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isStrictOtherAttributes|{}isStrictOtherAttributes[0]
             final fun <get-isStrictOtherAttributes>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isStrictOtherAttributes.<get-isStrictOtherAttributes>|<get-isStrictOtherAttributes>(){}[0]
             final fun <set-isStrictOtherAttributes>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isStrictOtherAttributes.<set-isStrictOtherAttributes>|<set-isStrictOtherAttributes>(kotlin.Boolean){}[0]
+        final var isXmlFloat // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isXmlFloat|{}isXmlFloat[0]
+            final fun <get-isXmlFloat>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isXmlFloat.<get-isXmlFloat>|<get-isXmlFloat>(){}[0]
+            final fun <set-isXmlFloat>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.isXmlFloat.<set-isXmlFloat>|<set-isXmlFloat>(kotlin.Boolean){}[0]
         final var pedantic // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.pedantic|{}pedantic[0]
             final fun <get-pedantic>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.pedantic.<get-pedantic>|<get-pedantic>(){}[0]
             final fun <set-pedantic>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.pedantic.<set-pedantic>|<set-pedantic>(kotlin.Boolean){}[0]
