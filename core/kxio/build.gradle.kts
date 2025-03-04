@@ -53,6 +53,7 @@ kotlin {
     jvm()
     js {
         browser()
+        nodejs()
         compilerOptions {
             sourceMap = true
             verbose = true

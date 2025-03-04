@@ -80,10 +80,11 @@ kotlin {
 
     js {
         browser()
+        nodejs()
         @Suppress("OPT_IN_USAGE")
         compilerOptions {
             sourceMap = true
-            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
+//            sourceMapEmbedSources = JsSourceMapEmbedMode.SOURCE_MAP_SOURCE_CONTENT_ALWAYS
             suppressWarnings = false
             verbose = true
             moduleKind = JsModuleKind.MODULE_UMD
