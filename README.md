@@ -85,19 +85,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core:0.91.0-SNAPSHOT")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jvm:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.0-SNAPSHOT")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.91.0-SNAPSHOT")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.91.0-SNAPSHOT")
 ```
 
 #### Native
@@ -108,16 +108,16 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.91.0-SNAPSHOT")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.0-SNAPSHOT")
 ```
 #### -Android- (Deprecated - this is dependency only - it has no code)
 ** Deprecated **
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.91.0-SNAPSHOT")
 ```
 
 This version is merely a dependency to the main module that no longer has the android
@@ -125,7 +125,7 @@ specific artefact as this is not supported by kotlin (and has resolution issues)
 
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.90.4-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.91.0-SNAPSHOT")
 ```
 
 ### -Ktor- (Deprecated)

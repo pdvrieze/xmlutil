@@ -1,4 +1,4 @@
-# 0.90.4-SNAPSHOT
+# 0.91.0-RC1
 
 Features:
 - Add a core-io and serialization-io modules that support using kotlinx.io
