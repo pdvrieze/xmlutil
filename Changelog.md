@@ -3,6 +3,9 @@ Features:
 - Add `XmlKeyName` as annotation to set the name of the key used in
   maps. This just adds the capability to the default policy. Supports
   issue #218.
+- Add (and change in the recommended policy) the isXmlFloat property
+  that ensures properties are stored in XML format (for infinity). 
+  Decoding will accept both formats. Fixes #222.
 
 # 0.91.0-RC1
 

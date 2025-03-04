@@ -1474,6 +1474,22 @@ final object nl.adaptivity.xmlutil.util/XmlBooleanSerializer : kotlinx.serializa
     final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Boolean) // nl.adaptivity.xmlutil.util/XmlBooleanSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Boolean){}[0]
 }
 
+final object nl.adaptivity.xmlutil.util/XmlDoubleSerializer : kotlinx.serialization/KSerializer<kotlin/Double> { // nl.adaptivity.xmlutil.util/XmlDoubleSerializer|null[0]
+    final val descriptor // nl.adaptivity.xmlutil.util/XmlDoubleSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.xmlutil.util/XmlDoubleSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin/Double // nl.adaptivity.xmlutil.util/XmlDoubleSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Double) // nl.adaptivity.xmlutil.util/XmlDoubleSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Double){}[0]
+}
+
+final object nl.adaptivity.xmlutil.util/XmlFloatSerializer : kotlinx.serialization/KSerializer<kotlin/Float> { // nl.adaptivity.xmlutil.util/XmlFloatSerializer|null[0]
+    final val descriptor // nl.adaptivity.xmlutil.util/XmlFloatSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.xmlutil.util/XmlFloatSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin/Float // nl.adaptivity.xmlutil.util/XmlFloatSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Float) // nl.adaptivity.xmlutil.util/XmlFloatSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Float){}[0]
+}
+
 final object nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer : nl.adaptivity.xmlutil/XmlSerializer<kotlin/Boolean> { // nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer|null[0]
     final val descriptor // nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer.descriptor|{}descriptor[0]
         final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
@@ -1482,6 +1498,26 @@ final object nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer : nl.adaptivity
     final fun deserializeXML(kotlinx.serialization.encoding/Decoder, nl.adaptivity.xmlutil/XmlReader, kotlin/Boolean?, kotlin/Boolean): kotlin/Boolean // nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer.deserializeXML|deserializeXML(kotlinx.serialization.encoding.Decoder;nl.adaptivity.xmlutil.XmlReader;kotlin.Boolean?;kotlin.Boolean){}[0]
     final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Boolean) // nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Boolean){}[0]
     final fun serializeXML(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlWriter, kotlin/Boolean, kotlin/Boolean) // nl.adaptivity.xmlutil.util/XmlOnlyBooleanSerializer.serializeXML|serializeXML(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlWriter;kotlin.Boolean;kotlin.Boolean){}[0]
+}
+
+final object nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer : nl.adaptivity.xmlutil/XmlSerializer<kotlin/Double> { // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer|null[0]
+    final val descriptor // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin/Double // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun deserializeXML(kotlinx.serialization.encoding/Decoder, nl.adaptivity.xmlutil/XmlReader, kotlin/Double?, kotlin/Boolean): kotlin/Double // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer.deserializeXML|deserializeXML(kotlinx.serialization.encoding.Decoder;nl.adaptivity.xmlutil.XmlReader;kotlin.Double?;kotlin.Boolean){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Double) // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Double){}[0]
+    final fun serializeXML(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlWriter, kotlin/Double, kotlin/Boolean) // nl.adaptivity.xmlutil.util/XmlOnlyDoubleSerializer.serializeXML|serializeXML(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlWriter;kotlin.Double;kotlin.Boolean){}[0]
+}
+
+final object nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer : nl.adaptivity.xmlutil/XmlSerializer<kotlin/Float> { // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer|null[0]
+    final val descriptor // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin/Float // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun deserializeXML(kotlinx.serialization.encoding/Decoder, nl.adaptivity.xmlutil/XmlReader, kotlin/Float?, kotlin/Boolean): kotlin/Float // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer.deserializeXML|deserializeXML(kotlinx.serialization.encoding.Decoder;nl.adaptivity.xmlutil.XmlReader;kotlin.Float?;kotlin.Boolean){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Float) // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Float){}[0]
+    final fun serializeXML(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlWriter, kotlin/Float, kotlin/Boolean) // nl.adaptivity.xmlutil.util/XmlOnlyFloatSerializer.serializeXML|serializeXML(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlWriter;kotlin.Float;kotlin.Boolean){}[0]
 }
 
 final object nl.adaptivity.xmlutil/QNameSerializer : nl.adaptivity.xmlutil/XmlSerializer<nl.adaptivity.xmlutil/QName> { // nl.adaptivity.xmlutil/QNameSerializer|null[0]
