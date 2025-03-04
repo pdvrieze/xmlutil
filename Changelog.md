@@ -17,16 +17,43 @@ Features:
   unless an alternative compatible implementation is already present.
 - The cache feature has been improved: it is now a proper LRU cache; 
   it has better key matching (more matches)
+- Add further inline shortcuts for encodeToString that take 
+  tagname/prefix parameters.
+- Implement handling of whitespace preservation, including handling
+  the attribute cascading to child tags. Types can now specify their
+  own defaults.
 
 Changes:
+- Build with Kotlin 2.1.10
+- Fix smart attribute writing to not use the null prefix for a 
+  non-null namespace (even when bound to the null-namespace).
+  Attributes with null prefix are always in the null namespace.
 - Build with Kotlin 2.1.0. This means that except for `core-android`
   the other `-android` artefacts are now deprecated. They are separate
   synthetic configurations that only forward dependencies.
 - `encodeToWriter` will now flush the writer. This is particularly
   relevant in the context of `OutputStreamWriter` that doesn't write
   content until flushed or closed.
+- Serialization no longer loads jdk/android specific modules for 
+  parsing (when loaded they will be used in creating serializers/parsers)
+- getElementsByTagName(Ns) now supports wildcards (*)
 
 Fixes:
+- Make getElementsByTagName(Ns) return all descendents (not only children)
+  per the DOM standard #265.
+- Don't detect end of cdata (incorrectly) inside a string #266.
+- Make recovery work more broadly, including handling text/cdata #253.
+- Make defaultSerializer work #256.
+- Fixed cache keys (this caused inefficiency and memory leaks #264). The
+  memory leaks are also addressed using an LRU cache.
+- When parsing text with entity content don't mark initial/trailing
+  whitespace   as ignorable, even when the result is parsed as
+  separate events. Fixes #241.
+- When creating a default cache doesn't work, fall back to not
+  caching (#255).
+- Some work to handle the misconfiguration of multiple types with
+  equal `SerialName` in the same context leading to invalid cache
+  hits (#254)
 - Various fixes to handling of `xml:space` and `@XmlIgnoreWhitespace`. Note
   that xml:space="preserve" in a document overrides handling for all
   children. xml:space="default" gets back to default handling. Types
