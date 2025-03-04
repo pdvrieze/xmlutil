@@ -1,3 +1,9 @@
+# 0.91.0-SNAPSHOT
+Features:
+- Add `XmlKeyName` as annotation to set the name of the key used in
+  maps. This just adds the capability to the default policy. Supports
+  issue #218.
+
 # 0.91.0-RC1
 
 Features:

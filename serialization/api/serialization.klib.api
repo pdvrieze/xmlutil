@@ -67,6 +67,17 @@ open annotation class nl.adaptivity.xmlutil.serialization/XmlIgnoreWhitespace : 
         final fun <get-value>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/XmlIgnoreWhitespace.value.<get-value>|<get-value>(){}[0]
 }
 
+open annotation class nl.adaptivity.xmlutil.serialization/XmlKeyName : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlKeyName|null[0]
+    constructor <init>(kotlin/String, kotlin/String = ..., kotlin/String = ...) // nl.adaptivity.xmlutil.serialization/XmlKeyName.<init>|<init>(kotlin.String;kotlin.String;kotlin.String){}[0]
+
+    final val namespace // nl.adaptivity.xmlutil.serialization/XmlKeyName.namespace|{}namespace[0]
+        final fun <get-namespace>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlKeyName.namespace.<get-namespace>|<get-namespace>(){}[0]
+    final val prefix // nl.adaptivity.xmlutil.serialization/XmlKeyName.prefix|{}prefix[0]
+        final fun <get-prefix>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlKeyName.prefix.<get-prefix>|<get-prefix>(){}[0]
+    final val value // nl.adaptivity.xmlutil.serialization/XmlKeyName.value|{}value[0]
+        final fun <get-value>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlKeyName.value.<get-value>|<get-value>(){}[0]
+}
+
 open annotation class nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec|null[0]
     constructor <init>(kotlin/String) // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec.<init>|<init>(kotlin.String){}[0]
 
@@ -205,6 +216,8 @@ abstract interface nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo 
         open fun <get-useAnnIsOtherAttributes>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnIsOtherAttributes.<get-useAnnIsOtherAttributes>|<get-useAnnIsOtherAttributes>(){}[0]
     open val useAnnIsValue // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnIsValue|{}useAnnIsValue[0]
         open fun <get-useAnnIsValue>(): kotlin/Boolean? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnIsValue.<get-useAnnIsValue>|<get-useAnnIsValue>(){}[0]
+    open val useAnnKeyName // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnKeyName|{}useAnnKeyName[0]
+        open fun <get-useAnnKeyName>(): nl.adaptivity.xmlutil.serialization/XmlKeyName? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnKeyName.<get-useAnnKeyName>|<get-useAnnKeyName>(){}[0]
     open val useAnnNsDecls // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnNsDecls|{}useAnnNsDecls[0]
         open fun <get-useAnnNsDecls>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace>? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnNsDecls.<get-useAnnNsDecls>|<get-useAnnNsDecls>(){}[0]
     open val useAnnPolyChildren // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnPolyChildren|{}useAnnPolyChildren[0]

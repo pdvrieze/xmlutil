@@ -1772,6 +1772,10 @@ public interface SafeParentInfo {
     @ExperimentalXmlUtilApi
     public val useAnnChildrenName: XmlChildrenName? get() = null
 
+    /** Value of the [XmlKeyName] annotation */
+    @ExperimentalXmlUtilApi
+    public val useAnnKeyName: XmlKeyName? get() = null
+
     /** Value of the [XmlCData] annotation */
     @ExperimentalXmlUtilApi
     public val useAnnCData: Boolean? get() = null
@@ -2047,6 +2051,10 @@ public class ParentInfo(
         private set
 
     @ExperimentalXmlUtilApi
+    public override var useAnnKeyName: XmlKeyName? = null
+        private set
+
+    @ExperimentalXmlUtilApi
     public override var useAnnCData: Boolean? = null
         private set
 
@@ -2085,6 +2093,7 @@ public class ParentInfo(
                 is XmlIgnoreWhitespace -> useAnnIgnoreWhitespace = an.value
                 is XmlNamespaceDeclSpec -> useAnnNsDecls = an.namespaces
                 is XmlChildrenName -> useAnnChildrenName = an
+                is XmlKeyName -> useAnnKeyName = an
                 is XmlValue -> useAnnIsValue = an.value
                 is XmlId -> useAnnIsId = true
                 is XmlOtherAttributes -> useAnnIsOtherAttributes = true

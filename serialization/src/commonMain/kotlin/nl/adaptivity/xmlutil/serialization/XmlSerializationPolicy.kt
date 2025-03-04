@@ -784,6 +784,15 @@ private constructor(
     }
 
     override fun mapKeyName(serializerParent: SafeParentInfo): DeclaredNameInfo {
+        val an = serializerParent.useAnnKeyName
+        if (an != null) {
+            return DeclaredNameInfo(
+                an.value,
+                an.toQName(serializerParent.namespace),
+                an.namespace == UNSET_ANNOTATION_VALUE
+            )
+        }
+
         return DeclaredNameInfo("key")
     }
 

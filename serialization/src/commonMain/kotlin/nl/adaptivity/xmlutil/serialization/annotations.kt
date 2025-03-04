@@ -88,6 +88,18 @@ public annotation class XmlChildrenName(
 )
 
 /**
+ * Specify additional information about child values. This is only used for primitives, not for classes that have their
+ * own independent name
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+public annotation class XmlKeyName(
+    val value: String,
+    val namespace: String = UNSET_ANNOTATION_VALUE,
+    val prefix: String = UNSET_ANNOTATION_VALUE
+)
+
+/**
  * Force a property that could be an attribute to be an element
  */
 @SerialInfo
