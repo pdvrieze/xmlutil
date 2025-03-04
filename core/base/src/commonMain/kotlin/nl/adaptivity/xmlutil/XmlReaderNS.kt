@@ -47,9 +47,8 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
     return CompactFragment("")
 }
 
-public expect fun XmlReader.siblingsToFragment(): CompactFragment
-
-internal fun XmlReader.siblingsToFragmentImpl(appendable: Appendable = StringBuilder()): CompactFragment {
+public fun XmlReader.siblingsToFragment(): CompactFragment {
+    val appendable: Appendable = StringBuilder()
     if (!isStarted) {
         if (hasNext()) {
             next()

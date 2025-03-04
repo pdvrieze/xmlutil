@@ -24,40 +24,14 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import nl.adaptivity.xmlutil.util.CompactFragment
 import java.io.CharArrayWriter
 
 /*
  * Functions that work on both js/jvm but have different implementations
  */
 
-/**
- * Read the current element (and content) and all its siblings into a fragment.
- *
- * @param this The source stream.
- *
- * @return the fragment
- *
- * @throws XmlException parsing failed
- */
-public actual fun XmlReader.siblingsToFragment(): CompactFragment {
-    return siblingsToFragmentImpl()
-}
-
 
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
-    return CharArrayWriter().also {
-        @Suppress("DEPRECATION")
-        XmlStreaming.newWriter(it as Appendable).use { out ->
-            while (hasNext()) {
-                next()
-                writeCurrent(out)
-            }
-        }
-    }
-}
-
-internal fun XmlReader.toCharArrayWriterImpl(): CharArrayWriter {
     return CharArrayWriter().also {
         @Suppress("DEPRECATION")
         XmlStreaming.newWriter(it as Appendable).use { out ->

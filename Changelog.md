@@ -11,6 +11,12 @@ Features:
   the unknown element handler not consuming the element and will in such
   case parse the remaining elements (This uses input.location so the
   reader must support that).
+- (Finally) support running in node (falling back to the generic
+  implementation rather than the dom implementation). Note that this
+  does not inject a DOM implementation, so DOM handling will not work
+  unless an alternative compatible implementation is already present.
+- The cache feature has been improved: it is now a proper LRU cache; 
+  it has better key matching (more matches)
 
 Changes:
 - Build with Kotlin 2.1.0. This means that except for `core-android`

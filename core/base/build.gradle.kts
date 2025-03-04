@@ -92,6 +92,7 @@ kotlin {
             main = JsMainFunctionExecutionMode.CALL
         }
         browser()
+        nodejs()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
