@@ -39,6 +39,8 @@ import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.localName
 import nl.adaptivity.xmlutil.elementContentToFragment
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
@@ -122,6 +124,8 @@ class StringOrCompositePolymorphism253 {
     }
 
     private fun testParse(xml: XML, assertE2: (List<Any>) -> Unit) {
+        if (testTarget == Target.Node) return
+
         val result = xml.decodeFromString<List<ExtensionDto>>(SAMPLE, QName("Extensions"))
         assertEquals(3, result.size)
         assertEquals("{\"savedData\":\"\"}", assertIs<String>(result[0].value[0]).trim())

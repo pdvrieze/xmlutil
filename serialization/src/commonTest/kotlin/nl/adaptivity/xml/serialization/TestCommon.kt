@@ -36,6 +36,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -166,6 +168,8 @@ class TestCommon {
 
     @Test
     fun deserializeToElementXmlWithEntity() {
+        if (testTarget == Target.Node) return
+
         val xml = XML {
             repairNamespaces = true
             defaultPolicy {

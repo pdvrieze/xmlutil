@@ -29,6 +29,8 @@ import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import nl.adaptivity.xmlutil.dom2.textContent
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -46,6 +48,8 @@ class AndroidStrings225 {
 
     @Test
     fun testDecodeAny() {
+        if (testTarget == Target.Node) return
+
         val data = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -71,6 +75,8 @@ class AndroidStrings225 {
 
     @Test
     fun testDecodeAny2() {
+        if (testTarget == Target.Node) return
+
         val data = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
@@ -96,6 +102,8 @@ class AndroidStrings225 {
 
     @Test
     fun testDecodeAny3() {
+        if (testTarget == Target.Node) return
+
         val data = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">

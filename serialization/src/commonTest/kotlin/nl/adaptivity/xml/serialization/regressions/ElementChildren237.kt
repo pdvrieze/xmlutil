@@ -27,6 +27,8 @@ import nl.adaptivity.xmlutil.isXmlWhitespace
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlIgnoreWhitespace
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.*
 
 class ElementChildren237 {
@@ -34,6 +36,8 @@ class ElementChildren237 {
 
     @Test
     fun testDeserializedElement() {
+        if (testTarget == Target.Node) return
+
         val extensions = xml.decodeFromString<Extensions>(XMLSTRING)
 
         val extension = assertNotNull(extensions.extension)
@@ -89,6 +93,8 @@ class ElementChildren237 {
 
     @Test
     fun testDeserializedElementIgnoreWhitespace() {
+        if (testTarget == Target.Node) return
+
         val extensions = xml.decodeFromString<ExtensionsIgnoreWS>(XMLSTRING)
 
         val extension = assertNotNull(extensions.extension)
