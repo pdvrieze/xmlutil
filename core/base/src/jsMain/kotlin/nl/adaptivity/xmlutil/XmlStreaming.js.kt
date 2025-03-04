@@ -126,6 +126,8 @@ public actual object XmlStreaming : IXmlStreaming {
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
     ): XmlWriter {
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(writer, repairNamespaces, xmlDeclMode)
+
         val document = xmlStreaming.genericDomImplementation.createDocument()
         @Suppress("DEPRECATION")
         return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode))
