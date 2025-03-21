@@ -987,8 +987,16 @@ internal constructor(
 
     init {
         val requestedOutputKind = codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, false)
+        when (requestedOutputKind) {
+            OutputKind.Element -> {} // fine
+            OutputKind.Mixed -> { // only the case for `@XmlValue` elements.
+                // Permit this
+            }
+            else -> {
+                codecConfig.config.policy.invalidOutputKind("Composite element: $tagName - Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
+            }
+        }
         if (requestedOutputKind != OutputKind.Element) {
-            codecConfig.config.policy.invalidOutputKind("Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
         }
     }
 
