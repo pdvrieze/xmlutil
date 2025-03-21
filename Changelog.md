@@ -7,6 +7,12 @@ Features:
   that ensures properties are stored in XML format (for infinity). 
   Decoding will accept both formats. Fixes #222.
 
+Fixes:
+- Fix #269 to allow `@XmlValue` for `CompactFragment` to capture the
+  contents of an element while allowing attributes to be captured. It
+  should be noted that combining this with element children is not
+  intended to be supported (it may work if the tagsoup is trailing).
+
 # 0.91.0-RC1
 
 Features:

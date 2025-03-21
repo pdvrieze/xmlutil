@@ -20,9 +20,18 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.StringFormat
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.XmlEvent
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.serialization.serializer
 import nl.adaptivity.xmlutil.util.CompactFragment
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ACompactFragment : PlatformTestBase<CompactFragment>(
     CompactFragment(listOf(XmlEvent.NamespaceImpl("p", "urn:ns")), "<p:a>someA</p:a><b>someB</b>"),
@@ -32,4 +41,27 @@ class ACompactFragment : PlatformTestBase<CompactFragment>(
         "<compactFragment xmlns:p=\"urn:ns\"><p:a>someA</p:a><b>someB</b></compactFragment>"
     override val expectedJson: String =
         "{\"namespaces\":[{\"prefix\":\"p\",\"namespaceURI\":\"urn:ns\"}],\"content\":\"<p:a>someA</p:a><b>someB</b>\"}"
+
+    @Test
+    fun testSerializeValueFragment269() {
+        val expected = "<root attribute=\"value\"><child>Hello</child><child>World!</child></root>"
+        val data = Root("value", CompactFragment("<child>Hello</child><child>World!</child>"))
+        val actual = baseXmlFormat.copy { indent = 0 }.encodeToString(data)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testDeserializeValueFragment269() {
+        val data = "<root attribute=\"value\"><child>Hello</child><child>World!</child></root>"
+        val expected = Root("value", CompactFragment("<child>Hello</child><child>World!</child>"))
+        val actual = baseXmlFormat.decodeFromString<Root>(data)
+        assertEquals(expected, actual)
+    }
+
+    @Serializable
+    @XmlSerialName("root")
+    data class Root(
+        val attribute: String,
+        @XmlValue val tagSoup: CompactFragment?
+    )
 }
