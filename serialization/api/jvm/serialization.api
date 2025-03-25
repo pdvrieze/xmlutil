@@ -31,6 +31,8 @@ public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer
 public final class nl/adaptivity/xmlutil/serialization/DefaultFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache, nl/adaptivity/xmlutil/serialization/DelegatableFormatCache {
 	public fun <init> ()V
 	public fun <init> (I)V
+	public fun copy ()Lnl/adaptivity/xmlutil/serialization/DefaultFormatCache;
+	public synthetic fun copy ()Lnl/adaptivity/xmlutil/serialization/DelegatableFormatCache;
 	public synthetic fun copy$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 

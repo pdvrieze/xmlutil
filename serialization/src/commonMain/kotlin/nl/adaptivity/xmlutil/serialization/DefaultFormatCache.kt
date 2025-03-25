@@ -32,10 +32,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
 import nl.adaptivity.xmlutil.serialization.impl.LRUCache
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.jvm.JvmStatic
 
 /**
@@ -95,21 +92,21 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
         return lookupTypeOrStore(TypeKey(parentName.namespaceURI, serialDesc), serialDesc.kind, defaultValue)
     }
 
-    private fun lookupType(
-        name: TypeKey, kind: SerialKind
+    internal fun lookupType(
+        key: TypeKey, kind: SerialKind
     ): XmlTypeDescriptor? = when (kind) {
         StructureKind.MAP,
         StructureKind.LIST -> null
 
-        else -> typeDescCache.get(name)
+        else -> typeDescCache.get(key)
     }
 
 
     @OptIn(ExperimentalSerializationApi::class)
-    private fun lookupTypeOrStore(name: TypeKey, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
-        lookupType(name, kind)?.let { return it}
+    internal fun lookupTypeOrStore(key: TypeKey, kind: SerialKind, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor {
+        lookupType(key, kind)?.let { return it}
         val v = defaultValue()
-        typeDescCache[name] = v
+        typeDescCache[key] = v
         return v
     }
 
@@ -122,6 +119,10 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
     ): XmlDescriptor? {
         val key =
             DescKey(overridenSerializer, serializerParent, tagParent.takeIf { it !== serializerParent }, canBeAttribute)
+        return lookupDescriptor(key)
+    }
+
+    internal fun lookupDescriptor(key: DescKey): XmlDescriptor? {
         return elemDescCache[key]
     }
 
@@ -135,9 +136,16 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
         val key =
             DescKey(overridenSerializer, serializerParent, tagParent.takeIf { it !== serializerParent }, canBeAttribute)
 
+        return lookupDescriptorOrStore(key, defaultValue)
+    }
+
+    internal fun lookupDescriptorOrStore(
+        key: DescKey,
+        defaultValue: () -> XmlDescriptor
+    ): XmlDescriptor {
         @OptIn(ExperimentalSerializationApi::class)
         check(pendingDescs.add(key)) {
-            "Recursive lookup of ${serializerParent.elementSerialDescriptor.serialName} with key: $key"
+            "Recursive lookup of ${key.childDescriptor.serialName} with key: $key"
         }
 
         // This has to be getOrPut rather than `computeIfAbsent` as computeIfAbsent prevents other
@@ -158,8 +166,10 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
         return XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }
 
-    internal fun appendFrom(other: DefaultFormatCache) {
+    @XmlUtilInternal
+    override fun appendFrom(other: DefaultFormatCache) {
         check(pendingDescs.isEmpty()) { "This cache is not stable, refusing to add elements" }
+
         typeDescCache.putAll(other.typeDescCache)
         elemDescCache.putAll(other.elemDescCache)
     }
@@ -192,18 +202,15 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
             childDescriptor = serializerParent.elementSerialDescriptor
         )
 
-        private fun createHashCode(): Int {
+        private val hashcode = run {
             var result = canBeAttribute.hashCode()
             result = 31 * result + (overridenSerializer?.hashCode() ?: 0)
             result = 31 * result + (parentNamespace?.hashCode() ?: 0)
             result = 31 * result + childDescriptor.hashCode()
             result = 31 * result + effectiveUseNameInfo.hashCode()
             result = 31 * result + useAnnotations.hashCode()
-            result = 31 * result + hashcode.hashCode()
-            return result
+            result
         }
-
-        private val hashcode = createHashCode()
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -226,22 +233,13 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
             return true
         }
 
-        @Suppress("DuplicatedCode")
-        override fun hashCode(): Int {
-            var result = canBeAttribute.hashCode()
-            result = 31 * result + (overridenSerializer?.hashCode() ?: 0)
-            result = 31 * result + (parentNamespace?.hashCode() ?: 0)
-            result = 31 * result + effectiveUseNameInfo.hashCode()
-            result = 31 * result + useAnnotations.hashCode()
-            result = 31 * result + hashcode.hashCode()
-            return result
-        }
+        override fun hashCode(): Int = hashcode
 
 
     }
 
-    @Suppress("EqualsOrHashCode")
-    private data class TypeKey(val namespace: String, val descriptor: SerialDescriptor) {
+    @XmlUtilInternal
+    internal data class TypeKey(val namespace: String, val descriptor: SerialDescriptor) {
         /**
          * Note that the default hash key implementation is good enough. But equality needs
          * a special case to also check element names in the rare case of duplicate serial names
@@ -262,13 +260,19 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
                 else -> true
             }
         }
+
+        private val hashcode = 31 * namespace.hashCode() + descriptor.hashCode()
+
+        override fun hashCode(): Int = hashcode
     }
 
-    private companion object {
+    internal companion object {
         @JvmStatic
-        private fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
+        @XmlUtilInternal
+        internal fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
             DefaultFormatCache.TypeKey(namespace ?: "", descriptor)
 
+        @OptIn(ExperimentalSerializationApi::class)
         @JvmStatic
         private fun SerialKind?.isCollection() = when(this) {
             StructureKind.LIST,
