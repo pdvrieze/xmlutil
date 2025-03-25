@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
@@ -165,7 +166,8 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
      * @property parentNamespace If the parent has a different namespace, this may change the name
      * @property effectiveUseNameInfo
      */
-    internal data class DescKey(
+    @ConsistentCopyVisibility
+    internal data class DescKey private constructor(
         val overridenSerializer: KSerializer<*>?,
         val parentNamespace: String?,
         val effectiveUseNameInfo: XmlSerializationPolicy.DeclaredNameInfo,
@@ -173,6 +175,7 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
         val canBeAttribute: Boolean,
         val childDescriptor: SerialDescriptor
     ) {
+
         constructor(
             overridenSerializer: KSerializer<*>?,
             serializerParent: SafeParentInfo,
@@ -182,7 +185,7 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
             overridenSerializer = overridenSerializer,
             parentNamespace = (tagParent ?: serializerParent).namespace.namespaceURI,
             effectiveUseNameInfo = serializerParent.elementUseNameInfo,
-            useAnnotations = (serializerParent.elementUseAnnotations as? Set) ?: serializerParent.elementUseAnnotations.toHashSet(),
+            useAnnotations = effectiveUseAnn(serializerParent, tagParent),
             canBeAttribute = canBeAttribute,
             childDescriptor = serializerParent.elementSerialDescriptor
         )
@@ -263,6 +266,30 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
         @JvmStatic
         private fun TypeKey(namespace: String?, descriptor: SerialDescriptor) =
             DefaultFormatCache.TypeKey(namespace ?: "", descriptor)
+
+        @JvmStatic
+        private fun SerialKind?.isCollection() = when(this) {
+            StructureKind.LIST,
+            StructureKind.MAP,
+            is PolymorphicKind -> true
+            else -> false
+        }
+
+        @OptIn(ExperimentalSerializationApi::class)
+        @JvmStatic
+        private fun effectiveUseAnn(
+            serializerParent: SafeParentInfo,
+            tagParent: SafeParentInfo?,
+            r: HashSet<Annotation> = HashSet<Annotation>()
+        ): Set<Annotation> {
+            if (serializerParent.descriptor?.kind.isCollection()) {
+                serializerParent.descriptor?.serializerParent?.let {
+                    effectiveUseAnn(it, serializerParent.descriptor?.tagParent, r)
+                }
+            }
+            r.addAll(serializerParent.elementUseAnnotations)
+            return r
+        }
     }
 }
 

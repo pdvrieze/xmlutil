@@ -12,6 +12,9 @@ Fixes:
   contents of an element while allowing attributes to be captured. It
   should be noted that combining this with element children is not
   intended to be supported (it may work if the tagsoup is trailing).
+- Fix caching issue in case of polymorphic elements (at least in lists)
+  where the polymorphic descriptor did not retain use side annotations,
+  thus resulting in invalid cache keys.
 
 # 0.91.0-RC1
 

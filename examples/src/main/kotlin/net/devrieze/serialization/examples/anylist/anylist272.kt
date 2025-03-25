@@ -33,13 +33,13 @@ interface XmlEntity
 
 @Serializable
 data class Orders1(
-    @XmlIgnoreWhitespace(true)
-    @XmlValue var orders: List<@Polymorphic Any>
+    var orders: List<@Polymorphic Any>
 ) : XmlEntity
 
 @Serializable
 data class Orders2(
-    var orders: List<@Polymorphic Any>
+    @XmlIgnoreWhitespace(true)
+    @XmlValue var orders: List<@Polymorphic Any>
 ) : XmlEntity
 
 @Serializable
@@ -65,10 +65,11 @@ data class StopLoss(
     @XmlElement @SerialName("bymarket") val byMarket: Boolean
 ) : XmlEntity
 
-val xml = """<orders>
+fun xmlData(text: String="") = """<orders>
     <order transactionid="32021651">
         <secid>8135</secid>
     </order>
+    $text
     <stoporder transactionid="20105503">
         <secid>8135</secid>
     </stoporder>
@@ -78,10 +79,10 @@ val xml = """<orders>
 </orders>"""
 
 fun main() {
-    val decoded1 = parser.decodeFromString(serializer<Orders1>(), xml)
+    val decoded1 = parser.decodeFromString(serializer<Orders1>(), xmlData("<string xmlns=\"http://www.w3.org/2001/XMLSchema\">foo</string>"))
     println("size " + decoded1.orders.size)
     println(decoded1)
-    val decoded2 = parser.decodeFromString(serializer<Orders2>(), xml)
-    println("size " + decoded1.orders.size)
-    println(decoded1)
+    val decoded2 = parser.decodeFromString(serializer<Orders2>(), xmlData("Random string content"))
+    println("size " + decoded2.orders.size)
+    println(decoded2)
 }
