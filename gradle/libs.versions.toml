@@ -1,5 +1,5 @@
 [versions]
-apiVersion = "1.8"
+apiVersion = "2.0"
 binaryValidator = "0.16.3"
 dateTime = "0.6.1"
 dokka = "2.0.0"
