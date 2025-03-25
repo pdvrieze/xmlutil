@@ -24,15 +24,12 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.impl.CompatLock
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace
-import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 
 public class LayeredCache private constructor(
-    private val baseCache: DefaultFormatCache
+    private val baseCache: DelegatableFormatCache
 ): FormatCache() {
 
     public constructor() : this(DefaultFormatCache())
@@ -43,12 +40,15 @@ public class LayeredCache private constructor(
         return LayeredCache(baseCache.copy())
     }
 
-    private fun unsafeCache(): FormatCache {
-        return Layer(baseCache)
+    private fun unsafeCache(): AbstractLayer {
+        return when (val b = baseCache) {
+            is DefaultFormatCache -> DefaultLayer(b)
+            else -> FallbackLayer(b)
+        }
     }
 
     override fun <R> useUnsafe(action: (FormatCache) -> R): R {
-        val cache = Layer(baseCache)
+        val cache = unsafeCache()
 
         return action(cache).also {
             lock.invoke {
@@ -92,10 +92,83 @@ public class LayeredCache private constructor(
         return XmlCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
     }
 
-    private class Layer constructor(
-        val base: DelegatableFormatCache,
-        val extCache: DefaultFormatCache = DefaultFormatCache()
-    ) : FormatCache() {
+    private abstract class AbstractLayer(
+        val extCache: DefaultFormatCache
+    ): FormatCache() {
+        abstract val base: DelegatableFormatCache
+        abstract override fun copy(): AbstractLayer
+
+
+        final override fun <R> useUnsafe(action: (FormatCache) -> R): R = action(this)
+
+        final override fun getCompositeDescriptor(
+            codecConfig: XML.XmlCodecConfig,
+            serializerParent: SafeParentInfo,
+            tagParent: SafeParentInfo,
+            preserveSpace: TypePreserveSpace
+        ): XmlCompositeDescriptor {
+            return extCache.getCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
+        }
+
+    }
+
+    private class DefaultLayer constructor(
+        override val base: DefaultFormatCache,
+        extCache: DefaultFormatCache = DefaultFormatCache()
+    ) : AbstractLayer(extCache) {
+
+        override fun lookupTypeOrStore(
+            namespace: Namespace?,
+            serialDesc: SerialDescriptor,
+            defaultValue: () -> XmlTypeDescriptor
+        ): XmlTypeDescriptor {
+            val key = DefaultFormatCache.TypeKey(namespace?.namespaceURI, serialDesc)
+
+            return base.lookupType(key, serialDesc.kind) ?: extCache.lookupTypeOrStore(
+                key,
+                serialDesc.kind,
+                defaultValue
+            )
+
+        }
+
+        override fun lookupTypeOrStore(
+            parentName: QName,
+            serialDesc: SerialDescriptor,
+            defaultValue: () -> XmlTypeDescriptor
+        ): XmlTypeDescriptor {
+            val key = DefaultFormatCache.TypeKey(parentName.namespaceURI, serialDesc)
+
+            return base.lookupType(key, serialDesc.kind) ?: extCache.lookupTypeOrStore(
+                key,
+                serialDesc.kind,
+                defaultValue
+            )
+
+        }
+
+        override fun copy(): DefaultLayer {
+            return DefaultLayer(base, extCache.copy())
+        }
+
+        override fun lookupDescriptorOrStore(
+            overridenSerializer: KSerializer<*>?,
+            serializerParent: SafeParentInfo,
+            tagParent: SafeParentInfo,
+            canBeAttribute: Boolean,
+            defaultValue: () -> XmlDescriptor
+        ): XmlDescriptor {
+            val key = DefaultFormatCache.DescKey(overridenSerializer, serializerParent, tagParent, canBeAttribute)
+
+            return base.lookupDescriptor(key)
+                ?: extCache.lookupDescriptorOrStore(key, defaultValue)
+        }
+    }
+
+    private class FallbackLayer constructor(
+        override val base: DelegatableFormatCache,
+        extCache: DefaultFormatCache = DefaultFormatCache()
+    ) : AbstractLayer(extCache) {
 
         override fun lookupTypeOrStore(
             namespace: Namespace?,
@@ -123,11 +196,9 @@ public class LayeredCache private constructor(
 
         }
 
-        override fun copy(): FormatCache {
-            return Layer(base, extCache.copy())
+        override fun copy(): FallbackLayer {
+            return FallbackLayer(base, extCache.copy())
         }
-
-        override fun <R> useUnsafe(action: (FormatCache) -> R): R = action(this)
 
         override fun lookupDescriptorOrStore(
             overridenSerializer: KSerializer<*>?,
@@ -146,13 +217,5 @@ public class LayeredCache private constructor(
                 )
         }
 
-        override fun getCompositeDescriptor(
-            codecConfig: XML.XmlCodecConfig,
-            serializerParent: SafeParentInfo,
-            tagParent: SafeParentInfo,
-            preserveSpace: TypePreserveSpace
-        ): XmlCompositeDescriptor {
-            return extCache.getCompositeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace)
-        }
     }
 }

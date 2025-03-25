@@ -42,6 +42,13 @@ public interface DelegatableFormatCache {
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean): XmlDescriptor?
+
+    @XmlUtilInternal
+    public fun copy(): DelegatableFormatCache
+
+    @XmlUtilInternal
+    public fun appendFrom(other: DefaultFormatCache)
+
 }
 
 /**
