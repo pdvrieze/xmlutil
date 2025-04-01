@@ -1,4 +1,7 @@
-# 0.91.0-SNAPSHOT
+# 0.91.1-SNAPSHOT
+
+# 0.91.0
+*(April 1, 2025)
 Features:
 - Add `XmlKeyName` as annotation to set the name of the key used in
   maps. This just adds the capability to the default policy. Supports
