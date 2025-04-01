@@ -113,7 +113,3 @@ dependencies {
     dokka(projects.serialization)
     dokka(projects.serialutil)
 }
-
-tasks.dokkaHtml {
-    val x: DokkaTask? = this
-}
