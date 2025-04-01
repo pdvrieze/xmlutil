@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import javax.inject.Inject
+import kotlin.jvm.optionals.getOrNull
 
 class ProjectPlugin @Inject constructor(
     private val softwareComponentFactory: SoftwareComponentFactory
@@ -72,7 +73,10 @@ class ProjectPlugin @Inject constructor(
             dokkaVersion.convention(project.provider { project.version.toString() })
             dokkaOverrideTarget.convention(project.provider { null })
             applyLayout.convention(true)
-            kotlinApiVersion.convention(KotlinVersion.KOTLIN_1_8)
+            val apiVer = libs.findVersion("apiVersion").getOrNull()
+                ?.run { requiredVersion.let { KotlinVersion.fromVersion(it) } }
+                ?: KotlinVersion.KOTLIN_2_0
+            kotlinApiVersion.convention(apiVer)
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
             createAndroidCompatComponent.convention(false)
         }

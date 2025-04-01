@@ -61,8 +61,8 @@ internal object NodeSerializer : XmlSerializer<Node> {
 
         @Suppress("DEPRECATION")
         val out = DomWriter(fragment)
-        when {
-            input.eventType == EventType.START_ELEMENT ->
+        when (input.eventType) {
+            EventType.START_ELEMENT ->
                 out.writeElement(null, input)
 
             else ->

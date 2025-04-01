@@ -85,19 +85,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core:0.91.0-SNAPSHOT")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.0-SNAPSHOT")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.91.0-SNAPSHOT")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.91.0-SNAPSHOT")
 ```
 
 #### Native
@@ -108,16 +108,16 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.91.0-SNAPSHOT")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.0-SNAPSHOT")
 ```
 #### -Android- (Deprecated - this is dependency only - it has no code)
 ** Deprecated **
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.91.0-SNAPSHOT")
 ```
 
 This version is merely a dependency to the main module that no longer has the android
@@ -125,7 +125,7 @@ specific artefact as this is not supported by kotlin (and has resolution issues)
 
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.91.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.91.0-SNAPSHOT")
 ```
 
 ### -Ktor- (Deprecated)
@@ -207,6 +207,8 @@ configuration options available.
 | `throwOnRepeatedElement` | Rather than silently allowing a repeated element (not part of a list), throw an exception if the element occurs multiple times.                                                                                                                                                                                         |
 | `verifyElementOrder`     | While element order (when specified using `@XmlBefore` and `@XmlAfter`) is always used for serialization, this flag allows checking this order on inputs.                                                                                                                                                               |
 | `isStrictAttributeNames` | Enables stricter, standard compliant attribute name mapping in respect to default/null namespaces. Mainly relevant to decoding.                                                                                                                                                                                         |
+| `isStrictBoolean`        | Parse boolean variables according to the XML Schema standard.                                                                                                                                                                                                                                                           |
+| `isXmlFloat`             | Encode xml float/double values according to the XML Schema standard, not the JVM one (infinity is encoded differently)                                                                                                                                                                                                  | 
 
 ### Algorithms
 XML and Kotlin data types are not perfectly alligned. As such there are some
@@ -297,6 +299,7 @@ different policy.
 | `@XmlPolyChildren`    |                        | Mostly legacy annotation that allows specifying valid child tags for polymorphic resolution.                                                                                                                                                                                                                                                                                                                                                                                            |
 |                       | `value: Array<String>` | Each string specifies a child according to the following format: `childSerialName[=[prefix:]localName]`. The `childSerialName` is the name value of the descriptor. By default that would be the class name, but `@SerialName` will change that. If the name is prefixed with a `.` the package name of the container will be prefixed. Prefix is the namespace prefix to use (the namespace will be looked up based upon this). Localname allows to specify the local name of the tag. |
 | `@XmlChildrenName`    |                        | Used in lists. This causes the children to be serialized as separate tags in an outer tag. The outer tag name is determined regularly.                                                                                                                                                                                                                                                                                                                                                  |
+| `@XmlKeyName`         |                        | Used to specify the key of map entries. The parameters are the same as `@XmlSerialName`                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `@XmlElement`         |                        | Force a property to be either serialized as tag or attribute.                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |                       | `value: Boolean`       | `true` to indicate serialization as tag, `false` to indicate serialization as attribute. Note that not all values can be serialized as attribute                                                                                                                                                                                                                                                                                                                                        |
 | `@XmlValue`           |                        | Force a property to be element content. Note that only one field can be element content and tags would not be expected. When applied on `CompactFragment` this is treated specially.                                                                                                                                                                                                                                                                                                    |

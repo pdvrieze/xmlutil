@@ -23,7 +23,9 @@ package nl.adaptivity.xml.serialization
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.StructureKind
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
@@ -49,6 +51,28 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
         "<ListContainer><MapContainer id=\"myId\"><MapElement key=\"a\" name=\"valueOfA\"/><MapElement key=\"b\" name=\"valueOfB\"/></MapContainer></ListContainer>"
     override val expectedJson: String =
         "{\"values\":[{\"id\":\"myId\",\"map\":{\"a\":{\"name\":\"valueOfA\"},\"b\":{\"name\":\"valueOfB\"}}}]}"
+
+    @Test
+    fun testSerializeCustomKeyName() {
+        val data = CustomKeyMapContainer(id = "myId", map = mapOf(
+            "a" to MapElement("valueOfA"),
+            "b" to MapElement("valueOfB")
+        ))
+        val expected = "<CustomKeyMapContainer id=\"myId\">\n<MapElement customKey=\"a\" name=\"valueOfA\"/>\n<MapElement customKey=\"b\" name=\"valueOfB\"/>\n</CustomKeyMapContainer>"
+
+        assertXmlEquals(expected, baseXmlFormat.encodeToString(data))
+    }
+
+    @Test
+    fun testDeserializeCustomKeyName() {
+        val xmlData = "<CustomKeyMapContainer id=\"myId\">\n<MapElement customKey=\"a\" name=\"valueOfA\"/>\n<MapElement customKey=\"b\" name=\"valueOfB\"/>\n</CustomKeyMapContainer>"
+        val expected = CustomKeyMapContainer(id = "myId", map = mapOf(
+            "a" to MapElement("valueOfA"),
+            "b" to MapElement("valueOfB")
+        ))
+
+        assertEquals(expected, baseXmlFormat.decodeFromString<CustomKeyMapContainer>(xmlData))
+    }
 
     @OptIn(ExperimentalXmlUtilApi::class)
     @Test
@@ -165,6 +189,15 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
         val id: String,
         @XmlElement(true)
         @XmlSerialName("MapOuter", "", "")
+        val map: Map<String, MapElement> = mapOf(),
+    )
+
+    @Serializable
+    data class CustomKeyMapContainer(
+        val id: String,
+        @XmlElement(true)
+        @XmlSerialName("MapOuter", "", "")
+        @XmlKeyName("customKey")
         val map: Map<String, MapElement> = mapOf(),
     )
 

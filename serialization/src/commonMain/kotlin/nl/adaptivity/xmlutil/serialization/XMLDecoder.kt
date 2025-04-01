@@ -44,6 +44,8 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
+import nl.adaptivity.xmlutil.util.XmlDoubleSerializer
+import nl.adaptivity.xmlutil.util.XmlFloatSerializer
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -95,21 +97,25 @@ internal open class XmlDecoderBase internal constructor(
 
     fun <T> DeserializationStrategy<T>.deserializeSafe(
         decoder: Decoder,
+        isParseAllSiblings: Boolean,
         previousValue: T? = null,
         isValueChild: Boolean = false
     ): T {
         val initialDepth = if (input.eventType == EventType.START_ELEMENT) input.depth - 1 else input.depth
         val r = handleParseError {
             when (this) {
-                is XmlDeserializationStrategy ->
-                    deserializeXML(decoder, input, previousValue, isValueChild)
-
+                is XmlDeserializationStrategy -> {
+                    val safeInput = SubDocumentReader(input, isParseAllSiblings)
+                    safeInput.next() // start the parsing to maintain existing behaviour.
+                    deserializeXML(decoder, safeInput, previousValue, isValueChild).also {
+                        if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT && initialDepth == input.depth) {
+                            input.pushBackCurrent()
+                        }
+                    }
+                }
 
                 else -> deserialize(decoder)
             }
-        }
-        if (!input.hasPeekItems && input.eventType == EventType.END_ELEMENT && initialDepth == input.depth) {
-            input.pushBackCurrent()
         }
         return r
     }
@@ -181,11 +187,25 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeFloat(): Float = handleParseError {
-            decodeStringCollapsed().toFloat()
+            when {
+                config.policy.isXmlFloat -> XmlFloatSerializer.deserialize(this)
+                else -> when (val s = decodeStringCollapsed()) {
+                    "INF" -> Float.POSITIVE_INFINITY
+                    "-INF" -> Float.NEGATIVE_INFINITY
+                    else -> s.toFloat()
+                }
+            }
         }
 
         override fun decodeDouble(): Double = handleParseError {
-            decodeStringCollapsed().toDouble()
+            when {
+                config.policy.isXmlFloat -> XmlDoubleSerializer.deserialize(this)
+                else -> when (val s = decodeStringCollapsed()) {
+                    "INF" -> Double.POSITIVE_INFINITY
+                    "-INF" -> Double.NEGATIVE_INFINITY
+                    else -> s.toDouble()
+                }
+            }
         }
 
         override fun decodeChar(): Char = handleParseError {
@@ -344,7 +364,11 @@ internal open class XmlDecoderBase internal constructor(
             val startDepth = input.depth
             val serialValueDecoder =
                 SerialValueDecoder(effectiveDeserializer, desc, polyInfo, attrIndex, typeDiscriminatorName, isValueChild, preserveSpace)
-            val value = effectiveDeserializer.deserializeSafe(serialValueDecoder)
+            val value: T = effectiveDeserializer.deserializeSafe<T>(
+                serialValueDecoder,
+                isParseAllSiblings = isValueChild,
+                isValueChild = isValueChild
+            )
             if (startsWithTag && !input.hasPeekItems && input.depth < startDepth) {
                 input.pushBackCurrent()
             }
@@ -531,7 +555,7 @@ internal open class XmlDecoderBase internal constructor(
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = when {
             // This is needed to avoid loops with [kotlinx.serialization.internal.NullableSerializer]
-            notNullChecked -> deserializer.deserializeSafe(this)
+            notNullChecked -> deserializer.deserializeSafe(this, isParseAllSiblings = isValueChild)
             else -> super.decodeSerializableValue(deserializer)
         }
 
@@ -993,10 +1017,10 @@ internal open class XmlDecoderBase internal constructor(
                 .getElementDescriptor(index)
                 .effectiveDeserializationStrategy(deserializer)
 
+            val isValueChild = xmlDescriptor.getValueChild() == index
             // TODO make merging more reliable
             val result: T? = when (effectiveDeserializer) {
-                is XmlDeserializationStrategy -> effectiveDeserializer
-                    .deserializeXML(decoder, input, previousValue, xmlDescriptor.getValueChild() == index)
+                is XmlDeserializationStrategy -> effectiveDeserializer.deserializeSafe(decoder, isValueChild, previousValue, isValueChild)
 
                 is AbstractCollectionSerializer<*, T?, *> ->
                     effectiveDeserializer.merge(decoder, previousValue)
@@ -1768,7 +1792,8 @@ internal open class XmlDecoderBase internal constructor(
                 preserveWhitespace,
             )
 
-            val result = deserializer.deserializeSafe(decoder, previousValue, false && isValueChild)
+            /* On a list we never parse all siblings */
+            val result = deserializer.deserializeSafe(decoder, false, previousValue, false && isValueChild)
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {
@@ -1873,7 +1898,8 @@ internal open class XmlDecoderBase internal constructor(
 
                     val decoder = StringDecoder(keyDescriptor, input.extLocationInfo, key, preserveWhitespace)
 
-                    return deserializer.deserializeSafe(decoder, previousValue)
+                    /** Map elements again would not be parsing everything in a value child */
+                    return deserializer.deserializeSafe(decoder, isParseAllSiblings = false, previousValue)
 
                 } else { // Only attributes collapse, so not collapsed, tag instead. doIndex should handle that
                     assert(!xmlDescriptor.isValueCollapsed)
@@ -1900,7 +1926,7 @@ internal open class XmlDecoderBase internal constructor(
                 decoder.ignoreAttribute(keyDescriptor.tagName)
             }
 
-            val result = effectiveDeserializer.deserializeSafe(decoder, previousValue)
+            val result = effectiveDeserializer.deserializeSafe(decoder, isParseAllSiblings = false, previousValue)
 
             val tagId = (decoder as? SerialValueDecoder)?.tagIdHolder?.tagId
             if (tagId != null) {

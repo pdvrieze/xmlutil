@@ -1,5 +1,5 @@
 [versions]
-apiVersion = "1.8"
+apiVersion = "2.0"
 binaryValidator = "0.16.3"
 dateTime = "0.6.1"
 dokka = "2.0.0"
@@ -13,7 +13,7 @@ kotlinx-serialization = "1.8.0"
 kotlinx-io = "0.5.4"
 kxml2 = "2.3.0"
 woodstox = "7.1.0"
-xmlutil = "0.91.0-RC1"
+xmlutil = "0.91.0"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}

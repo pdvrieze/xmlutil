@@ -1,3 +1,21 @@
+# 0.91.0
+Features:
+- Add `XmlKeyName` as annotation to set the name of the key used in
+  maps. This just adds the capability to the default policy. Supports
+  issue #218.
+- Add (and change in the recommended policy) the isXmlFloat property
+  that ensures properties are stored in XML format (for infinity). 
+  Decoding will accept both formats. Fixes #222.
+
+Fixes:
+- Fix #269 to allow `@XmlValue` for `CompactFragment` to capture the
+  contents of an element while allowing attributes to be captured. It
+  should be noted that combining this with element children is not
+  intended to be supported (it may work if the tagsoup is trailing).
+- Fix caching issue in case of polymorphic elements (at least in lists)
+  where the polymorphic descriptor did not retain use side annotations,
+  thus resulting in invalid cache keys.
+
 # 0.91.0-RC1
 
 Features:

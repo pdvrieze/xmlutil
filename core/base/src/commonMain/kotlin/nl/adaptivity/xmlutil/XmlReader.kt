@@ -68,9 +68,14 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     @Throws(XmlException::class)
     public fun require(type: EventType, namespace: String?, name: String?) {
         when {
-            ! isStarted -> throw XmlException("Parsing not started yet")
-            eventType != type ->
-                throw XmlException("Type $eventType($localName) does not match expected type \"$type($name)\" ($extLocationInfo)")
+            !isStarted -> throw XmlException("Parsing not started yet")
+
+            eventType != type -> when (eventType) {
+                EventType.START_ELEMENT,
+                EventType.END_ELEMENT -> throw XmlException("Type $eventType($localName) does not match expected type \"$type($name)\" ($extLocationInfo)")
+
+                else -> throw XmlException("Type $eventType does not match expected type \"$type($name)\" ($extLocationInfo)")
+            }
 
             name != null &&
                     localName != name ->
