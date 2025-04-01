@@ -74,6 +74,7 @@ public class XmlTypeDescriptor internal constructor(
     init {
         @OptIn(ExperimentalSerializationApi::class)
         for (a in serialDescriptor.annotations) {
+            @Suppress("DEPRECATION")
             when (a) {
                 is XmlNamespaceDeclSpec -> typeAnnNsDecls = a.namespaces
                 is XmlSerialName -> typeAnnXmlSerialName = a

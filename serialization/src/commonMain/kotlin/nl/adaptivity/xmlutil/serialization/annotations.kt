@@ -29,7 +29,9 @@ import nl.adaptivity.xmlutil.XmlEvent
 
 /**
  * Specify more detailed name information than can be provided by [kotlinx.serialization.SerialName].
- * @property value The local part of the name
+ * The default value is different from an empty value, in that it will result in a default behaviour.
+ *
+ * @property value The local part of the name. The default i
  * @property namespace The namespace to use
  * @property prefix the Prefix to use
  */
@@ -57,6 +59,9 @@ public annotation class XmlNamespaceDeclSpec(
     val value: String,
 )
 
+/**
+ * Accessor that reads the declared namespaces out of an [XmlNamespaceDeclSpec] instance.
+ */
 @ExperimentalXmlUtilApi
 public val XmlNamespaceDeclSpec.namespaces: List<Namespace>
     get() {
@@ -69,15 +74,26 @@ public val XmlNamespaceDeclSpec.namespaces: List<Namespace>
     }
 
 /**
- * Indicate the valid poly children for this element
+ * Indicate the valid polymorphic children for this element.
+ *
+ * @property value Each string specifies a child according to the following format:
+ *     `childSerialName[=[prefix:]localName]`. The `childSerialName` is the name value of the
+ *     descriptor. By default that would be the class name, but `@SerialName` will change that. If
+ *     the name is prefixed with a `.` the package name of the container will be prefixed. Prefix is
+ *     the namespace prefix to use (the namespace will be looked up based upon this). Localname
+ *     allows to specify the local name of the tag.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlPolyChildren(val value: Array<String>)
 
 /**
- * Specify additional information about child values. This is only used for primitives, not for classes that have their
- * own independent name
+ * Specify additional information about child values in collections. This is only used for
+ * primitives, not for classes that have their own independent name.
+ * @property value The localname of the tag to use.
+ * @property namespace The namespace to use, by default the namespace of the container
+ * @property prefix Suggested prefix to use, overridden by existing prefixes for the namespace. By
+ *              default generates a prefix.
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
@@ -88,8 +104,11 @@ public annotation class XmlChildrenName(
 )
 
 /**
- * Specify additional information about child values. This is only used for primitives, not for classes that have their
- * own independent name
+ * Specify the xml name used for the key attribute/tag of a map.
+ *
+ * @property value The localname of the key
+ * @property namespace The namespace of the key. By default inherited from the parent
+ * @property prefix The suggested prefix to use if one is not already available.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -100,16 +119,20 @@ public annotation class XmlKeyName(
 )
 
 /**
- * Force a property that could be an attribute to be an element
+ * Force a property that could be an attribute to be an element. Note that default behaviour
+ * requires this annotation to be absent.
+ * @property value `true` indicates that this should be serialized as element. `false` indicates
+ *     that it should not (instead serialized as attribute)
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 public annotation class XmlElement(val value: Boolean = true)
 
 /**
- * Force a property to be content of the tag. This is both for text content, but if the type is
- * a list of tag-like types (`Node`, `Element`, `CompactFragment` it will also allow mixed content)
- * of tags not supported by the base type.
+ * Force a property to be content of the tag. This is both for text content (polymorphic including a
+ * primitive), but if the type is a list of tag-like types (`Node`, `Element`, `CompactFragment`
+ * it will also allow mixed content) of tags not supported by the base type. Strings will be
+ * serialized/deserialized as (tag soup) string content without wrapper.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -117,6 +140,7 @@ public annotation class XmlValue(val value: Boolean = true)
 
 /**
  * Annotation to mark the value as an ID attribute. This implies that the element is an attribute.
+ * This will allow the serializer to enforce uniqueness.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -142,15 +166,20 @@ public annotation class XmlIgnoreWhitespace(val value: Boolean = true)
 public annotation class XmlOtherAttributes
 
 /**
- * Mark the property for serialization as CData, rather than text (where appropriate). It also means
- * that the value is not written as attribute.
+ * Mark the property for serialization as CData, rather than text (where appropriate).
+ * If used on a property this will override the annotation on a type. This is the only context in
+ * which a value of `false` is different from omitting the annotation.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-public annotation class XmlCData(val value: Boolean = true)
+public annotation class XmlCData(
+    val value: Boolean = true
+)
 
 /**
- * Allow a property to be omitted with a default serialized string
+ * Allow a property to be omitted with a default serialized string.
+ * @property value A string representation for the property (this will be parsed as XML content
+ *     instead of the missing value)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -161,6 +190,9 @@ public annotation class XmlDefault(val value: String)
  * The names are the serialNames of the properties being serialized (not
  * XML names). Together [XmlBefore] and [XmlAfter] define a partial order
  * over the properties.
+ *
+ * @property value the names of the elements that must follow this one. The names used are
+ *    the serialName, not property names, or xml names.
  */
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
@@ -171,6 +203,8 @@ public annotation class XmlBefore(vararg val value: String)
  * Require this property to be serialized after other (sibling) properties.
  * The names are the serialNames of the properties being serialized (not
  * XML names).
+ *
+ * @see XmlBefore
  */
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
@@ -178,6 +212,6 @@ public annotation class XmlBefore(vararg val value: String)
 public annotation class XmlAfter(vararg val value: String)
 
 /**
- * Default value for unset annotations
+ * Default value for unset annotations. This is invalid/unlikely value
  */
 internal const val UNSET_ANNOTATION_VALUE = "ZXC\u0001VBNBVCXZ"

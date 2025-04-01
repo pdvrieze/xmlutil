@@ -117,7 +117,7 @@ private fun Project.configureDokkaSourceSet(
                 suppress.set(true)
             }
             logger.lifecycle("Dokka source set: '$name'")
-            if ("Main" in name) {
+            if (true || "Main" in name) {
                 val readme = project.file(project.relativePath("src/README.md"))
                 if (readme.exists() && readme.canRead()) {
                     includes.from(listOf(readme))
