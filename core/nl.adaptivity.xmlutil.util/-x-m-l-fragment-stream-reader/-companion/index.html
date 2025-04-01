@@ -25,85 +25,138 @@
 <link href="../../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../../styles/logo-styles.css" rel="Stylesheet">
 <link href="../../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
 <script type="text/javascript" src="../../../../scripts/clipboard.js" async></script>
 <script type="text/javascript" src="../../../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../../ui-kit/ui-kit.min.js" defer></script>
 <script type="text/javascript" src="../../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
 <body>
     <div class="root">
-<nav class="navigation" id="navigation-wrapper">
-    <div class="navigation--inner">
-        <div class="navigation-title">
-            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
-            <div class="library-name">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
 <a class="library-name--link" href="../../../../index.html">
-                            xmlutil
-                    </a>            </div>
-            <div class="library-version">0.90.2
+                    xmlutil
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">0.91.0
+        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonDomMain">Native</button>
+                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":core/jsMain">JS</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":core/jvmCommonMain">JVM</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/commonDomMain" data-filter=":core/commonDomMain">
+                                <span class="checkbox--icon"></span>
+                                Native
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/commonMain" data-filter=":core/commonMain">
+                                <span class="checkbox--icon"></span>
+                                Common
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option js-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/jsMain" data-filter=":core/jsMain">
+                                <span class="checkbox--icon"></span>
+                                JS
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/jvmCommonMain" data-filter=":core/jvmCommonMain">
+                                <span class="checkbox--icon"></span>
+                                JVM
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
         </div>
-        <div class="filter-section" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core:dokkaHtmlPartial/commonDomMain">Native</button>
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core:dokkaHtmlPartial/commonMain">Common</button>
-                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":core:dokkaHtmlPartial/jsMain">JS</button>
-                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":core:dokkaHtmlPartial/jvmCommonMain">JVM</button>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
         </div>
-    </div>
-    <div class="navigation-controls">
-        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
-        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
-    </div>
-</nav>
+    </nav>
         <div id="container">
             <div class="sidebar" id="leftColumn">
-                <div class="sidebar--inner" id="sideMenu"></div>
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    xmlutil
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
             </div>
             <div id="main">
-<div class="main-content" data-page-type="classlike" id="content" pageids="core::nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion///PointingToDeclaration//-587784069">
+<div class="main-content" data-page-type="classlike" id="content" pageids="core::nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion///PointingToDeclaration//588233207">
   <div class="breadcrumbs"><a href="../../../index.html">core</a><span class="delimiter">/</span><a href="../../index.html">nl.adaptivity.xmlutil.util</a><span class="delimiter">/</span><a href="../index.html">XMLFragmentStreamReader</a><span class="delimiter">/</span><span class="current">Companion</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Companion</span></span></h1>
     <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/commonDomMain" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain" data-active="" data-toggle=":core:dokkaHtmlPartial/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/commonMain" data-filterable-set=":core:dokkaHtmlPartial/commonMain" data-toggle=":core:dokkaHtmlPartial/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/jsMain" data-filterable-set=":core:dokkaHtmlPartial/jsMain" data-toggle=":core:dokkaHtmlPartial/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/jvmCommonMain" data-filterable-set=":core:dokkaHtmlPartial/jvmCommonMain" data-toggle=":core:dokkaHtmlPartial/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core:dokkaHtmlPartial/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="index.html">Companion</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/core/base/src/commonDomMain/kotlin/nl/adaptivity/xmlutil/util/XMLFragmentStreamReader.kt#L91">source</a>)</span></span></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">object </span><a href="index.html">Companion</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/core/base/src/commonMain/kotlin/nl/adaptivity/xmlutil/util/XMLFragmentStreamReader.kt#L32">source</a>)</span></span></div></div><div class="content sourceset-dependent-content" data-togglable=":core:dokkaHtmlPartial/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="index.html">Companion</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/core/base/src/jsMain/kotlin/nl/adaptivity/xmlutil/util/XMLFragmentStreamReader.kt#L170">source</a>)</span></span></div></div><div class="content sourceset-dependent-content" data-togglable=":core:dokkaHtmlPartial/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="index.html">Companion</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.7/core/base/src/jvmCommonMain/kotlin/nl/adaptivity/xmlutil/util/XMLFragmentStreamReader.jvm.kt#L100">source</a>)</span></span></div></div>    </div>
+      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="index.html">Companion</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">object </span><a href="index.html">Companion</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="index.html">Companion</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">object </span><a href="index.html">Companion</a></div></div>    </div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
     <div class="tabs-section-body">
       <div data-togglable="PROPERTY">
         <h2 class="">Properties</h2>
-        <div class="table"><a data-name="788334389%2FProperties%2F524070510" anchor-label="WRAPPERNAMESPACE" id="788334389%2FProperties%2F524070510" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain"></a>
-          <div class="table-row" data-filterable-current=":core:dokkaHtmlPartial/commonDomMain" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain">
+        <div class="table"><a data-name="788334389%2FProperties%2F-1905896616" anchor-label="WRAPPERNAMESPACE" id="788334389%2FProperties%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-w-r-a-p-p-e-r-n-a-m-e-s-p-a-c-e.html"><span><span>WRAPPERNAMESPACE</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="788334389%2FProperties%2F524070510"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="788334389%2FProperties%2F-1905896616"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/commonDomMain" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain" data-active="" data-toggle=":core:dokkaHtmlPartial/commonDomMain">Native</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core:dokkaHtmlPartial/commonDomMain"><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-w-r-a-p-p-e-r-n-a-m-e-s-p-a-c-e.html">WRAPPERNAMESPACE</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-w-r-a-p-p-e-r-n-a-m-e-s-p-a-c-e.html">WRAPPERNAMESPACE</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-596306898%2FProperties%2F524070510" anchor-label="WRAPPERPPREFIX" id="-596306898%2FProperties%2F524070510" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain"></a>
-          <div class="table-row" data-filterable-current=":core:dokkaHtmlPartial/commonDomMain" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain">
+<a data-name="-596306898%2FProperties%2F-1905896616" anchor-label="WRAPPERPPREFIX" id="-596306898%2FProperties%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-w-r-a-p-p-e-r-p-p-r-e-f-i-x.html"><span><span>WRAPPERPPREFIX</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-596306898%2FProperties%2F524070510"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-596306898%2FProperties%2F-1905896616"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/commonDomMain" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain" data-active="" data-toggle=":core:dokkaHtmlPartial/commonDomMain">Native</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core:dokkaHtmlPartial/commonDomMain"><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-w-r-a-p-p-e-r-p-p-r-e-f-i-x.html">WRAPPERPPREFIX</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">const </span><span class="token keyword">val </span><a href="-w-r-a-p-p-e-r-p-p-r-e-f-i-x.html">WRAPPERPPREFIX</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
                 </div>
               </div>
             </div>
@@ -112,19 +165,19 @@
       </div>
       <div data-togglable="FUNCTION">
         <h2 class="">Functions</h2>
-        <div class="table"><a data-name="1243681449%2FFunctions%2F-587784069" anchor-label="from" id="1243681449%2FFunctions%2F-587784069" data-filterable-set=":core:dokkaHtmlPartial/jvmCommonMain,:core:dokkaHtmlPartial/commonDomMain,:core:dokkaHtmlPartial/commonMain,:core:dokkaHtmlPartial/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core:dokkaHtmlPartial/jvmCommonMain,:core:dokkaHtmlPartial/commonDomMain,:core:dokkaHtmlPartial/commonMain,:core:dokkaHtmlPartial/jsMain" data-filterable-set=":core:dokkaHtmlPartial/jvmCommonMain,:core:dokkaHtmlPartial/commonDomMain,:core:dokkaHtmlPartial/commonMain,:core:dokkaHtmlPartial/jsMain">
+        <div class="table"><a data-name="-875857676%2FFunctions%2F588233207" anchor-label="from" id="-875857676%2FFunctions%2F588233207" data-filterable-set=":core/jvmCommonMain,:core/commonDomMain,:core/commonMain,:core/jsMain"></a>
+          <div class="table-row" data-filterable-current=":core/jvmCommonMain,:core/commonDomMain,:core/commonMain,:core/jsMain" data-filterable-set=":core/jvmCommonMain,:core/commonDomMain,:core/commonMain,:core/jsMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="from.html"><span><span>from</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1243681449%2FFunctions%2F-587784069"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-875857676%2FFunctions%2F588233207"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/commonDomMain" data-filterable-set=":core:dokkaHtmlPartial/commonDomMain" data-active="" data-toggle=":core:dokkaHtmlPartial/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/commonMain" data-filterable-set=":core:dokkaHtmlPartial/commonMain" data-toggle=":core:dokkaHtmlPartial/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/jsMain" data-filterable-set=":core:dokkaHtmlPartial/jsMain" data-toggle=":core:dokkaHtmlPartial/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core:dokkaHtmlPartial/jvmCommonMain" data-filterable-set=":core:dokkaHtmlPartial/jvmCommonMain" data-toggle=":core:dokkaHtmlPartial/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core:dokkaHtmlPartial/commonDomMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Reader///PointingToDeclaration/">Reader</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><a href="../../-i-compact-fragment/index.html">ICompactFragment</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Reader///PointingToDeclaration/">Reader</span><span class="token punctuation">, </span></span><span class="parameter ">namespaceContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html">Iterable</a><span class="token operator">&lt;</span><a href="../../../nl.adaptivity.xmlutil/-namespace/index.html">Namespace</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core:dokkaHtmlPartial/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><a href="../../-i-compact-fragment/index.html">ICompactFragment</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="brief "><p class="paragraph">Create a reader for the given fragment.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core:dokkaHtmlPartial/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><a href="../../-i-compact-fragment/index.html">ICompactFragment</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core:dokkaHtmlPartial/jvmCommonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-static/index.html"><span class="token annotation builtin">JvmStatic</span></a></div></div><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/io/Reader.html">Reader</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-static/index.html"><span class="token annotation builtin">JvmStatic</span></a></div></div><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/io/Reader.html">Reader</a><span class="token punctuation">, </span></span><span class="parameter ">namespaceContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html">Iterable</a><span class="token operator">&lt;</span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Reader///PointingToDeclaration/">Reader</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><a href="../../-i-compact-fragment/index.html">ICompactFragment</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Reader///PointingToDeclaration/">Reader</span><span class="token punctuation">, </span></span><span class="parameter ">namespaceContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-iterable/index.html">Iterable</a><span class="token operator">&lt;</span><a href="../../../nl.adaptivity.xmlutil/-namespace/index.html">Namespace</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><a href="../../-i-compact-fragment/index.html">ICompactFragment</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="brief "><p class="paragraph">Create a reader for the given fragment.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><a href="../../-i-compact-fragment/index.html">ICompactFragment</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-static/index.html"><span class="token annotation builtin">JvmStatic</span></a></div></div><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fragment<span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-static/index.html"><span class="token annotation builtin">JvmStatic</span></a></div></div><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Reader.html">Reader</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.jvm/-jvm-static/index.html"><span class="token annotation builtin">JvmStatic</span></a></div></div><span class="token keyword">fun </span><a href="from.html"><span class="token function">from</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Reader.html">Reader</a><span class="token punctuation">, </span></span><span class="parameter ">namespaceContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-iterable/index.html">Iterable</a><span class="token operator">&lt;</span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">XMLFragmentStreamReader</a></div></div>                  </div>
                 </div>
               </div>
             </div>
@@ -134,12 +187,18 @@
     </div>
   </div>
 </div>
-      <div class="footer">
-        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
-      </div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
             </div>
         </div>
     </div>
 </body>
 </html>
-
