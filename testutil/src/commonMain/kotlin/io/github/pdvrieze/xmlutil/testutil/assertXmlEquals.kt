@@ -26,11 +26,11 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import kotlin.jvm.JvmOverloads
 import kotlin.test.*
 
-@JvmOverloads
 fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> String?) {
     assertXmlEquals(expected, actual, ignoreDocDecl = true, messageProvider)
 }
 
+@JvmOverloads
 fun assertXmlEquals(expected: String, actual: String, ignoreDocDecl: Boolean = true, messageProvider: () -> String? = { null }) {
     if (expected != actual) {
         val expectedReader = KtXmlReader(StringReader(expected))
@@ -64,15 +64,30 @@ internal fun XmlReader.nextNotIgnored(ignoreDocDecl: Boolean): XmlEvent? {
     return null
 }
 
-@JvmOverloads
 fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () -> String?) {
     assertXmlEquals(expected, actual, ignoreDocDecl = true, messageProvider)
 }
 
+/**
+ * (Recursive) function that checks whether the two xml readers produce the same stream of events.
+ * This ignores whitespace. Note that he behaviour is such that if the expected content has a
+ * START_DOCUMENT event this is always checked against the actual.
+ *
+ * @param expected The reader that produces the expected events
+ * @param actual The reader that produces the actual events
+ * @param ignoreDocDecl If false, document declaration equality is checked in all cases, if true only
+ *     if one is present in the expected document.
+ * @param messageProvider Function that provides the error message in case the assertion fails.
+ *
+ */
+@JvmOverloads
 fun assertXmlEquals(expected: XmlReader, actual: XmlReader, ignoreDocDecl: Boolean = true, messageProvider: () -> String? = { null }) {
     do {
-        val expEv = expected.nextNotIgnored(ignoreDocDecl)
-        val actEv = actual.nextNotIgnored(ignoreDocDecl)
+        var expEv = expected.nextNotIgnored(false)
+        if (ignoreDocDecl && expEv is XmlEvent.StartDocumentEvent && expEv.standalone == null && expEv.version == null && expEv.version == null) {
+            expEv = expected.nextNotIgnored(false)
+        }
+        val actEv = actual.nextNotIgnored(ignoreDocDecl && (expEv?.eventType != EventType.START_DOCUMENT))
 
         when {
             expEv == null -> {

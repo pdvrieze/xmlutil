@@ -76,7 +76,7 @@ class TestKtXmlReader : TestCommonReader() {
                     }
                 }
             }
-            assertXmlEquals(expectedXml, fromDom.toString(), ignoreDocDecl = false)
+            assertXmlEquals(expectedXml, fromDom.toString())
         }
     }
 
