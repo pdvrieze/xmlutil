@@ -70,12 +70,13 @@ class TestKtXmlReader : TestCommonReader() {
             KtXmlWriter(fromDom, xmlDeclMode = XmlDeclMode.None).use { writer ->
                 xmlStreaming.newReader(domWriter.target).use { reader ->
                     while (reader.hasNext()) {
-                        reader.next()
-                        reader.writeCurrent(writer)
+                        if(reader.next() != EventType.START_DOCUMENT) {
+                            reader.writeCurrent(writer)
+                        }
                     }
                 }
             }
-            assertXmlEquals(expectedXml, fromDom.toString())
+            assertXmlEquals(expectedXml, fromDom.toString(), ignoreDocDecl = false)
         }
     }
 
