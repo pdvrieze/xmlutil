@@ -20,14 +20,11 @@
 
 package nl.adaptivity.xml.serialization.regressions
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlChildrenName
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlKeyName
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import kotlin.test.Test
@@ -40,11 +37,53 @@ class CustomMapKey274 {
         val data = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
         val expected = "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
         val actual = XML.encodeToString(data)
+        assertXmlEquals(expected, actual)
+    }
+
+    @Test
+    fun testDeserialize() {
+        val expected = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
+        val data = "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
+        val actual = XML.decodeFromString<MapContainer>(data)
         assertEquals(expected, actual)
     }
 
     @Test
-    fun testSerializeCollapsed() {
+    fun testSerializeNotCollapsed() {
+        val xml = XML{}.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+                    return false
+                }
+            }
+        }
+
+
+        val data = MapContainer2(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
+        val expected = "<MapContainer2><MapInner name=\"a\"><MapElement value=\"avalue\"/></MapInner><MapInner name=\"b\"><MapElement value=\"bvalue\"/></MapInner></MapContainer2>"
+        val actual = xml.encodeToString<MapContainer2>(data)
+        assertXmlEquals(expected, actual)
+    }
+
+    @Test
+    fun testDeserializeNotCollapsed() {
+        val xml = XML{}.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+                    return false
+                }
+            }
+        }
+
+
+        val expected = MapContainer2(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
+        val data = "<MapContainer2><MapInner name=\"a\"><MapElement value=\"avalue\"/></MapInner><MapInner name=\"b\"><MapElement value=\"bvalue\"/></MapInner></MapContainer2>"
+        val actual = xml.decodeFromString<MapContainer2>(data)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testSerializeNotCollapsedPolicy() {
         val xml = XML{}.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
@@ -57,17 +96,42 @@ class CustomMapKey274 {
         val data = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
         val expected = "<MapContainer><MapOuter name=\"a\"><MapElement value=\"avalue\"/></MapOuter><MapOuter name=\"b\"><MapElement value=\"bvalue\"/></MapOuter></MapContainer>"
         val actual = xml.encodeToString<MapContainer>(data)
+        assertXmlEquals(expected, actual)
+    }
+
+    @Test
+    fun testDeserializeNotCollapsedPolicy() {
+        val xml = XML{}.copy {
+            policy = object : DefaultXmlSerializationPolicy(policy) {
+                override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+                    return false
+                }
+            }
+        }
+
+
+        val expected = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
+        val data = "<MapContainer><MapOuter name=\"a\"><MapElement value=\"avalue\"/></MapOuter><MapOuter name=\"b\"><MapElement value=\"bvalue\"/></MapOuter></MapContainer>"
+        val actual = xml.decodeFromString<MapContainer>(data)
         assertEquals(expected, actual)
     }
 
 
     @Serializable
-    class MapElement(val value: String)
+    data class MapElement(val value: String)
 
     @Serializable
-    class MapContainer(
+    data class MapContainer(
         @XmlElement(true)
         @XmlSerialName("MapOuter", "", "")
+        @XmlKeyName("name")
+        val map: Map<String, MapElement>
+    )
+
+    @Serializable
+    data class MapContainer2(
+        @XmlElement(true)
+        @XmlMapEntryName("MapInner")
         @XmlKeyName("name")
         val map: Map<String, MapElement>
     )

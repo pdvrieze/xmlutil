@@ -44,7 +44,6 @@ import nl.adaptivity.xmlutil.serialization.impl.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
-import kotlin.math.E
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
@@ -1691,7 +1690,12 @@ public class XmlListDescriptor internal constructor(
             else -> tagParent.elementUseNameInfo
         }
 
-        from(codecConfig, ParentInfo(codecConfig.config, this, 0, useNameInfo, outputKind), tagParent, false)
+        from(
+            codecConfig,
+            ParentInfo(codecConfig.config, this, 0, useNameInfo, outputKind),
+            tagParent,
+            canBeAttribute = false
+        )
     }
 
     override fun getElementDescriptor(index: Int): XmlDescriptor {
