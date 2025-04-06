@@ -1,5 +1,13 @@
 # 0.91.1-SNAPSHOT
 
+Features:
+- Add an annotation `@XmlMapEntryName` to force map entries not to be
+  collapsed, also specifying the name of the entry.
+
+Fixes:
+- Inspired by #274, fix the decoding of non-collapsed map entries
+  where the `XmlSerialName` annotation is not present 
+
 # 0.91.0
 *(April 1, 2025)
 Features:

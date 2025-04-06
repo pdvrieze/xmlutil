@@ -1958,8 +1958,10 @@ internal open class XmlDecoderBase internal constructor(
                             "Map entry not found. Found ${input.name}@${input.extLocationInfo} instead",
                             input.extLocationInfo
                         )
-                } else if (lastIndex % 2 == 0) assert(xmlDescriptor.entryName isEquivalent input.name) {
-                    "${xmlDescriptor.entryName} != ${input.name}"
+                } else if (lastIndex % 2 == 0) {
+                    assert(xmlDescriptor.entryName isEquivalent input.name) {
+                        "${xmlDescriptor.entryName} != ${input.name}"
+                    }
                 }
                 // Use the default, but correct the index (map serializer is dumb)
                 val rawIndex = super.decodeElementIndex()

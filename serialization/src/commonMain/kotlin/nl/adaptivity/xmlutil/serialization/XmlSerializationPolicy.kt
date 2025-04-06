@@ -815,6 +815,11 @@ private constructor(
     }
 
     override fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName {
+        val useAnnEntryName = serializerParent.useAnnMapEntryName
+        if (useAnnEntryName != null) {
+            return useAnnEntryName.toQName(serializerParent.namespace)
+        }
+
         if (isListEluded) { // If we don't have list tags, use the list name, otherwise use the default
             serializerParent.elementUseNameInfo.annotatedName?.let { return it }
         }
@@ -826,6 +831,7 @@ private constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+        if (mapParent.useAnnMapEntryName != null) return false
         val keyDescriptor = mapParent.elementSerialDescriptor.getElementDescriptor(0)
         val keyUseName = mapKeyName(mapParent)
 

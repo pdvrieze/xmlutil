@@ -172,6 +172,7 @@ public sealed class XmlDescriptor(
         codecConfig.config.policy.elementNamespaceDecls(serializerParent)
 
     override val tagName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        // not normalized to allow prefix to be preferred
         codecConfig.config.policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
     }
 
@@ -312,6 +313,10 @@ public sealed class XmlDescriptor(
                         }
                     }
 
+                    elementDesc is XmlMapDescriptor && elementDesc.isListEluded && ! elementDesc.isValueCollapsed -> {
+                        localTagNameMap[elementDesc.entryName.normalize()] = idx
+                    }
+
                     elementDesc is XmlContextualDescriptor && xmlDescriptor.serialKind !is PolymorphicKind -> {
                         contextualChildren.add(idx)
                     }
@@ -359,8 +364,10 @@ public sealed class XmlDescriptor(
 
                 result = result.getElementDescriptor(0)
             }
-            if (result is XmlMapDescriptor && result.isListEluded && result.isValueCollapsed) { // some transparent tags
-                return result.getElementDescriptor(1).toNonTransparentChild()
+            if (result is XmlMapDescriptor && result.isListEluded) {
+                if (result.isValueCollapsed) { // some transparent tags
+                    return result.getElementDescriptor(1).toNonTransparentChild()
+                }
             }
             return result
         }
@@ -1538,10 +1545,9 @@ public class XmlMapDescriptor internal constructor(
     }
 
     internal val entryName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        if (isValueCollapsed) {
-            valueDescriptor.tagName
-        } else {
-            codecConfig.config.policy.mapEntryName(serializerParent, isListEluded)
+        when {
+            isValueCollapsed -> valueDescriptor.tagName
+            else -> codecConfig.config.policy.mapEntryName(serializerParent, isListEluded)
         }
     }
 
@@ -1785,6 +1791,10 @@ public interface SafeParentInfo {
     /** Value of the [XmlKeyName] annotation */
     @ExperimentalXmlUtilApi
     public val useAnnKeyName: XmlKeyName? get() = null
+
+    /** Value of the [XmlKeyName] annotation */
+    @ExperimentalXmlUtilApi
+    public val useAnnMapEntryName: XmlMapEntryName? get() = null
 
     /** Value of the [XmlCData] annotation */
     @ExperimentalXmlUtilApi
@@ -2113,6 +2123,10 @@ public class ParentInfo(
         private set
 
     @ExperimentalXmlUtilApi
+    public override var useAnnMapEntryName: XmlMapEntryName? = null
+        private set
+
+    @ExperimentalXmlUtilApi
     public override var useAnnCData: Boolean? = null
         private set
 
@@ -2152,6 +2166,7 @@ public class ParentInfo(
                 is XmlNamespaceDeclSpec -> useAnnNsDecls = an.namespaces
                 is XmlChildrenName -> useAnnChildrenName = an
                 is XmlKeyName -> useAnnKeyName = an
+                is XmlMapEntryName -> useAnnMapEntryName = an
                 is XmlValue -> useAnnIsValue = an.value
                 is XmlId -> useAnnIsId = true
                 is XmlOtherAttributes -> useAnnIsOtherAttributes = true

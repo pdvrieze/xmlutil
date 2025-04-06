@@ -588,6 +588,20 @@ public synthetic class nl/adaptivity/xmlutil/serialization/XmlKeyName$Impl : nl/
 	public final synthetic fun value ()Ljava/lang/String;
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlMapEntryName : java/lang/annotation/Annotation {
+	public abstract fun namespace ()Ljava/lang/String;
+	public abstract fun prefix ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public synthetic class nl/adaptivity/xmlutil/serialization/XmlMapEntryName$Impl : nl/adaptivity/xmlutil/serialization/XmlMapEntryName {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun namespace ()Ljava/lang/String;
+	public final synthetic fun prefix ()Ljava/lang/String;
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec : java/lang/annotation/Annotation {
 	public abstract fun value ()Ljava/lang/String;
 }
@@ -804,6 +818,7 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/structure/Sa
 	public fun getUseAnnIsOtherAttributes ()Z
 	public fun getUseAnnIsValue ()Ljava/lang/Boolean;
 	public fun getUseAnnKeyName ()Lnl/adaptivity/xmlutil/serialization/XmlKeyName;
+	public fun getUseAnnMapEntryName ()Lnl/adaptivity/xmlutil/serialization/XmlMapEntryName;
 	public fun getUseAnnNsDecls ()Ljava/util/List;
 	public fun getUseAnnPolyChildren ()Lnl/adaptivity/xmlutil/serialization/XmlPolyChildren;
 	public fun getUseAnnXmlSerialName ()Lnl/adaptivity/xmlutil/serialization/XmlSerialName;
@@ -824,6 +839,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo$
 	public static fun getUseAnnIsOtherAttributes (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public static fun getUseAnnIsValue (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/Boolean;
 	public static fun getUseAnnKeyName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlKeyName;
+	public static fun getUseAnnMapEntryName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlMapEntryName;
 	public static fun getUseAnnNsDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public static fun getUseAnnPolyChildren (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlPolyChildren;
 	public static fun getUseAnnXmlSerialName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlSerialName;

@@ -119,6 +119,23 @@ public annotation class XmlKeyName(
 )
 
 /**
+ * Dual annotation that both forces explicit map entry wrappers and specifies the tag name used.
+ * The default is to elude the wrappers in the case that data does not contain an attribute with
+ * the name of the key.
+ *
+ * @property value The localname of the entry
+ * @property namespace The namespace of the entry. By default inherited from the parent
+ * @property prefix The suggested prefix to use if one is not already available.
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+public annotation class XmlMapEntryName(
+    val value: String,
+    val namespace: String = UNSET_ANNOTATION_VALUE,
+    val prefix: String = UNSET_ANNOTATION_VALUE
+)
+
+/**
  * Force a property that could be an attribute to be an element. Note that default behaviour
  * requires this annotation to be absent.
  * @property value `true` indicates that this should be serialized as element. `false` indicates
