@@ -27,11 +27,17 @@ import kotlin.jvm.JvmOverloads
 import kotlin.test.*
 
 fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> String?) {
-    assertXmlEquals(expected, actual, ignoreDocDecl = true, messageProvider)
+    assertXmlEquals(expected, actual, ignoreDocDecl = DocDeclEqualityMode.AUTO, messageProvider)
+}
+
+enum class DocDeclEqualityMode {
+    IGNORE,
+    CHECK,
+    AUTO,
 }
 
 @JvmOverloads
-fun assertXmlEquals(expected: String, actual: String, ignoreDocDecl: Boolean = true, messageProvider: () -> String? = { null }) {
+fun assertXmlEquals(expected: String, actual: String, ignoreDocDecl: DocDeclEqualityMode = DocDeclEqualityMode.AUTO, messageProvider: () -> String? = { null }) {
     if (expected != actual) {
         val expectedReader = KtXmlReader(StringReader(expected))
         val actualReader = KtXmlReader(StringReader(actual))
@@ -49,12 +55,12 @@ fun assertXmlEquals(expected: String, actual: String, ignoreDocDecl: Boolean = t
     }
 }
 
-internal fun XmlReader.nextNotIgnored(ignoreDocDecl: Boolean): XmlEvent? {
+internal fun XmlReader.nextNotIgnored(ignoreDocDecl: DocDeclEqualityMode): XmlEvent? {
     while (hasNext()) {
 
         when (val et = next()) {
             EventType.PROCESSING_INSTRUCTION -> return toEvent()
-            EventType.START_DOCUMENT -> if (! ignoreDocDecl) return toEvent()
+            EventType.START_DOCUMENT -> if (ignoreDocDecl != DocDeclEqualityMode.IGNORE) return toEvent()
             else -> if (!et.isIgnorable) {
                 val ev = toEvent()
                 if (!ev.isIgnorable) return ev // Check again for spurious empty text etc.
@@ -65,7 +71,7 @@ internal fun XmlReader.nextNotIgnored(ignoreDocDecl: Boolean): XmlEvent? {
 }
 
 fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () -> String?) {
-    assertXmlEquals(expected, actual, ignoreDocDecl = true, messageProvider)
+    assertXmlEquals(expected, actual, ignoreDocDecl = DocDeclEqualityMode.AUTO, messageProvider)
 }
 
 /**
@@ -81,13 +87,18 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () 
  *
  */
 @JvmOverloads
-fun assertXmlEquals(expected: XmlReader, actual: XmlReader, ignoreDocDecl: Boolean = true, messageProvider: () -> String? = { null }) {
-    do {
-        var expEv = expected.nextNotIgnored(false)
-        if (ignoreDocDecl && expEv is XmlEvent.StartDocumentEvent && expEv.standalone == null && expEv.version == null && expEv.version == null) {
-            expEv = expected.nextNotIgnored(false)
+fun assertXmlEquals(expected: XmlReader, actual: XmlReader, ignoreDocDecl: DocDeclEqualityMode = DocDeclEqualityMode.AUTO, messageProvider: () -> String? = { null }) {
+    run {
+        var expEv: XmlEvent? = expected.nextNotIgnored(ignoreDocDecl)
+        if (ignoreDocDecl == DocDeclEqualityMode.AUTO && expEv is XmlEvent.StartDocumentEvent && expEv.standalone == null && expEv.version == null && expEv.version == null) {
+            expEv = expected.nextNotIgnored(DocDeclEqualityMode.IGNORE)
         }
-        val actEv = actual.nextNotIgnored(ignoreDocDecl && (expEv?.eventType != EventType.START_DOCUMENT))
+        val actEv = when {
+            expEv?.eventType == EventType.START_DOCUMENT && ignoreDocDecl == DocDeclEqualityMode.AUTO ->
+                actual.nextNotIgnored(DocDeclEqualityMode.CHECK)
+
+            else -> actual.nextNotIgnored(DocDeclEqualityMode.IGNORE)
+        }
 
         when {
             expEv == null -> {
@@ -98,7 +109,21 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, ignoreDocDecl: Boole
             actEv == null -> fail("${messageProvider()?.let { "$it. " }}Expected $expEv, but found nothing")
             else -> assertXmlEquals(expEv, actEv, messageProvider)
         }
-    } while (actual.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
+    }
+    while (actual.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext()) {
+        val expEv = expected.nextNotIgnored(DocDeclEqualityMode.CHECK)
+        val actEv = actual.nextNotIgnored(DocDeclEqualityMode.CHECK)
+
+        when {
+            expEv == null -> {
+                assertTrue(actEv == null, "${messageProvider()?.let { "$it. " }}Expected nothing, but found $actEv")
+                return
+            }
+
+            actEv == null -> fail("${messageProvider()?.let { "$it. " }}Expected $expEv, but found nothing")
+            else -> assertXmlEquals(expEv, actEv, messageProvider)
+        }
+    }
 
     while (expected.hasNext() && expected.isIgnorable()) {
         expected.next()
