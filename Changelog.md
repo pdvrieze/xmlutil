@@ -6,7 +6,8 @@ Features:
 
 Fixes:
 - Inspired by #274, fix the decoding of non-collapsed map entries
-  where the `XmlSerialName` annotation is not present 
+  where the `XmlSerialName` annotation is not present.
+- Further fixes on inline serialization with more cases.
 
 # 0.91.0
 *(April 1, 2025)

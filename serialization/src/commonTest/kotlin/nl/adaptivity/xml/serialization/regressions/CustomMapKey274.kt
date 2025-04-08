@@ -116,6 +116,12 @@ class CustomMapKey274 {
         assertEquals(expected, actual)
     }
 
+    @Test
+    fun testSerializeStringMap() {
+        val data = MyClass(mapOf("abc" to "def"))
+        val expected="<MyClass><value key=\"abc\" value=\"def\"/></MyClass>"
+        assertEquals(expected, XML.encodeToString(data))
+    }
 
     @Serializable
     data class MapElement(val value: String)
@@ -135,4 +141,7 @@ class CustomMapKey274 {
         @XmlKeyName("name")
         val map: Map<String, MapElement>
     )
+
+    @Serializable
+    class MyClass(val map: Map<String, String>)
 }
