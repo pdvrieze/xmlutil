@@ -777,7 +777,7 @@ internal open class XmlEncoderBase internal constructor(
                 else -> name
             }
 
-            if (reorderInfo != null) {
+            if (reorderInfo != null && deferring) {
                 // set directly as otherwise defer will write attributes
                 deferredBuffer[reorderInfo[index]] = DeferredWriteAttribute(actualAttrName, value)
             } else {

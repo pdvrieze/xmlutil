@@ -20,12 +20,15 @@
 
 package nl.adaptivity.xmlutil.benchmark.test
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.benchmark.*
-import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.benchmark.Deserialization
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.benchmark.Serialization
-import nl.adaptivity.xmlutil.benchmark.util.*
-import nl.adaptivity.xmlutil.serialization.structure.*
+import nl.adaptivity.xmlutil.benchmark.util.DummyBlackHole
+import nl.adaptivity.xmlutil.benchmark.util.measure
+import nl.adaptivity.xmlutil.serialization.XML
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -45,6 +48,18 @@ open class SerializationTest : Serialization() {
     @Test
     fun testSerializeGenericSpeed() {
         measure("serialize to StringWriter",20) { testSerializeGenericSpeedImpl(DummyBlackHole) }
+    }
+
+    @Test
+    fun testAttributePositionRegression() {
+        val schemaName = "/xsts/ibmData/valid/S3_12/s3_12v03.xsd"
+        val xml = XML { recommended_0_90_2() }
+        val schemaText: String = javaClass.getResourceAsStream(schemaName).readAllBytes().let { String(it) }
+        val schema = xml.decodeFromString<XSSchema>(schemaText)
+
+
+        val serialized = xml.encodeToString(schema)
+        assertXmlEquals(schemaText, serialized)
     }
 
 }
