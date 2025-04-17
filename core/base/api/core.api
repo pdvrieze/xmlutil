@@ -1059,6 +1059,12 @@ public final class nl/adaptivity/xmlutil/dom/NodeListKt {
 	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
+public final class nl/adaptivity/xmlutil/dom/Node_jvmCommonKt {
+	public static final fun appendChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun removeChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public static final fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+}
+
 public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/xmlutil/dom2/Node {
 	public abstract fun getLocalName ()Ljava/lang/String;
 	public abstract fun getName ()Ljava/lang/String;
