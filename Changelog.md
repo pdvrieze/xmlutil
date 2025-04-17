@@ -5,6 +5,9 @@ Features:
   collapsed, also specifying the name of the entry.
 
 Fixes:
+- Fix the issue that the for JavaScript overloads cannot be different
+  only in external parameter type. This breaks compiling with a
+  js2025 target. Discussed in #83. 
 - Inspired by #274, fix the decoding of non-collapsed map entries
   where the `XmlSerialName` annotation is not present.
 - Further fixes on inline serialization with more cases.
