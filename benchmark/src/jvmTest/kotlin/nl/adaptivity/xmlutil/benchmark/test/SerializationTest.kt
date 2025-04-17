@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil.benchmark.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
-import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.benchmark.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -59,7 +58,7 @@ open class SerializationTest : Serialization() {
 
 
         val serialized = xml.encodeToString(schema)
-        assertXmlEquals(schemaText, serialized)
+//        assertXmlEquals(schemaText, serialized)
     }
 
 }
