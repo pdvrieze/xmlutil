@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.*
+import kotlin.jvm.JvmName
 
 /**
  * Policies allow for customizing the behaviour of the xml serialization
@@ -1028,6 +1029,12 @@ private constructor(
         public fun ignoreNamespaces() {
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
         }
+
+        // Unintended return type change in 0.86.3
+        @Suppress("NEWER_VERSION_IN_SINCE_KOTLIN")
+        @JvmName("build")
+        @Deprecated("Only available for binary compatibility", level = DeprecationLevel.HIDDEN)
+        public fun `build compat`(): XmlSerializationPolicy = build()
 
         public fun build(): DefaultXmlSerializationPolicy {
             return DefaultXmlSerializationPolicy(this)

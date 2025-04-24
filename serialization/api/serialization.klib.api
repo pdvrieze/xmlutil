@@ -1029,6 +1029,7 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
             final fun <get-verifyElementOrder>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.verifyElementOrder.<get-verifyElementOrder>|<get-verifyElementOrder>(){}[0]
             final fun <set-verifyElementOrder>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.verifyElementOrder.<set-verifyElementOrder>|<set-verifyElementOrder>(kotlin.Boolean){}[0]
 
+        final fun build compat(): nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.build compat|build compat(){}[0]
         final fun build(): nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.build|build(){}[0]
         final fun ignoreNamespaces() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.ignoreNamespaces|ignoreNamespaces(){}[0]
         final fun ignoreUnknownChildren() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.ignoreUnknownChildren|ignoreUnknownChildren(){}[0]
