@@ -3,6 +3,8 @@
 Features:
 - Add an annotation `@XmlMapEntryName` to force map entries not to be
   collapsed, also specifying the name of the entry.
+- Improve translation of serial names to xml names in the
+  default policy (strip out text after '`<`', '`[`' and '`(`')
 
 Fixes:
 - Fix the issue that the for JavaScript overloads cannot be different

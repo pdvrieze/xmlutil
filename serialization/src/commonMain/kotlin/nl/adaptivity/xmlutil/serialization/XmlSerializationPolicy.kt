@@ -602,7 +602,31 @@ private constructor(
 
             "kotlin.String" -> QName(XMLConstants.XSD_NS_URI, "string", XMLConstants.XSD_PREFIX)
 
-            else -> serialName.substringAfterLast('.').toQname(parentNamespace)
+            else -> {
+                var start = 0
+                var end = serialName.length
+                val namespaceUri = if (serialName[0] == '{') {
+                    val e = serialName.indexOf('}', 1)
+                    require(e >=0) {"Serialname starts with '{' to indicate namespace but does not have a closing '}'"}
+                    start = e + 1 // skip the namespace in the next step
+                    serialName.substring(0, e)
+                } else {
+                    parentNamespace.namespaceURI
+                }
+
+
+                for(i in start until serialName.length) {
+                    when (val c = serialName[i]) {
+                        '{', '}', ']', ')', '>', ':' -> throw IllegalArgumentException("Unexpected '$c' when determining local name from serialname (\"$serialName\")")
+                        '(', '<', '[' -> { // allow these to terminate the name
+                            end = i
+                            break
+                        }
+                        '.' -> start = i + 1
+                    }
+                }
+                QName(namespaceUri, serialName.substring(start, end))
+            }
         }
     }
 
