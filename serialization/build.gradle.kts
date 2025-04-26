@@ -133,7 +133,7 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test-junit5"))
+                implementation(libs.kotlin.test.junit5)
                 implementation(projects.coreJdk)
             }
         }
@@ -144,17 +144,6 @@ kotlin {
             }
         }
         val commonJvmMain by getting {}
-        /*
-        val jvmWoodstoxTest by getting {
-            dependsOn(commonJvmTest)
-            dependsOn(commonJvmMain)
-            dependencies {
-                implementation(kotlin("test-junit5"))
-                runtimeOnly(libs.junit5.engine)
-                runtimeOnly(libs.woodstox)
-            }
-        }
-        */
 
         val jsMain by getting {
             dependencies {
@@ -183,9 +172,6 @@ kotlin {
                     implementation(kotlin("test-common"))
                     implementation(kotlin("test-annotations-common"))
                 }
-
-//                dependsOn(this@sourceSets.get("nativeMain"))
-//                dependsOn(inlineSupportTest)
             }
             languageSettings.apply {
                 optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
