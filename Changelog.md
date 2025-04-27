@@ -9,6 +9,8 @@ Features:
 Changes:
 - Replace `@XmlNamespaceDeclSpec` with `@XmlNamespaceDeclSpecs` that
   accepts an array argument
+- Synchronize annotation and readme docs #279 (thanks to Jack Boswell 
+  (boswelja))
 
 Fixes:
 - Fix the issue that the for JavaScript overloads cannot be different
