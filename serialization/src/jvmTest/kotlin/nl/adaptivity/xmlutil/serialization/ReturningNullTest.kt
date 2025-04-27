@@ -46,7 +46,7 @@ open class OptionalDateSerializer(
     private val nullMarker: String,
     private val replacement: LocalDate? = null
 ) : KSerializer<LocalDate?> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LocalDate:$format", PrimitiveKind.STRING).nullable
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LocalDate($format)", PrimitiveKind.STRING).nullable
 
     private val formatter = DateTimeFormatter.ofPattern(format)
 
