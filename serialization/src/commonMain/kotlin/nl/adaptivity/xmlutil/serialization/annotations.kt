@@ -29,9 +29,10 @@ import nl.adaptivity.xmlutil.XmlEvent
 
 /**
  * Specify more detailed name information than can be provided by [kotlinx.serialization.SerialName].
- * @property value The local part of the name
- * @property namespace The namespace to use
- * @property prefix the Prefix to use
+ *
+ * @property value The local part of the name.
+ * @property namespace The namespace to use.
+ * @property prefix the Prefix to use.
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
@@ -47,7 +48,7 @@ public annotation class XmlSerialName(
  * separates the namespaces using a semicolon (`;`). Each declaration is of the form
  * (prefix)=(namespace). To specify the default namespace it is valid to omit the equals sign.
  *
- * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`
+ * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`.
  */
 @ExperimentalXmlUtilApi
 @SerialInfo
@@ -69,15 +70,19 @@ public val XmlNamespaceDeclSpec.namespaces: List<Namespace>
     }
 
 /**
- * Indicate the valid poly children for this element
+ * Indicate the valid poly children for this element.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlPolyChildren(val value: Array<String>)
 
 /**
- * Specify additional information about child values. This is only used for primitives, not for classes that have their
- * own independent name
+ * Used in lists. This causes the children to be serialized as separate tags in an outer tag. The
+ * outer tag name is determined regularly.
+ *
+ * @property value The local part of the name.
+ * @property namespace The namespace to use.
+ * @property prefix the Prefix to use.
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
@@ -88,8 +93,11 @@ public annotation class XmlChildrenName(
 )
 
 /**
- * Specify additional information about child values. This is only used for primitives, not for classes that have their
- * own independent name
+ * Used to specify the key of map entries.
+ *
+ * @property value The local part of the name.
+ * @property namespace The namespace to use.
+ * @property prefix the Prefix to use.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
@@ -100,15 +108,18 @@ public annotation class XmlKeyName(
 )
 
 /**
- * Force a property that could be an attribute to be an element
+ * Force a property that could be an attribute to be an element.
+ *
+ * @property value `true` to indicate serialization as tag, `false` to indicate serialization as
+ * attribute. Note that not all values can be serialized as attribute.
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 public annotation class XmlElement(val value: Boolean = true)
 
 /**
- * Force a property to be content of the tag. This is both for text content, but if the type is
- * a list of tag-like types (`Node`, `Element`, `CompactFragment` it will also allow mixed content)
+ * Force a property to be content of a tag. This is both for text content, but if the type is
+ * a list of tag-like types (`Node`, `Element`, `CompactFragment`) it will also allow mixed content
  * of tags not supported by the base type.
  */
 @SerialInfo
@@ -150,17 +161,23 @@ public annotation class XmlOtherAttributes
 public annotation class XmlCData(val value: Boolean = true)
 
 /**
- * Allow a property to be omitted with a default serialized string
+ * Older versions of the framework do not support default values. This annotation allows a default
+ * value to be specified. The default value will not be written out if matched.
+ *
+ * @property value The default value used if no value is specified. The value is parsed as if there
+ * was textual substitution of this value into the serialized XML.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 public annotation class XmlDefault(val value: String)
 
 /**
- * Require this property to be serialized before other (sibling) properties.
- * The names are the serialNames of the properties being serialized (not
- * XML names). Together [XmlBefore] and [XmlAfter] define a partial order
- * over the properties.
+ * Require this property to be serialized before other (sibling) properties. The names are the
+ * serialNames of the properties being serialized (not XML names). Together [XmlBefore] and
+ * [XmlAfter] define a partial order over the properties.
+ *
+ * @property value All the children that should be serialized after this one (uses the
+ * [kotlinx.serialization.SerialName] value or field name).
  */
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
@@ -168,9 +185,11 @@ public annotation class XmlDefault(val value: String)
 public annotation class XmlBefore(vararg val value: String)
 
 /**
- * Require this property to be serialized after other (sibling) properties.
- * The names are the serialNames of the properties being serialized (not
- * XML names).
+ * Require this property to be serialized after other (sibling) properties. The names are the
+ * serialNames of the properties being serialized (not XML names).
+ *
+ * @property value All the children that should be serialized before this one (uses the
+ * [kotlinx.serialization.SerialName] value or field name).
  */
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
