@@ -96,6 +96,13 @@ open annotation class nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec :
         final fun <get-value>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec.value.<get-value>|<get-value>(){}[0]
 }
 
+open annotation class nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs|null[0]
+    constructor <init>(kotlin/Array<out kotlin/String>...) // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
+
+    final val value // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs.value|{}value[0]
+        final fun <get-value>(): kotlin/Array<out kotlin/String> // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs.value.<get-value>|<get-value>(){}[0]
+}
+
 open annotation class nl.adaptivity.xmlutil.serialization/XmlOtherAttributes : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlOtherAttributes|null[0]
     constructor <init>() // nl.adaptivity.xmlutil.serialization/XmlOtherAttributes.<init>|<init>(){}[0]
 }
@@ -1170,6 +1177,8 @@ final object nl.adaptivity.xmlutil.serialization/NodeSerializer : nl.adaptivity.
     final fun serializeXML(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlWriter, nl.adaptivity.xmlutil.dom/Node, kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/NodeSerializer.serializeXML|serializeXML(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlWriter;nl.adaptivity.xmlutil.dom.Node;kotlin.Boolean){}[0]
 }
 
+final val nl.adaptivity.xmlutil.serialization/namespaces // nl.adaptivity.xmlutil.serialization/namespaces|@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs{}namespaces[0]
+    final fun (nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs).<get-namespaces>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil.serialization/namespaces.<get-namespaces>|<get-namespaces>@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs(){}[0]
 final val nl.adaptivity.xmlutil.serialization/namespaces // nl.adaptivity.xmlutil.serialization/namespaces|@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpec{}namespaces[0]
     final fun (nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec).<get-namespaces>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil.serialization/namespaces.<get-namespaces>|<get-namespaces>@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpec(){}[0]
 

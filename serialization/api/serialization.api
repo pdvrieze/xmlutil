@@ -8,6 +8,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer 
 
 public final class nl/adaptivity/xmlutil/serialization/AnnotationsKt {
 	public static final fun getNamespaces (Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec;)Ljava/util/List;
+	public static final fun getNamespaces (Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs;)Ljava/util/List;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
@@ -610,6 +611,15 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs : java/lang/annotation/Annotation {
+	public abstract fun value ()[Ljava/lang/String;
+}
+
+public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs {
+	public fun <init> ([Ljava/lang/String;)V
+	public final synthetic fun value ()[Ljava/lang/String;
 }
 
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes : java/lang/annotation/Annotation {

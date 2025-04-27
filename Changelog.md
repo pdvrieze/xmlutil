@@ -6,6 +6,10 @@ Features:
 - Improve translation of serial names to xml names in the
   default policy (strip out text after '`<`', '`[`' and '`(`')
 
+Changes:
+- Replace `@XmlNamespaceDeclSpec` with `@XmlNamespaceDeclSpecs` that
+  accepts an array argument
+
 Fixes:
 - Fix the issue that the for JavaScript overloads cannot be different
   only in external parameter type. This breaks compiling with a

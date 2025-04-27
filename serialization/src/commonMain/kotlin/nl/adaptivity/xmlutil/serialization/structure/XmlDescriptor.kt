@@ -1824,7 +1824,7 @@ public interface SafeParentInfo {
     @ExperimentalXmlUtilApi
     public val useAnnAfter: Array<out String>? get() = null
 
-    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    /** Value of the [XmlNamespaceDeclSpecs] annotation */
     @ExperimentalXmlUtilApi
     public val useAnnNsDecls: List<Namespace>? get() = null
 
@@ -2168,6 +2168,7 @@ public class ParentInfo(
                 is XmlPolyChildren -> useAnnPolyChildren = an
                 is XmlIgnoreWhitespace -> useAnnIgnoreWhitespace = an.value
                 is XmlNamespaceDeclSpec -> useAnnNsDecls = an.namespaces
+                is XmlNamespaceDeclSpecs -> useAnnNsDecls = an.namespaces
                 is XmlChildrenName -> useAnnChildrenName = an
                 is XmlKeyName -> useAnnKeyName = an
                 is XmlMapEntryName -> useAnnMapEntryName = an

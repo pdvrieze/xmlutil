@@ -55,17 +55,49 @@ public annotation class XmlSerialName(
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@Deprecated("Use XmlNamespaceDeclSpecs instead that takes an array argument")
 public annotation class XmlNamespaceDeclSpec(
     val value: String,
+)
+
+/**
+ * Annotation allowing to specify namespaces specifications to be generated upon the element.
+ * As multiple annotations are not supported by the plugin this uses a single string. Each
+ * declaration is of the form (prefix)=(namespace). To specify the default namespace it is valid to
+ * omit the equals sign.
+ *
+ * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`
+ */
+@ExperimentalXmlUtilApi
+@SerialInfo
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+public annotation class XmlNamespaceDeclSpecs(
+    vararg val value: String,
 )
 
 /**
  * Accessor that reads the declared namespaces out of an [XmlNamespaceDeclSpec] instance.
  */
 @ExperimentalXmlUtilApi
+@Deprecated("Use XmlNamespaceDeclSpecs instead of XmlNamespaceDeclSpec")
 public val XmlNamespaceDeclSpec.namespaces: List<Namespace>
     get() {
         return value.split(';').map { decl ->
+            when (val eq = decl.indexOf('=')) {
+                -1 -> XmlEvent.NamespaceImpl("", decl)
+                else -> XmlEvent.NamespaceImpl(decl.substring(0, eq), decl.substring(eq + 1))
+            }
+        }
+    }
+
+/**
+ * Accessor that reads the declared namespaces out of an [XmlNamespaceDeclSpecs] instance.
+ */
+@ExperimentalXmlUtilApi
+public val XmlNamespaceDeclSpecs.namespaces: List<Namespace>
+    get() {
+        return value.map { decl ->
             when (val eq = decl.indexOf('=')) {
                 -1 -> XmlEvent.NamespaceImpl("", decl)
                 else -> XmlEvent.NamespaceImpl(decl.substring(0, eq), decl.substring(eq + 1))

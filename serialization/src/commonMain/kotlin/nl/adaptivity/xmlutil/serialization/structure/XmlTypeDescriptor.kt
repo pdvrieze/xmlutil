@@ -36,12 +36,12 @@ public class XmlTypeDescriptor internal constructor(
     public val serialDescriptor: SerialDescriptor,
     parentNamespace: Namespace?
 ) {
-    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    /** Value of the [XmlNamespaceDeclSpecs] annotation */
     @ExperimentalXmlUtilApi
     public var typeAnnNsDecls: List<Namespace>? = null
         private set
 
-    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    /** Value of the [XmlSerialName] annotation */
     @ExperimentalXmlUtilApi
     public var typeAnnXmlSerialName: XmlSerialName? = null
         private set
@@ -77,6 +77,7 @@ public class XmlTypeDescriptor internal constructor(
             @Suppress("DEPRECATION")
             when (a) {
                 is XmlNamespaceDeclSpec -> typeAnnNsDecls = a.namespaces
+                is XmlNamespaceDeclSpecs -> typeAnnNsDecls = a.namespaces
                 is XmlSerialName -> typeAnnXmlSerialName = a
                 is XmlCData -> typeAnnCData = a.value
                 is XmlValue -> typeAnnIsXmlValue = a.value
