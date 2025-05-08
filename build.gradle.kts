@@ -19,8 +19,7 @@
  */
 
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import org.jetbrains.dokka.gradle.DokkaMultiModuleTask
-import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
@@ -75,9 +74,10 @@ afterEvaluate {
 
 tasks.register<Copy>("pages") {
     group="documentation"
-    dependsOn(tasks.named("dokkaHtmlMultiModule"))
+    val dokkaTasks = tasks.named<DokkaGenerateTask>("dokkaGeneratePublicationHtml")
+    dependsOn(dokkaTasks)
     into(projectDir.resolve("pages"))
-    from(tasks.named<DokkaMultiModuleTask>("dokkaHtmlMultiModule").flatMap { it.outputDirectory })
+    from(dokkaTasks.flatMap { it.outputDirectory })
     // Needed as pages may have content already
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
