@@ -9,6 +9,7 @@ build
 .idea/dataSources.ids
 .idea/dataSources.local.xml
 .idea/dataSources
+.idea/runConfigurations/_template_*
 */*.iml
 *.iml
 .idea/gradle.xml
