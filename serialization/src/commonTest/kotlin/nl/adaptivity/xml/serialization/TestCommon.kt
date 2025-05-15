@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonBuilder
 import kotlinx.serialization.modules.SerializersModule
@@ -348,4 +349,29 @@ class TestCommon {
 
     }
 
+    @Serializable
+    @XmlSerialName("myObject", "mynamespace", "o")
+    object MyObjectInCommon {
+        val bar = "baz"
+    }
+
+
+    @Serializable
+    data class Container(val data: MyObjectInCommon)
+
+    @Test
+    fun testSerializeObject() {
+        val xml  = XML { recommended_0_91_0() }
+        val data = Container(MyObjectInCommon)
+        val expected = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
+        assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testDeserializeObject() {
+        val xml  = XML { recommended_0_91_0() }
+        val expected = Container(MyObjectInCommon)
+        val data = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
+        assertEquals(expected, xml.decodeFromString<Container>(data))
+    }
 }
