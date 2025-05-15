@@ -297,14 +297,19 @@ public sealed class XmlDescriptor(
             val localAttrMap = QNameMap<Int>()
             val contextualChildren = mutableListOf<Int>()
 
+            val outerValueChild = xmlDescriptor.getValueChild()
             @OptIn(ExperimentalSerializationApi::class)
             for (idx in 0 until xmlDescriptor.elementsCount) {
+                val isValueChild = idx == outerValueChild
                 val elementDesc = xmlDescriptor.getElementDescriptor(idx).visibleDescendantOrSelf
                 when {
                     // Transparent polymorphism adds all potential child tags
                     elementDesc is XmlPolymorphicDescriptor && elementDesc.isTransparent -> {
                         for (childDescriptor in elementDesc.polyInfo.values) {
-                            val tagName = childDescriptor.tagName.normalize()
+                            val tagName = when {
+                                isValueChild && childDescriptor.outputKind.isTextOrMixed -> QName("kotlin.String")
+                                else -> childDescriptor.tagName.normalize()
+                            }
                             check(isUnchecked || seenTagNames.add(tagName)) {
                                 "Duplicate name $tagName:$idx as polymorphic child in ${xmlDescriptor.serialDescriptor.serialName}"
                             }
@@ -1316,7 +1321,11 @@ public class XmlPolymorphicDescriptor internal constructor(
                     )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
-                    localPolyInfo[childDesc.serialName] = xmlDescriptor
+                    var cd = xmlDescriptor
+                    while (cd is XmlInlineDescriptor) { cd = cd.getElementDescriptor(0) }
+                    val effectiveSerialName= if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
+
+                    localPolyInfo[effectiveSerialName] = xmlDescriptor
                     val qName = policy.typeQName(xmlDescriptor).normalize()
                     localQNameToSerialName[qName] = childDesc.serialName
 
@@ -1344,7 +1353,13 @@ public class XmlPolymorphicDescriptor internal constructor(
                     )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
-                    localPolyInfo[childDesc.serialName] = xmlDescriptor
+
+                    var cd = xmlDescriptor
+                    while (cd is XmlInlineDescriptor) { cd = cd.getElementDescriptor(0) }
+                    val effectiveSerialName= if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
+
+                    localPolyInfo[effectiveSerialName] = xmlDescriptor
+
                     val qName = policy.typeQName(xmlDescriptor).normalize()
                     localQNameToSerialName[qName] = childDesc.serialName
                 }

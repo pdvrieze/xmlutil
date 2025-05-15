@@ -41,7 +41,6 @@ import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.structure.*
-import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
 import nl.adaptivity.xmlutil.util.XmlDoubleSerializer
@@ -1062,7 +1061,7 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
-        open fun indexOf(namespace: String, localName: String, inputType: InputKind): Int {
+        fun indexOf(namespace: String, localName: String, inputType: InputKind): Int {
 
             val isNameOfAttr = inputType == InputKind.Attribute
 
@@ -1298,9 +1297,15 @@ internal open class XmlDecoderBase internal constructor(
                         // This code can rely on seenItems to avoid infinite item loops as it only triggers on an empty tag.
                         seenItems[valueChild] = true
 
-                        if(input.next() == EventType.END_ELEMENT) {
-                            // empty value
-                            input.pushBackCurrent()
+                        when (input.next()) {
+                            EventType.END_ELEMENT -> {
+                                // empty value
+                                input.pushBackCurrent()
+                            }
+                            EventType.CDSECT,
+                            EventType.IGNORABLE_WHITESPACE,
+                            EventType.TEXT -> currentPolyInfo = polyChildren["", "kotlin.String"]
+                            else -> {}
                         }
 
                         return valueChild
@@ -1346,15 +1351,16 @@ internal open class XmlDecoderBase internal constructor(
 
                                     if (actualPreserveWS.withDefault(true)) {
                                         if (valueDesc.defaultPreserveSpace.withDefault(true)) { // if the type is not explicitly marked to ignore whitespace
-                                            val outputKind = valueDesc.outputKind
-                                            if (outputKind == OutputKind.Text || outputKind == OutputKind.Mixed) { // this allows all primitives (
+                                            if (valueDesc.outputKind.isTextOrMixed) { // this allows all primitives (
                                                 seenItems[valueChild] = true
+                                                currentPolyInfo = polyChildren["", "kotlin.String"]
                                                 return valueChild // We can handle whitespace
                                             }
                                         }
                                     }
                                 }
                             } else if (!input.isWhitespace()) {
+                                currentPolyInfo = polyChildren["", "kotlin.String"]
                                 return valueChild.markSeenOrHandleUnknown {
                                     config.policy.handleUnknownContentRecovering(
                                         input,
@@ -1778,7 +1784,7 @@ internal open class XmlDecoderBase internal constructor(
 
                 return input.elementToFragment().let {
                     @Suppress("UNCHECKED_CAST")
-                    (it as? CompactFragment ?: CompactFragment(it)) as T
+                    it as T
                 }
             }
 
@@ -2153,12 +2159,12 @@ internal open class XmlDecoderBase internal constructor(
                             ?: throw XmlParsingException(input.extLocationInfo, "Missing type for polymorphic value")
                     }
 
+                    polyInfo != null -> polyInfo.describedName
+
                     isMixed && (input.eventType == EventType.TEXT ||
                             input.eventType == EventType.IGNORABLE_WHITESPACE ||
                             input.eventType == EventType.CDSECT)
                         -> "kotlin.String" // hardcode handling text input polymorphically
-
-                    polyInfo != null -> polyInfo.describedName
 
                     else -> {
                         if (input.eventType == EventType.START_ELEMENT) {

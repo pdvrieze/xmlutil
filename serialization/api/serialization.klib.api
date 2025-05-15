@@ -182,6 +182,8 @@ open enum class nl.adaptivity.xmlutil.serialization/OutputKind : kotlin/Enum<nl.
 
     final val entries // nl.adaptivity.xmlutil.serialization/OutputKind.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.serialization/OutputKind> // nl.adaptivity.xmlutil.serialization/OutputKind.entries.<get-entries>|<get-entries>#static(){}[0]
+    open val isTextOrMixed // nl.adaptivity.xmlutil.serialization/OutputKind.isTextOrMixed|{}isTextOrMixed[0]
+        open fun <get-isTextOrMixed>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/OutputKind.isTextOrMixed.<get-isTextOrMixed>|<get-isTextOrMixed>(){}[0]
     open val isTextual // nl.adaptivity.xmlutil.serialization/OutputKind.isTextual|{}isTextual[0]
         open fun <get-isTextual>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/OutputKind.isTextual.<get-isTextual>|<get-isTextual>(){}[0]
 

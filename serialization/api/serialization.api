@@ -210,6 +210,7 @@ public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
 	public static final field Text Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public fun isTextOrMixed ()Z
 	public fun isTextual ()Z
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;

@@ -13,6 +13,8 @@ Changes:
   (boswelja))
 
 Fixes:
+- Fix deserialization of value classes that wrap a string when inside
+  an `@XmlValue` property (#280).
 - Fix the issue that the for JavaScript overloads cannot be different
   only in external parameter type. This breaks compiling with a
   js2025 target. Discussed in #83. 
