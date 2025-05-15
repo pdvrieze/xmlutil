@@ -20,10 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGAttrUseDefaults
 import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGAttrWCardDefaults
 import io.github.pdvrieze.formats.xmlschema.test.sunExpected.AGNameDefaults
+import io.github.pdvrieze.xmlutil.testutil.DocDeclEqualityMode
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -52,7 +53,8 @@ class TestSunData {
             fun testSerializeValid() {
                 assertXmlEquals(
                     readResourceAsString("AG_attrUseNS00101m1_serialform.xsd"),
-                    format.encodeToString(XSSchema.serializer(), AGAttrUseDefaults.expectedSchema)
+                    format.encodeToString(XSSchema.serializer(), AGAttrUseDefaults.expectedSchema),
+                    DocDeclEqualityMode.IGNORE,
                 )
             }
         }
@@ -69,7 +71,8 @@ class TestSunData {
             fun testSerializeValid() {
                 assertXmlEquals(
                     readResourceAsString("AG_attrWCard00101m1.xsd"),
-                    format.encodeToString(XSSchema.serializer(), AGAttrWCardDefaults.expectedSchema, "xsd")
+                    format.encodeToString(XSSchema.serializer(), AGAttrWCardDefaults.expectedSchema, "xsd"),
+                    DocDeclEqualityMode.IGNORE,
                 )
             }
 
@@ -87,7 +90,8 @@ class TestSunData {
             fun testSerializeValid() {
                 assertXmlEquals(
                     readResourceAsString("AG_name00101m1_p.xsd"),
-                    format.encodeToString(XSSchema.serializer(), AGNameDefaults.expectedSchema, "xsd")
+                    format.encodeToString(XSSchema.serializer(), AGNameDefaults.expectedSchema, "xsd"),
+                    DocDeclEqualityMode.IGNORE,
                 )
             }
 

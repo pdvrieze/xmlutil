@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2025.
  *
  * This file is part of xmlutil.
  *
@@ -23,3 +23,11 @@ package nl.adaptivity.xmlutil.dom
 internal actual fun Node.asAttr(): Attr = this as Attr
 
 internal actual fun Node.asElement(): Element = this as Element
+
+@Suppress("NOTHING_TO_INLINE")
+public actual inline fun Node.appendChild(node: Node): Node = appendChild(node)
+
+public actual fun Node.replaceChild(oldChild: Node, newChild: Node): Node =
+    replaceChild(oldChild, newChild)
+
+public actual fun Node.removeChild(node: Node): Node = removeChild(node)

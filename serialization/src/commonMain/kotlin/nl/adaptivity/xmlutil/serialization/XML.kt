@@ -1238,6 +1238,15 @@ internal fun XmlKeyName.toQName(parentNamespace: Namespace?): QName = when {
     else -> QName(namespace, value, prefix)
 }
 
+internal fun XmlMapEntryName.toQName(parentNamespace: Namespace?): QName = when {
+    namespace == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
+    prefix == UNSET_ANNOTATION_VALUE -> {
+        val p = parentNamespace?.let { ns -> ns.prefix.takeIf { ns.namespaceURI == namespace }}
+        QName(namespace, value, p ?: "")
+    }
+    else -> QName(namespace, value, prefix)
+}
+
 internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {
     for (e in this) {
         if (e is T) return e

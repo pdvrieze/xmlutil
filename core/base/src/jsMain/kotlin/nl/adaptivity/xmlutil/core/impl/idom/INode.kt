@@ -50,14 +50,9 @@ public interface INode : Node1, Node2 {
     override fun getNodeType(): Short = nodeType
     override fun getChildNodes(): INodeList = childNodes
 
-
-    override fun appendChild(node: Node1): INode = appendChild(node.unWrap())
     override fun appendChild(node: Node2): INode = appendChild(node.unWrap())
     public fun appendChild(node: INode): INode = appendChild(node.delegate)
     public fun appendChild(newChild: DomNode): INode
-
-    override fun replaceChild(oldChild: Node1, newChild: Node1): INode =
-        replaceChild(oldChild.unWrap(), newChild.unWrap())
 
     override fun replaceChild(oldChild: Node2, newChild: Node2): INode =
         replaceChild(oldChild.unWrap(), newChild.unWrap())
@@ -68,8 +63,9 @@ public interface INode : Node1, Node2 {
     public fun replaceChild(newChild: DomNode, oldChild: DomNode): INode
 
     override fun removeChild(node: Node2): INode = removeChild(node.unWrap())
-    override fun removeChild(node: Node1): INode = removeChild(node.unWrap())
+
     public fun removeChild(node: INode): INode = removeChild(node.delegate)
+
     public fun removeChild(oldChild: DomNode): INode
 
     public override fun getTextContent(): String? = textContent

@@ -1,5 +1,30 @@
+# 0.91.1
+*(May 15, 2025)
+
+Features:
+- Add an annotation `@XmlMapEntryName` to force map entries not to be
+  collapsed, also specifying the name of the entry.
+- Improve translation of serial names to xml names in the
+  default policy (strip out text after '`<`', '`[`' and '`(`')
+
+Changes:
+- Replace `@XmlNamespaceDeclSpec` with `@XmlNamespaceDeclSpecs` that
+  accepts an array argument
+- Synchronize annotation and readme docs #279 (thanks to Jack Boswell 
+  (boswelja))
+
+Fixes:
+- Fix deserialization of value classes that wrap a string when inside
+  an `@XmlValue` property (#280).
+- Fix the issue that the for JavaScript overloads cannot be different
+  only in external parameter type. This breaks compiling with a
+  js2025 target. Discussed in #83. 
+- Inspired by #274, fix the decoding of non-collapsed map entries
+  where the `XmlSerialName` annotation is not present.
+- Further fixes on inline serialization with more cases.
+
 # 0.91.0
-*(April 1, 2025)<br />*
+*(April 1, 2025)
 Features:
 - Add `XmlKeyName` as annotation to set the name of the key used in
   maps. This just adds the capability to the default policy. Supports
@@ -18,7 +43,7 @@ Fixes:
   thus resulting in invalid cache keys.
 
 # 0.91.0-RC1
-*(March 4, 2025)<br />*
+
 Features:
 - Add a core-io and serialization-io modules that support using kotlinx.io
 - Add inline function shortcuts for encodeToString/decodeFromString with
@@ -92,7 +117,6 @@ Fixes:
   string. 
 
 # 0.90.3
-*(November 7, 2024)<br />*
 Changes:
 - In pedantic mode check that xml/xmlns are not used as names (they
   are always invalid). Note that namespaces can be specified using
@@ -108,13 +132,11 @@ Fixes:
   multithreading issues when reusing the format (recommended for speed)
 
 # 0.90.2 Mooor Rocketpower!
-*(October 15, 2024)<br />*
 Changes:
 - Update to Kotlin 2.0.21 / Kotlinx.serialization 1.7.3
 - Add support for Android native targets (@whyoleg in #242)
 
 # 0.90.2-beta1 Rocketpower!
-*(July 22, 2024)<br />*
 Changes:
 - Update to Kotlin 2.0.20 / kotlinx.serialization 1.7.2
 - Extensive optimization of decoding (serialization), parsing
@@ -159,11 +181,10 @@ Fixes:
 - Fix infinite recursion issue with xmlStreaming.newWriter / newReader
 
 # 0.90.1 Fix Android
-*(June 16, 2024)<br />*
 - Fix android plugin dependency.
 
 # 0.90.0 2.0 will go
-*(June 13, 2024)<br />*
+*(June 13, 2024)
 Changes:
 - The core module no longer automatically includes Android/Jvm "native"
   parsers by default, but uses the platform independent implementation.
@@ -175,18 +196,15 @@ Changes:
   be removed at 1.0 release.
 
 # 0.90.0-RC3
-*(June 11, 2024)<br />*
 - Fix issues with dependencies in new layout (#209) - XMPCore now
   builds/resolves.
 
 # 0.90.0-RC2
-*(June 7, 2024)<br />*
 Fixes:
 - Fix multithreading initialization on JVM targets, serviceLoaders are
   not thread-safe (#211). 
 
 # 0.90.0-RC1 – Supporting 2.0
-*(May 24, 2024)<br />*
 Changes:
 - Build with Kotlin 2.0.0
 - The core module has been changed to use default implementations for
@@ -232,7 +250,7 @@ Fixes:
   attributes.
 
 # 0.86.3
-*(December 14, 2023)<br />*
+*(December 14, 2023)
 Changes:
 - The `XmlStreaming` object in core is replaced by an interface `IXmlStreaming`
   with an accessor function `xmlStreaming` that provides an appropriate

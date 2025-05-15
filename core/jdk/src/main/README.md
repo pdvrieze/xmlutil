@@ -1,9 +1,7 @@
-# Module core-android
-Module providing Android specific parsing implementations. As the
-generic implementations are based on the Android implementations, this
-module is **deprecated** except for those cases that require:
- - compatibility
- - integration with the native pull parser implementation (reading only)
+# Module core-jdk
+Module providing JDK specific parsing implementations. This allows
+using existing jdk pull parser implementation as basis for the
+parsing/serialization.
 
 # Package nl.adaptivity.xmlutil.core
 Core package for a wrapper that provides XML pull parsing access. Note

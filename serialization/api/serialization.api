@@ -8,6 +8,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer 
 
 public final class nl/adaptivity/xmlutil/serialization/AnnotationsKt {
 	public static final fun getNamespaces (Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec;)Ljava/util/List;
+	public static final fun getNamespaces (Lnl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs;)Ljava/util/List;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer : nl/adaptivity/xmlutil/serialization/AbstractXmlSerializer {
@@ -102,6 +103,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public fun <init> ()V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;)V
 	public final fun build ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
+	public final synthetic fun build ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
 	public final fun getAutoPolymorphic ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
@@ -208,6 +210,7 @@ public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
 	public static final field Text Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public fun isTextOrMixed ()Z
 	public fun isTextual ()Z
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -588,6 +591,20 @@ public synthetic class nl/adaptivity/xmlutil/serialization/XmlKeyName$Impl : nl/
 	public final synthetic fun value ()Ljava/lang/String;
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlMapEntryName : java/lang/annotation/Annotation {
+	public abstract fun namespace ()Ljava/lang/String;
+	public abstract fun prefix ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public synthetic class nl/adaptivity/xmlutil/serialization/XmlMapEntryName$Impl : nl/adaptivity/xmlutil/serialization/XmlMapEntryName {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun namespace ()Ljava/lang/String;
+	public final synthetic fun prefix ()Ljava/lang/String;
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec : java/lang/annotation/Annotation {
 	public abstract fun value ()Ljava/lang/String;
 }
@@ -595,6 +612,15 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs : java/lang/annotation/Annotation {
+	public abstract fun value ()[Ljava/lang/String;
+}
+
+public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs {
+	public fun <init> ([Ljava/lang/String;)V
+	public final synthetic fun value ()[Ljava/lang/String;
 }
 
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes : java/lang/annotation/Annotation {
@@ -804,6 +830,7 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/structure/Sa
 	public fun getUseAnnIsOtherAttributes ()Z
 	public fun getUseAnnIsValue ()Ljava/lang/Boolean;
 	public fun getUseAnnKeyName ()Lnl/adaptivity/xmlutil/serialization/XmlKeyName;
+	public fun getUseAnnMapEntryName ()Lnl/adaptivity/xmlutil/serialization/XmlMapEntryName;
 	public fun getUseAnnNsDecls ()Ljava/util/List;
 	public fun getUseAnnPolyChildren ()Lnl/adaptivity/xmlutil/serialization/XmlPolyChildren;
 	public fun getUseAnnXmlSerialName ()Lnl/adaptivity/xmlutil/serialization/XmlSerialName;
@@ -824,6 +851,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/SafeParentInfo$
 	public static fun getUseAnnIsOtherAttributes (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public static fun getUseAnnIsValue (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/lang/Boolean;
 	public static fun getUseAnnKeyName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlKeyName;
+	public static fun getUseAnnMapEntryName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlMapEntryName;
 	public static fun getUseAnnNsDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public static fun getUseAnnPolyChildren (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlPolyChildren;
 	public static fun getUseAnnXmlSerialName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlSerialName;

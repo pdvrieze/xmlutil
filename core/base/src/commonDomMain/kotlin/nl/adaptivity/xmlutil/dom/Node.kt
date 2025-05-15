@@ -56,11 +56,11 @@ public actual interface Node {
 
     public actual fun lookupNamespaceURI(prefix: String): String?
 
-    public actual fun appendChild(node: Node): Node
+    public fun appendChild(node: Node): Node
 
-    public actual fun replaceChild(oldChild: Node, newChild: Node): Node
+    public fun replaceChild(oldChild: Node, newChild: Node): Node
 
-    public actual fun removeChild(node: Node): Node
+    public fun removeChild(node: Node): Node
 
     public companion object {
         // NodeType
@@ -133,6 +133,10 @@ public actual interface Node {
     }
 
 }
+
+public actual inline fun Node.appendChild(node: Node): Node = appendChild(node)
+public actual fun Node.replaceChild(oldChild: Node, newChild: Node): Node = replaceChild(oldChild, newChild)
+public actual fun Node.removeChild(node: Node): Node = removeChild(node)
 
 public actual inline fun Node.getNodeType(): Short = nodeType
 

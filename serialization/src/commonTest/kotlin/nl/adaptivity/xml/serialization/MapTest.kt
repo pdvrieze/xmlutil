@@ -99,6 +99,25 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
 
     @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
     @Test
+    fun testSerializeNotCollapsingListAnnotated() {
+        val data = CustomEntryMapContainer(id = "myId", map = mapOf(
+            "a" to MapElement("valueOfA"),
+            "b" to MapElement("valueOfB")
+        ))
+        val serialized = baseXmlFormat.encodeToString<CustomEntryMapContainer>(data)
+        assertXmlEquals(
+            "<CustomEntryMapContainer id=\"myId\">" +
+                    "<MapEntry key=\"a\"><MapElement name=\"valueOfA\"/></MapEntry>" +
+                    "<MapEntry key=\"b\"><MapElement name=\"valueOfB\"/></MapEntry>" +
+                    "</CustomEntryMapContainer>",
+            serialized
+        )
+
+        assertEquals(data, baseXmlFormat.decodeFromString<CustomEntryMapContainer>(serialized))
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
+    @Test
     fun testSerializeNotEludingList() {
         val xml = baseXmlFormat.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
@@ -198,6 +217,15 @@ class MapTest : PlatformTestBase<MapTest.ListContainer>(
         @XmlElement(true)
         @XmlSerialName("MapOuter", "", "")
         @XmlKeyName("customKey")
+        val map: Map<String, MapElement> = mapOf(),
+    )
+
+    @Serializable
+    data class CustomEntryMapContainer(
+        val id: String,
+        @XmlElement(true)
+//        @XmlSerialName("MapOuter", "", "")
+        @XmlMapEntryName("MapEntry", "", "")
         val map: Map<String, MapElement> = mapOf(),
     )
 

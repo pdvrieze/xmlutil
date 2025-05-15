@@ -8,12 +8,12 @@ jmh = "0.7.2"
 jmh-core = "1.37"
 benchmark = "0.4.11"
 junit5-jupiter = "5.11.4"
-kotlin = "2.1.10"
-kotlinx-serialization = "1.8.0"
+kotlin = "2.1.21"
+kotlinx-serialization = "1.8.1"
 kotlinx-io = "0.5.4"
 kxml2 = "2.3.0"
 woodstox = "7.1.0"
-xmlutil = "0.91.0"
+xmlutil = "0.91.1"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
@@ -30,6 +30,7 @@ serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cor
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-io-core = { module="org.jetbrains.kotlinx:kotlinx-io-core", version.ref="kotlinx-io" }
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.27.0" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 
 [plugins]
 binaryValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryValidator" }
