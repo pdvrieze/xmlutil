@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 public class OrderMatrix(public val size: Int) {
-    private val data: BooleanArray = BooleanArray(size*size)
+    private val data: BooleanArray = BooleanArray(size * size)
 
     private operator fun BooleanArray.get(x: Int, y: Int): Boolean {
         return this[x + (y * this@OrderMatrix.size)]
@@ -91,6 +91,22 @@ public class OrderMatrix(public val size: Int) {
             append(lbl).append(' ')
             (0 until size).joinTo(this," ") { x-> if(data[x, y]) "${x.toString().padStart(lblWidth, ' ')}>$ys" else absent}
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as OrderMatrix
+
+        if (size != other.size) return false
+        if (!data.contentEquals(other.data)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return data.contentHashCode()
     }
 
 }

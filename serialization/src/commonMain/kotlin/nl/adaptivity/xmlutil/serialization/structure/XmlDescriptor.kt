@@ -732,11 +732,17 @@ internal constructor(
 
         other as XmlPrimitiveDescriptor
 
-        return outputKind == other.outputKind
+        if (isIdAttr != other.isIdAttr) return false
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+        if (outputKind != other.outputKind) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + isIdAttr.hashCode()
+        result = 31 * result + defaultPreserveSpace.hashCode()
         result = 31 * result + outputKind.hashCode()
         return result
     }
@@ -825,11 +831,25 @@ public class XmlInlineDescriptor internal constructor(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
-        return super.equals(other)
+        if (!super.equals(other)) return false
+
+        other as XmlInlineDescriptor
+
+        if (isIdAttr != other.isIdAttr) return false
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+        if (isUnsigned != other.isUnsigned) return false
+        if (child != other.child) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return 31 * super.hashCode() + 137
+        var result = super.hashCode()
+        result = 31 * result + isIdAttr.hashCode()
+        result = 31 * result + defaultPreserveSpace.hashCode()
+        result = 31 * result + isUnsigned.hashCode()
+        result = 31 * result + child.hashCode()
+        return result
     }
 
     private companion object {
@@ -1172,12 +1192,16 @@ internal constructor(
 
         other as XmlCompositeDescriptor
 
-        return initialChildReorderInfo == other.initialChildReorderInfo
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+        if (_lazyProps !== other._lazyProps && lazyProps != other.lazyProps) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + (initialChildReorderInfo?.hashCode() ?: 0)
+        result = 31 * result + defaultPreserveSpace.hashCode()
+        result = 31 * result + _lazyProps.hashCode()
         return result
     }
 
@@ -1214,6 +1238,32 @@ internal constructor(
             }
 
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as LazyProps
+
+            if (attrMapChildIdx != other.attrMapChildIdx) return false
+            if (valueChildIdx != other.valueChildIdx) return false
+            if (children != other.children) return false
+            if (!childReorderMap.contentEquals(other.childReorderMap)) return false
+            if (childConstraints != other.childConstraints) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = attrMapChildIdx
+            result = 31 * result + valueChildIdx
+            result = 31 * result + children.hashCode()
+            result = 31 * result + (childReorderMap?.contentHashCode() ?: 0)
+            result = 31 * result + (childConstraints?.hashCode() ?: 0)
+            return result
+        }
+
+
     }
 }
 
@@ -1426,29 +1476,6 @@ public class XmlPolymorphicDescriptor internal constructor(
         }
     }
 
-    @Suppress("DuplicatedCode")
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        if (!super.equals(other)) return false
-
-        other as XmlPolymorphicDescriptor
-
-        if (outputKind != other.outputKind) return false
-        if (polymorphicMode != other.polymorphicMode) return false
-        if (polyInfo != other.polyInfo) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + outputKind.hashCode()
-        result = 31 * result + polymorphicMode.hashCode()
-        result = 31 * result + polyInfo.hashCode()
-        return result
-    }
-
     internal fun resolvePolymorphicTypeNameCandidates(name: QName, serializersModule: SerializersModule): List<String> {
         val baseClass = serialDescriptor.capturedKClass
         val directMatches = polyInfo.entries.mapNotNull { (typeName, xmlDesc) ->
@@ -1467,6 +1494,37 @@ public class XmlPolymorphicDescriptor internal constructor(
         return listOfNotNull(defaultMatch?.descriptor?.serialName)
     }
 
+    @Suppress("DuplicatedCode")
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XmlPolymorphicDescriptor
+
+        if (codecConfig != other.codecConfig) return false
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+        if (outputKind != other.outputKind) return false
+        if (polymorphicMode != other.polymorphicMode) return false
+        if (polyInfo != other.polyInfo) return false
+        if (typeQNameToSerialName != other.typeQNameToSerialName) return false
+        if (children != other.children) return false
+
+        return true
+    }
+
+    @Suppress("DuplicatedCode")
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + codecConfig.hashCode()
+        result = 31 * result + defaultPreserveSpace.hashCode()
+        result = 31 * result + outputKind.hashCode()
+        result = 31 * result + polymorphicMode.hashCode()
+        result = 31 * result + polyInfo.hashCode()
+        result = 31 * result + typeQNameToSerialName.hashCode()
+        result = 31 * result + children.hashCode()
+        return result
+    }
 
 }
 
@@ -1519,7 +1577,6 @@ public sealed class XmlListLikeDescriptor(
     @ExperimentalSerializationApi
     final override val doInline: Boolean get() = false
 
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -1528,15 +1585,14 @@ public sealed class XmlListLikeDescriptor(
         other as XmlListLikeDescriptor
 
         if (isListEluded != other.isListEluded) return false
-        if (doInline != other.doInline) return false
-        return defaultPreserveSpace == other.defaultPreserveSpace
+        if (defaultPreserveSpace != other.defaultPreserveSpace) return false
+
+        return true
     }
 
-    @OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + isListEluded.hashCode()
-        result = 31 * result + doInline.hashCode()
         result = 31 * result + defaultPreserveSpace.hashCode()
         return result
     }
@@ -1743,16 +1799,18 @@ public class XmlListDescriptor internal constructor(
 
         other as XmlListDescriptor
 
-        if (isListEluded != other.isListEluded) return false
-        return outputKind == other.outputKind
+        if (outputKind != other.outputKind) return false
+        if (!delimiters.contentEquals(other.delimiters)) return false
+        if (childDescriptor != other.childDescriptor) return false
+
+        return true
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + isListEluded.hashCode()
         result = 31 * result + outputKind.hashCode()
-        result = 31 * result + serialDescriptor.getElementDescriptor(0).hashCode()
+        result = 31 * result + delimiters.contentHashCode()
+        result = 31 * result + childDescriptor.hashCode()
         return result
     }
 
@@ -1899,6 +1957,7 @@ internal class InjectedParentTag(
         )
     }
 
+    @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -1966,14 +2025,6 @@ private class DetachedParent(
         return DetachedParent(namespace, newElementTypeDescriptor, elementUseNameInfo)
     }
 
-    override val index: Int get() = -1
-
-    override val descriptor: Nothing? get() = null
-
-    override val parentIsInline: Boolean get() = false
-
-    override val elementUseAnnotations: Collection<Annotation> get() = emptyList()
-
     @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -1981,23 +2032,33 @@ private class DetachedParent(
 
         other as DetachedParent
 
+        if (isDocumentRoot != other.isDocumentRoot) return false
         if (elementTypeDescriptor != other.elementTypeDescriptor) return false
         if (elementUseNameInfo != other.elementUseNameInfo) return false
-        if (isDocumentRoot != other.isDocumentRoot) return false
-        if (overriddenSerializer != other.overriddenSerializer) return false
         if (elementUseOutputKind != other.elementUseOutputKind) return false
+        if (overriddenSerializer != other.overriddenSerializer) return false
+        if (namespace != other.namespace) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = elementTypeDescriptor.hashCode()
+        var result = isDocumentRoot.hashCode()
+        result = 31 * result + elementTypeDescriptor.hashCode()
         result = 31 * result + elementUseNameInfo.hashCode()
-        result = 31 * result + isDocumentRoot.hashCode()
-        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
         result = 31 * result + (elementUseOutputKind?.hashCode() ?: 0)
+        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
+        result = 31 * result + namespace.hashCode()
         return result
     }
+
+    override val index: Int get() = -1
+
+    override val descriptor: Nothing? get() = null
+
+    override val parentIsInline: Boolean get() = false
+
+    override val elementUseAnnotations: Collection<Annotation> get() = emptyList()
 
 
 }
@@ -2067,29 +2128,6 @@ public class ParentInfo(
         overriddenSerializer: KSerializer<*>?
     ): ParentInfo {
         return ParentInfo(config, descriptor, index, elementUseNameInfo, elementUseOutputKind, overriddenSerializer)
-    }
-
-    @Suppress("DuplicatedCode")
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as ParentInfo
-
-        if (index != other.index) return false
-        if (overriddenSerializer != other.overriddenSerializer) return false
-        if (elementUseNameInfo != other.elementUseNameInfo) return false
-        if (elementUseOutputKind != other.elementUseOutputKind) return false
-        return descriptor == other.descriptor
-    }
-
-    override fun hashCode(): Int {
-        var result = descriptor.serialDescriptor.hashCode()
-        result = 31 * result + index
-        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
-        result = 31 * result + elementUseNameInfo.hashCode()
-        result = 31 * result + (elementUseOutputKind?.hashCode() ?: 0)
-        return result
     }
 
     override val parentIsInline: Boolean get() = descriptor is XmlInlineDescriptor
@@ -2239,6 +2277,66 @@ public class ParentInfo(
         append('/')
         append(descriptor.serialDescriptor.getElementDescriptor(index).serialName)
         append(")")
+    }
+
+    @Suppress("DuplicatedCode")
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ParentInfo
+
+        if (index != other.index) return false
+        if (useAnnIsElement != other.useAnnIsElement) return false
+        if (useAnnIsValue != other.useAnnIsValue) return false
+        if (useAnnIgnoreWhitespace != other.useAnnIgnoreWhitespace) return false
+        if (useAnnCData != other.useAnnCData) return false
+        if (useAnnIsId != other.useAnnIsId) return false
+        if (useAnnIsOtherAttributes != other.useAnnIsOtherAttributes) return false
+        if (descriptor != other.descriptor) return false
+        if (overriddenSerializer != other.overriddenSerializer) return false
+        if (useAnnXmlSerialName != other.useAnnXmlSerialName) return false
+        if (useAnnPolyChildren != other.useAnnPolyChildren) return false
+        if (useAnnChildrenName != other.useAnnChildrenName) return false
+        if (useAnnKeyName != other.useAnnKeyName) return false
+        if (useAnnMapEntryName != other.useAnnMapEntryName) return false
+        if (useAnnDefault != other.useAnnDefault) return false
+        if (!useAnnBefore.contentEquals(other.useAnnBefore)) return false
+        if (!useAnnAfter.contentEquals(other.useAnnAfter)) return false
+        if (useAnnNsDecls != other.useAnnNsDecls) return false
+        if (elementUseNameInfo != other.elementUseNameInfo) return false
+        if (elementSerialDescriptor != other.elementSerialDescriptor) return false
+        if (elementUseOutputKind != other.elementUseOutputKind) return false
+        if (elementTypeDescriptor != other.elementTypeDescriptor) return false
+
+        return true
+    }
+
+    @Suppress("DuplicatedCode")
+    override fun hashCode(): Int {
+        var result = index
+        result = 31 * result + (useAnnIsElement?.hashCode() ?: 0)
+        result = 31 * result + (useAnnIsValue?.hashCode() ?: 0)
+        result = 31 * result + (useAnnIgnoreWhitespace?.hashCode() ?: 0)
+        result = 31 * result + (useAnnCData?.hashCode() ?: 0)
+        result = 31 * result + useAnnIsId.hashCode()
+        result = 31 * result + useAnnIsOtherAttributes.hashCode()
+        result = 31 * result + descriptor.hashCode()
+        result = 31 * result + (overriddenSerializer?.hashCode() ?: 0)
+        result = 31 * result + (useAnnXmlSerialName?.hashCode() ?: 0)
+        result = 31 * result + (useAnnPolyChildren?.hashCode() ?: 0)
+        result = 31 * result + (useAnnChildrenName?.hashCode() ?: 0)
+        result = 31 * result + (useAnnKeyName?.hashCode() ?: 0)
+        result = 31 * result + (useAnnMapEntryName?.hashCode() ?: 0)
+        result = 31 * result + (useAnnDefault?.hashCode() ?: 0)
+        result = 31 * result + (useAnnBefore?.contentHashCode() ?: 0)
+        result = 31 * result + (useAnnAfter?.contentHashCode() ?: 0)
+        result = 31 * result + (useAnnNsDecls?.hashCode() ?: 0)
+        result = 31 * result + elementUseNameInfo.hashCode()
+        result = 31 * result + elementSerialDescriptor.hashCode()
+        result = 31 * result + (elementUseOutputKind?.hashCode() ?: 0)
+        result = 31 * result + elementTypeDescriptor.hashCode()
+        return result
     }
 }
 
