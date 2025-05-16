@@ -518,7 +518,6 @@ internal open class XmlEncoderBase internal constructor(
 
         override fun encodeStringElement(elementDescriptor: XmlDescriptor, index: Int, value: String) {
             delegate.encodeStringElement(elementDescriptor, childInParentIndex, value)
-//            delegate.defer(childInParentIndex, DeferredWriteString(elementDescriptor as XmlValueDescriptor, value))
         }
 
         override fun endStructure(descriptor: SerialDescriptor) {
@@ -1248,7 +1247,7 @@ internal open class XmlEncoderBase internal constructor(
 
 
     internal inner class MapEncoder(xmlDescriptor: XmlMapDescriptor, discriminatorName: QName? = null) :
-        TagEncoder<XmlDescriptor>(xmlDescriptor, discriminatorName) {
+        TagEncoder<XmlDescriptor>(xmlDescriptor, discriminatorName, deferring = false) {
 
         private val mapDescriptor get() = xmlDescriptor as XmlMapDescriptor
 
@@ -1263,9 +1262,16 @@ internal open class XmlEncoderBase internal constructor(
                     keyValue = value
                 }
 
-                writingValue -> super.encodeStringElement(elementDescriptor, index, value)
+                !writingValue ->
+                    encodeSerializableElement(xmlDescriptor, index, String.serializer(), value)
 
-                else -> encodeSerializableElement(xmlDescriptor, index, String.serializer(), value)
+                elementDescriptor.outputKind == OutputKind.Element -> if (elementDescriptor.isCData) {
+                    target.cdsect(value)
+                } else {
+                    target.text(value)
+                }
+
+                else -> super.encodeStringElement(elementDescriptor, index, value)
             }
 
         }
