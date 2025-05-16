@@ -32,11 +32,13 @@ import kotlin.test.assertEquals
 
 class CustomMapKey274 {
 
+    val xml = XML { recommended_0_91_0 { formatCache = TestFormatCache(DefaultFormatCache()) } }
+
     @Test
     fun testSerialize() {
         val data = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
         val expected = "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
-        val actual = XML.encodeToString(data)
+        val actual = xml.encodeToString(data)
         assertXmlEquals(expected, actual)
     }
 
@@ -44,13 +46,13 @@ class CustomMapKey274 {
     fun testDeserialize() {
         val expected = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
         val data = "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
-        val actual = XML.decodeFromString<MapContainer>(data)
+        val actual = xml.decodeFromString<MapContainer>(data)
         assertEquals(expected, actual)
     }
 
     @Test
     fun testSerializeNotCollapsed() {
-        val xml = XML{}.copy {
+        val xml = xml.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
                     return false
@@ -67,7 +69,7 @@ class CustomMapKey274 {
 
     @Test
     fun testDeserializeNotCollapsed() {
-        val xml = XML{}.copy {
+        val xml = xml.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
                     return false
@@ -84,7 +86,7 @@ class CustomMapKey274 {
 
     @Test
     fun testSerializeNotCollapsedPolicy() {
-        val xml = XML{}.copy {
+        val xml = xml.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
                     return false
@@ -101,7 +103,7 @@ class CustomMapKey274 {
 
     @Test
     fun testDeserializeNotCollapsedPolicy() {
-        val xml = XML{}.copy {
+        val xml = xml.copy {
             policy = object : DefaultXmlSerializationPolicy(policy) {
                 override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
                     return false
@@ -120,7 +122,21 @@ class CustomMapKey274 {
     fun testSerializeStringMap() {
         val data = MyClass(mapOf("abc" to "def"))
         val expected="<MyClass><value key=\"abc\" value=\"def\"/></MyClass>"
-        assertXmlEquals(expected, XML.encodeToString(data))
+        assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testSerializeStringMultipleMap() {
+        val data = MyClass(mapOf("abc" to "def", "123" to "456"))
+        val expected="<MyClass><value key=\"abc\" value=\"def\"/><value key=\"123\" value=\"456\"/></MyClass>"
+        assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testDeserializeStringMap() {
+        val expected = MyClass(mapOf("abc" to "def", "123" to "456"))
+        val data="<MyClass><value key=\"abc\" value=\"def\"/><value key=\"123\" value=\"456\"/></MyClass>"
+        assertEquals(expected, xml.decodeFromString<MyClass>(data))
     }
 
     @Serializable
@@ -143,5 +159,5 @@ class CustomMapKey274 {
     )
 
     @Serializable
-    class MyClass(val map: Map<String, String>)
+    data class MyClass(val map: Map<String, String>)
 }
