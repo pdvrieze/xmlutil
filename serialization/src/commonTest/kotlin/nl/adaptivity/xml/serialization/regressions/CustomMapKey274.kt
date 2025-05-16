@@ -23,29 +23,57 @@ package nl.adaptivity.xml.serialization.regressions
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.encodeToString
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.*
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
+import nl.adaptivity.xmlutil.serialization.structure.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class CustomMapKey274 {
 
-    val xml = XML { recommended_0_91_0 { formatCache = TestFormatCache(DefaultFormatCache()) } }
+    val xml: XML = XML { recommended_0_91_0 { formatCache = TestFormatCache(DefaultFormatCache()) } }
 
     @Test
     fun testSerialize() {
         val data = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
-        val expected = "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
+        val expected =
+            "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
         val actual = xml.encodeToString(data)
         assertXmlEquals(expected, actual)
     }
 
     @Test
+    fun testMapContainerDescriptor() {
+        val myObjDesc = assertIs<XmlCompositeDescriptor>(xml.xmlDescriptor(MapContainer.serializer()).getElementDescriptor(0))
+        assertEquals(QName("MapContainer"), myObjDesc.tagName)
+
+        assertEquals(1, myObjDesc.elementsCount)
+
+        val mapDesc = assertIs<XmlMapDescriptor>(myObjDesc.getElementDescriptor(0))
+        assertEquals(true, mapDesc.isValueCollapsed)
+
+        val keyDesc = assertIs<XmlPrimitiveDescriptor>(mapDesc.getElementDescriptor(0))
+        assertEquals(OutputKind.Attribute, keyDesc.outputKind)
+        assertEquals(QName("name"), keyDesc.tagName)
+
+        val valueDesc = assertIs<XmlCompositeDescriptor>(mapDesc.getElementDescriptor(1))
+        assertEquals(1, valueDesc.elementsCount)
+        assertEquals(QName("MapElement"), valueDesc.tagName)
+
+        val attrDesc = assertIs<XmlPrimitiveDescriptor>(valueDesc.getElementDescriptor(0))
+        assertEquals(OutputKind.Attribute, attrDesc.outputKind)
+        assertEquals(PrimitiveKind.STRING, attrDesc.kind)
+        assertEquals(QName("value"), attrDesc.tagName)
+    }
+
+    @Test
     fun testDeserialize() {
         val expected = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
-        val data = "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
+        val data =
+            "<MapContainer><MapElement name=\"a\" value=\"avalue\"/><MapElement name=\"b\" value=\"bvalue\"/></MapContainer>"
         val actual = xml.decodeFromString<MapContainer>(data)
         assertEquals(expected, actual)
     }
@@ -62,7 +90,8 @@ class CustomMapKey274 {
 
 
         val data = MapContainer2(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
-        val expected = "<MapContainer2><MapInner name=\"a\"><MapElement value=\"avalue\"/></MapInner><MapInner name=\"b\"><MapElement value=\"bvalue\"/></MapInner></MapContainer2>"
+        val expected =
+            "<MapContainer2><MapInner name=\"a\"><MapElement value=\"avalue\"/></MapInner><MapInner name=\"b\"><MapElement value=\"bvalue\"/></MapInner></MapContainer2>"
         val actual = xml.encodeToString<MapContainer2>(data)
         assertXmlEquals(expected, actual)
     }
@@ -79,7 +108,8 @@ class CustomMapKey274 {
 
 
         val expected = MapContainer2(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
-        val data = "<MapContainer2><MapInner name=\"a\"><MapElement value=\"avalue\"/></MapInner><MapInner name=\"b\"><MapElement value=\"bvalue\"/></MapInner></MapContainer2>"
+        val data =
+            "<MapContainer2><MapInner name=\"a\"><MapElement value=\"avalue\"/></MapInner><MapInner name=\"b\"><MapElement value=\"bvalue\"/></MapInner></MapContainer2>"
         val actual = xml.decodeFromString<MapContainer2>(data)
         assertEquals(expected, actual)
     }
@@ -96,7 +126,8 @@ class CustomMapKey274 {
 
 
         val data = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
-        val expected = "<MapContainer><MapOuter name=\"a\"><MapElement value=\"avalue\"/></MapOuter><MapOuter name=\"b\"><MapElement value=\"bvalue\"/></MapOuter></MapContainer>"
+        val expected =
+            "<MapContainer><MapOuter name=\"a\"><MapElement value=\"avalue\"/></MapOuter><MapOuter name=\"b\"><MapElement value=\"bvalue\"/></MapOuter></MapContainer>"
         val actual = xml.encodeToString<MapContainer>(data)
         assertXmlEquals(expected, actual)
     }
@@ -113,7 +144,8 @@ class CustomMapKey274 {
 
 
         val expected = MapContainer(mapOf("a" to MapElement("avalue"), "b" to MapElement("bvalue")))
-        val data = "<MapContainer><MapOuter name=\"a\"><MapElement value=\"avalue\"/></MapOuter><MapOuter name=\"b\"><MapElement value=\"bvalue\"/></MapOuter></MapContainer>"
+        val data =
+            "<MapContainer><MapOuter name=\"a\"><MapElement value=\"avalue\"/></MapOuter><MapOuter name=\"b\"><MapElement value=\"bvalue\"/></MapOuter></MapContainer>"
         val actual = xml.decodeFromString<MapContainer>(data)
         assertEquals(expected, actual)
     }
@@ -121,21 +153,38 @@ class CustomMapKey274 {
     @Test
     fun testSerializeStringMap() {
         val data = MyClass(mapOf("abc" to "def"))
-        val expected="<MyClass><value key=\"abc\" value=\"def\"/></MyClass>"
+        val expected = "<MyClass><value key=\"abc\">def</value></MyClass>"
         assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testStringMapDescriptor() {
+        val myObjDesc = assertIs<XmlCompositeDescriptor>(xml.xmlDescriptor(MyClass.serializer()).getElementDescriptor(0))
+        assertEquals(QName("MyClass"), myObjDesc.tagName)
+
+        assertEquals(1, myObjDesc.elementsCount)
+
+        val mapDesc = assertIs<XmlMapDescriptor>(myObjDesc.getElementDescriptor(0))
+        assertEquals(true, mapDesc.isValueCollapsed)
+
+        val keyDesc = assertIs<XmlPrimitiveDescriptor>(mapDesc.getElementDescriptor(0))
+        assertEquals(OutputKind.Attribute, keyDesc.outputKind)
+
+        val valueDesc = assertIs<XmlPrimitiveDescriptor>(mapDesc.getElementDescriptor(1))
+        assertEquals(OutputKind.Element, valueDesc.outputKind)
     }
 
     @Test
     fun testSerializeStringMultipleMap() {
         val data = MyClass(mapOf("abc" to "def", "123" to "456"))
-        val expected="<MyClass><value key=\"abc\" value=\"def\"/><value key=\"123\" value=\"456\"/></MyClass>"
+        val expected = "<MyClass><value key=\"abc\">def</value><value key=\"123\">456</value></MyClass>"
         assertXmlEquals(expected, xml.encodeToString(data))
     }
 
     @Test
     fun testDeserializeStringMap() {
         val expected = MyClass(mapOf("abc" to "def", "123" to "456"))
-        val data="<MyClass><value key=\"abc\" value=\"def\"/><value key=\"123\" value=\"456\"/></MyClass>"
+        val data = "<MyClass><value key=\"abc\">def</value><value key=\"123\">456</value></MyClass>"
         assertEquals(expected, xml.decodeFromString<MyClass>(data))
     }
 

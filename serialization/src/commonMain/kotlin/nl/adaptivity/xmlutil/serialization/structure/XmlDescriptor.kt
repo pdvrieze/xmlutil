@@ -2052,6 +2052,11 @@ private class DetachedParent(
         return result
     }
 
+    override fun toString(): String = when {
+        isDocumentRoot -> "<Root>"
+        else -> "DetachedParent($elementUseNameInfo)"
+    }
+
     override val index: Int get() = -1
 
     override val descriptor: Nothing? get() = null
