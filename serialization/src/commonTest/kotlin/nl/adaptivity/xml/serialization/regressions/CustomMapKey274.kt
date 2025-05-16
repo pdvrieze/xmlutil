@@ -28,6 +28,7 @@ import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.*
+import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -188,6 +189,54 @@ class CustomMapKey274 {
         assertEquals(expected, xml.decodeFromString<MyClass>(data))
     }
 
+    @Test
+    fun testStringIntHolderDescriptor() {
+        val myObjDesc = assertIs<XmlCompositeDescriptor>(xml.xmlDescriptor(StringIntHolderMap.serializer()).getElementDescriptor(0))
+        assertEquals(QName("StringIntHolderMap"), myObjDesc.tagName)
+
+        assertEquals(1, myObjDesc.elementsCount)
+
+        val mapDesc = assertIs<XmlMapDescriptor>(myObjDesc.getElementDescriptor(0))
+        assertEquals(true, mapDesc.isValueCollapsed)
+
+        val keyDesc = assertIs<XmlPrimitiveDescriptor>(mapDesc.getElementDescriptor(0))
+        assertEquals(OutputKind.Attribute, keyDesc.outputKind)
+
+        val valueDesc = assertIs<XmlInlineDescriptor>(mapDesc.getElementDescriptor(1))
+        assertEquals(OutputKind.Element, valueDesc.outputKind)
+
+        val inlineValueDesc = assertIs<XmlPrimitiveDescriptor>(valueDesc.getElementDescriptor(0))
+        assertEquals(OutputKind.Element, inlineValueDesc.outputKind)
+    }
+
+    @Test
+    fun testSerializeStringIntHolderMap() {
+        val data = StringIntHolderMap(mapOf("abc" to IntHolder(123), "def" to IntHolder(456)))
+        val expected = "<StringIntHolderMap><value key=\"abc\">123</value><value key=\"def\">456</value></StringIntHolderMap>"
+        assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testDeserializeStringIntHolderMap() {
+        val expected = StringIntHolderMap(mapOf("abc" to IntHolder(123), "def" to IntHolder(456)))
+        val data = "<StringIntHolderMap><value key=\"abc\">123</value><value key=\"def\">456</value></StringIntHolderMap>"
+        assertEquals(expected, xml.decodeFromString(data))
+    }
+
+    @Test
+    fun testSerializeStringNonValueIntHolderMap() {
+        val data = StringNonValueIntHolderMap(mapOf("abc" to NonValueIntHolder(123), "def" to NonValueIntHolder(456)))
+        val expected = "<StringNonValueIntHolderMap><NonValueIntHolder key=\"abc\" data=\"123\"/><NonValueIntHolder key=\"def\" data=\"456\"/></StringNonValueIntHolderMap>"
+        assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testDeserializeStringNonValueIntHolderMap() {
+        val expected = StringNonValueIntHolderMap(mapOf("abc" to NonValueIntHolder(123), "def" to NonValueIntHolder(456)))
+        val data = "<StringNonValueIntHolderMap><NonValueIntHolder key=\"abc\" data=\"123\"/><NonValueIntHolder key=\"def\" data=\"456\"/></StringNonValueIntHolderMap>"
+        assertEquals(expected, xml.decodeFromString(data))
+    }
+
     @Serializable
     data class MapElement(val value: String)
 
@@ -209,4 +258,17 @@ class CustomMapKey274 {
 
     @Serializable
     data class MyClass(val map: Map<String, String>)
+
+    @Serializable
+    @JvmInline
+    value class IntHolder(val data: Int)
+
+    @Serializable
+    data class StringIntHolderMap(val map: Map<String, IntHolder>)
+
+    @Serializable
+    data class NonValueIntHolder(val data: Int)
+
+    @Serializable
+    data class StringNonValueIntHolderMap(val map: Map<String, NonValueIntHolder>)
 }
