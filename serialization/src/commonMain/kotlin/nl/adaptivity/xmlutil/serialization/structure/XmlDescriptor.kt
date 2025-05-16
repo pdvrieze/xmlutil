@@ -805,7 +805,7 @@ public class XmlInlineDescriptor internal constructor(
             }
         }
 
-        val useParentInfo = ParentInfo(codecConfig.config, this, 0, effectiveUseNameInfo)
+        val useParentInfo = ParentInfo(codecConfig.config, this, 0, effectiveUseNameInfo, serializerParent.elementUseOutputKind)
 
         from(codecConfig, useParentInfo, tagParent, canBeAttribute)
     }
@@ -1632,7 +1632,8 @@ public class XmlMapDescriptor internal constructor(
 
     private val valueDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val valueNameInfo = codecConfig.config.policy.mapValueName(serializerParent, isListEluded)
-        val parentInfo = ParentInfo(codecConfig.config, this, 1, valueNameInfo, OutputKind.Element)
+        val parentInfo =
+            ParentInfo(codecConfig.config, this, 1, valueNameInfo, if (isListEluded) OutputKind.Element else null)
         val valueTagParent = InjectedParentTag(0, typeDescriptor[1], valueNameInfo, tagParent.namespace)
         from(codecConfig, parentInfo, valueTagParent, canBeAttribute = true)
     }
