@@ -838,7 +838,8 @@ public class XmlInlineDescriptor internal constructor(
         if (isIdAttr != other.isIdAttr) return false
         if (defaultPreserveSpace != other.defaultPreserveSpace) return false
         if (isUnsigned != other.isUnsigned) return false
-        if (child != other.child) return false
+        if (child.tagName != other.tagName) return false
+        if (child.typeDescriptor != other.child.typeDescriptor) return false
 
         return true
     }
@@ -1247,9 +1248,16 @@ internal constructor(
 
             if (attrMapChildIdx != other.attrMapChildIdx) return false
             if (valueChildIdx != other.valueChildIdx) return false
-            if (children != other.children) return false
+
+            if (children.size != other.children.size) return false
+            for (childIdx in children.indices) {
+                val c = children[childIdx]
+                val oc = other.children[childIdx]
+                if (c.tagName != oc.tagName) return false
+                if (c.outputKind != oc.outputKind) return false
+                if (c.typeDescriptor != oc.typeDescriptor) return false
+            }
             if (!childReorderMap.contentEquals(other.childReorderMap)) return false
-            if (childConstraints != other.childConstraints) return false
 
             return true
         }
@@ -1502,13 +1510,10 @@ public class XmlPolymorphicDescriptor internal constructor(
 
         other as XmlPolymorphicDescriptor
 
-        if (codecConfig != other.codecConfig) return false
         if (defaultPreserveSpace != other.defaultPreserveSpace) return false
         if (outputKind != other.outputKind) return false
         if (polymorphicMode != other.polymorphicMode) return false
         if (polyInfo != other.polyInfo) return false
-        if (typeQNameToSerialName != other.typeQNameToSerialName) return false
-        if (children != other.children) return false
 
         return true
     }
@@ -1516,13 +1521,10 @@ public class XmlPolymorphicDescriptor internal constructor(
     @Suppress("DuplicatedCode")
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + codecConfig.hashCode()
         result = 31 * result + defaultPreserveSpace.hashCode()
         result = 31 * result + outputKind.hashCode()
         result = 31 * result + polymorphicMode.hashCode()
         result = 31 * result + polyInfo.hashCode()
-        result = 31 * result + typeQNameToSerialName.hashCode()
-        result = 31 * result + children.hashCode()
         return result
     }
 
@@ -1660,8 +1662,8 @@ public class XmlMapDescriptor internal constructor(
 
         if (isValueCollapsed != other.isValueCollapsed) return false
         if (entryName != other.entryName) return false
-        if (keyDescriptor != other.keyDescriptor) return false
-        if (valueDescriptor != other.valueDescriptor) return false
+//        if (keyDescriptor != other.keyDescriptor) return false
+//        if (valueDescriptor != other.valueDescriptor) return false
 
         return true
     }
@@ -1801,7 +1803,7 @@ public class XmlListDescriptor internal constructor(
 
         if (outputKind != other.outputKind) return false
         if (!delimiters.contentEquals(other.delimiters)) return false
-        if (childDescriptor != other.childDescriptor) return false
+//        if (childDescriptor != other.childDescriptor) return false
 
         return true
     }
@@ -2054,7 +2056,7 @@ private class DetachedParent(
 
     override fun toString(): String = when {
         isDocumentRoot -> "<Root>"
-        else -> "DetachedParent($elementUseNameInfo)"
+        else -> "<Detached>"
     }
 
     override val index: Int get() = -1
@@ -2292,27 +2294,27 @@ public class ParentInfo(
         other as ParentInfo
 
         if (index != other.index) return false
-        if (useAnnIsElement != other.useAnnIsElement) return false
-        if (useAnnIsValue != other.useAnnIsValue) return false
-        if (useAnnIgnoreWhitespace != other.useAnnIgnoreWhitespace) return false
-        if (useAnnCData != other.useAnnCData) return false
-        if (useAnnIsId != other.useAnnIsId) return false
-        if (useAnnIsOtherAttributes != other.useAnnIsOtherAttributes) return false
+//        if (useAnnIsElement != other.useAnnIsElement) return false
+//        if (useAnnIsValue != other.useAnnIsValue) return false
+//        if (useAnnIgnoreWhitespace != other.useAnnIgnoreWhitespace) return false
+//        if (useAnnCData != other.useAnnCData) return false
+//        if (useAnnIsId != other.useAnnIsId) return false
+//        if (useAnnIsOtherAttributes != other.useAnnIsOtherAttributes) return false
         if (descriptor != other.descriptor) return false
         if (overriddenSerializer != other.overriddenSerializer) return false
-        if (useAnnXmlSerialName != other.useAnnXmlSerialName) return false
-        if (useAnnPolyChildren != other.useAnnPolyChildren) return false
-        if (useAnnChildrenName != other.useAnnChildrenName) return false
-        if (useAnnKeyName != other.useAnnKeyName) return false
-        if (useAnnMapEntryName != other.useAnnMapEntryName) return false
-        if (useAnnDefault != other.useAnnDefault) return false
-        if (!useAnnBefore.contentEquals(other.useAnnBefore)) return false
-        if (!useAnnAfter.contentEquals(other.useAnnAfter)) return false
-        if (useAnnNsDecls != other.useAnnNsDecls) return false
+//        if (useAnnXmlSerialName != other.useAnnXmlSerialName) return false
+//        if (useAnnPolyChildren != other.useAnnPolyChildren) return false
+//        if (useAnnChildrenName != other.useAnnChildrenName) return false
+//        if (useAnnKeyName != other.useAnnKeyName) return false
+//        if (useAnnMapEntryName != other.useAnnMapEntryName) return false
+//        if (useAnnDefault != other.useAnnDefault) return false
+//        if (!useAnnBefore.contentEquals(other.useAnnBefore)) return false
+//        if (!useAnnAfter.contentEquals(other.useAnnAfter)) return false
+//        if (useAnnNsDecls != other.useAnnNsDecls) return false
         if (elementUseNameInfo != other.elementUseNameInfo) return false
-        if (elementSerialDescriptor != other.elementSerialDescriptor) return false
-        if (elementUseOutputKind != other.elementUseOutputKind) return false
-        if (elementTypeDescriptor != other.elementTypeDescriptor) return false
+//        if (elementSerialDescriptor != other.elementSerialDescriptor) return false
+//        if (elementUseOutputKind != other.elementUseOutputKind) return false
+//        if (elementTypeDescriptor != other.elementTypeDescriptor) return false
 
         return true
     }
