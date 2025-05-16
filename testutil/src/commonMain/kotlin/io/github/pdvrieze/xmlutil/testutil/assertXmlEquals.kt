@@ -26,14 +26,24 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import kotlin.jvm.JvmOverloads
 import kotlin.test.*
 
+fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> String?) {
+    assertXmlEquals(expected, actual, ignoreDocDecl = DocDeclEqualityMode.AUTO, messageProvider)
+}
+
+enum class DocDeclEqualityMode {
+    IGNORE,
+    CHECK,
+    AUTO,
+}
+
 @JvmOverloads
-fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> String? = { null }) {
+fun assertXmlEquals(expected: String, actual: String, ignoreDocDecl: DocDeclEqualityMode = DocDeclEqualityMode.AUTO, messageProvider: () -> String? = { null }) {
     if (expected != actual) {
         val expectedReader = KtXmlReader(StringReader(expected))
         val actualReader = KtXmlReader(StringReader(actual))
 
         try {
-            assertXmlEquals(expectedReader, actualReader, messageProvider)
+            assertXmlEquals(expectedReader, actualReader, ignoreDocDecl, messageProvider)
         } catch (e: AssertionError) {
             try {
                 assertEquals(expected, actual, messageProvider())
@@ -45,24 +55,50 @@ fun assertXmlEquals(expected: String, actual: String, messageProvider: () -> Str
     }
 }
 
-internal fun XmlReader.nextNotIgnored(): XmlEvent? {
+internal fun XmlReader.nextNotIgnored(ignoreDocDecl: DocDeclEqualityMode): XmlEvent? {
     while (hasNext()) {
-        val et = next()
-        if (et == EventType.PROCESSING_INSTRUCTION) {
-            return toEvent()
-        } else if (!et.isIgnorable) {
-            val ev = toEvent()
-            if (!ev.isIgnorable) return ev // Check again for spurious empty text etc.
+
+        when (val et = next()) {
+            EventType.PROCESSING_INSTRUCTION -> return toEvent()
+            EventType.START_DOCUMENT -> if (ignoreDocDecl != DocDeclEqualityMode.IGNORE) return toEvent()
+            else -> if (!et.isIgnorable) {
+                val ev = toEvent()
+                if (!ev.isIgnorable) return ev // Check again for spurious empty text etc.
+            }
         }
     }
     return null
 }
 
+fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () -> String?) {
+    assertXmlEquals(expected, actual, ignoreDocDecl = DocDeclEqualityMode.AUTO, messageProvider)
+}
+
+/**
+ * (Recursive) function that checks whether the two xml readers produce the same stream of events.
+ * This ignores whitespace. Note that he behaviour is such that if the expected content has a
+ * START_DOCUMENT event this is always checked against the actual.
+ *
+ * @param expected The reader that produces the expected events
+ * @param actual The reader that produces the actual events
+ * @param ignoreDocDecl If false, document declaration equality is checked in all cases, if true only
+ *     if one is present in the expected document.
+ * @param messageProvider Function that provides the error message in case the assertion fails.
+ *
+ */
 @JvmOverloads
-fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () -> String? = { null }): Unit {
-    do {
-        val expEv = expected.nextNotIgnored()
-        val actEv = actual.nextNotIgnored()
+fun assertXmlEquals(expected: XmlReader, actual: XmlReader, ignoreDocDecl: DocDeclEqualityMode = DocDeclEqualityMode.AUTO, messageProvider: () -> String? = { null }) {
+    run {
+        var expEv: XmlEvent? = expected.nextNotIgnored(ignoreDocDecl)
+        if (ignoreDocDecl == DocDeclEqualityMode.AUTO && expEv is XmlEvent.StartDocumentEvent && expEv.standalone == null && expEv.version == null && expEv.version == null) {
+            expEv = expected.nextNotIgnored(DocDeclEqualityMode.IGNORE)
+        }
+        val actEv = when {
+            expEv?.eventType == EventType.START_DOCUMENT && ignoreDocDecl == DocDeclEqualityMode.AUTO ->
+                actual.nextNotIgnored(DocDeclEqualityMode.CHECK)
+
+            else -> actual.nextNotIgnored(DocDeclEqualityMode.IGNORE)
+        }
 
         when {
             expEv == null -> {
@@ -73,7 +109,21 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () 
             actEv == null -> fail("${messageProvider()?.let { "$it. " }}Expected $expEv, but found nothing")
             else -> assertXmlEquals(expEv, actEv, messageProvider)
         }
-    } while (actual.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
+    }
+    while (actual.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext()) {
+        val expEv = expected.nextNotIgnored(DocDeclEqualityMode.CHECK)
+        val actEv = actual.nextNotIgnored(DocDeclEqualityMode.CHECK)
+
+        when {
+            expEv == null -> {
+                assertTrue(actEv == null, "${messageProvider()?.let { "$it. " }}Expected nothing, but found $actEv")
+                return
+            }
+
+            actEv == null -> fail("${messageProvider()?.let { "$it. " }}Expected $expEv, but found nothing")
+            else -> assertXmlEquals(expEv, actEv, messageProvider)
+        }
+    }
 
     while (expected.hasNext() && expected.isIgnorable()) {
         expected.next()
@@ -89,6 +139,9 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () 
 fun assertXmlEquals(expectedEvent: XmlEvent, actualEvent: XmlEvent, messageProvider: () -> String? = { null }) {
     assertEquals(expectedEvent.eventType, actualEvent.eventType, "Different event found")
     when (expectedEvent) {
+        is XmlEvent.StartDocumentEvent ->
+            assertStartDocumentEquals(expectedEvent, actualEvent as XmlEvent.StartDocumentEvent, messageProvider)
+
         is XmlEvent.StartElementEvent ->
             assertStartElementEquals(expectedEvent, actualEvent as XmlEvent.StartElementEvent, messageProvider)
 
@@ -129,4 +182,14 @@ internal fun assertStartElementEquals(
         .sortedBy { "{${it.namespaceUri}}${it.localName}" }
 
     assertContentEquals(expectedAttributes, actualAttributes, messageProvider())
+}
+
+internal fun assertStartDocumentEquals(
+    expectedEvent: XmlEvent.StartDocumentEvent,
+    actualEvent: XmlEvent.StartDocumentEvent,
+    messageProvider: () -> String? = { null }
+) {
+    assertEquals(expectedEvent.version, actualEvent.version, messageProvider())
+    assertEquals(expectedEvent.encoding, actualEvent.encoding, messageProvider())
+    assertEquals(expectedEvent.standalone, actualEvent.standalone, messageProvider())
 }

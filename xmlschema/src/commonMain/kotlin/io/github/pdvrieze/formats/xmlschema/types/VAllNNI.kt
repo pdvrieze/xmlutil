@@ -163,7 +163,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             }
 
             override fun serialize(encoder: Encoder, value: Value) {
-                encoder.encodeString(value.toString())
+                encoder.encodeString(value.xmlString)
             }
 
         }
@@ -191,7 +191,10 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         }
 
         override fun serialize(encoder: Encoder, value: VAllNNI) {
-            encoder.encodeString(value.toString())
+            when (value) {
+                is UNBOUNDED -> encoder.encodeString("unbounded")
+                is Value -> encoder.encodeString(value.xmlString)
+            }
         }
     }
 }

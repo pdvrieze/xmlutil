@@ -78,11 +78,29 @@ open annotation class nl.adaptivity.xmlutil.serialization/XmlKeyName : kotlin/An
         final fun <get-value>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlKeyName.value.<get-value>|<get-value>(){}[0]
 }
 
+open annotation class nl.adaptivity.xmlutil.serialization/XmlMapEntryName : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlMapEntryName|null[0]
+    constructor <init>(kotlin/String, kotlin/String = ..., kotlin/String = ...) // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.<init>|<init>(kotlin.String;kotlin.String;kotlin.String){}[0]
+
+    final val namespace // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.namespace|{}namespace[0]
+        final fun <get-namespace>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.namespace.<get-namespace>|<get-namespace>(){}[0]
+    final val prefix // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.prefix|{}prefix[0]
+        final fun <get-prefix>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.prefix.<get-prefix>|<get-prefix>(){}[0]
+    final val value // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.value|{}value[0]
+        final fun <get-value>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlMapEntryName.value.<get-value>|<get-value>(){}[0]
+}
+
 open annotation class nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec|null[0]
     constructor <init>(kotlin/String) // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec.<init>|<init>(kotlin.String){}[0]
 
     final val value // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec.value|{}value[0]
         final fun <get-value>(): kotlin/String // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec.value.<get-value>|<get-value>(){}[0]
+}
+
+open annotation class nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs|null[0]
+    constructor <init>(kotlin/Array<out kotlin/String>...) // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
+
+    final val value // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs.value|{}value[0]
+        final fun <get-value>(): kotlin/Array<out kotlin/String> // nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs.value.<get-value>|<get-value>(){}[0]
 }
 
 open annotation class nl.adaptivity.xmlutil.serialization/XmlOtherAttributes : kotlin/Annotation { // nl.adaptivity.xmlutil.serialization/XmlOtherAttributes|null[0]
@@ -164,6 +182,8 @@ open enum class nl.adaptivity.xmlutil.serialization/OutputKind : kotlin/Enum<nl.
 
     final val entries // nl.adaptivity.xmlutil.serialization/OutputKind.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.serialization/OutputKind> // nl.adaptivity.xmlutil.serialization/OutputKind.entries.<get-entries>|<get-entries>#static(){}[0]
+    open val isTextOrMixed // nl.adaptivity.xmlutil.serialization/OutputKind.isTextOrMixed|{}isTextOrMixed[0]
+        open fun <get-isTextOrMixed>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/OutputKind.isTextOrMixed.<get-isTextOrMixed>|<get-isTextOrMixed>(){}[0]
     open val isTextual // nl.adaptivity.xmlutil.serialization/OutputKind.isTextual|{}isTextual[0]
         open fun <get-isTextual>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/OutputKind.isTextual.<get-isTextual>|<get-isTextual>(){}[0]
 
@@ -218,6 +238,8 @@ abstract interface nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo 
         open fun <get-useAnnIsValue>(): kotlin/Boolean? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnIsValue.<get-useAnnIsValue>|<get-useAnnIsValue>(){}[0]
     open val useAnnKeyName // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnKeyName|{}useAnnKeyName[0]
         open fun <get-useAnnKeyName>(): nl.adaptivity.xmlutil.serialization/XmlKeyName? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnKeyName.<get-useAnnKeyName>|<get-useAnnKeyName>(){}[0]
+    open val useAnnMapEntryName // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnMapEntryName|{}useAnnMapEntryName[0]
+        open fun <get-useAnnMapEntryName>(): nl.adaptivity.xmlutil.serialization/XmlMapEntryName? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnMapEntryName.<get-useAnnMapEntryName>|<get-useAnnMapEntryName>(){}[0]
     open val useAnnNsDecls // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnNsDecls|{}useAnnNsDecls[0]
         open fun <get-useAnnNsDecls>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace>? // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnNsDecls.<get-useAnnNsDecls>|<get-useAnnNsDecls>(){}[0]
     open val useAnnPolyChildren // nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo.useAnnPolyChildren|{}useAnnPolyChildren[0]
@@ -1016,6 +1038,7 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
             final fun <get-verifyElementOrder>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.verifyElementOrder.<get-verifyElementOrder>|<get-verifyElementOrder>(){}[0]
             final fun <set-verifyElementOrder>(kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.verifyElementOrder.<set-verifyElementOrder>|<set-verifyElementOrder>(kotlin.Boolean){}[0]
 
+        final fun build compat(): nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.build compat|build compat(){}[0]
         final fun build(): nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.build|build(){}[0]
         final fun ignoreNamespaces() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.ignoreNamespaces|ignoreNamespaces(){}[0]
         final fun ignoreUnknownChildren() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.ignoreUnknownChildren|ignoreUnknownChildren(){}[0]
@@ -1156,6 +1179,8 @@ final object nl.adaptivity.xmlutil.serialization/NodeSerializer : nl.adaptivity.
     final fun serializeXML(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlWriter, nl.adaptivity.xmlutil.dom/Node, kotlin/Boolean) // nl.adaptivity.xmlutil.serialization/NodeSerializer.serializeXML|serializeXML(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlWriter;nl.adaptivity.xmlutil.dom.Node;kotlin.Boolean){}[0]
 }
 
+final val nl.adaptivity.xmlutil.serialization/namespaces // nl.adaptivity.xmlutil.serialization/namespaces|@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs{}namespaces[0]
+    final fun (nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs).<get-namespaces>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil.serialization/namespaces.<get-namespaces>|<get-namespaces>@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs(){}[0]
 final val nl.adaptivity.xmlutil.serialization/namespaces // nl.adaptivity.xmlutil.serialization/namespaces|@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpec{}namespaces[0]
     final fun (nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpec).<get-namespaces>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil.serialization/namespaces.<get-namespaces>|<get-namespaces>@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpec(){}[0]
 

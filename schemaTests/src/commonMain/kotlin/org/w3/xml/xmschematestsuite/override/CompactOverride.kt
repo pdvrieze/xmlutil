@@ -28,13 +28,13 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.serialization.XmlDefault
-import nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpec
+import nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.xml.xmschematestsuite.TSExpected
 
 @Serializable
 @XmlSerialName("overrides", namespace = "http://pdvrieze.github.io/xmlutil/testoverride", "")
-@XmlNamespaceDeclSpec("ts=http://www.w3.org/XML/2004/xml-schema-test-suite/")
+@XmlNamespaceDeclSpecs("ts=http://www.w3.org/XML/2004/xml-schema-test-suite/")
 class CompactOverride(
     @XmlSerialName("ignore", namespace = "http://pdvrieze.github.io/xmlutil/testoverride", "")
     val ignores: List<TestPath>,

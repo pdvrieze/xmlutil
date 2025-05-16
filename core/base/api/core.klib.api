@@ -283,11 +283,8 @@ abstract interface nl.adaptivity.xmlutil.dom/Node { // nl.adaptivity.xmlutil.dom
     abstract val previousSibling // nl.adaptivity.xmlutil.dom/Node.previousSibling|{}previousSibling[0]
         abstract fun <get-previousSibling>(): nl.adaptivity.xmlutil.dom/Node? // nl.adaptivity.xmlutil.dom/Node.previousSibling.<get-previousSibling>|<get-previousSibling>(){}[0]
 
-    abstract fun appendChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/Node.appendChild|appendChild(nl.adaptivity.xmlutil.dom.Node){}[0]
     abstract fun lookupNamespaceURI(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom/Node.lookupNamespaceURI|lookupNamespaceURI(kotlin.String){}[0]
     abstract fun lookupPrefix(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom/Node.lookupPrefix|lookupPrefix(kotlin.String){}[0]
-    abstract fun removeChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/Node.removeChild|removeChild(nl.adaptivity.xmlutil.dom.Node){}[0]
-    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/Node, nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/Node.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.Node;nl.adaptivity.xmlutil.dom.Node){}[0]
 
     // Targets: [linuxX64, wasmJs, wasmWasi]
     abstract val textContent // nl.adaptivity.xmlutil.dom/Node.textContent|{}textContent[0]
@@ -296,6 +293,15 @@ abstract interface nl.adaptivity.xmlutil.dom/Node { // nl.adaptivity.xmlutil.dom
     // Targets: [linuxX64, wasmJs, wasmWasi]
     open val parentElement // nl.adaptivity.xmlutil.dom/Node.parentElement|{}parentElement[0]
         open fun <get-parentElement>(): nl.adaptivity.xmlutil.dom/Element? // nl.adaptivity.xmlutil.dom/Node.parentElement.<get-parentElement>|<get-parentElement>(){}[0]
+
+    // Targets: [linuxX64, wasmJs, wasmWasi]
+    abstract fun appendChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/Node.appendChild|appendChild(nl.adaptivity.xmlutil.dom.Node){}[0]
+
+    // Targets: [linuxX64, wasmJs, wasmWasi]
+    abstract fun removeChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/Node.removeChild|removeChild(nl.adaptivity.xmlutil.dom.Node){}[0]
+
+    // Targets: [linuxX64, wasmJs, wasmWasi]
+    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/Node, nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/Node.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.Node;nl.adaptivity.xmlutil.dom.Node){}[0]
 
     // Targets: [linuxX64, wasmJs, wasmWasi]
     final object Companion { // nl.adaptivity.xmlutil.dom/Node.Companion|null[0]
@@ -1771,6 +1777,8 @@ final fun (nl.adaptivity.xmlutil.dom/NamedNodeMap).nl.adaptivity.xmlutil.dom/get
 final fun (nl.adaptivity.xmlutil.dom/NamedNodeMap).nl.adaptivity.xmlutil.dom/iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil.dom/Attr> // nl.adaptivity.xmlutil.dom/iterator|iterator@nl.adaptivity.xmlutil.dom.NamedNodeMap(){}[0]
 final fun (nl.adaptivity.xmlutil.dom/NamedNodeMap).nl.adaptivity.xmlutil.util/iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil.dom/Node> // nl.adaptivity.xmlutil.util/iterator|iterator@nl.adaptivity.xmlutil.dom.NamedNodeMap(){}[0]
 final fun (nl.adaptivity.xmlutil.dom/Node).nl.adaptivity.xmlutil.dom/getParentElement(): nl.adaptivity.xmlutil.dom/Element? // nl.adaptivity.xmlutil.dom/getParentElement|getParentElement@nl.adaptivity.xmlutil.dom.Node(){}[0]
+final fun (nl.adaptivity.xmlutil.dom/Node).nl.adaptivity.xmlutil.dom/removeChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/removeChild|removeChild@nl.adaptivity.xmlutil.dom.Node(nl.adaptivity.xmlutil.dom.Node){}[0]
+final fun (nl.adaptivity.xmlutil.dom/Node).nl.adaptivity.xmlutil.dom/replaceChild(nl.adaptivity.xmlutil.dom/Node, nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/replaceChild|replaceChild@nl.adaptivity.xmlutil.dom.Node(nl.adaptivity.xmlutil.dom.Node;nl.adaptivity.xmlutil.dom.Node){}[0]
 final fun (nl.adaptivity.xmlutil.dom/NodeList).nl.adaptivity.xmlutil.dom/get(kotlin/Int): nl.adaptivity.xmlutil.dom/Node? // nl.adaptivity.xmlutil.dom/get|get@nl.adaptivity.xmlutil.dom.NodeList(kotlin.Int){}[0]
 final fun (nl.adaptivity.xmlutil.dom/NodeList).nl.adaptivity.xmlutil.dom/iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil.dom/Node> // nl.adaptivity.xmlutil.dom/iterator|iterator@nl.adaptivity.xmlutil.dom.NodeList(){}[0]
 final fun (nl.adaptivity.xmlutil.dom/NodeList).nl.adaptivity.xmlutil.util/iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil.dom/Node> // nl.adaptivity.xmlutil.util/iterator|iterator@nl.adaptivity.xmlutil.dom.NodeList(){}[0]
@@ -1874,6 +1882,12 @@ final class nl.adaptivity.xmlutil.dom/DOMException : kotlin/Exception { // nl.ad
     constructor <init>(kotlin/String?, kotlin/Throwable?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(kotlin.String?;kotlin.Throwable?){}[0]
     constructor <init>(kotlin/Throwable?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(kotlin.Throwable?){}[0]
 }
+
+// Targets: [linuxX64, wasmJs, wasmWasi]
+final inline fun (nl.adaptivity.xmlutil.dom/Node).nl.adaptivity.xmlutil.dom/appendChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/appendChild|appendChild@nl.adaptivity.xmlutil.dom.Node(nl.adaptivity.xmlutil.dom.Node){}[0]
+
+// Targets: [js]
+final fun (nl.adaptivity.xmlutil.dom/Node).nl.adaptivity.xmlutil.dom/appendChild(nl.adaptivity.xmlutil.dom/Node): nl.adaptivity.xmlutil.dom/Node // nl.adaptivity.xmlutil.dom/appendChild|appendChild@nl.adaptivity.xmlutil.dom.Node(nl.adaptivity.xmlutil.dom.Node){}[0]
 
 // Targets: [js]
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newReader(org.w3c.dom/Node): nl.adaptivity.xmlutil/DomReader // nl.adaptivity.xmlutil/newReader|newReader@nl.adaptivity.xmlutil.IXmlStreaming(org.w3c.dom.Node){}[0]

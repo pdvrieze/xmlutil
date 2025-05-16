@@ -35,13 +35,11 @@ public expect interface Node {
 
     public fun lookupNamespaceURI(prefix: String): String?
 
-    public fun appendChild(node: Node): Node
-
-    public fun replaceChild(oldChild: Node, newChild: Node): Node
-
-    public fun removeChild(node: Node): Node
-
 }
+
+public expect fun Node.appendChild(node: Node): Node
+public expect fun Node.replaceChild(oldChild: Node, newChild: Node): Node
+public expect fun Node.removeChild(node: Node): Node
 
 public expect inline fun Node.getNodeType(): Short
 public expect inline fun Node.getNodeName(): String

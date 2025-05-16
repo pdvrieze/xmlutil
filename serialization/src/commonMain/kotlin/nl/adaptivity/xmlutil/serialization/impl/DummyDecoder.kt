@@ -63,7 +63,7 @@ public class DummyDecoder(public val value: Any?) : Decoder {
     }
 
     @ExperimentalSerializationApi
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder = this
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder = this
 
     @ExperimentalSerializationApi
     override fun decodeNotNullMark(): Boolean = value == null

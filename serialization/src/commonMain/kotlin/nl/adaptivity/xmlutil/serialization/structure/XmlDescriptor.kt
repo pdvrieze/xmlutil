@@ -44,7 +44,6 @@ import nl.adaptivity.xmlutil.serialization.impl.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
-import kotlin.math.E
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
@@ -172,6 +171,7 @@ public sealed class XmlDescriptor(
         codecConfig.config.policy.elementNamespaceDecls(serializerParent)
 
     override val tagName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        // not normalized to allow prefix to be preferred
         codecConfig.config.policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
     }
 
@@ -297,19 +297,28 @@ public sealed class XmlDescriptor(
             val localAttrMap = QNameMap<Int>()
             val contextualChildren = mutableListOf<Int>()
 
+            val outerValueChild = xmlDescriptor.getValueChild()
             @OptIn(ExperimentalSerializationApi::class)
             for (idx in 0 until xmlDescriptor.elementsCount) {
+                val isValueChild = idx == outerValueChild
                 val elementDesc = xmlDescriptor.getElementDescriptor(idx).visibleDescendantOrSelf
                 when {
                     // Transparent polymorphism adds all potential child tags
                     elementDesc is XmlPolymorphicDescriptor && elementDesc.isTransparent -> {
                         for (childDescriptor in elementDesc.polyInfo.values) {
-                            val tagName = childDescriptor.tagName.normalize()
+                            val tagName = when {
+                                isValueChild && childDescriptor.outputKind.isTextOrMixed -> QName("kotlin.String")
+                                else -> childDescriptor.tagName.normalize()
+                            }
                             check(isUnchecked || seenTagNames.add(tagName)) {
                                 "Duplicate name $tagName:$idx as polymorphic child in ${xmlDescriptor.serialDescriptor.serialName}"
                             }
                             localPolyMap[tagName] = PolyInfo(tagName, idx, childDescriptor)
                         }
+                    }
+
+                    elementDesc is XmlMapDescriptor && elementDesc.isListEluded && ! elementDesc.isValueCollapsed -> {
+                        localTagNameMap[elementDesc.entryName.normalize()] = idx
                     }
 
                     elementDesc is XmlContextualDescriptor && xmlDescriptor.serialKind !is PolymorphicKind -> {
@@ -359,8 +368,10 @@ public sealed class XmlDescriptor(
 
                 result = result.getElementDescriptor(0)
             }
-            if (result is XmlMapDescriptor && result.isListEluded && result.isValueCollapsed) { // some transparent tags
-                return result.getElementDescriptor(1).toNonTransparentChild()
+            if (result is XmlMapDescriptor && result.isListEluded) {
+                if (result.isValueCollapsed) { // some transparent tags
+                    return result.getElementDescriptor(1).toNonTransparentChild()
+                }
             }
             return result
         }
@@ -1310,7 +1321,11 @@ public class XmlPolymorphicDescriptor internal constructor(
                     )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
-                    localPolyInfo[childDesc.serialName] = xmlDescriptor
+                    var cd = xmlDescriptor
+                    while (cd is XmlInlineDescriptor) { cd = cd.getElementDescriptor(0) }
+                    val effectiveSerialName= if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
+
+                    localPolyInfo[effectiveSerialName] = xmlDescriptor
                     val qName = policy.typeQName(xmlDescriptor).normalize()
                     localQNameToSerialName[qName] = childDesc.serialName
 
@@ -1338,7 +1353,13 @@ public class XmlPolymorphicDescriptor internal constructor(
                     )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
-                    localPolyInfo[childDesc.serialName] = xmlDescriptor
+
+                    var cd = xmlDescriptor
+                    while (cd is XmlInlineDescriptor) { cd = cd.getElementDescriptor(0) }
+                    val effectiveSerialName= if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
+
+                    localPolyInfo[effectiveSerialName] = xmlDescriptor
+
                     val qName = policy.typeQName(xmlDescriptor).normalize()
                     localQNameToSerialName[qName] = childDesc.serialName
                 }
@@ -1538,10 +1559,9 @@ public class XmlMapDescriptor internal constructor(
     }
 
     internal val entryName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        if (isValueCollapsed) {
-            valueDescriptor.tagName
-        } else {
-            codecConfig.config.policy.mapEntryName(serializerParent, isListEluded)
+        when {
+            isValueCollapsed -> valueDescriptor.tagName
+            else -> codecConfig.config.policy.mapEntryName(serializerParent, isListEluded)
         }
     }
 
@@ -1685,7 +1705,12 @@ public class XmlListDescriptor internal constructor(
             else -> tagParent.elementUseNameInfo
         }
 
-        from(codecConfig, ParentInfo(codecConfig.config, this, 0, useNameInfo, outputKind), tagParent, false)
+        from(
+            codecConfig,
+            ParentInfo(codecConfig.config, this, 0, useNameInfo, outputKind),
+            tagParent,
+            canBeAttribute = false
+        )
     }
 
     override fun getElementDescriptor(index: Int): XmlDescriptor {
@@ -1786,6 +1811,10 @@ public interface SafeParentInfo {
     @ExperimentalXmlUtilApi
     public val useAnnKeyName: XmlKeyName? get() = null
 
+    /** Value of the [XmlKeyName] annotation */
+    @ExperimentalXmlUtilApi
+    public val useAnnMapEntryName: XmlMapEntryName? get() = null
+
     /** Value of the [XmlCData] annotation */
     @ExperimentalXmlUtilApi
     public val useAnnCData: Boolean? get() = null
@@ -1810,7 +1839,7 @@ public interface SafeParentInfo {
     @ExperimentalXmlUtilApi
     public val useAnnAfter: Array<out String>? get() = null
 
-    /** Value of the [XmlNamespaceDeclSpec] annotation */
+    /** Value of the [XmlNamespaceDeclSpecs] annotation */
     @ExperimentalXmlUtilApi
     public val useAnnNsDecls: List<Namespace>? get() = null
 
@@ -2113,6 +2142,10 @@ public class ParentInfo(
         private set
 
     @ExperimentalXmlUtilApi
+    public override var useAnnMapEntryName: XmlMapEntryName? = null
+        private set
+
+    @ExperimentalXmlUtilApi
     public override var useAnnCData: Boolean? = null
         private set
 
@@ -2150,8 +2183,10 @@ public class ParentInfo(
                 is XmlPolyChildren -> useAnnPolyChildren = an
                 is XmlIgnoreWhitespace -> useAnnIgnoreWhitespace = an.value
                 is XmlNamespaceDeclSpec -> useAnnNsDecls = an.namespaces
+                is XmlNamespaceDeclSpecs -> useAnnNsDecls = an.namespaces
                 is XmlChildrenName -> useAnnChildrenName = an
                 is XmlKeyName -> useAnnKeyName = an
+                is XmlMapEntryName -> useAnnMapEntryName = an
                 is XmlValue -> useAnnIsValue = an.value
                 is XmlId -> useAnnIsId = true
                 is XmlOtherAttributes -> useAnnIsOtherAttributes = true

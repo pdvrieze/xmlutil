@@ -29,9 +29,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
+import nl.adaptivity.xmlutil.serialization.LayeredCache
+import nl.adaptivity.xmlutil.serialization.TestFormatCache
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.copy
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -95,6 +95,7 @@ internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerial
         autoPolymorphic = false
         typeDiscriminatorName = null
         pedantic = true
+        formatCache = TestFormatCache(LayeredCache())
     }
     xmlDeclMode = XmlDeclMode.None
 }

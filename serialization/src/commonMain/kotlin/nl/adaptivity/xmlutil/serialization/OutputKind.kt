@@ -27,9 +27,13 @@ public enum class OutputKind {
     },
     Text {
         override val isTextual: Boolean get() = true
+        override val isTextOrMixed: Boolean get() = true
     },
-    Mixed,
+    Mixed{
+        override val isTextOrMixed: Boolean get() = true
+    },
     Inline;
 
     public open val isTextual: Boolean get() = false
+    public open val isTextOrMixed: Boolean get() = false
 }

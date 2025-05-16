@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.*
+import kotlin.jvm.JvmName
 
 /**
  * Policies allow for customizing the behaviour of the xml serialization
@@ -601,7 +602,31 @@ private constructor(
 
             "kotlin.String" -> QName(XMLConstants.XSD_NS_URI, "string", XMLConstants.XSD_PREFIX)
 
-            else -> serialName.substringAfterLast('.').toQname(parentNamespace)
+            else -> {
+                var start = 0
+                var end = serialName.length
+                val namespaceUri = if (serialName[0] == '{') {
+                    val e = serialName.indexOf('}', 1)
+                    require(e >=0) {"Serialname starts with '{' to indicate namespace but does not have a closing '}'"}
+                    start = e + 1 // skip the namespace in the next step
+                    serialName.substring(0, e)
+                } else {
+                    parentNamespace.namespaceURI
+                }
+
+
+                for(i in start until serialName.length) {
+                    when (val c = serialName[i]) {
+                        '{', '}', ']', ')', '>', ':' -> throw IllegalArgumentException("Unexpected '$c' when determining local name from serialname (\"$serialName\")")
+                        '(', '<', '[' -> { // allow these to terminate the name
+                            end = i
+                            break
+                        }
+                        '.' -> start = i + 1
+                    }
+                }
+                QName(namespaceUri, serialName.substring(start, end))
+            }
         }
     }
 
@@ -815,6 +840,11 @@ private constructor(
     }
 
     override fun mapEntryName(serializerParent: SafeParentInfo, isListEluded: Boolean): QName {
+        val useAnnEntryName = serializerParent.useAnnMapEntryName
+        if (useAnnEntryName != null) {
+            return useAnnEntryName.toQName(serializerParent.namespace)
+        }
+
         if (isListEluded) { // If we don't have list tags, use the list name, otherwise use the default
             serializerParent.elementUseNameInfo.annotatedName?.let { return it }
         }
@@ -826,6 +856,7 @@ private constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
+        if (mapParent.useAnnMapEntryName != null) return false
         val keyDescriptor = mapParent.elementSerialDescriptor.getElementDescriptor(0)
         val keyUseName = mapKeyName(mapParent)
 
@@ -1022,6 +1053,12 @@ private constructor(
         public fun ignoreNamespaces() {
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
         }
+
+        // Unintended return type change in 0.86.3
+        @Suppress("NEWER_VERSION_IN_SINCE_KOTLIN")
+        @JvmName("build")
+        @Deprecated("Only available for binary compatibility", level = DeprecationLevel.HIDDEN)
+        public fun `build compat`(): XmlSerializationPolicy = build()
 
         public fun build(): DefaultXmlSerializationPolicy {
             return DefaultXmlSerializationPolicy(this)
