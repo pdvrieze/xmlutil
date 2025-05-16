@@ -104,7 +104,21 @@ public class XML(
     public fun copy(
         serializersModule: SerializersModule = this.serializersModule,
         configure: XmlConfig.Builder.() -> Unit,
-    ): XML = XML(XmlConfig.Builder(config).apply(configure), serializersModule)
+    ): XML {
+        val newConfigBuilder = XmlConfig.Builder(config).apply(configure)
+        val oldCache = config.formatCache
+        when (val p = newConfigBuilder.policy) {
+            is DefaultXmlSerializationPolicy -> if (oldCache == p.formatCache) {
+                newConfigBuilder.policy = p.copy { formatCache = formatCache.copy() }
+            }
+
+            is ShadowPolicy -> if (oldCache == p.cache) {
+                newConfigBuilder.policy = ShadowPolicy(p.basePolicy, p.cache.copy())
+            }
+        }
+
+        return XML(newConfigBuilder, serializersModule)
+    }
 
     override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         return encodeToString(serializer, value, null)
