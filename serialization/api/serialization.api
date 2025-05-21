@@ -487,6 +487,8 @@ public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun fast (Lkotlin/jvm/functions/Function1;)V
 	public final fun fast_0_90_2 ()V
 	public final fun fast_0_90_2 (Lkotlin/jvm/functions/Function1;)V
+	public final fun fast_0_91_1 ()V
+	public final fun fast_0_91_1 (Lkotlin/jvm/functions/Function1;)V
 	public final fun getAutoPolymorphic ()Ljava/lang/Boolean;
 	public final fun getDefaultToGenericParser ()Z
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
