@@ -1,3 +1,9 @@
+# 0.91.2-SNAPSHOT
+
+Fixes:
+- Fix trimming of strings inside a mixed context where there is an
+  `@XmlIgnoreSpace(true)` annotation.
+
 # 0.91.1
 *(May 15, 2025)
 

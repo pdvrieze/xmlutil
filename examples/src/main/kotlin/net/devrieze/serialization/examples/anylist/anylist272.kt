@@ -1,6 +1,28 @@
 /*
+ * Copyright (c) 2024-2025.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+/*
  * Example test case by github.com/users/auzatsepin in #271/#272
  */
+
+@file:Suppress("PublicApiImplicitType")
 
 package net.devrieze.serialization.examples.anylist
 
@@ -11,13 +33,9 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlIgnoreWhitespace
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 
-private val module = SerializersModule {
+internal val anyListModule = SerializersModule {
     polymorphic(Any::class) {
         subclass(Order1::class, serializer())
         subclass(StopOrder1::class, serializer())
@@ -25,8 +43,8 @@ private val module = SerializersModule {
     }
 }
 
-private val parser = XML(module) {
-    autoPolymorphic = true
+private val parser = XML(anyListModule) {
+    recommended_0_91_0()
 }
 
 interface XmlEntity
@@ -65,7 +83,7 @@ data class StopLoss(
     @XmlElement @SerialName("bymarket") val byMarket: Boolean
 ) : XmlEntity
 
-fun xmlData(text: String="") = """<orders>
+fun xmlData(text: String = "") = """<orders>
     <order transactionid="32021651">
         <secid>8135</secid>
     </order>
@@ -79,7 +97,10 @@ fun xmlData(text: String="") = """<orders>
 </orders>"""
 
 fun main() {
-    val decoded1 = parser.decodeFromString(serializer<Orders1>(), xmlData("<string xmlns=\"http://www.w3.org/2001/XMLSchema\">foo</string>"))
+    val decoded1 = parser.decodeFromString(
+        serializer<Orders1>(),
+        xmlData("<string xmlns=\"http://www.w3.org/2001/XMLSchema\">foo</string>")
+    )
     println("size " + decoded1.orders.size)
     println(decoded1)
     val decoded2 = parser.decodeFromString(serializer<Orders2>(), xmlData("Random string content"))
