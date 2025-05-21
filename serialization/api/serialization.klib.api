@@ -1044,6 +1044,7 @@ open class nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy : n
         final fun build(): nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.build|build(){}[0]
         final fun ignoreNamespaces() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.ignoreNamespaces|ignoreNamespaces(){}[0]
         final fun ignoreUnknownChildren() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.ignoreUnknownChildren|ignoreUnknownChildren(){}[0]
+        final fun setDefaults_0_91_0() // nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder.setDefaults_0_91_0|setDefaults_0_91_0(){}[0]
     }
 }
 
