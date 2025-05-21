@@ -76,7 +76,7 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, messageProvider: () 
 
 /**
  * (Recursive) function that checks whether the two xml readers produce the same stream of events.
- * This ignores whitespace. Note that he behaviour is such that if the expected content has a
+ * This ignores whitespace. Note that the behaviour is such that if the expected content has a
  * START_DOCUMENT event this is always checked against the actual.
  *
  * @param expected The reader that produces the expected events
