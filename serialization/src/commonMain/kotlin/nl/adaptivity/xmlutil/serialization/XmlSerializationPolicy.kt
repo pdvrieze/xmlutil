@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2025.
  *
  * This file is part of xmlutil.
  *
@@ -1052,6 +1052,20 @@ private constructor(
 
         public fun ignoreNamespaces() {
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
+        }
+
+        @Suppress("FunctionName")
+        @ExperimentalXmlUtilApi
+        public fun setDefaults_0_91_0() {
+            autoPolymorphic = true
+            pedantic = false
+            typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+            encodeDefault = XmlEncodeDefault.ANNOTATED
+            throwOnRepeatedElement = true
+            isStrictAttributeNames = true
+            isStrictOtherAttributes = true
+            isStrictBoolean = true
+            isXmlFloat = true
         }
 
         // Unintended return type change in 0.86.3

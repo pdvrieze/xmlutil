@@ -119,6 +119,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun isStrictOtherAttributes ()Z
 	public final fun isXmlFloat ()Z
 	public final fun setAutoPolymorphic (Z)V
+	public final fun setDefaults_0_91_0 ()V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
 	public final fun setFormatCache (Lnl/adaptivity/xmlutil/serialization/FormatCache;)V
 	public final fun setPedantic (Z)V
