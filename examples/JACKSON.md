@@ -22,22 +22,32 @@ data class Team(val members: List<Person>, val colors: List<String> = listOf())
 ```kotlin
 /**
  * Example policy that (very crudely) mimicks the way that Jackson serializes xml. It starts by eliding defaults.
- * Note that this version doesn't handle the jackson annotations.
+ * Note that this version doesn't handle the jackson annotations, and is not configurable.
  */
-object JacksonPolicy :
-    DefaultXmlSerializationPolicy(false, encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER) {
+class JacksonPolicy(formatCache: FormatCache = defaultSharedFormatCache(), config: Builder.() -> Unit = {}) :
+    DefaultXmlSerializationPolicy(formatCache, {
+        pedantic = false
+        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER
+        config()
+    }) {
+
+    constructor(config: Builder.() -> Unit): this(defaultSharedFormatCache(), config)
+
     /*
      * Rather than replacing the method wholesale, just make attributes into elements unless the [XmlElement] annotation
      * is present with a `false` value on the value attribute.
      */
-    override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind {
-        val r = super.effectiveOutputKind(serializerParent, tagParent)
+    override fun effectiveOutputKind(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean
+    ): OutputKind {
+        val r = super.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
         return when {
             // Do take into account the XmlElement annotation
             r == OutputKind.Attribute &&
-                    serializerParent.elementUseAnnotations.mapNotNull { it as? XmlElement }
-                        .firstOrNull()?.value != false
-                 -> OutputKind.Element
+                    serializerParent.useAnnIsElement != false ->
+                OutputKind.Element
 
             else -> r
         }
@@ -53,12 +63,26 @@ object JacksonPolicy :
         tagParent: SafeParentInfo,
         outputKind: OutputKind,
         useName: XmlSerializationPolicy.DeclaredNameInfo
-                              ): QName {
+    ): QName {
         return useName.annotatedName
-            ?: serializerParent.elemenTypeDescriptor.typeQname
-            ?: serialNameToQName(useName.serialName, tagParent.namespace)
+            ?: serializerParent.elementTypeDescriptor.typeQname
+            ?: serialUseNameToQName(useName, tagParent.namespace)
     }
 
+}
+```
+For allowing elegant configuration, the below code prvoides for configuration.
+Note that this function's implementation could be adjusted to allow for
+a class (not object) policy that would also allow for further configuration.
+
+```kotlin
+fun XmlConfig.Builder.jacksonPolicy(config: Builder.() -> Unit = {}) {
+    @OptIn(ExperimentalXmlUtilApi::class)
+    policy = JacksonPolicy {
+        setDefaults_0_91_0()
+        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER
+        config()
+    }
 }
 ```
 
@@ -69,13 +93,13 @@ object JacksonPolicy :
 fun main() {
     val t = Team(listOf(Person("Joe", 15)))
     val xml = XML {
-        policy = JacksonPolicy
+        jacksonPolicy()
     }
 
     val encodedString = xml.encodeToString(t) // both versions are available
     println("jackson output:\n${encodedString.prependIndent("    ")}\n")
 
-    // the inline reified version is is also available
+    // the inline reified version is also available
     val reparsedData = xml.decodeFromString<Team>(encodedString)
     println("jackson input: $reparsedData")
 
