@@ -1,5 +1,14 @@
 # 0.91.2-SNAPSHOT
 
+Features:
+- Make `defaultPrimitiveOutputKind` and `defaultObjectOutputKind`
+  configurable attributes rather than (overridable) properties (#285).
+
+Changes:
+- Tidy up the implementation of the constructors of the 
+  `DefaultSerializationPolicy`. This might have slight consequences
+  in binary compatibility for (experimental) inheritance.
+
 Fixes:
 - Fix trimming of strings inside a mixed context where there is an
   `@XmlIgnoreSpace(true)` annotation.
