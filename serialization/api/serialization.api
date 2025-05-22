@@ -43,7 +43,7 @@ public final class nl/adaptivity/xmlutil/serialization/DefaultPlatformModuleKt {
 
 public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy : nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy {
 	public fun <init> (Lkotlin/jvm/functions/Function1;)V
-	protected fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/FormatCache;Lkotlin/jvm/functions/Function1;)V
 	protected fun <init> (Lnl/adaptivity/xmlutil/serialization/FormatCache;Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
@@ -68,12 +68,15 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun elementNamespaceDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAutoPolymorphic ()Z
-	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
-	public final fun getPedantic ()Z
-	public final fun getThrowOnRepeatedElement ()Z
-	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
-	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
+	public fun getAutoPolymorphic ()Z
+	public fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
+	public fun getPedantic ()Z
+	public fun getThrowOnRepeatedElement ()Z
+	public fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
+	public fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
 	public fun getVerifyElementOrder ()Z
 	public fun handleUnknownContent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Ljavax/xml/namespace/QName;Ljava/util/Collection;)V
 	public fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
@@ -102,9 +105,12 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder {
 	public fun <init> ()V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
 	public final fun build ()Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;
 	public final synthetic fun build ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;
 	public final fun getAutoPolymorphic ()Z
+	public final fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
+	public final fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 	public final fun getPedantic ()Z
@@ -119,6 +125,8 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$B
 	public final fun isStrictOtherAttributes ()Z
 	public final fun isXmlFloat ()Z
 	public final fun setAutoPolymorphic (Z)V
+	public final fun setDefaultObjectOutputKind (Lnl/adaptivity/xmlutil/serialization/OutputKind;)V
+	public final fun setDefaultPrimitiveOutputKind (Lnl/adaptivity/xmlutil/serialization/OutputKind;)V
 	public final fun setDefaults_0_91_0 ()V
 	public final fun setEncodeDefault (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;)V
 	public final fun setFormatCache (Lnl/adaptivity/xmlutil/serialization/FormatCache;)V
