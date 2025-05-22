@@ -22,24 +22,10 @@ Container & TestElement - [data.kt](src/main/kotlin/net/devrieze/serialization/e
 data class Container(val data: List<TestElement>)
 
 @Serializable
-data class TestElement(val id: Int, val attr: Int, @XmlElement(true) val data: String)
+data class TestElement(val id: Int, val attr: Int, @XmlElement val data: String)
 ```
 
-There are 2 example serializers. One works in 0.80.0 and 0.80.1 and the other one will work on the master/dev branches
-only. Almost all code is shared though.
-
-[CompatContainerSerializer](src/main/kotlin/net/devrieze/serialization/examples/dynamictagnames/CompatContainerSerializer.kt)
-```kotlin
-/**
- * The compatible serializer doesn't have access to state to determine a proper delegate format. This
- * implementation uses the default format instance. It is perfectly valid however to create a custom
- * instance (for example providing a SerialModule) here and return that from both delegate methods
- */
-object CompatContainerSerializer: CommonContainerSerializer() {
-    override fun delegateFormat(decoder: Decoder) = XML.defaultInstance
-    override fun delegateFormat(encoder: Encoder) = XML.defaultInstance
-}
-```
+The following serializer only works in versions after 0.80.1.
 
 [ContainerSerializer](src/main/kotlin/net/devrieze/serialization/examples/dynamictagnames/ContainerSerializer.kt)
 ```kotlin
@@ -194,6 +180,7 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      * Store the name of the id attribute that is synthetically generated. This property is initialised
      * this way to allow for name remapping in the format policy.
      */
+    @OptIn(ExperimentalSerializationApi::class)
     private val idAttrName = (0 until descriptor.elementsCount)
         .first { descriptor.serialDescriptor.getElementName(it) == "id" }
         .let { descriptor.getElementDescriptor(it) }
@@ -283,18 +270,22 @@ internal class DynamicTagReader(reader: XmlReader, descriptor: XmlDescriptor) : 
      * When we are at relative depth 0 we return the synthetic name rather than the original.
      */
     override val namespaceURI: String
-        get() = when (filterDepth) {
-            0 -> elementName.namespaceURI
-            else -> super.namespaceURI
+        get() {
+            return when (filterDepth) {
+                0 -> elementName.namespaceURI
+                else -> super.namespaceURI
+            }
         }
 
     /**
      * When we are at relative depth 0 we return the synthetic name rather than the original.
      */
     override val localName: String
-        get() = when (filterDepth) {
-            0 -> elementName.localPart
-            else -> super.localName
+        get() {
+            return when (filterDepth) {
+                0 -> elementName.localPart
+                else -> super.localName
+            }
         }
 
     /**
@@ -327,6 +318,7 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
          */
         get() = writer.depth - initDepth
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val idAttrName = (0 until descriptor.elementsCount)
         .first { descriptor.serialDescriptor.getElementName(it) == "id" }
         .let { descriptor.getElementDescriptor(it) }
@@ -338,7 +330,7 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
      */
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         when (filterDepth) {
-            0    -> super.startTag("", "Test_$idValue", "")
+            0 -> super.startTag("", "Test_$idValue", "")
             else -> super.startTag(namespace, localName, prefix)
         }
     }
@@ -351,7 +343,8 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
             filterDepth == 1 &&
                     (namespace ?: "") == idAttrName.namespaceURI &&
                     name == idAttrName.localPart
-                 -> Unit
+                -> Unit
+
             else -> super.attribute(namespace, name, prefix, value)
         }
 
@@ -362,82 +355,9 @@ internal class DynamicTagWriter(private val writer: XmlWriter, descriptor: XmlDe
      */
     override fun endTag(namespace: String?, localName: String, prefix: String?) {
         when (filterDepth) {
-            1    -> super.endTag("", "Test_$idValue", "")
+            1 -> super.endTag("", "Test_$idValue", "")
             else -> super.endTag(namespace, localName, prefix)
         }
     }
-}
-```
-
-
-## Example usage
-[main.kt](src/main/kotlin/net/devrieze/serialization/examples/dynamictagnames/main.kt)
-```kotlin
-/**
- * This example shows how a custom serializer together with a filter can be used to support non-xml xml documents
- * where tag names are dynamic/unique. This example is a solution to the question in #41.
- *
- * There are 2 versions, one is the CompatContainerSerializer. This version works on 0.80.0 and 0.80.1 but has
- * limitations in that it cannot inherit configuration or serializerModules. The improved version uses new properties
- * in the XML.XmlInput and XML.XmlOutput interfaces that allow new xml serializers to be created based on the
- * configuration of the encoder/decoder.
- */
-fun main() {
-    /*
-     * Some test data that is used for both versions of the serializer.
-     */
-    val testElements = listOf(
-        TestElement(123, 42, "someData"),
-        TestElement(456, 71, "moreData")
-                             )
-
-    // Execute the example code for the compatible serializer
-    println("# Compatible")
-    compat(testElements)
-
-    // Execute the example code for the improved serializer
-    println()
-    println("# Improved version")
-    newExample(testElements)
-}
-
-private fun compat(testElements: List<TestElement>) {
-    val data = Container(testElements)
-
-    // Instead of using the serializer for the type we use the custom one. In normal cases there would only be one
-    // serializer
-    val serializer = CompatContainerSerializer
-
-    /*
-     * Set an indent here to show that it is not effective (as the serialization of the child does not have access to
-     * the configuration).
-     */
-    val xml = XML { indent = 2 }
-
-    // Encode and print the output of serialization
-    val string = xml.encodeToString(serializer, data)
-    println("StringEncodingCompat:\n${string.prependIndent("    ")}")
-
-    // Parse and print the result of deserialization
-    val deserializedData = xml.decodeFromString(serializer, string)
-    println("Deserialized container:\n  $deserializedData")
-}
-
-/** This example works with master, but not with the released version. */
-private fun newExample(testElements: List<TestElement>) {
-    val data = Container(testElements)
-    val serializer = serializer<Container>() // use the default serializer
-
-    // Create the configuration for (de)serialization
-    val xml = XML { indent = 2 }
-
-    // Encode and print the output of serialization
-    val string = xml.encodeToString(serializer, data)
-    println("StringEncodingCompat:\n${string.prependIndent("    ")}")
-
-    // Parse and print the result of deserialization
-    val deserializedData = xml.decodeFromString(serializer, string)
-    println("Deserialized container:\n  $deserializedData")
-
 }
 ```

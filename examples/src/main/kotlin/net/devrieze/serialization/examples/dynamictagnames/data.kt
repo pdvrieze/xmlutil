@@ -31,4 +31,4 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 data class Container(val data: List<TestElement>)
 
 @Serializable
-data class TestElement(val id: Int, val attr: Int, @XmlElement(true) val data: String)
+data class TestElement(val id: Int, val attr: Int, @XmlElement val data: String)
