@@ -23,19 +23,22 @@ package net.devrieze.serialization.examples.jackson
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder
 import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
 
 /**
  * Example policy that (very crudely) mimicks the way that Jackson serializes xml. It starts by eliding defaults.
- * Note that this version doesn't handle the jackson annotations.
+ * Note that this version doesn't handle the jackson annotations, and is not configurable.
  */
-object JacksonPolicy : DefaultXmlSerializationPolicy(
-    defaultSharedFormatCache(),
-    {
+class JacksonPolicy(formatCache: FormatCache = defaultSharedFormatCache(), config: Builder.() -> Unit = {}) :
+    DefaultXmlSerializationPolicy(formatCache, {
         pedantic = false
         encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER
-    },
-) {
+        config()
+    }) {
+
+    constructor(config: Builder.() -> Unit): this(defaultSharedFormatCache(), config)
+
     /*
      * Rather than replacing the method wholesale, just make attributes into elements unless the [XmlElement] annotation
      * is present with a `false` value on the value attribute.
@@ -75,7 +78,11 @@ object JacksonPolicy : DefaultXmlSerializationPolicy(
 }
 
 /** Extension function for elegant configuration */
-fun XmlConfig.Builder.jacksonPolicy() {
+fun XmlConfig.Builder.jacksonPolicy(config: Builder.() -> Unit = {}) {
     @OptIn(ExperimentalXmlUtilApi::class)
-    policy = JacksonPolicy
+    policy = JacksonPolicy {
+        setDefaults_0_91_0()
+        encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER
+        config()
+    }
 }
