@@ -8,6 +8,8 @@ Changes:
 - Tidy up the implementation of the constructors of the 
   `DefaultSerializationPolicy`. This might have slight consequences
   in binary compatibility for (experimental) inheritance.
+- Change `DelegatingSerializer` (in serialutil) to take the serial
+  name as parameter as using the delegate is not valid.
 
 Fixes:
 - Fix trimming of strings inside a mixed context where there is an

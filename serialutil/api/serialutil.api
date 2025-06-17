@@ -16,6 +16,7 @@ public abstract class nl/adaptivity/serialutil/DelegateSerializer : kotlinx/seri
 }
 
 public abstract class nl/adaptivity/serialutil/DelegatingSerializer : kotlinx/serialization/KSerializer {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)V
 	public fun <init> (Lkotlinx/serialization/KSerializer;)V
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public abstract fun fromDelegate (Ljava/lang/Object;)Ljava/lang/Object;

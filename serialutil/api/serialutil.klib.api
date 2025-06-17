@@ -7,6 +7,7 @@
 
 // Library unique name: <io.github.pdvrieze.xmlutil:serialutil>
 abstract class <#A: kotlin/Any?, #B: kotlin/Any?> nl.adaptivity.serialutil/DelegatingSerializer : kotlinx.serialization/KSerializer<#A> { // nl.adaptivity.serialutil/DelegatingSerializer|null[0]
+    constructor <init>(kotlin/String, kotlinx.serialization/KSerializer<#B>) // nl.adaptivity.serialutil/DelegatingSerializer.<init>|<init>(kotlin.String;kotlinx.serialization.KSerializer<1:1>){}[0]
     constructor <init>(kotlinx.serialization/KSerializer<#B>) // nl.adaptivity.serialutil/DelegatingSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:1>){}[0]
 
     final val delegateSerializer // nl.adaptivity.serialutil/DelegatingSerializer.delegateSerializer|{}delegateSerializer[0]
