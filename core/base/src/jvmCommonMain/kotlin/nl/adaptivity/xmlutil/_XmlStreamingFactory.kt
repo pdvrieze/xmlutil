@@ -32,7 +32,6 @@ import javax.xml.transform.Source
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
     "DeprecatedCallableAddReplaceWith"
 )
-@MpJvmDefaultWithoutCompatibility
 public actual interface XmlStreamingFactory {
 
     @Deprecated("Use version with xmlDeclMode")

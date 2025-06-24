@@ -403,7 +403,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()[Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlAfter$Impl : nl/adaptivity/xmlutil/serialization/XmlAfter {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlAfter$Impl : nl/adaptivity/xmlutil/serialization/XmlAfter {
 	public fun <init> ([Ljava/lang/String;)V
 	public final synthetic fun value ()[Ljava/lang/String;
 }
@@ -412,7 +412,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()[Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlBefore$Impl : nl/adaptivity/xmlutil/serialization/XmlBefore {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlBefore$Impl : nl/adaptivity/xmlutil/serialization/XmlBefore {
 	public fun <init> ([Ljava/lang/String;)V
 	public final synthetic fun value ()[Ljava/lang/String;
 }
@@ -421,7 +421,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Z
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlCData$Impl : nl/adaptivity/xmlutil/serialization/XmlCData {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlCData$Impl : nl/adaptivity/xmlutil/serialization/XmlCData {
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun value ()Z
@@ -433,7 +433,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlChildrenName$Impl : nl/adaptivity/xmlutil/serialization/XmlChildrenName {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlChildrenName$Impl : nl/adaptivity/xmlutil/serialization/XmlChildrenName {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun namespace ()Ljava/lang/String;
@@ -556,7 +556,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlDefault$Impl : nl/adaptivity/xmlutil/serialization/XmlDefault {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlDefault$Impl : nl/adaptivity/xmlutil/serialization/XmlDefault {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun value ()Ljava/lang/String;
 }
@@ -565,7 +565,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Z
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlElement$Impl : nl/adaptivity/xmlutil/serialization/XmlElement {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlElement$Impl : nl/adaptivity/xmlutil/serialization/XmlElement {
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun value ()Z
@@ -574,7 +574,7 @@ public synthetic class nl/adaptivity/xmlutil/serialization/XmlElement$Impl : nl/
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlId : java/lang/annotation/Annotation {
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlId$Impl : nl/adaptivity/xmlutil/serialization/XmlId {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlId$Impl : nl/adaptivity/xmlutil/serialization/XmlId {
 	public fun <init> ()V
 }
 
@@ -582,7 +582,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Z
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlIgnoreWhitespace$Impl : nl/adaptivity/xmlutil/serialization/XmlIgnoreWhitespace {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlIgnoreWhitespace$Impl : nl/adaptivity/xmlutil/serialization/XmlIgnoreWhitespace {
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun value ()Z
@@ -594,7 +594,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlKeyName$Impl : nl/adaptivity/xmlutil/serialization/XmlKeyName {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlKeyName$Impl : nl/adaptivity/xmlutil/serialization/XmlKeyName {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun namespace ()Ljava/lang/String;
@@ -608,7 +608,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlMapEntryName$Impl : nl/adaptivity/xmlutil/serialization/XmlMapEntryName {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlMapEntryName$Impl : nl/adaptivity/xmlutil/serialization/XmlMapEntryName {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun namespace ()Ljava/lang/String;
@@ -620,7 +620,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpec {
 	public fun <init> (Ljava/lang/String;)V
 	public final synthetic fun value ()Ljava/lang/String;
 }
@@ -629,7 +629,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()[Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs$Impl : nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs {
 	public fun <init> ([Ljava/lang/String;)V
 	public final synthetic fun value ()[Ljava/lang/String;
 }
@@ -637,7 +637,7 @@ public synthetic class nl/adaptivity/xmlutil/serialization/XmlNamespaceDeclSpecs
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes : java/lang/annotation/Annotation {
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes$Impl : nl/adaptivity/xmlutil/serialization/XmlOtherAttributes {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlOtherAttributes$Impl : nl/adaptivity/xmlutil/serialization/XmlOtherAttributes {
 	public fun <init> ()V
 }
 
@@ -652,7 +652,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()[Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlPolyChildren$Impl : nl/adaptivity/xmlutil/serialization/XmlPolyChildren {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlPolyChildren$Impl : nl/adaptivity/xmlutil/serialization/XmlPolyChildren {
 	public fun <init> ([Ljava/lang/String;)V
 	public final synthetic fun value ()[Ljava/lang/String;
 }
@@ -671,7 +671,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlSerialName$Impl : nl/adaptivity/xmlutil/serialization/XmlSerialName {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlSerialName$Impl : nl/adaptivity/xmlutil/serialization/XmlSerialName {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun namespace ()Ljava/lang/String;
@@ -770,7 +770,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/serialization/X
 	public abstract fun value ()Z
 }
 
-public synthetic class nl/adaptivity/xmlutil/serialization/XmlValue$Impl : nl/adaptivity/xmlutil/serialization/XmlValue {
+public final synthetic class nl/adaptivity/xmlutil/serialization/XmlValue$Impl : nl/adaptivity/xmlutil/serialization/XmlValue {
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun value ()Z
