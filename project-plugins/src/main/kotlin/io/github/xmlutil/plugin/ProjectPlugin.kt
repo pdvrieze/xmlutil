@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.xmlutil.plugin
@@ -79,9 +79,15 @@ class ProjectPlugin @Inject constructor(
             kotlinApiVersion.convention(apiVer)
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
             createAndroidCompatComponent.convention(false)
+            generateJavaModules.convention(true)
         }
 
         project.afterEvaluate {
+
+            if(e.generateJavaModules.get()) {
+                project.configureJava9ModuleInfo()
+            }
+
             if (e.createAndroidCompatComponent.get()) {
                 project.logger.warn("Creating compatible component")
                 val component = softwareComponentFactory.adhoc("depOnlyComponent")
@@ -208,6 +214,7 @@ class ProjectPlugin @Inject constructor(
                                 }
                             }
                             when (name) {
+                                "jvmCommon" -> {} // no attributes needed
                                 "jdk",
                                 "jvm" -> attributes {
                                     project.logger.debug("Setting attributes for target jvm")
@@ -249,7 +256,7 @@ class ProjectPlugin @Inject constructor(
         if (this is KotlinJvmCompilerOptions) {
             project.logger.info("Setting common compilation options for $name")
             jvmTarget = JvmTarget.JVM_1_8
-            freeCompilerArgs.add("-Xjvm-default=all")
+            jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
         }
     }
 
@@ -274,4 +281,5 @@ abstract class ProjectConfigurationExtension {
     abstract val kotlinApiVersion: Property<KotlinVersion>
     abstract val kotlinTestVersion: Property<KotlinVersion>
     abstract val createAndroidCompatComponent: Property<Boolean>
+    abstract val generateJavaModules: Property<Boolean>
 }
