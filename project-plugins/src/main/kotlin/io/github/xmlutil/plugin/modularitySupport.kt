@@ -143,6 +143,7 @@ private fun Project.registerVerifyModuleTask(
             languageVersion.set(JavaLanguageVersion.of(11))
         })
 
+        pluginClasspath.from(compileTask.map { it.pluginClasspath })
 
         compilerOptions {
 
