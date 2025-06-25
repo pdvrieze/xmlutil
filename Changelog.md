@@ -3,6 +3,11 @@
 Features:
 - Make `defaultPrimitiveOutputKind` and `defaultObjectOutputKind`
   configurable attributes rather than (overridable) properties (#285).
+- Allow the "xml" prefix in annotations to be used without explicit
+  namespace specification, but implicitly mapped to the xml namespace:
+  `http://www.w3.org/XML/1998/namespace`. Note that while not enforced
+  it is not valid to declare the prefix to have any different value.
+  Adresses #289. 
 
 Changes:
 - Tidy up the implementation of the constructors of the 
