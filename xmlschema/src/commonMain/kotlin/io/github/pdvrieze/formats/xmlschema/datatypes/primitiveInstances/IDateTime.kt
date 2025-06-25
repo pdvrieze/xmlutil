@@ -1,11 +1,13 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.DecimalType
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 interface IDateTime : VAnyAtomicType {
     /** any integer */
     val year: Int?

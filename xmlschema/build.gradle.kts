@@ -22,7 +22,6 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
@@ -120,7 +119,7 @@ addNativeTargets(includeWasm = false, includeWasi = false)
 
 config {
     dokkaModuleName = "xmlschema"
-    kotlinApiVersion = KotlinVersion.KOTLIN_2_0
+    kotlinApiVersion = KotlinVersion.KOTLIN_2_2
 }
 
 idea {

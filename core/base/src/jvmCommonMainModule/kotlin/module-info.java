@@ -11,7 +11,8 @@ module net.devrieze.xmlutil.core {
             net.devrieze.xmlutil.serialization;
     exports nl.adaptivity.xmlutil.core.impl.multiplatform to
             io.github.pdvrieze.testutil, net.devrieze.xmlutil.serialization,
-            io.github.pdvrieze.xmlutil.xmlschema, net.devrieze.xmlutil.xmlserializable;
+            io.github.pdvrieze.xmlutil.xmlschema, net.devrieze.xmlutil.xmlserializable,
+            net.devrieze.xmlutil.serialization.kxio;
     exports nl.adaptivity.xmlutil.core.internal to
             net.devrieze.xmlutil.serialization, io.github.pdvrieze.xmlutil.xmlschema;
     exports nl.adaptivity.xmlutil.dom;

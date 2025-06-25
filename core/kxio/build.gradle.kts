@@ -40,7 +40,6 @@ base {
 
 config {
     dokkaModuleName = "core-io"
-    generateJavaModules = false // kotlinx.io has broken module info
 }
 
 

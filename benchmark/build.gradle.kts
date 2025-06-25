@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
     alias(libs.plugins.benchmark)
     kotlin("multiplatform")
@@ -31,6 +33,7 @@ plugins {
 
 config {
     generateJavaModules = false
+    kotlinApiVersion = KotlinVersion.KOTLIN_2_2
 }
 
 kotlin {
