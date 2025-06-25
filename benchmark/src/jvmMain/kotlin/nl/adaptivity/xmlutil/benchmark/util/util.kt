@@ -22,7 +22,6 @@ package nl.adaptivity.xmlutil.benchmark.util
 
 import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.resolve
 import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
-import kotlinx.datetime.Instant
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.xml.xmschematestsuite.TSTestSet
@@ -30,9 +29,12 @@ import org.w3.xml.xmschematestsuite.TSTestSuite
 import org.w3.xml.xmschematestsuite.override.CompactOverride
 import org.w3.xml.xmschematestsuite.override.OTSSuite
 import java.net.URL
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 data class MeasureInfo(val round: Int, val rounds: Int, val warmups: Int)
 
+@OptIn(ExperimentalTime::class)
 inline fun measure(name:String, rounds: Int = 20, warmups: Int = 1, action: MeasureInfo.() -> Unit): Long {
     val initTime = System.currentTimeMillis()
     var startTime = initTime

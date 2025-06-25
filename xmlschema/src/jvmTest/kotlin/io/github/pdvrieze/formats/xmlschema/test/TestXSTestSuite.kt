@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
-import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -43,6 +42,7 @@ import org.w3.xml.xmschematestsuite.override.CompactOverride
 import org.w3.xml.xmschematestsuite.override.OTSSuite
 import java.net.URI
 import java.net.URL
+import kotlin.datetime.Instant
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.test.assertEquals
 import kotlin.test.assertFails

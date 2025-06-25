@@ -36,9 +36,6 @@ plugins {
 
 val autoModuleName = "net.devrieze.xmlutil.serialization.kxio"
 
-config {
-    generateJavaModules = false
-}
 
 kotlin {
     explicitApi()

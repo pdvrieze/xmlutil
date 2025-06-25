@@ -1,12 +1,12 @@
 [versions]
 apiVersion = "2.0"
-binaryValidator = "0.16.3" # 0.18.0
-dateTime = "0.6.1" # 0.7.0
+binaryValidator = "0.18.0"
+dateTime = "0.7.0"
 dokka = "2.0.0"
 javaVersion = "8"
 jmh = "0.7.2"
 jmh-core = "1.37"
-benchmark = "0.4.11" #0.4.14
+benchmark = "0.4.14"
 junit5-jupiter = "5.11.4"
 kotlin = "2.2.0"
 kotlinx-serialization = "1.8.1"
