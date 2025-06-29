@@ -98,7 +98,7 @@ config {
 
 afterEvaluate {
     dependencies {
-        "android"(projects.coreAndroid)
+        "androidRuntime"(projects.coreAndroid)
     }
 }
 
