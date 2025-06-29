@@ -787,8 +787,11 @@ public class XML(
 
     public companion object : StringFormat {
 
+        @Suppress("DEPRECATION")
         public val defaultInstance: XML = XML {
-            policy = DefaultXmlSerializationPolicy(try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy }) {}
+            policy = DefaultXmlSerializationPolicy(
+                runCatching { defaultSharedFormatCache() }.getOrElse { FormatCache.Dummy }
+            ) {}
         }
         override val serializersModule: SerializersModule
             get() = defaultInstance.serializersModule
