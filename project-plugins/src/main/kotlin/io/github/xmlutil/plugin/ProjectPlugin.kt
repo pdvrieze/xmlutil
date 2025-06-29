@@ -28,6 +28,8 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.plugins.JavaPlugin
@@ -89,25 +91,37 @@ class ProjectPlugin @Inject constructor(
             }
 
             if (e.createAndroidCompatComponent.get()) {
+                val configurations = project.configurations
+
                 project.logger.warn("Creating compatible component")
-                val component = softwareComponentFactory.adhoc("depOnlyComponent")
-                project.components.add(component)
-                val pseudoConfig = project.configurations.dependencyScope("android") {
+
+                val androidRuntime = configurations.dependencyScope("androidRuntime") {
+                    dependencies.add(project.dependencyFactory.create("io.github.pdvrieze.xmlutil:${project.name}:${project.version}"))
+                }
+                val androidRuntimeElements = configurations.consumable("androidRuntimeElements") {
+                    extendsFrom(androidRuntime.get())
                     attributes {
+                        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage.JAVA_API))
+                        // see whether this should be library
+                        attribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
                         attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envAndroid)
                         attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
                     }
-
-                    component.addVariantsFromConfiguration(this) {
-                        mapToMavenScope("compile")
-                    }
-                    dependencies.add(project.dependencyFactory.create("io.github.pdvrieze.xmlutil:${project.name}:${project.version}"))
                 }
+
+                val component = softwareComponentFactory.adhoc("androidComponent")
+                project.components.add(component)
+
+                component.addVariantsFromConfiguration(androidRuntimeElements.get()) {
+                    logger.lifecycle("Add variant to runtime scope")
+                    mapToMavenScope("runtime")
+                }
+
 
                 project.extensions.configure<PublishingExtension> {
                     publications {
                         create<MavenPublication>("android") {
-                            artifactId = project.name
+                            artifactId = "${project.name}-android"
                             from(component)
                         }
                     }
