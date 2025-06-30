@@ -7,6 +7,7 @@ public final class nl/adaptivity/xmlutil/core/AndroidStreamingFactory : nl/adapt
 	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun provider ()Lnl/adaptivity/xmlutil/core/AndroidStreamingFactory;
 }
 
 public final class nl/adaptivity/xmlutil/core/AndroidXmlReader : nl/adaptivity/xmlutil/XmlReader {
