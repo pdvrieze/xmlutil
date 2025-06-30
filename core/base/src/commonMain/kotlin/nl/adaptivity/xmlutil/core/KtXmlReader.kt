@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core
@@ -46,9 +46,11 @@ public class KtXmlReader internal constructor(
     private val reader: Reader,
     encoding: String?,
     public val relaxed: Boolean = false,
+    public val expandEntities: Boolean = false,
 ) : XmlReader {
 
     public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
+    public constructor(reader: Reader, expandEntities: Boolean, relaxed: Boolean = false) : this(reader, null, relaxed, expandEntities)
 
     private var line: Int = 1
     private val column: Int get() = offset - lastColumnStart + 1
@@ -57,7 +59,11 @@ public class KtXmlReader internal constructor(
 
     private var _eventType: EventType? = null //START_DOCUMENT // Already have this state
     public override val eventType: EventType
-        get() = _eventType ?: throw IllegalStateException("Not yet started")
+        get() = when (val et = _eventType) {
+            null -> throw IllegalStateException("Not yet started")
+            ENTITY_REF if (expandEntities) -> TEXT
+            else -> et
+        }
 
     override val isStarted: Boolean
         get() = state != State.BEFORE_START
@@ -66,9 +72,9 @@ public class KtXmlReader internal constructor(
 
     public override val localName: String
         get() = when (_eventType) {
-            ENTITY_REF -> entityName ?: throw XmlException("Missing entity name")
+            ENTITY_REF if (!expandEntities) -> entityName ?: throw XmlException("Missing entity name")
             START_ELEMENT, END_ELEMENT -> elementStack[depth - 1].localName ?: throw XmlException("Missing local name")
-            else -> throw IllegalStateException("Local name not accessible outside of element tags")
+            else -> throw IllegalStateException("Local name not accessible outside of element tags: $_eventType")
         }
 
     public override val namespaceURI: String
@@ -433,6 +439,7 @@ public class KtXmlReader internal constructor(
 
             COMMENT -> parseComment()
 
+            ENTITY_REF if(expandEntities) -> pushRegularText('<', true)
             ENTITY_REF -> pushEntity()
 
             START_ELEMENT -> {
@@ -447,7 +454,7 @@ public class KtXmlReader internal constructor(
 
             TEXT -> if (lastEvent == ENTITY_REF) { // Entity refs are part of text, so don't
                 // consider the following text whitespace at all
-                pushRegularText('<', false)
+                pushRegularText('<', expandEntities)
             } else {
                 pushText('<')
                 if (isWhitespace) _eventType = IGNORABLE_WHITESPACE
@@ -943,8 +950,9 @@ public class KtXmlReader internal constructor(
 
         val result = entityMap[code]
         unresolved = result == null
-        if (result != null) {
-            push(result)
+        when {
+            result != null -> push(result)
+            expandEntities -> exception("Unknown entity \"&$code;\" in entity expanding mode")
         }
     }
 
@@ -1008,7 +1016,7 @@ public class KtXmlReader internal constructor(
             when (bufLeft[curPos]) {
                 ' ', '\t', '\n', '\r' -> break // whitespace
 
-                else -> return pushRegularText(delimiter, resolveEntities = false)
+                else -> return pushRegularText(delimiter, resolveEntities = expandEntities)
             }
         }
 
@@ -1081,7 +1089,7 @@ public class KtXmlReader internal constructor(
 
             if (continueInNonWSMode) {
                 srcBufPos = curPos
-                return pushRegularText(delimiter, resolveEntities = false)
+                return pushRegularText(delimiter, resolveEntities = expandEntities)
             }
 
             left = curPos
@@ -1096,7 +1104,7 @@ public class KtXmlReader internal constructor(
      * Specialisation of pushText that does not recognize whitespace (thus able to be used at that point)
      * @param delimiter The "stopping" delimiter
      * @param resolveEntities Whether entities should be resolved directly (in attributes) or exposed as entity
-     *                        references (content text).
+     *                        references (content text if expandEntities is false).
      */
     private fun pushRegularText(delimiter: Char, resolveEntities: Boolean) {
         var bufCount = srcBufCount
@@ -1783,7 +1791,10 @@ public class KtXmlReader internal constructor(
             State.EOF -> error("Reading past end of file")
         }
 //        assert((offset - srcBufPos) % BUF_SIZE == 0) { "Offset error: ($offset - $srcBufPos) % $BUF_SIZE != 0" }
-        return eventType
+        return when(val et = eventType) {
+            ENTITY_REF if (expandEntities) -> TEXT
+            else -> et
+        }
     }
 
     override fun hasNext(): Boolean {

@@ -85,8 +85,10 @@ public actual interface XmlStreamingFactory {
     public fun newReader(source: Source): XmlReader =
         throw UnsupportedOperationException("Sources are not supported by this factory")
 
-    public fun newReader(reader: Reader): XmlReader
+    public fun newReader(reader: Reader): XmlReader = newReader(reader, false)
+    public fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
 
+    public fun newReader(inputStream: InputStream): XmlReader = newReader(inputStream, expandEntities = false)
     /**
      * Version of newReader that autodetects the encoding. It first looks for UTF16/UTF32.
      * Then it looks at the declared encoding in the attribute in 8-bit ascii mode. If not
@@ -94,11 +96,21 @@ public actual interface XmlStreamingFactory {
      *
      * If no other encoding is determined, the used encoding will be UTF-8 per the XML standard.
      */
-    public fun newReader(inputStream: InputStream): XmlReader = newReader(inputStream, "UTF-8")
+    public fun newReader(inputStream: InputStream, expandEntities: Boolean): XmlReader = newReader(
+        inputStream,
+        expandEntities = false
+    )
 
-    public fun newReader(inputStream: InputStream, encoding: String = "UTF-8"): XmlReader
+    public fun newReader(inputStream: InputStream, encoding: String = "UTF-8"): XmlReader =
+        newReader(inputStream, encoding, false)
+    public fun newReader(inputStream: InputStream, encoding: String = "UTF-8", expandEntities: Boolean): XmlReader
 
-    public fun newReader(input: CharSequence): XmlReader = newReader(CharsequenceReader(input))
+    public fun newReader(input: CharSequence): XmlReader = newReader(input, false)
 
-    public fun newReader(input: String): XmlReader = newReader(StringReader(input))
+    public fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+        newReader(CharsequenceReader(input), expandEntities)
+
+    public fun newReader(input: String): XmlReader = newReader(input, false)
+    public fun newReader(input: String, expandEntities: Boolean): XmlReader =
+        newReader(StringReader(input), expandEntities)
 }

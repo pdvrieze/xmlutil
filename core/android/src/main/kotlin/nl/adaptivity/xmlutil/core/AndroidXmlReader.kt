@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core
@@ -29,17 +29,20 @@ import java.io.Reader
 /**
  * And XMLReader implementation that works on Android
  */
-public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
+public class AndroidXmlReader(public val parser: XmlPullParser, public val expandEntities: Boolean) : XmlReader {
     override var isStarted: Boolean = false
         private set
 
-    private constructor() : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser())
+    public constructor(parser: XmlPullParser): this(parser, false)
 
-    public constructor(reader: Reader) : this() {
+    private constructor(expandEntities: Boolean) : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser(), expandEntities)
+
+    @JvmOverloads
+    public constructor(reader: Reader, expandEntities: Boolean = false) : this(expandEntities) {
         parser.setInput(reader)
     }
 
-    public constructor(input: InputStream, encoding: String) : this() {
+    public constructor(input: InputStream, encoding: String, expandEntities: Boolean = false) : this(expandEntities) {
         parser.setInput(input, encoding)
     }
 
@@ -67,12 +70,14 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
             }
             else -> n
         }
-        return DELEGATE_TO_LOCAL[nextToken].also {
+        return delegateToLocal(nextToken).also {
             eventType = it
             if (it == EventType.START_DOCUMENT) version = parser.getAttributeValue(null, "version")
             isStarted = true
         }
     }
+
+    private fun delegateToLocal(nextToken: Int): EventType = when { else -> DELEGATE_TO_LOCAL[nextToken] }
 
     @Throws(XmlException::class)
     override fun nextTag(): EventType {
@@ -202,6 +207,8 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
 
         @Suppress("UNCHECKED_CAST")
         private val DELEGATE_TO_LOCAL = arrayOfNulls<EventType>(11) as Array<EventType>
+        @Suppress("UNCHECKED_CAST")
+        private val DELEGATE_TO_LOCAL_EXPANDED: Array<EventType>
 
         private val LOCAL_TO_DELEGATE: IntArray = IntArray(12)
 
@@ -217,6 +224,13 @@ public class AndroidXmlReader(public val parser: XmlPullParser) : XmlReader {
             DELEGATE_TO_LOCAL[XmlPullParser.START_DOCUMENT] = EventType.START_DOCUMENT
             DELEGATE_TO_LOCAL[XmlPullParser.START_TAG] = EventType.START_ELEMENT
             DELEGATE_TO_LOCAL[XmlPullParser.TEXT] = EventType.TEXT
+
+            DELEGATE_TO_LOCAL_EXPANDED = Array<EventType>(11) {
+                when (val v = DELEGATE_TO_LOCAL[it]) {
+                    EventType.ENTITY_REF -> EventType.TEXT
+                    else -> v
+                }
+            }
 
             LOCAL_TO_DELEGATE[EventType.CDSECT.ordinal] = XmlPullParser.CDSECT
             LOCAL_TO_DELEGATE[EventType.COMMENT.ordinal] = XmlPullParser.COMMENT

@@ -68,9 +68,9 @@ public actual object XmlStreaming : IXmlStreaming {
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
-    public actual override fun newReader(input: CharSequence): XmlReader {
+    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         // fall back to generic reader for contexts without DOM (Node etc.)
-        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericReader(input)
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericReader(input, expandEntities)
 
         val str = when { // Ignore initial BOM (it parses incorrectly without exception)
             input[0] == '\ufeff' -> input.subSequence(1, input.length)
@@ -81,12 +81,14 @@ public actual object XmlStreaming : IXmlStreaming {
         return DomReader(DOMParser().parseFromString(str, "text/xml").wrap() as Node2)
     }
 
-    public actual override fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader =
+        KtXmlReader(reader, expandEntities)
 
-    public actual override fun newGenericReader(input: CharSequence): XmlReader =
-        newGenericReader(StringReader(input))
+    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+        newGenericReader(StringReader(input), expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+        KtXmlReader(reader, expandEntities = expandEntities)
 
     public fun newWriter(
         output: Appendable,
