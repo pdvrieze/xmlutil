@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core
@@ -33,7 +33,11 @@ import java.io.InputStreamReader
  *          attribute in the XML)
  * @param relaxed
  */
-public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relaxed: Boolean = false): KtXmlReader {
+@Deprecated("Use the 4 argument version instead", level = DeprecationLevel.HIDDEN)
+public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relaxed: Boolean = false): KtXmlReader =
+    KtXmlReader(inputStream, encoding, relaxed, false)
+
+public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relaxed: Boolean = false, expandEntities: Boolean = false): KtXmlReader {
     val bufferedInput = when {
         inputStream is BufferedInputStream && inputStream.markSupported() -> inputStream
         else -> BufferedInputStream(inputStream, 4096)
@@ -164,7 +168,7 @@ public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relax
         if (enc == null) enc = "UTF-8"
 
 
-        return KtXmlReader(InputStreamReader(bufferedInput, enc), enc, relaxed = relaxed)
+        return KtXmlReader(InputStreamReader(bufferedInput, enc), enc, relaxed = relaxed, expandEntities = expandEntities)
     } catch (e: Exception) {
         throw (e as? XmlException) ?: XmlException("Invalid stream or encoding: $e", e)
     }
