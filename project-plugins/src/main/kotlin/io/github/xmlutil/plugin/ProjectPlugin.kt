@@ -37,6 +37,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
@@ -123,6 +124,9 @@ class ProjectPlugin @Inject constructor(
                         create<MavenPublication>("android") {
                             artifactId = "${project.name}-android"
                             from(component)
+
+                            // important so publishing does not try to resolve this when consuming the project
+                            (this as? DefaultMavenPublication)?.let { it.isAlias = true }
                         }
                     }
                 }
