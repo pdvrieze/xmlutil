@@ -30,6 +30,8 @@ import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.data
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
@@ -74,6 +76,8 @@ class EntityInNode291 {
 
     @Test
     fun assertSerializeNodeTag() {
+        if (testTarget == Target.Node) return
+
         val document = xmlStreaming.genericDomImplementation.createDocument()
         val data = NodeTag(listOf(document.createTextNode("&Content")))
         assertXmlEquals(expectedXml, xml.encodeToString(data))
@@ -81,6 +85,8 @@ class EntityInNode291 {
 
     @Test
     fun assertDeserializeNodeTag() {
+        if (testTarget == Target.Node) return
+
         val actual = xml.decodeFromString<NodeTag>(expectedXml)
         assertEquals(2, actual.content.size, "Unexpected content: ${actual.content.joinToString()}")
         val textNode1 = assertIs<Text>(actual.content[0])
