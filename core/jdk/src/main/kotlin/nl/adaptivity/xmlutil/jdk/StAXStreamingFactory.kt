@@ -111,6 +111,9 @@ public class StAXStreamingFactory : XmlStreamingFactory {
 
     internal companion object {
         internal val DEFAULT_OBJECT = StAXStreamingFactory()
+
+        @JvmStatic
+        public fun provider(): StAXStreamingFactory = DEFAULT_OBJECT
     }
 
 }

@@ -96,5 +96,8 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     internal companion object {
         @Suppress("unused")
         internal val DEFAULT_INSTANCE = AndroidStreamingFactory()
+
+        @JvmStatic
+        fun provider(): AndroidStreamingFactory = DEFAULT_INSTANCE
     }
 }
