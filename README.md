@@ -59,21 +59,11 @@ The project's Maven access is hosted on OSS Sonatype (and available from Maven C
 
 Releases can be added from **maven central**
 
-They are also available directly from Sonatype by adding the following to your
-Gradle build file:
+Snapshots are available from the default maven central snapshot repository:
 ```groovy
 repositories {
 	maven {
-		url  "https://s01.oss.sonatype.org/content/repositories/releases/"
-	}
-}
-```
-
-Snapshots are available from:
-```groovy
-repositories {
-	maven {
-		url  "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+		url  "https://central.sonatype.com/repository/maven-snapshots/"
 	}
 }
 ```
