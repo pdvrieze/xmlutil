@@ -96,22 +96,15 @@ Has platform independent implementations of xml parsing/serialization
 that mirrors the Java API)
 
 ### Serialization
-#### multiplatform
+#### multiplatform (this coordinate should be used by default)
 ```
    implementation("io.github.pdvrieze.xmlutil:serialization:0.91.2")
 ```
-#### JVM
+
+#### JVM (also works for Android)
 ```
    implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.2")
 ```
-#### -Android- (Deprecated - this is dependency only - it has no code)
-** Deprecated **
-```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.91.2")
-```
-
-This version is merely a dependency to the main module that no longer has the android
-specific artefact as this is not supported by kotlin (and has resolution issues).
 
 #### js
 ```
