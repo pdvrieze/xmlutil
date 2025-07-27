@@ -23,12 +23,11 @@ import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.dokka)

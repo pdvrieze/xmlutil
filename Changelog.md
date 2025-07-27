@@ -1,4 +1,7 @@
-# 0.91.2-SNAPSHOT
+# 0.91.3-SNAPSHOT
+
+# 0.91.2
+*(July 27, 2025)<br />*
 
 Features:
 - Make `defaultPrimitiveOutputKind` and `defaultObjectOutputKind`
@@ -24,7 +27,7 @@ Fixes:
   but equivalent errors. 
 
 # 0.91.1
-*(May 15, 2025)
+*(May 15, 2025)<br />*
 
 Features:
 - Add an annotation `@XmlMapEntryName` to force map entries not to be
@@ -49,7 +52,7 @@ Fixes:
 - Further fixes on inline serialization with more cases.
 
 # 0.91.0
-*(April 1, 2025)
+*(April 1, 2025)<br />*
 Features:
 - Add `XmlKeyName` as annotation to set the name of the key used in
   maps. This just adds the capability to the default policy. Supports
@@ -209,7 +212,7 @@ Fixes:
 - Fix android plugin dependency.
 
 # 0.90.0 2.0 will go
-*(June 13, 2024)
+*(June 13, 2024)<br />*
 Changes:
 - The core module no longer automatically includes Android/Jvm "native"
   parsers by default, but uses the platform independent implementation.
@@ -275,7 +278,7 @@ Fixes:
   attributes.
 
 # 0.86.3
-*(December 14, 2023)
+*(December 14, 2023)<br />*
 Changes:
 - The `XmlStreaming` object in core is replaced by an interface `IXmlStreaming`
   with an accessor function `xmlStreaming` that provides an appropriate

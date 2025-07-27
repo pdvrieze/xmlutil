@@ -18,7 +18,6 @@
  * permissions and limitations under the License.
  */
 
-import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
