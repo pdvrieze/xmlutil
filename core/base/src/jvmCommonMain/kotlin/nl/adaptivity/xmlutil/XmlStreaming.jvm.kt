@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress("DEPRECATION")
@@ -33,7 +33,6 @@ import java.io.*
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
-import kotlin.jvm.Volatile
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import org.w3c.dom.Node as DomNode
@@ -163,7 +162,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
     internal fun newReader(inputStream: InputStream): XmlReader {
-        return factory.newReader(inputStream)
+        return factory.newReader(inputStream, false)
     }
 
     @Deprecated("Use extension functions on IXmlStreaming")
@@ -171,8 +170,8 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newReader(inputStream, encoding)
     }
 
-    actual override fun newReader(reader: Reader): XmlReader {
-        return factory.newReader(reader)
+    actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
+        return factory.newReader(reader, expandEntities)
     }
 
     @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
@@ -180,8 +179,8 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newReader(source)
     }
 
-    public actual override fun newReader(input: CharSequence): XmlReader {
-        return factory.newReader(input)
+    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
+        return factory.newReader(input, expandEntities)
     }
 
     @Deprecated(
@@ -190,16 +189,19 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     )
     public override fun newReader(input: String): XmlReader = newReader(input as CharSequence)
 
-    public actual override fun newGenericReader(input: CharSequence): XmlReader =
-        newGenericReader(StringReader(input.toString()))
+    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+        newGenericReader(StringReader(input.toString()), expandEntities = expandEntities)
 
-    public fun newGenericReader(input: String): XmlReader =
-        newGenericReader(StringReader(input))
+    @JvmOverloads
+    public fun newGenericReader(input: String, expandEntities: Boolean = false): XmlReader =
+        newGenericReader(StringReader(input), expandEntities = expandEntities)
 
-    public fun newGenericReader(inputStream: InputStream, encoding: String? = null): XmlReader =
-        KtXmlReader(inputStream, encoding)
+    @JvmOverloads
+    public fun newGenericReader(inputStream: InputStream, encoding: String? = null, expandEntities: Boolean = false): XmlReader =
+        KtXmlReader(inputStream, encoding, expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+        KtXmlReader(reader, expandEntities = expandEntities)
 
     public actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory
@@ -304,16 +306,16 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
             return KtXmlWriter(OutputStreamWriter(outputStream, encoding), repairNamespaces, xmlDeclMode)
         }
 
-        override fun newReader(reader: Reader): XmlReader {
-            return KtXmlReader(reader)
+        override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
+            return KtXmlReader(reader, expandEntities)
         }
 
-        override fun newReader(inputStream: InputStream): XmlReader {
+        override fun newReader(inputStream: InputStream, expandEntities: Boolean): XmlReader {
             return KtXmlReader(inputStream)
         }
 
-        override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
-            return KtXmlReader(inputStream, encoding)
+        override fun newReader(inputStream: InputStream, encoding: String, expandEntities: Boolean): XmlReader {
+            return KtXmlReader(inputStream, encoding, expandEntities)
         }
     }
 

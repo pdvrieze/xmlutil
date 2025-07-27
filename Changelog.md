@@ -1,3 +1,29 @@
+# 0.91.2
+*(July 27, 2025)
+
+Features:
+- Make `defaultPrimitiveOutputKind` and `defaultObjectOutputKind`
+  configurable attributes rather than (overridable) properties (#285).
+- Allow the "xml" prefix in annotations to be used without explicit
+  namespace specification, but implicitly mapped to the xml namespace:
+  `http://www.w3.org/XML/1998/namespace`. Note that while not enforced
+  it is not valid to declare the prefix to have any different value.
+  Adresses #289. 
+
+Changes:
+- Tidy up the implementation of the constructors of the 
+  `DefaultSerializationPolicy`. This might have slight consequences
+  in binary compatibility for (experimental) inheritance.
+- Change `DelegatingSerializer` (in serialutil) to take the serial
+  name as parameter as using the delegate is not valid.
+
+Fixes:
+- Fix trimming of strings inside a mixed context where there is an
+  `@XmlIgnoreSpace(true)` annotation.
+- Fix handling of entity references in handling generic value holders
+  (node, compactFragment). This addresses bug #291 with two separate,
+  but equivalent errors. 
+
 # 0.91.1
 *(May 15, 2025)
 

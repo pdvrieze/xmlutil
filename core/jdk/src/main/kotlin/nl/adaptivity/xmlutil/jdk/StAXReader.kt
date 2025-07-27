@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.jdk
@@ -31,7 +31,10 @@ import javax.xml.transform.Source
  * An implementation of [XmlReader] based upon the JDK StAX implementation.
  * @author Created by pdvrieze on 16/11/15.
  */
-public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
+public class StAXReader @JvmOverloads constructor(
+    private val delegate: XMLStreamReader,
+    private val expandEntities: Boolean = false
+) : XmlReader {
 
     override var isStarted: Boolean = false
         private set
@@ -43,7 +46,8 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
     private val namespaceHolder = NamespaceHolder()
 
     @Throws(XMLStreamException::class)
-    public constructor(reader: Reader) : this(safeInputFactory().createXMLStreamReader(reader))
+    @JvmOverloads
+    public constructor(reader: Reader, expandEntities: Boolean = false) : this(safeInputFactory().createXMLStreamReader(reader), expandEntities)
 
     /**
      * Create a new reader
@@ -52,15 +56,18 @@ public class StAXReader(private val delegate: XMLStreamReader) : XmlReader {
      *     attribute in the document)
      */
     @Throws(XMLStreamException::class)
-    public constructor(inputStream: InputStream, encoding: String? = null) : this(
+    @JvmOverloads
+    public constructor(inputStream: InputStream, encoding: String? = null, expandEntities: Boolean = false) : this(
         safeInputFactory().createXMLStreamReader(
             inputStream,
-            encoding
-        )
+            encoding,
+        ),
+        expandEntities
     )
 
     @Throws(XMLStreamException::class)
-    public constructor(source: Source) : this(safeInputFactory().createXMLStreamReader(source))
+    @JvmOverloads
+    public constructor(source: Source, expandEntities: Boolean = false) : this(safeInputFactory().createXMLStreamReader(source), expandEntities)
 
     @Throws(XmlException::class)
     override fun close() {

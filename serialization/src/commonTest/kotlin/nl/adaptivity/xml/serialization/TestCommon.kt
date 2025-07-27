@@ -1,27 +1,28 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:OptIn(ExperimentalSerializationApi::class)
 
 package nl.adaptivity.xml.serialization
 
+import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonBuilder
 import kotlinx.serialization.modules.SerializersModule
@@ -35,7 +36,10 @@ import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.impl.createDocument
@@ -348,4 +352,29 @@ class TestCommon {
 
     }
 
+    @Serializable
+    @XmlSerialName("myObject", "mynamespace", "o")
+    object MyObjectInCommon {
+        val bar = "baz"
+    }
+
+
+    @Serializable
+    data class Container(val data: MyObjectInCommon)
+
+    @Test
+    fun testSerializeObject() {
+        val xml  = XML { recommended_0_91_0() }
+        val data = Container(MyObjectInCommon)
+        val expected = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
+        assertXmlEquals(expected, xml.encodeToString(data))
+    }
+
+    @Test
+    fun testDeserializeObject() {
+        val xml  = XML { recommended_0_91_0() }
+        val expected = Container(MyObjectInCommon)
+        val data = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
+        assertEquals(expected, xml.decodeFromString<Container>(data))
+    }
 }

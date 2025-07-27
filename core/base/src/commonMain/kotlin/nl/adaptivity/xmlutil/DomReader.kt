@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress("DEPRECATION")
@@ -40,7 +40,9 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
  */
 @Deprecated("Don't use directly. Instead create an instance through xmlStreaming", ReplaceWith("xmlStreaming.newReader(delegate)", "nl.adaptivity.xmlutil.xmlStreaming"))
 @XmlUtilDeprecatedInternal
-public class DomReader(public val delegate: Node2) : XmlReader {
+public class DomReader(public val delegate: Node2, public val expandEntities: Boolean) : XmlReader {
+
+    public constructor(delegate: Node2) : this(delegate, false)
 
     @Suppress("DEPRECATION")
     public constructor(delegate: Node1) :
@@ -54,8 +56,14 @@ public class DomReader(public val delegate: Node2) : XmlReader {
 
     override val localName: String
         // allow localName to be null for non-namespace aware nodes
-        get() = currentElement?.getLocalName()
-            ?: throw XmlException("Only elements have a local name")
+        get() {
+            val current = current
+            return when (current?.nodeType) {
+                NodeConsts.ELEMENT_NODE -> (current as Element).getLocalName()
+                NodeConsts.ENTITY_REFERENCE_NODE if (!expandEntities) -> current.nodeName
+                else -> throw XmlException("Only elements have a local name")
+            }
+        }
 
     override val prefix: String
         get() = currentElement?.let { it.getPrefix() ?: "" }
@@ -102,7 +110,7 @@ public class DomReader(public val delegate: Node2) : XmlReader {
     override val eventType: EventType
         get() = when (val c = current) {
             null -> EventType.END_DOCUMENT
-            else -> c.toEventType(atEndOfElement)
+            else -> c.toEventType(atEndOfElement, expandEntities)
         }
 
     private var _namespaceAttrs: List<Attr>? = null
@@ -248,7 +256,7 @@ public class DomReader(public val delegate: Node2) : XmlReader {
                         // This falls back all the way to the bottom to return the current even type (starting the sibling)
                     } else { // no more siblings, go back to parent
                         current = c.parentNode
-                        return current?.toEventType(true) ?: EventType.END_DOCUMENT
+                        return current?.toEventType(true, expandEntities) ?: EventType.END_DOCUMENT
                     }
                 }
 
@@ -274,7 +282,7 @@ public class DomReader(public val delegate: Node2) : XmlReader {
             if (nodeType != NodeConsts.ELEMENT_NODE && nodeType != NodeConsts.DOCUMENT_NODE) {
                 atEndOfElement = true // No child elements for things like text
             }
-            return c2.toEventType(atEndOfElement).also {
+            return c2.toEventType(atEndOfElement, expandEntities).also {
                 if (it == EventType.START_ELEMENT) { ++depth }
             }
         }
@@ -322,17 +330,18 @@ public class DomReader(public val delegate: Node2) : XmlReader {
 }
 
 
-private fun Node2.toEventType(endOfElement: Boolean): EventType {
+private fun Node2.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
     @Suppress("DEPRECATION")
     return when (nodeType) {
         NodeConsts.ATTRIBUTE_NODE -> EventType.ATTRIBUTE
         NodeConsts.CDATA_SECTION_NODE -> EventType.CDSECT
         NodeConsts.COMMENT_NODE -> EventType.COMMENT
         NodeConsts.DOCUMENT_TYPE_NODE -> EventType.DOCDECL
+        NodeConsts.ENTITY_REFERENCE_NODE if (expandEntities) -> EventType.TEXT
         NodeConsts.ENTITY_REFERENCE_NODE -> EventType.ENTITY_REF
         NodeConsts.DOCUMENT_FRAGMENT_NODE,
         NodeConsts.DOCUMENT_NODE -> if (endOfElement) EventType.END_DOCUMENT else EventType.START_DOCUMENT
-//    Node.DOCUMENT_NODE -> EventType.END_DOCUMENT
+
         NodeConsts.PROCESSING_INSTRUCTION_NODE -> EventType.PROCESSING_INSTRUCTION
         NodeConsts.TEXT_NODE -> when {
             isXmlWhitespace(textContent!!) -> EventType.IGNORABLE_WHITESPACE
@@ -340,7 +349,7 @@ private fun Node2.toEventType(endOfElement: Boolean): EventType {
         }
 
         NodeConsts.ELEMENT_NODE -> if (endOfElement) EventType.END_ELEMENT else EventType.START_ELEMENT
-//    Node.ELEMENT_NODE -> EventType.END_ELEMENT
+
         else -> throw XmlException("Unsupported event type ($this)")
     }
 }

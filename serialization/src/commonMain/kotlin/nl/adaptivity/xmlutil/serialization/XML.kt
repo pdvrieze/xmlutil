@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress("KDocUnresolvedReference")
@@ -104,7 +104,21 @@ public class XML(
     public fun copy(
         serializersModule: SerializersModule = this.serializersModule,
         configure: XmlConfig.Builder.() -> Unit,
-    ): XML = XML(XmlConfig.Builder(config).apply(configure), serializersModule)
+    ): XML {
+        val newConfigBuilder = XmlConfig.Builder(config).apply(configure)
+        val oldCache = config.formatCache
+        when (val p = newConfigBuilder.policy) {
+            is DefaultXmlSerializationPolicy -> if (oldCache == p.formatCache) {
+                newConfigBuilder.policy = p.copy { formatCache = formatCache.copy() }
+            }
+
+            is ShadowPolicy -> if (oldCache == p.cache) {
+                newConfigBuilder.policy = ShadowPolicy(p.basePolicy, p.cache.copy())
+            }
+        }
+
+        return XML(newConfigBuilder, serializersModule)
+    }
 
     override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         return encodeToString(serializer, value, null)
@@ -773,8 +787,11 @@ public class XML(
 
     public companion object : StringFormat {
 
+        @Suppress("DEPRECATION")
         public val defaultInstance: XML = XML {
-            policy = DefaultXmlSerializationPolicy(try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy }) {}
+            policy = DefaultXmlSerializationPolicy(
+                runCatching { defaultSharedFormatCache() }.getOrElse { FormatCache.Dummy }
+            ) {}
         }
         override val serializersModule: SerializersModule
             get() = defaultInstance.serializersModule
@@ -1200,51 +1217,58 @@ public class XML(
 
 }
 
-public fun XmlSerialName.toQName(serialName: String, parentNamespace: Namespace?): QName = when {
-    namespace == UNSET_ANNOTATION_VALUE -> when (value) {
-        UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, serialName) } ?: QName(serialName)
-        else -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
+/**
+ * Helper function to implement the shared functionality converting an annotation to a name.
+ * There are various annotations that require a local name to be specified. For this case we
+ * have the default for the serialName attribute be that local name.
+ */
+private fun annotationToQName(annLocalPart: String, annNamespace: String, annPrefix: String, parentNamespace: Namespace?, serialName: String = annLocalPart): QName {
+    val effectiveNamespace = when {
+        annNamespace != UNSET_ANNOTATION_VALUE -> annNamespace
+        annPrefix == "xml" -> XMLConstants.XML_NS_URI
+        else -> annNamespace
+    }
+    return when {
+        effectiveNamespace == UNSET_ANNOTATION_VALUE -> when {
+            annLocalPart == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, serialName) } ?: QName(
+                serialName
+            )
+
+            else -> parentNamespace?.let { QName(it.namespaceURI, annLocalPart) } ?: QName(annLocalPart)
+        }
+
+        annLocalPart == UNSET_ANNOTATION_VALUE -> when (annPrefix) {
+            UNSET_ANNOTATION_VALUE -> QName(effectiveNamespace, serialName)
+            else -> QName(serialName, effectiveNamespace, annPrefix)
+        }
+
+        annPrefix == UNSET_ANNOTATION_VALUE -> QName(effectiveNamespace, annLocalPart)
+
+        else -> QName(effectiveNamespace, annLocalPart, annPrefix)
     }
 
-    value == UNSET_ANNOTATION_VALUE -> when (prefix) {
-        UNSET_ANNOTATION_VALUE -> QName(namespace, serialName)
-        else -> QName(serialName, namespace, prefix)
-    }
 
-    prefix == UNSET_ANNOTATION_VALUE -> QName(namespace, value)
 
-    else -> QName(namespace, value, prefix)
+}
+
+public fun XmlSerialName.toQName(serialName: String, parentNamespace: Namespace?): QName {
+    return annotationToQName(value, namespace, prefix, parentNamespace, serialName)
 }
 
 public fun XmlChildrenName.toQName(): QName {
     return toQName(null)
 }
 
-internal fun XmlChildrenName.toQName(parentNamespace: Namespace?): QName = when {
-    namespace == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
-    prefix == UNSET_ANNOTATION_VALUE -> {
-        val p = parentNamespace?.let { ns -> ns.prefix.takeIf { ns.namespaceURI == namespace }}
-        QName(namespace, value, p ?: "")
-    }
-    else -> QName(namespace, value, prefix)
+internal fun XmlChildrenName.toQName(parentNamespace: Namespace?): QName {
+    return annotationToQName(value, namespace, prefix, parentNamespace)
 }
 
-internal fun XmlKeyName.toQName(parentNamespace: Namespace?): QName = when {
-    namespace == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
-    prefix == UNSET_ANNOTATION_VALUE -> {
-        val p = parentNamespace?.let { ns -> ns.prefix.takeIf { ns.namespaceURI == namespace }}
-        QName(namespace, value, p ?: "")
-    }
-    else -> QName(namespace, value, prefix)
+internal fun XmlKeyName.toQName(parentNamespace: Namespace?): QName {
+    return annotationToQName(value, namespace, prefix, parentNamespace)
 }
 
-internal fun XmlMapEntryName.toQName(parentNamespace: Namespace?): QName = when {
-    namespace == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, value) } ?: QName(value)
-    prefix == UNSET_ANNOTATION_VALUE -> {
-        val p = parentNamespace?.let { ns -> ns.prefix.takeIf { ns.namespaceURI == namespace }}
-        QName(namespace, value, p ?: "")
-    }
-    else -> QName(namespace, value, prefix)
+internal fun XmlMapEntryName.toQName(parentNamespace: Namespace?): QName {
+    return annotationToQName(value, namespace, prefix, parentNamespace)
 }
 
 internal inline fun <reified T> Iterable<*>.firstOrNull(): T? {

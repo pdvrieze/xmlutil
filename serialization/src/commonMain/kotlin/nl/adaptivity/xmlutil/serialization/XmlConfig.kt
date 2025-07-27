@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization
@@ -152,7 +152,7 @@ private constructor(
                     copy { }
 
                 autoPolymorphic == null ->
-                    copy { this.unknownChildHandler = unknownChildHandler!!}
+                    copy { this.unknownChildHandler = unknownChildHandler!! }
 
                 unknownChildHandler == null ->
                     copy { this.autoPolymorphic = autoPolymorphic }
@@ -244,6 +244,7 @@ private constructor(
         })
     }
 
+    @Suppress("DuplicatedCode")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -266,6 +267,7 @@ private constructor(
         return true
     }
 
+    @Suppress("DuplicatedCode")
     override fun hashCode(): Int {
         var result = repairNamespaces.hashCode()
         result = 31 * result + xmlDeclMode.hashCode()
@@ -316,7 +318,7 @@ private constructor(
         public var policy: XmlSerializationPolicy? = policy
             set(value) {
                 field = value
-                if (autoPolymorphic !=null) {
+                if (autoPolymorphic != null) {
                     if (value is DefaultXmlSerializationPolicy && value.autoPolymorphic != autoPolymorphic) {
                         this.autoPolymorphic = value.autoPolymorphic
                     }
@@ -387,14 +389,6 @@ private constructor(
             this.isAlwaysDecodeXsiNil = config.isAlwaysDecodeXsiNil
             this.defaultToGenericParser = config.defaultToGenericParser
         }
-/*
-repairNamespaces
-xmlDeclMode
-indentString
-autoPolymorphic
-unknownChildHandler
-policy
- */
 
         @Suppress("DEPRECATION")
         @ExperimentalXmlUtilApi
@@ -543,12 +537,14 @@ policy
          * Note that this function has no guarantee of stability.
          */
         public inline fun fast(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            fast_0_90_2(configurePolicy)
+            fast_0_91_1(configurePolicy)
         }
 
         /**
          * Configure the format using the recommended configuration as of version 0.86.3. This configuration is stable.
          */
+        @Suppress("FunctionName", "DEPRECATION")
+        @Deprecated("Consider updating to a newer recommended configuration", ReplaceWith("recommended_0_91_0()"))
         public fun recommended_0_86_3() {
             recommended_0_86_3 { }
         }
@@ -556,6 +552,8 @@ policy
         /**
          * Configure the format starting with the recommended configuration as of version 0.86.3. This configuration is stable.
          */
+        @Suppress("FunctionName")
+        @Deprecated("Consider updating to a newer recommended configuration", ReplaceWith("recommended_0_91_0(configurePolicy)"))
         public inline fun recommended_0_86_3(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             autoPolymorphic = true
             isInlineCollapsed = true
@@ -574,6 +572,7 @@ policy
         /**
          * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
          */
+        @Suppress("FunctionName")
         public fun recommended_0_87_0() {
             val hadAutoPolymorphic = autoPolymorphic != null
             recommended_0_87_0 { }
@@ -583,6 +582,7 @@ policy
         /**
          * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
          */
+        @Suppress("FunctionName", "DEPRECATION")
         public inline fun recommended_0_87_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             repairNamespaces = false
             recommended_0_86_3 {
@@ -594,27 +594,7 @@ policy
         /**
          * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
          */
-        public fun recommended_0_91_0() {
-            val hadAutoPolymorphic = autoPolymorphic != null
-            recommended_0_91_0 { }
-            if (!hadAutoPolymorphic) autoPolymorphic = null
-        }
-
-        /**
-         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
-         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
-         * required for XML 1.1 (otherwise it reverts to 1.0).
-         */
-        public inline fun recommended_0_91_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            recommended_0_90_2 {
-                isXmlFloat = true
-                configurePolicy()
-            }
-        }
-
-        /**
-         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
-         */
+        @Suppress("FunctionName")
         public fun recommended_0_90_2() {
             val hadAutoPolymorphic = autoPolymorphic != null
             recommended_0_90_2 { }
@@ -626,6 +606,7 @@ policy
          * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
          * required for XML 1.1 (otherwise it reverts to 1.0).
          */
+        @Suppress("FunctionName")
         public inline fun recommended_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             repairNamespaces = false
             recommended_0_87_0 {
@@ -639,6 +620,30 @@ policy
         /**
          * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
          */
+        @Suppress("FunctionName")
+        public fun recommended_0_91_0() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            recommended_0_91_0 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
+         * required for XML 1.1 (otherwise it reverts to 1.0).
+         */
+        @Suppress("FunctionName")
+        public inline fun recommended_0_91_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            recommended_0_90_2 {
+                isXmlFloat = true
+                configurePolicy()
+            }
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        @Suppress("FunctionName")
         public fun fast_0_90_2() {
             val hadAutoPolymorphic = autoPolymorphic != null
             fast_0_90_2 { }
@@ -650,6 +655,7 @@ policy
          * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
          * required for XML 1.1 (otherwise it reverts to 1.0).
          */
+        @Suppress("FunctionName")
         public inline fun fast_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             isCachingEnabled = true
             recommended_0_90_2 {
@@ -658,6 +664,35 @@ policy
                 isCollectingNSAttributes = false
                 defaultToGenericParser = true
                 indentString = ""
+                configurePolicy()
+            }
+        }
+
+        /**
+         * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
+         */
+        @Suppress("FunctionName")
+        public fun fast_0_91_1() {
+            val hadAutoPolymorphic = autoPolymorphic != null
+            fast_0_91_1 { }
+            if (!hadAutoPolymorphic) autoPolymorphic = null
+        }
+
+        /**
+         * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
+         * Note that this defaults to xml 1.1 with (minimal) document type declaration. A document type declaration is
+         * required for XML 1.1 (otherwise it reverts to 1.0).
+         */
+        @Suppress("FunctionName")
+        public inline fun fast_0_91_1(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            isCachingEnabled = true
+            recommended_0_91_0 {
+                isAlwaysDecodeXsiNil = false
+                isUnchecked = true
+                isCollectingNSAttributes = false
+                defaultToGenericParser = true
+                indentString = ""
+
                 configurePolicy()
             }
         }

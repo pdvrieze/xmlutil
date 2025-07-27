@@ -1,18 +1,23 @@
 public final class nl/adaptivity/xmlutil/core/AndroidStreamingFactory : nl/adaptivity/xmlutil/XmlStreamingFactory {
 	public fun <init> ()V
-	public fun newReader (Ljava/io/InputStream;)Lnl/adaptivity/xmlutil/XmlReader;
-	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
-	public fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;Z)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/InputStream;Z)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/Reader;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun provider ()Lnl/adaptivity/xmlutil/core/AndroidStreamingFactory;
 }
 
 public final class nl/adaptivity/xmlutil/core/AndroidXmlReader : nl/adaptivity/xmlutil/XmlReader {
-	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
+	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;Z)V
+	public synthetic fun <init> (Ljava/io/InputStream;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/io/Reader;)V
+	public fun <init> (Ljava/io/Reader;Z)V
+	public synthetic fun <init> (Ljava/io/Reader;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lorg/xmlpull/v1/XmlPullParser;)V
+	public fun <init> (Lorg/xmlpull/v1/XmlPullParser;Z)V
 	public fun close ()V
 	public fun getAttributeCount ()I
 	public fun getAttributeLocalName (I)Ljava/lang/String;
@@ -23,6 +28,7 @@ public final class nl/adaptivity/xmlutil/core/AndroidXmlReader : nl/adaptivity/x
 	public fun getDepth ()I
 	public fun getEncoding ()Ljava/lang/String;
 	public fun getEventType ()Lnl/adaptivity/xmlutil/EventType;
+	public final fun getExpandEntities ()Z
 	public fun getExtLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
 	public fun getLocalName ()Ljava/lang/String;
 	public fun getLocationInfo ()Ljava/lang/String;

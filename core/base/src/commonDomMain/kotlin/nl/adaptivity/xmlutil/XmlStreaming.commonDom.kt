@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
@@ -53,18 +53,19 @@ public actual object XmlStreaming : IXmlStreaming {
         throw UnsupportedOperationException("Cannot work")
     }
 
-    public actual override fun newReader(input: CharSequence): XmlReader {
-        return KtXmlReader(StringReader(input.toString()))
+    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
+        return newGenericReader(input, expandEntities)
     }
 
-    public actual override fun newReader(reader: Reader): XmlReader {
-        return newGenericReader(reader)
+    public actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
+        return newGenericReader(reader, expandEntities)
     }
 
-    public actual override fun newGenericReader(input: CharSequence): XmlReader =
-        newGenericReader(StringReader(input.toString()))
+    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+        newGenericReader(StringReader(input.toString()), expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+        KtXmlReader(reader, expandEntities = expandEntities)
 
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node): XmlReader {

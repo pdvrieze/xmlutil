@@ -1,0 +1,8 @@
+module net.devrieze.xmlutil.serialization {
+    requires transitive net.devrieze.xmlutil.core;
+    requires transitive kotlinx.serialization.core;
+    requires transitive java.xml;
+
+    exports nl.adaptivity.xmlutil.serialization;
+    exports nl.adaptivity.xmlutil.serialization.structure;
+}

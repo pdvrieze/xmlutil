@@ -59,21 +59,11 @@ The project's Maven access is hosted on OSS Sonatype (and available from Maven C
 
 Releases can be added from **maven central**
 
-They are also available directly from Sonatype by adding the following to your
-Gradle build file:
+Snapshots are available from the default maven central snapshot repository:
 ```groovy
 repositories {
 	maven {
-		url  "https://s01.oss.sonatype.org/content/repositories/releases/"
-	}
-}
-```
-
-Snapshots are available from:
-```groovy
-repositories {
-	maven {
-		url  "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+		url  "https://central.sonatype.com/repository/maven-snapshots/"
 	}
 }
 ```
@@ -85,19 +75,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:core:0.91.2")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:0.91.2")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:core-android:0.91.2")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:core-js:0.91.2")
 ```
 
 #### Native
@@ -108,16 +98,16 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization:0.91.2")
 ```
 #### JVM
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.2")
 ```
 #### -Android- (Deprecated - this is dependency only - it has no code)
 ** Deprecated **
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-android:0.91.2")
 ```
 
 This version is merely a dependency to the main module that no longer has the android
@@ -125,7 +115,7 @@ specific artefact as this is not supported by kotlin (and has resolution issues)
 
 #### js
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.91.1")
+   implementation("io.github.pdvrieze.xmlutil:serialization-js:0.91.2")
 ```
 
 ### -Ktor- (Deprecated)

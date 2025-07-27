@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
@@ -25,7 +25,6 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.core.impl.dom.unWrap
 import nl.adaptivity.xmlutil.core.impl.dom.wrap
-import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithoutCompatibility
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
@@ -38,7 +37,6 @@ import org.w3c.dom.parsing.XMLSerializer
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Node as DomNode
 
-@MpJvmDefaultWithoutCompatibility
 public actual interface XmlStreamingFactory
 
 
@@ -70,9 +68,9 @@ public actual object XmlStreaming : IXmlStreaming {
             throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
     }
 
-    public actual override fun newReader(input: CharSequence): XmlReader {
+    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         // fall back to generic reader for contexts without DOM (Node etc.)
-        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericReader(input)
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericReader(input, expandEntities)
 
         val str = when { // Ignore initial BOM (it parses incorrectly without exception)
             input[0] == '\ufeff' -> input.subSequence(1, input.length)
@@ -83,12 +81,14 @@ public actual object XmlStreaming : IXmlStreaming {
         return DomReader(DOMParser().parseFromString(str, "text/xml").wrap() as Node2)
     }
 
-    public actual override fun newReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader =
+        KtXmlReader(reader, expandEntities)
 
-    public actual override fun newGenericReader(input: CharSequence): XmlReader =
-        newGenericReader(StringReader(input))
+    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+        newGenericReader(StringReader(input), expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader): XmlReader = KtXmlReader(reader)
+    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+        KtXmlReader(reader, expandEntities = expandEntities)
 
     public fun newWriter(
         output: Appendable,

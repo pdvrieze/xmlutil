@@ -1,9 +1,17 @@
 public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/XmlReader {
+	public fun <init> (Ljava/io/InputStream;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/io/InputStream;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;Z)V
+	public synthetic fun <init> (Ljava/io/InputStream;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/io/Reader;)V
+	public fun <init> (Ljava/io/Reader;Z)V
+	public synthetic fun <init> (Ljava/io/Reader;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljavax/xml/stream/XMLStreamReader;)V
+	public fun <init> (Ljavax/xml/stream/XMLStreamReader;Z)V
+	public synthetic fun <init> (Ljavax/xml/stream/XMLStreamReader;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljavax/xml/transform/Source;)V
+	public fun <init> (Ljavax/xml/transform/Source;Z)V
+	public synthetic fun <init> (Ljavax/xml/transform/Source;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun close ()V
 	public fun getAttributeCount ()I
 	public fun getAttributeLocalName (I)Ljava/lang/String;
@@ -52,13 +60,14 @@ public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/
 
 public final class nl/adaptivity/xmlutil/jdk/StAXStreamingFactory : nl/adaptivity/xmlutil/XmlStreamingFactory {
 	public fun <init> ()V
-	public fun newReader (Ljava/io/InputStream;)Lnl/adaptivity/xmlutil/XmlReader;
-	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
-	public fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;Z)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/InputStream;Z)Lnl/adaptivity/xmlutil/XmlReader;
+	public fun newReader (Ljava/io/Reader;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun provider ()Lnl/adaptivity/xmlutil/jdk/StAXStreamingFactory;
 }
 
 public final class nl/adaptivity/xmlutil/jdk/StAXWriter : nl/adaptivity/xmlutil/core/impl/PlatformXmlWriterBase, nl/adaptivity/xmlutil/XmlWriter {
