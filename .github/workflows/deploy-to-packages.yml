@@ -41,7 +41,6 @@ jobs:
                     path: |
                         **/build/reports/
                         **/build/test-results/
-            -   name: Upload (macOs)
-                if: matrix.os == 'macOs-latest'
+            -   name: Upload
                 run: ./gradlew -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash
