@@ -54,6 +54,7 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
 
             connection.requestMethod = "POST"
             connection.doOutput = true
+            connection.setRequestProperty("Authorization", authHeader)
             connection.setRequestProperty("Accept", "text/plain")
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
 
