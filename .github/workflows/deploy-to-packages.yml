@@ -7,33 +7,12 @@ on:
             - 'v[0-9]*'
     workflow_dispatch:
 jobs:
-#    create-staging-repository:
-#        name: Create staging repository
-#        runs-on: ubuntu-latest
-#        outputs:
-#            repository_id: ${{ steps.create.outputs.repository_id }}
-#        steps:
-#            -   id: create
-#                uses: nexus-actions/create-nexus-staging-repo@v1.3.0
-#                with:
-#                    username: ${{ secrets.OSSRH_USERNAME }}
-#                    password: ${{ secrets.OSSRH_PASSWORD }}
-#                    base_url: https://ossrh-staging-api.central.sonatype.com/service/local/
-#                    staging_profile_id: ${{ secrets.SONATYPE_PROFILE_ID }}
-#                    description: ${{ github.repository }}/${{ github.workflow }}#${{ github.run_number }}
-
     build-and-publish:
-#        needs: create-staging-repository
-#        runs-on: ${{ matrix.os }}
         runs-on: macos-latest
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             GPG_PRIV_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
             GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-#        strategy:
-#            matrix:
-##                os: [ macOs-latest, windows-latest, ubuntu-latest ]
-#                os: [ macOs-latest ]
         steps:
             -   name: Checkout
                 uses: actions/checkout@v4.2.2
@@ -66,16 +45,3 @@ jobs:
                 if: matrix.os == 'macOs-latest'
                 run: ./gradlew -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash
-
-    drop-on-failure:
-        needs: [ create-staging-repository, build-and-publish ]
-        runs-on: ubuntu-latest
-        if: ${{ always() && needs.create_staging_repository.result == 'success' }}
-        steps:
-            -   name: Discard
-                if: ${{ needs.build-and-publish != 'success' }}
-                uses: nexus-actions/drop-nexus-staging-repo@v1
-                with:
-                    username: ${{ secrets.OSSRH_USERNAME }}
-                    password: ${{ secrets.OSSRH_PASSWORD }}
-                    staging_repository_id: ${{ needs.create_staging_repository.outputs.repository_id }}
