@@ -38,6 +38,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
+import org.gradle.api.publish.plugins.PublishingPlugin
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
@@ -54,6 +56,21 @@ class ProjectPlugin @Inject constructor(
 ): Plugin<Project> {
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
+
+        if (project == project.rootProject) {
+            val collateTask = project.tasks.register<Zip>("collateModuleRepositories") {
+                group = PublishingPlugin.PUBLISH_TASK_GROUP
+                description = "Zip task that collates all local repositories into a single zip file"
+                destinationDirectory = project.layout.buildDirectory.dir("repositoryArchive")
+                archiveBaseName = "moduleRepository"
+            }
+
+            val publishToSonatype = project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
+                dependsOn(collateTask)
+                from(collateTask.flatMap { t -> t.archiveFile.map { it.asFile } })
+            }
+
+        }
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
         val xmlutil_version = libs.findVersion("xmlutil").get().requiredVersion
@@ -262,7 +279,7 @@ class ProjectPlugin @Inject constructor(
         }
         project.afterEvaluate {
             for (c in project.components) {
-                project.logger.warn("Found component: ${c.name}")
+                project.logger.debug("Found component: ${c.name}")
             }
         }
     }
