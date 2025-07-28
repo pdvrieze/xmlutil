@@ -83,7 +83,7 @@ tasks.register<Copy>("pages") {
 
 configurations.all {
     resolutionStrategy {
-        force("org.apache.httpcomponents:httpclient:4.5.9")
+        force("org.apache.httpcomponents:httpclient:4.5.14")
         force("org.apache.httpcomponents:httpcore:4.4.16")
     }
 }
