@@ -48,6 +48,8 @@ gradlePlugin {
 dependencies {
     implementation(kotlin("gradle-plugin", libs.versions.kotlin.get()))
     compileOnly("org.jetbrains.dokka:dokka-gradle-plugin:${libs.versions.dokka.get()}")
+    implementation(libs.httpclient)
+//    implementation(libs.httpmime)
 }
 
 repositories {

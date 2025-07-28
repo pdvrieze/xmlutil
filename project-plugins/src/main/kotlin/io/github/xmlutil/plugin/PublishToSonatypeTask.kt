@@ -20,13 +20,18 @@
 
 package io.github.xmlutil.plugin
 
+import org.apache.hc.client5.http.classic.methods.HttpPost
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
 import java.util.*
@@ -48,44 +53,25 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
         check(password.isNotEmpty()) { "Missing secret (ossrh.password property) " }
         val encoded = String(Base64.getEncoder().encode("$username:$password".toByteArray()), Charsets.US_ASCII)
 
-        val url = URI("https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED")
-        val connection = url.toURL().openConnection() as HttpURLConnection
-        try {
-            val boundary = "*******${System.currentTimeMillis()}*******"
+        val client = HttpClientBuilder.create().build()
+        val post = HttpPost("https://central.sonatype.com/api/v1/publisher/upload")
+        post.addHeader("Authorization", "Bearer $encoded")
 
-            connection.requestMethod = "POST"
-            connection.doOutput = true
-            logger.lifecycle("Authorization header: 'Bearer $encoded'")
-            connection.setRequestProperty("Authorization", "Bearer $encoded")
-            connection.setRequestProperty("Accept", "text/plain")
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+        post.entity = MultipartEntityBuilder.create()
+            .addBinaryBody("bundle", archiveFile)
+            .build()
 
-            connection.getOutputStream().use { output ->
-                output.write("--$boundary\r\n".toByteArray())
-                output.write("Content-Disposition: form-data; name=\"bundle\"; filename=\"${archiveFile.name}\"\r\n".toByteArray())
-                output.write("Content-Type: application/octet-stream\r\n".toByteArray())
-
-                archiveFile.inputStream().copyTo(output)
-                output.write("\r\n--$boundary\r\n".toByteArray())
+        val deploymentId = client.execute(post) { r ->
+            r.code
+            if (r.code !in 200 .. 299) {
+                val responseText = r.entity.content.readAllBytes().toString(Charsets.UTF_8)
+                throw IllegalStateException("Unexpected response: ${r.code} - ${r.reasonPhrase}\n  $responseText")
             }
-
-            connection.connect()
-
-            if (connection.responseCode !in 200 .. 299) {
-                throw IllegalStateException("Unexpected response: ${connection.responseCode} - ${connection.responseMessage} ")
-            }
-
-            val deploymentId =  connection.getInputStream().readAllBytes().toString(Charsets.UTF_8)
-
-            logger.lifecycle("Published archive with deployment id $deploymentId")
-        } finally {
-            connection.disconnect()
+            r.entity.content.readAllBytes().toString(Charsets.UTF_8)
         }
+
+        logger.lifecycle("Published archive with deployment id $deploymentId")
     }
 
 
-}
-
-fun Project.f() {
-    val f: File = file("Foo")
 }
