@@ -50,7 +50,7 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
         val url = URI("https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED")
         val connection = url.toURL().openConnection() as HttpURLConnection
         try {
-            val boundary = "*******${Instant.now().millis}*******"
+            val boundary = "*******${System.currentTimeMillis()}*******"
 
             connection.requestMethod = "POST"
             connection.doOutput = true
