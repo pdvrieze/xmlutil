@@ -1,4 +1,8 @@
 # 0.91.3-SNAPSHOT
+Fixes:
+- Make the default instance encodeToString (`XML.encodeToString`) use the
+  regular behaviour for handling null prefixes. This fixes the default empty
+  prefix being used if none is manually set (rather than the annotated prefix).  
 
 # 0.91.2
 *(July 27, 2025)<br />*

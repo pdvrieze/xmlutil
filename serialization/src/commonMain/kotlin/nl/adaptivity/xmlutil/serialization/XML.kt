@@ -846,7 +846,7 @@ public class XML(
          * @param prefix The namespace prefix to use
          */
         public inline fun <reified T : Any> encodeToString(obj: T, prefix: String? = null): String =
-            encodeToString(serializer<T>(), obj, prefix ?: "")
+            defaultInstance.encodeToString(serializer<T>(), obj, prefix)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
