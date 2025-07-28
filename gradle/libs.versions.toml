@@ -14,11 +14,16 @@ kotlinx-io = "0.8.0"
 kxml2 = "2.3.0"
 woodstox = "7.1.1"
 xmlutil = "0.91.3-SNAPSHOT"
+httpComponents = "4.5.14"
+httpComponents5 = "5.5"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
 kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
+
+httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
+httpclient = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
 junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5-jupiter" }
