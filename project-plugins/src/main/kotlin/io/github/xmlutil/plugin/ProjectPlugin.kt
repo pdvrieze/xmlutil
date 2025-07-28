@@ -133,7 +133,7 @@ class ProjectPlugin @Inject constructor(
                 project.components.add(component)
 
                 component.addVariantsFromConfiguration(androidRuntimeElements.get()) {
-                    logger.lifecycle("Add variant to runtime scope")
+                    logger.debug("Add variant to runtime scope")
                     mapToMavenScope("runtime")
                 }
 

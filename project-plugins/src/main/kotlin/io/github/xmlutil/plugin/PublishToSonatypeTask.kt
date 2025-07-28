@@ -26,7 +26,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.impldep.org.joda.time.Instant
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
@@ -45,7 +44,9 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
         val archiveFile = archive.get()
         val username = project.findProperty("ossrh.username") as String
         val password = project.findProperty("ossrh.password") as String
-        val authHeader = "UserToken ${Base64.getEncoder().encode("$username:$password".toByteArray())}"
+        check(username.isNotEmpty()) { "Missing username (ossrh.username property) " }
+        check(password.isNotEmpty()) { "Missing secret (ossrh.password property) " }
+        val encoded = String(Base64.getEncoder().encode("$username:$password".toByteArray()), Charsets.US_ASCII)
 
         val url = URI("https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED")
         val connection = url.toURL().openConnection() as HttpURLConnection
@@ -54,7 +55,8 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
 
             connection.requestMethod = "POST"
             connection.doOutput = true
-            connection.setRequestProperty("Authorization", authHeader)
+            logger.lifecycle("Authorization header: 'Bearer $encoded'")
+            connection.setRequestProperty("Authorization", "Bearer $encoded")
             connection.setRequestProperty("Accept", "text/plain")
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
 
