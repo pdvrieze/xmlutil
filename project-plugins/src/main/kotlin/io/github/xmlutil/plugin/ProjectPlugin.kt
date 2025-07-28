@@ -66,6 +66,8 @@ class ProjectPlugin @Inject constructor(
             }
 
             val publishToSonatype = project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
+                group = PublishingPlugin.PUBLISH_TASK_GROUP
+                description = "Publish the repositories to the sonatype maven central portal"
                 dependsOn(collateTask)
                 from(collateTask.flatMap { t -> t.archiveFile.map { it.asFile } })
             }

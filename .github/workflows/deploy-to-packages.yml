@@ -42,5 +42,5 @@ jobs:
                         **/build/reports/
                         **/build/test-results/
             -   name: Upload
-                run: ./gradlew -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+                run: ./gradlew publishToSonatype -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash
