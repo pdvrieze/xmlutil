@@ -20,6 +20,7 @@
 
 package net.devrieze.gradle.ext
 
+import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
@@ -30,16 +31,13 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
+import java.util.Locale
 
 @Suppress("LocalVariableName")
 fun Project.doPublish(
     pubName: String = project.name,
     pubDescription: String = "Component of the XMLUtil library"
 ) {
-
-    val isReleaseVersion = ("SNAPSHOT" !in version.toString())
-    extra["isReleaseVersion"] = isReleaseVersion
-
 
     val javadocJarTask = tasks.register<Jar>("javadocJar") {
         archiveClassifier.set("javadoc")
@@ -49,28 +47,23 @@ fun Project.doPublish(
 
     configure<PublishingExtension> {
         this.repositories {
-            maven {
-                name = "projectLocal"
-
-                setUrl(project.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
-                /*
-                    url = when {
-                        "SNAPSHOT" in version.toString().uppercase(Locale.getDefault()) ->
-                            uri("https://central.sonatype.com/repository/maven-snapshots/")
-                        repositoryId != null ->
-                            uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deployByRepositoryId/$repositoryId/")
-                        else ->
-                            uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-                    }
-    */
-                /*
+            when {
+                isSnapshot -> maven {
+                    name = "mavenSnapshot"
+                    url = uri("https://central.sonatype.com/repository/maven-snapshots/")
                     credentials {
                         username = project.findProperty("ossrh.username") as String?
                         password = project.findProperty("ossrh.password") as String?
                     }
-    */
+                }
 
+                else -> maven {
+                    name = "projectLocal"
+
+                    setUrl(project.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
+                }
             }
+
         }
 
 
@@ -173,10 +166,5 @@ fun Project.doPublish(
         }
     }
 
-/*
-    tasks.withType<Sign>().configureEach {
-        onlyIf { project.hasProperty("isReleaseVersion") && (project.extra["isReleaseVersion"] as Boolean) }
-    }
-*/
 
 }

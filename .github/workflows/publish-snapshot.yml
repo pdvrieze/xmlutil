@@ -1,10 +1,8 @@
-name: Create and publish a package
+name: Publish snapshot
 on:
     push:
         branches:
             - 'dev'
-        tags:
-            - 'v[0-9]*'
     workflow_dispatch:
 jobs:
     build-and-publish:
@@ -42,5 +40,5 @@ jobs:
                         **/build/reports/
                         **/build/test-results/
             -   name: Upload
-                run: ./gradlew publishToSonatype -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+                run: ./gradlew publishAllPublicationsToMavenSnapshotRepository -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash
