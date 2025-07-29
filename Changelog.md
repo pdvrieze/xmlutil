@@ -3,6 +3,9 @@ Fixes:
 - Make the default instance encodeToString (`XML.encodeToString`) use the
   regular behaviour for handling null prefixes. This fixes the default empty
   prefix being used if none is manually set (rather than the annotated prefix).  
+- Fix attributes not being prefixed with a namespace if their namespace prefix
+  is the default prefix for that namespace. As a workaround leave the prefix
+  different from its containers.
 
 # 0.91.2
 *(July 27, 2025)<br />*

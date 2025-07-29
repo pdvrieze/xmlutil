@@ -766,21 +766,11 @@ internal open class XmlEncoderBase internal constructor(
         }
 
         open fun doWriteAttribute(index: Int, name: QName, value: String) {
-
-            val actualAttrName: QName = when {
-                name.getNamespaceURI().isEmpty() ||
-                        (serialName.getNamespaceURI() == name.getNamespaceURI() &&
-                                (serialName.prefix == name.prefix))
-                -> QName(name.localPart) // Breaks in android otherwise
-
-                else -> name
-            }
-
             if (reorderInfo != null && deferring) {
                 // set directly as otherwise defer will write attributes
-                deferredBuffer[reorderInfo[index]] = DeferredWriteAttribute(actualAttrName, value)
+                deferredBuffer[reorderInfo[index]] = DeferredWriteAttribute(name, value)
             } else {
-                smartWriteAttribute(actualAttrName, value)
+                smartWriteAttribute(name, value)
             }
         }
 

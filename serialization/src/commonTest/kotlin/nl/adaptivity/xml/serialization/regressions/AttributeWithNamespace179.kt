@@ -31,7 +31,10 @@ import kotlin.test.assertEquals
 
 class AttributeWithNamespace179 {
     val xml = XML {
-        recommended_0_91_0()
+        recommended_0_91_0 {
+            isStrictAttributeNames = true
+        }
+        defaultToGenericParser = true
         xmlDeclMode = XmlDeclMode.None
         indent = 0
     }
@@ -66,11 +69,37 @@ class AttributeWithNamespace179 {
 
     }
 
+    @Test
+    fun testSerializeComplex() {
+        val menu = FoodMenu(listOf(Food("true")))
+        val expected = "<?xml version='1.1' encoding='UTF-8' ?>\n" +
+                "<ns:breakfast_menu xmlns:ns=\"https://schema.restaurant.info\">\n" +
+                " <ns:food ns:istasty=\"true\" />\n" +
+                "</ns:breakfast_menu>"
+
+        val xml = XML {
+            xmlDeclMode = XmlDeclMode.Charset
+            autoPolymorphic = true
+            repairNamespaces = true
+            indentString = "    "
+            indent = 1
+            defaultToGenericParser = true
+        }
+
+        val serialized = xml.encodeToString(menu)
+        assertEquals(expected, serialized)
+
+    }
+
+    @Serializable
+    @XmlSerialName("breakfast_menu", "https://schema.restaurant.info", "ns" )
+    class FoodMenu(val food: List<Food>)
+
     @Serializable
     @XmlSerialName("food", "https://schema.restaurant.info", "ns" )
     data class Food (
         @XmlElement(false)
-        @XmlSerialName("istasty", "https://schema.restaurant.info", "wrongnamespacePrefix" )
+        @XmlSerialName("istasty", "https://schema.restaurant.info", "ns" )
         var istasty : String,
         @XmlElement(true)
         @XmlSerialName("name", "", "")
@@ -83,6 +112,6 @@ class AttributeWithNamespace179 {
         var description : String? = null,
         @XmlElement(true)
         @XmlSerialName("calories","", "")
-        var calories : Int?= null
+        var calories: Int? = null
     )
 }
