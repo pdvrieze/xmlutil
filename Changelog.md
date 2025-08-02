@@ -1,4 +1,11 @@
 # 0.91.3-SNAPSHOT
+Changes:
+- Change the behaviour of `defaultPolicy` to inherit the settings of
+  a previous policy even if does not inherit `DefaultXmlSerializationPolicy`.
+  In rare cases this changes the behaviour (where a custom policy was
+  originally set (with different defaults), it didn't inherit the
+  default policy, and it is now replaced by a default policy).
+
 Fixes:
 - Make the default instance encodeToString (`XML.encodeToString`) use the
   regular behaviour for handling null prefixes. This fixes the default empty
