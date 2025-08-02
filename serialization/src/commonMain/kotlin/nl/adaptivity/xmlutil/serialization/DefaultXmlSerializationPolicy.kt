@@ -377,7 +377,10 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
         if (pedantic) {
             require(name.localPart !in ILLEGALNAMES) { "QNames may not have reserved names as value :${name.localPart}" }
-            require(name.prefix !in ILLEGALNAMES) { "QNames may not have reserved names as prefix :${name.prefix}" }
+            require(name.prefix != XMLConstants.XMLNS_ATTRIBUTE) { "XML Namespaces should not be specified as attributes, but rather using the `XmlNamespaceDeclSpecs` annotation" }
+            require(name.prefix != XMLConstants.XML_NS_PREFIX || name.namespaceURI == XMLConstants.XML_NS_URI) {
+                "The `xml` prefixes may only map to the standard xml namespace (${XMLConstants.XML_NS_URI})"
+            }
         }
 
         return name
@@ -818,6 +821,10 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
     private companion object {
         val ILLEGALNAMES = arrayOf("xml", "xmlns")
+        val RESTRICTED_PREFIXES = mapOf(
+            XMLConstants.XML_NS_PREFIX to XMLConstants.XML_NS_URI,
+            XMLConstants.XMLNS_ATTRIBUTE to XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+        )
     }
 
 }

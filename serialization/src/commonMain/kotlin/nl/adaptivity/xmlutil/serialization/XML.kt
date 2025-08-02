@@ -1230,9 +1230,8 @@ private fun annotationToQName(annLocalPart: String, annNamespace: String, annPre
     }
     return when {
         effectiveNamespace == UNSET_ANNOTATION_VALUE -> when {
-            annLocalPart == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, serialName) } ?: QName(
-                serialName
-            )
+            annLocalPart == UNSET_ANNOTATION_VALUE -> parentNamespace?.let { QName(it.namespaceURI, serialName) }
+                ?: QName(serialName)
 
             else -> parentNamespace?.let { QName(it.namespaceURI, annLocalPart) } ?: QName(annLocalPart)
         }
@@ -1241,6 +1240,8 @@ private fun annotationToQName(annLocalPart: String, annNamespace: String, annPre
             UNSET_ANNOTATION_VALUE -> QName(effectiveNamespace, serialName)
             else -> QName(serialName, effectiveNamespace, annPrefix)
         }
+
+        annNamespace == XMLConstants.XML_NS_URI -> QName(XMLConstants.XML_NS_URI, annLocalPart, XMLConstants.XML_NS_PREFIX)
 
         annPrefix == UNSET_ANNOTATION_VALUE -> QName(effectiveNamespace, annLocalPart)
 

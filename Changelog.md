@@ -6,6 +6,10 @@ Fixes:
 - Fix attributes not being prefixed with a namespace if their namespace prefix
   is the default prefix for that namespace. As a workaround leave the prefix
   different from its containers.
+- In pedantic mode, allow an `XmlSerialName` to use the `xml` prefix as long as
+  its namespace is left default or maps to the xml namespace. Also force the
+  prefix used to be the standard prefix (although, depending on the xml writer
+  this may already be the case effectively).
 
 # 0.91.2
 *(July 27, 2025)<br />*
