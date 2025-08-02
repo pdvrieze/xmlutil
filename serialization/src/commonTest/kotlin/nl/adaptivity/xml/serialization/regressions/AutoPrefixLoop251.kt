@@ -40,7 +40,7 @@ class AutoPrefixLoop251 {
 
     @Test
     fun testPrefixLoopWorksForAttributes() {
-        val actual = XML { recommended_0_90_2() }.encodeToString(Outer1("value1", "value2", "value3", "value4", "value5"))
+        val actual = XML { recommended_0_91_0 { pedantic = true } }.encodeToString(Outer1("value1", "value2", "value3", "value4", "value5"))
         assertXmlEquals("<Outer1 " +
                 "xmlns:n1=\"a\" " +
                 "xmlns:n2=\"b\" " +
@@ -56,7 +56,7 @@ class AutoPrefixLoop251 {
 
     @Test
     fun testPrefixLoopWorksForElements() {
-        val actual = XML { recommended_0_90_2() }.encodeToString(Outer2("value1", "value2"))
+        val actual = XML { recommended_0_91_0 { pedantic = true } }.encodeToString(Outer2("value1", "value2"))
         assertXmlEquals("<Outer2 xmlns:n2=\"b\"><a xmlns=\"a\">value1</a><b xmlns=\"b\">value2</b></Outer2>", actual)
     }
 

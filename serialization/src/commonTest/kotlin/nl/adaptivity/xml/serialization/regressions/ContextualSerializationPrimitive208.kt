@@ -35,11 +35,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ContextualSerializationPrimitive208 {
-    val xml = XML(
+    val xml get() = XML(
         SerializersModule {
             contextual(AnyIntSerializer)
         }
-    ) { recommended_0_87_0() }
+    ) { recommended_0_91_0 { pedantic = true } }
 
     @Test
     fun testSerialization() {

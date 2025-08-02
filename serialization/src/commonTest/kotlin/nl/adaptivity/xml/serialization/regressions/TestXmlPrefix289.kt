@@ -40,7 +40,7 @@ class TestXmlPrefix289 {
 
     @Test
     fun textNamespaceInDesc() {
-        val desc = XML.xmlDescriptor(SerializableWithLang.serializer())
+        val desc = XML{ recommended_0_91_0 { pedantic = true } }.xmlDescriptor(SerializableWithLang.serializer())
         val tag = desc.getElementDescriptor(0)
         assertEquals("SerializableWithLang", tag.tagName.localPart)
 
@@ -52,7 +52,7 @@ class TestXmlPrefix289 {
 
     @Test
     fun textNamespaceInDescPedantic() {
-        val xml = XML { recommended_0_90_2 { pedantic = true }}
+        val xml = XML { recommended_0_91_0 { pedantic = true }}
         val desc = xml.xmlDescriptor(SerializableWithLang.serializer())
         val tag = desc.getElementDescriptor(0)
         assertEquals("SerializableWithLang", tag.tagName.localPart)

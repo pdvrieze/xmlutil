@@ -24,6 +24,7 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import kotlin.test.Test
@@ -62,5 +63,8 @@ class ContextualWithTypeSerializer220 {
         val actual = XML.encodeToString(Box(1698937009364L))
 
         assertXmlEquals(expected, actual)
+
+        val actual2 = XML { defaultPolicy { pedantic = true } }.encodeToString(Box(1698937009364L))
+        assertXmlEquals(expected, actual2)
     }
 }

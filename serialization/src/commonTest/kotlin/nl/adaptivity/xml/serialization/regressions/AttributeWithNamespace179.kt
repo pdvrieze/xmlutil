@@ -30,9 +30,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AttributeWithNamespace179 {
-    val xml = XML {
+    val xml get() = XML {
         recommended_0_91_0 {
             isStrictAttributeNames = true
+            pedantic = true
         }
         defaultToGenericParser = true
         xmlDeclMode = XmlDeclMode.None

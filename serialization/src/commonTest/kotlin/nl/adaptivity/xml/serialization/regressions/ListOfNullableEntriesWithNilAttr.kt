@@ -39,6 +39,8 @@ import kotlin.test.assertEquals
 class ListOfNullableEntriesWithNilAttr {
 
     val format = XML {
+        recommended_0_91_0 { pedantic = true }
+
         nilAttribute = qname("http://www.w3.org/2001/XMLSchema-instance", "nil", "xsi") to "true"
 
     }

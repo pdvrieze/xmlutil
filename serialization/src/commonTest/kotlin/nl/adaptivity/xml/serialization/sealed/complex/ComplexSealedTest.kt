@@ -33,7 +33,7 @@ class ComplexSealedTest : PlatformTestBase<ComplexSealedTest.ComplexSealedHolder
     ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
     ComplexSealedHolder.serializer(),
     EmptySerializersModule(),
-    XML { autoPolymorphic = true }
+    XML { defaultPolicy { autoPolymorphic = true; pedantic = true } }
 ) {
     override val expectedXML: String
         get() = "<ComplexSealedHolder a=\"a\" b=\"1\" c=\"1.5\"><OptionB1 g=\"5\" h=\"6\" i=\"7\"/></ComplexSealedHolder>"

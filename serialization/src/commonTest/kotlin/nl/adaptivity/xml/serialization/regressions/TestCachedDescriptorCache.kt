@@ -44,7 +44,7 @@ class TestCachedDescriptorCache {
 
     @Test
     fun testParameterisedSerializerCache() {
-        val format = XML {}
+        val format = XML { defaultPolicy { pedantic = true } }
 
         val serialized1 = format.encodeToString(Outer(Inner1(1, 2)))
         assertXmlEquals("<Outer><Inner1 data1=\"1\" data2=\"2\"/></Outer>", serialized1)

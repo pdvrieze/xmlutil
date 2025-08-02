@@ -31,7 +31,7 @@ import kotlin.test.Test
 /** Regression test where `XmlChildrenName` doesn't handle default parameters correctly. */
 class XmlChildrenNameDefaultNamespace252 {
 
-    val xml = XML { recommended_0_90_2() }
+    val xml get() = XML { recommended_0_91_0 { pedantic = true } }
 
     @Serializable
     @XmlSerialName("container", "mynamespace", "")

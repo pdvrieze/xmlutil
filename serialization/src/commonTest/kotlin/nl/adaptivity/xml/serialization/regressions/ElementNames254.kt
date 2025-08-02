@@ -42,7 +42,7 @@ class ElementNames254 {
     @BeforeTest
     fun setup() {
         xml = XML {
-            recommended_0_90_2()
+            recommended_0_91_0 { pedantic = true }
             indent = 4
         }
     }

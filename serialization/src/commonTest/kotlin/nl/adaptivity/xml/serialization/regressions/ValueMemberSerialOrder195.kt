@@ -21,6 +21,7 @@
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -33,12 +34,14 @@ import kotlin.test.assertEquals
  */
 class ValueMemberSerialOrder195 {
 
+    val xml get() = XML { defaultPolicy { pedantic = true } }
+
     @Test
     fun testOrder() {
         val foo = Foo("a", Foo.Code("b"))
         assertEquals(
             expected = "<Foo><ServiceName>a</ServiceName><SendingSystem>b</SendingSystem></Foo>",
-            actual = XML.encodeToString(foo) // <Foo><SendingSystem>b</SendingSystem><ServiceName>a</ServiceName></Foo>
+            actual = xml.encodeToString(foo) // <Foo><SendingSystem>b</SendingSystem><ServiceName>a</ServiceName></Foo>
         )
     }
 

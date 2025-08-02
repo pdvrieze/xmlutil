@@ -37,13 +37,13 @@ import kotlin.test.assertIs
 
 class AndroidStrings225 {
 
-    val xml = XML(
+    val xml get() = XML(
         SerializersModule {
             polymorphic(Any::class, String::class, String.serializer())
             polymorphic(Any::class, Element::class, Element.serializer())
         }
     ) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
     }
 
     @Test

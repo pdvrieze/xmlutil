@@ -21,6 +21,7 @@
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.serialization.XML
@@ -32,22 +33,24 @@ import kotlin.test.*
  */
 class TestRootTagName {
 
+    val xml get() = XML { defaultPolicy { pedantic = true } }
+
     @Test
     fun testParseNoXmlNameAttr() {
-        val d: NoXmlName = XML.decodeFromString("<foo data=\"bar\" />")
+        val d: NoXmlName = xml.decodeFromString("<foo data=\"bar\" />")
         assertEquals("bar", d.data)
     }
 
     @Test
     fun testParseNoXmlNameAttrExplicit() {
-        val d: NoXmlName = XML.decodeFromString("<foo data=\"bar\" />", QName("foo"))
+        val d: NoXmlName = xml.decodeFromString("<foo data=\"bar\" />", QName("foo"))
         assertEquals("bar", d.data)
     }
 
     @Test
     fun testParseNoXmlNameAttrExplicitFail() {
         val e = assertFailsWith<XmlException> {
-            XML.decodeFromString<NoXmlName>("<foo data=\"bar\" />", QName("not_the_present_tag"))
+            xml.decodeFromString<NoXmlName>("<foo data=\"bar\" />", QName("not_the_present_tag"))
         }
         val m = assertNotNull(e.message)
         assertEquals("Local name \"foo\" for root tag does not match expected name \"not_the_present_tag\"", m)
@@ -56,7 +59,7 @@ class TestRootTagName {
     @Test
     fun testParseXmlNameAttr() {
         val e = assertFailsWith<XmlException> {
-            val d: XmlName = XML.decodeFromString("<foo data=\"bar\" />")
+            val d: XmlName = xml.decodeFromString("<foo data=\"bar\" />")
         }
         val m = assertNotNull(e.message)
         assertEquals("Local name \"foo\" for root tag does not match expected name \"XmlName\"", m)
@@ -64,7 +67,7 @@ class TestRootTagName {
 
     @Test
     fun testParseXmlNameAttrExplicit() {
-        val d: XmlName = XML.decodeFromString("<foo data=\"bar\" />", QName("foo"))
+        val d: XmlName = xml.decodeFromString("<foo data=\"bar\" />", QName("foo"))
         assertEquals("bar", d.data)
     }
 

@@ -47,35 +47,37 @@ import kotlin.test.*
 class StringOrCompositePolymorphism253 {
 
     val xmlElement = XML(ExtensionDto.elementModule()) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
     }
 
     val xmlDefaultElement = XML(ExtensionDto.elementDefaultModule()) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
     }
 
     val xmlDummyElement = XML(ExtensionDto.defaultModule()) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
     }
 
     val xmlXmlDummyElement = XML(ExtensionDto.xmlDefaultModule()) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
     }
 
     val xmlRecoverConsume = XML(ExtensionDto.nodefaultModule()) {
-        recommended_0_90_2 {
+        recommended_0_91_0() {
             unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
                 input.elementContentToFragment() // parse the element and drop it
                 emptyList()
             }
+            pedantic = true
         }
     }
 
     val xmlRecoverBlind = XML(ExtensionDto.nodefaultModule()) {
-        recommended_0_90_2 {
+        recommended_0_91_0 {
             unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
                 emptyList()
             }
+            pedantic = true
         }
     }
 

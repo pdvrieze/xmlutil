@@ -46,18 +46,18 @@ class TestSoapHelper {
 
     @Test
     fun testRoundtripSoapResponse() {
-        val xml = XML { indent = 2; autoPolymorphic = true }
+        val xml = XML { defaultPolicy { pedantic = true }; indent = 2; autoPolymorphic = true; }
         val serializer = serializer<Envelope<CompactFragment>>()
         val env: Envelope<CompactFragment> = xml.decodeFromString(serializer, SOAP_RESPONSE1)
         assertXmlEquals(SOAP_RESPONSE1_BODY, env.body.child.contentString.trim())
 
-        val serialized = XML.encodeToString(serializer, env)
+        val serialized = xml.encodeToString(serializer, env)
         assertXmlEquals(SOAP_RESPONSE1, serialized)
     }
 
     @Test
     fun testRoundtripSoapResponse2() {
-        val xml: XML = XML { indent = 2; autoPolymorphic = true }
+        val xml = XML { defaultPolicy { pedantic = true }; indent = 2; autoPolymorphic = true }
         val env: Envelope<CompactFragment> = Envelope.deserialize(xmlStreaming.newReader(SOAP_RESPONSE2))
         val sw = StringWriter()
         xmlStreaming.newWriter(sw).use { out ->
@@ -118,7 +118,7 @@ class TestSoapHelper {
     fun testResponse3_234() {
         if (testTarget == Target.Node) return
 
-        val xml: XML = XML { recommended_0_90_2() }
+        val xml = XML { recommended_0_91_0 { pedantic = true } }
         val soap = xml.decodeFromString<Envelope<Fault>>(SOAP_RESPONSE3)
         val fault = soap.body.child
         assertNull(fault.role)

@@ -40,6 +40,7 @@ class PolymorphicValue280 {
     val xml = XML {
         recommended_0_91_0 {
             formatCache = TestFormatCache(DefaultFormatCache())
+            pedantic = true
         }
     }
 

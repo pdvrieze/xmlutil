@@ -36,12 +36,12 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class ContextualAndValue238 {
 
-    val xml = XML(
+    val xml get() = XML(
         serializersModule = SerializersModule {
             this.contextual(Uuid::class, Uuid.serializer())
         }
     ) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
         xmlDeclMode = XmlDeclMode.None
     }
 
