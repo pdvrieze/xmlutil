@@ -50,6 +50,7 @@ public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
 	protected final fun testReadToDom (Lkotlin/jvm/functions/Function1;)V
 	public fun testReadUnknownEntity ()V
 	protected final fun testReadUnknownEntity (Lkotlin/jvm/functions/Function1;)V
+	public fun testReadWsInAttr ()V
 	public fun testReaderWithBOM ()V
 	protected final fun testReaderWithBOM (Lkotlin/jvm/functions/Function1;)V
 	public fun testWhiteSpaceWithEntity ()V

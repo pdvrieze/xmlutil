@@ -17,6 +17,14 @@ Fixes:
   its namespace is left default or maps to the xml namespace. Also force the
   prefix used to be the standard prefix (although, depending on the xml writer
   this may already be the case effectively).
+- For the generic parser / serializer make handling of newline/tabs in attribute
+  values standard compliant (#300). This means that when writing all will be
+  written as character entities to allow for preservation of the values. For
+  reading the entities are just resolved. Actual newline/tab content in
+  attribute values is normalized as space characters (where CRLF is still
+  replaced by a single space). As attribute values can be differen types than
+  CData this does not further normalize the value by collapsing whitespace
+  sequences.
 
 # 0.91.2
 *(July 27, 2025)<br />*

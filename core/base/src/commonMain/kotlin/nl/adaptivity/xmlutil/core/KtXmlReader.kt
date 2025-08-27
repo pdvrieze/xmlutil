@@ -868,7 +868,7 @@ public class KtXmlReader internal constructor(
                                     readAssert(delimiter.toChar())
                                     // This is an attribute, we don't care about whitespace content
                                     resetOutputBuffer()
-                                    pushRegularText(delimiter.toChar(), resolveEntities = true)
+                                    pushAttributeValue(delimiter.toChar())
                                     readAssert(delimiter.toChar())
                                 }
 
@@ -1157,6 +1157,99 @@ public class KtXmlReader internal constructor(
                             break@inner
                         }
 
+                        left == curPos -> { // start with entity
+                            srcBufPos = curPos
+                            pushEntity()
+                            curPos = srcBufPos
+                            left = curPos
+                        }
+
+                        else -> { // read all items before entity (then after it will hit the other case)
+                            right = curPos
+                            break@inner
+                        }
+                    }
+
+                    else -> {
+                        incCol()
+                        ++curPos
+                    }
+                }
+            }
+
+            if (curPos == innerLoopEnd) {
+                right = curPos
+            }
+
+            if (right > 0) {
+                pushRange(bufLeft, left, right) // ws delimited is never WS
+                right = -1
+            }
+
+            if (curPos >= BUF_SIZE) { // swap the buffers, use ge to allow for extra '\n' after '\r'
+                srcBufPos = curPos
+                swapInputBuffer()
+                curPos = srcBufPos
+                bufCount = srcBufCount
+                innerLoopEnd = minOf(bufCount, BUF_SIZE)
+            }
+            left = curPos
+
+        }
+        isWhitespace = false
+        srcBufPos = curPos
+    }
+
+    /**
+     * Specialisation of pushText that does not recognize whitespace (thus able to be used at that point)
+     * @param delimiter The "stopping" delimiter
+     * @param resolveEntities Whether entities should be resolved directly (in attributes) or exposed as entity
+     *                        references (content text if expandEntities is false).
+     */
+    private fun pushAttributeValue(delimiter: Char) {
+        var bufCount = srcBufCount
+        var innerLoopEnd = minOf(bufCount, BUF_SIZE)
+        var curPos = srcBufPos
+
+        var left: Int = curPos
+        var right: Int = -1
+        var notFinished = true
+
+        outer@ while (curPos < bufCount && notFinished) { // loop through all buffer iterations
+            inner@ while (curPos < innerLoopEnd) {
+                when (val c = bufLeft[curPos]) {
+                    delimiter -> {
+                        notFinished = false
+                        right = curPos
+                        break@inner // outer will actually give the result.
+                    }
+
+                    '\r', '\n', '\t' -> {
+                        pushRange(bufLeft, left, curPos)
+
+                        val nextIsCR = when {
+                            c != '\r' -> false
+                            else -> when (val next = curPos + 1) {
+                                bufCount -> false // EOF
+                                BUF_SIZE -> bufRight[0] == '\n' // EOB, look at right buffer
+                                else -> bufLeft[next] == '\n'
+                            }
+                        }
+
+                        if (nextIsCR) {
+                            incLine(2)
+                            curPos += 2
+                        } else {
+                            if (c != '\t') incLine()
+                            curPos += 1
+                        }
+                        pushChar(' ')
+                        right = -1
+                        left = curPos
+                    }
+
+
+                    '&' -> when {
                         left == curPos -> { // start with entity
                             srcBufPos = curPos
                             pushEntity()

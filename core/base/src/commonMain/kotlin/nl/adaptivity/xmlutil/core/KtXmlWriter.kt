@@ -152,10 +152,16 @@ public class KtXmlWriter(
          * Escaping characters that may not occur directly anywhere, including in comments or cdata
          */
         MINIMAL,
-        ATTRCONTENTQUOT,
-        ATTRCONTENTAPOS,
+        ATTRCONTENTQUOT {
+            override val isAttr: Boolean get() = true
+        },
+        ATTRCONTENTAPOS {
+            override val isAttr: Boolean get() = true
+        },
         TEXTCONTENT,
-        DTD
+        DTD;
+
+        open val isAttr: Boolean get() = false
     }
 
     private fun Appendable.appendXmlCodepoint(codepoint: UInt, mode: EscapeMode) {
@@ -222,9 +228,11 @@ public class KtXmlWriter(
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
+/*
         if (char.code < 0x20 && ! isXmlWhitespace(char)) {
             throw IllegalArgumentException("Invalid character with code 0x${char.code.toString(16)}")
         }
+*/
 
         when {
             char.code >= ESCAPED_CHARS.size -> {
@@ -243,6 +251,9 @@ public class KtXmlWriter(
             char == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
             char == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
             char == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
+
+            (char == '\n' || char == '\r' || char == '\t') && mode.isAttr -> appendNumCharRef(char.code)
+
             char.code in 0x1..0x8 || char.code == 0xB || char.code == 0xC || char.code in 0xE..0x1F -> when (xmlVersion) {
                 XmlVersion.XML10 -> throwInvalid(char.code)
                 XmlVersion.XML11 -> appendNumCharRef(char.code)
@@ -660,8 +671,11 @@ public class KtXmlWriter(
         private val ESCAPED_CHARS = BooleanArray(255).also {
             for (i in 1 until '\t'.code) it[i] = true
             // 0x9 is tab, 0xa is LF, 0xd is CR
+            it[0x9] = true // mark for escaping as they need to be for attributes
+            it[0xa] = true // mark for escaping as they need to be for attributes
             it[0xb] = true
             it[0xc] = true
+            it[0xd] = true // needs escaping in all cases
             for (i in 0xe until 0x1f) it[i] = true
             it['<'.code] = true
             it['>'.code] = true
