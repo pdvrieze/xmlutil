@@ -48,7 +48,7 @@ import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
-import java.util.Locale
+import java.util.*
 import javax.inject.Inject
 import kotlin.jvm.optionals.getOrNull
 
@@ -76,7 +76,7 @@ class ProjectPlugin @Inject constructor(
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Zip task that collates all local repositories into a single zip file"
                 destinationDirectory = project.layout.buildDirectory.dir("repositoryArchive")
-                archiveBaseName = "moduleRepository"
+                archiveBaseName = "${project.name}-${project.version}-publishing"
             }
 
             val publishToSonatype = project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
