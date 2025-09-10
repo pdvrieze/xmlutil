@@ -68,8 +68,8 @@ fun Project.doPublish(
 
 
         configure<SigningExtension> {
-            val priv_key:String? = System.getenv("GPG_PRIV_KEY")
-            val passphrase:String? = System.getenv("GPG_PASSPHRASE")
+            val priv_key: String? = System.getenv("GPG_PRIV_KEY")
+            val passphrase: String? = System.getenv("GPG_PASSPHRASE")
             when {
                 priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
 
@@ -131,7 +131,7 @@ fun Project.doPublish(
 
     configure<SigningExtension> {
         when {
-            rootProject.extra["NO_SIGNING"] == true ->
+            rootProject.extra.has("NO_SIGNING") && rootProject.extra["NO_SIGNING"] == true ->
                 setRequired(false)
 
             else ->
@@ -143,11 +143,11 @@ fun Project.doPublish(
         val signTasks = sign(publishing!!.publications)
 
         tasks.withType<AbstractPublishToMaven> {
-                    val specificSignTaskName = "sign${name.substringBefore("Publication").substringAfter("publish")}Publication"
-                    tasks.findByName(specificSignTaskName)?.let {
-                        logger.debug("Add dependency for ${name} on ${specificSignTaskName}")
-                        dependsOn(it)
-                    }
+            val specificSignTaskName = "sign${name.substringBefore("Publication").substringAfter("publish")}Publication"
+            tasks.findByName(specificSignTaskName)?.let {
+                logger.debug("Add dependency for ${name} on ${specificSignTaskName}")
+                dependsOn(it)
+            }
             dependsOn(signTasks)
         }
 
@@ -177,7 +177,12 @@ fun Project.doPublish(
                 }
             }
 
-            val doPublish = arrayOf("publishKotlinMultiplatform", "publishJs", "publishJvm", "publishAndroid").none { "${it}Publication" in name }
+            val doPublish = arrayOf(
+                "publishKotlinMultiplatform",
+                "publishJs",
+                "publishJvm",
+                "publishAndroid"
+            ).none { "${it}Publication" in name }
             if (doPublish) {
                 publishNativeTask.dependsOn(this)
             }
