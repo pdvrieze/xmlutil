@@ -73,8 +73,12 @@ fun Project.doPublish(
                 priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
 
                 System.getenv("JITPACK").equals("true", true) -> {
-                    logger.warn("No private key information found in environment. Running on Jitpack, skipping signing")
-                    setRequired(false)
+                    if (!rootProject.hasProperty("NO_SIGNING")) {
+                        logger.warn("No private key information found in environment. Running on Jitpack, skipping signing")
+
+                        setRequired(false)
+                        rootProject.setProperty("NO_SIGNING", true)
+                    }
                 }
 
                 else -> {
@@ -125,7 +129,14 @@ fun Project.doPublish(
 
 
     configure<SigningExtension> {
-        setRequired { isRequired && gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
+        when {
+            rootProject.findProperty("NO_SIGNING") == true ->
+                setRequired(false)
+
+            else ->
+                setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
+
+        }
 
         val publishing = extensions.findByType<PublishingExtension>()
         val signTasks = sign(publishing!!.publications)
