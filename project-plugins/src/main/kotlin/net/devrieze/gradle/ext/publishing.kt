@@ -29,6 +29,7 @@ import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 
@@ -73,11 +74,11 @@ fun Project.doPublish(
                 priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
 
                 System.getenv("JITPACK").equals("true", true) -> {
-                    if (!rootProject.hasProperty("NO_SIGNING")) {
+                    if (!rootProject.extra.has("NO_SIGNING")) {
                         logger.warn("No private key information found in environment. Running on Jitpack, skipping signing")
 
                         setRequired(false)
-                        rootProject.setProperty("NO_SIGNING", true)
+                        rootProject.extra.set("NO_SIGNING", true)
                     }
                 }
 
@@ -130,7 +131,7 @@ fun Project.doPublish(
 
     configure<SigningExtension> {
         when {
-            rootProject.findProperty("NO_SIGNING") == true ->
+            rootProject.extra["NO_SIGNING"] == true ->
                 setRequired(false)
 
             else ->
