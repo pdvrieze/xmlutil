@@ -31,7 +31,6 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
-import java.util.Locale
 
 @Suppress("LocalVariableName")
 fun Project.doPublish(
@@ -70,11 +69,18 @@ fun Project.doPublish(
         configure<SigningExtension> {
             val priv_key:String? = System.getenv("GPG_PRIV_KEY")
             val passphrase:String? = System.getenv("GPG_PASSPHRASE")
-            if (priv_key==null ||passphrase==null) {
-                logger.warn("No private key information found in environment. Falling back to gnupg.")
-                useGpgCmd()
-            } else {
-                useInMemoryPgpKeys(priv_key, passphrase)
+            when {
+                priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
+
+                System.getenv("JITPACK").equals("true", true) -> {
+                    logger.warn("No private key information found in environment. Running on Jitpack, skipping signing")
+                    setRequired(false)
+                }
+
+                else -> {
+                    logger.warn("No private key information found in environment. Falling back to gnupg.")
+                    useGpgCmd()
+                }
             }
         }
 
@@ -119,7 +125,7 @@ fun Project.doPublish(
 
 
     configure<SigningExtension> {
-        setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
+        setRequired { isRequired && gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
 
         val publishing = extensions.findByType<PublishingExtension>()
         val signTasks = sign(publishing!!.publications)
