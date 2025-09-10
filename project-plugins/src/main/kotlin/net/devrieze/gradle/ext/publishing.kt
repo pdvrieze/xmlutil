@@ -28,6 +28,7 @@ import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
+import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
 
@@ -77,11 +78,22 @@ fun Project.doPublish(
         configure<SigningExtension> {
             val priv_key:String? = System.getenv("GPG_PRIV_KEY")
             val passphrase:String? = System.getenv("GPG_PASSPHRASE")
-            if (priv_key==null ||passphrase==null) {
-                logger.warn("No private key information found in environment. Falling back to gnupg.")
-                useGpgCmd()
-            } else {
-                useInMemoryPgpKeys(priv_key, passphrase)
+            when {
+                priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
+
+                System.getenv("JITPACK").equals("true", true) -> {
+                    if (!rootProject.extra.has("NO_SIGNING")) {
+                        logger.warn("No private key information found in environment. Running on Jitpack, skipping signing")
+
+                        setRequired(false)
+                        rootProject.extra.set("NO_SIGNING", true)
+                    }
+                }
+
+                else -> {
+                    logger.warn("No private key information found in environment. Falling back to gnupg.")
+                    useGpgCmd()
+                }
             }
         }
 
@@ -126,7 +138,14 @@ fun Project.doPublish(
 
 
     configure<SigningExtension> {
-        setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
+        when {
+            rootProject.extra["NO_SIGNING"] == true ->
+                setRequired(false)
+
+            else ->
+                setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
+
+        }
 
         val publishing = extensions.findByType<PublishingExtension>()
         val signTasks = sign(publishing!!.publications)
