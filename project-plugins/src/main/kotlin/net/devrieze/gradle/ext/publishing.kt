@@ -139,7 +139,7 @@ fun Project.doPublish(
 
     configure<SigningExtension> {
         when {
-            rootProject.extra["NO_SIGNING"] == true ->
+            rootProject.extra.has("NO_SIGNING") && rootProject.extra["NO_SIGNING"] == true ->
                 setRequired(false)
 
             else ->
