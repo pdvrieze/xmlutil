@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 
 /**
  * A cross-platform implementation of XmlWriter.
@@ -521,10 +522,31 @@ public class KtXmlWriter(
                     ++endPos; writer.append(ch)
                 }
 
-                ch == '>' && endPos == 2 -> writer.append("&gt;")
+                ch == '>' && endPos == 2 -> {
+                    // In this case we must split the cdata section
+                    endPos = 0
+                    writer.append("]]><![CDATA[>")
+                }
+
                 ch == ']' && endPos == 2 -> writer.append(ch) // we have 3 ] characters so drop the first
+
                 else -> {
-                    endPos = 0; writer.appendXmlCodepoint(cp, EscapeMode.MINIMAL)
+                    endPos = 0;
+                    when (cp) {
+                        0x0u -> throw IllegalArgumentException("Null characters are not valid in xml")
+
+                        in 0xD800u..0xDFFFu -> error("Surrogate block codepoints are not valid characters")
+
+                        0xFFFEu, 0xFFEFu -> error("Byte order markers are not allowed in xml content")
+
+                        else if xmlVersion == XmlVersion.XML11 -> {} // no issue
+
+                        in 0x1u..0x8u, 0xBu, 0xCu, in 0xEu..0x1Fu ->
+                            throw IllegalArgumentException("Unprintable characters are not allowed in XML 1.0")
+
+                    }
+
+                    writer.appendCodepoint(cp)
                 }
             }
         }

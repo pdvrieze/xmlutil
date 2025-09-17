@@ -104,6 +104,32 @@ class TestXmlWriter {
         assertEquals("<a><b c=\"xx\"/></a>", serialized.replace(" />", "/>"))
     }
 
+    /** Test to check/confirm #304 */
+    @Test
+    fun testCData() {
+        val serialized = buildString {
+            xmlStreaming.newWriter(this).use { writer ->
+                writer.smartStartTag(null, "a") {
+                    cdsect("a & b ]]>>c")
+                }
+            }
+        }
+        assertEquals("<a><![CDATA[a & b ]]]]><![CDATA[>>c]]></a>", serialized)
+    }
+
+    /** Test to check/confirm #304 */
+    @Test
+    fun testCDataGeneric() {
+        val serialized = buildString {
+            xmlStreaming.newGenericWriter(this).use { writer ->
+                writer.smartStartTag(null, "a") {
+                    cdsect("a & b ]]>>c")
+                }
+            }
+        }
+        assertEquals("<a><![CDATA[a & b ]]]]><![CDATA[>>c]]></a>", serialized)
+    }
+
     @Test
     fun testIndentXml5Spaces1() {
         testIndentImpl1("     ")
