@@ -7,6 +7,10 @@ Changes:
   default policy, and it is now replaced by a default policy).
 
 Fixes:
+- Fix serialization of cdata in the generic (and Android) xml writer. The writer
+  incorrectly escaped entities in cdata (#304), and did not correctly deal with
+  `]]>` in the cdata content (this is resolved by writing as two separate cdata
+  sections).
 - Make the default instance encodeToString (`XML.encodeToString`) use the
   regular behaviour for handling null prefixes. This fixes the default empty
   prefix being used if none is manually set (rather than the annotated prefix).  
