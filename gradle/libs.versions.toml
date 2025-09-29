@@ -15,7 +15,7 @@ kxml2 = "2.3.0"
 woodstox = "7.1.1"
 xmlutil = "0.91.3-SNAPSHOT"
 httpComponents = "4.5.14"
-httpComponents5 = "5.5"
+httpComponents5 = "5.5.1"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
