@@ -802,7 +802,7 @@ internal open class XmlEncoderBase internal constructor(
         override fun invoke(compositeEncoder: TagEncoder<*>, descriptor: SerialDescriptor, index: Int) {
             val target = compositeEncoder.target
             when {
-                compositeEncoder.xmlDescriptor.getElementDescriptor(index).isCData -> target.cdsect(value)
+                compositeEncoder.xmlDescriptor.getElementDescriptor(index).isCData -> target.safeCdsect(value)
                 else -> target.text(value)
             }
         }

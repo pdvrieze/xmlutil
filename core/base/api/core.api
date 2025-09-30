@@ -353,6 +353,7 @@ public abstract class nl/adaptivity/xmlutil/XmlDelegatingWriter : nl/adaptivity/
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public fun processingInstruction (Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
+	public fun safeCdsect (Ljava/lang/String;)V
 	public fun setIndent (I)V
 	public fun setIndentString (Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
@@ -785,6 +786,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlWriter : java/io/Closea
 	public fun namespaceAttr (Lnl/adaptivity/xmlutil/Namespace;)V
 	public abstract fun processingInstruction (Ljava/lang/String;)V
 	public fun processingInstruction (Ljava/lang/String;Ljava/lang/String;)V
+	public fun safeCdsect (Ljava/lang/String;)V
 	public fun setIndent (I)V
 	public abstract fun setIndentString (Ljava/lang/String;)V
 	public fun setPrefix (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
@@ -800,6 +802,7 @@ public final class nl/adaptivity/xmlutil/XmlWriter$DefaultImpls {
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static fun namespaceAttr (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/Namespace;)V
 	public static fun processingInstruction (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;)V
+	public static fun safeCdsect (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;)V
 	public static fun setIndent (Lnl/adaptivity/xmlutil/XmlWriter;I)V
 	public static fun setPrefix (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static synthetic fun startDocument$default (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)V

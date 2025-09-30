@@ -5,6 +5,10 @@ Changes:
   In rare cases this changes the behaviour (where a custom policy was
   originally set (with different defaults), it didn't inherit the
   default policy, and it is now replaced by a default policy).
+- In XmlWriter introduce a `safeCdsect` function that will handle embedded end
+  of cdata sequences by splitting the CDATA section into two sections. This is
+  now used in serialization to avoid serialization errors if the value contains
+  `]]>`.
 
 Fixes:
 - Fix serialization of cdata in the generic (and Android) xml writer. The writer

@@ -737,6 +737,7 @@ abstract interface nl.adaptivity.xmlutil/XmlWriter : nl.adaptivity.xmlutil.core.
     open fun namespaceAttr(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlWriter.namespaceAttr|namespaceAttr(kotlin.CharSequence;kotlin.CharSequence){}[0]
     open fun namespaceAttr(nl.adaptivity.xmlutil/Namespace) // nl.adaptivity.xmlutil/XmlWriter.namespaceAttr|namespaceAttr(nl.adaptivity.xmlutil.Namespace){}[0]
     open fun processingInstruction(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlWriter.processingInstruction|processingInstruction(kotlin.String;kotlin.String){}[0]
+    open fun safeCdsect(kotlin/String) // nl.adaptivity.xmlutil/XmlWriter.safeCdsect|safeCdsect(kotlin.String){}[0]
     open fun setPrefix(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlWriter.setPrefix|setPrefix(kotlin.CharSequence;kotlin.CharSequence){}[0]
 }
 
@@ -778,6 +779,7 @@ abstract class nl.adaptivity.xmlutil/XmlDelegatingWriter : nl.adaptivity.xmlutil
     open fun namespaceAttr(nl.adaptivity.xmlutil/Namespace) // nl.adaptivity.xmlutil/XmlDelegatingWriter.namespaceAttr|namespaceAttr(nl.adaptivity.xmlutil.Namespace){}[0]
     open fun processingInstruction(kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.processingInstruction|processingInstruction(kotlin.String){}[0]
     open fun processingInstruction(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.processingInstruction|processingInstruction(kotlin.String;kotlin.String){}[0]
+    open fun safeCdsect(kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.safeCdsect|safeCdsect(kotlin.String){}[0]
     open fun setPrefix(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlDelegatingWriter.setPrefix|setPrefix(kotlin.CharSequence;kotlin.CharSequence){}[0]
     open fun setPrefix(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.setPrefix|setPrefix(kotlin.String;kotlin.String){}[0]
     open fun startDocument(kotlin/String?, kotlin/String?, kotlin/Boolean?) // nl.adaptivity.xmlutil/XmlDelegatingWriter.startDocument|startDocument(kotlin.String?;kotlin.String?;kotlin.Boolean?){}[0]

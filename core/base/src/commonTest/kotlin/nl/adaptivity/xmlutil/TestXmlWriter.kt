@@ -110,7 +110,7 @@ class TestXmlWriter {
         val serialized = buildString {
             xmlStreaming.newWriter(this).use { writer ->
                 writer.smartStartTag(null, "a") {
-                    cdsect("a & b ]]>>c")
+                    safeCdsect("a & b ]]>>c")
                 }
             }
         }
