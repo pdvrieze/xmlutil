@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 
 /**
  * A cross-platform implementation of XmlWriter.
@@ -152,10 +153,16 @@ public class KtXmlWriter(
          * Escaping characters that may not occur directly anywhere, including in comments or cdata
          */
         MINIMAL,
-        ATTRCONTENTQUOT,
-        ATTRCONTENTAPOS,
+        ATTRCONTENTQUOT {
+            override val isAttr: Boolean get() = true
+        },
+        ATTRCONTENTAPOS {
+            override val isAttr: Boolean get() = true
+        },
         TEXTCONTENT,
-        DTD
+        DTD;
+
+        open val isAttr: Boolean get() = false
     }
 
     private fun Appendable.appendXmlCodepoint(codepoint: UInt, mode: EscapeMode) {
@@ -222,9 +229,11 @@ public class KtXmlWriter(
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
+/*
         if (char.code < 0x20 && ! isXmlWhitespace(char)) {
             throw IllegalArgumentException("Invalid character with code 0x${char.code.toString(16)}")
         }
+*/
 
         when {
             char.code >= ESCAPED_CHARS.size -> {
@@ -243,6 +252,9 @@ public class KtXmlWriter(
             char == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
             char == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
             char == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
+
+            (char == '\n' || char == '\r' || char == '\t') && mode.isAttr -> appendNumCharRef(char.code)
+
             char.code in 0x1..0x8 || char.code == 0xB || char.code == 0xC || char.code in 0xE..0x1F -> when (xmlVersion) {
                 XmlVersion.XML10 -> throwInvalid(char.code)
                 XmlVersion.XML11 -> appendNumCharRef(char.code)
@@ -510,10 +522,31 @@ public class KtXmlWriter(
                     ++endPos; writer.append(ch)
                 }
 
-                ch == '>' && endPos == 2 -> writer.append("&gt;")
+                ch == '>' && endPos == 2 -> {
+                    // In this case we must split the cdata section
+                    endPos = 0
+                    writer.append("]]><![CDATA[>")
+                }
+
                 ch == ']' && endPos == 2 -> writer.append(ch) // we have 3 ] characters so drop the first
+
                 else -> {
-                    endPos = 0; writer.appendXmlCodepoint(cp, EscapeMode.MINIMAL)
+                    endPos = 0;
+                    when (cp) {
+                        0x0u -> throw IllegalArgumentException("Null characters are not valid in xml")
+
+                        in 0xD800u..0xDFFFu -> error("Surrogate block codepoints are not valid characters")
+
+                        0xFFFEu, 0xFFEFu -> error("Byte order markers are not allowed in xml content")
+
+                        else if xmlVersion == XmlVersion.XML11 -> {} // no issue
+
+                        in 0x1u..0x8u, 0xBu, 0xCu, in 0xEu..0x1Fu ->
+                            throw IllegalArgumentException("Unprintable characters are not allowed in XML 1.0")
+
+                    }
+
+                    writer.appendCodepoint(cp)
                 }
             }
         }
@@ -660,8 +693,11 @@ public class KtXmlWriter(
         private val ESCAPED_CHARS = BooleanArray(255).also {
             for (i in 1 until '\t'.code) it[i] = true
             // 0x9 is tab, 0xa is LF, 0xd is CR
+            it[0x9] = true // mark for escaping as they need to be for attributes
+            it[0xa] = true // mark for escaping as they need to be for attributes
             it[0xb] = true
             it[0xc] = true
+            it[0xd] = true // needs escaping in all cases
             for (i in 0xe until 0x1f) it[i] = true
             it['<'.code] = true
             it['>'.code] = true

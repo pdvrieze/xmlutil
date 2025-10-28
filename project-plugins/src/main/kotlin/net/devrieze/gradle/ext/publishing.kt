@@ -20,6 +20,7 @@
 
 package net.devrieze.gradle.ext
 
+import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
@@ -38,10 +39,6 @@ fun Project.doPublish(
     pubDescription: String = "Component of the XMLUtil library"
 ) {
 
-    val isReleaseVersion = ("SNAPSHOT" !in version.toString())
-    extra["isReleaseVersion"] = isReleaseVersion
-
-
     val javadocJarTask = tasks.register<Jar>("javadocJar") {
         archiveClassifier.set("javadoc")
         from(rootProject.file("README.md"))
@@ -50,34 +47,29 @@ fun Project.doPublish(
 
     configure<PublishingExtension> {
         this.repositories {
-            maven {
-                name = "projectLocal"
-
-                setUrl(project.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
-                /*
-                    url = when {
-                        "SNAPSHOT" in version.toString().uppercase(Locale.getDefault()) ->
-                            uri("https://central.sonatype.com/repository/maven-snapshots/")
-                        repositoryId != null ->
-                            uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deployByRepositoryId/$repositoryId/")
-                        else ->
-                            uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-                    }
-    */
-                /*
+            when {
+                isSnapshot -> maven {
+                    name = "mavenSnapshot"
+                    url = uri("https://central.sonatype.com/repository/maven-snapshots/")
                     credentials {
                         username = project.findProperty("ossrh.username") as String?
                         password = project.findProperty("ossrh.password") as String?
                     }
-    */
+                }
 
+                else -> maven {
+                    name = "projectLocal"
+
+                    setUrl(project.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
+                }
             }
+
         }
 
 
         configure<SigningExtension> {
-            val priv_key:String? = System.getenv("GPG_PRIV_KEY")
-            val passphrase:String? = System.getenv("GPG_PASSPHRASE")
+            val priv_key: String? = System.getenv("GPG_PRIV_KEY")
+            val passphrase: String? = System.getenv("GPG_PASSPHRASE")
             when {
                 priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
 
@@ -151,11 +143,11 @@ fun Project.doPublish(
         val signTasks = sign(publishing!!.publications)
 
         tasks.withType<AbstractPublishToMaven> {
-                    val specificSignTaskName = "sign${name.substringBefore("Publication").substringAfter("publish")}Publication"
-                    tasks.findByName(specificSignTaskName)?.let {
-                        logger.debug("Add dependency for ${name} on ${specificSignTaskName}")
-                        dependsOn(it)
-                    }
+            val specificSignTaskName = "sign${name.substringBefore("Publication").substringAfter("publish")}Publication"
+            tasks.findByName(specificSignTaskName)?.let {
+                logger.debug("Add dependency for ${name} on ${specificSignTaskName}")
+                dependsOn(it)
+            }
             dependsOn(signTasks)
         }
 
@@ -185,17 +177,17 @@ fun Project.doPublish(
                 }
             }
 
-            val doPublish = arrayOf("publishKotlinMultiplatform", "publishJs", "publishJvm", "publishAndroid").none { "${it}Publication" in name }
+            val doPublish = arrayOf(
+                "publishKotlinMultiplatform",
+                "publishJs",
+                "publishJvm",
+                "publishAndroid"
+            ).none { "${it}Publication" in name }
             if (doPublish) {
                 publishNativeTask.dependsOn(this)
             }
         }
     }
 
-/*
-    tasks.withType<Sign>().configureEach {
-        onlyIf { project.hasProperty("isReleaseVersion") && (project.extra["isReleaseVersion"] as Boolean) }
-    }
-*/
 
 }

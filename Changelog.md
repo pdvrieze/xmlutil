@@ -1,5 +1,43 @@
+# 0.91.3
+*(Oct 28, 2025)<br />*
+
+Changes:
+- Change the behaviour of `defaultPolicy` to inherit the settings of
+  a previous policy even if it does not inherit `DefaultXmlSerializationPolicy`.
+  In rare cases this changes the behaviour (where a custom policy was
+  originally set (with different defaults), it didn't inherit the
+  default policy, and it is now replaced by a default policy).
+- In XmlWriter introduce a `safeCdsect` function that will handle embedded end
+  of cdata sequences by splitting the CDATA section into two sections. This is
+  now used in serialization to avoid serialization errors if the value contains
+  `]]>`.
+
+Fixes:
+- Fix serialization of cdata in the generic (and Android) xml writer. The writer
+  incorrectly escaped entities in cdata (#304), and did not correctly deal with
+  `]]>` in the cdata content (this is resolved by writing as two separate cdata
+  sections).
+- Make the default instance encodeToString (`XML.encodeToString`) use the
+  regular behaviour for handling null prefixes. This fixes the default empty
+  prefix being used if none is manually set (rather than the annotated prefix).  
+- Fix attributes not being prefixed with a namespace if their namespace prefix
+  is the default prefix for that namespace. As a workaround leave the prefix
+  different from its containers.
+- In pedantic mode, allow an `XmlSerialName` to use the `xml` prefix as long as 
+  its namespace is left default or maps to the xml namespace. Also force the
+  prefix used to be the standard prefix (although, depending on the xml writer
+  this may already be the case effectively).
+- For the generic parser / serializer make handling of newline/tabs in attribute
+  values standard compliant (#300). This means that when writing all will be
+  written as character entities to allow for preservation of the values. For
+  reading the entities are just resolved. Actual newline/tab content in
+  attribute values is normalized as space characters (where CRLF is still
+  replaced by a single space). As attribute values can be differen types than
+  CData this does not further normalize the value by collapsing whitespace
+  sequences.
+
 # 0.91.2
-*(July 27, 2025)
+*(July 27, 2025)<br />*
 
 Features:
 - Make `defaultPrimitiveOutputKind` and `defaultObjectOutputKind`
@@ -25,7 +63,7 @@ Fixes:
   but equivalent errors. 
 
 # 0.91.1
-*(May 15, 2025)
+*(May 15, 2025)<br />*
 
 Features:
 - Add an annotation `@XmlMapEntryName` to force map entries not to be
@@ -50,7 +88,7 @@ Fixes:
 - Further fixes on inline serialization with more cases.
 
 # 0.91.0
-*(April 1, 2025)
+*(April 1, 2025)<br />*
 Features:
 - Add `XmlKeyName` as annotation to set the name of the key used in
   maps. This just adds the capability to the default policy. Supports
@@ -69,7 +107,7 @@ Fixes:
   thus resulting in invalid cache keys.
 
 # 0.91.0-RC1
-
+*(March 4, 2025)<br />*
 Features:
 - Add a core-io and serialization-io modules that support using kotlinx.io
 - Add inline function shortcuts for encodeToString/decodeFromString with
@@ -143,6 +181,7 @@ Fixes:
   string. 
 
 # 0.90.3
+*(November 7, 2024)<br />*
 Changes:
 - In pedantic mode check that xml/xmlns are not used as names (they
   are always invalid). Note that namespaces can be specified using
@@ -158,11 +197,13 @@ Fixes:
   multithreading issues when reusing the format (recommended for speed)
 
 # 0.90.2 Mooor Rocketpower!
+*(October 15, 2024)<br />*
 Changes:
 - Update to Kotlin 2.0.21 / Kotlinx.serialization 1.7.3
 - Add support for Android native targets (@whyoleg in #242)
 
 # 0.90.2-beta1 Rocketpower!
+*(July 22, 2024)<br />*
 Changes:
 - Update to Kotlin 2.0.20 / kotlinx.serialization 1.7.2
 - Extensive optimization of decoding (serialization), parsing
@@ -207,10 +248,12 @@ Fixes:
 - Fix infinite recursion issue with xmlStreaming.newWriter / newReader
 
 # 0.90.1 Fix Android
+*(June 16, 2024)<br />*
+Fixes:
 - Fix android plugin dependency.
 
 # 0.90.0 2.0 will go
-*(June 13, 2024)
+*(June 13, 2024)<br />*
 Changes:
 - The core module no longer automatically includes Android/Jvm "native"
   parsers by default, but uses the platform independent implementation.
@@ -222,15 +265,19 @@ Changes:
   be removed at 1.0 release.
 
 # 0.90.0-RC3
+*(June 11, 2024)<br />*
+Fixes:
 - Fix issues with dependencies in new layout (#209) - XMPCore now
   builds/resolves.
 
 # 0.90.0-RC2
+*(June 7, 2024)<br />*
 Fixes:
 - Fix multithreading initialization on JVM targets, serviceLoaders are
   not thread-safe (#211). 
 
 # 0.90.0-RC1 – Supporting 2.0
+*(May 24, 2024)<br />*
 Changes:
 - Build with Kotlin 2.0.0
 - The core module has been changed to use default implementations for
@@ -276,7 +323,7 @@ Fixes:
   attributes.
 
 # 0.86.3
-*(December 14, 2023)
+*(December 14, 2023)<br />*
 Changes:
 - The `XmlStreaming` object in core is replaced by an interface `IXmlStreaming`
   with an accessor function `xmlStreaming` that provides an appropriate

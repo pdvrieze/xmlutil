@@ -1,27 +1,28 @@
 [versions]
 apiVersion = "2.0"
-binaryValidator = "0.18.0"
-dateTime = "0.7.0"
-dokka = "2.0.0"
+binaryValidator = "0.18.1"
+dateTime = "0.7.1"
+dokka = "2.1.0"
 javaVersion = "8"
-jmh = "0.7.2"
+jmh = "0.7.3"
 jmh-core = "1.37"
 benchmark = "0.4.14"
-junit5-jupiter = "5.11.4"
-kotlin = "2.2.0"
-kotlinx-serialization = "1.8.1"
+junit5-jupiter = "5.14.0"
+kotlin = "2.2.21"
+kotlinx-serialization = "1.9.0"
 kotlinx-io = "0.8.0"
 kxml2 = "2.3.0"
-woodstox = "7.1.0"
-xmlutil = "0.91.2"
+woodstox = "7.1.1"
+xmlutil = "0.91.3"
 httpComponents = "4.5.14"
-httpComponents5 = "5.5"
+httpComponents5 = "5.5.1"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
 kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 
+httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
 httpclient = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
@@ -33,7 +34,7 @@ benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime"
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-io-core = { module="org.jetbrains.kotlinx:kotlinx-io-core", version.ref="kotlinx-io" }
-kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.27.0" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.29.0" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 
 [plugins]

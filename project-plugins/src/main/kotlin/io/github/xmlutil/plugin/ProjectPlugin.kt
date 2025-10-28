@@ -48,21 +48,35 @@ import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import java.util.*
 import javax.inject.Inject
 import kotlin.jvm.optionals.getOrNull
 
+@Suppress("unused")
 class ProjectPlugin @Inject constructor(
     private val softwareComponentFactory: SoftwareComponentFactory
 ): Plugin<Project> {
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
-        if (project == project.rootProject) {
+
+        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+        val xmlutil_version = libs.findVersion("xmlutil").get().requiredVersion
+
+        project.group = "io.github.pdvrieze.xmlutil"
+        project.version = xmlutil_version
+
+        when {
+            project.isSnapshot -> project.logger.debug("Project release is a snapshot release {}", project.version)
+            else -> project.logger.debug("Project release is not a snapshot release {}", project.version)
+        }
+
+        if (project == project.rootProject && !project.isSnapshot) {
             val collateTask = project.tasks.register<Zip>("collateModuleRepositories") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Zip task that collates all local repositories into a single zip file"
                 destinationDirectory = project.layout.buildDirectory.dir("repositoryArchive")
-                archiveBaseName = "moduleRepository"
+                archiveBaseName = "${project.name}-${project.version}-publishing"
             }
 
             val publishToSonatype = project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
@@ -74,17 +88,14 @@ class ProjectPlugin @Inject constructor(
 
         }
 
-        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-        val xmlutil_version = libs.findVersion("xmlutil").get().requiredVersion
-
-        project.group = "io.github.pdvrieze.xmlutil"
-        project.version = xmlutil_version
         project.tasks.withType<KotlinNpmInstallTask> {
             args += "--ignore-scripts"
         }
+
         project.tasks.withType<Test> {
             useJUnitPlatform()
         }
+
         project.repositories {
             mavenCentral()
             mavenLocal()
@@ -320,3 +331,5 @@ abstract class ProjectConfigurationExtension {
     abstract val createAndroidCompatComponent: Property<Boolean>
     abstract val generateJavaModules: Property<Boolean>
 }
+
+val Project.isSnapshot: Boolean get() = "SNAPSHOT" in version.toString().uppercase(Locale.getDefault())

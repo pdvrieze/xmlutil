@@ -26,7 +26,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.FormatCache
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -42,7 +41,7 @@ class ElementNames254 {
     @BeforeTest
     fun setup() {
         xml = XML {
-            recommended_0_90_2()
+            recommended_0_91_0 { pedantic = true }
             indent = 4
         }
     }

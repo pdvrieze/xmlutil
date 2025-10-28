@@ -21,8 +21,9 @@
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -32,43 +33,45 @@ import kotlin.test.assertEquals
 
 class EmptyTagWithValueChild {
 
+    val xml = XML { recommended_0_91_0 { pedantic = true } }
+
     @Test
     fun testSerializeStr() {
-        val actual = XML.encodeToString(OuterStr(InnerStr("")))
+        val actual = xml.encodeToString(OuterStr(InnerStr("")))
         assertXmlEquals("<Outer><Inner /></Outer>", actual)
     }
 
 
     @Test
     fun testSerializeCF() {
-        val actual = XML.encodeToString(OuterFrag(InnerFrag(CompactFragment(""))))
+        val actual = xml.encodeToString(OuterFrag(InnerFrag(CompactFragment(""))))
         assertXmlEquals("<Outer><Inner /></Outer>", actual)
     }
 
     @Test
     fun testDeserializeCF() {
         val expected = OuterFrag(InnerFrag(CompactFragment("")))
-        val actual = XML.decodeFromString<OuterFrag>("<Outer><Inner /></Outer>")
+        val actual = xml.decodeFromString<OuterFrag>("<Outer><Inner /></Outer>")
         assertEquals(expected, actual)
     }
 
     @Test
     fun testSerializeCFlist() {
-        val actual = XML.encodeToString(OuterFrags(InnerFrags(emptyList())))
+        val actual = xml.encodeToString(OuterFrags(InnerFrags(emptyList())))
         assertXmlEquals("<Outer><Inner /></Outer>", actual)
     }
 
     @Test
     fun testDeserializeCFlist() {
         val expected = OuterFrags(InnerFrags(emptyList()))
-        val actual = XML.decodeFromString<OuterFrags>("<Outer><Inner /></Outer>")
+        val actual = xml.decodeFromString<OuterFrags>("<Outer><Inner /></Outer>")
         assertEquals(expected, actual)
     }
 
     @Test
     fun testDeserializeStr() {
         val expected = OuterStr(InnerStr(""))
-        val actual = XML.decodeFromString<OuterStr>("<Outer><Inner /></Outer>")
+        val actual = xml.decodeFromString<OuterStr>("<Outer><Inner /></Outer>")
         assertEquals(expected, actual)
     }
 

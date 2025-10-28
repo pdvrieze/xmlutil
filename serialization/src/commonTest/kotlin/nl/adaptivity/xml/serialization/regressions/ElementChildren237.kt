@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.*
 
 class ElementChildren237 {
-    val xml = XML { recommended_0_90_2() }
+    val xml get() = XML { recommended_0_91_0 { pedantic = true } }
 
     @Test
     fun testDeserializedElement() {

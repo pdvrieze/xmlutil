@@ -36,7 +36,9 @@ import kotlin.test.assertEquals
 class TestSerializeEmptyTextValue290 {
 
     val xml = XML {
-        recommended()
+        recommended {
+            pedantic = true
+        }
         xmlDeclMode = XmlDeclMode.None // easier comparison
         defaultToGenericParser = true // Required to ensure the generic serializer is used.
     }

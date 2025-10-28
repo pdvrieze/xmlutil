@@ -455,6 +455,18 @@ private constructor(
          */
         public var isInlineCollapsed: Boolean = true
 
+        /**
+         * Configuration that specifies whether an attribute is used to indicate a null value (such
+         * as the xsi:nil attribute from xml schema). The value is a pair of the QName of the attribute
+         * and the string to indicate that the value is in fact null.
+         *
+         * For serializing this property means that (for tags only ) the tag will be written with empty
+         * content and the given attribute. For attributes or a `null` value the element is not written
+         * at all.
+         *
+         * *Note* that the `isAlwaysDecodeXsiNil` attribute will allow decoding to decode the xsi:nil
+         * attribute even if no nil attribute is configured.
+         */
         public var nilAttribute: Pair<QName, String>? = null
 
         public var xmlVersion: XmlVersion = XmlVersion.XML11
@@ -489,6 +501,10 @@ private constructor(
          */
         public var isUnchecked: Boolean = false
 
+        /**
+         * Allow decoding `xsi:nil` (from the xml schema instance namespace) independent of the configured
+         * nil attribute (that will also be detected if present). This does not change engoding/serialization.
+         */
         public var isAlwaysDecodeXsiNil: Boolean = true
 
         public var indent: Int
@@ -698,8 +714,13 @@ private constructor(
         }
 
         /**
-         * This function allows configuring the policy based on the default (or previous configuration).
-         * Note that this doesn't make changes from previously set.
+         * This function allows configuring the policy based on the default (or already set
+         * configuration). When the policy set is (derived from) `DefaultXmlSerializationPolicy`,
+         * this is effectively equivalent to getting access to its builder to update the settings.
+         *
+         * If the already set policy does not inherit `DefaultXmlSerializationPolicy` this will
+         * set the policy to a new default policy with default configuration (inheriting only the
+         * properties defined on `XmlSerializationPolicy`).
          */
         @OptIn(ExperimentalXmlUtilApi::class)
         public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
@@ -712,7 +733,8 @@ private constructor(
         @PublishedApi
         internal fun policyBuilder(): DefaultXmlSerializationPolicy.Builder = when (val p = policy) {
             is DefaultXmlSerializationPolicy -> p.builder()
-            else -> DefaultXmlSerializationPolicy.Builder()
+            null -> DefaultXmlSerializationPolicy.Builder()
+            else -> DefaultXmlSerializationPolicy.Builder(p)
         }.also { autoPolymorphic?.let { ap -> it.autoPolymorphic = ap } }
     }
 

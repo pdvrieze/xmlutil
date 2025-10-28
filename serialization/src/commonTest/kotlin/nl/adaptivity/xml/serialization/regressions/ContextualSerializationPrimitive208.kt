@@ -22,7 +22,9 @@ package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
@@ -35,11 +37,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ContextualSerializationPrimitive208 {
-    val xml = XML(
+    val xml get() = XML(
         SerializersModule {
             contextual(AnyIntSerializer)
         }
-    ) { recommended_0_87_0() }
+    ) { recommended_0_91_0 { pedantic = true } }
 
     @Test
     fun testSerialization() {

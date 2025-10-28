@@ -19,8 +19,6 @@
  */
 
 import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 
 buildscript {
@@ -32,9 +30,7 @@ buildscript {
 plugins {
     id("projectPlugin")
     alias(libs.plugins.kotlinMultiplatform) apply false
-//    kotlin("multiplatform")/* version "1.7.0"*/ //apply false
     idea
-//    kotlin("multiplatform") apply false
     `maven-publish`
     signing
     alias(libs.plugins.dokka)
@@ -45,31 +41,9 @@ description = "The overall project for cross-platform xml access"
 val xmlutil_version: String by project
 val kotlin_version: String get() = libs.versions.kotlin.get()
 
-plugins.withType<NodeJsRootPlugin> {
-    extensions.configure<NodeJsRootExtension> {
-//        nodeVersion = "21.2.0"
-        // This version is needed to be able to use/test/run the latest wasm opcodes
-//        version = "21.0.0-v8-canary202309143a48826a08"
-//        downloadBaseUrl = "https://nodejs.org/download/v8-canary"
-    }
-}
-
 tasks.withType<KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
 }
-
-/*
-afterEvaluate {
-    rootProject.plugins.withType(YarnPlugin::class.java) {
-        rootProject.the<YarnRootExtension>().apply {
-//            resolution("minimist", "1.2.6")
-//            resolution("webpack", "5.76.0")
-//            resolution("qs", "6.11.0")
-//            resolution("follow-redirects", "1.14.8")
-        }
-    }
-}
-*/
 
 tasks.register<Copy>("pages") {
     group="documentation"
@@ -79,13 +53,6 @@ tasks.register<Copy>("pages") {
     from(dokkaTasks.flatMap { it.outputDirectory })
     // Needed as pages may have content already
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
-configurations.all {
-    resolutionStrategy {
-        force(libs.httpclient)
-        force("org.apache.httpcomponents:httpcore:${libs.versions.httpComponents.get()}")
-    }
 }
 
 buildScan {

@@ -42,7 +42,7 @@ class EntityInNode291 {
     val expectedXml = "<Tag>&amp;Content</Tag>"
 
     val xml = XML {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
         defaultToGenericParser = true
     }
 

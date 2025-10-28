@@ -125,6 +125,18 @@ public interface XmlWriter : Closeable {
      */
     public fun cdsect(text: String)
 
+    /** Safe version of CDSect that writes multiple CD Sections to handle embedded `]]>` */
+    public fun safeCdsect(text: String) {
+        var idx = text.indexOf("]]>")
+        var start = 0
+        while (idx >= 0) {
+            cdsect(text.substring(start, idx + 2))
+            start = idx + 2
+            idx = text.indexOf("]]>", idx + 3)
+        }
+        if (start < text.length) cdsect(text.substring(start))
+    }
+
     /**
      * Write an entity reference
      * @param text the name of the reference. Must be a valid reference name.

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
@@ -102,6 +102,32 @@ class TestXmlWriter {
             }
         }
         assertEquals("<a><b c=\"xx\"/></a>", serialized.replace(" />", "/>"))
+    }
+
+    /** Test to check/confirm #304 */
+    @Test
+    fun testCData() {
+        val serialized = buildString {
+            xmlStreaming.newWriter(this).use { writer ->
+                writer.smartStartTag(null, "a") {
+                    safeCdsect("a & b ]]>>c")
+                }
+            }
+        }
+        assertEquals("<a><![CDATA[a & b ]]]]><![CDATA[>>c]]></a>", serialized)
+    }
+
+    /** Test to check/confirm #304 */
+    @Test
+    fun testCDataGeneric() {
+        val serialized = buildString {
+            xmlStreaming.newGenericWriter(this).use { writer ->
+                writer.smartStartTag(null, "a") {
+                    cdsect("a & b ]]>>c")
+                }
+            }
+        }
+        assertEquals("<a><![CDATA[a & b ]]]]><![CDATA[>>c]]></a>", serialized)
     }
 
     @Test
@@ -252,6 +278,38 @@ class TestXmlWriter {
             assertEquals(expected, builder.toString().replace(" />", "/>"))
         }
 
+    }
+
+    @Test
+    fun testWriteAttrWithTabOrNewline() {
+        val actual = buildString {
+            xmlStreaming.newWriter(this).use { out ->
+                out.smartStartTag(null, "foo") {
+                    attribute(null, "bar", "", "\nbaz\r\t")
+                }
+            }
+        }.lowercase()
+            .replace(" />", "/>")
+            .replace("&#10;", "&#xa;")
+            .replace("&#9;", "&#x9;")
+            .replace("&#13;", "&#xd;")
+
+
+        val expected = "<foo bar=\"&#xa;baz&#xd;&#x9;\"/>"
+        assertEquals(expected, actual.lowercase())
+    }
+
+    @Test
+    fun testWriteAttrWithTabOrNewlineGeneric() {
+        val actual = buildString {
+            xmlStreaming.newGenericWriter(this).use { out ->
+                out.smartStartTag(null, "foo") {
+                    attribute(null, "bar", "", "\nbaz\r\t")
+                }
+            }
+        }
+        val expected = "<foo bar=\"&#xa;baz&#xd;&#x9;\" />"
+        assertEquals(expected, actual)
     }
 
 }

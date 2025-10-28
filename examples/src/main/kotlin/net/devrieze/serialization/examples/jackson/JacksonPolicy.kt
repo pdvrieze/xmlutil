@@ -31,7 +31,8 @@ import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
  * Note that this version doesn't handle the jackson annotations, and is not configurable.
  */
 class JacksonPolicy(formatCache: FormatCache = defaultSharedFormatCache(), config: Builder.() -> Unit = {}) :
-    DefaultXmlSerializationPolicy(formatCache, {
+    DefaultXmlSerializationPolicy({
+        this.formatCache = formatCache
         pedantic = false
         encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.NEVER
         config()

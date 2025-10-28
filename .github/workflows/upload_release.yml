@@ -1,8 +1,6 @@
-name: Create and publish a package
+name: Upload release
 on:
     push:
-        branches:
-            - 'dev'
         tags:
             - 'v[0-9]*'
     workflow_dispatch:

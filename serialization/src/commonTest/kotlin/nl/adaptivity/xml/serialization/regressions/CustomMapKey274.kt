@@ -35,7 +35,7 @@ import kotlin.test.assertIs
 
 class CustomMapKey274 {
 
-    val xml: XML = XML { recommended_0_91_0 { formatCache = TestFormatCache(DefaultFormatCache()) } }
+    val xml: XML = XML { recommended_0_91_0 { formatCache = TestFormatCache(DefaultFormatCache()); pedantic = true } }
 
     @Test
     fun testSerialize() {

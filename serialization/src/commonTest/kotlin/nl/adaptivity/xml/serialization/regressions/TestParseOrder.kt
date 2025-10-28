@@ -33,7 +33,7 @@ class TestParseOrder {
 
     @Test
     fun testOrderedParsing() {
-        val xml = XML { defaultPolicy { autoPolymorphic=true } }
+        val xml = XML { defaultPolicy { autoPolymorphic = true; pedantic = true }; recommended_0_91_0 {} }
         
         val data = """
             <Pnts>

@@ -24,9 +24,7 @@ import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.dom.Node as Node1
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node as Node2
 import nl.adaptivity.xmlutil.dom2.textContent
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.test.multiplatform.Target
@@ -34,16 +32,18 @@ import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 class AndroidStrings225 {
 
-    val xml = XML(
+    val xml get() = XML(
         SerializersModule {
             polymorphic(Any::class, String::class, String.serializer())
             polymorphic(Any::class, Element::class, Element.serializer())
         }
     ) {
-        recommended_0_90_2()
+        recommended_0_91_0 { pedantic = true }
     }
 
     @Test

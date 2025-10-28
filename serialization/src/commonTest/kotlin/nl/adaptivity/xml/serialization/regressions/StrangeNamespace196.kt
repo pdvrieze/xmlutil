@@ -37,7 +37,7 @@ class StrangeNamespace196 {
     @Test
     fun testSerialize() {
         val xml = XML {
-            recommended_0_87_0()
+            recommended_0_87_0 { pedantic = true }
             repairNamespaces = false
             indentString = ""
         }

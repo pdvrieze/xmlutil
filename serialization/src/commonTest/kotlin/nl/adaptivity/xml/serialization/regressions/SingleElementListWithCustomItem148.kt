@@ -83,7 +83,7 @@ class SingleElementListWithCustomItem148 {
     fun xml_list_test() {
         val data = Wrapper(testAttr = 500, dataList = listOf( Inner("test1"), Inner("test2")))
 
-        val x = XML{}
+        val x = XML{ defaultPolicy { pedantic = true } }
         val res = x.encodeToString(Wrapper.serializer(), data)
         assertXmlEquals("<Wrapper testAttr=\"500\"><CustomInner test=\"test1\"/><CustomInner test=\"test2\"/></Wrapper>", res)
 

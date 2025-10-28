@@ -22,9 +22,9 @@ package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
-import kotlin.test.DefaultAsserter.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -44,13 +44,15 @@ class OtherAttributesDeserialization {
             ),
         )
 
-        val xml = XML.encodeToString(Container.serializer(), container)
+        val format = XML { defaultPolicy { pedantic = true } }
+
+        val xml = format.encodeToString(Container.serializer(), container)
         assertXmlEquals("<Container key1=\"value1\" key2=\"value2\"/>", xml)
 
-        val container2 = XML.decodeFromString<Container>(xml)
+        val container2 = format.decodeFromString<Container>(xml)
         println("Deserialized: $container2")
 
-        val xml2 = XML.encodeToString(Container.serializer(), container2)
+        val xml2 = format.encodeToString(Container.serializer(), container2)
         assertXmlEquals(xml, xml2)
 
         assertEquals(container, container2)
