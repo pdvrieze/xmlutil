@@ -48,11 +48,6 @@ public actual object XmlStreaming : IXmlStreaming {
         throw UnsupportedOperationException("Native does not support setting the factory")
     }
 
-    @Deprecated("Does not work", level = DeprecationLevel.ERROR)
-    public inline fun <reified T : Any> deSerialize(@Suppress("UNUSED_PARAMETER") input: String): T {
-        throw UnsupportedOperationException("Cannot work")
-    }
-
     public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         return newGenericReader(input, expandEntities)
     }
