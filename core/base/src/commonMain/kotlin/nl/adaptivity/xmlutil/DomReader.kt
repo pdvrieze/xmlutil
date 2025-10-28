@@ -235,7 +235,7 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
     override val version: String get() = "1.0"
 
     override fun hasNext(): Boolean {
-        return !(atEndOfElement && current?.parentNode == null) || current != delegate
+        return !(atEndOfElement && current?.parentNode !is Element) || current != delegate
     }
 
     override fun next(): EventType {
