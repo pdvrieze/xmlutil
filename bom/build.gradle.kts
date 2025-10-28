@@ -73,6 +73,5 @@ publishing {
 
 fun DefaultMavenPublication.unsetModuleDescriptorGenerator() {
     @Suppress("NULL_FOR_NONNULL_TYPE")
-    val generator: TaskProvider<Task?> = null
-    setModuleDescriptorGenerator(generator)
+    this.setModuleDescriptorGenerator(null)
 }

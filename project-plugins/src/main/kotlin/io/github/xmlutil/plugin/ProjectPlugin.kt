@@ -324,7 +324,7 @@ class ProjectPlugin @Inject constructor(
 abstract class ProjectConfigurationExtension {
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
-    abstract val dokkaOverrideTarget: Property<String?>
+    abstract val dokkaOverrideTarget: Property<String>
     abstract val applyLayout: Property<Boolean>
     abstract val kotlinApiVersion: Property<KotlinVersion>
     abstract val kotlinTestVersion: Property<KotlinVersion>
