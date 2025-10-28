@@ -1,7 +1,7 @@
 # 0.91.3-SNAPSHOT
 Changes:
 - Change the behaviour of `defaultPolicy` to inherit the settings of
-  a previous policy even if does not inherit `DefaultXmlSerializationPolicy`.
+  a previous policy even if it does not inherit `DefaultXmlSerializationPolicy`.
   In rare cases this changes the behaviour (where a custom policy was
   originally set (with different defaults), it didn't inherit the
   default policy, and it is now replaced by a default policy).
@@ -21,7 +21,7 @@ Fixes:
 - Fix attributes not being prefixed with a namespace if their namespace prefix
   is the default prefix for that namespace. As a workaround leave the prefix
   different from its containers.
-- In pedantic mode, allow an `XmlSerialName` to use the `xml` prefix as long as
+- In pedantic mode, allow an `XmlSerialName` to use the `xml` prefix as long as 
   its namespace is left default or maps to the xml namespace. Also force the
   prefix used to be the standard prefix (although, depending on the xml writer
   this may already be the case effectively).
