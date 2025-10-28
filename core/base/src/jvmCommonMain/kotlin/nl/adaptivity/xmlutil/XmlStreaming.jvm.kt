@@ -32,7 +32,6 @@ import java.io.*
 import java.util.*
 import javax.xml.transform.Result
 import javax.xml.transform.Source
-import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import org.w3c.dom.Node as DomNode
 import java.io.Writer as JavaIoWriter
@@ -45,7 +44,7 @@ import java.io.Writer as JavaIoWriter
         "nl.adaptivity.xmlutil.newGenericWriter",
     )
 )
-public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
+internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> get() {
         val service = XmlStreamingFactory::class.java
@@ -175,12 +174,6 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         return factory.newReader(input, expandEntities)
     }
 
-    @Deprecated(
-        "Use the version taking a CharSequence",
-        ReplaceWith("newReader(input as CharSequence)", "nl.adaptivity.xmlutil.XmlStreaming.newReader")
-    )
-    public override fun newReader(input: String): XmlReader = newReader(input as CharSequence)
-
     public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
         newGenericReader(StringReader(input.toString()), expandEntities = expandEntities)
 
@@ -199,7 +192,7 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
         _factory = factory
     }
 
-    public class GenericFactory: XmlStreamingFactory {
+    internal class GenericFactory: XmlStreamingFactory {
         override fun newWriter(writer: JavaIoWriter, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
             return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
         }
@@ -234,7 +227,7 @@ public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 private val _GenericFactory = XmlStreaming.GenericFactory()
 
 @ExperimentalXmlUtilApi
-public val IXmlStreaming.genericFactory: XmlStreaming.GenericFactory get() = _GenericFactory
+public val IXmlStreaming.genericFactory: XmlStreamingFactory get() = _GenericFactory
 
 public fun IXmlStreaming.newReader(node: DomNode): XmlReader {
     return DomReader(node)
@@ -246,6 +239,10 @@ public fun IXmlStreaming.newReader(inputStream: InputStream): XmlReader {
 
 public fun IXmlStreaming.newGenericReader(inputStream: InputStream): XmlReader {
     return XmlStreaming.newGenericReader(inputStream)
+}
+
+public fun IXmlStreaming.newGenericReader(inputStream: InputStream, encoding: String): XmlReader {
+    return XmlStreaming.newGenericReader(inputStream, encoding)
 }
 
 @Suppress("DEPRECATION")

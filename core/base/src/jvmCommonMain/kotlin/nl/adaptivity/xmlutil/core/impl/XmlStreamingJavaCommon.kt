@@ -67,13 +67,10 @@ public fun IXmlStreaming.newReader(source: Source): XmlReader =
 @Suppress("DeprecatedCallableAddReplaceWith")
 public abstract class XmlStreamingJavaCommon : IXmlStreaming {
 
-    @Deprecated("Use extension functions on IXmlStreaming")
-    public fun newWriter(result: Result): XmlWriter = newWriter(result, false)
-
     public abstract fun newWriter(result: Result, repairNamespaces: Boolean = false): XmlWriter
 
     @Deprecated("Use extension functions on IXmlStreaming")
-    public open fun newWriter(outputStream: OutputStream, encoding: String): XmlWriter =
+    internal open fun newWriter(outputStream: OutputStream, encoding: String): XmlWriter =
         newWriter(outputStream, encoding, false)
 
 //    protected abstract fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter
@@ -109,7 +106,4 @@ public abstract class XmlStreamingJavaCommon : IXmlStreaming {
 
     @Deprecated("Use extension functions on IXmlStreaming")
     public abstract fun newReader(source: Source): XmlReader
-
-    @Deprecated("Use the version taking a CharSequence")
-    public abstract fun newReader(input: String): XmlReader
 }

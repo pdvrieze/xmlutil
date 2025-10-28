@@ -64,44 +64,44 @@ public expect val xmlStreaming: IXmlStreaming
         "nl.adaptivity.xmlutil.newGenericWriter",
     )
 )
-public expect object XmlStreaming : IXmlStreaming {
-    public fun newGenericWriter(
+internal expect object XmlStreaming : IXmlStreaming {
+    fun newGenericWriter(
         output: Appendable,
         isRepairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): KtXmlWriter
 
-    public fun newWriter(
+    fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter
 
-    public fun newWriter(
+    fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter
 
-    public override val genericDomImplementation: DOMImplementation
+    override val genericDomImplementation: DOMImplementation
 
-    public override fun newWriter(): DomWriter
-
-    @ExperimentalXmlUtilApi
-    public override fun newWriter(dest: Node): DomWriter
-
-    public override fun setFactory(factory: XmlStreamingFactory?)
-
-    public override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader
-
-    public override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
+    override fun newWriter(): DomWriter
 
     @ExperimentalXmlUtilApi
-    public override fun newReader(source: Node): XmlReader
+    override fun newWriter(dest: Node): DomWriter
 
-    public override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader
+    override fun setFactory(factory: XmlStreamingFactory?)
 
-    public override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader
+    override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader
+
+    override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
+
+    @ExperimentalXmlUtilApi
+    override fun newReader(source: Node): XmlReader
+
+    override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader
+
+    override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader
 }
 
 

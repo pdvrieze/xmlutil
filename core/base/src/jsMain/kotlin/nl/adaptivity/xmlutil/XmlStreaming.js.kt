@@ -48,7 +48,7 @@ public actual interface XmlStreamingFactory
         "nl.adaptivity.xmlutil.newGenericWriter",
     )
 )
-public actual object XmlStreaming : IXmlStreaming {
+internal actual object XmlStreaming : IXmlStreaming {
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node2): XmlReader {
         @Suppress("DEPRECATION")
@@ -291,7 +291,7 @@ public fun IXmlStreaming.newWriter(): DomWriter = XmlStreaming.newWriter()
 public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = xmlStreaming.newWriter(dest)
 
 @Suppress("UnusedReceiverParameter", "DEPRECATION")
-public fun IXmlStreaming.newReader(delegate: DomNode): DomReader = xmlStreaming.newReader(delegate)
+public fun IXmlStreaming.newReader(delegate: DomNode): XmlReader = xmlStreaming.newReader(delegate)
 
 
 @Suppress("DEPRECATION")

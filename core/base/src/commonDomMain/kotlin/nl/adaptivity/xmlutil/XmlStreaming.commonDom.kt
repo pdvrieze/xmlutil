@@ -42,24 +42,24 @@ import nl.adaptivity.xmlutil.dom2.Node
         "nl.adaptivity.xmlutil.newGenericWriter",
     )
 )
-public actual object XmlStreaming : IXmlStreaming {
+internal actual object XmlStreaming : IXmlStreaming {
 
-    public actual override fun setFactory(factory: XmlStreamingFactory?) {
+    actual override fun setFactory(factory: XmlStreamingFactory?) {
         throw UnsupportedOperationException("Native does not support setting the factory")
     }
 
-    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
+    actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         return newGenericReader(input, expandEntities)
     }
 
-    public actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
+    actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
         return newGenericReader(reader, expandEntities)
     }
 
-    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+    actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
         newGenericReader(StringReader(input.toString()), expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+    actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
         KtXmlReader(reader, expandEntities = expandEntities)
 
     @ExperimentalXmlUtilApi
@@ -70,10 +70,9 @@ public actual object XmlStreaming : IXmlStreaming {
 
     actual override fun newWriter(): DomWriter = DomWriter()
 
-    @Suppress("DEPRECATION")
     actual override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
-    public fun newWriter(
+    fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
@@ -82,8 +81,7 @@ public actual object XmlStreaming : IXmlStreaming {
         return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
-    @Deprecated("Use overload in IXmlStreaming")
-    public actual fun newWriter(
+    actual fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
@@ -91,7 +89,7 @@ public actual object XmlStreaming : IXmlStreaming {
         return KtXmlWriter(output, repairNamespaces, xmlDeclMode)
     }
 
-    public actual fun newGenericWriter(
+    actual fun newGenericWriter(
         output: Appendable,
         isRepairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
@@ -99,13 +97,13 @@ public actual object XmlStreaming : IXmlStreaming {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
-    public fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
+    fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
         @Suppress("DEPRECATION")
         return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
     @Deprecated("Use overload on IXmlStreaming", ReplaceWith("newWriter(writer, repairNamespace, xmlDeclMode"))
-    public actual fun newWriter(
+    actual fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
