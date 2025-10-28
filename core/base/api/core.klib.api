@@ -177,10 +177,6 @@ abstract interface nl.adaptivity.xmlutil.dom/Document : nl.adaptivity.xmlutil.do
         abstract fun <get-characterSet>(): kotlin/String? // nl.adaptivity.xmlutil.dom/Document.characterSet.<get-characterSet>|<get-characterSet>(){}[0]
 
     // Targets: [linuxX64, wasmJs, wasmWasi]
-    open val docType // nl.adaptivity.xmlutil.dom/Document.docType|{}docType[0]
-        open fun <get-docType>(): nl.adaptivity.xmlutil.dom/DocumentType? // nl.adaptivity.xmlutil.dom/Document.docType.<get-docType>|<get-docType>(){}[0]
-
-    // Targets: [linuxX64, wasmJs, wasmWasi]
     open val inputEncoding // nl.adaptivity.xmlutil.dom/Document.inputEncoding|{}inputEncoding[0]
         open fun <get-inputEncoding>(): kotlin/String? // nl.adaptivity.xmlutil.dom/Document.inputEncoding.<get-inputEncoding>|<get-inputEncoding>(){}[0]
 
@@ -483,7 +479,9 @@ abstract interface nl.adaptivity.xmlutil.dom2/Element : nl.adaptivity.xmlutil.do
 }
 
 abstract interface nl.adaptivity.xmlutil.dom2/NamedNodeMap : kotlin.collections/Iterable<nl.adaptivity.xmlutil.dom2/Attr> { // nl.adaptivity.xmlutil.dom2/NamedNodeMap|null[0]
-    abstract fun getLength(): kotlin/Int // nl.adaptivity.xmlutil.dom2/NamedNodeMap.getLength|getLength(){}[0]
+    abstract val size // nl.adaptivity.xmlutil.dom2/NamedNodeMap.size|{}size[0]
+        abstract fun <get-size>(): kotlin/Int // nl.adaptivity.xmlutil.dom2/NamedNodeMap.size.<get-size>|<get-size>(){}[0]
+
     abstract fun getNamedItem(kotlin/String): nl.adaptivity.xmlutil.dom2/Attr? // nl.adaptivity.xmlutil.dom2/NamedNodeMap.getNamedItem|getNamedItem(kotlin.String){}[0]
     abstract fun getNamedItemNS(kotlin/String?, kotlin/String): nl.adaptivity.xmlutil.dom2/Attr? // nl.adaptivity.xmlutil.dom2/NamedNodeMap.getNamedItemNS|getNamedItemNS(kotlin.String?;kotlin.String){}[0]
     abstract fun item(kotlin/Int): nl.adaptivity.xmlutil.dom2/Attr? // nl.adaptivity.xmlutil.dom2/NamedNodeMap.item|item(kotlin.Int){}[0]
@@ -492,6 +490,7 @@ abstract interface nl.adaptivity.xmlutil.dom2/NamedNodeMap : kotlin.collections/
     abstract fun setNamedItem(nl.adaptivity.xmlutil.dom2/Attr): nl.adaptivity.xmlutil.dom2/Attr? // nl.adaptivity.xmlutil.dom2/NamedNodeMap.setNamedItem|setNamedItem(nl.adaptivity.xmlutil.dom2.Attr){}[0]
     abstract fun setNamedItemNS(nl.adaptivity.xmlutil.dom2/Attr): nl.adaptivity.xmlutil.dom2/Attr? // nl.adaptivity.xmlutil.dom2/NamedNodeMap.setNamedItemNS|setNamedItemNS(nl.adaptivity.xmlutil.dom2.Attr){}[0]
     open fun get(kotlin/Int): nl.adaptivity.xmlutil.dom2/Attr? // nl.adaptivity.xmlutil.dom2/NamedNodeMap.get|get(kotlin.Int){}[0]
+    open fun getLength(): kotlin/Int // nl.adaptivity.xmlutil.dom2/NamedNodeMap.getLength|getLength(){}[0]
     open fun iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil.dom2/Attr> // nl.adaptivity.xmlutil.dom2/NamedNodeMap.iterator|iterator(){}[0]
 }
 

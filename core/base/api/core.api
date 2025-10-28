@@ -1227,9 +1227,10 @@ public final class nl/adaptivity/xmlutil/dom2/ElementKt {
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/NamedNodeMap : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
 	public fun get (I)Lnl/adaptivity/xmlutil/dom2/Attr;
-	public abstract fun getLength ()I
+	public fun getLength ()I
 	public abstract fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
 	public abstract fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getSize ()I
 	public abstract fun item (I)Lnl/adaptivity/xmlutil/dom2/Attr;
 	public fun iterator ()Ljava/util/Iterator;
 	public abstract fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
