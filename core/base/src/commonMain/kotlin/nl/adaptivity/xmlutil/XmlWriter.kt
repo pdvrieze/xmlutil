@@ -458,24 +458,6 @@ public inline fun <T> XmlWriter.writeListIfNotEmpty(
     }
 }
 
-@Deprecated(
-    "Should be moved to the xmlserializable library",
-    ReplaceWith("this.serializeAll(iterable)", "nl.adaptivity.xmlutil.xmlserializable.serializeAll")
-)
-@Suppress("DEPRECATION")
-public inline fun <T : XmlSerializable> XmlWriter.serializeAll(iterable: Iterable<T>) {
-    iterable.forEach { it.serialize(this) }
-}
-
-@Deprecated(
-    "Should be moved to the xmlserializable library",
-    ReplaceWith("this.serializeAll(iterable)", "nl.adaptivity.xmlutil.xmlserializable.serializeAll")
-)
-@Suppress("DEPRECATION")
-public inline fun <T : XmlSerializable> XmlWriter.serializeAll(sequence: Sequence<T>) {
-    sequence.forEach { it.serialize(this) }
-}
-
 public inline fun XmlWriter.startTag(
     nsUri: String?,
     localName: String,

@@ -105,10 +105,6 @@ abstract interface <#A: in kotlin/Any?> nl.adaptivity.xmlutil/XmlSerializationSt
     abstract fun serializeXML(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlWriter, #A, kotlin/Boolean = ...) // nl.adaptivity.xmlutil/XmlSerializationStrategy.serializeXML|serializeXML(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlWriter;1:0;kotlin.Boolean){}[0]
 }
 
-abstract interface <#A: kotlin/Any?> nl.adaptivity.xmlutil/XmlDeserializerFactory { // nl.adaptivity.xmlutil/XmlDeserializerFactory|null[0]
-    abstract fun deserialize(nl.adaptivity.xmlutil/XmlReader): #A // nl.adaptivity.xmlutil/XmlDeserializerFactory.deserialize|deserialize(nl.adaptivity.xmlutil.XmlReader){}[0]
-}
-
 abstract interface <#A: kotlin/Any?> nl.adaptivity.xmlutil/XmlSerializer : kotlinx.serialization/KSerializer<#A>, nl.adaptivity.xmlutil/XmlDeserializationStrategy<#A>, nl.adaptivity.xmlutil/XmlSerializationStrategy<#A> // nl.adaptivity.xmlutil/XmlSerializer|null[0]
 
 abstract interface <#A: out kotlin/Any?> nl.adaptivity.xmlutil/XmlDeserializationStrategy : kotlinx.serialization/DeserializationStrategy<#A> { // nl.adaptivity.xmlutil/XmlDeserializationStrategy|null[0]
@@ -542,7 +538,7 @@ abstract interface nl.adaptivity.xmlutil.dom2/ProcessingInstruction : nl.adaptiv
 
 abstract interface nl.adaptivity.xmlutil.dom2/Text : nl.adaptivity.xmlutil.dom2/CharacterData // nl.adaptivity.xmlutil.dom2/Text|null[0]
 
-abstract interface nl.adaptivity.xmlutil.util/ICompactFragment : nl.adaptivity.xmlutil/XmlSerializable { // nl.adaptivity.xmlutil.util/ICompactFragment|null[0]
+abstract interface nl.adaptivity.xmlutil.util/ICompactFragment { // nl.adaptivity.xmlutil.util/ICompactFragment|null[0]
     abstract val content // nl.adaptivity.xmlutil.util/ICompactFragment.content|{}content[0]
         abstract fun <get-content>(): kotlin/CharArray // nl.adaptivity.xmlutil.util/ICompactFragment.content.<get-content>|<get-content>(){}[0]
     abstract val contentString // nl.adaptivity.xmlutil.util/ICompactFragment.contentString|{}contentString[0]
@@ -553,23 +549,11 @@ abstract interface nl.adaptivity.xmlutil.util/ICompactFragment : nl.adaptivity.x
         abstract fun <get-namespaces>(): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil.util/ICompactFragment.namespaces.<get-namespaces>|<get-namespaces>(){}[0]
 
     abstract fun getXmlReader(): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil.util/ICompactFragment.getXmlReader|getXmlReader(){}[0]
+    abstract fun serialize(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil.util/ICompactFragment.serialize|serialize(nl.adaptivity.xmlutil.XmlWriter){}[0]
 
     final object Companion : kotlinx.serialization.internal/SerializerFactory { // nl.adaptivity.xmlutil.util/ICompactFragment.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<nl.adaptivity.xmlutil.util/ICompactFragment> // nl.adaptivity.xmlutil.util/ICompactFragment.Companion.serializer|serializer(){}[0]
         final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // nl.adaptivity.xmlutil.util/ICompactFragment.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    }
-}
-
-abstract interface nl.adaptivity.xmlutil.util/SerializationProvider { // nl.adaptivity.xmlutil.util/SerializationProvider|null[0]
-    abstract fun <#A1: kotlin/Any> deSerializer(kotlin.reflect/KClass<#A1>): nl.adaptivity.xmlutil.util/SerializationProvider.XmlDeserializerFun? // nl.adaptivity.xmlutil.util/SerializationProvider.deSerializer|deSerializer(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
-    abstract fun <#A1: kotlin/Any> serializer(kotlin.reflect/KClass<#A1>): nl.adaptivity.xmlutil.util/SerializationProvider.XmlSerializerFun<#A1>? // nl.adaptivity.xmlutil.util/SerializationProvider.serializer|serializer(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
-
-    abstract interface <#A1: in kotlin/Any> XmlSerializerFun { // nl.adaptivity.xmlutil.util/SerializationProvider.XmlSerializerFun|null[0]
-        abstract fun invoke(nl.adaptivity.xmlutil/XmlWriter, #A1) // nl.adaptivity.xmlutil.util/SerializationProvider.XmlSerializerFun.invoke|invoke(nl.adaptivity.xmlutil.XmlWriter;1:0){}[0]
-    }
-
-    abstract interface XmlDeserializerFun { // nl.adaptivity.xmlutil.util/SerializationProvider.XmlDeserializerFun|null[0]
-        abstract fun <#A2: kotlin/Any> invoke(nl.adaptivity.xmlutil/XmlReader, kotlin.reflect/KClass<#A2>): #A2 // nl.adaptivity.xmlutil.util/SerializationProvider.XmlDeserializerFun.invoke|invoke(nl.adaptivity.xmlutil.XmlReader;kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     }
 }
 
@@ -695,10 +679,6 @@ abstract interface nl.adaptivity.xmlutil/XmlReader : kotlin.collections/Iterator
         final fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // nl.adaptivity.xmlutil/XmlReader.StringLocationInfo.toString|toString(){}[0]
     }
-}
-
-abstract interface nl.adaptivity.xmlutil/XmlSerializable { // nl.adaptivity.xmlutil/XmlSerializable|null[0]
-    abstract fun serialize(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil/XmlSerializable.serialize|serialize(nl.adaptivity.xmlutil.XmlWriter){}[0]
 }
 
 abstract interface nl.adaptivity.xmlutil/XmlStreamingFactory // nl.adaptivity.xmlutil/XmlStreamingFactory|null[0]
@@ -915,19 +895,9 @@ final class nl.adaptivity.xmlutil.util/CompactFragment : nl.adaptivity.xmlutil.u
     final fun serialize(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil.util/CompactFragment.serialize|serialize(nl.adaptivity.xmlutil.XmlWriter){}[0]
     final fun toString(): kotlin/String // nl.adaptivity.xmlutil.util/CompactFragment.toString|toString(){}[0]
 
-    final class Factory : nl.adaptivity.xmlutil/XmlDeserializerFactory<nl.adaptivity.xmlutil.util/CompactFragment> { // nl.adaptivity.xmlutil.util/CompactFragment.Factory|null[0]
-        constructor <init>() // nl.adaptivity.xmlutil.util/CompactFragment.Factory.<init>|<init>(){}[0]
-
-        final fun deserialize(nl.adaptivity.xmlutil/XmlReader): nl.adaptivity.xmlutil.util/CompactFragment // nl.adaptivity.xmlutil.util/CompactFragment.Factory.deserialize|deserialize(nl.adaptivity.xmlutil.XmlReader){}[0]
-    }
-
     final object Companion { // nl.adaptivity.xmlutil.util/CompactFragment.Companion|null[0]
         final fun deserialize(nl.adaptivity.xmlutil/XmlReader): nl.adaptivity.xmlutil.util/CompactFragment // nl.adaptivity.xmlutil.util/CompactFragment.Companion.deserialize|deserialize(nl.adaptivity.xmlutil.XmlReader){}[0]
         final fun serializer(): kotlinx.serialization/KSerializer<nl.adaptivity.xmlutil.util/CompactFragment> // nl.adaptivity.xmlutil.util/CompactFragment.Companion.serializer|serializer(){}[0]
-
-        // Targets: [js]
-        final val FACTORY // nl.adaptivity.xmlutil.util/CompactFragment.Companion.FACTORY|{}FACTORY[0]
-            final fun <get-FACTORY>(): nl.adaptivity.xmlutil.util/CompactFragment.Factory // nl.adaptivity.xmlutil.util/CompactFragment.Companion.FACTORY.<get-FACTORY>|<get-FACTORY>(){}[0]
     }
 
     // Targets: [js]
@@ -1884,8 +1854,6 @@ final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartSt
 final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(nl.adaptivity.xmlutil/QName, kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]
 final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/startTag(kotlin/String?, kotlin/String, kotlin/String? = ..., kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/startTag|startTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]
 final inline fun <#A: kotlin/Any?> (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeListIfNotEmpty(kotlin.collections/Iterable<#A>, kotlin/String?, kotlin/String, kotlin/String? = ..., kotlin/Function2<nl.adaptivity.xmlutil/XmlWriter, #A, kotlin/Unit>) // nl.adaptivity.xmlutil/writeListIfNotEmpty|writeListIfNotEmpty@nl.adaptivity.xmlutil.XmlWriter(kotlin.collections.Iterable<0:0>;kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function2<nl.adaptivity.xmlutil.XmlWriter,0:0,kotlin.Unit>){0§<kotlin.Any?>}[0]
-final inline fun <#A: nl.adaptivity.xmlutil/XmlSerializable> (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serializeAll(kotlin.collections/Iterable<#A>) // nl.adaptivity.xmlutil/serializeAll|serializeAll@nl.adaptivity.xmlutil.XmlWriter(kotlin.collections.Iterable<0:0>){0§<nl.adaptivity.xmlutil.XmlSerializable>}[0]
-final inline fun <#A: nl.adaptivity.xmlutil/XmlSerializable> (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serializeAll(kotlin.sequences/Sequence<#A>) // nl.adaptivity.xmlutil/serializeAll|serializeAll@nl.adaptivity.xmlutil.XmlWriter(kotlin.sequences.Sequence<0:0>){0§<nl.adaptivity.xmlutil.XmlSerializable>}[0]
 
 // Targets: [linuxX64, wasmJs, wasmWasi]
 final class nl.adaptivity.xmlutil.dom/DOMException : kotlin/Exception { // nl.adaptivity.xmlutil.dom/DOMException|null[0]

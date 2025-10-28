@@ -188,12 +188,6 @@ public abstract class nl/adaptivity/xmlutil/serialization/InputKind : java/lang/
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/InputKind;
 }
 
-public final class nl/adaptivity/xmlutil/serialization/KotlinxSerializationProvider : nl/adaptivity/xmlutil/util/SerializationProvider {
-	public fun <init> ()V
-	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
-	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
-}
-
 public final class nl/adaptivity/xmlutil/serialization/LayeredCache : nl/adaptivity/xmlutil/serialization/FormatCache {
 	public fun <init> ()V
 }

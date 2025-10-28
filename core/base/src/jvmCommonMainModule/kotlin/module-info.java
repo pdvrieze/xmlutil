@@ -24,7 +24,4 @@ module net.devrieze.xmlutil.core {
     // Note that while a generic implementation is provided, this is not published (so providers
     // can better override it).
     uses nl.adaptivity.xmlutil.XmlStreamingFactory;
-
-    provides nl.adaptivity.xmlutil.util.SerializationProvider
-            with nl.adaptivity.xmlutil.util.DefaultSerializationProvider;
 }

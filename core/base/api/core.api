@@ -368,10 +368,6 @@ public abstract interface class nl/adaptivity/xmlutil/XmlDeserializationStrategy
 	public static synthetic fun deserializeXML$default (Lnl/adaptivity/xmlutil/XmlDeserializationStrategy;Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;ZILjava/lang/Object;)Ljava/lang/Object;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/XmlDeserializerFactory {
-	public abstract fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
-}
-
 public abstract class nl/adaptivity/xmlutil/XmlEvent {
 	public static final field Companion Lnl/adaptivity/xmlutil/XmlEvent$Companion;
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -614,10 +610,6 @@ public final class nl/adaptivity/xmlutil/XmlReaderUtil {
 	public static final fun writeCurrent (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
-public abstract interface class nl/adaptivity/xmlutil/XmlSerializable {
-	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
-}
-
 public abstract interface class nl/adaptivity/xmlutil/XmlSerializationStrategy : kotlinx/serialization/SerializationStrategy {
 	public abstract fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
 	public static synthetic fun serializeXML$default (Lnl/adaptivity/xmlutil/XmlSerializationStrategy;Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;ZILjava/lang/Object;)V
@@ -633,13 +625,6 @@ public final class nl/adaptivity/xmlutil/XmlSerializerKt {
 
 public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/core/impl/XmlStreamingJavaCommon, nl/adaptivity/xmlutil/IXmlStreaming {
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/XmlStreaming;
-	public fun deSerialize (Ljava/io/InputStream;Ljava/lang/Class;)Ljava/lang/Object;
-	public fun deSerialize (Ljava/io/Reader;Ljava/lang/Class;)Ljava/lang/Object;
-	public fun deSerialize (Ljava/io/Reader;Lkotlin/reflect/KClass;)Ljava/lang/Object;
-	public fun deSerialize (Ljava/lang/Iterable;Ljava/lang/Class;)Ljava/util/List;
-	public fun deSerialize (Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
-	public fun deSerialize (Ljavax/xml/transform/Source;Ljava/lang/Class;)Ljava/lang/Object;
-	public fun deserializerFor (Ljava/lang/Class;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
 	public fun getGenericDomImplementation ()Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
 	public final fun newGenericReader (Ljava/io/InputStream;)Lnl/adaptivity/xmlutil/XmlReader;
 	public final fun newGenericReader (Ljava/io/InputStream;Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
@@ -668,10 +653,7 @@ public final class nl/adaptivity/xmlutil/XmlStreaming : nl/adaptivity/xmlutil/co
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreaming;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
-	public fun serializerFor (Ljava/lang/Class;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
 	public fun setFactory (Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
-	public fun toCharArray (Ljavax/xml/transform/Source;)[C
-	public fun toString (Ljavax/xml/transform/Source;)Ljava/lang/String;
 }
 
 public final class nl/adaptivity/xmlutil/XmlStreaming$GenericFactory : nl/adaptivity/xmlutil/XmlStreamingFactory {
@@ -815,8 +797,6 @@ public final class nl/adaptivity/xmlutil/XmlWriterUtil {
 	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
 	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/dom2/Node;)V
 	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Node;)V
-	public static final fun serializeAll (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;)V
-	public static final fun serializeAll (Lnl/adaptivity/xmlutil/XmlWriter;Lkotlin/sequences/Sequence;)V
 	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;)V
 	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lkotlin/jvm/functions/Function1;)V
@@ -1366,7 +1346,6 @@ public final class nl/adaptivity/xmlutil/util/CompactFragment : nl/adaptivity/xm
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getContent ()[C
 	public fun getContentString ()Ljava/lang/String;
-	public static final fun getFACTORY ()Lnl/adaptivity/xmlutil/XmlDeserializerFactory;
 	public fun getNamespaces ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 	public fun getXmlReader ()Lnl/adaptivity/xmlutil/XmlReader;
 	public fun hashCode ()I
@@ -1378,12 +1357,6 @@ public final class nl/adaptivity/xmlutil/util/CompactFragment : nl/adaptivity/xm
 public final class nl/adaptivity/xmlutil/util/CompactFragment$Companion {
 	public final fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class nl/adaptivity/xmlutil/util/CompactFragment$Factory : nl/adaptivity/xmlutil/XmlDeserializerFactory {
-	public fun <init> ()V
-	public synthetic fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
-	public fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/util/CompactFragment;
 }
 
 public final class nl/adaptivity/xmlutil/util/CompactFragmentSerializer : nl/adaptivity/xmlutil/XmlSerializer {
@@ -1399,24 +1372,19 @@ public final class nl/adaptivity/xmlutil/util/CompactFragmentSerializer : nl/ada
 	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/util/CompactFragment;Z)V
 }
 
-public final class nl/adaptivity/xmlutil/util/DefaultSerializationProvider : nl/adaptivity/xmlutil/util/CoreCompatSerializationProvider {
-	public fun <init> ()V
-	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
-	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
-}
-
 public final class nl/adaptivity/xmlutil/util/DomutilKt {
 	public static final synthetic fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
 	public static final synthetic fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/util/ICompactFragment : nl/adaptivity/xmlutil/XmlSerializable {
+public abstract interface class nl/adaptivity/xmlutil/util/ICompactFragment {
 	public static final field Companion Lnl/adaptivity/xmlutil/util/ICompactFragment$Companion;
 	public abstract fun getContent ()[C
 	public abstract fun getContentString ()Ljava/lang/String;
 	public abstract fun getNamespaces ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 	public abstract fun getXmlReader ()Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun isEmpty ()Z
+	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
 public final class nl/adaptivity/xmlutil/util/ICompactFragment$Companion {
@@ -1434,19 +1402,6 @@ public final class nl/adaptivity/xmlutil/util/ICompactFragmentSerializer : nl/ad
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/util/ICompactFragment;)V
 	public synthetic fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;Z)V
 	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/util/ICompactFragment;Z)V
-}
-
-public abstract interface class nl/adaptivity/xmlutil/util/SerializationProvider {
-	public abstract fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
-	public abstract fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
-}
-
-public abstract interface class nl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun {
-	public abstract fun invoke (Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/reflect/KClass;)Ljava/lang/Object;
-}
-
-public abstract interface class nl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun {
-	public abstract fun invoke (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;)V
 }
 
 public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReader : nl/adaptivity/xmlutil/XmlDelegatingReader, nl/adaptivity/xmlutil/XmlReader, nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava {

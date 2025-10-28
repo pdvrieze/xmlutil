@@ -28,7 +28,6 @@ import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.util.SerializationProvider
 import java.io.*
 import java.util.*
 import javax.xml.transform.Result
@@ -47,13 +46,6 @@ import java.io.Writer as JavaIoWriter
     )
 )
 public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
-
-    @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
-    override val serializationLoader: ServiceLoader<SerializationProvider> get() {
-        val service = SerializationProvider::class.java
-        return ServiceLoader.load(service, service.classLoader)
-    }
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> get() {
         val service = XmlStreamingFactory::class.java
@@ -206,91 +198,6 @@ public actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     public actual override fun setFactory(factory: XmlStreamingFactory?) {
         _factory = factory
     }
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Note that sources are inefficient and poorly designed, relying on runtime types", ReplaceWith(
-            "newReader(content).toCharArrayWriter().toCharArray()",
-            "nl.adaptivity.xmlutil.XmlStreaming.newReader"
-        )
-    )
-    override fun toCharArray(content: Source): CharArray {
-        return newReader(content).toCharArrayWriter().toCharArray()
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Note that sources are inefficient and poorly designed, relying on runtime types", ReplaceWith(
-            "newReader(source).toCharArrayWriter().toString()",
-            "nl.adaptivity.xmlutil.XmlStreaming.newReader"
-        )
-    )
-    override fun toString(source: Source): String {
-        return newReader(source).toCharArrayWriter().toString()
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("deSerialize(input, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
-    )
-    override fun <T : Any> deSerialize(input: InputStream, type: Class<T>): T = deSerialize(input, type.kotlin)
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("deSerialize(input, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
-    )
-    override fun <T : Any> deSerialize(input: Reader, type: Class<T>): T = deSerialize(input, type.kotlin)
-
-    @Suppress("DEPRECATION")
-    @Deprecated("This functionality uses service loaders and isn't really needed. Will be removed in 1.0")
-    override fun <T : Any> deSerialize(input: Reader, kClass: KClass<T>): T {
-        val deserializer = deserializerFor(kClass) ?: throw IllegalArgumentException(
-            "No deserializer for $kClass (${serializationLoader.joinToString { it.javaClass.name }})"
-        )
-        return deserializer(newReader(input), kClass)
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("deSerialize(input, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
-    )
-    override fun <T : Any> deSerialize(input: String, type: Class<T>): T = deSerialize(input, type.kotlin)
-
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("deSerialize(inputs, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
-    )
-    @Suppress("DEPRECATION")
-    override fun <T : Any> deSerialize(inputs: Iterable<String>, type: Class<T>): List<T> =
-        deSerialize(inputs, type.kotlin)
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("deSerialize(reader, type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deSerialize")
-    )
-    override fun <T : Any> deSerialize(reader: Source, type: Class<T>): T {
-        return deSerialize(reader, type.kotlin)
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("deserializerFor(type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.deserializerFor")
-    )
-    override fun <T : Any> deserializerFor(type: Class<T>): SerializationProvider.XmlDeserializerFun? =
-        deserializerFor(type.kotlin)
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "This functionality uses service loaders and isn't really needed. Will be removed in 1.0",
-        ReplaceWith("serializerFor(type.kotlin)", "nl.adaptivity.xmlutil.XmlStreaming.serializerFor")
-    )
-    override fun <T : Any> serializerFor(type: Class<T>): SerializationProvider.XmlSerializerFun<T>? =
-        serializerFor(type.kotlin)
 
     public class GenericFactory: XmlStreamingFactory {
         override fun newWriter(writer: JavaIoWriter, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {

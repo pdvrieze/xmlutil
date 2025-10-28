@@ -59,12 +59,7 @@ public final class nl/adaptivity/xmlutil/xmlserializable/SerializableContainer :
 }
 
 public final class nl/adaptivity/xmlutil/xmlserializable/SerializableFunctionsKt {
-	public static final fun CompactFragment (Lnl/adaptivity/xmlutil/XmlSerializable;)Lnl/adaptivity/xmlutil/util/CompactFragment;
-	public static final fun toString (Lnl/adaptivity/xmlutil/XmlStreaming;Lnl/adaptivity/xmlutil/XmlSerializable;)Ljava/lang/String;
-	public static final synthetic fun toString (Lnl/adaptivity/xmlutil/XmlStreaming;Lnl/adaptivity/xmlutil/xmlserializable/XmlSerializable;)Ljava/lang/String;
-	public static final fun writeChild (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlSerializable;)V
 	public static final fun writeChild (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/xmlserializable/XmlSerializable;)V
-	public static final fun writeChildren (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;)V
 	public static final fun writeChildren2 (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;)V
 }
 
@@ -83,18 +78,16 @@ public abstract interface annotation class nl/adaptivity/xmlutil/xmlserializable
 	public abstract fun value ()Ljava/lang/Class;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/xmlserializable/XmlDeserializerFactory : nl/adaptivity/xmlutil/XmlDeserializerFactory {
+public abstract interface class nl/adaptivity/xmlutil/xmlserializable/XmlDeserializerFactory {
 	public abstract fun deserialize (Lnl/adaptivity/xmlutil/XmlReader;)Ljava/lang/Object;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/xmlserializable/XmlSerializable : nl/adaptivity/xmlutil/XmlSerializable {
+public abstract interface class nl/adaptivity/xmlutil/xmlserializable/XmlSerializable {
 	public abstract fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
 public final class nl/adaptivity/xmlutil/xmlserializable/XmlSerializableExtKt {
-	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlSerializable;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;)V
 	public static final fun serialize (Lnl/adaptivity/xmlutil/xmlserializable/XmlSerializable;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;)V
-	public static final fun toReader (Lnl/adaptivity/xmlutil/XmlSerializable;)Ljava/io/Reader;
 	public static final fun toReader (Lnl/adaptivity/xmlutil/xmlserializable/XmlSerializable;)Ljava/io/Reader;
 	public static final fun toString (Ljava/lang/Iterable;)Ljava/util/List;
 	public static final fun toString (Lnl/adaptivity/xmlutil/xmlserializable/XmlSerializable;)Ljava/lang/String;
@@ -102,7 +95,6 @@ public final class nl/adaptivity/xmlutil/xmlserializable/XmlSerializableExtKt {
 }
 
 public final class nl/adaptivity/xmlutil/xmlserializable/XmlSerializableJavaExtKt {
-	public static final fun toCharArray (Lnl/adaptivity/xmlutil/XmlSerializable;)[C
 	public static final fun toCharArray (Lnl/adaptivity/xmlutil/xmlserializable/XmlSerializable;)[C
 }
 
@@ -133,22 +125,20 @@ public final class nl/adaptivity/xmlutil/xmlserializable/_XmlReaderKt {
 
 public final class nl/adaptivity/xmlutil/xmlserializable/util/DefaultSerializationProvider : nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider {
 	public fun <init> ()V
-	public synthetic fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun;
 	public fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlDeserializerFun;
-	public synthetic fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun;
 	public fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlSerializerFun;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider : nl/adaptivity/xmlutil/util/SerializationProvider {
+public abstract interface class nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider {
 	public abstract fun deSerializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlDeserializerFun;
 	public abstract fun serializer (Lkotlin/reflect/KClass;)Lnl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlSerializerFun;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlDeserializerFun : nl/adaptivity/xmlutil/util/SerializationProvider$XmlDeserializerFun {
+public abstract interface class nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlDeserializerFun {
 	public abstract fun invoke (Lnl/adaptivity/xmlutil/XmlReader;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlSerializerFun : nl/adaptivity/xmlutil/util/SerializationProvider$XmlSerializerFun {
+public abstract interface class nl/adaptivity/xmlutil/xmlserializable/util/SerializationProvider$XmlSerializerFun {
 	public abstract fun invoke (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Object;)V
 }
 
