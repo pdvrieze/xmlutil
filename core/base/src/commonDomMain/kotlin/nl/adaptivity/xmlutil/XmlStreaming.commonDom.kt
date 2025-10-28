@@ -34,14 +34,6 @@ import nl.adaptivity.xmlutil.dom2.Node
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-@Deprecated(
-    "Don't use directly", ReplaceWith(
-        "xmlStreaming",
-        "nl.adaptivity.xmlutil.xmlStreaming",
-        "nl.adaptivity.xmlutil.newWriter",
-        "nl.adaptivity.xmlutil.newGenericWriter",
-    )
-)
 internal actual object XmlStreaming : IXmlStreaming {
 
     actual override fun setFactory(factory: XmlStreamingFactory?) {
@@ -64,7 +56,6 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node): XmlReader {
-        @Suppress("DEPRECATION")
         return DomReader(source)
     }
 
@@ -77,7 +68,6 @@ internal actual object XmlStreaming : IXmlStreaming {
         repairNamespaces: Boolean,
         omitXmlDecl: Boolean
     ): XmlWriter {
-        @Suppress("DEPRECATION")
         return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
@@ -98,11 +88,9 @@ internal actual object XmlStreaming : IXmlStreaming {
     }
 
     fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        @Suppress("DEPRECATION")
         return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
     }
 
-    @Deprecated("Use overload on IXmlStreaming", ReplaceWith("newWriter(writer, repairNamespace, xmlDeclMode"))
     actual fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean,
@@ -115,19 +103,15 @@ internal actual object XmlStreaming : IXmlStreaming {
         get() = SimpleDOMImplementation
 }
 
-@Suppress("DEPRECATION")
-public actual val xmlStreaming: IXmlStreaming
-    get() = XmlStreaming
+public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
 
-@Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode
 ): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
 
-@Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean,

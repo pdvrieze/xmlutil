@@ -39,15 +39,13 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 /**
  * Writer that uses the DOM for the underlying storage (rather than writing to some string).
  */
-public class DomWriter @Deprecated("Don't use directly. Instead create an instance through xmlStreaming") constructor(
+public class DomWriter internal constructor(
     current: Node2?,
     public val isAppend: Boolean = false,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ) : PlatformXmlWriterBase(), XmlWriter {
 
-    @Suppress("DEPRECATION")
-    @Deprecated("Compatibility constructor, create through xmlStreaming")
-    public constructor(
+    internal constructor(
         current: Node1,
         isAppend: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
@@ -97,7 +95,7 @@ public class DomWriter @Deprecated("Don't use directly. Instead create an instan
     private fun requireCurrent(error: String) =
         currentNode as? Element2 ?: throw XmlException("The current node is not an element: $error")
 
-    @Suppress("OverridingDeprecatedMember")
+//    @Suppress("OverridingDeprecatedMember")
     override val namespaceContext: NamespaceContext = object : NamespaceContext {
         override fun getNamespaceURI(prefix: String): String? {
             return currentNode?.lookupNamespaceURI(prefix)

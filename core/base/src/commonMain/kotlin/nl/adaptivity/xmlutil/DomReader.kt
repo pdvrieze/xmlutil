@@ -38,14 +38,12 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
  *
  * @author Created by pdvrieze on 22/03/17.
  */
-@Deprecated("Don't use directly. Instead create an instance through xmlStreaming", ReplaceWith("xmlStreaming.newReader(delegate)", "nl.adaptivity.xmlutil.xmlStreaming"))
-@XmlUtilDeprecatedInternal
-public class DomReader(public val delegate: Node2, public val expandEntities: Boolean) : XmlReader {
+internal class DomReader(val delegate: Node2, val expandEntities: Boolean) : XmlReader {
 
-    public constructor(delegate: Node2) : this(delegate, false)
+    constructor(delegate: Node2) : this(delegate, false)
 
     @Suppress("DEPRECATION")
-    public constructor(delegate: Node1) :
+    constructor(delegate: Node1) :
             this((delegate as? Node2) ?: createDocument(QName("XX")).adoptNode(delegate))
 
     private var current: Node2? = null
@@ -290,7 +288,7 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
 
     @Suppress("DEPRECATION", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "KotlinRedundantDiagnosticSuppress")
     @Deprecated("Provided for compatibility.")
-    public fun getDelegate(): Node1? = delegate as? Node1
+    fun getDelegate(): Node1? = delegate as? Node1
 
     override fun getAttributeNamespace(index: Int): String {
         val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
