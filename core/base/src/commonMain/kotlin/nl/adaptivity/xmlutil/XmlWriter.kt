@@ -481,7 +481,7 @@ public fun XmlWriter.writeSimpleElement(
 ) {
     smartStartTag(nsUri, localName, prefix)
     if (!value.isNullOrEmpty()) {
-        text(value.toString())
+        text(value)
     }
     endTag(nsUri, localName, prefix)
 }
