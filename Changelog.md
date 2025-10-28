@@ -1,4 +1,8 @@
-# 0.91.3-SNAPSHOT
+# 1.0.0-rc1-SNAPSHOT
+
+# 0.91.3
+*(Oct 28, 2025)<br />*
+
 Changes:
 - Change the behaviour of `defaultPolicy` to inherit the settings of
   a previous policy even if it does not inherit `DefaultXmlSerializationPolicy`.
