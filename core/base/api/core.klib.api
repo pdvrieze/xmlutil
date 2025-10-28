@@ -830,11 +830,7 @@ final class nl.adaptivity.xmlutil.core/KtXmlReader : nl.adaptivity.xmlutil/XmlRe
 }
 
 final class nl.adaptivity.xmlutil.core/KtXmlWriter : nl.adaptivity.xmlutil.core.impl/PlatformXmlWriterBase, nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil.core/KtXmlWriter|null[0]
-    constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean){}[0]
-    constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil.core/XmlVersion) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
     constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
-    constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean){}[0]
-    constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil.core/XmlVersion) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
     constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 
     final val depth // nl.adaptivity.xmlutil.core/KtXmlWriter.depth|{}depth[0]

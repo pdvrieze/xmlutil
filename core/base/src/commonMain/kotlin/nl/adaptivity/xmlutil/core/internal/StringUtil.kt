@@ -215,13 +215,13 @@ private val NAMECHAR: BooleanArray = BooleanArray(256).also { b ->
     for (c in 0xd8..0xff) b[c] = true
 }
 
-internal fun Appendable.appendCodepoint(codepoint: UInt) = when {
-    codepoint > 0xffffu -> {
-        val down = codepoint - 0x10000u
-        val highSurogate = (down shr 10) + 0xd800u
-        val lowSurogate = (down and 0x3ffu) + 0xdc00u
-        append(Char(highSurogate.toUShort()))
-        append(Char(lowSurogate.toUShort()))
+internal fun Appendable.appendCodepoint(codepoint: Int) = when {
+    codepoint > 0xffff -> {
+        val down = codepoint - 0x10000
+        val highSurogate = (down shr 10) + 0xd800
+        val lowSurogate = (down and 0x3ff) + 0xdc00
+        append(highSurogate.toChar())
+        append(lowSurogate.toChar())
     }
 
     else -> append(Char(codepoint.toUShort()))

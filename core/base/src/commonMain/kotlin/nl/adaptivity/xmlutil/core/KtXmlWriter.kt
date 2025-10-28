@@ -20,9 +20,12 @@
 
 package nl.adaptivity.xmlutil.core
 
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE
 import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.XmlException
+import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
@@ -49,34 +52,6 @@ public class KtXmlWriter(
         xmlDeclMode: XmlDeclMode,
         xmlVersion: XmlVersion = XmlVersion.XML11
     ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
-
-    @Deprecated("When using XML 1.1 a document type declaration is required. If you want" +
-            "to omit it, do so expressly")
-    public constructor(
-        writer: Writer,
-        isRepairNamespaces: Boolean = true,
-        xmlVersion: XmlVersion
-    ) : this((writer as Appendable), isRepairNamespaces, XmlDeclMode.None, xmlVersion)
-
-    @Deprecated("When using XML 1.1 a document type declaration is required. If you want" +
-            "to omit it, do so expressly")
-    public constructor(
-        writer: Appendable,
-        isRepairNamespaces: Boolean = true,
-        xmlVersion: XmlVersion
-    ) : this(writer, isRepairNamespaces, XmlDeclMode.None, xmlVersion)
-
-    @Deprecated("When using XML 1.1 a document type declaration is required. If you want to omit it, do so expressly")
-    public constructor(
-        writer: Writer,
-        isRepairNamespaces: Boolean = true,
-    ) : this((writer as Appendable), isRepairNamespaces, XmlDeclMode.None, XmlVersion.XML11)
-
-    @Deprecated("When using XML 1.1 a document type declaration is required. If you want to omit it, do so expressly")
-    public constructor(
-        writer: Appendable,
-        isRepairNamespaces: Boolean = true,
-    ) : this(writer, isRepairNamespaces, XmlDeclMode.None, XmlVersion.XML11)
 
     /**
      * The version of XML to generate. By default XML 1.1.
@@ -165,53 +140,53 @@ public class KtXmlWriter(
         open val isAttr: Boolean get() = false
     }
 
-    private fun Appendable.appendXmlCodepoint(codepoint: UInt, mode: EscapeMode) {
+    private fun Appendable.appendXmlCodepoint(codepoint: Int, mode: EscapeMode) {
 
-        fun appendNumCharRef(code: UInt) {
+        fun appendNumCharRef(code: Int) {
             append("&#x").append(code.toString(16)).append(';')
         }
 
-        fun throwInvalid(code: UInt): Nothing {
+        fun throwInvalid(code: Int): Nothing {
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
         val ch = when (codepoint) {
-            0x9u, 0xAu, 0xDu, in (0x20u..0xd7ffu), in (0xe000u..0xfffdu)
-            -> Char(codepoint.toUShort())
+            0x9, 0xA, 0xD, in (0x20..0xd7ff), in (0xe000..0xfffd) ->
+                Char(codepoint.toUShort())
 
             else -> Char(0x0u)
         }
 
         when {
-            codepoint == 0u -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
+            codepoint == 0 -> throw IllegalArgumentException("XML documents may not contain null strings directly or indirectly")
             ch == '&' -> append("&amp;")
             ch == '<' && mode != EscapeMode.MINIMAL -> append("&lt;")
             ch == '>' && mode == EscapeMode.TEXTCONTENT -> append("&gt;")
             ch == '"' && mode == EscapeMode.ATTRCONTENTQUOT -> append("&quot;")
             ch == '\'' && mode == EscapeMode.ATTRCONTENTAPOS -> append("&apos;")
 
-            codepoint in 0x1u..0x8u ||
-                    codepoint == 0xBu || codepoint == 0xCu ||
-                    codepoint in 0xEu..0x1Fu -> when (xmlVersion) {
+            codepoint in 0x1..0x8 ||
+                    codepoint == 0xB || codepoint == 0xC ||
+                    codepoint in 0xE..0x1F -> when (xmlVersion) {
                 XmlVersion.XML10 -> throwInvalid(codepoint)
                 XmlVersion.XML11 -> {
                     appendNumCharRef(codepoint)
                 }
             }
 
-            codepoint in 0x7fu..0x84u || codepoint in 0x86u..0x9fu -> when (xmlVersion) {
+            codepoint in 0x7f..0x84 || codepoint in 0x86..0x9f -> when (xmlVersion) {
                 XmlVersion.XML10 -> append(ch)
                 XmlVersion.XML11 -> appendNumCharRef(codepoint)
             }
 
-            codepoint in 0xD800u..0xDFFFu || codepoint == 0xFFFEu || codepoint == 0xFFFFu -> throwInvalid(codepoint)
+            codepoint in 0xD800..0xDFFF || codepoint == 0xFFFE || codepoint == 0xFFFF -> throwInvalid(codepoint)
 
-            codepoint > 0xffffu -> {
-                val down = codepoint - 0x10000u
-                val highSurogate = (down shr 10) + 0xd800u
-                val lowSurogate = (down and 0x3ffu) + 0xdc00u
-                append(Char(highSurogate.toUShort()))
-                append(Char(lowSurogate.toUShort()))
+            codepoint > 0xffff -> {
+                val down = codepoint - 0x10000
+                val highSurogate = (down shr 10) + 0xd800
+                val lowSurogate = (down and 0x3ff) + 0xdc00
+                append(highSurogate.toChar())
+                append(lowSurogate.toChar())
             }
 
             else -> append(ch)
@@ -229,16 +204,12 @@ public class KtXmlWriter(
             throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
         }
 
-/*
-        if (char.code < 0x20 && ! isXmlWhitespace(char)) {
-            throw IllegalArgumentException("Invalid character with code 0x${char.code.toString(16)}")
-        }
-*/
-
         when {
             char.code >= ESCAPED_CHARS.size -> {
                 when {
-                    char.code in 0xD800..0xDFFF || char.code == 0xFFFE || char.code == 0xFFFF -> throwInvalid(char.code)
+                    char.code in 0xD800..0xDFFF || char.code == 0xFFFE || char.code == 0xFFFF ->
+                        throwInvalid(char.code)
+
                     else -> append(char)
                 }
             }
@@ -255,7 +226,8 @@ public class KtXmlWriter(
 
             (char == '\n' || char == '\r' || char == '\t') && mode.isAttr -> appendNumCharRef(char.code)
 
-            char.code in 0x1..0x8 || char.code == 0xB || char.code == 0xC || char.code in 0xE..0x1F -> when (xmlVersion) {
+            char.code in 0x1..0x8 || char.code == 0xB ||
+                    char.code == 0xC || char.code in 0xE..0x1F -> when (xmlVersion) {
                 XmlVersion.XML10 -> throwInvalid(char.code)
                 XmlVersion.XML11 -> appendNumCharRef(char.code)
             }
@@ -280,10 +252,11 @@ public class KtXmlWriter(
                 if (start < i) {
                     writer.append(s, start, i)
                 }
+
                 when {
                     c.isHighSurrogate() -> {
-                        val codePoint = 0x10000u + ((c.code.toUInt() - 0xD800u) shl 10) +
-                                (s[i + 1].code.toUInt() - 0xDC00u)
+                        val codePoint = 0x10000 + ((c.code - 0xD800) shl 10) +
+                                (s[i + 1].code - 0xDC00)
                         writer.appendXmlCodepoint(codePoint, mode)
                         start = i + 2
                         ++i
@@ -303,28 +276,31 @@ public class KtXmlWriter(
 
     private fun triggerStartDocument() {
         // Non-before states are not modified
-        when (state) {
-            WriteState.BeforeDocument -> {
-                if (xmlDeclMode != XmlDeclMode.None) {
-                    // It is only xml 1.1 if it has a version attribute with value 1.1
-                    if (xmlVersion == XmlVersion.XML11 || xmlDeclMode != XmlDeclMode.Minimal) {
-                        startDocument(xmlVersion.versionString, null, null)
-                    } else {
-                        startDocument()
-                    }
+        if (state == WriteState.BeforeDocument) {
+            if (xmlDeclMode != XmlDeclMode.None) {
+                // It is only xml 1.1 if it has a version attribute with value 1.1
+                if (xmlVersion == XmlVersion.XML11 || xmlDeclMode != XmlDeclMode.Minimal) {
+                    startDocument(xmlVersion.versionString, null, null)
+                } else {
+                    startDocument()
                 }
-                state = WriteState.AfterXmlDecl
             }
-
-            else -> {
-            }
+            state = WriteState.AfterXmlDecl
         }
     }
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && _indentString.isNotEmpty() && lastTagDepth != depth) {
+        if (lastTagDepth >= 0 && indentSequence.isNotEmpty() && lastTagDepth != depth) {
             ignorableWhitespace("\n")
-            for (i in 0 until depth) writer.append(_indentString)
+            if (isSimpleIndent) {
+                for (i in 0 until depth) {
+                    writer.append(_indentString)
+                }
+            } else {
+                for (i in 0 until depth) {
+                    for (e in indentSequence) e.writeTo(this)
+                }
+            }
         }
         lastTagDepth = newDepth
     }
@@ -343,8 +319,7 @@ public class KtXmlWriter(
         finishPartialStartTag(false)
     }
 
-    /**
-     * {@inheritDoc}
+    /*
      * @param version The value of the version attribute. This will update the [xmlVersion] property
      *          where any other version that 1.0 or 1.1 will be interpreted as being 1.1
      */
@@ -427,14 +402,16 @@ public class KtXmlWriter(
 
         state = WriteState.InTagContent
 
-        val appliedPrefix = if (namespace == "") {
-            ""
-        } else {
-            val reg = getPrefix(namespace)
-            when {
-                reg != null -> reg
-                prefix == null -> namespaceHolder.nextAutoPrefix()
-                else -> prefix
+        val appliedPrefix = when (namespace) {
+            "" -> ""
+
+            else -> {
+                val reg = getPrefix(namespace)
+                when {
+                    reg != null -> reg
+                    prefix == null -> namespaceHolder.nextAutoPrefix()
+                    else -> prefix
+                }
             }
         }
 
@@ -484,11 +461,13 @@ public class KtXmlWriter(
         writer.append("<!--")
         for (cp in text.asCodePoints()) {
             when (cp) {
-                '-'.code.toUInt() -> {
-                    if (lastWasHyphen) {
+                '-'.code -> when {
+                    lastWasHyphen -> {
                         lastWasHyphen = false
                         writer.append("&#x2d;")
-                    } else {
+                    }
+
+                    else -> {
                         lastWasHyphen = true
                         writer.append('-')
                     }
@@ -516,32 +495,32 @@ public class KtXmlWriter(
         var endPos = 0
         writer.append("<![CDATA[")
         for (cp in text.asCodePoints()) {
-            val ch = if (cp < 0x7ddfu) Char(cp.toUShort()) else Char(0x0u)
-            when {
-                ch == ']' && (endPos == 0 || endPos == 1) -> {
+            val ch = if (cp < 0x7ddf) cp.toChar() else '\u0000'
+            when (ch) {
+                ']' if (endPos == 0 || endPos == 1) -> {
                     ++endPos; writer.append(ch)
                 }
 
-                ch == '>' && endPos == 2 -> {
+                '>' if endPos == 2 -> {
                     // In this case we must split the cdata section
                     endPos = 0
                     writer.append("]]><![CDATA[>")
                 }
 
-                ch == ']' && endPos == 2 -> writer.append(ch) // we have 3 ] characters so drop the first
+                ']' if endPos == 2 -> writer.append(ch) // we have 3 ] characters so drop the first
 
                 else -> {
-                    endPos = 0;
+                    endPos = 0
                     when (cp) {
-                        0x0u -> throw IllegalArgumentException("Null characters are not valid in xml")
+                        0x0 -> throw IllegalArgumentException("Null characters are not valid in xml")
 
-                        in 0xD800u..0xDFFFu -> error("Surrogate block codepoints are not valid characters")
+                        in 0xD800..0xDFFF -> error("Surrogate block codepoints are not valid characters")
 
-                        0xFFFEu, 0xFFEFu -> error("Byte order markers are not allowed in xml content")
+                        0xFFFE, 0xFFEF -> error("Byte order markers are not allowed in xml content")
 
                         else if xmlVersion == XmlVersion.XML11 -> {} // no issue
 
-                        in 0x1u..0x8u, 0xBu, 0xCu, in 0xEu..0x1Fu ->
+                        in 0x1..0x8, 0xB, 0xC, in 0xE..0x1F ->
                             throw IllegalArgumentException("Unprintable characters are not allowed in XML 1.0")
 
                     }
@@ -617,8 +596,7 @@ public class KtXmlWriter(
             when {
                 isRepairNamespaces -> return            // when repairing, just ignore duplicates
 
-                existingNamespaceForPrefix != namespaceUri
-                ->
+                existingNamespaceForPrefix != namespaceUri ->
                     throw IllegalStateException("Attempting to set prefix to different values in the same tag")
 
                 else -> throw IllegalStateException("Namespace attribute duplicated")
@@ -723,45 +701,23 @@ public class KtXmlWriter(
 
 }
 
-private fun Iterable<XmlEvent.TextEvent>.joinRepeated(repeats: Int): List<XmlEvent.TextEvent> {
-    val it = iterator()
-    if (!it.hasNext()) return emptyList()
-
-    val result = mutableListOf<XmlEvent.TextEvent>()
-    var pending: XmlEvent.TextEvent? = null
-    for (i in 0 until repeats) {
-        for (ev in this@joinRepeated) {
-            if (pending == null) {
-                pending = ev
-            } else if (pending.eventType == EventType.COMMENT || pending.eventType != ev.eventType) {
-                result.add(pending)
-                pending = ev
-            } else if (ev.eventType == pending.eventType) {
-                pending = XmlEvent.TextEvent(null, pending.eventType, pending.text + ev.text)
-            }
-        }
-    }
-    if (pending != null) result.add(pending)
-    return result
-}
-
-internal fun CharSequence.asCodePoints(): Iterable<UInt> {
-    return object : Iterable<UInt> {
-        override fun iterator(): Iterator<UInt> {
-            return object : Iterator<UInt> {
+private fun CharSequence.asCodePoints(): Iterable<Int> {
+    return object : Iterable<Int> {
+        override fun iterator(): Iterator<Int> {
+            return object : Iterator<Int> {
                 private var nextPos = 0
 
                 override fun hasNext(): Boolean = nextPos < this@asCodePoints.length
 
-                override fun next(): UInt = when (get(nextPos).isHighSurrogate()) {
+                override fun next(): Int = when (get(nextPos).isHighSurrogate()) {
                     true -> {
-                        val codePoint = 0x10000u + ((get(nextPos).code.toUInt() - 0xD800u) shl 10) +
-                                (get(nextPos + 1).code.toUInt() - 0xDC00u)
+                        val codePoint = 0x10000 + ((get(nextPos).code - 0xD800) shl 10) or
+                                (get(nextPos + 1).code - 0xDC00)
                         nextPos += 2
                         codePoint
                     }
 
-                    else -> get(nextPos).code.toUInt().also { nextPos++ }
+                    else -> get(nextPos).code.also { nextPos++ }
                 }
             }
         }

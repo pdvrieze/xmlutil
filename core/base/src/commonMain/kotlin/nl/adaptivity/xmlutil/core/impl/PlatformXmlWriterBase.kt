@@ -26,12 +26,22 @@ import nl.adaptivity.xmlutil.*
  * Base class for platform xml writers. It contains common code. */
 @XmlUtilInternal
 public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.TextEvent> = emptyList()) : XmlWriter {
+    protected var isSimpleIndent: Boolean = true
+        private set
+
     public var indentSequence: List<XmlEvent.TextEvent> = indentSequence.toList()
         set(value) {
             field = value
+            var isSimple = true
             _indentString = value.joinToString("") { ev ->
                 when (ev.eventType) {
                     EventType.COMMENT -> "<!--${ev.text}-->"
+
+                    EventType.ENTITY_REF -> {
+                        isSimple = false
+                        ev.text
+                    }
+
                     else -> buildString {
                         for (c in ev.text) {
                             when (c) {
@@ -44,6 +54,7 @@ public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.Te
                     }
                 }
             }
+            isSimpleIndent = isSimple
 
         }
 
@@ -58,6 +69,7 @@ public abstract class PlatformXmlWriterBase(indentSequence: Iterable<XmlEvent.Te
         @Deprecated("Use indentSequence", level = DeprecationLevel.ERROR)
         get() = _indentString
         set(value) {
+            isSimpleIndent = true
             indentSequence = value.toIndentSequence()
         }
 
