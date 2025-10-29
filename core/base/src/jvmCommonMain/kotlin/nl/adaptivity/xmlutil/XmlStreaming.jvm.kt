@@ -24,29 +24,29 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
-import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 import java.io.*
 import java.util.*
-import javax.xml.transform.Result
 import javax.xml.transform.Source
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import org.w3c.dom.Node as DomNode
 import java.io.Writer as JavaIoWriter
 
-@Suppress("UnusedReceiverParameter")
+// Suppression should be fine as the member is hidden
+@Suppress("UnusedReceiverParameter", "EXTENSION_SHADOWED_BY_MEMBER")
 public fun IXmlStreaming.setFactory(factory: XmlStreamingFactory?) {
     XmlStreaming.setFactoryImpl(factory)
 }
 
-internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
+internal actual object XmlStreaming : IXmlStreaming {
 
-    private val serviceLoader: ServiceLoader<XmlStreamingFactory> get() {
-        val service = XmlStreamingFactory::class.java
-        return ServiceLoader.load(service, service.classLoader)
-    }
+    private val serviceLoader: ServiceLoader<XmlStreamingFactory>
+        get() {
+            val service = XmlStreamingFactory::class.java
+            return ServiceLoader.load(service, service.classLoader)
+        }
 
     @Volatile
     private var _factory: XmlStreamingFactory? = null
@@ -58,7 +58,7 @@ internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
             if (f != null) return f
 
             // Ignore errors in the service loader, but fall back instead
-            f = try { serviceLoader.firstOrNull() } catch (e: ServiceConfigurationError) { null }
+            f = runCatching { serviceLoader.firstOrNull() }.getOrNull()
 
             if (f == null) {
                 f = try {
@@ -86,9 +86,11 @@ internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
             return f
         }
 
-    override fun newWriter(result: Result, repairNamespaces: Boolean): XmlWriter {
-        return factory.newWriter(result, repairNamespaces)
-    }
+    public fun newWriter(writer: JavaIoWriter): XmlWriter = newWriter(writer, false)
+
+    public fun newWriter(writer: JavaIoWriter, repairNamespaces: Boolean): XmlWriter =
+        newWriter(writer as Appendable, repairNamespaces, XmlDeclMode.None)
+
 
     public fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
@@ -154,7 +156,7 @@ internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
     @Deprecated("Use extension functions on IXmlStreaming")
-    override fun newReader(inputStream: InputStream, encoding: String): XmlReader {
+    fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
     }
 
@@ -163,7 +165,7 @@ internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     }
 
     @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
-    override fun newReader(source: Source): XmlReader {
+    fun newReader(source: Source): XmlReader {
         return factory.newReader(source)
     }
 
@@ -244,6 +246,20 @@ public fun IXmlStreaming.newGenericReader(inputStream: InputStream): XmlReader {
 public fun IXmlStreaming.newGenericReader(inputStream: InputStream, encoding: String): XmlReader {
     return XmlStreaming.newGenericReader(inputStream, encoding)
 }
+
+public fun IXmlStreaming.newReader(inputStream: InputStream, encoding: String): XmlReader =
+    (this as XmlStreaming).newReader(inputStream, encoding)
+
+public fun IXmlStreaming.newReader(source: Source): XmlReader =
+    (this as XmlStreaming).newReader(source)
+
+
+public fun IXmlStreaming.newWriter(
+    outputStream: OutputStream,
+    encoding: String,
+    repairNamespaces: Boolean = false
+): XmlWriter =
+    (this as XmlStreaming).newWriter(outputStream, encoding, repairNamespaces)
 
 @Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(

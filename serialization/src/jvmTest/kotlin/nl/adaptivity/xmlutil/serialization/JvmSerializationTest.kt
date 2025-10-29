@@ -22,9 +22,6 @@ package nl.adaptivity.xmlutil.serialization
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.core.impl.XmlStreamingJavaCommon
-import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.dom.Element
 import nl.adaptivity.xmlutil.dom.Node
 import nl.adaptivity.xmlutil.newReader
@@ -34,7 +31,6 @@ import nl.adaptivity.xmlutil.xmlStreaming
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.dom.DOMSource
 import kotlin.test.assertEquals
 
 class JvmSerializationTest {
@@ -76,6 +72,7 @@ class JvmSerializationTest {
     /**
      * An issue from #78
      */
+    @Suppress("DEPRECATION")
     @Test
     fun `update dom node with additional attribute`() {
         val xml = XML {}
