@@ -37,6 +37,7 @@ import org.w3c.dom.parsing.XMLSerializer
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Node as DomNode
 
+@Deprecated("XmlStreamingFactory makes no sense in JS", level = DeprecationLevel.ERROR)
 public actual interface XmlStreamingFactory
 
 
@@ -61,12 +62,6 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     @Suppress("DEPRECATION")
     actual override fun newWriter(dest: Node2): DomWriter = DomWriter(dest)
-
-    @Deprecated("Does not work on Javascript except for setting null", level = DeprecationLevel.ERROR)
-    public actual override fun setFactory(factory: XmlStreamingFactory?) {
-        if (factory != null)
-            throw UnsupportedOperationException("Javascript has no services, don't bother creating them")
-    }
 
     public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         // fall back to generic reader for contexts without DOM (Node etc.)

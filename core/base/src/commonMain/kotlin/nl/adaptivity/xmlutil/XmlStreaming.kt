@@ -90,8 +90,6 @@ internal expect object XmlStreaming : IXmlStreaming {
     @ExperimentalXmlUtilApi
     override fun newWriter(dest: Node): DomWriter
 
-    override fun setFactory(factory: XmlStreamingFactory?)
-
     override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader
 
     override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader

@@ -29,28 +29,13 @@ import javax.xml.transform.Source
 
 @Suppress(
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
-    "DeprecatedCallableAddReplaceWith"
 )
 public actual interface XmlStreamingFactory {
-
-    @Deprecated("Use version with xmlDeclMode")
-    public fun newWriter(writer: Writer, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
-        newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-
     public fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter
-
-    @Deprecated("Use version with xmlDeclMode")
-    public fun newWriter(
-        outputStream: OutputStream,
-        encoding: String,
-        repairNamespaces: Boolean = false,
-        omitXmlDecl: Boolean
-    ): XmlWriter =
-        newWriter(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
     public fun newWriter(
         outputStream: OutputStream,
@@ -89,6 +74,7 @@ public actual interface XmlStreamingFactory {
     public fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
 
     public fun newReader(inputStream: InputStream): XmlReader = newReader(inputStream, expandEntities = false)
+
     /**
      * Version of newReader that autodetects the encoding. It first looks for UTF16/UTF32.
      * Then it looks at the declared encoding in the attribute in 8-bit ascii mode. If not
@@ -103,6 +89,7 @@ public actual interface XmlStreamingFactory {
 
     public fun newReader(inputStream: InputStream, encoding: String = "UTF-8"): XmlReader =
         newReader(inputStream, encoding, false)
+
     public fun newReader(inputStream: InputStream, encoding: String = "UTF-8", expandEntities: Boolean): XmlReader
 
     public fun newReader(input: CharSequence): XmlReader = newReader(input, false)

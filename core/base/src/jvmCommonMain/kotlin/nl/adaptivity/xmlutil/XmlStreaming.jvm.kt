@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
+//@file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil
 
@@ -36,14 +36,11 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import org.w3c.dom.Node as DomNode
 import java.io.Writer as JavaIoWriter
 
-@Deprecated(
-    "Don't use directly", ReplaceWith(
-        "xmlStreaming",
-        "nl.adaptivity.xmlutil.xmlStreaming",
-        "nl.adaptivity.xmlutil.newWriter",
-        "nl.adaptivity.xmlutil.newGenericWriter",
-    )
-)
+@Suppress("UnusedReceiverParameter")
+public fun IXmlStreaming.setFactory(factory: XmlStreamingFactory?) {
+    XmlStreaming.setFactoryImpl(factory)
+}
+
 internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
 
     private val serviceLoader: ServiceLoader<XmlStreamingFactory> get() {
@@ -188,7 +185,10 @@ internal actual object XmlStreaming : XmlStreamingJavaCommon(), IXmlStreaming {
     public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
         KtXmlReader(reader, expandEntities = expandEntities)
 
-    public actual override fun setFactory(factory: XmlStreamingFactory?) {
+    @Deprecated("Use the extension method for the JVM platform", level = DeprecationLevel.HIDDEN)
+    public override fun setFactory(factory: XmlStreamingFactory?) = setFactoryImpl(XmlStreaming.factory)
+
+    internal fun setFactoryImpl(factory: XmlStreamingFactory?) {
         _factory = factory
     }
 

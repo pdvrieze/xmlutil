@@ -62,22 +62,18 @@ public abstract interface annotation class nl/adaptivity/xmlutil/ExperimentalXml
 
 public abstract interface class nl/adaptivity/xmlutil/IXmlStreaming {
 	public abstract fun getGenericDomImplementation ()Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
-	public synthetic fun newGenericReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newGenericReader (Ljava/io/Reader;Z)Lnl/adaptivity/xmlutil/XmlReader;
-	public synthetic fun newGenericReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newGenericReader (Ljava/lang/CharSequence;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public static synthetic fun newGenericReader$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Reader;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static synthetic fun newGenericReader$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/lang/CharSequence;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
-	public synthetic fun newReader (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newReader (Ljava/io/Reader;Z)Lnl/adaptivity/xmlutil/XmlReader;
-	public synthetic fun newReader (Ljava/lang/CharSequence;)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newReader (Ljava/lang/CharSequence;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newReader (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static synthetic fun newReader$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Reader;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static synthetic fun newReader$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/lang/CharSequence;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newWriter ()Lnl/adaptivity/xmlutil/DomWriter;
 	public abstract fun newWriter (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/DomWriter;
-	public abstract fun setFactory (Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
+	public synthetic fun setFactory (Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
 }
 
 public abstract interface class nl/adaptivity/xmlutil/IterableNamespaceContext : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker, nl/adaptivity/xmlutil/NamespaceContextImpl {
@@ -600,17 +596,13 @@ public abstract interface class nl/adaptivity/xmlutil/XmlStreamingFactory {
 	public static synthetic fun newReader$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/InputStream;Ljava/lang/String;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
 	public static synthetic fun newReader$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/InputStream;Ljava/lang/String;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
-	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
 	public abstract fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
-	public fun newWriter (Ljava/io/Writer;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/lang/Appendable;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljavax/xml/transform/Result;ZZ)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
-	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/OutputStream;Ljava/lang/String;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
-	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/io/Writer;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljava/lang/Appendable;ZZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/XmlStreamingFactory;Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
@@ -641,6 +633,7 @@ public final class nl/adaptivity/xmlutil/XmlStreaming_jvmKt {
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/lang/Appendable;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Lnl/adaptivity/xmlutil/core/impl/multiplatform/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun setFactory (Lnl/adaptivity/xmlutil/IXmlStreaming;Lnl/adaptivity/xmlutil/XmlStreamingFactory;)V
 }
 
 public final class nl/adaptivity/xmlutil/XmlUtil {

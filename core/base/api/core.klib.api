@@ -567,11 +567,7 @@ abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmluti
     abstract fun newReader(nl.adaptivity.xmlutil.dom2/Node): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newReader|newReader(nl.adaptivity.xmlutil.dom2.Node){}[0]
     abstract fun newWriter(): nl.adaptivity.xmlutil/DomWriter // nl.adaptivity.xmlutil/IXmlStreaming.newWriter|newWriter(){}[0]
     abstract fun newWriter(nl.adaptivity.xmlutil.dom2/Node): nl.adaptivity.xmlutil/DomWriter // nl.adaptivity.xmlutil/IXmlStreaming.newWriter|newWriter(nl.adaptivity.xmlutil.dom2.Node){}[0]
-    abstract fun setFactory(nl.adaptivity.xmlutil/XmlStreamingFactory?) // nl.adaptivity.xmlutil/IXmlStreaming.setFactory|setFactory(nl.adaptivity.xmlutil.XmlStreamingFactory?){}[0]
-    open fun newGenericReader(kotlin/CharSequence): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newGenericReader|newGenericReader(kotlin.CharSequence){}[0]
-    open fun newGenericReader(nl.adaptivity.xmlutil.core.impl.multiplatform/Reader): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newGenericReader|newGenericReader(nl.adaptivity.xmlutil.core.impl.multiplatform.Reader){}[0]
-    open fun newReader(kotlin/CharSequence): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newReader|newReader(kotlin.CharSequence){}[0]
-    open fun newReader(nl.adaptivity.xmlutil.core.impl.multiplatform/Reader): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newReader|newReader(nl.adaptivity.xmlutil.core.impl.multiplatform.Reader){}[0]
+    open fun setFactory(nl.adaptivity.xmlutil/XmlStreamingFactory?) // nl.adaptivity.xmlutil/IXmlStreaming.setFactory|setFactory(nl.adaptivity.xmlutil.XmlStreamingFactory?){}[0]
 }
 
 abstract interface nl.adaptivity.xmlutil/IterableNamespaceContext : kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>, nl.adaptivity.xmlutil/NamespaceContextImpl { // nl.adaptivity.xmlutil/IterableNamespaceContext|null[0]

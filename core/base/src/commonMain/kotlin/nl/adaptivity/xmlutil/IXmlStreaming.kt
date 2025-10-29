@@ -25,33 +25,20 @@ import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
 public interface IXmlStreaming {
-
-    public fun setFactory(factory: XmlStreamingFactory?)
-
-    @Deprecated("Should use two parameter version", level = DeprecationLevel.HIDDEN)
-    public fun newReader(input: CharSequence): XmlReader =
-        newReader(input, false)
+    @Deprecated("Use the extension method for the JVM platform", level = DeprecationLevel.HIDDEN)
+    public fun setFactory(factory: XmlStreamingFactory?): Unit = when (factory) {
+        null -> {}// do nothing
+        else -> throw UnsupportedOperationException("Setting factories is no longer supported.")
+    }
 
     public fun newReader(input: CharSequence, expandEntities: Boolean = false): XmlReader
-
-    @Deprecated("Should use two parameter version", level = DeprecationLevel.HIDDEN)
-    public fun newReader(reader: Reader): XmlReader =
-        newReader(reader, false)
 
     public fun newReader(reader: Reader, expandEntities: Boolean = false): XmlReader
 
     @ExperimentalXmlUtilApi
     public fun newReader(source: Node): XmlReader
 
-    @Deprecated("Should use two parameter version", level = DeprecationLevel.HIDDEN)
-    public fun newGenericReader(input: CharSequence): XmlReader =
-        newGenericReader(input, false)
-
     public fun newGenericReader(input: CharSequence, expandEntities: Boolean = false): XmlReader
-
-    @Deprecated("Should use two parameter version", level = DeprecationLevel.HIDDEN)
-    public fun newGenericReader(reader: Reader): XmlReader =
-        newGenericReader(reader, true)
 
     public fun newGenericReader(reader: Reader, expandEntities: Boolean = false): XmlReader
 

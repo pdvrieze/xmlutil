@@ -36,10 +36,6 @@ import nl.adaptivity.xmlutil.dom2.Node
  */
 internal actual object XmlStreaming : IXmlStreaming {
 
-    actual override fun setFactory(factory: XmlStreamingFactory?) {
-        throw UnsupportedOperationException("Native does not support setting the factory")
-    }
-
     actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         return newGenericReader(input, expandEntities)
     }
