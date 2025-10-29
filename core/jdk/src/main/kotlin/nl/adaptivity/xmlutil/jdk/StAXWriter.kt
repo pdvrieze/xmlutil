@@ -1,28 +1,29 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.jdk
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
+import nl.adaptivity.xmlutil.core.impl.toIndentSequence
+import nl.adaptivity.xmlutil.core.impl.toIndentString
 import java.io.OutputStream
 import java.io.Writer
 import java.lang.invoke.MethodHandle
@@ -46,7 +47,16 @@ public class StAXWriter(
     public val delegate: XMLStreamWriter,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
     public val autoCloseEmpty: Boolean = true
-) : PlatformXmlWriterBase(), XmlWriter {
+) : XmlWriter {
+
+    private var indentSequence: List<XmlEvent.TextEvent> = emptyList()
+
+    @OptIn(XmlUtilInternal::class)
+    override var indentString: String
+        get() = indentSequence.toIndentString()
+        set(value) {
+            indentSequence = value.toIndentSequence()
+        }
 
     private val pendingWrites = mutableListOf<XmlEvent>()
 
@@ -191,7 +201,7 @@ public class StAXWriter(
 
     private fun writeIndent(newDepth: Int = depth, indentDepth: Int = depth) {
         val indentSeq = indentSequence
-        if (lastTagDepth >= 0 && indentSeq.isNotEmpty() && lastTagDepth != indentDepth) {
+        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != indentDepth) {
             try {
                 // Unset the indentation so that comments will not make things work correctly.
                 indentSequence = emptyList()

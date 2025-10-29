@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
-import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
@@ -44,7 +43,7 @@ public class KtXmlWriter(
     public val isRepairNamespaces: Boolean = true,
     public val xmlDeclMode: XmlDeclMode,
     xmlVersion: XmlVersion = XmlVersion.XML11
-) : PlatformXmlWriterBase(), XmlWriter {
+) : XmlWriter {
 
     public constructor(
         writer: Writer,
@@ -52,6 +51,8 @@ public class KtXmlWriter(
         xmlDeclMode: XmlDeclMode,
         xmlVersion: XmlVersion = XmlVersion.XML11
     ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
+
+    override var indentString: String = ""
 
     /**
      * The version of XML to generate. By default XML 1.1.
@@ -290,16 +291,10 @@ public class KtXmlWriter(
     }
 
     private fun writeIndent(newDepth: Int = depth) {
-        if (lastTagDepth >= 0 && indentSequence.isNotEmpty() && lastTagDepth != depth) {
+        if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
             ignorableWhitespace("\n")
-            if (isSimpleIndent) {
-                for (i in 0 until depth) {
-                    writer.append(_indentString)
-                }
-            } else {
-                for (i in 0 until depth) {
-                    for (e in indentSequence) e.writeTo(this)
-                }
+            for (i in 0 until depth) {
+                writer.append(indentString)
             }
         }
         lastTagDepth = newDepth

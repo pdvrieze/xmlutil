@@ -22,8 +22,9 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.PlatformXmlWriterBase
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.toIndentSequence
+import nl.adaptivity.xmlutil.core.impl.toIndentString
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
@@ -43,13 +44,23 @@ public class DomWriter internal constructor(
     current: Node2?,
     public val isAppend: Boolean = false,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-) : PlatformXmlWriterBase(), XmlWriter {
+) : XmlWriter {
 
     internal constructor(
         current: Node1,
         isAppend: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ) : this(current as? Node2 ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode)
+
+    public var indentSequence: List<XmlEvent.TextEvent> = emptyList()
+
+    @OptIn(XmlUtilInternal::class)
+    override var indentString: String
+        get() = indentSequence.toIndentString()
+        set(value) {
+            indentSequence = value.toIndentSequence()
+        }
+
 
     private var docDelegate: Document2? = when (current) {
         null -> null

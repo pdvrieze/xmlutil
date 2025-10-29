@@ -829,7 +829,7 @@ final class nl.adaptivity.xmlutil.core/KtXmlReader : nl.adaptivity.xmlutil/XmlRe
     final fun toString(): kotlin/String // nl.adaptivity.xmlutil.core/KtXmlReader.toString|toString(){}[0]
 }
 
-final class nl.adaptivity.xmlutil.core/KtXmlWriter : nl.adaptivity.xmlutil.core.impl/PlatformXmlWriterBase, nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil.core/KtXmlWriter|null[0]
+final class nl.adaptivity.xmlutil.core/KtXmlWriter : nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil.core/KtXmlWriter|null[0]
     constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
     constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 
@@ -845,6 +845,9 @@ final class nl.adaptivity.xmlutil.core/KtXmlWriter : nl.adaptivity.xmlutil.core.
     final var addTrailingSpaceBeforeEnd // nl.adaptivity.xmlutil.core/KtXmlWriter.addTrailingSpaceBeforeEnd|{}addTrailingSpaceBeforeEnd[0]
         final fun <get-addTrailingSpaceBeforeEnd>(): kotlin/Boolean // nl.adaptivity.xmlutil.core/KtXmlWriter.addTrailingSpaceBeforeEnd.<get-addTrailingSpaceBeforeEnd>|<get-addTrailingSpaceBeforeEnd>(){}[0]
         final fun <set-addTrailingSpaceBeforeEnd>(kotlin/Boolean) // nl.adaptivity.xmlutil.core/KtXmlWriter.addTrailingSpaceBeforeEnd.<set-addTrailingSpaceBeforeEnd>|<set-addTrailingSpaceBeforeEnd>(kotlin.Boolean){}[0]
+    final var indentString // nl.adaptivity.xmlutil.core/KtXmlWriter.indentString|{}indentString[0]
+        final fun <get-indentString>(): kotlin/String // nl.adaptivity.xmlutil.core/KtXmlWriter.indentString.<get-indentString>|<get-indentString>(){}[0]
+        final fun <set-indentString>(kotlin/String) // nl.adaptivity.xmlutil.core/KtXmlWriter.indentString.<set-indentString>|<set-indentString>(kotlin.String){}[0]
     final var xmlVersion // nl.adaptivity.xmlutil.core/KtXmlWriter.xmlVersion|{}xmlVersion[0]
         final fun <get-xmlVersion>(): nl.adaptivity.xmlutil.core/XmlVersion // nl.adaptivity.xmlutil.core/KtXmlWriter.xmlVersion.<get-xmlVersion>|<get-xmlVersion>(){}[0]
 
@@ -935,7 +938,7 @@ final class nl.adaptivity.xmlutil.util/XMLFragmentStreamReader : nl.adaptivity.x
     constructor <init>(kotlin/String, kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>) // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.<init>|<init>(kotlin.String;kotlin.collections.Iterable<nl.adaptivity.xmlutil.Namespace>){}[0]
 }
 
-final class nl.adaptivity.xmlutil/DomWriter : nl.adaptivity.xmlutil.core.impl/PlatformXmlWriterBase, nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil/DomWriter|null[0]
+final class nl.adaptivity.xmlutil/DomWriter : nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil/DomWriter|null[0]
     constructor <init>(nl.adaptivity.xmlutil/XmlDeclMode = ...) // nl.adaptivity.xmlutil/DomWriter.<init>|<init>(nl.adaptivity.xmlutil.XmlDeclMode){}[0]
 
     final val isAppend // nl.adaptivity.xmlutil/DomWriter.isAppend|{}isAppend[0]
@@ -947,6 +950,12 @@ final class nl.adaptivity.xmlutil/DomWriter : nl.adaptivity.xmlutil.core.impl/Pl
 
     final var depth // nl.adaptivity.xmlutil/DomWriter.depth|{}depth[0]
         final fun <get-depth>(): kotlin/Int // nl.adaptivity.xmlutil/DomWriter.depth.<get-depth>|<get-depth>(){}[0]
+    final var indentSequence // nl.adaptivity.xmlutil/DomWriter.indentSequence|{}indentSequence[0]
+        final fun <get-indentSequence>(): kotlin.collections/List<nl.adaptivity.xmlutil/XmlEvent.TextEvent> // nl.adaptivity.xmlutil/DomWriter.indentSequence.<get-indentSequence>|<get-indentSequence>(){}[0]
+        final fun <set-indentSequence>(kotlin.collections/List<nl.adaptivity.xmlutil/XmlEvent.TextEvent>) // nl.adaptivity.xmlutil/DomWriter.indentSequence.<set-indentSequence>|<set-indentSequence>(kotlin.collections.List<nl.adaptivity.xmlutil.XmlEvent.TextEvent>){}[0]
+    final var indentString // nl.adaptivity.xmlutil/DomWriter.indentString|{}indentString[0]
+        final fun <get-indentString>(): kotlin/String // nl.adaptivity.xmlutil/DomWriter.indentString.<get-indentString>|<get-indentString>(){}[0]
+        final fun <set-indentString>(kotlin/String) // nl.adaptivity.xmlutil/DomWriter.indentString.<set-indentString>|<set-indentString>(kotlin.String){}[0]
     final var requestedEncoding // nl.adaptivity.xmlutil/DomWriter.requestedEncoding|{}requestedEncoding[0]
         final fun <get-requestedEncoding>(): kotlin/String? // nl.adaptivity.xmlutil/DomWriter.requestedEncoding.<get-requestedEncoding>|<get-requestedEncoding>(){}[0]
     final var requestedStandalone // nl.adaptivity.xmlutil/DomWriter.requestedStandalone|{}requestedStandalone[0]
