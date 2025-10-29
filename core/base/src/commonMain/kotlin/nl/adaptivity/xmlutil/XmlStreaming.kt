@@ -56,27 +56,6 @@ public expect val xmlStreaming: IXmlStreaming
  * architectures.
  */
 internal expect object XmlStreaming : IXmlStreaming {
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
-    fun newGenericWriter(
-        output: Appendable,
-        isRepairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): KtXmlWriter
-
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
-    fun newWriter(
-        output: Appendable,
-        repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter
-
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
-    fun newWriter(
-        writer: Writer,
-        repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter
-
     override val genericDomImplementation: DOMImplementation
 
     override fun newWriter(): DomWriter

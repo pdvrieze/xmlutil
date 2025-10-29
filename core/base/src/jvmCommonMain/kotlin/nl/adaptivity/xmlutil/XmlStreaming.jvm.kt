@@ -24,12 +24,12 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 import java.io.*
 import java.util.*
-import javax.xml.transform.Source
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import org.w3c.dom.Node as DomNode
 import java.io.Writer as JavaIoWriter
@@ -65,7 +65,7 @@ internal actual object XmlStreaming : IXmlStreaming {
                     Class.forName("nl.adaptivity.xmlutil.StAXStreamingFactory")
                         .getConstructor()
                         .newInstance() as XmlStreamingFactory
-                } catch (e: ClassNotFoundException) { /*Doesn't matter */
+                } catch (_: ClassNotFoundException) { /*Doesn't matter */
                     null
                 }
             }
@@ -80,38 +80,22 @@ internal actual object XmlStreaming : IXmlStreaming {
                 }
             }
 
-            if (f == null) f = GenericFactory()
+            if (f == null) f = GenericFactory
 
             _factory = f
             return f
         }
 
-    public fun newWriter(writer: JavaIoWriter): XmlWriter = newWriter(writer, false)
 
-    public fun newWriter(writer: JavaIoWriter, repairNamespaces: Boolean): XmlWriter =
-        newWriter(writer as Appendable, repairNamespaces, XmlDeclMode.None)
-
-
-    public fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
+    fun newWriter(outputStream: OutputStream, encoding: String, repairNamespaces: Boolean): XmlWriter {
         return factory.newWriter(outputStream, encoding, repairNamespaces)
     }
 
     actual override fun newWriter(): DomWriter = DomWriter()
 
-    @Suppress("DEPRECATION")
     actual override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
-    public actual fun newWriter(
-        writer: MPWriter,
-        repairNamespaces: Boolean /*= false*/,
-        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
-    ): XmlWriter {
-        return factory.newWriter(writer as Appendable, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
-    }
-
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
-    public fun newWriter(
+    fun newWriter(
         writer: JavaIoWriter,
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
@@ -119,43 +103,26 @@ internal actual object XmlStreaming : IXmlStreaming {
         return factory.newWriter(writer, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
     }
 
-    @Deprecated("Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING)
-    public actual fun newWriter(
+    fun newWriter(
         output: Appendable,
-        repairNamespaces: Boolean /*= false*/,
-        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
+        repairNamespaces: Boolean, /*= false*/
+        xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
     ): XmlWriter {
         return factory.newWriter(output, repairNamespaces, xmlDeclMode)
-    }
-
-    @Deprecated(
-        "Use extension function on IXmlStreaming", level = DeprecationLevel.WARNING, replaceWith = ReplaceWith(
-            "KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)",
-            "nl.adaptivity.xmlutil.core.KtXmlWriter"
-        )
-    )
-    public actual fun newGenericWriter(
-        output: Appendable,
-        isRepairNamespaces: Boolean /*= false*/,
-        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
-    ): KtXmlWriter {
-        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
     actual override val genericDomImplementation: DOMImplementation
         get() = DOMImplementationImpl
 
-    @Suppress("DEPRECATION")
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node): XmlReader {
         return DomReader(source)
     }
 
-    internal fun newReader(inputStream: InputStream): XmlReader {
+    fun newReader(inputStream: InputStream): XmlReader {
         return factory.newReader(inputStream, false)
     }
 
-    @Deprecated("Use extension functions on IXmlStreaming")
     fun newReader(inputStream: InputStream, encoding: String): XmlReader {
         return factory.newReader(inputStream, encoding)
     }
@@ -164,37 +131,34 @@ internal actual object XmlStreaming : IXmlStreaming {
         return factory.newReader(reader, expandEntities)
     }
 
-    @Deprecated("Note that sources are inefficient and poorly designed, relying on runtime types")
-    fun newReader(source: Source): XmlReader {
-        return factory.newReader(source)
-    }
-
-    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
+    actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         return factory.newReader(input, expandEntities)
     }
 
-    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
-        newGenericReader(StringReader(input.toString()), expandEntities = expandEntities)
+    actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+        newGenericReader(CharsequenceReader(input), expandEntities = expandEntities)
 
-    @JvmOverloads
-    public fun newGenericReader(input: String, expandEntities: Boolean = false): XmlReader =
+    fun newGenericReader(input: String, expandEntities: Boolean = false): XmlReader =
         newGenericReader(StringReader(input), expandEntities = expandEntities)
 
-    @JvmOverloads
-    public fun newGenericReader(inputStream: InputStream, encoding: String? = null, expandEntities: Boolean = false): XmlReader =
+    fun newGenericReader(
+        inputStream: InputStream,
+        encoding: String? = null,
+        expandEntities: Boolean = false
+    ): XmlReader =
         KtXmlReader(inputStream, encoding, expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+    actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
         KtXmlReader(reader, expandEntities = expandEntities)
 
     @Deprecated("Use the extension method for the JVM platform", level = DeprecationLevel.HIDDEN)
-    public override fun setFactory(factory: XmlStreamingFactory?) = setFactoryImpl(XmlStreaming.factory)
+    override fun setFactory(factory: XmlStreamingFactory?) = setFactoryImpl(XmlStreaming.factory)
 
     internal fun setFactoryImpl(factory: XmlStreamingFactory?) {
         _factory = factory
     }
 
-    internal class GenericFactory: XmlStreamingFactory {
+    internal object GenericFactory : XmlStreamingFactory {
         override fun newWriter(writer: JavaIoWriter, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
             return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
         }
@@ -226,33 +190,33 @@ internal actual object XmlStreaming : IXmlStreaming {
 @Suppress("DEPRECATION")
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
-private val _GenericFactory = XmlStreaming.GenericFactory()
-
+@Suppress("UnusedReceiverParameter")
 @ExperimentalXmlUtilApi
-public val IXmlStreaming.genericFactory: XmlStreamingFactory get() = _GenericFactory
+public val IXmlStreaming.genericFactory: XmlStreamingFactory get() = XmlStreaming.GenericFactory
 
+@Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(node: DomNode): XmlReader {
-    return DomReader(node)
+    return XmlStreaming.newReader(node)
 }
 
+@Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(inputStream: InputStream): XmlReader {
     return XmlStreaming.newReader(inputStream)
 }
 
+@Suppress("UnusedReceiverParameter")
+public fun IXmlStreaming.newReader(inputStream: InputStream, encoding: String): XmlReader =
+    XmlStreaming.newReader(inputStream, encoding)
+
+@Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newGenericReader(inputStream: InputStream): XmlReader {
     return XmlStreaming.newGenericReader(inputStream)
 }
 
+@Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newGenericReader(inputStream: InputStream, encoding: String): XmlReader {
     return XmlStreaming.newGenericReader(inputStream, encoding)
 }
-
-public fun IXmlStreaming.newReader(inputStream: InputStream, encoding: String): XmlReader =
-    (this as XmlStreaming).newReader(inputStream, encoding)
-
-public fun IXmlStreaming.newReader(source: Source): XmlReader =
-    (this as XmlStreaming).newReader(source)
-
 
 public fun IXmlStreaming.newWriter(
     outputStream: OutputStream,

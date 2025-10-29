@@ -69,7 +69,7 @@ internal actual object XmlStreaming : IXmlStreaming {
     actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
         KtXmlReader(reader, expandEntities = expandEntities)
 
-    actual fun newWriter(
+    fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
@@ -80,7 +80,7 @@ internal actual object XmlStreaming : IXmlStreaming {
         return AppendableXmlWriter(output, DomWriter(xmlDeclMode))
     }
 
-    actual fun newGenericWriter(
+    fun newGenericWriter(
         output: Appendable,
         isRepairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
@@ -88,7 +88,7 @@ internal actual object XmlStreaming : IXmlStreaming {
         return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
     }
 
-    actual fun newWriter(
+    fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean /*= false*/,
         xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,

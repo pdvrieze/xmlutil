@@ -62,32 +62,12 @@ internal actual object XmlStreaming : IXmlStreaming {
     fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
-        omitXmlDecl: Boolean
-    ): XmlWriter {
-        return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-    }
-
-    actual fun newWriter(
-        output: Appendable,
-        repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
     ): XmlWriter {
         return KtXmlWriter(output, repairNamespaces, xmlDeclMode)
     }
 
-    actual fun newGenericWriter(
-        output: Appendable,
-        isRepairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
-    ): KtXmlWriter {
-        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
-    }
-
-    fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-    }
-
-    actual fun newWriter(
+    fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
