@@ -138,16 +138,6 @@ public class StAXReader @JvmOverloads constructor(
         return delegate.namespaceContext.getPrefix(namespaceUri)
     }
 
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String?
-        get() {
-            val location = delegate.location
-            return location?.toString()
-        }
-
     override val extLocationInfo: XmlReader.LocationInfo?
         get() {
             val l = delegate.location ?: return null

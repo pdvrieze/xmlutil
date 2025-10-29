@@ -1,13 +1,3 @@
-public final class nl/adaptivity/xml/CollectionSerializationKt {
-	public static final fun asSerializable (Ljava/lang/Iterable;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/xmlserializable/SerializableContainer;
-	public static final fun asSerializable (Ljava/util/Collection;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/xmlserializable/SerializableCollection;
-	public static final fun asSerializable (Ljava/util/List;Ljavax/xml/namespace/QName;)Lnl/adaptivity/xmlutil/xmlserializable/SerializableList;
-}
-
-public final class nl/adaptivity/xml/XmlReaderUtil {
-	public static final fun deSerialize (Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Class;)Ljava/lang/Object;
-}
-
 public abstract class nl/adaptivity/xmlutil/xmlserializable/BaseSerializableContainer : nl/adaptivity/xmlutil/xmlserializable/XmlSerializable {
 	public fun <init> (Ljavax/xml/namespace/QName;)V
 	public abstract fun getChildren ()Ljava/lang/Iterable;

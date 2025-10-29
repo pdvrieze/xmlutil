@@ -151,14 +151,6 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
         return null
     }
 
-    @Deprecated("Use extLocationInfo as that allows more detailed information", ReplaceWith("extLocationInfo?.toString()"))
-    override val locationInfo: String
-        get() = buildString {
-            append(parser.lineNumber)
-            append(':')
-            append(parser.columnNumber)
-        }
-
     override val extLocationInfo: XmlReader.LocationInfo
         get() = XmlReader.ExtLocationInfo(
             col = parser.columnNumber,

@@ -144,13 +144,6 @@ internal class DomReader(val delegate: Node2, val expandEntities: Boolean) : Xml
             return XmlReader.StringLocationInfo(helper(current, StringBuilder()).toString())
         }
 
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String
-        get() = extLocationInfo.toString()
-
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
     private val requireCurrentElem get() = currentElement ?: throw IllegalStateException("No current element")
 

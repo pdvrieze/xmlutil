@@ -27,7 +27,6 @@ public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/
 	public fun getExtLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
 	public fun getLocalName ()Ljava/lang/String;
 	public final fun getLocation ()Ljavax/xml/stream/Location;
-	public fun getLocationInfo ()Ljava/lang/String;
 	public fun getName ()Ljavax/xml/namespace/QName;
 	public fun getNamespaceContext ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 	public fun getNamespaceDecls ()Ljava/util/List;

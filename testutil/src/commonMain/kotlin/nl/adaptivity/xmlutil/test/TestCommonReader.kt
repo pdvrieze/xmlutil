@@ -109,7 +109,7 @@ abstract class TestCommonReader {
             (assertEquals(
                 EventType.END_DOCUMENT,
                 reader.next(),
-                "Expected end of document, location: ${reader.locationInfo}"
+                "Expected end of document, location: ${reader.extLocationInfo}"
             ))
 
             assertFalse(reader.hasNext())

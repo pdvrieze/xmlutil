@@ -503,13 +503,6 @@ internal open class XmlDecoderBase internal constructor(
         override val namespaceDecls: List<Namespace>
             get() = input.namespaceDecls
 
-        @Deprecated(
-            "Use extLocationInfo as that allows more detailed information",
-            replaceWith = ReplaceWith("extLocationInfo?.toString()")
-        )
-        override val locationInfo: String?
-            get() = extLocationInfo?.toString()
-
         override val namespaceContext: IterableNamespaceContext
             get() = input.namespaceContext
 

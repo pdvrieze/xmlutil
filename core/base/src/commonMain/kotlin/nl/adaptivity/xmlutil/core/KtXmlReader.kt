@@ -1794,13 +1794,6 @@ public class KtXmlReader internal constructor(
         return "KtXmlReader [${getPositionDescription()}]"
     }
 
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String
-        get() = if (offset >= 0) "$line:$column" else "<unknown>"
-
     override val extLocationInfo: XmlReader.LocationInfo
         get() = XmlReader.ExtLocationInfo(col = column, line = line, offset = offset)
 
