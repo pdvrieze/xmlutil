@@ -104,11 +104,6 @@ public fun XmlReader.siblingsToFragment(): CompactFragment {
     }
 }
 
-
-@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "KotlinRedundantDiagnosticSuppress")
-@Deprecated("This is inefficient in Javascript")
-public fun XmlReader.siblingsToCharArray(): CharArray = siblingsToFragment().content
-
 /**
  * Read the current element (and content) *only* into a fragment.
  *

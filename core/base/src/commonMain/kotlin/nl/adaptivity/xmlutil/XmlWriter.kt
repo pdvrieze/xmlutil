@@ -56,26 +56,10 @@ public interface XmlWriter : Closeable {
             indentString = " ".repeat(value)
         }
 
-    @Deprecated(
-        "Use the version that takes strings",
-        ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())")
-    )
-    public fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence) {
-        setPrefix(prefix.toString(), namespaceUri.toString())
-    }
-
     /**
      * Bind the prefix to the given uri for this element.
      */
     public fun setPrefix(prefix: String, namespaceUri: String)
-
-    @Deprecated(
-        "Use the version that takes strings",
-        ReplaceWith("namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())")
-    )
-    public fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) {
-        namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())
-    }
 
     /**
      * Write a namespace declaration attribute.
@@ -221,8 +205,7 @@ public interface XmlWriter : Closeable {
  * @param reader The reader from which the namespace information is retrieved
  * @param missingNamespaces Map to which the "missing" namespace is added.
  */
-@Deprecated("This function should be internal")
-public fun XmlWriter.addUndeclaredNamespaces(reader: XmlReader, missingNamespaces: MutableMap<String, String>) {
+internal fun XmlWriter.addUndeclaredNamespaces(reader: XmlReader, missingNamespaces: MutableMap<String, String>) {
     undeclaredPrefixes(reader, missingNamespaces)
 }
 
@@ -362,22 +345,6 @@ public inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.() -> Un
     smartStartTag(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix(), body)
 }
 
-@Deprecated("Use strings", ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString())"))
-@JvmOverloads
-public fun XmlWriter.smartStartTag(nsUri: CharSequence?, localName: CharSequence, prefix: CharSequence? = null) {
-    smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString())
-}
-
-/**
- * Function present only for binary compatibility.
- */
-@Deprecated("Present for return value change only", level = DeprecationLevel.HIDDEN)
-@JvmOverloads
-@JvmName("smartStartTag")
-public fun XmlWriter.smartStartTagCompat(nsUri: String?, localName: String, prefix: String? = null) {
-    smartStartTag(nsUri, localName, prefix)
-}
-
 /**
  * Enhanced function for writing start tags, that will attempt to reuse prefixes. Rather than use
  * the passed prefix it will look up the prefix for the given namespace, and if present use that.
@@ -407,19 +374,6 @@ public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: St
         if (writeNs) this.namespaceAttr(usedPrefix, nsUri)
         return usedPrefix
     }
-}
-
-@Deprecated(
-    "Use strings",
-    ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)")
-)
-public inline fun XmlWriter.smartStartTag(
-    nsUri: CharSequence?,
-    localName: CharSequence,
-    prefix: CharSequence? = null,
-    body: XmlWriter.() -> Unit
-) {
-    smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)
 }
 
 /**

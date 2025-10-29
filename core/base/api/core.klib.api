@@ -570,7 +570,7 @@ abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmluti
     open fun setFactory(nl.adaptivity.xmlutil/XmlStreamingFactory?) // nl.adaptivity.xmlutil/IXmlStreaming.setFactory|setFactory(nl.adaptivity.xmlutil.XmlStreamingFactory?){}[0]
 }
 
-abstract interface nl.adaptivity.xmlutil/IterableNamespaceContext : kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>, nl.adaptivity.xmlutil/NamespaceContextImpl { // nl.adaptivity.xmlutil/IterableNamespaceContext|null[0]
+abstract interface nl.adaptivity.xmlutil/IterableNamespaceContext : kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>, nl.adaptivity.xmlutil/NamespaceContext { // nl.adaptivity.xmlutil/IterableNamespaceContext|null[0]
     open fun freeze(): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil/IterableNamespaceContext.freeze|freeze(){}[0]
     open fun plus(nl.adaptivity.xmlutil/IterableNamespaceContext): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil/IterableNamespaceContext.plus|plus(nl.adaptivity.xmlutil.IterableNamespaceContext){}[0]
 }
@@ -707,11 +707,9 @@ abstract interface nl.adaptivity.xmlutil/XmlWriter : nl.adaptivity.xmlutil.core.
     abstract fun startDocument(kotlin/String? = ..., kotlin/String? = ..., kotlin/Boolean? = ...) // nl.adaptivity.xmlutil/XmlWriter.startDocument|startDocument(kotlin.String?;kotlin.String?;kotlin.Boolean?){}[0]
     abstract fun startTag(kotlin/String?, kotlin/String, kotlin/String?) // nl.adaptivity.xmlutil/XmlWriter.startTag|startTag(kotlin.String?;kotlin.String;kotlin.String?){}[0]
     abstract fun text(kotlin/String) // nl.adaptivity.xmlutil/XmlWriter.text|text(kotlin.String){}[0]
-    open fun namespaceAttr(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlWriter.namespaceAttr|namespaceAttr(kotlin.CharSequence;kotlin.CharSequence){}[0]
     open fun namespaceAttr(nl.adaptivity.xmlutil/Namespace) // nl.adaptivity.xmlutil/XmlWriter.namespaceAttr|namespaceAttr(nl.adaptivity.xmlutil.Namespace){}[0]
     open fun processingInstruction(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlWriter.processingInstruction|processingInstruction(kotlin.String;kotlin.String){}[0]
     open fun safeCdsect(kotlin/String) // nl.adaptivity.xmlutil/XmlWriter.safeCdsect|safeCdsect(kotlin.String){}[0]
-    open fun setPrefix(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlWriter.setPrefix|setPrefix(kotlin.CharSequence;kotlin.CharSequence){}[0]
 }
 
 abstract class nl.adaptivity.xmlutil.util/XmlDelegatingWriter : nl.adaptivity.xmlutil/XmlDelegatingWriter { // nl.adaptivity.xmlutil.util/XmlDelegatingWriter|null[0]
@@ -747,13 +745,11 @@ abstract class nl.adaptivity.xmlutil/XmlDelegatingWriter : nl.adaptivity.xmlutil
     open fun getNamespaceUri(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil/XmlDelegatingWriter.getNamespaceUri|getNamespaceUri(kotlin.String){}[0]
     open fun getPrefix(kotlin/String?): kotlin/String? // nl.adaptivity.xmlutil/XmlDelegatingWriter.getPrefix|getPrefix(kotlin.String?){}[0]
     open fun ignorableWhitespace(kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.ignorableWhitespace|ignorableWhitespace(kotlin.String){}[0]
-    open fun namespaceAttr(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlDelegatingWriter.namespaceAttr|namespaceAttr(kotlin.CharSequence;kotlin.CharSequence){}[0]
     open fun namespaceAttr(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.namespaceAttr|namespaceAttr(kotlin.String;kotlin.String){}[0]
     open fun namespaceAttr(nl.adaptivity.xmlutil/Namespace) // nl.adaptivity.xmlutil/XmlDelegatingWriter.namespaceAttr|namespaceAttr(nl.adaptivity.xmlutil.Namespace){}[0]
     open fun processingInstruction(kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.processingInstruction|processingInstruction(kotlin.String){}[0]
     open fun processingInstruction(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.processingInstruction|processingInstruction(kotlin.String;kotlin.String){}[0]
     open fun safeCdsect(kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.safeCdsect|safeCdsect(kotlin.String){}[0]
-    open fun setPrefix(kotlin/CharSequence, kotlin/CharSequence) // nl.adaptivity.xmlutil/XmlDelegatingWriter.setPrefix|setPrefix(kotlin.CharSequence;kotlin.CharSequence){}[0]
     open fun setPrefix(kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlDelegatingWriter.setPrefix|setPrefix(kotlin.String;kotlin.String){}[0]
     open fun startDocument(kotlin/String?, kotlin/String?, kotlin/Boolean?) // nl.adaptivity.xmlutil/XmlDelegatingWriter.startDocument|startDocument(kotlin.String?;kotlin.String?;kotlin.Boolean?){}[0]
     open fun startTag(kotlin/String?, kotlin/String, kotlin/String?) // nl.adaptivity.xmlutil/XmlDelegatingWriter.startTag|startTag(kotlin.String?;kotlin.String;kotlin.String?){}[0]
@@ -1161,8 +1157,6 @@ open class nl.adaptivity.xmlutil/XmlException : nl.adaptivity.xmlutil.core.impl.
 
     final val locationInfo // nl.adaptivity.xmlutil/XmlException.locationInfo|{}locationInfo[0]
         final fun <get-locationInfo>(): nl.adaptivity.xmlutil/XmlReader.LocationInfo? // nl.adaptivity.xmlutil/XmlException.locationInfo.<get-locationInfo>|<get-locationInfo>(){}[0]
-
-    final fun doThrow(): kotlin/Nothing // nl.adaptivity.xmlutil/XmlException.doThrow|doThrow(){}[0]
 }
 
 sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|null[0]
@@ -1170,8 +1164,6 @@ sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|
         abstract fun <get-eventType>(): nl.adaptivity.xmlutil/EventType // nl.adaptivity.xmlutil/XmlEvent.eventType.<get-eventType>|<get-eventType>(){}[0]
     final val extLocationInfo // nl.adaptivity.xmlutil/XmlEvent.extLocationInfo|{}extLocationInfo[0]
         final fun <get-extLocationInfo>(): nl.adaptivity.xmlutil/XmlReader.LocationInfo? // nl.adaptivity.xmlutil/XmlEvent.extLocationInfo.<get-extLocationInfo>|<get-extLocationInfo>(){}[0]
-    final val locationInfo // nl.adaptivity.xmlutil/XmlEvent.locationInfo|{}locationInfo[0]
-        final fun <get-locationInfo>(): kotlin/String? // nl.adaptivity.xmlutil/XmlEvent.locationInfo.<get-locationInfo>|<get-locationInfo>(){}[0]
     open val isIgnorable // nl.adaptivity.xmlutil/XmlEvent.isIgnorable|{}isIgnorable[0]
         open fun <get-isIgnorable>(): kotlin/Boolean // nl.adaptivity.xmlutil/XmlEvent.isIgnorable.<get-isIgnorable>|<get-isIgnorable>(){}[0]
 
@@ -1298,10 +1290,8 @@ sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|
     }
 
     final class StartElementEvent : nl.adaptivity.xmlutil/XmlEvent.NamedEvent { // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent|null[0]
-        constructor <init>(kotlin/String, kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.<init>|<init>(kotlin.String;kotlin.String;kotlin.String){}[0]
         constructor <init>(kotlin/String, kotlin/String, kotlin/String, kotlin/String, kotlin/Array<out nl.adaptivity.xmlutil/XmlEvent.Attribute>, nl.adaptivity.xmlutil/IterableNamespaceContext, kotlin.collections/List<nl.adaptivity.xmlutil/Namespace>) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.<init>|<init>(kotlin.String;kotlin.String;kotlin.String;kotlin.String;kotlin.Array<out|nl.adaptivity.xmlutil.XmlEvent.Attribute>;nl.adaptivity.xmlutil.IterableNamespaceContext;kotlin.collections.List<nl.adaptivity.xmlutil.Namespace>){}[0]
         constructor <init>(kotlin/String, kotlin/String, kotlin/String, nl.adaptivity.xmlutil/IterableNamespaceContext) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.<init>|<init>(kotlin.String;kotlin.String;kotlin.String;nl.adaptivity.xmlutil.IterableNamespaceContext){}[0]
-        constructor <init>(kotlin/String?, kotlin/String, kotlin/String, kotlin/String, kotlin/Array<out nl.adaptivity.xmlutil/XmlEvent.Attribute>, kotlin.collections/List<nl.adaptivity.xmlutil/Namespace>) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.<init>|<init>(kotlin.String?;kotlin.String;kotlin.String;kotlin.String;kotlin.Array<out|nl.adaptivity.xmlutil.XmlEvent.Attribute>;kotlin.collections.List<nl.adaptivity.xmlutil.Namespace>){}[0]
         constructor <init>(nl.adaptivity.xmlutil/QName, nl.adaptivity.xmlutil/IterableNamespaceContext, nl.adaptivity.xmlutil/XmlReader.LocationInfo? = ...) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.<init>|<init>(nl.adaptivity.xmlutil.QName;nl.adaptivity.xmlutil.IterableNamespaceContext;nl.adaptivity.xmlutil.XmlReader.LocationInfo?){}[0]
         constructor <init>(nl.adaptivity.xmlutil/XmlReader.LocationInfo?, kotlin/String, kotlin/String, kotlin/String, kotlin/Array<out nl.adaptivity.xmlutil/XmlEvent.Attribute>, nl.adaptivity.xmlutil/IterableNamespaceContext, kotlin.collections/List<nl.adaptivity.xmlutil/Namespace>) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.<init>|<init>(nl.adaptivity.xmlutil.XmlReader.LocationInfo?;kotlin.String;kotlin.String;kotlin.String;kotlin.Array<out|nl.adaptivity.xmlutil.XmlEvent.Attribute>;nl.adaptivity.xmlutil.IterableNamespaceContext;kotlin.collections.List<nl.adaptivity.xmlutil.Namespace>){}[0]
 
@@ -1314,7 +1304,6 @@ sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|
         final val namespaceDecls // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.namespaceDecls|{}namespaceDecls[0]
             final fun <get-namespaceDecls>(): kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.namespaceDecls.<get-namespaceDecls>|<get-namespaceDecls>(){}[0]
 
-        final fun getNamespaceUri(kotlin/CharSequence): kotlin/String? // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.getNamespaceUri|getNamespaceUri(kotlin.CharSequence){}[0]
         final fun toString(): kotlin/String // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.toString|toString(){}[0]
         final fun writeTo(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil/XmlEvent.StartElementEvent.writeTo|writeTo(nl.adaptivity.xmlutil.XmlWriter){}[0]
     }
@@ -1695,21 +1684,17 @@ final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/isIgnorable():
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/isPrefixDeclaredInElement(kotlin/String): kotlin/Boolean // nl.adaptivity.xmlutil/isPrefixDeclaredInElement|isPrefixDeclaredInElement@nl.adaptivity.xmlutil.XmlReader(kotlin.String){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/isXml(): kotlin/Boolean // nl.adaptivity.xmlutil/isXml|isXml@nl.adaptivity.xmlutil.XmlReader(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/readSimpleElement(): kotlin/String // nl.adaptivity.xmlutil/readSimpleElement|readSimpleElement@nl.adaptivity.xmlutil.XmlReader(){}[0]
-final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/siblingsToCharArray(): kotlin/CharArray // nl.adaptivity.xmlutil/siblingsToCharArray|siblingsToCharArray@nl.adaptivity.xmlutil.XmlReader(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/siblingsToFragment(): nl.adaptivity.xmlutil.util/CompactFragment // nl.adaptivity.xmlutil/siblingsToFragment|siblingsToFragment@nl.adaptivity.xmlutil.XmlReader(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/skipElement() // nl.adaptivity.xmlutil/skipElement|skipElement@nl.adaptivity.xmlutil.XmlReader(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/skipPreamble() // nl.adaptivity.xmlutil/skipPreamble|skipPreamble@nl.adaptivity.xmlutil.XmlReader(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/toEvent(): nl.adaptivity.xmlutil/XmlEvent // nl.adaptivity.xmlutil/toEvent|toEvent@nl.adaptivity.xmlutil.XmlReader(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/writeCurrent(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil/writeCurrent|writeCurrent@nl.adaptivity.xmlutil.XmlReader(nl.adaptivity.xmlutil.XmlWriter){}[0]
-final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/addUndeclaredNamespaces(nl.adaptivity.xmlutil/XmlReader, kotlin.collections/MutableMap<kotlin/String, kotlin/String>) // nl.adaptivity.xmlutil/addUndeclaredNamespaces|addUndeclaredNamespaces@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.XmlReader;kotlin.collections.MutableMap<kotlin.String,kotlin.String>){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/endTag(nl.adaptivity.xmlutil/QName) // nl.adaptivity.xmlutil/endTag|endTag@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/filterSubstream(): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/filterSubstream|filterSubstream@nl.adaptivity.xmlutil.XmlWriter(){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serialize(nl.adaptivity.xmlutil.dom2/Node) // nl.adaptivity.xmlutil/serialize|serialize@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.dom2.Node){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serialize(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil/serialize|serialize@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.XmlReader){}[0]
-final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(kotlin/CharSequence?, kotlin/CharSequence, kotlin/CharSequence? = ...) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.CharSequence?;kotlin.CharSequence;kotlin.CharSequence?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(kotlin/String?, kotlin/String, kotlin/String? = ...): kotlin/String // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(nl.adaptivity.xmlutil/QName) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName){}[0]
-final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTagCompat(kotlin/String?, kotlin/String, kotlin/String? = ...) // nl.adaptivity.xmlutil/smartStartTagCompat|smartStartTagCompat@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(kotlin/String, kotlin/Any?) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(kotlin.String;kotlin.Any?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(kotlin/String, kotlin/Double) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(kotlin.String;kotlin.Double){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(kotlin/String, kotlin/Long) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(kotlin.String;kotlin.Long){}[0]
@@ -1724,7 +1709,6 @@ final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeSimpleEle
 final fun nl.adaptivity.xmlutil/isXmlWhitespace(kotlin/Char): kotlin/Boolean // nl.adaptivity.xmlutil/isXmlWhitespace|isXmlWhitespace(kotlin.Char){}[0]
 final fun nl.adaptivity.xmlutil/isXmlWhitespace(kotlin/CharArray): kotlin/Boolean // nl.adaptivity.xmlutil/isXmlWhitespace|isXmlWhitespace(kotlin.CharArray){}[0]
 final fun nl.adaptivity.xmlutil/isXmlWhitespace(kotlin/CharSequence): kotlin/Boolean // nl.adaptivity.xmlutil/isXmlWhitespace|isXmlWhitespace(kotlin.CharSequence){}[0]
-final fun nl.adaptivity.xmlutil/qname(kotlin/CharSequence?, kotlin/CharSequence, kotlin/CharSequence? = ...): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil/qname|qname(kotlin.CharSequence?;kotlin.CharSequence;kotlin.CharSequence?){}[0]
 final fun nl.adaptivity.xmlutil/qname(kotlin/String?, kotlin/String, kotlin/String? = ...): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil/qname|qname(kotlin.String?;kotlin.String;kotlin.String?){}[0]
 final fun nl.adaptivity.xmlutil/xmlCollapseWhitespace(kotlin/String): kotlin/String // nl.adaptivity.xmlutil/xmlCollapseWhitespace|xmlCollapseWhitespace(kotlin.String){}[0]
 final fun nl.adaptivity.xmlutil/xmlTrimWhitespace(kotlin/String): kotlin/String // nl.adaptivity.xmlutil/xmlTrimWhitespace|xmlTrimWhitespace(kotlin.String){}[0]
@@ -1756,8 +1740,6 @@ final inline fun (nl.adaptivity.xmlutil.dom/NodeList).nl.adaptivity.xmlutil.dom/
 final inline fun (nl.adaptivity.xmlutil.dom/ProcessingInstruction).nl.adaptivity.xmlutil.dom/getData(): kotlin/String // nl.adaptivity.xmlutil.dom/getData|getData@nl.adaptivity.xmlutil.dom.ProcessingInstruction(){}[0]
 final inline fun (nl.adaptivity.xmlutil.dom/ProcessingInstruction).nl.adaptivity.xmlutil.dom/getTarget(): kotlin/String // nl.adaptivity.xmlutil.dom/getTarget|getTarget@nl.adaptivity.xmlutil.dom.ProcessingInstruction(){}[0]
 final inline fun (nl.adaptivity.xmlutil.dom/ProcessingInstruction).nl.adaptivity.xmlutil.dom/setData(kotlin/String) // nl.adaptivity.xmlutil.dom/setData|setData@nl.adaptivity.xmlutil.dom.ProcessingInstruction(kotlin.String){}[0]
-final inline fun (nl.adaptivity.xmlutil/NamespaceContext).nl.adaptivity.xmlutil/prefixesFor(kotlin/String): kotlin.collections/Iterator<kotlin/String> // nl.adaptivity.xmlutil/prefixesFor|prefixesFor@nl.adaptivity.xmlutil.NamespaceContext(kotlin.String){}[0]
-final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(kotlin/CharSequence?, kotlin/CharSequence, kotlin/CharSequence? = ..., kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.CharSequence?;kotlin.CharSequence;kotlin.CharSequence?;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]
 final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(kotlin/String?, kotlin/String, kotlin/String? = ..., kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]
 final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(nl.adaptivity.xmlutil/QName, kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]
 final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/startTag(kotlin/String?, kotlin/String, kotlin/String? = ..., kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/startTag|startTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]

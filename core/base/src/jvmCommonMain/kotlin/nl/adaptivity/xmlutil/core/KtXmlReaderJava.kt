@@ -27,16 +27,18 @@ import java.io.InputStream
 import java.io.InputStreamReader
 
 /**
- * Helper factory for xml reading that autodetects encodings.
+ * Create an XmlReader that can autodetect the encoding. It handles UTF8/16/32 based on both
+ * byte order marks and the xml declaration (check). In addition, it handles the encoding parameter
+ * of the file (mostly for 8-bit encodings).
+ *
  * @param inputStream The inputstream from which to read the bytes
  * @param encoding The encoding to use, or `null` to use autodetection (including the encoding
  *          attribute in the XML)
- * @param relaxed
+ * @param expandEntities Determines whether entities should be expanded by the parser (transparent
+ *          to readers).
+ * @param relaxed Allow for some level of invalid content that is not strictly according to the
+ *          standard.
  */
-@Deprecated("Use the 4 argument version instead", level = DeprecationLevel.HIDDEN)
-public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relaxed: Boolean = false): KtXmlReader =
-    KtXmlReader(inputStream, encoding, relaxed, false)
-
 public fun KtXmlReader(inputStream: InputStream, encoding: String? = null, relaxed: Boolean = false, expandEntities: Boolean = false): KtXmlReader {
     val bufferedInput = when {
         inputStream is BufferedInputStream && inputStream.markSupported() -> inputStream
