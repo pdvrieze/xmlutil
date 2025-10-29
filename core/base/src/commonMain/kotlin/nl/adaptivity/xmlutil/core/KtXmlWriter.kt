@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.validateIndentString
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 
 /**
@@ -53,6 +54,10 @@ public class KtXmlWriter(
     ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
 
     override var indentString: String = ""
+        set(value) {
+            value.validateIndentString()
+            field = value
+        }
 
     /**
      * The version of XML to generate. By default XML 1.1.

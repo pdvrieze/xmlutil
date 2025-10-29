@@ -105,6 +105,46 @@ public fun String.toIndentSequence(): List<XmlEvent.TextEvent> {
     return result
 }
 
+@XmlUtilInternal
+public fun String.validateIndentString() {
+    var commentPos = 0
+    for (ch in this) {
+        when (ch) {
+            ' ', '\n', '\r', '\t' -> when (commentPos) {
+                0, 4 -> {} // either before comment or inside comment
+                5 -> commentPos = 4 // dash was not part of comment
+                6 -> throw XmlException("-- is not allowed to occur inside xml comment text")
+                else -> throw XmlException("Indent cannot contain non-comment text")
+            }
+
+            '<' if (commentPos == 0) -> ++commentPos
+
+            '!' if (commentPos == 1) -> ++commentPos
+
+            '-' -> when (commentPos) {
+                2 -> ++commentPos
+                3 -> ++commentPos // Now in comment
+
+                4, 5 -> ++commentPos
+
+                6 -> throw XmlException("-- is not allowed to occur inside xml comment text")
+                else -> throw XmlException("Indent cannot contain non-comment text")
+            }
+
+            '>' -> when (commentPos) {
+                6 -> commentPos = 0
+                5 -> commentPos = 4
+                4 -> {} // nothing
+
+                else -> throw XmlException("Indent cannot contain non-comment text")
+            }
+
+            else if (commentPos != 4) -> throw XmlException("Indent cannot contain non-comment text: '$ch'")
+        }
+    }
+    if (commentPos > 0) throw XmlException("Indent can not contain unclosed comment")
+}
+
 // Internal shared functionality between dom writer and stax writer
 @XmlUtilInternal
 public fun Iterable<XmlEvent.TextEvent>.toIndentString(): String = joinToString("") { ev ->
