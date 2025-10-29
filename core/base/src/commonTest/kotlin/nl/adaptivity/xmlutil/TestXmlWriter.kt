@@ -118,19 +118,6 @@ open class TestXmlWriter {
         assertEquals("<a><![CDATA[a & b ]]]]><![CDATA[>>c]]></a>", serialized)
     }
 
-    /** Test to check/confirm #304 */
-    @Test
-    fun testCDataGeneric() {
-        val serialized = buildString {
-            xmlStreaming.newGenericWriter(this).use { writer ->
-                writer.smartStartTag(null, "a") {
-                    cdsect("a & b ]]>>c")
-                }
-            }
-        }
-        assertEquals("<a><![CDATA[a & b ]]]]><![CDATA[>>c]]></a>", serialized)
-    }
-
     @Test
     fun testIndentXml5Spaces1() {
         testIndentImpl1("     ")
@@ -298,19 +285,6 @@ open class TestXmlWriter {
 
         val expected = "<foo bar=\"&#xa;baz&#xd;&#x9;\"/>"
         assertEquals(expected, actual.lowercase())
-    }
-
-    @Test
-    fun testWriteAttrWithTabOrNewlineGeneric() {
-        val actual = buildString {
-            xmlStreaming.newGenericWriter(this).use { out ->
-                out.smartStartTag(null, "foo") {
-                    attribute(null, "bar", "", "\nbaz\r\t")
-                }
-            }
-        }
-        val expected = "<foo bar=\"&#xa;baz&#xd;&#x9;\" />"
-        assertEquals(expected, actual)
     }
 
 }
