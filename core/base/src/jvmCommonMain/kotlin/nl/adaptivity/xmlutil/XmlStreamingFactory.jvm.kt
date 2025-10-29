@@ -24,8 +24,6 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.AppendableWriter
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import java.io.*
-import javax.xml.transform.Result
-import javax.xml.transform.Source
 
 @Suppress(
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
@@ -44,31 +42,11 @@ public actual interface XmlStreamingFactory {
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter
 
-    @Suppress("DEPRECATION")
-    @Deprecated("Usage of results only works on the JVM")
-    public fun newWriter(result: Result, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
-        newWriter(result, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-
-    @Deprecated("Usage of results only works on the JVM")
-    public fun newWriter(
-        result: Result,
-        repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter = throw UnsupportedOperationException("Results are not supported by this factory")
-
-    @Deprecated("Use version with xmlDeclMode")
-    public fun newWriter(output: Appendable, repairNamespaces: Boolean = false, omitXmlDecl: Boolean): XmlWriter =
-        newWriter(AppendableWriter(output), repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-
     public fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ): XmlWriter = newWriter(AppendableWriter(output), repairNamespaces, xmlDeclMode)
-
-    @Deprecated("Sources are deprecated (only partially supported)")
-    public fun newReader(source: Source): XmlReader =
-        throw UnsupportedOperationException("Sources are not supported by this factory")
 
     public fun newReader(reader: Reader): XmlReader = newReader(reader, false)
     public fun newReader(reader: Reader, expandEntities: Boolean): XmlReader

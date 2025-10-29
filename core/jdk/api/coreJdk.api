@@ -63,10 +63,8 @@ public final class nl/adaptivity/xmlutil/jdk/StAXStreamingFactory : nl/adaptivit
 	public fun newReader (Ljava/io/InputStream;Ljava/lang/String;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newReader (Ljava/io/InputStream;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newReader (Ljava/io/Reader;Z)Lnl/adaptivity/xmlutil/XmlReader;
-	public fun newReader (Ljavax/xml/transform/Source;)Lnl/adaptivity/xmlutil/XmlReader;
 	public fun newWriter (Ljava/io/OutputStream;Ljava/lang/String;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public fun newWriter (Ljava/io/Writer;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
-	public fun newWriter (Ljavax/xml/transform/Result;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static final fun provider ()Lnl/adaptivity/xmlutil/jdk/StAXStreamingFactory;
 }
 

@@ -151,6 +151,7 @@ internal actual object XmlStreaming : IXmlStreaming {
     actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
         KtXmlReader(reader, expandEntities = expandEntities)
 
+    // Still hidden to allow for the function to exist in the parent interface (for compatibility).
     @Deprecated("Use the extension method for the JVM platform", level = DeprecationLevel.HIDDEN)
     override fun setFactory(factory: XmlStreamingFactory?) = setFactoryImpl(XmlStreaming.factory)
 
@@ -196,7 +197,7 @@ public val IXmlStreaming.genericFactory: XmlStreamingFactory get() = XmlStreamin
 
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(node: DomNode): XmlReader {
-    return XmlStreaming.newReader(node)
+    return DomReader(node)
 }
 
 @Suppress("UnusedReceiverParameter")
