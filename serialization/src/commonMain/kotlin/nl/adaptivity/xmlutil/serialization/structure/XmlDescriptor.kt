@@ -18,7 +18,6 @@
  * permissions and limitations under the License.
  */
 
-@file:OptIn(WillBePrivate::class)
 @file:Suppress("DEPRECATION")
 
 package nl.adaptivity.xmlutil.serialization.structure
@@ -45,7 +44,6 @@ import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.reflect.KClass
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 /**
  * Interface describing a type without providing access to child xml descriptors
@@ -598,15 +596,6 @@ public sealed class XmlValueDescriptor(
     public val default: String? = tagParent.useAnnDefault
 
     private var defaultValue: Any? = UNSET
-
-    @Deprecated("This is not safe anymore. This should have been internal.")
-    @XmlUtilDeprecatedInternal
-    public fun <T> defaultValue(deserializer: DeserializationStrategy<T>): T {
-        val codec =
-            XmlDecoderBase(getPlatformDefaultModule(), XmlConfig(), CompactFragment(default ?: "").getXmlReader())
-
-        return defaultValue(codec, deserializer)
-    }
 
     internal fun <T> defaultValue(
         xmlCodecBase: XmlCodecBase,
@@ -1221,7 +1210,7 @@ internal constructor(
                 if (valueChild.serialKind != StructureKind.LIST ||
                     valueChild.getElementDescriptor(0).serialDescriptor.let {
                         @Suppress("DEPRECATION")
-                        it != DeprecatedCompactFragmentSerializer.descriptor && it != CompactFragmentSerializer.descriptor
+                        it != CompactFragmentSerializer.descriptor
                     }
                 ) {
                     val invalidIdx = children.indices
@@ -1432,7 +1421,6 @@ public class XmlPolymorphicDescriptor internal constructor(
     public val parentSerialName: String? get() =
         tagParent.descriptor?.serialDescriptor?.serialName ?: serialDescriptor.capturedKClass?.maybeSerialName
 
-    @OptIn(WillBePrivate::class) // the type ParentInfo should become internal
     private val children by lazy(LazyThreadSafetyMode.PUBLICATION) {
         List(elementsCount) { index ->
             val canBeAttribute = index == 0
@@ -2125,8 +2113,7 @@ private class PolymorphicParentInfo private constructor(
 
 }
 
-@WillBePrivate // 2021-07-05 Should not have been public.
-public class ParentInfo(
+private class ParentInfo(
     config: XmlConfig,
     override val descriptor: XmlDescriptor,
     override val index: Int,
@@ -2232,7 +2219,6 @@ public class ParentInfo(
                 is XmlElement -> useAnnIsElement = an.value
                 is XmlPolyChildren -> useAnnPolyChildren = an
                 is XmlIgnoreWhitespace -> useAnnIgnoreWhitespace = an.value
-                is XmlNamespaceDeclSpec -> useAnnNsDecls = an.namespaces
                 is XmlNamespaceDeclSpecs -> useAnnNsDecls = an.namespaces
                 is XmlChildrenName -> useAnnChildrenName = an
                 is XmlKeyName -> useAnnKeyName = an

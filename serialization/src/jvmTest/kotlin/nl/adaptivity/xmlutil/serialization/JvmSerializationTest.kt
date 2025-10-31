@@ -22,15 +22,13 @@ package nl.adaptivity.xmlutil.serialization
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
-import nl.adaptivity.xmlutil.dom.Element
-import nl.adaptivity.xmlutil.dom.Node
-import nl.adaptivity.xmlutil.newReader
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.writeCurrent
 import nl.adaptivity.xmlutil.xmlStreaming
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
-import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.assertEquals
 
 class JvmSerializationTest {
@@ -39,7 +37,7 @@ class JvmSerializationTest {
     @Test
     fun `deserialize DOM node from xml`() {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
-        val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder().newDocument()
+        val doc = xmlStreaming.genericDomImplementation.createDocument()
         val expectedObj = doc.createElementNS("", "tag").apply {
             appendChild(doc.createTextNode("some text "))
             appendChild(doc.createElementNS("","b").apply {
@@ -53,7 +51,7 @@ class JvmSerializationTest {
         val xml = XML {
             autoPolymorphic = true
         }
-        val deserialized = xml.decodeFromString(ElementSerializer, contentText)
+        val deserialized = xml.decodeFromString(Element.serializer(), contentText)
 
         val expected:String = expectedObj.toXmlString()
 
@@ -61,8 +59,6 @@ class JvmSerializationTest {
 
         try {
             assertXmlEquals(expected, actual)
-
-//            assertEquals(expectedObj, deserialized)
         } catch (e: AssertionError) {
             assertEquals(expected, actual)
             throw e // if we reach here, throw anyway
@@ -76,16 +72,16 @@ class JvmSerializationTest {
     @Test
     fun `update dom node with additional attribute`() {
         val xml = XML {}
-        val rootNode: Element = xml.decodeFromString(ElementSerializer, "<root></root>")
+        val rootNode: Element = xml.decodeFromString(Element.serializer(), "<root></root>")
         rootNode.setAttribute("test", "value")
-        assertEquals("<root test=\"value\"/>", xml.encodeToString(ElementSerializer, rootNode))
+        assertEquals("<root test=\"value\"/>", xml.encodeToString(Element.serializer(), rootNode))
         println()
     }
 
     @Test
     fun `serialize DOM content to xml`() {
         val expected = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        val doc = xmlStreaming.genericDomImplementation.createDocument()
         val element = doc.createElement("tag").apply {
             appendChild(doc.createTextNode("some text "))
             appendChild(doc.createElement("b").apply {
@@ -101,7 +97,7 @@ class JvmSerializationTest {
             autoPolymorphic = true
         }
 
-        val serialized = xml.encodeToString(ElementSerializer, element)
+        val serialized = xml.encodeToString(Element.serializer(), element)
         assertEquals(expected, serialized)
     }
 
@@ -111,7 +107,7 @@ class JvmSerializationTest {
         val expected =
             """{"localname":"tag","content":[["text","some text "],["element",{"localname":"b","content":[["text","some bold text"],["element",{"localname":"i","content":[["text","some bold italic text"]]}]]}]]}"""
 
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        val doc = xmlStreaming.genericDomImplementation.createDocument()
         val element = doc.createElement("tag").apply {
             appendChild(doc.createTextNode("some text "))
             appendChild(doc.createElement("b").apply {
@@ -124,7 +120,7 @@ class JvmSerializationTest {
 
         val json = Json
 
-        val serialized = json.encodeToString(ElementSerializer, element)
+        val serialized = json.encodeToString(Element.serializer(), element)
         assertEquals(expected, serialized)
     }
 
@@ -134,7 +130,7 @@ class JvmSerializationTest {
         val contentText =
             """{"localname":"tag","attributes":{},"content":[["text","some text "],["element",{"localname":"b","attributes":{},"content":[["text","some bold text"],["element",{"localname":"i","attributes":{},"content":[["text","some bold italic text"]]}]]}]]}"""
 
-        val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder().newDocument()
+        val doc = xmlStreaming.genericDomImplementation.createDocument()
         val expectedObj = doc.createElementNS("", "tag").apply {
             appendChild(doc.createTextNode("some text "))
             appendChild(doc.createElementNS("","b").apply {
@@ -149,7 +145,7 @@ class JvmSerializationTest {
             isLenient = true
         }
 
-        val deserialized = json.decodeFromString(ElementSerializer, contentText)
+        val deserialized = json.decodeFromString(Element.serializer(), contentText)
 
         val expected = expectedObj.toXmlString()
         val actual = deserialized.toXmlString()

@@ -45,7 +45,6 @@ import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import nl.adaptivity.xmlutil.util.XmlBooleanSerializer
 import nl.adaptivity.xmlutil.util.XmlDoubleSerializer
 import nl.adaptivity.xmlutil.util.XmlFloatSerializer
-import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
 @OptIn(ExperimentalSerializationApi::class)
 internal open class XmlDecoderBase internal constructor(
@@ -1781,8 +1780,7 @@ internal open class XmlDecoderBase internal constructor(
 
             val effectiveDeserializer = childXmlDescriptor.effectiveDeserializationStrategy(deserializer)
 
-            if (isValueChild && (effectiveDeserializer is DeprecatedCompactFragmentSerializer ||
-                        effectiveDeserializer is CompactFragmentSerializer)) {
+            if (isValueChild && (effectiveDeserializer is CompactFragmentSerializer)) {
 
                 return input.elementToFragment().let {
                     @Suppress("UNCHECKED_CAST")

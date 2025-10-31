@@ -48,10 +48,8 @@ public interface XmlSerializationPolicy {
      */
     public val defaultObjectOutputKind: OutputKind get() = OutputKind.Element
 
-    @Deprecated("Use isStrictAttributeNames instead")
-    public val isStrictNames: Boolean get() = false
-    @Suppress("DEPRECATION")
-    public val isStrictAttributeNames: Boolean get() = isStrictNames
+    public val isStrictAttributeNames: Boolean
+
     public val isStrictBoolean: Boolean get() = false
 
     /**
@@ -105,19 +103,11 @@ public interface XmlSerializationPolicy {
     public fun serialTypeNameToQName(
         typeNameInfo: DeclaredNameInfo,
         parentNamespace: Namespace
-    ): QName =
-        serialNameToQName(typeNameInfo.serialName, parentNamespace)
+    ): QName
 
     @Suppress("DEPRECATION")
     public fun serialUseNameToQName(
         useNameInfo: DeclaredNameInfo,
-        parentNamespace: Namespace
-    ): QName =
-        serialNameToQName(useNameInfo.serialName, parentNamespace)
-
-    @Deprecated("It is recommended to override serialTypeNameToQName and serialUseNameToQName instead")
-    public fun serialNameToQName(
-        serialName: String,
         parentNamespace: Namespace
     ): QName
 
@@ -154,56 +144,32 @@ public interface XmlSerializationPolicy {
         val annotatedName: QName
     )
 
-    @Deprecated("Don't use or implement this, use the 3 parameter version")
-    public fun effectiveOutputKind(
-        serializerParent: SafeParentInfo,
-        tagParent: SafeParentInfo
-    ): OutputKind
-
     public fun effectiveOutputKind(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         canBeAttribute: Boolean
-    ): OutputKind {
-        @Suppress("DEPRECATION")
-        val base = effectiveOutputKind(serializerParent, tagParent)
-
-        if (!canBeAttribute && base == OutputKind.Attribute) {
-            return handleAttributeOrderConflict(
-                serializerParent,
-                tagParent,
-                base
-            )
-        }
-        return base
-    }
+    ): OutputKind
 
     public fun overrideSerializerOrNull(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): KSerializer<*>? {
         return null
     }
 
+    /**
+     * Allows for recovering from unknown content. The implementation must either throw an exception
+     * or consume the content (parse it completely). It can allow recovery by returning a list
+     * of data that should be recovered (this can allow further parsing of the data or return final
+     * values).
+     */
     @ExperimentalXmlUtilApi
-    @Suppress("DirectUseOfResultType", "DEPRECATION")
     public fun handleUnknownContentRecovering(
         input: XmlReader,
         inputKind: InputKind,
         descriptor: XmlDescriptor,
         name: QName?,
         candidates: Collection<Any>
-    ): List<XML.ParsedData<*>> {
-        handleUnknownContent(input, inputKind, name, candidates)
-        return emptyList()
-    }
+    ): List<XML.ParsedData<*>>
 
     public fun onElementRepeated(parentDescriptor: XmlDescriptor, childIndex: Int) {}
-
-    @Deprecated("Use the recoverable version that allows returning a value")
-    public fun handleUnknownContent(
-        input: XmlReader,
-        inputKind: InputKind,
-        name: QName?,
-        candidates: Collection<Any>
-    )
 
     public fun handleAttributeOrderConflict(
         serializerParent: SafeParentInfo,

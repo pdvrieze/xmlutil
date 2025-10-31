@@ -30,7 +30,6 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
 import nl.adaptivity.xmlutil.serialization.structure.*
-import kotlin.jvm.JvmName
 
 /**
  * Default implementation of a serialization policy that provides a behaviour that attempts to create an XML format
@@ -78,10 +77,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     @ExperimentalXmlUtilApi
     public override val defaultObjectOutputKind: OutputKind = builder.defaultObjectOutputKind
 
-
-    @Deprecated("Invalid name of property. This only affects attributes")
-    public override val isStrictNames: Boolean get() = isStrictAttributeNames
-
     // region Secondary constructors
 
     @OptIn(ExperimentalXmlUtilApi::class)
@@ -91,110 +86,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
     public constructor(config: Builder.() -> Unit) : this(Builder().apply(config))
 
-    @Deprecated("The format cache is now part of the builder so does not need to be available as parameter")
-    public constructor(formatCache: FormatCache, config: Builder.() -> Unit) :
-            this(Builder().also { it.formatCache = formatCache; it.config() })
-
-    //endregion
-
-    //region Deprecated constructors
-    @Deprecated("Use builder")
-    @ExperimentalXmlUtilApi
-    public constructor(
-        pedantic: Boolean,
-        autoPolymorphic: Boolean = false,
-        encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
-        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
-        typeDiscriminatorName: QName? = null,
-        throwOnRepeatedElement: Boolean = false,
-        verifyElementOrder: Boolean = false,
-    ) : this(Builder().also { b ->
-        b.formatCache = defaultSharedFormatCache()
-        b.pedantic = pedantic
-        b.autoPolymorphic = autoPolymorphic
-        b.encodeDefault = encodeDefault
-        b.unknownChildHandler = unknownChildHandler
-        b.typeDiscriminatorName = typeDiscriminatorName
-        b.throwOnRepeatedElement = throwOnRepeatedElement
-        b.verifyElementOrder = verifyElementOrder
-    })
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use builder")
-    @ExperimentalXmlUtilApi
-    public constructor(
-        pedantic: Boolean,
-        typeDiscriminatorName: QName,
-        encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
-        unknownChildHandler: UnknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
-        throwOnRepeatedElement: Boolean = false,
-        verifyElementOrder: Boolean = false,
-    ) : this(Builder().also { b ->
-        b.formatCache = defaultSharedFormatCache()
-        b.pedantic = pedantic
-        b.typeDiscriminatorName = typeDiscriminatorName
-        b.encodeDefault = encodeDefault
-        b.unknownChildHandler = unknownChildHandler
-        b.throwOnRepeatedElement = throwOnRepeatedElement
-        b.verifyElementOrder = verifyElementOrder
-    })
-
-    /**
-     * Stable constructor that doesn't use experimental api.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated("Use builder")
-    @OptIn(ExperimentalXmlUtilApi::class)
-    public constructor(
-        pedantic: Boolean,
-        autoPolymorphic: Boolean = false,
-        encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
-    ) : this(Builder().also { b ->
-        b.formatCache = defaultSharedFormatCache()
-        b.pedantic = pedantic
-        b.autoPolymorphic = autoPolymorphic
-        b.encodeDefault = encodeDefault
-    })
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use the unknownChildHandler version that allows for recovery")
-    @ExperimentalXmlUtilApi
-    public constructor(
-        pedantic: Boolean,
-        autoPolymorphic: Boolean = false,
-        encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
-        unknownChildHandler: NonRecoveryUnknownChildHandler
-    ) : this(Builder().also { b ->
-        b.formatCache = defaultSharedFormatCache()
-        b.pedantic = pedantic
-        b.autoPolymorphic = autoPolymorphic
-        b.encodeDefault = encodeDefault
-        b.unknownChildHandler = UnknownChildHandler { input, inputKind, _, name, candidates ->
-            unknownChildHandler(input, inputKind, name, candidates); emptyList()
-        }
-    })
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use the primary constructor that takes the recoverable handler")
-    @ExperimentalXmlUtilApi
-    public constructor(
-        pedantic: Boolean,
-        autoPolymorphic: Boolean = false,
-        unknownChildHandler: NonRecoveryUnknownChildHandler
-    ) : this(Builder().also { b ->
-        b.formatCache = defaultSharedFormatCache()
-        b.pedantic = pedantic
-        b.autoPolymorphic = autoPolymorphic
-        b.unknownChildHandler = UnknownChildHandler { input, inputKind, _, name, candidates ->
-            unknownChildHandler(input, inputKind, name, candidates); emptyList()
-        }
-    })
-
-    @Deprecated("The builder now contains the format cache, so no need to use the multi-parameter version")
-    @OptIn(ExperimentalXmlUtilApi::class)
-    protected constructor(formatCache: FormatCache, builder: Builder) : this(
-        builder = builder.also { it.formatCache = formatCache }
-    )
     //endregion
 
     override fun polymorphicDiscriminatorName(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): QName? {
@@ -215,14 +106,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         tagParent: SafeParentInfo
     ): Boolean {
         return autoPolymorphic || tagParent.useAnnPolyChildren != null
-    }
-
-    @Deprecated("Don't use or implement this, use the 3 parameter version")
-    override fun effectiveOutputKind(
-        serializerParent: SafeParentInfo,
-        tagParent: SafeParentInfo
-    ): OutputKind {
-        return effectiveOutputKind(serializerParent, tagParent, true)
     }
 
     @OptIn(ExperimentalSerializationApi::class, ExperimentalXmlUtilApi::class)
@@ -285,13 +168,12 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         }
     }
 
-
-    @Deprecated("It is recommended to override serialTypeNameToQName and serialUseNameToQName instead")
-    override fun serialNameToQName(
-        serialName: String,
+    override fun serialTypeNameToQName(
+        typeNameInfo: XmlSerializationPolicy.DeclaredNameInfo,
         parentNamespace: Namespace
     ): QName {
-        return when (serialName) {
+        typeNameInfo.annotatedName?.let { return it }
+        return when (val serialName = typeNameInfo.serialName) {
             "kotlin.Boolean" -> QName(XMLConstants.XSD_NS_URI, "boolean", XMLConstants.XSD_PREFIX)
             "kotlin.Byte" -> QName(XMLConstants.XSD_NS_URI, "byte", XMLConstants.XSD_PREFIX)
             "kotlin.UByte" -> QName(XMLConstants.XSD_NS_URI, "unsignedByte", XMLConstants.XSD_PREFIX)
@@ -306,32 +188,47 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
             "kotlin.String" -> QName(XMLConstants.XSD_NS_URI, "string", XMLConstants.XSD_PREFIX)
 
-            else -> {
-                var start = 0
-                var end = serialName.length
-                val namespaceUri = if (serialName[0] == '{') {
-                    val e = serialName.indexOf('}', 1)
-                    require(e >=0) {"Serialname starts with '{' to indicate namespace but does not have a closing '}'"}
-                    start = e + 1 // skip the namespace in the next step
-                    serialName.substring(0, e)
-                } else {
-                    parentNamespace.namespaceURI
-                }
+            else -> commonSerialNameToQName(serialName, parentNamespace)
+        }
+    }
+
+    override fun serialUseNameToQName(
+        useNameInfo: XmlSerializationPolicy.DeclaredNameInfo,
+        parentNamespace: Namespace
+    ): QName {
+        useNameInfo.annotatedName?.let { return it }
+        return commonSerialNameToQName(useNameInfo.serialName, parentNamespace)
+
+    }
+
+    private fun commonSerialNameToQName(
+        serialName: String,
+        parentNamespace: Namespace
+    ): QName {
+        var start = 0
+        var end = serialName.length
+        val namespaceUri = if (serialName[0] == '{') {
+            val e = serialName.indexOf('}', 1)
+            require(e >= 0) { "Serialname starts with '{' to indicate namespace but does not have a closing '}'" }
+            start = e + 1 // skip the namespace in the next step
+            serialName.substring(0, e)
+        } else {
+            parentNamespace.namespaceURI
+        }
 
 
-                for(i in start until serialName.length) {
-                    when (val c = serialName[i]) {
-                        '{', '}', ']', ')', '>', ':' -> throw IllegalArgumentException("Unexpected '$c' when determining local name from serialname (\"$serialName\")")
-                        '(', '<', '[' -> { // allow these to terminate the name
-                            end = i
-                            break
-                        }
-                        '.' -> start = i + 1
-                    }
+        for (i in start until serialName.length) {
+            when (val c = serialName[i]) {
+                '{', '}', ']', ')', '>', ':' -> throw IllegalArgumentException("Unexpected '$c' when determining local name from serialname (\"$serialName\")")
+                '(', '<', '[' -> { // allow these to terminate the name
+                    end = i
+                    break
                 }
-                QName(namespaceUri, serialName.substring(start, end))
+
+                '.' -> start = i + 1
             }
         }
+        return QName(namespaceUri, serialName.substring(start, end))
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -404,16 +301,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         candidates: Collection<Any>
     ): List<XML.ParsedData<*>> {
         return unknownChildHandler.handleUnknownChildRecovering(input, inputKind, descriptor, name, candidates)
-    }
-
-    @Deprecated("Don't use anymore, use the version that allows for recovery")
-    override fun handleUnknownContent(
-        input: XmlReader,
-        inputKind: InputKind,
-        name: QName?,
-        candidates: Collection<Any>
-    ) {
-        throw UnsupportedOperationException("this function should not be called")
     }
 
     override fun onElementRepeated(parentDescriptor: XmlDescriptor, childIndex: Int) {
@@ -617,41 +504,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         return builder().apply(config).build()
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Deprecated("Use the copy that uses the builder to configure changes")
-    public fun copy(
-        pedantic: Boolean = this.pedantic,
-        autoPolymorphic: Boolean = this.autoPolymorphic,
-        encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = this.encodeDefault,
-        typeDiscriminatorName: QName? = this.typeDiscriminatorName
-    ): DefaultXmlSerializationPolicy {
-        return copy {
-            this.pedantic = pedantic
-            this.autoPolymorphic = autoPolymorphic
-            this.encodeDefault = encodeDefault
-            this.typeDiscriminatorName = typeDiscriminatorName
-        }
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    @Deprecated("Use the copy that uses the builder to configure changes")
-    @ExperimentalXmlUtilApi
-    public fun copy(
-        pedantic: Boolean = this.pedantic,
-        autoPolymorphic: Boolean = this.autoPolymorphic,
-        encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = this.encodeDefault,
-        unknownChildHandler: UnknownChildHandler,
-        typeDiscriminatorName: QName? = this.typeDiscriminatorName
-    ): DefaultXmlSerializationPolicy {
-        return copy {
-            this.pedantic = pedantic
-            this.autoPolymorphic = autoPolymorphic
-            this.encodeDefault = encodeDefault
-            this.unknownChildHandler = unknownChildHandler
-            this.typeDiscriminatorName = typeDiscriminatorName
-        }
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -807,12 +659,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
             isStrictBoolean = true
             isXmlFloat = true
         }
-
-        // Unintended return type change in 0.86.3
-        @Suppress("NEWER_VERSION_IN_SINCE_KOTLIN")
-        @JvmName("build")
-        @Deprecated("Only available for binary compatibility", level = DeprecationLevel.HIDDEN)
-        public fun `build compat`(): XmlSerializationPolicy = build()
 
         public fun build(): DefaultXmlSerializationPolicy {
             return DefaultXmlSerializationPolicy(this)

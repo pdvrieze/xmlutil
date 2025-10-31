@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:UseSerializers(QNameSerializer::class)
@@ -29,8 +29,10 @@ import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.*
-
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 import kotlin.test.assertContains
 
@@ -62,7 +64,7 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
 
     @Serializable
     @XmlSerialName("child1", namespace = "urn:example.org/3", prefix = "prefix2")
-    @XmlNamespaceDeclSpec("prefix2=urn:example.org/5")
+    @XmlNamespaceDeclSpecs("prefix2=urn:example.org/5")
     data class Child1(val child: Child2, val otherChild: Child1? = null)
 
     @Serializable
@@ -71,7 +73,7 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
 
 
     @Serializable
-    @XmlNamespaceDeclSpec("prefix5=urn:example.org/5;prefix6=urn:example.org/6")
+    @XmlNamespaceDeclSpecs("prefix5=urn:example.org/5", "prefix6=urn:example.org/6")
     @XmlSerialName("container", namespace = "urn:example.org", prefix = "")
     data class Container(val child: Child1)
 

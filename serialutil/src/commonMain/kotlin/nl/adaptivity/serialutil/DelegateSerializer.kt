@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2019-2025.
  *
  * This file is part of xmlutil.
  *
@@ -25,22 +25,12 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-abstract class DelegatingSerializer<T, D>(
-    serialName: String,
-    val delegateSerializer: KSerializer<D>
-): KSerializer<T> {
+@Deprecated("This serializer doesn't do anything, just forward to the passed in serializer", ReplaceWith("DelegatingSerializer"))
+public abstract class DelegateSerializer<T>(val delegate: KSerializer<T>) : KSerializer<T> {
+    override val descriptor: SerialDescriptor =
+        SerialDescriptor("${delegate.descriptor.serialName}.delegate", delegate.descriptor)
 
-    abstract fun fromDelegate(delegate: D): T
+    override fun deserialize(decoder: Decoder): T = delegate.deserialize(decoder)
 
-    abstract fun T.toDelegate(): D
-
-    override fun deserialize(decoder: Decoder): T {
-        return fromDelegate(delegateSerializer.deserialize(decoder))
-    }
-
-    override val descriptor: SerialDescriptor = SerialDescriptor(serialName, delegateSerializer.descriptor)
-
-    override fun serialize(encoder: Encoder, value: T) {
-        delegateSerializer.serialize(encoder, value.toDelegate())
-    }
+    override fun serialize(encoder: Encoder, value: T) = delegate.serialize(encoder, value)
 }

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2018.
+ * Copyright (c) 2018-2025.
  *
- * This file is part of XmlUtil.
+ * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 @file:OptIn(ExperimentalSerializationApi::class)
 
@@ -45,43 +45,12 @@ public annotation class XmlSerialName(
 
 /**
  * Annotation allowing to specify namespaces specifications to be generated upon the element.
- * As multiple annotations are not supported by the plugin this uses a single string. The string
- * separates the namespaces using a semicolon (`;`). Each declaration is of the form
- * (prefix)=(namespace). To specify the default namespace it is valid to omit the equals sign.
- *
- * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`.
- */
-@ExperimentalXmlUtilApi
-@SerialInfo
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
-@Deprecated("Use XmlNamespaceDeclSpecs instead that takes an array argument")
-public annotation class XmlNamespaceDeclSpec(
-    val value: String,
-)
-
-/**
- * Accessor that reads the declared namespaces out of an [XmlNamespaceDeclSpec] instance.
- */
-@ExperimentalXmlUtilApi
-@Deprecated("Use XmlNamespaceDeclSpecs instead of XmlNamespaceDeclSpec")
-public val XmlNamespaceDeclSpec.namespaces: List<Namespace>
-    get() {
-        return value.split(';').map { decl ->
-            when (val eq = decl.indexOf('=')) {
-                -1 -> XmlEvent.NamespaceImpl("", decl)
-                else -> XmlEvent.NamespaceImpl(decl.substring(0, eq), decl.substring(eq + 1))
-            }
-        }
-    }
-
-/**
- * Annotation allowing to specify namespaces specifications to be generated upon the element.
  * As multiple annotations are not supported by the plugin this uses a single string. Each
  * declaration is of the form (prefix)=(namespace). To specify the default namespace it is valid to
- * omit the equals sign.
+ * omit the equals sign. Note that this annotation only ensures namespace attributes, it does not
+ * make your serialization use those namespaces.
  *
- * @property value The actual specification: `"prefix1=urn:namespace1;defaultNamespace"`
+ * @property value The actual specification: `"prefix1=urn:namespace1","defaultNamespace"`
  */
 @ExperimentalXmlUtilApi
 @SerialInfo

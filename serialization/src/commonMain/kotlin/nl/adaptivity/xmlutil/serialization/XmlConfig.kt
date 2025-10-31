@@ -30,17 +30,16 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefau
 import nl.adaptivity.xmlutil.serialization.impl.ShadowPolicy
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
 /**
  * Configuration for the xml parser.
  *
  * @property repairNamespaces Should namespaces automatically be repaired. This option will be passed on to the [XmlWriter]
- * @property omitXmlDecl Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
+ * @property xmlDeclMode Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
  * @property indentString The indentation to use. This is passed to the [XmlWriter]. Note that at this point no validation
  *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
- * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
- *                  characters, everything else as 1
  * @property policy The policy allows for dynamic configuration of the creation of the XML tree that represents
  *                  the serialized format.
  */
@@ -64,16 +63,6 @@ private constructor(
      */
     public var isInlineCollapsed: Boolean = true
         private set
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use indentString for better accuracy")
-    public val indent: Int
-        get() = indentString.countIndentedLength()
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use xmlDeclMode with more options")
-    public val omitXmlDecl: Boolean
-        get() = xmlDeclMode == XmlDeclMode.None
 
     public val policy: XmlSerializationPolicy = when (policy) {
         is ShadowPolicy -> policy.basePolicy
@@ -116,111 +105,16 @@ private constructor(
     public var defaultToGenericParser: Boolean = false
         private set
 
-    @Suppress("DEPRECATION")
-    @ExperimentalXmlUtilApi
-    @Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
-    public constructor(
-        repairNamespaces: Boolean = true,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-        indentString: String = "",
-        autoPolymorphic: Boolean = false,
-        unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER,
-    ) : this(
-        repairNamespaces,
-        xmlDeclMode,
-        indentString,
-        DefaultXmlSerializationPolicy(false, autoPolymorphic, unknownChildHandler = unknownChildHandler)
-    )
-
-    @ExperimentalXmlUtilApi
-    @Deprecated("Use the builder constructor that allows for ABI-safe construction with new parameters")
-    public constructor(
-        repairNamespaces: Boolean = true,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-        indentString: String = "",
-        autoPolymorphic: Boolean? = false,
-        unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
-        policy: XmlSerializationPolicy,
-        nilAttribute: Pair<QName, String>? = null
-    ) : this(
-        repairNamespaces,
-        xmlDeclMode,
-        indentString,
-        (policy as? DefaultXmlSerializationPolicy)?.run {
-            when {
-                autoPolymorphic == null && unknownChildHandler == null ->
-                    copy { }
-
-                autoPolymorphic == null ->
-                    copy { this.unknownChildHandler = unknownChildHandler!! }
-
-                unknownChildHandler == null ->
-                    copy { this.autoPolymorphic = autoPolymorphic }
-
-                else ->
-                    copy { }
-            }
-        } ?: policy,
-        nilAttribute
-    )
-
-    @Suppress("DEPRECATION")
-    @ExperimentalXmlUtilApi
-    @Deprecated("Use the primary constructor that takes a recoverable child handler")
-    public constructor(
-        repairNamespaces: Boolean = true,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-        indentString: String = "",
-        autoPolymorphic: Boolean = false,
-        unknownChildHandler: NonRecoveryUnknownChildHandler,
-        policy: XmlSerializationPolicy = DefaultXmlSerializationPolicy(false, autoPolymorphic),
-    ) : this(repairNamespaces, xmlDeclMode, indentString, autoPolymorphic, unknownChildHandler.asRecoverable(), policy)
-
-    @ExperimentalXmlUtilApi
-    @Suppress("DEPRECATION")
-    @Deprecated("Use version taking XmlDeclMode")
-    public constructor(
-        repairNamespaces: Boolean = true,
-        omitXmlDecl: Boolean,
-        indentString: String = "",
-        autoPolymorphic: Boolean = false,
-        unknownChildHandler: NonRecoveryUnknownChildHandler = DEFAULT_NONRECOVERABLE_CHILD_HANDLER
-    ) : this(
-        repairNamespaces,
-        if (omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
-        indentString,
-        autoPolymorphic,
-        UnknownChildHandler { input, inputKind, _, name, candidates ->
-            unknownChildHandler(input, inputKind, name, candidates)
-            emptyList()
-        }
-
-    )
-
-    @ExperimentalXmlUtilApi
-    @Suppress("DEPRECATION")
-    @Deprecated("Use version taking XmlDeclMode")
-    public constructor(
-        repairNamespaces: Boolean = true,
-        omitXmlDecl: Boolean,
-        indent: Int,
-        autoPolymorphic: Boolean = false,
-        unknownChildHandler: NonRecoveryUnknownChildHandler = DEFAULT_NONRECOVERABLE_CHILD_HANDLER
-    ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
-
     @OptIn(ExperimentalXmlUtilApi::class)
-    @Suppress("DEPRECATION")
     @JvmOverloads
     public constructor(builder: Builder = Builder()) : this(
         repairNamespaces = builder.repairNamespaces,
         xmlDeclMode = builder.xmlDeclMode,
         indentString = builder.indentString,
-        policy = builder.policy ?: DefaultXmlSerializationPolicy(
-            pedantic = false,
-            autoPolymorphic = builder.autoPolymorphic ?: false,
-            encodeDefault = builder.encodeDefault,
-            unknownChildHandler = builder.unknownChildHandler ?: DEFAULT_UNKNOWN_CHILD_HANDLER
-        ),
+        policy = builder.policy ?: DefaultXmlSerializationPolicy.Builder().apply {
+            pedantic = false
+            autoPolymorphic = builder.autoPolymorphic ?: false
+        }.build(),
         nilAttribute = builder.nilAttribute,
         xmlVersion = builder.xmlVersion,
         cachingEnabled = builder.isCachingEnabled,
@@ -289,28 +183,18 @@ private constructor(
      * Configuration for the xml parser.
      *
      * @property repairNamespaces Should namespaces automatically be repaired. This option will be passed on to the [XmlWriter]
-     * @property omitXmlDecl Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
+     * @property xmlDeclMode Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
      * @property indentString The indentation to use. This is passed to the [XmlWriter]. Note that at this point no validation
      *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
      * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
      *                  characters, everything else as 1. When setting it will update [indentString] with `indent` space characters
-     * @property autoPolymorphic Should polymorphic information be retrieved using [SerializersModule] configuration. This replaces
-     *                     [XmlPolyChildren], but changes serialization where that annotation is not applied. This option will
-     *                     become the default in the future although XmlPolyChildren will retain precedence (when present)
-     * @property unknownChildHandler A function that is called when an unknown child is found. By default, an exception is thrown
-     *                     but the function can silently ignore it as well.
      */
     public class Builder
     @ExperimentalXmlUtilApi
-    @Deprecated("This constructor has properties from the policy")
-    constructor(
+    internal constructor(
         public var repairNamespaces: Boolean = true,
         public var xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
         public var indentString: String = "",
-        autoPolymorphic: Boolean? = null,
-        @ExperimentalXmlUtilApi
-        @Deprecated("Use the policy instead")
-        public var unknownChildHandler: UnknownChildHandler? = DEFAULT_UNKNOWN_CHILD_HANDLER,
         policy: XmlSerializationPolicy? = null
     ) {
 
@@ -318,11 +202,6 @@ private constructor(
         public var policy: XmlSerializationPolicy? = policy
             set(value) {
                 field = value
-                if (autoPolymorphic != null) {
-                    if (value is DefaultXmlSerializationPolicy && value.autoPolymorphic != autoPolymorphic) {
-                        this.autoPolymorphic = value.autoPolymorphic
-                    }
-                }
                 if (value is DefaultXmlSerializationPolicy && value.formatCache == FormatCache.Dummy && isCachingEnabled) {
                     isCachingEnabled = false
                 }
@@ -338,10 +217,10 @@ private constructor(
          * *afterwards*, the policy will automatically be updated.
          */
         @OptIn(ExperimentalXmlUtilApi::class)
-        public var autoPolymorphic: Boolean? = autoPolymorphic
-            get() = field ?: (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic
+        @Deprecated("Directly access the policy, not this property")
+        public var autoPolymorphic: Boolean?
+            get() = (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic
             set(value) {
-                field = value
                 if (value != null) {
                     when (val p = policy) {
                         null -> defaultPolicy { autoPolymorphic = value }
@@ -352,33 +231,11 @@ private constructor(
                 }
             }
 
-        @Suppress("DEPRECATION")
-        @Deprecated("This constructor has properties from the policy")
-        @ExperimentalXmlUtilApi
-        public constructor(
-            repairNamespaces: Boolean = true,
-            xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-            indentString: String = "",
-            autoPolymorphic: Boolean = false,
-            unknownChildHandler: NonRecoveryUnknownChildHandler,
-            policy: XmlSerializationPolicy? = null
-        ) : this(
-            repairNamespaces,
-            xmlDeclMode,
-            indentString,
-            autoPolymorphic,
-            unknownChildHandler.asRecoverable(),
-            policy
-        )
-
-        @Suppress("DEPRECATION")
         @OptIn(ExperimentalXmlUtilApi::class)
         public constructor(config: XmlConfig) : this(
             repairNamespaces = config.repairNamespaces,
             xmlDeclMode = config.xmlDeclMode,
             indentString = config.indentString,
-            autoPolymorphic = (config.policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic,
-            unknownChildHandler = (config.policy as? DefaultXmlSerializationPolicy)?.unknownChildHandler,
             policy = config.policy
         ) {
             this.nilAttribute = config.nilAttribute
@@ -389,62 +246,6 @@ private constructor(
             this.isAlwaysDecodeXsiNil = config.isAlwaysDecodeXsiNil
             this.defaultToGenericParser = config.defaultToGenericParser
         }
-
-        @Suppress("DEPRECATION")
-        @ExperimentalXmlUtilApi
-        @Deprecated("Use version taking XmlDeclMode")
-        public constructor(
-            repairNamespaces: Boolean = true,
-            omitXmlDecl: Boolean,
-            indentString: String = "",
-            autoPolymorphic: Boolean = false,
-            unknownChildHandler: NonRecoveryUnknownChildHandler = DEFAULT_NONRECOVERABLE_CHILD_HANDLER,
-        ) : this(
-            repairNamespaces,
-            if (omitXmlDecl) XmlDeclMode.None else XmlDeclMode.Minimal,
-            indentString,
-            autoPolymorphic,
-            unknownChildHandler.asRecoverable()
-        )
-
-        @ExperimentalXmlUtilApi
-        @Suppress("DEPRECATION")
-        @Deprecated("Use version taking XmlDeclMode")
-        public constructor(
-            repairNamespaces: Boolean = true,
-            omitXmlDecl: Boolean,
-            indent: Int,
-            autoPolymorphic: Boolean = false,
-            unknownChildHandler: NonRecoveryUnknownChildHandler = DEFAULT_NONRECOVERABLE_CHILD_HANDLER,
-        ) : this(repairNamespaces, omitXmlDecl, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
-
-        @Suppress("DEPRECATION")
-        @ExperimentalXmlUtilApi
-        @Deprecated("If using the constructor directly, use the one that uses the recoverable child handler")
-        public constructor(
-            repairNamespaces: Boolean = true,
-            xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-            indent: Int,
-            autoPolymorphic: Boolean = false,
-            unknownChildHandler: NonRecoveryUnknownChildHandler
-        ) : this(repairNamespaces, xmlDeclMode, indent, autoPolymorphic, unknownChildHandler.asRecoverable())
-
-        @Suppress("DEPRECATION")
-        @ExperimentalXmlUtilApi
-        @Deprecated("This constructor has properties from the policy")
-        public constructor(
-            repairNamespaces: Boolean = true,
-            xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-            indent: Int,
-            autoPolymorphic: Boolean = false,
-            unknownChildHandler: UnknownChildHandler = DEFAULT_UNKNOWN_CHILD_HANDLER
-        ) : this(repairNamespaces, xmlDeclMode, " ".repeat(indent), autoPolymorphic, unknownChildHandler)
-
-        /**
-         * Determines which default values are encoded. This property gets forwarded to the policy
-         */
-        @Deprecated("Use the policy instead")
-        public var encodeDefault: XmlEncodeDefault = XmlEncodeDefault.ANNOTATED
 
         /**
          * Determines whether inline classes are merged with their content. Note that inline classes
@@ -507,21 +308,24 @@ private constructor(
          */
         public var isAlwaysDecodeXsiNil: Boolean = true
 
+        public fun setIndent(count: Int) {
+            indentString = " ".repeat(count)
+        }
+
         public var indent: Int
-            @Deprecated("Use indentString for better accuracy")
+            @Deprecated(
+                "Use indentString for better accuracy",
+                ReplaceWith("indentString.length"),
+                level = DeprecationLevel.ERROR
+            )
             get() = indentString.countIndentedLength()
+            @JvmName("setIndentCpy")
+            @Deprecated(
+                "Use setIndent instead. As shorthand it works well for setting the indent, but not for reading",
+                ReplaceWith("setIndent(value)")
+            )
             set(value) {
                 indentString = " ".repeat(value)
-            }
-
-        @Deprecated("Use xmlDeclMode for this now multi-valued property")
-        public var omitXmlDecl: Boolean
-            get() = xmlDeclMode == XmlDeclMode.None
-            set(value) {
-                xmlDeclMode = when (value) {
-                    true -> XmlDeclMode.None
-                    else -> XmlDeclMode.Auto
-                }
             }
 
         /**
@@ -569,11 +373,13 @@ private constructor(
          * Configure the format starting with the recommended configuration as of version 0.86.3. This configuration is stable.
          */
         @Suppress("FunctionName")
-        @Deprecated("Consider updating to a newer recommended configuration", ReplaceWith("recommended_0_91_0(configurePolicy)"))
+        @Deprecated(
+            "Consider updating to a newer recommended configuration",
+            ReplaceWith("recommended_0_91_0(configurePolicy)")
+        )
         public inline fun recommended_0_86_3(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            autoPolymorphic = true
             isInlineCollapsed = true
-            indent = 4
+            setIndent(4)
             defaultPolicy {
                 autoPolymorphic = true
                 pedantic = false
@@ -590,9 +396,7 @@ private constructor(
          */
         @Suppress("FunctionName")
         public fun recommended_0_87_0() {
-            val hadAutoPolymorphic = autoPolymorphic != null
             recommended_0_87_0 { }
-            if (!hadAutoPolymorphic) autoPolymorphic = null
         }
 
         /**
@@ -778,13 +582,6 @@ private constructor(
                 }
             }
 
-        @Suppress("UNUSED_ANONYMOUS_PARAMETER")
-        @OptIn(ExperimentalXmlUtilApi::class)
-        @Deprecated("Use UnknownChildHander instead that supports recovering from unknown children")
-        public val DEFAULT_NONRECOVERABLE_CHILD_HANDLER: NonRecoveryUnknownChildHandler =
-            { input, inputKind, name, candidates ->
-                throw UnknownXmlFieldException(input.extLocationInfo, name?.toString() ?: "<CDATA>", candidates)
-            }
     }
 }
 
