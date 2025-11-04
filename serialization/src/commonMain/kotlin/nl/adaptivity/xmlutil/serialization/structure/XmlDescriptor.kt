@@ -1386,11 +1386,7 @@ public class XmlPolymorphicDescriptor internal constructor(
                 for (childDesc in childDescriptors) {
                     val childTypeDescriptor = codecConfig.config.lookupTypeDesc(tagParent.namespace, childDesc)
 
-                    val childNameInfo = wrapperUseName ?: run {
-                        tagName.toNamespace()
-                        childTypeDescriptor.typeNameInfo//        @OptIn(ExperimentalSerializationApi::class)
-                        //        return serialDescriptor.getNameInfo(config, parentNamespace, typeAnnXmlSerialName)
-                    }
+                    val childNameInfo = wrapperUseName ?: childTypeDescriptor.typeNameInfo
 
                     val childSerializerParent: SafeParentInfo = PolymorphicParentInfo(
                         parentDescriptor = this,

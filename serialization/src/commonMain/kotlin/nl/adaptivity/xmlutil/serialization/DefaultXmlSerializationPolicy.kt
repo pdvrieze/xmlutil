@@ -258,14 +258,14 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
             useName.annotatedName != null -> useName.annotatedName
 
-
-            serialKind is PrimitiveKind ||
-                    serialKind == StructureKind.MAP ||
-                    serialKind == StructureKind.LIST ||
-                    serialKind == PolymorphicKind.OPEN ||
-                    typeNameInfo.serialName == "kotlin.Unit" || // Unit needs a special case
-                    parentSerialKind is PolymorphicKind // child of explict polymorphic uses predefined names
-            -> serialUseNameToQName(useName, parentNamespace)
+            useName.serialName != typeNameInfo.serialName &&
+                    (serialKind is PrimitiveKind ||
+                            serialKind == StructureKind.MAP ||
+                            serialKind == StructureKind.LIST ||
+                            serialKind == PolymorphicKind.OPEN ||
+                            typeNameInfo.serialName == "kotlin.Unit" || // Unit needs a special case
+                            parentSerialKind is PolymorphicKind) // child of explict polymorphic uses predefined names
+                -> serialUseNameToQName(useName, parentNamespace)
 
             typeNameInfo.annotatedName != null -> typeNameInfo.annotatedName
 
@@ -324,7 +324,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     override fun initialChildReorderMap(
         parentDescriptor: SerialDescriptor
     ): Collection<XmlOrderConstraint>? {
-        val mapCapacity = parentDescriptor.elementsCount*2
+        val mapCapacity = parentDescriptor.elementsCount * 2
         val nameToIdx = HashMap<String, Int>(mapCapacity)
         for (i in 0 until parentDescriptor.elementsCount) {
             nameToIdx[parentDescriptor.getElementName(i)] = i
@@ -387,24 +387,24 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         return if (orderConstraints.isEmpty()) null else orderConstraints.toList()
     }
 
-/*
-    override fun updateReorderMap(
-        original: Collection<XmlOrderConstraint>,
-        children: List<XmlDescriptor>
-    ): Collection<XmlOrderConstraint> {
-        fun Int.isAttribute(): Boolean = children[this].effectiveOutputKind == OutputKind.Attribute
+    /*
+        override fun updateReorderMap(
+            original: Collection<XmlOrderConstraint>,
+            children: List<XmlDescriptor>
+        ): Collection<XmlOrderConstraint> {
+            fun Int.isAttribute(): Boolean = children[this].effectiveOutputKind == OutputKind.Attribute
 
-        return original.filter { constraint ->
-            if (constraint.before == XmlOrderConstraint.OTHERS || constraint.after == XmlOrderConstraint.OTHERS) {
-                true
-            } else {
-                val (isBeforeAttribute, isAfterAttribute) = constraint.map { it.isAttribute() }
+            return original.filter { constraint ->
+                if (constraint.before == XmlOrderConstraint.OTHERS || constraint.after == XmlOrderConstraint.OTHERS) {
+                    true
+                } else {
+                    val (isBeforeAttribute, isAfterAttribute) = constraint.map { it.isAttribute() }
 
-                isBeforeAttribute || (!isAfterAttribute)
+                    isBeforeAttribute || (!isAfterAttribute)
+                }
             }
         }
-    }
-*/
+    */
 
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
@@ -427,7 +427,10 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         return XmlSerializationPolicy.DeclaredNameInfo("key")
     }
 
-    override fun mapValueName(serializerParent: SafeParentInfo, isListEluded: Boolean): XmlSerializationPolicy.DeclaredNameInfo {
+    override fun mapValueName(
+        serializerParent: SafeParentInfo,
+        isListEluded: Boolean
+    ): XmlSerializationPolicy.DeclaredNameInfo {
         val childAnnotation = serializerParent.useAnnChildrenName
         val childrenName = childAnnotation?.toQName(serializerParent.namespace)
         return XmlSerializationPolicy.DeclaredNameInfo(
@@ -597,7 +600,11 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
             isStrictBoolean = false,
             isXmlFloat = false,
             isStrictOtherAttributes = false,
-            formatCache = try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy },
+            formatCache = try {
+                defaultSharedFormatCache()
+            } catch (e: Error) {
+                FormatCache.Dummy
+            },
             defaultPrimitiveOutputKind = OutputKind.Attribute,
             defaultObjectOutputKind = OutputKind.Element,
         )
@@ -624,8 +631,10 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         public constructor(policy: XmlSerializationPolicy) : this(
             pedantic = (policy as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
             autoPolymorphic = (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
-            encodeDefault = (policy as? DefaultXmlSerializationPolicy)?.encodeDefault ?: XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
-            unknownChildHandler = (policy as? DefaultXmlSerializationPolicy)?.unknownChildHandler ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+            encodeDefault = (policy as? DefaultXmlSerializationPolicy)?.encodeDefault
+                ?: XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
+            unknownChildHandler = (policy as? DefaultXmlSerializationPolicy)?.unknownChildHandler
+                ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
             typeDiscriminatorName = (policy as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
             throwOnRepeatedElement = (policy as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false,
             verifyElementOrder = policy.verifyElementOrder,
@@ -633,7 +642,11 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
             isStrictBoolean = policy.isStrictBoolean,
             isXmlFloat = policy.isXmlFloat,
             isStrictOtherAttributes = policy.isStrictOtherAttributes,
-            formatCache = (policy as? DefaultXmlSerializationPolicy)?.formatCache?.copy() ?: try { defaultSharedFormatCache() } catch(e: Error) { FormatCache.Dummy },
+            formatCache = (policy as? DefaultXmlSerializationPolicy)?.formatCache?.copy() ?: try {
+                defaultSharedFormatCache()
+            } catch (e: Error) {
+                FormatCache.Dummy
+            },
             defaultPrimitiveOutputKind = policy.defaultPrimitiveOutputKind,
             defaultObjectOutputKind = policy.defaultObjectOutputKind,
         )
