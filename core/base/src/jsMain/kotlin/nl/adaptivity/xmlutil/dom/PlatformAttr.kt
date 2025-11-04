@@ -41,8 +41,8 @@ public actual inline fun PlatformAttr.getLocalName(): String? = localName
 public actual inline fun PlatformAttr.getName(): String = name
 internal actual inline fun PlatformAttr.getValue(): String = value
 internal actual inline fun PlatformAttr.setValue(value: String) {
-    this.value = value
+    asDynamic().value = value
 }
 
-internal actual inline fun PlatformAttr.getOwnerElement(): PlatformElement? = ownerElement
+internal actual inline fun PlatformAttr.getOwnerElement(): PlatformElement? = asDynamic().ownerElement
 

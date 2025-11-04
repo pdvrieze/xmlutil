@@ -26,6 +26,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 public actual typealias PlatformNode = org.w3c.dom.Node
 
 public actual typealias PlatformAttr = org.w3c.dom.Attr
@@ -63,9 +65,13 @@ public actual inline fun PlatformNode.getLastChild(): PlatformNode? = lastChild
 public actual inline fun PlatformNode.getPreviousSibling(): PlatformNode? = previousSibling
 public actual inline fun PlatformNode.getNextSibling(): PlatformNode? = nextSibling
 
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getNamespaceURI(): String? = namespaceURI
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getPrefix(): String? = prefix
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getLocalName(): String? = localName
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getName(): String = name
 
 internal actual inline fun PlatformAttr.getValue(): String = value
@@ -85,49 +91,68 @@ public actual inline fun PlatformDocument.getDoctype(): PlatformDocumentType? = 
 public actual inline fun PlatformDocument.getDocumentElement(): PlatformElement? = documentElement
 public actual inline fun PlatformDocument.getInputEncoding(): String? = inputEncoding
 
-public actual fun PlatformElement.getNamespaceURI(): String? = namespaceURI
-public actual fun PlatformElement.getPrefix(): String? = prefix
-public actual fun PlatformElement.getLocalName(): String? = localName
-public actual fun PlatformElement.getTagName(): String = tagName
-public actual fun PlatformElement.getAttributes(): PlatformNamedNodeMap = attributes
-internal actual fun PlatformElement.getAttribute(qualifiedName: String): String? = getAttribute(qualifiedName)
-internal actual fun PlatformElement.getAttributeNS(namespace: String?, localName: String): String? = getAttributeNS(namespace, localName)
+@XmlUtilInternal
+public actual inline fun PlatformElement.getNamespaceURI(): String? = namespaceURI
+@XmlUtilInternal
+public actual inline fun PlatformElement.getPrefix(): String? = prefix
+@XmlUtilInternal
+public actual inline fun PlatformElement.getLocalName(): String? = localName
+@XmlUtilInternal
+public actual inline fun PlatformElement.getTagName(): String = tagName
+@XmlUtilInternal
+public actual inline fun PlatformElement.getAttributes(): PlatformNamedNodeMap = attributes
+internal actual inline fun PlatformElement.getAttribute(qualifiedName: String): String? = getAttribute(qualifiedName)
+internal actual inline fun PlatformElement.getAttributeNS(namespace: String?, localName: String): String? = getAttributeNS(namespace, localName)
 
-internal actual fun PlatformElement.setAttribute(qualifiedName: String, value: String) = setAttribute(qualifiedName, value)
-internal actual fun PlatformElement.setAttributeNS(namespace: String?, cName: String, value: String) = setAttributeNS(namespace, cName, value)
+internal actual inline fun PlatformElement.setAttribute(qualifiedName: String, value: String) = setAttribute(qualifiedName, value)
+internal actual inline fun PlatformElement.setAttributeNS(namespace: String?, cName: String, value: String) = setAttributeNS(namespace, cName, value)
 
-internal actual fun PlatformElement.removeAttribute(qualifiedName: String) = removeAttribute(qualifiedName)
-internal actual fun PlatformElement.removeAttributeNS(namespace: String?, localName: String) = removeAttributeNS(namespace, localName)
+internal actual inline fun PlatformElement.removeAttribute(qualifiedName: String) = removeAttribute(qualifiedName)
+internal actual inline fun PlatformElement.removeAttributeNS(namespace: String?, localName: String) = removeAttributeNS(namespace, localName)
 
-internal actual fun PlatformElement.hasAttribute(qualifiedName: String): Boolean = hasAttribute(qualifiedName)
-internal actual fun PlatformElement.hasAttributeNS(namespace: String?, localName: String): Boolean = hasAttributeNS(namespace, localName)
+internal actual inline fun PlatformElement.hasAttribute(qualifiedName: String): Boolean = hasAttribute(qualifiedName)
+internal actual inline fun PlatformElement.hasAttributeNS(namespace: String?, localName: String): Boolean = hasAttributeNS(namespace, localName)
 
-internal actual fun PlatformElement.getAttributeNode(qualifiedName: String): PlatformAttr? = getAttributeNode(qualifiedName)
-internal actual fun PlatformElement.getAttributeNodeNS(namespace: String?, localName: String): PlatformAttr? = getAttributeNodeNS(namespace, localName)
+internal actual inline fun PlatformElement.getAttributeNode(qualifiedName: String): PlatformAttr? = getAttributeNode(qualifiedName)
+internal actual inline fun PlatformElement.getAttributeNodeNS(namespace: String?, localName: String): PlatformAttr? = getAttributeNodeNS(namespace, localName)
 
-internal actual fun PlatformElement.setAttributeNode(attr: PlatformAttr): PlatformAttr? = setAttributeNode(attr)
-internal actual fun PlatformElement.setAttributeNodeNS(attr: PlatformAttr): PlatformAttr? = setAttributeNodeNS(attr)
-internal actual fun PlatformElement.removeAttributeNode(attr: PlatformAttr): PlatformAttr = removeAttributeNode(attr)
+internal actual inline fun PlatformElement.setAttributeNode(attr: PlatformAttr): PlatformAttr? = setAttributeNode(attr)
+internal actual inline fun PlatformElement.setAttributeNodeNS(attr: PlatformAttr): PlatformAttr? = setAttributeNodeNS(attr)
+internal actual inline fun PlatformElement.removeAttributeNode(attr: PlatformAttr): PlatformAttr = removeAttributeNode(attr)
 
-internal actual fun PlatformElement.getElementsByTagName(qualifiedName: String): PlatformNodeList = getElementsByTagName(qualifiedName)
-internal actual fun PlatformElement.getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList = getElementsByTagNameNS(namespace, localName)
+internal actual inline fun PlatformElement.getElementsByTagName(qualifiedName: String): PlatformNodeList = getElementsByTagName(qualifiedName)
+internal actual inline fun PlatformElement.getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList = getElementsByTagNameNS(namespace, localName)
 
+@XmlUtilInternal
 public actual inline fun PlatformNamedNodeMap.getLength(): Int = length
-public actual fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
-public actual fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
-public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
-public actual fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
-public actual fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
-public actual fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
-public actual fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
 
 
+@XmlUtilInternal
 public actual inline fun PlatformNodeList.getLength(): Int = length
-public actual operator fun PlatformNodeList.get(index: Int): PlatformNode? = item(index)
 
+@XmlUtilInternal
+public actual inline operator fun PlatformNodeList.get(index: Int): PlatformNode? = item(index)
+
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.getTarget(): String = target
 
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.getData(): String = data
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.setData(data: String) {
     this.data = data
 }
@@ -135,8 +160,10 @@ public actual inline fun PlatformProcessingInstruction.setData(data: String) {
 public actual val PlatformDocument.supportsWhitespaceAtToplevel: Boolean get() = false
 
 
-public actual fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType =
+@XmlUtilInternal
+public actual inline fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType =
     createDocumentType(qualifiedName, publicId, systemId)
 
-public actual fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument =
+@XmlUtilInternal
+public actual inline fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument =
     createDocument(namespace, qualifiedName, documentType)

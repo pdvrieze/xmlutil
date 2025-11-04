@@ -20,20 +20,27 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 internal actual fun PlatformNode.asAttr(): PlatformAttr = this as PlatformAttr
 
 internal actual fun PlatformNode.asElement(): PlatformElement = this as PlatformElement
 
 @Suppress("NOTHING_TO_INLINE")
+@XmlUtilInternal
 public actual inline fun PlatformNode.appendChild(node: PlatformNode): PlatformNode = appendChild(node)
 
-public actual fun PlatformNode.replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode =
+@XmlUtilInternal
+public actual inline fun PlatformNode.replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode =
     replaceChild(oldChild, newChild)
 
-public actual fun PlatformNode.removeChild(node: PlatformNode): PlatformNode = removeChild(node)
+@XmlUtilInternal
+public actual inline fun PlatformNode.removeChild(node: PlatformNode): PlatformNode = removeChild(node)
 
-public actual fun PlatformNode.lookupPrefix(namespace: String): String? =
+@XmlUtilInternal
+public actual inline fun PlatformNode.lookupPrefix(namespace: String): String? =
     lookupPrefix(namespace)
 
-public actual fun PlatformNode.lookupNamespaceURI(prefix: String): String? =
+@XmlUtilInternal
+public actual inline fun PlatformNode.lookupNamespaceURI(prefix: String): String? =
     lookupNamespaceURI(prefix)

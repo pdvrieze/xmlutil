@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
@@ -29,33 +30,40 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.Document", "nl.adaptivity.xmlutil.dom2")
 )
-public expect interface PlatformDocument : PlatformNode {
+public expect interface PlatformDocument : PlatformNode
 
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createElement(localName: String): PlatformElement
 
-}
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
 
-public expect fun PlatformDocument.createElement(localName: String): PlatformElement
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createDocumentFragment(): PlatformDocumentFragment
 
-public expect fun PlatformDocument.createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createTextNode(data: String): PlatformText
 
-public expect fun PlatformDocument.createDocumentFragment(): PlatformDocumentFragment
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createCDATASection(data: String): PlatformCDATASection
 
-public expect fun PlatformDocument.createTextNode(data: String): PlatformText
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createComment(data: String): PlatformComment
 
-public expect fun PlatformDocument.createCDATASection(data: String): PlatformCDATASection
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction
 
-public expect fun PlatformDocument.createComment(data: String): PlatformComment
+@XmlUtilInternal
+public expect inline fun PlatformDocument.importNode(node: PlatformNode, deep: Boolean): PlatformNode
 
-public expect fun PlatformDocument.createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction
+@XmlUtilInternal
+public expect inline fun PlatformDocument.adoptNode(node: PlatformNode): PlatformNode
 
-public expect fun PlatformDocument.importNode(node: PlatformNode, deep: Boolean): PlatformNode
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createAttribute(localName: String): PlatformAttr
 
-public expect fun PlatformDocument.adoptNode(node: PlatformNode): PlatformNode
-
-public expect fun PlatformDocument.createAttribute(localName: String): PlatformAttr
-
-public expect fun PlatformDocument.createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
-
+@XmlUtilInternal
+public expect inline fun PlatformDocument.createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 
 public expect inline fun PlatformDocument.getImplementation(): PlatformDOMImplementation
 public expect inline fun PlatformDocument.getDoctype(): PlatformDocumentType?

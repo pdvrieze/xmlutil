@@ -33,10 +33,9 @@ import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.util.impl.createDocument
-import nl.adaptivity.xmlutil.dom2.Element as Element2
 
 // TODO try splitting the strategy to allow any element implementation for serialization (but decodes to Element2)
-internal object ElementSerializer : XmlSerializer<Element2> {
+internal object ElementSerializer : XmlSerializer<Element> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("element") {
@@ -46,12 +45,12 @@ internal object ElementSerializer : XmlSerializer<Element2> {
         element("content", ListSerializer(NodeSerializer).descriptor, isOptional = true)
     }
 
-    override fun deserialize(decoder: Decoder): Element2 = when (decoder) {
+    override fun deserialize(decoder: Decoder): Element = when (decoder) {
         is Document2Decoder -> deserialize(decoder)
         else -> deserialize(Document2Decoder(decoder))
     }
 
-    override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Element2?, isValueChild: Boolean): Element2 {
+    override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Element?, isValueChild: Boolean): Element {
         require(input.eventType == EventType.START_ELEMENT) { "${input.eventType} can not be deserialized as XML element" }
         val document = previousValue?.ownerDocument ?: createDocument(input.name)
         val fragment = document.createDocumentFragment()
@@ -62,10 +61,10 @@ internal object ElementSerializer : XmlSerializer<Element2> {
         while (e != null && e.nodeType != NodeConsts.ELEMENT_NODE) {
             e = e.nextSibling
         }
-        return e as Element2? ?: throw SerializationException("Expected element, but did not find it")
+        return e as Element? ?: throw SerializationException("Expected element, but did not find it")
     }
 
-    private fun deserialize(decoder: Document2Decoder): Element2 {
+    private fun deserialize(decoder: Document2Decoder): Element {
         return decoder.decodeStructure(descriptor) {
             val contentSerializer = ListSerializer(NodeSerializer)
             var idx = decodeElementIndex(descriptor)
@@ -103,11 +102,11 @@ internal object ElementSerializer : XmlSerializer<Element2> {
         }
     }
 
-    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Element2, isValueChild: Boolean) {
+    override fun serializeXML(encoder: Encoder, output: XmlWriter, value: Element, isValueChild: Boolean) {
         writeElem(output, value)
     }
 
-    override fun serialize(encoder: Encoder, value: Element2) {
+    override fun serialize(encoder: Encoder, value: Element) {
         encoder.encodeStructure(descriptor) {
             val namespaceURI = value.getNamespaceURI()
             if (!namespaceURI.isNullOrEmpty()) {
@@ -181,7 +180,7 @@ private fun <T> DeserializationStrategy<T>.wrap(document: Document): WrappedDese
     return WrappedDeserializationStrategy2(this, document)
 }
 
-private fun writeElem(output: XmlWriter, value: Element2) {
+private fun writeElem(output: XmlWriter, value: Element) {
     output.smartStartTag(value.getNamespaceURI(), value.getLocalName(), value.getPrefix()) {
         for (n: Attr in value.getAttributes()) {
             writeAttr(output, n)
@@ -218,7 +217,7 @@ private fun writePI(output: XmlWriter, value: ProcessingInstruction) {
 }
 
 internal fun Node.writeTo(output: XmlWriter) = when (nodeType) {
-    NodeConsts.ELEMENT_NODE -> writeElem(output, this as Element2)
+    NodeConsts.ELEMENT_NODE -> writeElem(output, this as Element)
     NodeConsts.ATTRIBUTE_NODE -> writeAttr(output, this as Attr)
     NodeConsts.CDATA_SECTION_NODE -> writeCData(output, this as CDATASection)
     NodeConsts.TEXT_NODE -> writeText(output, this as Text)

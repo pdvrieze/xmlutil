@@ -23,6 +23,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.util.filterTyped
@@ -30,23 +31,21 @@ import nl.adaptivity.xmlutil.util.forEachAttr
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
-import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
-import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**
  * [XmlReader] that reads from DOM.
  *
  * @author Created by pdvrieze on 22/03/17.
  */
-internal class DomReader(val delegate: Node2, val expandEntities: Boolean) : XmlReader {
+internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlReader {
 
-    constructor(delegate: Node2) : this(delegate, false)
+    constructor(delegate: Node) : this(delegate, false)
 
     @Suppress("DEPRECATION")
-    constructor(delegate: Node1) :
-            this((delegate as? Node2) ?: createDocument(QName("XX")).adoptNode(delegate))
+    constructor(delegate: PlatformNode) :
+            this((delegate as? Node) ?: createDocument(QName("XX")).adoptNode(delegate))
 
-    private var current: Node2? = null
+    private var current: Node? = null
 
     override val namespaceURI: String
         get() = currentElement?.run { getNamespaceURI() ?: "" }
@@ -128,7 +127,7 @@ internal class DomReader(val delegate: Node2, val expandEntities: Boolean) : Xml
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() {
-            fun <A : Appendable> helper(node: Node2?, result: A): A = when (node?.nodetype) {
+            fun <A : Appendable> helper(node: Node?, result: A): A = when (node?.nodetype) {
                 null, NodeType.DOCUMENT_NODE
                     -> result
 
@@ -281,7 +280,7 @@ internal class DomReader(val delegate: Node2, val expandEntities: Boolean) : Xml
 
     @Suppress("DEPRECATION", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "KotlinRedundantDiagnosticSuppress")
     @Deprecated("Provided for compatibility.")
-    fun getDelegate(): Node1? = delegate as? Node1
+    fun getDelegate(): PlatformNode? = delegate as? PlatformNode
 
     override fun getAttributeNamespace(index: Int): String {
         val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
@@ -321,7 +320,7 @@ internal class DomReader(val delegate: Node2, val expandEntities: Boolean) : Xml
 }
 
 
-private fun Node2.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
+private fun Node.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
     @Suppress("DEPRECATION")
     return when (nodeType) {
         NodeConsts.ATTRIBUTE_NODE -> EventType.ATTRIBUTE

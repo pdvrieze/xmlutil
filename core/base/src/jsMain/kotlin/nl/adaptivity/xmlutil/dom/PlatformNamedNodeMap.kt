@@ -18,7 +18,11 @@
  * permissions and limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package nl.adaptivity.xmlutil.dom
+
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 public actual external interface PlatformNamedNodeMap {
 
@@ -33,13 +37,21 @@ public actual external interface PlatformNamedNodeMap {
 }
 
 @Suppress("NOTHING_TO_INLINE")
+@XmlUtilInternal
 public actual inline fun PlatformNamedNodeMap.getLength(): Int = asDynamic().length as Int
 
-public actual fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
-public actual fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
-public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
-public actual fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
-public actual fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
-public actual fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
-public actual fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
+@XmlUtilInternal
+public actual inline fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
 

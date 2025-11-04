@@ -22,9 +22,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
-@Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
-)
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
+//@Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
+//    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
+//)
 public actual interface PlatformAttr : PlatformNode {
     public val namespaceURI: String?
     public val prefix: String?
@@ -36,16 +38,26 @@ public actual interface PlatformAttr : PlatformNode {
 }
 
 @Suppress("NOTHING_TO_INLINE")
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getNamespaceURI(): String? = namespaceURI
+
 @Suppress("NOTHING_TO_INLINE")
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getPrefix(): String? = prefix
+
 @Suppress("NOTHING_TO_INLINE")
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getLocalName(): String? = localName
+
 @Suppress("NOTHING_TO_INLINE")
+@XmlUtilInternal
 public actual inline fun PlatformAttr.getName(): String = name
+
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun PlatformAttr.getValue(): String = value
+
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun PlatformAttr.setValue(value: String) { this.value = value }
+
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun PlatformAttr.getOwnerElement(): PlatformElement? = ownerElement

@@ -22,6 +22,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 @Suppress(
     "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
@@ -31,8 +33,11 @@ public actual external interface PlatformProcessingInstruction : PlatformNode {
     public var data: String
 }
 
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.getTarget(): String = target
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.getData(): String = data
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.setData(data: String) {
     this.data = data
 }

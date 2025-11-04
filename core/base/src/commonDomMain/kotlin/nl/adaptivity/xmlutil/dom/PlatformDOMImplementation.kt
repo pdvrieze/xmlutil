@@ -18,7 +18,11 @@
  * permissions and limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package nl.adaptivity.xmlutil.dom
+
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 public actual interface PlatformDOMImplementation {
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType
@@ -27,9 +31,10 @@ public actual interface PlatformDOMImplementation {
     public fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument
 }
 
-
-public actual fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType =
+@XmlUtilInternal
+public actual inline fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType =
     createDocumentType(qualifiedName, publicId, systemId)
 
-public actual fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument =
+@XmlUtilInternal
+public actual inline fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument =
     createDocument(namespace, qualifiedName, documentType)

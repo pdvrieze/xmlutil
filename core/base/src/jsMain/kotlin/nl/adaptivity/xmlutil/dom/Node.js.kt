@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.dom.unWrap
 
 @Suppress(
@@ -72,18 +73,23 @@ internal actual fun PlatformNode.asElement(): PlatformElement {
     return this as PlatformElement
 }
 
+@XmlUtilInternal
 public actual fun PlatformNode.appendChild(node: PlatformNode): PlatformNode {
     return asDynamic().appendChild(node.unWrap())
 }
 
+@XmlUtilInternal
 public actual fun PlatformNode.replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode =
     asDynamic().replaceChild(oldChild.unWrap(), newChild.unWrap())
 
+@XmlUtilInternal
 public actual fun PlatformNode.removeChild(node: PlatformNode): PlatformNode =
     asDynamic().removeChild(node.unWrap())
 
-public actual fun PlatformNode.lookupPrefix(namespace: String): String? =
+@XmlUtilInternal
+public actual inline fun PlatformNode.lookupPrefix(namespace: String): String? =
     lookupPrefix(namespace)
 
-public actual fun PlatformNode.lookupNamespaceURI(prefix: String): String? =
+@XmlUtilInternal
+public actual inline fun PlatformNode.lookupNamespaceURI(prefix: String): String? =
     lookupNamespaceURI(prefix)

@@ -22,11 +22,15 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.CharacterData", "nl.adaptivity.xmlutil.dom2")
 )
 public expect interface PlatformCharacterData : PlatformNode
 
+@XmlUtilInternal
 public expect inline fun PlatformCharacterData.getData(): String
+@XmlUtilInternal
 public expect inline fun PlatformCharacterData.setData(value: String)

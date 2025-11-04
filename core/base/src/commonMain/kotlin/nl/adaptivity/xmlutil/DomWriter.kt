@@ -26,31 +26,29 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.toIndentSequence
 import nl.adaptivity.xmlutil.core.impl.toIndentString
 import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.util.forEachAttr
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
-import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
-import nl.adaptivity.xmlutil.dom2.Document as Document2
-import nl.adaptivity.xmlutil.dom2.Element as Element2
-import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**
  * Writer that uses the DOM for the underlying storage (rather than writing to some string).
  */
 public class DomWriter internal constructor(
-    current: Node2?,
+    current: Node?,
     public val isAppend: Boolean = false,
-    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    dummy: Boolean = false,
 ) : XmlWriter {
 
     internal constructor(
-        current: Node1,
+        current: PlatformNode,
         isAppend: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ) : this(current as? Node2 ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode)
+    ) : this(current as? Node ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode, false)
 
     public var indentSequence: List<XmlEvent.TextEvent> = emptyList()
 
@@ -62,22 +60,44 @@ public class DomWriter internal constructor(
         }
 
 
-    private var docDelegate: Document2? = when (current) {
-        null -> null
-        is Document2 -> current
-        else -> current.getOwnerDocument()
-    }
+    private var docDelegate: Document?
 
     public constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
 
     @XmlUtilInternal
-    public val target: Document2 get() = docDelegate ?: throw XmlException("Document not created yet")
+    public val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
 
     @XmlUtilInternal
-    public var currentNode: Node2? = current
+    public var currentNode: Node?
         private set
 
-    private val pendingOperations: List<(Document2) -> Unit> = mutableListOf()
+    init {
+        when(current) {
+            null -> {
+                docDelegate = null
+                currentNode = null
+            }
+
+            is Document -> {
+                docDelegate = current
+                currentNode = current
+            }
+
+            is Node -> {
+                docDelegate = current.ownerDocument
+                currentNode = current
+            }
+
+            else -> {
+                val doc = xmlStreaming.genericDomImplementation.createDocument()
+                docDelegate = doc
+                currentNode = doc.adoptNode(current)
+            }
+        }
+
+    }
+
+    private val pendingOperations: List<(Document) -> Unit> = mutableListOf()
 
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
@@ -95,16 +115,16 @@ public class DomWriter internal constructor(
         lastTagDepth = newDepth
     }
 
-    private fun addToPending(operation: (Document2) -> Unit) {
+    private fun addToPending(operation: (Document) -> Unit) {
         if (docDelegate == null) {
             (pendingOperations as MutableList).add(operation)
         } else throw IllegalStateException("Use of pending list when there is a document already")
     }
 
-    private val requireCurrent get() = (currentNode ?: throw IllegalStateException("No current element")) as Element2
+    private val requireCurrent get() = (currentNode ?: throw IllegalStateException("No current element")) as Element
 
     private fun requireCurrent(error: String) =
-        currentNode as? Element2 ?: throw XmlException("The current node is not an element: $error")
+        currentNode as? Element ?: throw XmlException("The current node is not an element: $error")
 
 //    @Suppress("OverridingDeprecatedMember")
     override val namespaceContext: NamespaceContext = object : NamespaceContext {
@@ -116,7 +136,7 @@ public class DomWriter internal constructor(
             return currentNode?.lookupPrefix(namespaceURI)
         }
 
-        private fun Element2.collectDeclaredPrefixes(
+        private fun Element.collectDeclaredPrefixes(
             namespaceUri: String,
             result: MutableSet<String>,
             redeclared: MutableCollection<String>
@@ -143,7 +163,7 @@ public class DomWriter internal constructor(
         )
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
             return buildSet<String> {
-                (currentNode as Element2?)?.collectDeclaredPrefixes(namespaceURI, this, mutableListOf())
+                (currentNode as Element?)?.collectDeclaredPrefixes(namespaceURI, this, mutableListOf())
             }.toList().iterator()
         }
 
@@ -199,14 +219,14 @@ public class DomWriter internal constructor(
             }
             currentNode == null && !isAppend -> {
                 if (target.childNodes.iterator().asSequence().count { it.nodeType == NodeConsts.ELEMENT_NODE } > 0) {
-                    for (e in target.childNodes.filterIsInstance<Element2>()) { // use filter/list to have temporary list
+                    for (e in target.childNodes.filterIsInstance<Element>()) { // use filter/list to have temporary list
                         target.removeChild(e)
                     }
                 }
             }
         }
 
-        target.createElementNS(qname(namespace, localName, prefix)).let { elem: Element2 ->
+        target.createElementNS(qname(namespace, localName, prefix)).let { elem: Element ->
             currentNode!!.appendChild(elem)
             currentNode = elem
         }
@@ -383,7 +403,7 @@ public class DomWriter internal constructor(
         } else {
             if (docDelegate.lookupNamespaceURI(prefix) != namespaceUri) {
                 val qname = if (prefix.isEmpty()) "xmlns" else "xmlns:$prefix"
-                (currentNode as? Element2)?.setAttribute(qname, namespaceUri)
+                (currentNode as? Element)?.setAttribute(qname, namespaceUri)
             }
         }
     }

@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.util.isElement
 
 @Deprecated(
@@ -30,10 +31,15 @@ import nl.adaptivity.xmlutil.util.isElement
 )
 public expect interface PlatformNode
 
+@XmlUtilInternal
 public expect fun PlatformNode.appendChild(node: PlatformNode): PlatformNode
+@XmlUtilInternal
 public expect fun PlatformNode.replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode
+@XmlUtilInternal
 public expect fun PlatformNode.removeChild(node: PlatformNode): PlatformNode
+@XmlUtilInternal
 public expect fun PlatformNode.lookupPrefix(namespace: String): String?
+@XmlUtilInternal
 public expect fun PlatformNode.lookupNamespaceURI(prefix: String): String?
 
 public expect inline fun PlatformNode.getNodeType(): Short

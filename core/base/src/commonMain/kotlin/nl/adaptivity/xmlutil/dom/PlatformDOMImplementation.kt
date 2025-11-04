@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 @Suppress("DEPRECATION")
 @Deprecated(
     "No longer supported, use dom2 instead",
@@ -27,8 +29,11 @@ package nl.adaptivity.xmlutil.dom
 )
 public expect interface PlatformDOMImplementation
 
-public expect fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType
-public expect fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument
+@XmlUtilInternal
+public expect inline fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType
+
+@XmlUtilInternal
+public expect inline fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument
 
 
 @Suppress("DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER", "KotlinRedundantDiagnosticSuppress")

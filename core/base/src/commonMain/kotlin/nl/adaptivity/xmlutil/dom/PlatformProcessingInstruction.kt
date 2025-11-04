@@ -22,14 +22,19 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
+
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.ProcessingInstruction", "nl.adaptivity.xmlutil.dom2")
 )
 public expect interface PlatformProcessingInstruction : PlatformNode
 
+@XmlUtilInternal
 public expect inline fun PlatformProcessingInstruction.getTarget(): String
 
+@XmlUtilInternal
 public expect inline fun PlatformProcessingInstruction.getData(): String
 
+@XmlUtilInternal
 public expect inline fun PlatformProcessingInstruction.setData(data: String)

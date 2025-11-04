@@ -18,7 +18,11 @@
  * permissions and limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package nl.adaptivity.xmlutil.dom
+
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @Suppress(
     "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
@@ -29,11 +33,11 @@ public actual interface PlatformProcessingInstruction : PlatformNode {
     public val target: String
 }
 
-@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.getTarget(): String = target
 
-@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.getData(): String = data
 
-@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+@XmlUtilInternal
 public actual inline fun PlatformProcessingInstruction.setData(data: String) { this.data = data }
