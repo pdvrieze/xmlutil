@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress(
@@ -26,80 +26,117 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual typealias Node = org.w3c.dom.Node
+public actual typealias PlatformNode = org.w3c.dom.Node
 
-public actual typealias Attr = org.w3c.dom.Attr
+public actual typealias PlatformAttr = org.w3c.dom.Attr
 
-public actual typealias DocumentFragment = org.w3c.dom.DocumentFragment
+public actual typealias PlatformDocumentFragment = org.w3c.dom.DocumentFragment
 
-public actual typealias Element = org.w3c.dom.Element
+public actual typealias PlatformElement = org.w3c.dom.Element
 
-public actual typealias Text = org.w3c.dom.Text
+public actual typealias PlatformText = org.w3c.dom.Text
 
-public actual typealias CharacterData = org.w3c.dom.CharacterData
+public actual typealias PlatformCharacterData = org.w3c.dom.CharacterData
 
-public actual typealias CDATASection = org.w3c.dom.CDATASection
+public actual typealias PlatformCDATASection = org.w3c.dom.CDATASection
 
-public actual typealias Comment = org.w3c.dom.Comment
+public actual typealias PlatformComment = org.w3c.dom.Comment
 
-public actual typealias ProcessingInstruction = org.w3c.dom.ProcessingInstruction
+public actual typealias PlatformProcessingInstruction = org.w3c.dom.ProcessingInstruction
 
-public actual typealias DOMImplementation = org.w3c.dom.DOMImplementation
+public actual typealias PlatformDOMImplementation = org.w3c.dom.DOMImplementation
 
-public actual typealias DocumentType = org.w3c.dom.DocumentType
+public actual typealias PlatformDocumentType = org.w3c.dom.DocumentType
 
-public actual typealias NamedNodeMap = org.w3c.dom.NamedNodeMap
+public actual typealias PlatformNamedNodeMap = org.w3c.dom.NamedNodeMap
 
-public actual typealias NodeList = org.w3c.dom.NodeList
+public actual typealias PlatformNodeList = org.w3c.dom.NodeList
 
-public actual inline fun Node.getNodeType(): Short = nodeType
-public actual inline fun Node.getNodeName(): String = nodeName
-public actual inline fun Node.getOwnerDocument(): Document = ownerDocument
-public actual inline fun Node.getParentNode(): Node? = parentNode
-public actual inline fun Node.getTextContent(): String? = textContent
-public actual inline fun Node.getChildNodes(): NodeList = childNodes
-public actual inline fun Node.getFirstChild(): Node? = firstChild
-public actual inline fun Node.getLastChild(): Node? = lastChild
-public actual inline fun Node.getPreviousSibling(): Node? = previousSibling
-public actual inline fun Node.getNextSibling(): Node? = nextSibling
+public actual inline fun PlatformNode.getNodeType(): Short = nodeType
+public actual inline fun PlatformNode.getNodeName(): String = nodeName
+public actual inline fun PlatformNode.getOwnerDocument(): PlatformDocument = ownerDocument
+public actual inline fun PlatformNode.getParentNode(): PlatformNode? = parentNode
+public actual inline fun PlatformNode.getTextContent(): String? = textContent
+public actual inline fun PlatformNode.getChildNodes(): PlatformNodeList = childNodes
+public actual inline fun PlatformNode.getFirstChild(): PlatformNode? = firstChild
+public actual inline fun PlatformNode.getLastChild(): PlatformNode? = lastChild
+public actual inline fun PlatformNode.getPreviousSibling(): PlatformNode? = previousSibling
+public actual inline fun PlatformNode.getNextSibling(): PlatformNode? = nextSibling
 
-public actual inline fun Attr.getNamespaceURI(): String? = namespaceURI
-public actual inline fun Attr.getPrefix(): String? = prefix
-public actual inline fun Attr.getLocalName(): String? = localName
-public actual inline fun Attr.getName(): String = name
+public actual inline fun PlatformAttr.getNamespaceURI(): String? = namespaceURI
+public actual inline fun PlatformAttr.getPrefix(): String? = prefix
+public actual inline fun PlatformAttr.getLocalName(): String? = localName
+public actual inline fun PlatformAttr.getName(): String = name
 
-public actual inline fun Attr.getValue(): String = value
-public actual inline fun Attr.setValue(value: String) {
+internal actual inline fun PlatformAttr.getValue(): String = value
+internal actual inline fun PlatformAttr.setValue(value: String) {
     this.value = value
 }
 
-public actual inline fun Attr.getOwnerElement(): Element? = ownerElement
+internal actual inline fun PlatformAttr.getOwnerElement(): PlatformElement? = ownerElement
 
-public actual inline fun CharacterData.getData(): String = data
-public actual inline fun CharacterData.setData(value: String) {
+public actual inline fun PlatformCharacterData.getData(): String = data
+public actual inline fun PlatformCharacterData.setData(value: String) {
     data = value
 }
 
-public actual inline fun Document.getImplementation(): DOMImplementation = implementation
-public actual inline fun Document.getDoctype(): DocumentType? = doctype
-public actual inline fun Document.getDocumentElement(): Element? = documentElement
-public actual inline fun Document.getInputEncoding(): String? = inputEncoding
+public actual inline fun PlatformDocument.getImplementation(): PlatformDOMImplementation = implementation
+public actual inline fun PlatformDocument.getDoctype(): PlatformDocumentType? = doctype
+public actual inline fun PlatformDocument.getDocumentElement(): PlatformElement? = documentElement
+public actual inline fun PlatformDocument.getInputEncoding(): String? = inputEncoding
 
-public actual fun Element.getNamespaceURI(): String? = namespaceURI
-public actual fun Element.getPrefix(): String? = prefix
-public actual fun Element.getLocalName(): String? = localName
-public actual fun Element.getTagName(): String = tagName
-public actual fun Element.getAttributes(): NamedNodeMap = attributes
+public actual fun PlatformElement.getNamespaceURI(): String? = namespaceURI
+public actual fun PlatformElement.getPrefix(): String? = prefix
+public actual fun PlatformElement.getLocalName(): String? = localName
+public actual fun PlatformElement.getTagName(): String = tagName
+public actual fun PlatformElement.getAttributes(): PlatformNamedNodeMap = attributes
+internal actual fun PlatformElement.getAttribute(qualifiedName: String): String? = getAttribute(qualifiedName)
+internal actual fun PlatformElement.getAttributeNS(namespace: String?, localName: String): String? = getAttributeNS(namespace, localName)
 
-public actual inline fun NamedNodeMap.getLength(): Int = length
-public actual inline fun NodeList.getLength(): Int = length
+internal actual fun PlatformElement.setAttribute(qualifiedName: String, value: String) = setAttribute(qualifiedName, value)
+internal actual fun PlatformElement.setAttributeNS(namespace: String?, cName: String, value: String) = setAttributeNS(namespace, cName, value)
 
-public actual inline fun ProcessingInstruction.getTarget(): String = target
+internal actual fun PlatformElement.removeAttribute(qualifiedName: String) = removeAttribute(qualifiedName)
+internal actual fun PlatformElement.removeAttributeNS(namespace: String?, localName: String) = removeAttributeNS(namespace, localName)
 
-public actual inline fun ProcessingInstruction.getData(): String = data
-public actual inline fun ProcessingInstruction.setData(data: String) {
+internal actual fun PlatformElement.hasAttribute(qualifiedName: String): Boolean = hasAttribute(qualifiedName)
+internal actual fun PlatformElement.hasAttributeNS(namespace: String?, localName: String): Boolean = hasAttributeNS(namespace, localName)
+
+internal actual fun PlatformElement.getAttributeNode(qualifiedName: String): PlatformAttr? = getAttributeNode(qualifiedName)
+internal actual fun PlatformElement.getAttributeNodeNS(namespace: String?, localName: String): PlatformAttr? = getAttributeNodeNS(namespace, localName)
+
+internal actual fun PlatformElement.setAttributeNode(attr: PlatformAttr): PlatformAttr? = setAttributeNode(attr)
+internal actual fun PlatformElement.setAttributeNodeNS(attr: PlatformAttr): PlatformAttr? = setAttributeNodeNS(attr)
+internal actual fun PlatformElement.removeAttributeNode(attr: PlatformAttr): PlatformAttr = removeAttributeNode(attr)
+
+internal actual fun PlatformElement.getElementsByTagName(qualifiedName: String): PlatformNodeList = getElementsByTagName(qualifiedName)
+internal actual fun PlatformElement.getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList = getElementsByTagNameNS(namespace, localName)
+
+public actual inline fun PlatformNamedNodeMap.getLength(): Int = length
+public actual fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
+public actual fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
+public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
+public actual fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
+public actual fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
+public actual fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
+public actual fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
+
+
+public actual inline fun PlatformNodeList.getLength(): Int = length
+public actual operator fun PlatformNodeList.get(index: Int): PlatformNode? = item(index)
+
+public actual inline fun PlatformProcessingInstruction.getTarget(): String = target
+
+public actual inline fun PlatformProcessingInstruction.getData(): String = data
+public actual inline fun PlatformProcessingInstruction.setData(data: String) {
     this.data = data
 }
 
-public actual val Document.supportsWhitespaceAtToplevel: Boolean get() = false
+public actual val PlatformDocument.supportsWhitespaceAtToplevel: Boolean get() = false
 
+
+public actual fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType =
+    createDocumentType(qualifiedName, publicId, systemId)
+
+public actual fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument =
+    createDocument(namespace, qualifiedName, documentType)

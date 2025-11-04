@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core.impl.dom
@@ -24,16 +24,16 @@ import nl.adaptivity.xmlutil.core.impl.idom.*
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.isXmlWhitespace
-import nl.adaptivity.xmlutil.dom.Attr as Attr1
-import nl.adaptivity.xmlutil.dom.CDATASection as CDATASection1
-import nl.adaptivity.xmlutil.dom.Comment as Comment1
-import nl.adaptivity.xmlutil.dom.Document as Document1
-import nl.adaptivity.xmlutil.dom.DocumentFragment as DocumentFragment1
-import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
-import nl.adaptivity.xmlutil.dom.Element as Element1
-import nl.adaptivity.xmlutil.dom.Node as Node1
-import nl.adaptivity.xmlutil.dom.ProcessingInstruction as ProcessingInstruction1
-import nl.adaptivity.xmlutil.dom.Text as Text1
+import nl.adaptivity.xmlutil.dom.PlatformAttr as Attr1
+import nl.adaptivity.xmlutil.dom.PlatformCDATASection as CDATASection1
+import nl.adaptivity.xmlutil.dom.PlatformComment as Comment1
+import nl.adaptivity.xmlutil.dom.PlatformDocument as Document1
+import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment as DocumentFragment1
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
+import nl.adaptivity.xmlutil.dom.PlatformElement as Element1
+import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
+import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction as ProcessingInstruction1
+import nl.adaptivity.xmlutil.dom.PlatformText as Text1
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
 import nl.adaptivity.xmlutil.dom2.Comment as Comment2

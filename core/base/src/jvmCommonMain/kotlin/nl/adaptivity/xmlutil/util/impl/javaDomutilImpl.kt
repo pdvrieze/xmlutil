@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.util.impl
@@ -44,49 +44,49 @@ public actual fun createDocument(rootElementName: QName): Document {
 }
 */
 
-internal val Document.firstElementChild: Element?
+internal val PlatformDocument.firstElementChild: PlatformElement?
     get() {
         var c = firstChild
         while (c != null) {
-            if (c is Element) return c
+            if (c is PlatformElement) return c
             c = c.nextSibling
         }
         return null
     }
 
-internal val Document.childElementCount: Int
+internal val PlatformDocument.childElementCount: Int
     get() {
         var count = 0
         var c = firstChild
         while (c != null) {
-            if (c is Element) count++
+            if (c is PlatformElement) count++
             c = c.nextSibling
         }
         return count
     }
 
-internal fun NodeList.asList(): List<Node> {
-    return object : AbstractList<Node>() {
-        private val delegate: NodeList = this@asList
+internal fun PlatformNodeList.asList(): List<PlatformNode> {
+    return object : AbstractList<PlatformNode>() {
+        private val delegate: PlatformNodeList = this@asList
 
         override val size: Int
             get() = delegate.getLength()
 
-        override fun get(index: Int): Node = delegate.item(index)
+        override fun get(index: Int): PlatformNode = delegate.item(index)
     }
 }
 
-/** Allow access to the node as [Element] if it is an element, otherwise it is null. */
-internal fun Node.asElement(): Element? = if (isElement) this as Element else null
+/** Allow access to the node as [PlatformElement] if it is an element, otherwise it is null. */
+internal fun PlatformNode.asElement(): PlatformElement? = if (isElement) this as PlatformElement else null
 
-/** Allow access to the node as [Text], if so, otherwise null. */
-internal fun Node.asText(): Text? = if (isText) this as Text else null
+/** Allow access to the node as [PlatformText], if so, otherwise null. */
+internal fun PlatformNode.asText(): PlatformText? = if (isText) this as PlatformText else null
 
-/** A filter function on a [NamedNodeMap] that returns a list of all
- * (attributes)[Attr] that meet the [predicate].
+/** A filter function on a [PlatformNamedNodeMap] that returns a list of all
+ * (attributes)[PlatformAttr] that meet the [predicate].
  */
-internal inline fun NamedNodeMap.filter(predicate: (Node) -> Boolean): List<Node> {
-    val result = mutableListOf<Node>()
+internal inline fun PlatformNamedNodeMap.filter(predicate: (PlatformNode) -> Boolean): List<PlatformNode> {
+    val result = mutableListOf<PlatformNode>()
     forEachAttr { attr ->
         if (predicate(attr)) result.add(attr)
     }
@@ -96,7 +96,7 @@ internal inline fun NamedNodeMap.filter(predicate: (Node) -> Boolean): List<Node
 /**
  * A (map)[Collection.map] function for transforming attributes.
  */
-internal inline fun <R> NamedNodeMap.map(body: (Node) -> R): List<R> {
+internal inline fun <R> PlatformNamedNodeMap.map(body: (PlatformNode) -> R): List<R> {
     val result = mutableListOf<R>()
     forEachAttr { attr ->
         result.add(body(attr))
@@ -107,7 +107,7 @@ internal inline fun <R> NamedNodeMap.map(body: (Node) -> R): List<R> {
 /**
  * A function to count all attributes for which the [predicate] holds.
  */
-internal inline fun NamedNodeMap.count(predicate: (Node) -> Boolean): Int {
+internal inline fun PlatformNamedNodeMap.count(predicate: (PlatformNode) -> Boolean): Int {
     var count = 0
     forEachAttr { attr ->
         if (predicate(attr)) count++
@@ -116,12 +116,12 @@ internal inline fun NamedNodeMap.count(predicate: (Node) -> Boolean): Int {
 }
 
 /** Remove namespaces attributes from a tree that have already been declared by a parent. */
-internal fun Node.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceContext = ExtendingNamespaceContext()) {
+internal fun PlatformNode.removeUnneededNamespaces(knownNamespaces: ExtendingNamespaceContext = ExtendingNamespaceContext()) {
     if (nodeType == NodeConsts.ELEMENT_NODE) {
         @Suppress("UnsafeCastFromDynamic")
-        val elem: Element = this as Element
+        val elem: PlatformElement = this as PlatformElement
 
-        val toRemove = mutableListOf<Attr>()
+        val toRemove = mutableListOf<PlatformAttr>()
 
         elem.attributes.forEachAttr { attr ->
             if (attr.getPrefix() == "xmlns") {

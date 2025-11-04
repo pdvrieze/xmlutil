@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.util.forEachAttr
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
-import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**

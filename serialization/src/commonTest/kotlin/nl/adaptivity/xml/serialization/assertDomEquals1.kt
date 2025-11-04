@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xml.serialization
@@ -25,10 +25,10 @@ import nl.adaptivity.xmlutil.dom.*
 import kotlin.test.assertEquals
 
 @Suppress("DEPRECATION")
-private val Node.isElement: Boolean get() = this.getNodeType() == NodeConsts.ELEMENT_NODE
+private val PlatformNode.isElement: Boolean get() = this.getNodeType() == NodeConsts.ELEMENT_NODE
 
 @Suppress("DEPRECATION")
-private val Node.isCharacterData: Boolean
+private val PlatformNode.isCharacterData: Boolean
     get() = when (getNodeType()) {
         NodeConsts.TEXT_NODE,
         NodeConsts.CDATA_SECTION_NODE,
@@ -38,16 +38,16 @@ private val Node.isCharacterData: Boolean
     }
 
 @Suppress("DEPRECATION")
-private fun NamedNodeMap.asSequence(): Sequence<Attr> {
+private fun PlatformNamedNodeMap.asSequence(): Sequence<PlatformAttr> {
     return sequence {
         for (i in 0 until getLength()) {
-            yield(item(i) as Attr)
+            yield(item(i) as PlatformAttr)
         }
     }
 }
 
 @Suppress("DEPRECATION")
-private fun NodeList.asSequence(): Sequence<Node> {
+private fun PlatformNodeList.asSequence(): Sequence<PlatformNode> {
     return sequence {
         for (i in 0 until getLength()) {
             yield(item(i)!!)
@@ -56,21 +56,21 @@ private fun NodeList.asSequence(): Sequence<Node> {
 }
 
 @Suppress("DEPRECATION")
-fun assertDomEquals(expected: Node, actual: Node): Unit = when {
+fun assertDomEquals(expected: PlatformNode, actual: PlatformNode): Unit = when {
     expected.getNodeType() != actual.getNodeType()
     -> throw AssertionError("Node types for $expected and $actual are not the same")
 
     expected.getNodeType() == NodeConsts.DOCUMENT_NODE
-    -> assertDomEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
+    -> assertDomEquals((expected as PlatformDocument).documentElement!!, (actual as PlatformDocument).documentElement!!)
 
-    expected.isElement -> assertElementEquals(expected as Element, actual as Element)
+    expected.isElement -> assertElementEquals(expected as PlatformElement, actual as PlatformElement)
     expected.isCharacterData -> assertEquals(expected.getTextContent(), actual.getTextContent())
 
     else -> Unit
 }
 
 @Suppress("DEPRECATION")
-private fun assertElementEquals(expected: Element, actual: Element) {
+private fun assertElementEquals(expected: PlatformElement, actual: PlatformElement) {
     val expectedAttrsSorted = expected.getAttributes().asSequence()
         .filterNot { it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
         .sortedBy { "${it.getPrefix()}:${it.getLocalName()}" }.toList()
@@ -118,14 +118,14 @@ private fun assertElementEquals(expected: Element, actual: Element) {
 }
 
 @Suppress("DEPRECATION")
-private fun Sequence<Node>.mergeText(): Sequence<Node> {
+private fun Sequence<PlatformNode>.mergeText(): Sequence<PlatformNode> {
     return sequence {
         val pendingString = StringBuilder()
-        var document: Document? = null
+        var document: PlatformDocument? = null
         for (n in this@mergeText) {
             when (n.getNodeType()) {
                 NodeConsts.TEXT_NODE -> {
-                    pendingString.append((n as Text).getData())
+                    pendingString.append((n as PlatformText).getData())
                     document = n.getOwnerDocument()
                 }
 

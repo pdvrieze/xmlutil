@@ -23,7 +23,7 @@
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom2.NodeListIterator
-import nl.adaptivity.xmlutil.dom.NodeList as NodeList1
+import nl.adaptivity.xmlutil.dom.PlatformNodeList as NodeList1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import nl.adaptivity.xmlutil.dom2.NodeList as NodeList2
 

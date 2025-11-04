@@ -21,8 +21,8 @@
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.core.impl.dom.unWrap
-import nl.adaptivity.xmlutil.dom.NamedNodeMap as NamedNodeMap1
-import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap as NamedNodeMap1
+import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap as NamedNodeMap2
 import org.w3c.dom.Attr as DomAttr

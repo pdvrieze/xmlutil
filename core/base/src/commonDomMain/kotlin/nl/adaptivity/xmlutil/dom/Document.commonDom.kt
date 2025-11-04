@@ -21,110 +21,124 @@
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.INode
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.implementation
-import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
-public actual interface Document : Node1 {
+public actual interface PlatformDocument : Node1 {
 
-    public val implementation: DOMImplementation
+    public val implementation: PlatformDOMImplementation
 
-    public val doctype: DocumentType?
+    public val doctype: PlatformDocumentType?
 
-    public val documentElement: Element?
+    public val documentElement: PlatformElement?
 
     public val characterSet: String?
 
     public val inputEncoding: String? get() = characterSet
 
-    public fun createElement(localName: String): Element
+    public fun createElement(localName: String): PlatformElement
 
-    public fun createElementNS(namespaceURI: String, qualifiedName: String): Element
+    public fun createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
 
-    public fun createDocumentFragment(): DocumentFragment
+    public fun createDocumentFragment(): PlatformDocumentFragment
 
-    public fun createTextNode(data: String): Text
+    public fun createTextNode(data: String): PlatformText
 
-    public fun createCDATASection(data: String): CDATASection
+    public fun createCDATASection(data: String): PlatformCDATASection
 
-    public fun createComment(data: String): Comment
+    public fun createComment(data: String): PlatformComment
 
-    public fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
+    public fun createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction
 
     public fun importNode(node: Node1): Node1 = importNode(node, false)
-    public actual fun importNode(node: Node1, deep: Boolean): Node1
+    public fun importNode(node: Node1, deep: Boolean): Node1
 
-    public actual fun adoptNode(node: Node1): Node1
+    public fun adoptNode(node: Node1): Node1
 
-    public actual fun createAttribute(localName: String): Attr
+    public fun createAttribute(localName: String): PlatformAttr
 
-    public actual fun createAttributeNS(namespace: String?, qualifiedName: String): Attr
+    public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 
 }
 
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun Document.getImplementation(): DOMImplementation = implementation
+public actual fun PlatformDocument.importNode(node: PlatformNode, deep: Boolean): PlatformNode =
+    importNode(node, deep)
+
+public actual fun PlatformDocument.adoptNode(node: PlatformNode): PlatformNode =
+    adoptNode(node)
+
+public actual fun PlatformDocument.createAttribute(localName: String): PlatformAttr =
+    createAttribute(localName)
+
+public actual fun PlatformDocument.createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr =
+    createAttributeNS(namespace, qualifiedName)
+
 
 @Suppress("NOTHING_TO_INLINE")
-public actual inline fun Document.getDoctype(): DocumentType? = doctype
+public actual inline fun PlatformDocument.getImplementation(): PlatformDOMImplementation = implementation
 
 @Suppress("NOTHING_TO_INLINE")
-public actual inline fun Document.getDocumentElement(): Element? = documentElement
+public actual inline fun PlatformDocument.getDoctype(): PlatformDocumentType? = doctype
 
 @Suppress("NOTHING_TO_INLINE")
-public actual inline fun Document.getInputEncoding(): String? = inputEncoding
+public actual inline fun PlatformDocument.getDocumentElement(): PlatformElement? = documentElement
 
 @Suppress("NOTHING_TO_INLINE")
-public actual inline val Document.supportsWhitespaceAtToplevel: Boolean get() = true
+public actual inline fun PlatformDocument.getInputEncoding(): String? = inputEncoding
+
+@Suppress("NOTHING_TO_INLINE")
+public actual inline val PlatformDocument.supportsWhitespaceAtToplevel: Boolean get() = true
 
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createElement(localName: String): Element = createElement(localName)
+public actual fun PlatformDocument.createElement(localName: String): PlatformElement = createElement(localName)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createElementNS(namespaceURI: String, qualifiedName: String): Element =
+public actual fun PlatformDocument.createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement =
     createElementNS(namespaceURI, qualifiedName)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createDocumentFragment(): DocumentFragment =
+public actual fun PlatformDocument.createDocumentFragment(): PlatformDocumentFragment =
     createDocumentFragment()
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createTextNode(data: String): Text =
+public actual fun PlatformDocument.createTextNode(data: String): PlatformText =
     createTextNode(data)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createCDATASection(data: String): CDATASection =
+public actual fun PlatformDocument.createCDATASection(data: String): PlatformCDATASection =
     createCDATASection(data)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createComment(data: String): Comment =
+public actual fun PlatformDocument.createComment(data: String): PlatformComment =
     createComment(data)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual fun Document.createProcessingInstruction(target: String, data: String): ProcessingInstruction =
+public actual fun PlatformDocument.createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction =
     createProcessingInstruction(target, data)
 
 public actual fun Document2.adoptNode(node: Node1): Node2 = when (node) {
     is INode -> adoptNode(node)
-    is Attr -> createAttributeNS(node.namespaceURI, node.name)
-    is CDATASection -> createCDATASection(node.data)
-    is Comment -> createComment(node.data)
-    is Document -> {
+    is PlatformAttr -> createAttributeNS(node.namespaceURI, node.name)
+    is PlatformCDATASection -> createCDATASection(node.data)
+    is PlatformComment -> createComment(node.data)
+    is PlatformDocument -> {
         val newDt = node.doctype?.let { dt -> implementation.createDocumentType(dt.name, dt.publicId, dt.systemId) }
         implementation.createDocument(null, getNodeName(), newDt)
     }
 
-    is DocumentFragment -> createDocumentFragment().also { f ->
+    is PlatformDocumentFragment -> createDocumentFragment().also { f ->
         for (n in node.childNodes) {
             f.appendChild(adoptNode(n))
         }
     }
 
-    is DocumentType -> implementation.createDocumentType(node.name, node.publicId, node.systemId)
-    is Element -> createElementNS(node.namespaceURI ?: "", node.tagName).also { e ->
+    is PlatformDocumentType -> implementation.createDocumentType(node.name, node.publicId, node.systemId)
+    is PlatformElement -> createElementNS(node.namespaceURI ?: "", node.tagName).also { e ->
         for (a in node.getAttributes()) {
             e.setAttributeNS(a.namespaceURI, a.name, a.value)
         }
@@ -133,8 +147,8 @@ public actual fun Document2.adoptNode(node: Node1): Node2 = when (node) {
         }
     }
 
-    is ProcessingInstruction -> createProcessingInstruction(node.target, node.data)
-    is Text -> createTextNode(node.data)
+    is PlatformProcessingInstruction -> createProcessingInstruction(node.target, node.data)
+    is PlatformText -> createTextNode(node.data)
     else -> error("Node type ${NodeType(node.nodeType)} not supported")
 
 }
