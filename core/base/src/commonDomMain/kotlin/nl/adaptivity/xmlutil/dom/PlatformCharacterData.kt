@@ -25,7 +25,3 @@ public actual interface PlatformCharacterData : PlatformNode {
 
 }
 
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun PlatformCharacterData.getData(): String = data
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun PlatformCharacterData.setData(value: String) { data = value }

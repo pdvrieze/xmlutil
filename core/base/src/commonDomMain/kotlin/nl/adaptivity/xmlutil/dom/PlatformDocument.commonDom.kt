@@ -23,7 +23,6 @@
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.INode
-import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.implementation
 import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
@@ -67,61 +66,6 @@ public actual interface PlatformDocument : Node1 {
 
 }
 
-public actual inline fun PlatformDocument.importNode(node: PlatformNode, deep: Boolean): PlatformNode =
-    importNode(node, deep)
-
-public actual inline fun PlatformDocument.adoptNode(node: PlatformNode): PlatformNode =
-    adoptNode(node)
-
-public actual inline fun PlatformDocument.createAttribute(localName: String): PlatformAttr =
-    createAttribute(localName)
-
-public actual inline fun PlatformDocument.createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr =
-    createAttributeNS(namespace, qualifiedName)
-
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun PlatformDocument.getImplementation(): PlatformDOMImplementation = implementation
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun PlatformDocument.getDoctype(): PlatformDocumentType? = doctype
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun PlatformDocument.getDocumentElement(): PlatformElement? = documentElement
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline fun PlatformDocument.getInputEncoding(): String? = inputEncoding
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline val PlatformDocument.supportsWhitespaceAtToplevel: Boolean get() = true
-
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createElement(localName: String): PlatformElement = createElement(localName)
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement =
-    createElementNS(namespaceURI, qualifiedName)
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createDocumentFragment(): PlatformDocumentFragment =
-    createDocumentFragment()
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createTextNode(data: String): PlatformText =
-    createTextNode(data)
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createCDATASection(data: String): PlatformCDATASection =
-    createCDATASection(data)
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createComment(data: String): PlatformComment =
-    createComment(data)
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public actual inline fun PlatformDocument.createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction =
-    createProcessingInstruction(target, data)
 
 public actual fun Document2.adoptNode(node: Node1): Node2 = when (node) {
     is INode -> adoptNode(node)
@@ -141,10 +85,10 @@ public actual fun Document2.adoptNode(node: Node1): Node2 = when (node) {
 
     is PlatformDocumentType -> implementation.createDocumentType(node.name, node.publicId, node.systemId)
     is PlatformElement -> createElementNS(node.namespaceURI ?: "", node.tagName).also { e ->
-        for (a in node.getAttributes()) {
+        for (a in node.attributes) {
             e.setAttributeNS(a.namespaceURI, a.name, a.value)
         }
-        for (n in node.getChildNodes()) {
+        for (n in node.childNodes) {
             e.appendChild(adoptNode(n))
         }
     }

@@ -22,49 +22,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.Element", "nl.adaptivity.xmlutil.dom2")
 )
 public expect interface PlatformElement : PlatformNode
-
-internal expect inline fun PlatformElement.getAttribute(qualifiedName: String): String?
-internal expect inline fun PlatformElement.getAttributeNS(namespace: String?, localName: String): String?
-
-internal expect inline fun PlatformElement.setAttribute(qualifiedName: String, value: String)
-internal expect inline fun PlatformElement.setAttributeNS(namespace: String?, cName: String, value: String)
-
-internal expect inline fun PlatformElement.removeAttribute(qualifiedName: String)
-internal expect inline fun PlatformElement.removeAttributeNS(namespace: String?, localName: String)
-
-internal expect inline fun PlatformElement.hasAttribute(qualifiedName: String): Boolean
-internal expect inline fun PlatformElement.hasAttributeNS(namespace: String?, localName: String): Boolean
-
-internal expect inline fun PlatformElement.getAttributeNode(qualifiedName: String): PlatformAttr?
-internal expect inline fun PlatformElement.getAttributeNodeNS(namespace: String?, localName: String): PlatformAttr?
-
-internal expect inline fun PlatformElement.setAttributeNode(attr: PlatformAttr): PlatformAttr?
-internal expect inline fun PlatformElement.setAttributeNodeNS(attr: PlatformAttr): PlatformAttr?
-internal expect inline fun PlatformElement.removeAttributeNode(attr: PlatformAttr): PlatformAttr
-
-internal expect inline fun PlatformElement.getElementsByTagName(qualifiedName: String): PlatformNodeList
-internal expect inline fun PlatformElement.getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList
-
-@XmlUtilInternal
-public expect inline fun PlatformElement.getNamespaceURI(): String?
-
-@XmlUtilInternal
-public expect inline fun PlatformElement.getPrefix(): String?
-
-@XmlUtilInternal
-public expect inline fun PlatformElement.getLocalName(): String?
-
-@XmlUtilInternal
-public expect inline fun PlatformElement.getTagName(): String
-
-@XmlUtilInternal
-public expect inline fun PlatformElement.getAttributes(): PlatformNamedNodeMap
 
 

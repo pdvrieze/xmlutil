@@ -20,5 +20,3 @@
 
 package nl.adaptivity.xmlutil.dom
 
-internal actual fun PlatformNode.asAttr(): PlatformAttr = this as PlatformAttr
-internal actual fun PlatformNode.asElement(): PlatformElement = this as PlatformElement

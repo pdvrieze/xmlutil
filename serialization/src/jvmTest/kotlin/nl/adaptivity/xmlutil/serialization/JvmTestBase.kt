@@ -27,38 +27,38 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.DomWriter
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.adoptNode
+import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.xmlStreaming
-import org.w3c.dom.Node
 import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import nl.adaptivity.xmlutil.dom2.Document as Document2
 
 private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
     val writer = DomWriter()
     baseXmlFormat.encodeToWriter(writer, serializer, value)
 
-    val expectedDom: Document2 = DocumentBuilderFactory
+    val expectedDom: Document = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
-        .let { createDocument(QName("XX")).adoptNode(it as Node) as Document2 }
+        .let { createDocument(QName("XX")).adoptNode(it as PlatformNode) as Document }
     assertDomEquals(expectedDom, writer.target)
 }
 
 private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: XML) {
-    val expectedDom: Document2 = DocumentBuilderFactory
+    val expectedDom: Document = DocumentBuilderFactory
         .newInstance()
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
-        .let { createDocument(QName("XX")).adoptNode(it as Node) as Document2 }
+        .let { createDocument(QName("XX")).adoptNode(it as PlatformNode) as Document }
 
     val actualReader = xmlStreaming.newReader(expectedDom)
 
@@ -84,7 +84,7 @@ actual abstract class PlatformXmlTestBase<T> actual constructor(
 
     @Test
     open fun testDomDeserializeXml() {
-        testDomSerializeXmlImpl(baseXmlFormat)
+        testDomDeserializeXmlImpl(baseXmlFormat)
     }
 }
 
@@ -102,7 +102,7 @@ actual abstract class PlatformTestBase<T> actual constructor(
 
     @Test
     open fun testDomDeserializeXml() {
-        testDomSerializeXmlImpl(baseXmlFormat)
+        testDomDeserializeXmlImpl(baseXmlFormat)
     }
 }
 
@@ -119,6 +119,6 @@ actual abstract class PlatformTestPolymorphicBase<T> actual constructor(
 
     @Test
     open fun testDomDeserializeXml() {
-        testDomSerializeXmlImpl(baseXmlFormat)
+        testDomDeserializeXmlImpl(baseXmlFormat)
     }
 }

@@ -29,7 +29,6 @@ import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
-import nl.adaptivity.xmlutil.util.forEachAttr
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
@@ -141,7 +140,7 @@ public class DomWriter internal constructor(
             result: MutableSet<String>,
             redeclared: MutableCollection<String>
         ) {
-            getAttributes().forEachAttr { attr ->
+            for(attr in attributes) {
                 val prefix = when {
                     attr.getPrefix() == "xmlns" -> attr.getLocalName()
                     attr.getPrefix().isNullOrEmpty() && attr.getLocalName() == "xmlns" -> ""

@@ -22,8 +22,6 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
 public actual external interface PlatformNamedNodeMap {
 
     public fun item(index: Int): PlatformNode?
@@ -35,23 +33,4 @@ public actual external interface PlatformNamedNodeMap {
     public fun removeNamedItemNS(namespace: String?, localName: String): PlatformNode?
 
 }
-
-@Suppress("NOTHING_TO_INLINE")
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.getLength(): Int = asDynamic().length as Int
-
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
 

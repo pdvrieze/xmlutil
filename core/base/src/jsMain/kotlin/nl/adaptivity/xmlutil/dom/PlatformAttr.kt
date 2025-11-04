@@ -35,14 +35,3 @@ public actual external interface PlatformAttr : PlatformNode {
     public val ownerElement: PlatformElement?
 }
 
-public actual inline fun PlatformAttr.getNamespaceURI(): String? = namespaceURI
-public actual inline fun PlatformAttr.getPrefix(): String? = prefix
-public actual inline fun PlatformAttr.getLocalName(): String? = localName
-public actual inline fun PlatformAttr.getName(): String = name
-internal actual inline fun PlatformAttr.getValue(): String = value
-internal actual inline fun PlatformAttr.setValue(value: String) {
-    asDynamic().value = value
-}
-
-internal actual inline fun PlatformAttr.getOwnerElement(): PlatformElement? = asDynamic().ownerElement
-

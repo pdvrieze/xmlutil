@@ -22,9 +22,6 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
-
 public actual interface PlatformNamedNodeMap {
     public fun item(index: Int): PlatformNode?
 
@@ -41,22 +38,6 @@ public actual interface PlatformNamedNodeMap {
     public fun removeNamedItemNS(namespace: String?, localName: String): PlatformNode?
 }
 
-@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.getLength(): Int = (this as INamedNodeMap).size
+public inline operator fun PlatformNamedNodeMap.get(index:Int): PlatformNode? = item(index)
 
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.item(index: Int): PlatformNode? = item(index)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.getNamedItem(qualifiedName: String): PlatformNode? = getNamedItem(qualifiedName)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? = getNamedItemNS(namespace, localName)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.setNamedItem(attr: PlatformNode): PlatformNode? = setNamedItem(attr)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.setNamedItemNS(attr: PlatformNode): PlatformNode? = setNamedItemNS(attr)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.removeNamedItem(qualifiedName: String): PlatformNode? = removeNamedItem(qualifiedName)
-@XmlUtilInternal
-public actual inline fun PlatformNamedNodeMap.removeNamedItemNS(namespace: String?, localName: String): PlatformNode? = removeNamedItemNS(namespace, localName)
 

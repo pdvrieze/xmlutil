@@ -22,24 +22,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.Attr", "nl.adaptivity.xmlutil.dom2")
 )
 public expect interface PlatformAttr : PlatformNode
-
-@XmlUtilInternal
-public expect inline fun PlatformAttr.getNamespaceURI(): String?
-@XmlUtilInternal
-public expect inline fun PlatformAttr.getPrefix(): String?
-@XmlUtilInternal
-public expect inline fun PlatformAttr.getLocalName(): String?
-@XmlUtilInternal
-public expect inline fun PlatformAttr.getName(): String
-
-internal expect inline fun PlatformAttr.getValue(): String
-internal expect inline fun PlatformAttr.setValue(value: String)
-internal expect inline fun PlatformAttr.getOwnerElement(): PlatformElement?
 

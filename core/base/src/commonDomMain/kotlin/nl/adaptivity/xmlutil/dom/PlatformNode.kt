@@ -134,34 +134,3 @@ public actual interface PlatformNode {
 
 }
 
-public actual inline fun PlatformNode.appendChild(node: PlatformNode): PlatformNode = appendChild(node)
-public actual fun PlatformNode.replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode = replaceChild(oldChild, newChild)
-public actual fun PlatformNode.removeChild(node: PlatformNode): PlatformNode = removeChild(node)
-
-public actual fun PlatformNode.lookupPrefix(namespace: String): String? =
-    lookupPrefix(namespace)
-
-public actual fun PlatformNode.lookupNamespaceURI(prefix: String): String? =
-    lookupNamespaceURI(prefix)
-
-public actual inline fun PlatformNode.getNodeType(): Short = nodeType
-
-public actual inline fun PlatformNode.getNodeName(): String = nodeName
-
-public actual inline fun PlatformNode.getOwnerDocument(): PlatformDocument = ownerDocument
-
-public actual inline fun PlatformNode.getParentNode(): PlatformNode? = parentNode
-
-public actual inline fun PlatformNode.getTextContent(): String? = textContent
-
-@Suppress("DEPRECATION")
-public actual inline fun PlatformNode.getChildNodes(): PlatformNodeList = childNodes
-
-public actual inline fun PlatformNode.getFirstChild(): PlatformNode? = firstChild
-
-public actual inline fun PlatformNode.getLastChild(): PlatformNode? = lastChild
-
-public actual inline fun PlatformNode.getPreviousSibling(): PlatformNode? = previousSibling
-
-public actual inline fun PlatformNode.getNextSibling(): PlatformNode? = nextSibling
-

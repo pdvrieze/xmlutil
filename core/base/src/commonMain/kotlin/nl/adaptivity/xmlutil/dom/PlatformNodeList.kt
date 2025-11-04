@@ -22,43 +22,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
 @Deprecated(
     "No longer supported, use dom2 instead",
     ReplaceWith("nl.adaptivity.xmlutil.dom2.NodeList", "nl.adaptivity.xmlutil.dom2")
 )
 public expect interface PlatformNodeList
-
-@XmlUtilInternal
-public expect inline fun PlatformNodeList.getLength(): Int
-
-@XmlUtilInternal
-public expect operator fun PlatformNodeList.get(index: Int): PlatformNode?
-
-@Deprecated("Use get/accessor")
-@XmlUtilDeprecatedInternal
-public fun PlatformNodeList.item(index: Int): PlatformNode? = get(index)
-
-public operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> {
-    return PlatformNodeListIterator(this)
-}
-
-@Deprecated(
-    "No longer supported, use dom2 instead",
-    ReplaceWith("nl.adaptivity.xmlutil.dom2.NodeListIterator", "nl.adaptivity.xmlutil.dom2")
-)
-internal class PlatformNodeListIterator(private val nodeList: PlatformNodeList) : Iterator<PlatformNode> {
-    private var pos: Int = 0
-
-    override fun hasNext(): Boolean {
-        return pos < nodeList.getLength()
-    }
-
-    override fun next(): PlatformNode {
-        return nodeList.item(pos++) ?: throw NoSuchElementException("No item found in the iterator")
-    }
-
-}
 

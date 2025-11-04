@@ -84,7 +84,7 @@ internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate
     override fun removeAttribute(name: String) = delegate.removeAttribute(name)
 
     override fun getAttributeNS(namespace: String?, localName: String): String? =
-        delegate.getAttributeNS(namespace, localName)
+        delegate.getAttributeNS(namespace?.takeIf { it.isNotEmpty() }, localName)
 
     override fun setAttributeNS(namespaceURI: String?, qualifiedName: String, value: String) =
         delegate.setAttributeNS(namespaceURI, qualifiedName, value)

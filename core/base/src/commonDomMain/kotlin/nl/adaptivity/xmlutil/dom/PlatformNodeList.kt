@@ -22,22 +22,13 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import nl.adaptivity.xmlutil.dom.PlatformNodeList
-import nl.adaptivity.xmlutil.dom.PlatformNodeList as NodeList1
-
 @Deprecated(
     "Use INodeList that contains extended functions",
     ReplaceWith("INodeList", "nl.adaptivity.xmlutil.core.impl.idom.INodeList")
 )
 public actual interface PlatformNodeList {
     public fun item(index: Int): PlatformNode?
+    public val size: Int
 }
 
-@Suppress("NOTHING_TO_INLINE", "DEPRECATION", "KotlinRedundantDiagnosticSuppress")
-@XmlUtilInternal
-public actual inline fun NodeList1.getLength(): Int = (this as INodeList).size
 
-@XmlUtilInternal
-public actual operator fun PlatformNodeList.get(index: Int): PlatformNode? = item(index)

@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.util.filterTyped
-import nl.adaptivity.xmlutil.util.forEachAttr
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
@@ -170,7 +169,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
                 return sequence<Namespace> {
                     var c: Element? = currentElement
                     while (c != null) {
-                        c.getAttributes().forEachAttr { attr ->
+                        for (attr in c.attributes) {
                             when {
                                 attr.getPrefix() == "xmlns" ->
                                     yield(

@@ -22,18 +22,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
 public actual external interface PlatformDOMImplementation {
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType
 
     public fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument
 }
 
-@XmlUtilInternal
-public actual inline fun PlatformDOMImplementation.createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType =
-    createDocumentType(qualifiedName, publicId, systemId)
-
-@XmlUtilInternal
-public actual inline fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument =
-    createDocument(namespace, qualifiedName, documentType)

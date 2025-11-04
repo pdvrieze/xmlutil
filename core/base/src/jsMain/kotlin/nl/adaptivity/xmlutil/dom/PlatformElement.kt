@@ -22,8 +22,6 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-
 public actual external interface PlatformElement : PlatformNode {
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
@@ -42,37 +40,4 @@ public actual external interface PlatformElement : PlatformNode {
     public fun getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList
 }
 
-internal actual inline fun PlatformElement.getAttribute(qualifiedName: String): String? = getAttribute(qualifiedName)
-internal actual inline fun PlatformElement.getAttributeNS(namespace: String?, localName: String): String? = getAttributeNS(namespace, localName)
-
-internal actual inline fun PlatformElement.setAttribute(qualifiedName: String, value: String) = setAttribute(qualifiedName, value)
-internal actual inline fun PlatformElement.setAttributeNS(namespace: String?, cName: String, value: String) = setAttributeNS(namespace, cName, value)
-
-internal actual inline fun PlatformElement.removeAttribute(qualifiedName: String) = removeAttribute(qualifiedName)
-internal actual inline fun PlatformElement.removeAttributeNS(namespace: String?, localName: String) = removeAttributeNS(namespace, localName)
-
-internal actual inline fun PlatformElement.hasAttribute(qualifiedName: String): Boolean = hasAttribute(qualifiedName)
-internal actual inline fun PlatformElement.hasAttributeNS(namespace: String?, localName: String): Boolean = hasAttributeNS(namespace, localName)
-
-internal actual inline fun PlatformElement.getAttributeNode(qualifiedName: String): PlatformAttr? = getAttributeNode(qualifiedName)
-internal actual inline fun PlatformElement.getAttributeNodeNS(namespace: String?, localName: String): PlatformAttr? = getAttributeNodeNS(namespace, localName)
-
-internal actual inline fun PlatformElement.setAttributeNode(attr: PlatformAttr): PlatformAttr? = setAttributeNode(attr)
-internal actual inline fun PlatformElement.setAttributeNodeNS(attr: PlatformAttr): PlatformAttr? = setAttributeNodeNS(attr)
-internal actual inline fun PlatformElement.removeAttributeNode(attr: PlatformAttr): PlatformAttr = removeAttributeNode(attr)
-
-internal actual inline fun PlatformElement.getElementsByTagName(qualifiedName: String): PlatformNodeList = getElementsByTagName(qualifiedName)
-internal actual inline fun PlatformElement.getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList = getElementsByTagNameNS(namespace, localName)
-
-
-@XmlUtilInternal
-public actual inline fun PlatformElement.getNamespaceURI(): String? = asDynamic().namespaceURI as String?
-@XmlUtilInternal
-public actual inline fun PlatformElement.getPrefix(): String? = asDynamic().prefix as String?
-@XmlUtilInternal
-public actual inline fun PlatformElement.getLocalName(): String? = asDynamic().localName as String?
-@XmlUtilInternal
-public actual inline fun PlatformElement.getTagName(): String = (asDynamic().tagName as String?) ?: nodeName
-@XmlUtilInternal
-public actual inline fun PlatformElement.getAttributes(): PlatformNamedNodeMap = asDynamic().attributes
 

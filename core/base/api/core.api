@@ -812,37 +812,6 @@ public final class nl/adaptivity/xmlutil/core/XmlVersion : java/lang/Enum {
 
 public final class nl/adaptivity/xmlutil/dom/Document_jvmKt {
 	public static final fun adoptNode (Lnl/adaptivity/xmlutil/dom2/Document;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
-	public static final fun adoptNode (Lorg/w3c/dom/Document;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public static final fun createAttribute (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Attr;
-	public static final fun createAttributeNS (Lorg/w3c/dom/Document;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Attr;
-	public static final fun createCDATASection (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/CDATASection;
-	public static final fun createComment (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Comment;
-	public static final fun createDocumentFragment (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentFragment;
-	public static final fun createElement (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Element;
-	public static final fun createElementNS (Lorg/w3c/dom/Document;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Element;
-	public static final fun createProcessingInstruction (Lorg/w3c/dom/Document;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/ProcessingInstruction;
-	public static final fun createTextNode (Lorg/w3c/dom/Document;Ljava/lang/String;)Lorg/w3c/dom/Text;
-	public static final fun importNode (Lorg/w3c/dom/Document;Lorg/w3c/dom/Node;Z)Lorg/w3c/dom/Node;
-}
-
-public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
-	public static final fun getChildNodes (Lorg/w3c/dom/Node;)Lorg/w3c/dom/NodeList;
-	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
-	public static final fun getDoctype (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentType;
-	public static final fun getDocumentElement (Lorg/w3c/dom/Document;)Lorg/w3c/dom/Element;
-	public static final fun getFirstChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public static final fun getImplementation (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DOMImplementation;
-	public static final fun getInputEncoding (Lorg/w3c/dom/Document;)Ljava/lang/String;
-	public static final fun getLastChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public static final fun getNextSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public static final fun getNodeName (Lorg/w3c/dom/Node;)Ljava/lang/String;
-	public static final fun getNodeType (Lorg/w3c/dom/Node;)S
-	public static final fun getOwnerDocument (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Document;
-	public static final fun getParentNode (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public static final fun getPreviousSibling (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public static final fun getSupportsWhitespaceAtToplevel (Lorg/w3c/dom/Document;)Z
-	public static final fun getTextContent (Lorg/w3c/dom/Node;)Ljava/lang/String;
-	public static final fun setData (Lorg/w3c/dom/CharacterData;Ljava/lang/String;)V
 }
 
 public final class nl/adaptivity/xmlutil/dom/NodeConsts {
@@ -859,34 +828,6 @@ public final class nl/adaptivity/xmlutil/dom/NodeConsts {
 	public static final field NOTATION_NODE S
 	public static final field PROCESSING_INSTRUCTION_NODE S
 	public static final field TEXT_NODE S
-}
-
-public final class nl/adaptivity/xmlutil/dom/PlatformDOMImplementationKt {
-	public static final fun createDocument (Lorg/w3c/dom/DOMImplementation;Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Document;
-}
-
-public final class nl/adaptivity/xmlutil/dom/PlatformDocumentKt {
-	public static final fun getCharacterSet (Lorg/w3c/dom/Document;)Ljava/lang/String;
-	public static final fun getDoctype (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DocumentType;
-	public static final fun getDocumentElement (Lorg/w3c/dom/Document;)Lorg/w3c/dom/Element;
-	public static final fun getImplementation (Lorg/w3c/dom/Document;)Lorg/w3c/dom/DOMImplementation;
-	public static final fun getInputEncoding (Lorg/w3c/dom/Document;)Ljava/lang/String;
-	public static final fun importNode (Lorg/w3c/dom/Document;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-}
-
-public final class nl/adaptivity/xmlutil/dom/PlatformNamedNodeMapKt {
-	public static final fun get (Lorg/w3c/dom/NamedNodeMap;I)Lorg/w3c/dom/Attr;
-	public static final fun getLength (Lorg/w3c/dom/NamedNodeMap;)I
-	public static final fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
-}
-
-public final class nl/adaptivity/xmlutil/dom/PlatformNodeKt {
-	public static final fun getParentElement (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Element;
-}
-
-public final class nl/adaptivity/xmlutil/dom/PlatformNodeListKt {
-	public static final fun item (Lorg/w3c/dom/NodeList;I)Lorg/w3c/dom/Node;
-	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/xmlutil/dom2/Node {
