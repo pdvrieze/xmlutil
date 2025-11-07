@@ -35,7 +35,7 @@ public actual interface PlatformCharacterData : PlatformNode {
     public fun replaceData(offset: Int, count: Int, data: String)
 
     public override fun appendChild(node: PlatformNode): Nothing
-    public override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing
+    public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
     public override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?

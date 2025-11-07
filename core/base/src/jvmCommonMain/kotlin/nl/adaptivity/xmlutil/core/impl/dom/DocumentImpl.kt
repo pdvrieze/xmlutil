@@ -1,34 +1,34 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.*
+import nl.adaptivity.xmlutil.dom.PlatformDocument
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.DOMConfiguration
 import org.w3c.dom.EntityReference
 import org.w3c.dom.NodeList
-import nl.adaptivity.xmlutil.dom2.Node as Node2
-import org.w3c.dom.Document as DomDocument
-import org.w3c.dom.Node as DomNode
 
-internal class DocumentImpl(delegate: DomDocument) : NodeImpl<DomDocument>(delegate), IDocument {
+internal class DocumentImpl(delegate: PlatformDocument) : NodeImpl<PlatformDocument>(delegate), IDocument {
     override fun getInputEncoding(): String? = delegate.inputEncoding
 
     override fun getImplementation(): IDOMImplementation = DOMImplementationImpl
@@ -110,16 +110,16 @@ internal class DocumentImpl(delegate: DomDocument) : NodeImpl<DomDocument>(deleg
         return delegate.normalizeDocument()
     }
 
-    override fun renameNode(n: DomNode, namespaceURI: String?, qualifiedName: String): INode =
+    override fun renameNode(n: PlatformNode, namespaceURI: String?, qualifiedName: String): INode =
         delegate.renameNode(n.unWrap(), namespaceURI, qualifiedName).wrap()
 
-    override fun adoptNode(node: DomNode): INode = delegate.adoptNode(node.unWrap()).wrap()
+    override fun adoptNode(node: PlatformNode): INode = delegate.adoptNode(node.unWrap()).wrap()
 
-    override fun adoptNode(node: Node2): INode = delegate.adoptNode(node.unWrap()).wrap()
+    override fun adoptNode(node: Node): INode = delegate.adoptNode(node.unWrap()).wrap()
 
-    override fun importNode(node: DomNode, deep: Boolean): INode =
+    override fun importNode(node: PlatformNode, deep: Boolean): INode =
         delegate.importNode(node.unWrap(), deep).wrap()
 
-    override fun importNode(node: Node2, deep: Boolean): INode =
+    override fun importNode(node: Node, deep: Boolean): INode =
         delegate.importNode(node.unWrap(), deep).wrap()
 }

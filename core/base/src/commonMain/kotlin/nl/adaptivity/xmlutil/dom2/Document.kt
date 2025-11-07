@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
@@ -68,7 +69,7 @@ public inline val Document.doctype: DocumentType? get() = getDoctype()
 public inline val Document.documentElement: Element? get() = getDocumentElement()
 public inline val Document.inputEncoding: String? get() = getInputEncoding()
 
-
+public expect fun Document.importNode(node: PlatformNode, deep: Boolean): Node
 public fun Document.importNode(node: Node): Node = importNode(node, false)
 public inline val Document.characterSet: String? get() = getInputEncoding()
 

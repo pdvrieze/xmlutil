@@ -139,12 +139,12 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
         return delegate.appendChild(newChild.unWrap()).wrap()
     }
 
-    final override fun replaceChild(oldChild: INode, newChild: INode): INode {
-        return delegate.replaceChild(oldChild.unWrap(), newChild.unWrap()).wrap()
+    final override fun replaceChild(newChild: INode, oldChild: INode): INode {
+        return delegate.replaceChild(newChild.unWrap(), oldChild.unWrap()).wrap()
     }
 
     final override fun replaceChild(newChild: DomNode, oldChild: DomNode): INode {
-        return delegate.replaceChild(oldChild.unWrap(), newChild.unWrap()).wrap()
+        return delegate.replaceChild(newChild.unWrap(), oldChild.unWrap()).wrap()
     }
 
     final override fun removeChild(node: INode): INode {
@@ -168,6 +168,7 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
         return delegate.hashCode()
     }
 
+    override fun toString(): String = delegate.toString()
 
 }
 

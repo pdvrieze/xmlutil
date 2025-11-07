@@ -64,7 +64,7 @@ public actual interface PlatformNode {
 
     public fun appendChild(node: PlatformNode): PlatformNode
 
-    public fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode
+    public fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): PlatformNode
 
     public fun removeChild(node: PlatformNode): PlatformNode
 

@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 import java.io.*
@@ -113,6 +114,9 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     actual override val genericDomImplementation: DOMImplementation
         get() = DOMImplementationImpl
+
+    actual override val platformDOMImplementation: PlatformDOMImplementation
+        get() = DOMImplementationImpl.delegate
 
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node): XmlReader {

@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(NodeSerializer::class)
 public expect interface Node {
@@ -43,10 +44,14 @@ public expect interface Node {
 
     public fun appendChild(node: Node): Node
 
-    public fun replaceChild(oldChild: Node, newChild: Node): Node
+    public fun replaceChild(newChild: Node, oldChild: Node): Node
 
     public fun removeChild(node: Node): Node
 }
+
+public expect fun Node.appendChild(node: PlatformNode): Node
+public expect fun Node.replaceChild(newChild: PlatformNode, oldChild: Node): Node
+public expect fun Node.removeChild(node: PlatformNode): Node
 
 public inline val Node.nodeType: Short get() = getNodetype().value
 public inline val Node.nodeName: String get() = getNodeName()

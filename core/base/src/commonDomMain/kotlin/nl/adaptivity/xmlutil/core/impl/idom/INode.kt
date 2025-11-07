@@ -35,7 +35,7 @@ public interface INode : PlatformNode {
 
     override fun appendChild(node: PlatformNode): INode
 
-    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): INode
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode
 
     override fun removeChild(node: PlatformNode): INode
 }

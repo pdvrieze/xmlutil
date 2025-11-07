@@ -63,21 +63,41 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
     }
 
     override fun appendChild(node: PlatformNode): INode {
+        if (node === this) throw DOMException.hierarchyRequestErr("Node cannot be added to itself")
         val n = checkNode(node)
-        _childNodes.elements.add(n)
-        n.setParentNode(this)
+        when (n) {
+            is DocumentFragmentImpl -> for(n2 in n._childNodes) {
+                _childNodes.elements.add(n2)
+                n2.setParentNode(this)
+                n._childNodes.elements.clear()
+            }
+
+            else -> {
+                _childNodes.elements.add(n)
+                n.setParentNode(this)
+            }
+        }
         return n
     }
 
-    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): INode {
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         val oldIdx = _childNodes.elements.indexOf(old)
         if (oldIdx < 0) throw DOMException("Old child not found")
 
         _childNodes.elements[oldIdx].setParentNode(null)
-        val new = checkNode(newChild)
-        _childNodes.elements[oldIdx] = new
-        new.setParentNode(this)
+        when(val new = checkNode(newChild)) {
+            is DocumentFragmentImpl -> {
+                val elems = new._childNodes.elements
+                for (e in elems) e.setParentNode(this)
+                _childNodes.elements.addAll(oldIdx, elems)
+            }
+
+            else -> {
+                _childNodes.elements[oldIdx] = new
+                new.setParentNode(this)
+            }
+        }
 
         return old
     }

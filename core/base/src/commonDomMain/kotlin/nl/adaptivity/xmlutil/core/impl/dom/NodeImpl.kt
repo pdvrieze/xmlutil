@@ -32,7 +32,9 @@ internal abstract class NodeImpl() : INode {
     override fun getParentNode(): INode? = parentNode
 
     fun setParentNode(node: Node?) {
-        parentNode = node?.let{ checkNode(it) }
+        val n = node?.let { checkNode(it) }
+        parentNode?.removeChild(this)
+        parentNode = n?.also { appendChild(this) }
     }
 
     override fun getPreviousSibling(): INode? {

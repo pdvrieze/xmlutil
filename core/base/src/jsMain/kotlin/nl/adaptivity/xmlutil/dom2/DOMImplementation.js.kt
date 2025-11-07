@@ -26,4 +26,5 @@ public actual interface DOMImplementation {
     public actual fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
     public actual fun hasFeature(feature: String, version: String?): Boolean
     public actual fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
+    public actual fun getFeature(feature: String, version: String): Any?
 }

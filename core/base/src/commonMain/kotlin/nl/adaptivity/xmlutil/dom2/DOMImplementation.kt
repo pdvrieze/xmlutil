@@ -30,6 +30,8 @@ public expect interface DOMImplementation {
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
     public fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
 
+    public fun getFeature(feature: String, version: String): Any?
+
     public fun hasFeature(feature: String, version: String?): Boolean /*{
         val f = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
         val v = when {

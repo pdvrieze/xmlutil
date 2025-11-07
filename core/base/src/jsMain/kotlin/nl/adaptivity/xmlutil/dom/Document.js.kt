@@ -58,4 +58,4 @@ public actual external interface PlatformDocument : PlatformNode {
     public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 }
 
-public actual fun Document2.adoptNode(node: PlatformNode): Node2 = node.wrap()
+public actual fun Document2.adoptNode(node: PlatformNode): Node2 = adoptNode(node.wrap())

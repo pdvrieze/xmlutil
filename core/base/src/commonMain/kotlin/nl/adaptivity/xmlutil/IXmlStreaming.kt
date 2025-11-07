@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
@@ -47,6 +48,8 @@ public interface IXmlStreaming {
 
     @ExperimentalXmlUtilApi
     public fun newWriter(dest: Node): DomWriter
+
+    public val platformDOMImplementation: PlatformDOMImplementation
 
     public val genericDomImplementation: DOMImplementation
 }

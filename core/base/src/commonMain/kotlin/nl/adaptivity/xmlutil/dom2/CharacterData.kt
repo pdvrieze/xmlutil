@@ -36,7 +36,7 @@ public expect interface CharacterData : Node {
     public fun replaceData(offset: Int, count: Int, data: String)
 
     override fun appendChild(node: Node): Nothing
-    override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    override fun replaceChild(newChild: Node, oldChild: Node): Nothing
     override fun removeChild(node: Node): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?

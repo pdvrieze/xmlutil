@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.core.impl.dom.wrap
+import nl.adaptivity.xmlutil.dom.PlatformNode
+
 public actual interface Document : Node {
     public actual fun getImplementation(): DOMImplementation
     public actual fun getDoctype(): DocumentType?
@@ -36,4 +39,11 @@ public actual interface Document : Node {
     public actual fun createCDATASection(data: String): CDATASection
     public actual fun createComment(data: String): Comment
     public actual fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
+}
+
+public actual fun Document.importNode(
+    node: PlatformNode,
+    deep: Boolean
+): Node {
+    return importNode(node.wrap(), deep)
 }

@@ -150,7 +150,7 @@ internal class ElementImpl(
         return n
     }
 
-    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): INode {
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         val idx = _childNodes.indexOf(old)
         if (idx < 0) throw DOMException()

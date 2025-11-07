@@ -37,7 +37,7 @@ public interface IDocumentType : INode, DocumentType1, DocumentType2 {
     public override fun appendChild(node: Node): Nothing =
         throw UnsupportedOperationException("No children in document type")
 
-    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing =
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
         throw UnsupportedOperationException("No children in document type")
 
     public override fun removeChild(node: Node): Nothing =

@@ -38,5 +38,7 @@ public actual interface PlatformDOMImplementation {
     public fun hasFeature(feature: String, version: String?): Boolean
 
     public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
+
+    public fun getFeature(feature: String, version: String): Any?
 }
 

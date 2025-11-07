@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
@@ -57,6 +58,7 @@ public expect val xmlStreaming: IXmlStreaming
  */
 internal expect object XmlStreaming : IXmlStreaming {
     override val genericDomImplementation: DOMImplementation
+    override val platformDOMImplementation: PlatformDOMImplementation
 
     override fun newWriter(): DomWriter
 

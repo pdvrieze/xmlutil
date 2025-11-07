@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
+import nl.adaptivity.xmlutil.dom.DOMException
 
 internal object SimpleDOMImplementation : IDOMImplementation {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
@@ -37,15 +38,19 @@ internal object SimpleDOMImplementation : IDOMImplementation {
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument {
         return DocumentImpl(documentType).also {
             (documentType as DocumentTypeImpl?)?.setOwnerDocument(it)
-            if (qualifiedName != null) {
+            if (!qualifiedName.isNullOrBlank()) {
                 val elem = when (namespace) {
                     null -> it.createElement(qualifiedName)
                     else -> it.createElementNS(namespace, qualifiedName)
                 }
                 it.appendChild(elem)
             } else {
-                require(namespace.isNullOrEmpty()) { "Creating documents with a namespace but no qualified name is not possible" }
+                if (namespace.isNullOrEmpty()) throw DOMException.namespaceErr("Creating documents with a namespace but no qualified name is not possible")
             }
         }
+    }
+
+    override fun getFeature(feature: String, version: String): Any? {
+        return null
     }
 }

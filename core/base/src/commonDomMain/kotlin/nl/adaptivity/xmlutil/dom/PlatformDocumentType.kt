@@ -26,7 +26,7 @@ public actual interface PlatformDocumentType : PlatformNode {
     public fun getSystemId(): String
 
     public override fun appendChild(node: PlatformNode): Nothing
-    public override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing
+    public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
     public override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?

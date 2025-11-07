@@ -24,12 +24,12 @@ import kotlinx.browser.document
 import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom2.DOMVersion
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import org.w3c.dom.DOMImplementation
 import org.w3c.dom.parsing.DOMParser
-import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation as DOMImplementation1
-import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
 
 internal object DOMImplementationImpl : IDOMImplementation {
     val delegate: DOMImplementation by lazy {
@@ -46,8 +46,8 @@ internal object DOMImplementationImpl : IDOMImplementation {
 
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument {
-        val documentType1 = documentType?.unWrap() as? DocumentType1
-        return (delegate as DOMImplementation1).createDocument(namespace, qualifiedName, documentType1)
+        val documentType1 = documentType?.unWrap() as? PlatformDocumentType
+        return (delegate as PlatformDOMImplementation).createDocument(namespace, qualifiedName, documentType1)
             .wrap() as IDocument
     }
 
@@ -64,4 +64,7 @@ internal object DOMImplementationImpl : IDOMImplementation {
         return version == null || feature.isSupportedVersion(version)
     }
 
+    override fun getFeature(feature: String, version: String): Any? {
+        return delegate.asDynamic().getFeature(feature, version)
+    }
 }

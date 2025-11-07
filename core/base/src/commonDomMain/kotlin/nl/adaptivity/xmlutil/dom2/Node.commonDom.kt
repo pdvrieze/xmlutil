@@ -25,3 +25,18 @@ package nl.adaptivity.xmlutil.dom2
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual typealias Node = PlatformNode
+
+public actual fun Node.appendChild(node: PlatformNode): Node {
+    return appendChild(node) // child member
+}
+
+public actual fun Node.replaceChild(
+    newChild: PlatformNode,
+    oldChild: Node
+): Node {
+    return replaceChild(newChild, oldChild) // child member
+}
+
+public actual fun Node.removeChild(node: PlatformNode): Node {
+    return removeChild(node)
+}

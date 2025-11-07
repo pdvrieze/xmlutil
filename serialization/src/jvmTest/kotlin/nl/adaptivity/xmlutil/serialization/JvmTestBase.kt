@@ -27,9 +27,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.DomWriter
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.importNode
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.xmlStreaming
@@ -45,10 +44,14 @@ private fun <T> XmlTestBase<T>.testDomSerializeXmlImpl(baseXmlFormat: XML) {
 
     val expectedDom: Document = DocumentBuilderFactory
         .newInstance()
-        .apply { isNamespaceAware = true }
+        .apply { this.isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
-        .let { createDocument(QName("XX")).adoptNode(it as PlatformNode) as Document }
+        .let {
+            createDocument(null).apply {
+                appendChild(importNode(it.documentElement, true))
+            }
+        }
     assertDomEquals(expectedDom, writer.target)
 }
 
@@ -58,7 +61,11 @@ private fun <T> XmlTestBase<T>.testDomDeserializeXmlImpl(baseXmlFormat: XML) {
         .apply { isNamespaceAware = true }
         .newDocumentBuilder()
         .parse(InputSource(StringReader(expectedXML)))
-        .let { createDocument(QName("XX")).adoptNode(it as PlatformNode) as Document }
+        .let {
+            createDocument(QName("XX")).apply {
+                replaceChild(importNode(it.documentElement, true), getDocumentElement()!!)
+            }
+        }
 
     val actualReader = xmlStreaming.newReader(expectedDom)
 

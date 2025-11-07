@@ -35,7 +35,7 @@ public interface ICharacterData : INode, CharacterData1, CharacterData2 {
     public override fun appendChild(node: Node): Nothing =
         throw UnsupportedOperationException("No children in character nodes")
 
-    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing =
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
         throw UnsupportedOperationException("No children in character nodes")
 
     public override fun removeChild(node: Node): Nothing =

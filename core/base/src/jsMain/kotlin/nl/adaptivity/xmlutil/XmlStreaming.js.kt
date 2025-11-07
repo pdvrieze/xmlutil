@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.createDocument
@@ -107,6 +108,10 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     actual override val genericDomImplementation: DOMImplementation
         get() = DOMImplementationImpl
+
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    actual override val platformDOMImplementation: PlatformDOMImplementation
+        get() = DOMImplementationImpl.delegate as PlatformDOMImplementation
 }
 
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming

@@ -47,8 +47,6 @@ internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), IAttr 
     override fun getSchemaTypeInfo(): TypeInfo = delegate.schemaTypeInfo
 
     override fun isId(): Boolean = delegate.isId
-
-
 }
 
 internal fun Node.wrapAttr(): IAttr {

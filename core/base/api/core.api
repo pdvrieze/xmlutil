@@ -62,6 +62,7 @@ public abstract interface annotation class nl/adaptivity/xmlutil/ExperimentalXml
 
 public abstract interface class nl/adaptivity/xmlutil/IXmlStreaming {
 	public abstract fun getGenericDomImplementation ()Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
+	public abstract fun getPlatformDOMImplementation ()Lorg/w3c/dom/DOMImplementation;
 	public abstract fun newGenericReader (Ljava/io/Reader;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public abstract fun newGenericReader (Ljava/lang/CharSequence;Z)Lnl/adaptivity/xmlutil/XmlReader;
 	public static synthetic fun newGenericReader$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Ljava/io/Reader;ZILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlReader;
@@ -884,6 +885,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/Comment : nl/adaptivi
 public abstract interface class nl/adaptivity/xmlutil/dom2/DOMImplementation {
 	public abstract fun createDocument (Ljava/lang/String;Ljava/lang/String;Lnl/adaptivity/xmlutil/dom2/DocumentType;)Lnl/adaptivity/xmlutil/dom2/Document;
 	public abstract fun createDocumentType (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/DocumentType;
+	public abstract fun getFeature (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
 	public abstract fun getSupportsWhitespaceAtToplevel ()Z
 	public abstract fun hasFeature (Ljava/lang/String;Ljava/lang/String;)Z
 	public abstract fun hasFeature (Lnl/adaptivity/xmlutil/dom2/SupportedFeatures;Lnl/adaptivity/xmlutil/dom2/DOMVersion;)Z
@@ -951,6 +953,10 @@ public final class nl/adaptivity/xmlutil/dom2/DocumentTypeKt {
 	public static final fun getName (Lnl/adaptivity/xmlutil/dom2/DocumentType;)Ljava/lang/String;
 	public static final fun getPublicId (Lnl/adaptivity/xmlutil/dom2/DocumentType;)Ljava/lang/String;
 	public static final fun getSystemId (Lnl/adaptivity/xmlutil/dom2/DocumentType;)Ljava/lang/String;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Document_jvmCommonKt {
+	public static final fun importNode (Lnl/adaptivity/xmlutil/dom2/Document;Lorg/w3c/dom/Node;Z)Lnl/adaptivity/xmlutil/dom2/Node;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Element : nl/adaptivity/xmlutil/dom2/Node {
@@ -1074,6 +1080,12 @@ public final class nl/adaptivity/xmlutil/dom2/NodeType : java/lang/Enum {
 
 public final class nl/adaptivity/xmlutil/dom2/NodeType$Companion {
 	public final fun invoke (S)Lnl/adaptivity/xmlutil/dom2/NodeType;
+}
+
+public final class nl/adaptivity/xmlutil/dom2/Node_jvmCommonKt {
+	public static final fun appendChild (Lnl/adaptivity/xmlutil/dom2/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun removeChild (Lnl/adaptivity/xmlutil/dom2/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public static final fun replaceChild (Lnl/adaptivity/xmlutil/dom2/Node;Lorg/w3c/dom/Node;Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/ProcessingInstruction : nl/adaptivity/xmlutil/dom2/Node {

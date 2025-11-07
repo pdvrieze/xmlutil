@@ -33,4 +33,4 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 public actual typealias PlatformDocument = org.w3c.dom.Document
 
 
-public actual fun Document2.adoptNode(node: PlatformNode): Node2 = node.wrap()
+public actual fun Document2.adoptNode(node: PlatformNode): Node2 = adoptNode(node.wrap())

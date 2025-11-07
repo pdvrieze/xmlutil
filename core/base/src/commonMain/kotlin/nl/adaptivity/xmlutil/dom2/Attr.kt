@@ -36,7 +36,7 @@ public expect interface Attr : Node {
     public fun getOwnerElement(): Element?
 
     public override fun appendChild(node: Node): Nothing
-    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing
     public override fun removeChild(node: Node): Nothing
     public override fun getFirstChild(): Nothing?
     public override fun getLastChild(): Nothing?

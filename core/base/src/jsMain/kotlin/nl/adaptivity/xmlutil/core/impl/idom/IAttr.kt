@@ -46,7 +46,7 @@ public interface IAttr : INode, Attr1, Attr2 {
     public override fun appendChild(node: Node): Nothing =
         throw UnsupportedOperationException("No children in attributes")
 
-    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing =
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
         throw UnsupportedOperationException("No children in attributes")
 
     public override fun removeChild(node: Node): Nothing =

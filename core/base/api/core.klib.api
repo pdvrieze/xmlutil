@@ -258,6 +258,9 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformDOMImplementation { // nl.a
         abstract fun <get-supportsWhitespaceAtToplevel>(): kotlin/Boolean // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.supportsWhitespaceAtToplevel.<get-supportsWhitespaceAtToplevel>|<get-supportsWhitespaceAtToplevel>(){}[0]
 
     // Targets: [linuxX64, wasmJs, wasmWasi]
+    abstract fun getFeature(kotlin/String, kotlin/String): kotlin/Any? // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.getFeature|getFeature(kotlin.String;kotlin.String){}[0]
+
+    // Targets: [linuxX64, wasmJs, wasmWasi]
     abstract fun hasFeature(kotlin/String, kotlin/String?): kotlin/Boolean // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.hasFeature|hasFeature(kotlin.String;kotlin.String?){}[0]
 
     // Targets: [linuxX64, wasmJs, wasmWasi]
@@ -581,6 +584,8 @@ abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmluti
 
         // Targets: [js]
         abstract fun <get-genericDomImplementation>(): nl.adaptivity.xmlutil.dom2/DOMImplementation // nl.adaptivity.xmlutil/IXmlStreaming.genericDomImplementation.<get-genericDomImplementation>|<get-genericDomImplementation>(){}[0]
+    abstract val platformDOMImplementation // nl.adaptivity.xmlutil/IXmlStreaming.platformDOMImplementation|{}platformDOMImplementation[0]
+        abstract fun <get-platformDOMImplementation>(): nl.adaptivity.xmlutil.dom/PlatformDOMImplementation // nl.adaptivity.xmlutil/IXmlStreaming.platformDOMImplementation.<get-platformDOMImplementation>|<get-platformDOMImplementation>(){}[0]
 
     abstract fun newGenericReader(kotlin/CharSequence, kotlin/Boolean = ...): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newGenericReader|newGenericReader(kotlin.CharSequence;kotlin.Boolean){}[0]
     abstract fun newGenericReader(nl.adaptivity.xmlutil.core.impl.multiplatform/Reader, kotlin/Boolean = ...): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newGenericReader|newGenericReader(nl.adaptivity.xmlutil.core.impl.multiplatform.Reader;kotlin.Boolean){}[0]
@@ -1618,6 +1623,64 @@ final class nl.adaptivity.xmlutil.dom/DOMException : kotlin/Exception { // nl.ad
     constructor <init>(kotlin/String?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(kotlin.String?){}[0]
     constructor <init>(kotlin/String?, kotlin/Throwable?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(kotlin.String?;kotlin.Throwable?){}[0]
     constructor <init>(kotlin/Throwable?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(kotlin.Throwable?){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.dom/DOMException.Error) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(nl.adaptivity.xmlutil.dom.DOMException.Error){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.dom/DOMException.Error, kotlin/String?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(nl.adaptivity.xmlutil.dom.DOMException.Error;kotlin.String?){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.dom/DOMException.Error, kotlin/String?, kotlin/Throwable?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(nl.adaptivity.xmlutil.dom.DOMException.Error;kotlin.String?;kotlin.Throwable?){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.dom/DOMException.Error, kotlin/Throwable?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(nl.adaptivity.xmlutil.dom.DOMException.Error;kotlin.Throwable?){}[0]
+
+    final val code // nl.adaptivity.xmlutil.dom/DOMException.code|{}code[0]
+        final fun <get-code>(): kotlin/Short // nl.adaptivity.xmlutil.dom/DOMException.code.<get-code>|<get-code>(){}[0]
+    final val error // nl.adaptivity.xmlutil.dom/DOMException.error|{}error[0]
+        final fun <get-error>(): nl.adaptivity.xmlutil.dom/DOMException.Error // nl.adaptivity.xmlutil.dom/DOMException.error.<get-error>|<get-error>(){}[0]
+
+    final enum class Error : kotlin/Enum<nl.adaptivity.xmlutil.dom/DOMException.Error> { // nl.adaptivity.xmlutil.dom/DOMException.Error|null[0]
+        enum entry DOMSTRING_SIZE_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.DOMSTRING_SIZE_ERR|null[0]
+        enum entry HIERARCHY_REQUEST_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.HIERARCHY_REQUEST_ERR|null[0]
+        enum entry INDEX_SIZE_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.INDEX_SIZE_ERR|null[0]
+        enum entry INUSE_ATTRIBUTE_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.INUSE_ATTRIBUTE_ERR|null[0]
+        enum entry INVALID_ACCESS_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.INVALID_ACCESS_ERR|null[0]
+        enum entry INVALID_CHARACTER_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.INVALID_CHARACTER_ERR|null[0]
+        enum entry INVALID_MODIFICATION_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.INVALID_MODIFICATION_ERR|null[0]
+        enum entry INVALID_STATE_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.INVALID_STATE_ERR|null[0]
+        enum entry NAMESPACE_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.NAMESPACE_ERR|null[0]
+        enum entry NOT_FOUND_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.NOT_FOUND_ERR|null[0]
+        enum entry NOT_SUPPORTED_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.NOT_SUPPORTED_ERR|null[0]
+        enum entry NO_DATA_ALLOWED_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.NO_DATA_ALLOWED_ERR|null[0]
+        enum entry NO_MODIFICATION_ALLOWED_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.NO_MODIFICATION_ALLOWED_ERR|null[0]
+        enum entry SYNTAX_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.SYNTAX_ERR|null[0]
+        enum entry TYPE_MISMATCH_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.TYPE_MISMATCH_ERR|null[0]
+        enum entry UNKNOWN // nl.adaptivity.xmlutil.dom/DOMException.Error.UNKNOWN|null[0]
+        enum entry VALIDATION_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.VALIDATION_ERR|null[0]
+        enum entry WRONG_DOCUMENT_ERR // nl.adaptivity.xmlutil.dom/DOMException.Error.WRONG_DOCUMENT_ERR|null[0]
+
+        final val code // nl.adaptivity.xmlutil.dom/DOMException.Error.code|{}code[0]
+            final fun <get-code>(): kotlin/Short // nl.adaptivity.xmlutil.dom/DOMException.Error.code.<get-code>|<get-code>(){}[0]
+        final val entries // nl.adaptivity.xmlutil.dom/DOMException.Error.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.dom/DOMException.Error> // nl.adaptivity.xmlutil.dom/DOMException.Error.entries.<get-entries>|<get-entries>#static(){}[0]
+
+        final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.dom/DOMException.Error // nl.adaptivity.xmlutil.dom/DOMException.Error.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<nl.adaptivity.xmlutil.dom/DOMException.Error> // nl.adaptivity.xmlutil.dom/DOMException.Error.values|values#static(){}[0]
+    }
+
+    final object Companion { // nl.adaptivity.xmlutil.dom/DOMException.Companion|null[0]
+        final fun domstringSizeErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.domstringSizeErr|domstringSizeErr(kotlin.String){}[0]
+        final fun hierarchyRequestErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.hierarchyRequestErr|hierarchyRequestErr(kotlin.String){}[0]
+        final fun indexSizeErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.indexSizeErr|indexSizeErr(kotlin.String){}[0]
+        final fun inuseAttributeErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.inuseAttributeErr|inuseAttributeErr(kotlin.String){}[0]
+        final fun invalidAccessErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.invalidAccessErr|invalidAccessErr(kotlin.String){}[0]
+        final fun invalidCharacterErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.invalidCharacterErr|invalidCharacterErr(kotlin.String){}[0]
+        final fun invalidModificationErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.invalidModificationErr|invalidModificationErr(kotlin.String){}[0]
+        final fun invalidStateErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.invalidStateErr|invalidStateErr(kotlin.String){}[0]
+        final fun namespaceErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.namespaceErr|namespaceErr(kotlin.String){}[0]
+        final fun noDataAllowedErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.noDataAllowedErr|noDataAllowedErr(kotlin.String){}[0]
+        final fun noModificationAllowedErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.noModificationAllowedErr|noModificationAllowedErr(kotlin.String){}[0]
+        final fun notFoundErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.notFoundErr|notFoundErr(kotlin.String){}[0]
+        final fun notSupportedErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.notSupportedErr|notSupportedErr(kotlin.String){}[0]
+        final fun syntaxErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.syntaxErr|syntaxErr(kotlin.String){}[0]
+        final fun typeMismatchErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.typeMismatchErr|typeMismatchErr(kotlin.String){}[0]
+        final fun validationErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.validationErr|validationErr(kotlin.String){}[0]
+        final fun wrongDocumentErr(kotlin/String = ...): nl.adaptivity.xmlutil.dom/DOMException // nl.adaptivity.xmlutil.dom/DOMException.Companion.wrongDocumentErr|wrongDocumentErr(kotlin.String){}[0]
+    }
 }
 
 // Targets: [linuxX64, wasmJs, wasmWasi]
@@ -1772,6 +1835,18 @@ final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom
 final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom2/importNode(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/importNode|importNode@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
 // Targets: [linuxX64, wasmJs, wasmWasi]
+final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom2/importNode(nl.adaptivity.xmlutil.dom/PlatformNode, kotlin/Boolean): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/importNode|importNode@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.dom.PlatformNode;kotlin.Boolean){}[0]
+
+// Targets: [linuxX64, wasmJs, wasmWasi]
+final fun (nl.adaptivity.xmlutil.dom/PlatformNode).nl.adaptivity.xmlutil.dom2/appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/appendChild|appendChild@nl.adaptivity.xmlutil.dom.PlatformNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+
+// Targets: [linuxX64, wasmJs, wasmWasi]
+final fun (nl.adaptivity.xmlutil.dom/PlatformNode).nl.adaptivity.xmlutil.dom2/removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/removeChild|removeChild@nl.adaptivity.xmlutil.dom.PlatformNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+
+// Targets: [linuxX64, wasmJs, wasmWasi]
+final fun (nl.adaptivity.xmlutil.dom/PlatformNode).nl.adaptivity.xmlutil.dom2/replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/replaceChild|replaceChild@nl.adaptivity.xmlutil.dom.PlatformNode(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+
+// Targets: [linuxX64, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serialize(nl.adaptivity.xmlutil.dom/PlatformNode) // nl.adaptivity.xmlutil/serialize|serialize@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
 // Targets: [linuxX64, wasmJs, wasmWasi]
@@ -1841,6 +1916,7 @@ abstract interface nl.adaptivity.xmlutil.dom2/DOMImplementation { // nl.adaptivi
 
     abstract fun createDocument(kotlin/String?, kotlin/String?, nl.adaptivity.xmlutil.dom2/DocumentType?): nl.adaptivity.xmlutil.dom2/Document // nl.adaptivity.xmlutil.dom2/DOMImplementation.createDocument|createDocument(kotlin.String?;kotlin.String?;nl.adaptivity.xmlutil.dom2.DocumentType?){}[0]
     abstract fun createDocumentType(kotlin/String, kotlin/String, kotlin/String): nl.adaptivity.xmlutil.dom2/DocumentType // nl.adaptivity.xmlutil.dom2/DOMImplementation.createDocumentType|createDocumentType(kotlin.String;kotlin.String;kotlin.String){}[0]
+    abstract fun getFeature(kotlin/String, kotlin/String): kotlin/Any? // nl.adaptivity.xmlutil.dom2/DOMImplementation.getFeature|getFeature(kotlin.String;kotlin.String){}[0]
     abstract fun hasFeature(kotlin/String, kotlin/String?): kotlin/Boolean // nl.adaptivity.xmlutil.dom2/DOMImplementation.hasFeature|hasFeature(kotlin.String;kotlin.String?){}[0]
     abstract fun hasFeature(nl.adaptivity.xmlutil.dom2/SupportedFeatures, nl.adaptivity.xmlutil.dom2/DOMVersion?): kotlin/Boolean // nl.adaptivity.xmlutil.dom2/DOMImplementation.hasFeature|hasFeature(nl.adaptivity.xmlutil.dom2.SupportedFeatures;nl.adaptivity.xmlutil.dom2.DOMVersion?){}[0]
 }
@@ -2118,7 +2194,19 @@ final fun (nl.adaptivity.xmlutil.dom2/Document).nl.adaptivity.xmlutil.dom/adoptN
 final fun (nl.adaptivity.xmlutil.dom2/Document).nl.adaptivity.xmlutil.dom2/createElementNS(nl.adaptivity.xmlutil/QName): nl.adaptivity.xmlutil.dom2/Element // nl.adaptivity.xmlutil.dom2/createElementNS|createElementNS@nl.adaptivity.xmlutil.dom2.Document(nl.adaptivity.xmlutil.QName){}[0]
 
 // Targets: [js]
+final fun (nl.adaptivity.xmlutil.dom2/Document).nl.adaptivity.xmlutil.dom2/importNode(nl.adaptivity.xmlutil.dom/PlatformNode, kotlin/Boolean): nl.adaptivity.xmlutil.dom2/Node // nl.adaptivity.xmlutil.dom2/importNode|importNode@nl.adaptivity.xmlutil.dom2.Document(nl.adaptivity.xmlutil.dom.PlatformNode;kotlin.Boolean){}[0]
+
+// Targets: [js]
 final fun (nl.adaptivity.xmlutil.dom2/Document).nl.adaptivity.xmlutil.dom2/importNode(nl.adaptivity.xmlutil.dom2/Node): nl.adaptivity.xmlutil.dom2/Node // nl.adaptivity.xmlutil.dom2/importNode|importNode@nl.adaptivity.xmlutil.dom2.Document(nl.adaptivity.xmlutil.dom2.Node){}[0]
+
+// Targets: [js]
+final fun (nl.adaptivity.xmlutil.dom2/Node).nl.adaptivity.xmlutil.dom2/appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom2/Node // nl.adaptivity.xmlutil.dom2/appendChild|appendChild@nl.adaptivity.xmlutil.dom2.Node(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+
+// Targets: [js]
+final fun (nl.adaptivity.xmlutil.dom2/Node).nl.adaptivity.xmlutil.dom2/removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom2/Node // nl.adaptivity.xmlutil.dom2/removeChild|removeChild@nl.adaptivity.xmlutil.dom2.Node(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+
+// Targets: [js]
+final fun (nl.adaptivity.xmlutil.dom2/Node).nl.adaptivity.xmlutil.dom2/replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom2/Node): nl.adaptivity.xmlutil.dom2/Node // nl.adaptivity.xmlutil.dom2/replaceChild|replaceChild@nl.adaptivity.xmlutil.dom2.Node(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom2.Node){}[0]
 
 // Targets: [js]
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newReader(org.w3c.dom/Node): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/newReader|newReader@nl.adaptivity.xmlutil.IXmlStreaming(org.w3c.dom.Node){}[0]

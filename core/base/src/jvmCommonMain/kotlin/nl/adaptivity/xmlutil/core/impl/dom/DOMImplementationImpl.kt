@@ -53,7 +53,7 @@ internal object DOMImplementationImpl: IDOMImplementation {
     }
 
 
-    override fun getFeature(feature: String, version: String?): Any {
+    override fun getFeature(feature: String, version: String): Any? {
         return delegate.getFeature(feature, version)
     }
 }

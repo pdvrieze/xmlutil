@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
 
 internal class DocumentTypeImpl(
-    private var ownerDocument: DocumentImpl,
+    var maybeOwnerDocument: DocumentImpl?,
     private val name: String,
     private val publicId: String,
     private val systemId: String
@@ -38,10 +38,10 @@ internal class DocumentTypeImpl(
         original.getSystemId()
     )
 
-    override fun getOwnerDocument(): DocumentImpl = ownerDocument
+    override fun getOwnerDocument(): DocumentImpl = maybeOwnerDocument!!
 
     override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        this.ownerDocument = ownerDocument
+        this.maybeOwnerDocument = ownerDocument
     }
 
     override fun getName(): String = name

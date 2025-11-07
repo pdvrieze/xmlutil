@@ -28,7 +28,7 @@ public interface IDocumentType : INode, PlatformDocumentType {
     override fun appendChild(node: PlatformNode): Nothing =
         throw DOMException("Document types have no children")
 
-    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing =
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
         throw DOMException("Document types have no children")
 
     override fun removeChild(node: PlatformNode): Nothing =

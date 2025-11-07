@@ -23,14 +23,15 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.*
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.nodeType
+import nl.adaptivity.xmlutil.dom2.parentNode
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
 internal class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) : NodeImpl(), IDocument {
-/*
     init {
-        setOwnerDocument(this)
+        if (doctype?.maybeOwnerDocument != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
+        doctype?.setOwnerDocument(this)
     }
-*/
 
     constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
 
@@ -76,22 +77,22 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
     }
 
     override fun adoptNode(node: PlatformNode): INode {
-        if (node !is NodeImpl) throw DOMException("Not supported")
-        if (node.getOwnerDocument() === this) return node
-        node.getParentNode()?.removeChild((node as PlatformNode))
+        when (node) {
+            is PlatformDocument, is PlatformDocumentType -> throw DOMException.notSupportedErr("node (${node.nodeType}) cannot be adopted")
+            !is NodeImpl -> throw DOMException.notSupportedErr("node is of a different implementation and cannot be adopted")
+        }
+        if (node.getOwnerDocument() === this) {
+            node.parentNode?.removeChild(node)
+            node.setParentNode(null)
+            return node
+        }
+        node.getParentNode()?.removeChild(node)
         node.setOwnerDocument(this)
         return node
     }
 
 
     override fun importNode(node: PlatformNode, deep: Boolean): INode {
-        return importNodeX(node, deep)
-    }
-
-    private fun importNodeX(
-        node: PlatformNode,
-        deep: Boolean
-    ): NodeImpl {
         return when (node) {
             is PlatformAttr -> AttrImpl(this, node)
             is PlatformCDATASection -> CDATASectionImpl(this, node)
@@ -100,7 +101,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
             is PlatformDocumentFragment -> DocumentFragmentImpl(this).also { cpy ->
                 if (deep) {
                     for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNodeX(child, deep))
+                        cpy.appendChild(importNode(child, deep))
                     }
                 }
             }
@@ -108,7 +109,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
             is PlatformElement -> ElementImpl(this, node).also { cpy ->
                 if (deep) {
                     for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNodeX(child, deep))
+                        cpy.appendChild(importNode(child, deep))
                     }
                 }
             }
@@ -154,7 +155,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
         return n
     }
 
-    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): INode {
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         if (old != _documentElement) throw DOMException("Old node not found in document")
         val newChild = checkNode(newChild)
@@ -168,12 +169,17 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
     }
 
     override fun createElement(localName: String): IElement {
+        if (localName.isEmpty()) throw DOMException.invalidCharacterErr("Element name cannot be empty")
+        if (localName.indexOf(':')>=0) throw DOMException.namespaceErr("Prefix in name without namespace uri")
         return ElementImpl(this, null, localName, null)
     }
 
     override fun createElementNS(namespaceURI: String, qualifiedName: String): IElement {
         val localName = qualifiedName.substringAfterLast(':', qualifiedName)
-        val prefix = qualifiedName.substringBeforeLast(':', "").takeUnless { it.isEmpty() }
+        if (localName.isEmpty()) throw DOMException.invalidCharacterErr("Element name cannot be empty")
+        val prefix = qualifiedName.substringBeforeLast(':', "").takeUnless { it.isEmpty() }?.also {
+            if (namespaceURI.isEmpty()) throw DOMException.namespaceErr("Missing namespace in presence of a prefix")
+        }
         return ElementImpl(this, namespaceURI, localName, prefix)
     }
 

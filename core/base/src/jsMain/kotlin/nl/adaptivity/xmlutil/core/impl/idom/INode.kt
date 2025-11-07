@@ -53,7 +53,7 @@ public interface INode : Node1, Node2 {
     public fun appendChild(node: INode): INode = appendChild(node.delegate)
     public fun appendChild(newChild: DomNode): INode
 
-    override fun replaceChild(oldChild: Node2, newChild: Node2): INode =
+    override fun replaceChild(newChild: Node2, oldChild: Node2): INode =
         replaceChild(oldChild.unWrap(), newChild.unWrap())
 
     public fun replaceChild(oldChild: INode, newChild: INode): INode =

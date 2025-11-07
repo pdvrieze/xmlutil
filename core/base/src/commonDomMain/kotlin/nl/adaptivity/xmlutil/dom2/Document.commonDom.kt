@@ -21,5 +21,10 @@
 package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformDocument
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual typealias Document = PlatformDocument
+
+public actual fun Document.importNode(node: PlatformNode, deep: Boolean): Node {
+    return importNode(node, deep)
+}
