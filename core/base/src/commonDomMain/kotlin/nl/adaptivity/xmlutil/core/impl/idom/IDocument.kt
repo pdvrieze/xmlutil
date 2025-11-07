@@ -20,25 +20,17 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformDocument as Document1
-import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
-import nl.adaptivity.xmlutil.dom2.Document as Document2
-import nl.adaptivity.xmlutil.dom2.Node as Node2
+import nl.adaptivity.xmlutil.dom.PlatformDocument
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
-public interface IDocument : INode, Document1, Document2 {
-    override fun getInputEncoding(): String?
+public interface IDocument : INode, PlatformDocument {
+    override fun getInputEncoding(): String? = characterSet
 
-    override val implementation: IDOMImplementation
+    override fun getImplementation(): IDOMImplementation
 
-    override fun getImplementation(): IDOMImplementation = implementation
+    override fun getDoctype(): IDocumentType?
 
-    override val doctype: IDocumentType?
-
-    override fun getDoctype(): IDocumentType? = doctype
-
-    override val documentElement: IElement?
-
-    override fun getDocumentElement(): IElement? = documentElement
+    override fun getDocumentElement(): IElement?
 
     override fun createElement(localName: String): IElement
 
@@ -52,11 +44,7 @@ public interface IDocument : INode, Document1, Document2 {
 
     override fun createProcessingInstruction(target: String, data: String): IProcessingInstruction
 
-    override fun adoptNode(node: Node1): INode
-
-    override fun adoptNode(node: Node2): INode
-
-    public fun adoptNode(node: INode): INode = adoptNode(node as Node2)
+    override fun adoptNode(node: PlatformNode): INode
 
     override fun createAttribute(localName: String): IAttr
 
@@ -64,11 +52,7 @@ public interface IDocument : INode, Document1, Document2 {
 
     override fun createElementNS(namespaceURI: String, qualifiedName: String): IElement
 
-    override fun importNode(node: Node1): INode = importNode(node, false)
+    override fun importNode(node: PlatformNode): INode = importNode(node, false)
 
-    override fun importNode(node: Node1, deep: Boolean): INode
-
-    override fun importNode(node: Node2, deep: Boolean): INode
-
-    public fun importNode(node: INode, deep: Boolean = false): INode = importNode(node as Node2, deep)
+    override fun importNode(node: PlatformNode, deep: Boolean): INode
 }

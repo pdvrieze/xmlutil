@@ -20,4 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface PlatformDocumentFragment : PlatformNode
+public actual interface PlatformDocumentFragment : PlatformNode {
+//    public fun getName(): String
+//    public fun getPublicId(): String
+//    public fun getSystemId(): String
+}

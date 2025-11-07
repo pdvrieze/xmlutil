@@ -26,12 +26,13 @@ package nl.adaptivity.xmlutil.dom
 //    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
 //)
 public actual interface PlatformAttr : PlatformNode {
-    public val namespaceURI: String?
-    public val prefix: String?
-    public val localName: String
-    public val name: String
-    public var value: String
+    public fun getNamespaceURI(): String?
+    public fun getPrefix(): String?
+    public fun getLocalName(): String?
+    public fun getName(): String
+    public fun getValue(): String
+    public fun setValue(value: String)
 
-    public val ownerElement: PlatformElement?
+    public fun getOwnerElement(): PlatformElement?
 }
 

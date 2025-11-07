@@ -20,9 +20,4 @@
 
 package nl.adaptivity.xmlutil.dom
 
-@Suppress("DEPRECATION")
-@Deprecated(
-    "No longer supported, use dom2 instead",
-    ReplaceWith("nl.adaptivity.xmlutil.dom2.Comment", "nl.adaptivity.xmlutil.dom2")
-)
 public expect interface PlatformComment : PlatformCharacterData

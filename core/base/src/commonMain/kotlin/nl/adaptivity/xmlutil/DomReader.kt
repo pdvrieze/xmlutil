@@ -38,11 +38,9 @@ import nl.adaptivity.xmlutil.util.myLookupPrefix
  */
 internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlReader {
 
-    constructor(delegate: Node) : this(delegate, false)
-
     @Suppress("DEPRECATION")
     constructor(delegate: PlatformNode) :
-            this((delegate as? Node) ?: createDocument(QName("XX")).adoptNode(delegate))
+            this((delegate as? Node) ?: createDocument(QName("XX")).adoptNode(delegate), false)
 
     private var current: Node? = null
 
@@ -126,7 +124,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() {
-            fun <A : Appendable> helper(node: Node?, result: A): A = when (node?.nodetype) {
+            fun <A : Appendable> helper(node: Node?, result: A): A = when (node?.getNodetype()) {
                 null, NodeType.DOCUMENT_NODE
                     -> result
 

@@ -27,7 +27,10 @@ package nl.adaptivity.xmlutil.dom
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
 )
 public actual interface PlatformProcessingInstruction : PlatformNode {
-    public var data: String
-    public val target: String
+    public fun getData(): String
+
+    public fun setData(value: String)
+
+    public fun getTarget(): String
 }
 

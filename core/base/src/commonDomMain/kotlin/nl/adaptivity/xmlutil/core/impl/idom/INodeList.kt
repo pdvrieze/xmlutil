@@ -22,12 +22,11 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformNodeList
 import nl.adaptivity.xmlutil.dom2.NodeListIterator
-import nl.adaptivity.xmlutil.dom.PlatformNodeList as NodeList1
-import nl.adaptivity.xmlutil.dom2.Node as Node2
-import nl.adaptivity.xmlutil.dom2.NodeList as NodeList2
 
-public interface INodeList : NodeList1, NodeList2, Collection<Node2> {
+public interface INodeList : PlatformNodeList, Collection<PlatformNode> {
     // Deprecation retained to ensure getLength is still implemented. I
     @Deprecated("Use size", ReplaceWith("size"), DeprecationLevel.HIDDEN)
     public override fun getLength(): Int = size
@@ -42,11 +41,11 @@ public interface INodeList : NodeList1, NodeList2, Collection<Node2> {
         return NodeListIterator(this)
     }
 
-    public override fun contains(element: Node2): Boolean {
+    public override fun contains(element: PlatformNode): Boolean {
         return asSequence().contains(element)
     }
 
-    public override fun containsAll(elements: Collection<Node2>): Boolean {
+    public override fun containsAll(elements: Collection<PlatformNode>): Boolean {
         return elements.all { contains(it) } // inefficient
     }
 

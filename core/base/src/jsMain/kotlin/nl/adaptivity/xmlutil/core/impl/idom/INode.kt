@@ -28,7 +28,7 @@ import org.w3c.dom.Node as DomNode
 
 public interface INode : Node1, Node2 {
     public val delegate: DomNode
-    override val nodetype: NodeType get() = NodeType(nodeType)
+    override fun getNodetype(): NodeType = NodeType(nodeType)
     override val ownerDocument: IDocument
     override val parentNode: INode?
     override val parentElement: IElement? get() = parentNode as? IElement
@@ -47,7 +47,6 @@ public interface INode : Node1, Node2 {
     override fun getLastChild(): INode? = lastChild
     override fun getPreviousSibling(): INode? = previousSibling
     override fun getNextSibling(): INode? = nextSibling
-    override fun getNodeType(): Short = nodeType
     override fun getChildNodes(): INodeList = childNodes
 
     override fun appendChild(node: Node2): INode = appendChild(node.unWrap())

@@ -1,40 +1,42 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.ICharacterData
-import nl.adaptivity.xmlutil.core.impl.idom.INode
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import nl.adaptivity.xmlutil.dom.DOMException
 
 internal abstract class CharacterDataImpl(
-    ownerDocument: DocumentImpl,
-    final override var data: String
-) : NodeImpl(ownerDocument), ICharacterData {
+    private var ownerDocument: DocumentImpl,
+    private var data: String
+) : NodeImpl(), ICharacterData {
+    override fun getOwnerDocument(): DocumentImpl = ownerDocument
 
-    final override var parentNode: INode? = null
-
-    override fun getData(): String {
-        return data
+    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
+        if (this.ownerDocument !== ownerDocument) {
+            setParentNode(null)
+            this.ownerDocument = ownerDocument
+        }
     }
+
+    override fun getData(): String = data
 
     override fun setData(value: String) {
         data = value
@@ -44,14 +46,14 @@ internal abstract class CharacterDataImpl(
     final override fun getLastChild(): Nothing? = null
     final override fun getChildNodes(): INodeList = EmptyNodeList
 
-    override fun getTextContent(): String? = data
+    override fun getTextContent(): String? = getData()
 
     override fun setTextContent(value: String) {
         data = value
     }
 
     final override fun substringData(offset: Int, count: Int): String {
-        return getData().substring(offset, offset + count)
+        return data.substring(offset, offset + count)
     }
 
     final override fun appendData(data: String) {
@@ -59,35 +61,23 @@ internal abstract class CharacterDataImpl(
     }
 
     final override fun insertData(offset: Int, data: String) {
-        this.data = this.getData().replaceRange(offset, offset, data)
+        this.data = this.data.replaceRange(offset, offset, data)
     }
 
     final override fun deleteData(offset: Int, count: Int) {
-        this.data = getData().removeRange(offset, offset + count)
+        this.data = data.removeRange(offset, offset + count)
     }
 
     final override fun replaceData(offset: Int, count: Int, data: String) {
-        this.data = this.getData().replaceRange(offset, offset + count, data)
-    }
-
-    final override fun appendChild(node: INode): Nothing {
-        throw DOMException("Character nodes have no children")
-    }
-
-    final override fun replaceChild(oldChild: INode, newChild: INode): Nothing {
-        throw DOMException("Character nodes have no children")
-    }
-
-    final override fun removeChild(node: INode): Nothing {
-        throw DOMException("Character nodes have no children")
+        this.data = this.data.replaceRange(offset, offset + count, data)
     }
 
     override fun lookupPrefix(namespace: String): String? {
-        return parentNode?.lookupPrefix(namespace)
+        return getParentNode()?.lookupPrefix(namespace)
     }
 
     override fun lookupNamespaceURI(prefix: String): String? {
-        return parentNode?.lookupNamespaceURI(prefix)
+        return getParentNode()?.lookupNamespaceURI(prefix)
     }
 }
 

@@ -20,14 +20,14 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
+import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 
-public interface INamedNodeMap : PlatformNamedNodeMap, nl.adaptivity.xmlutil.dom2.NamedNodeMap, Collection<Attr> {
+public interface INamedNodeMap : PlatformNamedNodeMap, Collection<PlatformAttr> {
 
     override fun item(index: Int): IAttr?
+
+    override fun getLength(): Int = size
 
     public override operator fun get(index: Int): IAttr? = item((index))
 
@@ -35,13 +35,9 @@ public interface INamedNodeMap : PlatformNamedNodeMap, nl.adaptivity.xmlutil.dom
 
     override fun getNamedItemNS(namespace: String?, localName: String): IAttr?
 
-    override fun setNamedItem(attr: Node1): IAttr?
+    override fun setNamedItem(attr: PlatformAttr): IAttr?
 
-    override fun setNamedItem(attr: Attr2): IAttr?
-
-    override fun setNamedItemNS(attr: Node1): IAttr?
-
-    override fun setNamedItemNS(attr: Attr2): IAttr?
+    override fun setNamedItemNS(attr: PlatformAttr): IAttr?
 
     override fun removeNamedItem(qualifiedName: String): IAttr?
 
@@ -49,16 +45,13 @@ public interface INamedNodeMap : PlatformNamedNodeMap, nl.adaptivity.xmlutil.dom
 
     override fun iterator(): Iterator<IAttr>
 
-    override fun contains(element: Attr): Boolean {
+    override fun contains(element: PlatformAttr): Boolean {
         return asSequence().contains(element)
     }
 
-    override fun containsAll(elements: Collection<Attr>): Boolean {
+    override fun containsAll(elements: Collection<PlatformAttr>): Boolean {
         return elements.all { contains(it) } // This is far from optimized
     }
 
-    @Suppress("ReplaceSizeZeroCheckWithIsEmpty")
-    override fun isEmpty(): Boolean {
-        return size == 0
-    }
+    override fun isEmpty(): Boolean = size == 0
 }

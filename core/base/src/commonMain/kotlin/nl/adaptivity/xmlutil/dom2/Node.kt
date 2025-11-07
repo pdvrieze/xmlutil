@@ -23,9 +23,8 @@ package nl.adaptivity.xmlutil.dom2
 import kotlinx.serialization.Serializable
 
 @Serializable(NodeSerializer::class)
-public interface Node {
-    public val nodetype: NodeType
-    public fun getNodeType(): Short = nodetype.value
+public expect interface Node {
+    public fun getNodetype(): NodeType
     public fun getNodeName(): String
     public fun getOwnerDocument(): Document
     public fun getParentNode(): Node?
@@ -36,7 +35,7 @@ public interface Node {
     public fun getLastChild(): Node?
     public fun getPreviousSibling(): Node?
     public fun getNextSibling(): Node?
-    public fun getParentElement(): Element? = parentNode as? Element
+    public fun getParentElement(): Element?// = parentNode as? Element
 
     public fun lookupPrefix(namespace: String): String?
 
@@ -47,10 +46,9 @@ public interface Node {
     public fun replaceChild(oldChild: Node, newChild: Node): Node
 
     public fun removeChild(node: Node): Node
-
 }
 
-public inline val Node.nodeType: Short get() = getNodeType()
+public inline val Node.nodeType: Short get() = getNodetype().value
 public inline val Node.nodeName: String get() = getNodeName()
 public inline val Node.ownerDocument: Document get() = getOwnerDocument()
 public inline val Node.parentNode: Node? get() = getParentNode()

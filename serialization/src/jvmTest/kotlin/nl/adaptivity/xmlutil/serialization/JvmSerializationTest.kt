@@ -24,6 +24,7 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.createDocument
 import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.writeCurrent
 import nl.adaptivity.xmlutil.xmlStreaming

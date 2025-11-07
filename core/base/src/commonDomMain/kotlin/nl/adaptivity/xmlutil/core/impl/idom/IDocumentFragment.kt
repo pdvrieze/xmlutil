@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment as DocumentFragment1
-import nl.adaptivity.xmlutil.dom2.DocumentFragment as DocumentFragment2
+import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
 
-public interface IDocumentFragment : INode, DocumentFragment1, DocumentFragment2
+public interface IDocumentFragment : INode, PlatformDocumentFragment

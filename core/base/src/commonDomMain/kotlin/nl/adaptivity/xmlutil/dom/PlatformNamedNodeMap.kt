@@ -22,22 +22,28 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface PlatformNamedNodeMap {
-    public fun item(index: Int): PlatformNode?
+import nl.adaptivity.xmlutil.dom2.Attr
 
-    public fun getNamedItem(qualifiedName: String): PlatformNode?
+public actual interface PlatformNamedNodeMap : Iterable<Attr> {
+    public val size: Int
+    public fun getLength(): Int //= size
 
-    public fun getNamedItemNS(namespace: String?, localName: String): PlatformNode?
+    public fun item(index: Int): PlatformAttr?
+    public operator fun get(index: Int): Attr? //= item((index))
 
-    public fun setNamedItem(attr: PlatformNode): PlatformNode?
+    public fun getNamedItem(qualifiedName: String): PlatformAttr?
 
-    public fun setNamedItemNS(attr: PlatformNode): PlatformNode?
+    public fun getNamedItemNS(namespace: String?, localName: String): PlatformAttr?
 
-    public fun removeNamedItem(qualifiedName: String): PlatformNode?
+    public fun setNamedItem(attr: PlatformAttr): PlatformAttr?
 
-    public fun removeNamedItemNS(namespace: String?, localName: String): PlatformNode?
+    public fun setNamedItemNS(attr: PlatformAttr): PlatformAttr?
+
+    public fun removeNamedItem(qualifiedName: String): PlatformAttr?
+
+    public fun removeNamedItemNS(namespace: String?, localName: String): PlatformAttr?
 }
 
-public inline operator fun PlatformNamedNodeMap.get(index:Int): PlatformNode? = item(index)
+public inline operator fun PlatformNamedNodeMap.get(index:Int): PlatformAttr? = item(index)
 
 

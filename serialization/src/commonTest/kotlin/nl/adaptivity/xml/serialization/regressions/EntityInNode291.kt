@@ -27,6 +27,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.Text
+import nl.adaptivity.xmlutil.dom2.createDocument
 import nl.adaptivity.xmlutil.dom2.data
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue

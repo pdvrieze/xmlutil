@@ -20,9 +20,10 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr as Attr1
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom2.Attr
 
-public interface IAttr : INode, Attr1, Attr2 {
+public interface IAttr : INode, PlatformAttr, Attr {
     override fun getOwnerElement(): IElement?
+    override fun getLocalName(): String?
 }

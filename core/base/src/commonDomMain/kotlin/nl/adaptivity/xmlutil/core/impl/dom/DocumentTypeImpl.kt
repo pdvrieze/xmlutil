@@ -21,36 +21,36 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
-import nl.adaptivity.xmlutil.core.impl.idom.INode
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
-import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
-import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
 
 internal class DocumentTypeImpl(
-    ownerDocument: DocumentImpl,
-    override val name: String,
-    override val publicId: String,
-    override val systemId: String
-) : NodeImpl(ownerDocument), IDocumentType {
+    private var ownerDocument: DocumentImpl,
+    private val name: String,
+    private val publicId: String,
+    private val systemId: String
+) : NodeImpl(), IDocumentType {
     constructor(original: DocumentType1) : this(
-        DocumentImpl.coerce(original.ownerDocument),
-        original.name,
-        original.publicId,
-        original.systemId
-    )
-
-    constructor(original: DocumentType2) : this(
         DocumentImpl.coerce(original.getOwnerDocument()),
         original.getName(),
         original.getPublicId(),
         original.getSystemId()
     )
 
-    override var parentNode: INode? = null
+    override fun getOwnerDocument(): DocumentImpl = ownerDocument
 
-    override val nodetype: NodeType get() = NodeType.DOCUMENT_TYPE_NODE
+    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
+        this.ownerDocument = ownerDocument
+    }
+
+    override fun getName(): String = name
+
+    override fun getPublicId(): String = publicId
+
+    override fun getSystemId(): String = systemId
+
+    override fun getNodetype(): NodeType = NodeType.DOCUMENT_TYPE_NODE
 
     override fun getNodeName(): String = getName()
 
@@ -67,31 +67,15 @@ internal class DocumentTypeImpl(
     }
 
     override fun lookupPrefix(namespace: String): String? {
-        return parentNode?.lookupPrefix(namespace)
+        return getParentNode()?.lookupPrefix(namespace)
     }
 
     override fun lookupNamespaceURI(prefix: String): String? {
-        return parentNode?.lookupNamespaceURI(prefix)
-    }
-
-    override fun appendChild(node: INode): Nothing {
-        throw DOMException("Document types have no children")
-    }
-
-    override fun replaceChild(oldChild: INode, newChild: INode): Nothing {
-        throw DOMException("Document types have no children")
-    }
-
-    override fun removeChild(node: INode): Nothing {
-        throw DOMException("Document types have no children")
+        return getParentNode()?.lookupNamespaceURI(prefix)
     }
 
     companion object {
         fun coerce(doctype: DocumentType1): DocumentTypeImpl {
-            return doctype as? DocumentTypeImpl ?: DocumentTypeImpl(doctype)
-        }
-
-        fun coerce(doctype: DocumentType2): DocumentTypeImpl {
             return doctype as? DocumentTypeImpl ?: DocumentTypeImpl(doctype)
         }
 

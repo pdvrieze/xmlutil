@@ -188,7 +188,7 @@ internal fun Node1.wrap(): INode =
 
 internal fun Node2.wrap(): INode = when (this) {
     is INode -> this
-    else -> error("Node type $nodetype not supported")
+    else -> error("Node type ${getNodetype()} not supported")
 }
 
 internal fun DomDocument.wrap(): IDocument = when (this) {

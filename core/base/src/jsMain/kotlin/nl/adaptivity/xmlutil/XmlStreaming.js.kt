@@ -27,7 +27,9 @@ import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
+import nl.adaptivity.xmlutil.dom2.createDocument
 import org.w3c.dom.ParentNode
 import org.w3c.dom.parsing.DOMParser
 import nl.adaptivity.xmlutil.dom2.Node as Node2
@@ -39,6 +41,10 @@ public actual interface XmlStreamingFactory
 internal actual object XmlStreaming : IXmlStreaming {
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node2): XmlReader {
+        return DomReader(source, false)
+    }
+
+    fun newReader(source: PlatformNode): XmlReader {
         return DomReader(source)
     }
 
@@ -57,7 +63,7 @@ internal actual object XmlStreaming : IXmlStreaming {
             else -> input
         }.toString()
 
-        return DomReader(DOMParser().parseFromString(str, "text/xml").wrap() as Node2)
+        return DomReader(DOMParser().parseFromString(str, "text/xml").wrap())
     }
 
     actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader =

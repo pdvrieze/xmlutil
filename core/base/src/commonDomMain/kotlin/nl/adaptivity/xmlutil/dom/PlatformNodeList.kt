@@ -22,13 +22,16 @@
 
 package nl.adaptivity.xmlutil.dom
 
-@Deprecated(
-    "Use INodeList that contains extended functions",
-    ReplaceWith("INodeList", "nl.adaptivity.xmlutil.core.impl.idom.INodeList")
-)
-public actual interface PlatformNodeList {
+import nl.adaptivity.xmlutil.dom2.Node
+
+public actual interface PlatformNodeList: Iterable<Node> {
     public fun item(index: Int): PlatformNode?
     public val size: Int
+    public fun getLength(): Int
+
+    public operator fun get(index: Int): PlatformNode?
+
+    public override fun iterator(): Iterator<PlatformNode>
 }
 
 

@@ -52,7 +52,7 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node): XmlReader {
-        return DomReader(source)
+        return DomReader(source, false)
     }
 
     actual override fun newWriter(): DomWriter = DomWriter()

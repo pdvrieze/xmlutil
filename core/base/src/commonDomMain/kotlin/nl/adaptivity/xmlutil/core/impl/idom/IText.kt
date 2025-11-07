@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformText as Text1
-import nl.adaptivity.xmlutil.dom2.Text as Text2
+import nl.adaptivity.xmlutil.dom.PlatformText
 
-public interface IText : ICharacterData, Text1, Text2
+public interface IText : ICharacterData, PlatformText

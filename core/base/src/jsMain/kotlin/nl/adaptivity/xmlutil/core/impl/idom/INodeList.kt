@@ -33,6 +33,8 @@ public interface INodeList : NodeList1, NodeList2, Collection<Node2> {
 
     override fun item(index: Int): INode?
 
+    override fun get(index: Int): INode? = item(index)
+
     override fun iterator(): Iterator<INode> {
         return NodeListIterator(this)
     }

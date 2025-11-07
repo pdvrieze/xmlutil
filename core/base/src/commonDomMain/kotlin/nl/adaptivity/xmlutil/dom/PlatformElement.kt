@@ -22,18 +22,21 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.core.impl.idom.IAttr
-import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
-import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.ElementSerializer
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
+import nl.adaptivity.xmlutil.dom2.NodeList
 
 @Suppress("DEPRECATION")
+@Serializable(with = ElementSerializer::class)
 public actual interface PlatformElement : PlatformNode {
-    public val namespaceURI: String?
-    public val prefix: String?
-    public val localName: String
-    public val tagName: String
+    public fun getNamespaceURI(): String?
+    public fun getPrefix(): String?
+    public fun getLocalName(): String
+    public fun getTagName(): String
 
-    public val attributes: INamedNodeMap
+    public fun getAttributes(): NamedNodeMap
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
 
@@ -46,14 +49,14 @@ public actual interface PlatformElement : PlatformNode {
     public fun hasAttribute(qualifiedName: String): Boolean
     public fun hasAttributeNS(namespace: String?, localName: String): Boolean
 
-    public fun getAttributeNode(qualifiedName: String): IAttr?
-    public fun getAttributeNodeNS(namespace: String?, localName: String): IAttr?
+    public fun getAttributeNode(qualifiedName: String): Attr?
+    public fun getAttributeNodeNS(namespace: String?, localName: String): Attr?
 
-    public fun setAttributeNode(attr: PlatformAttr): IAttr?
-    public fun setAttributeNodeNS(attr: PlatformAttr): IAttr?
-    public fun removeAttributeNode(attr: PlatformAttr): IAttr
+    public fun setAttributeNode(attr: PlatformAttr): Attr?
+    public fun setAttributeNodeNS(attr: PlatformAttr): Attr?
+    public fun removeAttributeNode(attr: PlatformAttr): Attr
 
-    public fun getElementsByTagName(qualifiedName: String): INodeList
-    public fun getElementsByTagNameNS(namespace: String?, localName: String): INodeList
+    public fun getElementsByTagName(qualifiedName: String): NodeList
+    public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 }
 

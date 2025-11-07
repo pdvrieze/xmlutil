@@ -20,43 +20,47 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public interface DOMImplementation {
+public fun DOMImplementation.createDocument(namespace: String? = null, qualifiedName: String? = null, documentType: DocumentType? = null): Document {
+    return createDocument(namespace, qualifiedName, documentType)
+}
+
+public expect interface DOMImplementation {
     public val supportsWhitespaceAtToplevel: Boolean
 
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
-    public fun createDocument(namespace: String? = null, qualifiedName: String? = null, documentType: DocumentType? = null): Document
+    public fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
 
-    @OptIn(ExperimentalStdlibApi::class)
-    public fun hasFeature(feature: String, version: String?): Boolean {
+    public fun hasFeature(feature: String, version: String?): Boolean /*{
         val f = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
         val v = when {
             version.isNullOrEmpty() -> null
             else -> DOMVersion.entries.firstOrNull { it.strName == version } ?: return false
         }
         return hasFeature(f, v)
-    }
+    }*/
 
-    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean {
+    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean /*{
         return version == null || feature.isSupportedVersion(version)
+    }*/
+
+
+}
+
+public enum class SupportedFeatures(public val strName: String) {
+    CORE("Core") {
+        override fun isSupportedVersion(version: DOMVersion): Boolean = true
+    },
+
+    XML("XML") {
+        override fun isSupportedVersion(version: DOMVersion): Boolean = true
     }
+    ;
 
-    public enum class SupportedFeatures(public val strName: String) {
-        CORE("Core") {
-            override fun isSupportedVersion(version: DOMVersion): Boolean = true
-        },
+    public abstract fun isSupportedVersion(version: DOMVersion): Boolean
+}
 
-        XML("XML") {
-            override fun isSupportedVersion(version: DOMVersion): Boolean = true
-        }
-        ;
-
-        public abstract fun isSupportedVersion(version: DOMVersion): Boolean
-    }
-
-    public enum class DOMVersion(public val strName: String) {
-        V1("1.0"),
-        V2("2.0"),
-        V3("3.0"),
-    }
-
+public enum class DOMVersion(public val strName: String) {
+    V1("1.0"),
+    V2("2.0"),
+    V3("3.0"),
 }

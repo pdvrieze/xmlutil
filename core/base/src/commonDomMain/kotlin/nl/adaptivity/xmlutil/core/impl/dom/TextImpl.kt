@@ -21,18 +21,15 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.IText
+import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom.PlatformText as Text1
-import nl.adaptivity.xmlutil.dom2.Text as Text2
 
 internal open class TextImpl(ownerDocument: DocumentImpl, data: String)
     : CharacterDataImpl(ownerDocument, data), IText {
 
-    constructor(ownerDocument: DocumentImpl, original: Text1) : this(ownerDocument, original.data)
+    constructor(ownerDocument: DocumentImpl, original: PlatformText) : this(ownerDocument, original.getData())
 
-    constructor(ownerDocument: DocumentImpl, original: Text2) : this(ownerDocument, original.getData())
-
-    override val nodetype: NodeType get() = NodeType.TEXT_NODE
+    override fun getNodetype(): NodeType = NodeType.TEXT_NODE
 
     override fun getNodeName(): String = "#text"
 

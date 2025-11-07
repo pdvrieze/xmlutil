@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual interface PlatformDocumentType : PlatformNode {
-    public val name: String
-    public val publicId: String
-    public val systemId: String
+    public fun getName(): String
+    public fun getPublicId(): String
+    public fun getSystemId(): String
 }

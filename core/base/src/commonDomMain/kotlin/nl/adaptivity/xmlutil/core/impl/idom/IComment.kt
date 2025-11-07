@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformComment as Comment1
-import nl.adaptivity.xmlutil.dom2.Comment as Comment2
+import nl.adaptivity.xmlutil.dom.PlatformComment
 
-public interface IComment : ICharacterData, Comment1, Comment2
+public interface IComment : ICharacterData, PlatformComment

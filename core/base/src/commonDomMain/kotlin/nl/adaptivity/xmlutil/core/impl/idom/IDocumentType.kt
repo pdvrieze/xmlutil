@@ -20,13 +20,18 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
-import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
-public interface IDocumentType : INode, DocumentType1, DocumentType2 {
-    override fun getName(): String = name
+public interface IDocumentType : INode, PlatformDocumentType {
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException("Document types have no children")
 
-    override fun getPublicId(): String = publicId
+    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing =
+        throw DOMException("Document types have no children")
 
-    override fun getSystemId(): String = systemId
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException("Document types have no children")
+
 }

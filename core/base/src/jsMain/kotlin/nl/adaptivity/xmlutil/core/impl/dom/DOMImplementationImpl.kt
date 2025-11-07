@@ -24,6 +24,8 @@ import kotlinx.browser.document
 import nl.adaptivity.xmlutil.core.impl.idom.IDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.idom.IDocument
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
+import nl.adaptivity.xmlutil.dom2.DOMVersion
+import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import org.w3c.dom.DOMImplementation
 import org.w3c.dom.parsing.DOMParser
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation as DOMImplementation1
@@ -47,6 +49,19 @@ internal object DOMImplementationImpl : IDOMImplementation {
         val documentType1 = documentType?.unWrap() as? DocumentType1
         return (delegate as DOMImplementation1).createDocument(namespace, qualifiedName, documentType1)
             .wrap() as IDocument
+    }
+
+    override fun hasFeature(feature: String, version: String?): Boolean {
+        val f = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
+        val v = when {
+            version.isNullOrEmpty() -> null
+            else -> DOMVersion.entries.firstOrNull { it.strName == version } ?: return false
+        }
+        return hasFeature(f, v)
+    }
+
+    override fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean {
+        return version == null || feature.isSupportedVersion(version)
     }
 
 }

@@ -22,35 +22,41 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom2.NodeList
+import nl.adaptivity.xmlutil.dom2.NodeSerializer
+import nl.adaptivity.xmlutil.dom2.NodeType
 
 
 @Suppress(
     "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
 )
+@Serializable(with = NodeSerializer::class)
 public actual interface PlatformNode {
-    public val nodeType: Short
+    public fun getNodetype(): NodeType
 
-    public val nodeName: String
+    public fun getNodeName(): String
 
-    public val ownerDocument: PlatformDocument
+    public fun getOwnerDocument(): PlatformDocument
 
-    public val parentNode: PlatformNode?
+    public fun getParentNode(): PlatformNode?
 
-    public val parentElement: PlatformElement? get() = parentNode as? PlatformElement?
+    public fun getParentElement(): PlatformElement?
+        //= getParentNode() as? PlatformElement?
 
-    public val childNodes: INodeList
+    public fun getChildNodes(): NodeList
 
-    public val firstChild: PlatformNode?
+    public fun getFirstChild(): PlatformNode?
 
-    public val lastChild: PlatformNode?
+    public fun getLastChild(): PlatformNode?
 
-    public val previousSibling: PlatformNode?
+    public fun getPreviousSibling(): PlatformNode?
 
-    public val nextSibling: PlatformNode?
+    public fun getNextSibling(): PlatformNode?
 
-    public val textContent: String?
+    public fun getTextContent(): String?
+    public fun setTextContent(value: String)
 
     public fun lookupPrefix(namespace: String): String?
 
@@ -61,6 +67,8 @@ public actual interface PlatformNode {
     public fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): PlatformNode
 
     public fun removeChild(node: PlatformNode): PlatformNode
+
+//    public fun getNodeType(): Short = nodeType.value
 
     public companion object {
         // NodeType

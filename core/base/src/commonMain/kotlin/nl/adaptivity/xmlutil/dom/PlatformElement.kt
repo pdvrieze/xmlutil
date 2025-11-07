@@ -18,14 +18,9 @@
  * permissions and limitations under the License.
  */
 
-@file:Suppress("DEPRECATION", "EXTENSION_SHADOWED_BY_MEMBER", "KotlinRedundantDiagnosticSuppress")
 
 package nl.adaptivity.xmlutil.dom
 
-@Deprecated(
-    "No longer supported, use dom2 instead",
-    ReplaceWith("nl.adaptivity.xmlutil.dom2.Element", "nl.adaptivity.xmlutil.dom2")
-)
 public expect interface PlatformElement : PlatformNode
 
 

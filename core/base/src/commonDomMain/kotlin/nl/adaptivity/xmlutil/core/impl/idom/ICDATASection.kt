@@ -20,7 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformCDATASection as CDATASection1
-import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
+import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 
-public interface ICDATASection : IText, CDATASection1, CDATASection2
+public interface ICDATASection : IText, PlatformCDATASection

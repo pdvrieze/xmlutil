@@ -20,9 +20,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction as ProcessingInstruction1
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction as ProcessingInstruction2
+import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
-public interface IProcessingInstruction : INode, ProcessingInstruction1, ProcessingInstruction2 {
-    override fun getTarget(): String = target
-}
+public interface IProcessingInstruction : INode, PlatformProcessingInstruction

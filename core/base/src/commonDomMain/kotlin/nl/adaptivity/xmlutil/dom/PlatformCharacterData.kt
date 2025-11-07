@@ -21,7 +21,17 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual interface PlatformCharacterData : PlatformNode {
-    public var data: String
+    public fun getData(): String
+    public fun setData(value: String)
 
+    public fun substringData(offset: Int, count: Int): String
+
+    public fun appendData(data: String)
+
+    public fun insertData(offset: Int, data: String)
+
+    public fun deleteData(offset: Int, count: Int)
+
+    public fun replaceData(offset: Int, count: Int, data: String)
 }
 

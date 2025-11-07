@@ -20,9 +20,23 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr as Attr1
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
-public interface IAttr : INode, Attr1, Attr2 {
+public interface IAttr : INode, PlatformAttr {
+    override fun getLocalName(): String
+
     override fun getOwnerElement(): IElement?
+
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException("Attributes have no children")
+
+    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing =
+        throw DOMException("Attributes have no children")
+
+
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException("Attributes have no children")
+
 }

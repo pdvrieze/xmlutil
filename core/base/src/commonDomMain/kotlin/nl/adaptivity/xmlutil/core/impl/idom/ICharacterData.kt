@@ -20,7 +20,19 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformCharacterData as CharacterData1
-import nl.adaptivity.xmlutil.dom2.CharacterData as CharacterData2
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformCharacterData
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
-public interface ICharacterData : INode, CharacterData1, CharacterData2
+public interface ICharacterData : INode, PlatformCharacterData {
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException("Character nodes have no children")
+
+    override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing =
+        throw DOMException("Character nodes have no children")
+
+
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException("Character nodes have no children")
+
+}

@@ -30,6 +30,9 @@ import org.w3c.dom.Attr as DomAttr
 public interface INamedNodeMap : NamedNodeMap1, NamedNodeMap2, Collection<Attr2> {
     override fun item(index: Int): IAttr?
 
+    @Deprecated("Use size instead", replaceWith = ReplaceWith("size"), level = DeprecationLevel.WARNING)
+    override fun getLength(): Int = size
+
     public override operator fun get(index:Int): IAttr? = item((index))
 
     override fun getNamedItem(qualifiedName: String): IAttr?

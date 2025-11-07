@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public interface NamedNodeMap : Iterable<Attr> {
+public expect interface NamedNodeMap : Iterable<Attr> {
 
     /**
      * The size function works with collection interfaces rather than the traditional getLength interface.
@@ -28,11 +28,11 @@ public interface NamedNodeMap : Iterable<Attr> {
     public val size: Int
 
     @Deprecated("Use size instead", ReplaceWith("size"), level = DeprecationLevel.WARNING)
-    public fun getLength(): Int = size
+    public fun getLength(): Int /*= size*/
 
     public fun item(index: Int): Attr?
 
-    public operator fun get(index: Int): Attr? = item((index))
+    public operator fun get(index: Int): Attr? //= item((index))
 
     public fun getNamedItem(qualifiedName: String): Attr?
 
@@ -46,9 +46,9 @@ public interface NamedNodeMap : Iterable<Attr> {
 
     public fun removeNamedItemNS(namespace: String?, localName: String): Attr?
 
-    public override operator fun iterator(): Iterator<Attr> {
+    public override operator fun iterator(): Iterator<Attr> /*{
         return NamedNodeMapIterator(this)
-    }
+    }*/
 
 }
 

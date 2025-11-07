@@ -22,28 +22,37 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.impl.idom.INode
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.implementation
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 public actual interface PlatformDocument : Node1 {
 
-    public val implementation: PlatformDOMImplementation
+    public fun getImplementation(): PlatformDOMImplementation
 
-    public val doctype: PlatformDocumentType?
+    public fun getDoctype(): PlatformDocumentType?
 
-    public val documentElement: PlatformElement?
+    public fun getDocumentElement(): PlatformElement?
 
     public val characterSet: String?
 
-    public val inputEncoding: String? get() = characterSet
+    public fun getInputEncoding(): String?
 
     public fun createElement(localName: String): PlatformElement
 
     public fun createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
+
+    public fun Document.createElementNS(qName: QName): Element = when {
+        qName.prefix.isEmpty() -> createElementNS(qName.namespaceURI, qName.localPart)
+        else -> createElementNS(qName.namespaceURI, "${qName.prefix}:${qName.localPart}")
+    }
 
     public fun createDocumentFragment(): PlatformDocumentFragment
 
@@ -69,32 +78,33 @@ public actual interface PlatformDocument : Node1 {
 
 public actual fun Document2.adoptNode(node: Node1): Node2 = when (node) {
     is INode -> adoptNode(node)
-    is PlatformAttr -> createAttributeNS(node.namespaceURI, node.name)
-    is PlatformCDATASection -> createCDATASection(node.data)
-    is PlatformComment -> createComment(node.data)
+    is PlatformAttr -> createAttributeNS(node.getNamespaceURI(), node.getName())
+    is PlatformCDATASection -> createCDATASection(node.getData())
+    is PlatformComment -> createComment(node.getData())
     is PlatformDocument -> {
-        val newDt = node.doctype?.let { dt -> implementation.createDocumentType(dt.name, dt.publicId, dt.systemId) }
-        implementation.createDocument(null, getNodeName(), newDt)
+        val newDt = node.getDoctype()
+            ?.let { dt -> getImplementation().createDocumentType(dt.getName(), dt.getPublicId(), dt.getSystemId()) }
+        getImplementation().createDocument(null, getNodeName(), newDt)
     }
 
     is PlatformDocumentFragment -> createDocumentFragment().also { f ->
-        for (n in node.childNodes) {
+        for (n in node.getChildNodes()) {
             f.appendChild(adoptNode(n))
         }
     }
 
-    is PlatformDocumentType -> implementation.createDocumentType(node.name, node.publicId, node.systemId)
-    is PlatformElement -> createElementNS(node.namespaceURI ?: "", node.tagName).also { e ->
-        for (a in node.attributes) {
-            e.setAttributeNS(a.namespaceURI, a.name, a.value)
+    is PlatformDocumentType -> getImplementation().createDocumentType(node.getName(), node.getPublicId(), node.getSystemId())
+    is PlatformElement -> createElementNS(node.getNamespaceURI() ?: "", node.getTagName()).also { e ->
+        for (a in node.getAttributes()) {
+            e.setAttributeNS(a.getNamespaceURI(), a.getName(), a.getValue())
         }
-        for (n in node.childNodes) {
+        for (n in node.getChildNodes()) {
             e.appendChild(adoptNode(n))
         }
     }
 
-    is PlatformProcessingInstruction -> createProcessingInstruction(node.target, node.data)
-    is PlatformText -> createTextNode(node.data)
-    else -> error("Node type ${NodeType(node.nodeType)} not supported")
+    is PlatformProcessingInstruction -> createProcessingInstruction(node.getTarget(), node.getData())
+    is PlatformText -> createTextNode(node.getData())
+    else -> error("Node type ${node.getNodetype()} not supported")
 
 }

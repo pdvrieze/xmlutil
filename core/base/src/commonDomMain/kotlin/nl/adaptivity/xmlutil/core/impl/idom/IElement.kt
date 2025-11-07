@@ -20,38 +20,28 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr as Attr1
-import nl.adaptivity.xmlutil.dom.PlatformElement as Element1
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
-import nl.adaptivity.xmlutil.dom2.Element as Element2
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformElement
 
-public interface IElement : INode, Element1, Element2 {
-
-    override val attributes: INamedNodeMap get() = getAttributes()
+public interface IElement : INode, PlatformElement {
 
     override fun getAttributes(): INamedNodeMap
 
-    override fun getNamespaceURI(): String? = namespaceURI
+    override fun getNamespaceURI(): String?
 
-    override fun getPrefix(): String? = prefix
+    override fun getPrefix(): String?
 
-    override fun getLocalName(): String = localName
+    override fun getLocalName(): String
 
     override fun getAttributeNode(qualifiedName: String): IAttr?
 
     override fun getAttributeNodeNS(namespace: String?, localName: String): IAttr?
 
-    override fun setAttributeNode(attr: Attr1): IAttr?
+    override fun setAttributeNode(attr: PlatformAttr): IAttr?
 
-    override fun setAttributeNode(attr: Attr2): IAttr?
+    override fun setAttributeNodeNS(attr: PlatformAttr): IAttr?
 
-    override fun setAttributeNodeNS(attr: Attr1): IAttr?
-
-    override fun setAttributeNodeNS(attr: Attr2): IAttr?
-
-    override fun removeAttributeNode(attr: Attr1): IAttr
-
-    override fun removeAttributeNode(attr: Attr2): IAttr
+    override fun removeAttributeNode(attr: PlatformAttr): IAttr
 
     override fun getElementsByTagName(qualifiedName: String): INodeList
 
