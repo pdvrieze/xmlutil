@@ -34,6 +34,12 @@ public expect interface CharacterData : Node {
     public fun deleteData(offset: Int, count: Int)
 
     public fun replaceData(offset: Int, count: Int, data: String)
+
+    override fun appendChild(node: Node): Nothing
+    override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    override fun removeChild(node: Node): Nothing
+    override fun getFirstChild(): Nothing?
+    override fun getLastChild(): Nothing?
 }
 
 public inline var CharacterData.data: String

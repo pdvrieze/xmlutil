@@ -34,4 +34,7 @@ public interface IDocumentType : INode, PlatformDocumentType {
     override fun removeChild(node: PlatformNode): Nothing =
         throw DOMException("Document types have no children")
 
+    override fun getFirstChild(): Nothing? = null
+    override fun getLastChild(): Nothing? = null
+
 }

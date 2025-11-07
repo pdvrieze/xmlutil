@@ -74,10 +74,6 @@ internal class AttrImpl(
 
     override fun getChildNodes(): INodeList = EmptyNodeList
 
-    override fun getFirstChild(): Nothing? = null
-
-    override fun getLastChild(): Nothing? = null
-
     private var ownerElement: IElement? = null
 
     override fun getOwnerElement(): IElement? = ownerElement

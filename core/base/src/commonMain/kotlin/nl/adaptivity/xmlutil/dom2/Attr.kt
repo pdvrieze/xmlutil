@@ -34,6 +34,13 @@ public expect interface Attr : Node {
     public fun setValue(value: String)
 
     public fun getOwnerElement(): Element?
+
+    public override fun appendChild(node: Node): Nothing
+    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    public override fun removeChild(node: Node): Nothing
+    public override fun getFirstChild(): Nothing?
+    public override fun getLastChild(): Nothing?
+
 }
 
 public val Attr.namespaceURI: String? get() = getNamespaceURI()

@@ -831,12 +831,17 @@ public final class nl/adaptivity/xmlutil/dom/NodeConsts {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun appendChild (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
+	public abstract fun getFirstChild ()Ljava/lang/Void;
+	public abstract fun getLastChild ()Ljava/lang/Void;
 	public abstract fun getLocalName ()Ljava/lang/String;
 	public abstract fun getName ()Ljava/lang/String;
 	public abstract fun getNamespaceURI ()Ljava/lang/String;
 	public abstract fun getOwnerElement ()Lnl/adaptivity/xmlutil/dom2/Element;
 	public abstract fun getPrefix ()Ljava/lang/String;
 	public abstract fun getValue ()Ljava/lang/String;
+	public abstract fun removeChild (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
+	public abstract fun replaceChild (Lnl/adaptivity/xmlutil/dom2/Node;Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
 	public abstract fun setValue (Ljava/lang/String;)V
 }
 
@@ -854,10 +859,15 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/CDATASection : nl/ada
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/CharacterData : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun appendChild (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
 	public abstract fun appendData (Ljava/lang/String;)V
 	public abstract fun deleteData (II)V
 	public abstract fun getData ()Ljava/lang/String;
+	public abstract fun getFirstChild ()Ljava/lang/Void;
+	public abstract fun getLastChild ()Ljava/lang/Void;
 	public abstract fun insertData (ILjava/lang/String;)V
+	public abstract fun removeChild (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
+	public abstract fun replaceChild (Lnl/adaptivity/xmlutil/dom2/Node;Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
 	public abstract fun replaceData (IILjava/lang/String;)V
 	public abstract fun setData (Ljava/lang/String;)V
 	public abstract fun substringData (II)Ljava/lang/String;
@@ -927,9 +937,14 @@ public final class nl/adaptivity/xmlutil/dom2/DocumentKt {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/DocumentType : nl/adaptivity/xmlutil/dom2/Node {
+	public abstract fun appendChild (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
+	public abstract fun getFirstChild ()Ljava/lang/Void;
+	public abstract fun getLastChild ()Ljava/lang/Void;
 	public abstract fun getName ()Ljava/lang/String;
 	public abstract fun getPublicId ()Ljava/lang/String;
 	public abstract fun getSystemId ()Ljava/lang/String;
+	public abstract fun removeChild (Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
+	public abstract fun replaceChild (Lnl/adaptivity/xmlutil/dom2/Node;Lnl/adaptivity/xmlutil/dom2/Node;)Ljava/lang/Void;
 }
 
 public final class nl/adaptivity/xmlutil/dom2/DocumentTypeKt {

@@ -25,8 +25,6 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public interface IAttr : INode, PlatformAttr {
-    override fun getLocalName(): String
-
     override fun getOwnerElement(): IElement?
 
     override fun appendChild(node: PlatformNode): Nothing =
@@ -35,8 +33,10 @@ public interface IAttr : INode, PlatformAttr {
     override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing =
         throw DOMException("Attributes have no children")
 
-
     override fun removeChild(node: PlatformNode): Nothing =
         throw DOMException("Attributes have no children")
+
+    override fun getFirstChild(): Nothing? = null
+    override fun getLastChild(): Nothing? = null
 
 }

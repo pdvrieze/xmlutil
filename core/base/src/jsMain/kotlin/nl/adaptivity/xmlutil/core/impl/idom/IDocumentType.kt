@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
 import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
 import org.w3c.dom.DocumentType as DomDocumentType
@@ -32,5 +33,17 @@ public interface IDocumentType : INode, DocumentType1, DocumentType2 {
     override fun getPublicId(): String = publicId
 
     override fun getSystemId(): String = systemId
+
+    public override fun appendChild(node: Node): Nothing =
+        throw UnsupportedOperationException("No children in document type")
+
+    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing =
+        throw UnsupportedOperationException("No children in document type")
+
+    public override fun removeChild(node: Node): Nothing =
+        throw UnsupportedOperationException("No children in document type")
+
+    public override fun getFirstChild(): Nothing? = null
+    public override fun getLastChild(): Nothing? = null
 
 }

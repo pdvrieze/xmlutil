@@ -44,9 +44,9 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
 
     final override fun getParentNode(): INode? = delegate.parentNode?.wrap()
 
-    final override fun getFirstChild(): INode? = delegate.firstChild?.wrap()
+    override fun getFirstChild(): INode? = delegate.firstChild?.wrap()
 
-    final override fun getLastChild(): INode? = delegate.lastChild?.wrap()
+    override fun getLastChild(): INode? = delegate.lastChild?.wrap()
 
     final override fun getPreviousSibling(): INode? = delegate.previousSibling?.wrap()
 

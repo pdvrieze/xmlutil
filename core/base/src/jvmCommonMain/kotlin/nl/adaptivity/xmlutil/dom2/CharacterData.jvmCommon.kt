@@ -28,4 +28,10 @@ public actual interface CharacterData : Node {
     public actual fun insertData(offset: Int, data: String)
     public actual fun deleteData(offset: Int, count: Int)
     public actual fun replaceData(offset: Int, count: Int, data: String)
+
+    public actual override fun appendChild(node: Node): Nothing
+    public actual override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    public actual override fun removeChild(node: Node): Nothing
+    public actual override fun getFirstChild(): Nothing?
+    public actual override fun getLastChild(): Nothing?
 }

@@ -22,8 +22,18 @@ package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.Node
 
 public interface IAttr : INode, PlatformAttr, Attr {
     override fun getOwnerElement(): IElement?
     override fun getLocalName(): String?
+
+    public override fun appendChild(node: Node): Nothing =
+        throw UnsupportedOperationException("No children in attributes")
+    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing =
+        throw UnsupportedOperationException("No children in attributes")
+    public override fun removeChild(node: Node): Nothing =
+        throw UnsupportedOperationException("No children in attributes")
+    public override fun getFirstChild(): Nothing? = null
+    public override fun getLastChild(): Nothing? = null
 }

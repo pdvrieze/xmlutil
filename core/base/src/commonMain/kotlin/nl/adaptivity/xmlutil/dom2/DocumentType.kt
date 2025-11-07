@@ -24,6 +24,12 @@ public expect interface DocumentType : Node {
     public fun getName(): String
     public fun getPublicId(): String
     public fun getSystemId(): String
+
+    public override fun appendChild(node: Node): Nothing
+    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    public override fun removeChild(node: Node): Nothing
+    override fun getFirstChild(): Nothing?
+    override fun getLastChild(): Nothing?
 }
 
 public val DocumentType.name: String get() = getName()

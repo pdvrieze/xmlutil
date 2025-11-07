@@ -31,8 +31,9 @@ public interface ICharacterData : INode, PlatformCharacterData {
     override fun replaceChild(oldChild: PlatformNode, newChild: PlatformNode): Nothing =
         throw DOMException("Character nodes have no children")
 
-
     override fun removeChild(node: PlatformNode): Nothing =
         throw DOMException("Character nodes have no children")
 
+    override fun getFirstChild(): Nothing? = null
+    override fun getLastChild(): Nothing? = null
 }

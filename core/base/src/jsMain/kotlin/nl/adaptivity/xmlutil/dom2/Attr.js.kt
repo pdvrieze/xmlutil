@@ -28,4 +28,10 @@ public actual interface Attr : Node {
     public actual fun getValue(): String
     public actual fun setValue(value: String)
     public actual fun getOwnerElement(): Element?
+
+    public actual override fun appendChild(node: Node): Nothing
+    public actual override fun replaceChild(oldChild: Node, newChild: Node): Nothing
+    public actual override fun removeChild(node: Node): Nothing
+    public actual override fun getFirstChild(): Nothing?
+    public actual override fun getLastChild(): Nothing?
 }

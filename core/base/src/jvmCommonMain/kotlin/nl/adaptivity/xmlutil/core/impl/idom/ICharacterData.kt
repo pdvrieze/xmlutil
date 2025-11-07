@@ -20,7 +20,18 @@
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom.PlatformCharacterData as CharacterData1
 import nl.adaptivity.xmlutil.dom2.CharacterData as CharacterData2
 
-public interface ICharacterData : INode, CharacterData1, CharacterData2
+public interface ICharacterData : INode, CharacterData1, CharacterData2 {
+    public override fun appendChild(node: Node): Nothing =
+        throw UnsupportedOperationException("No children in character data")
+    public override fun replaceChild(oldChild: Node, newChild: Node): Nothing =
+        throw UnsupportedOperationException("No children in character data")
+    public override fun removeChild(node: Node): Nothing =
+        throw UnsupportedOperationException("No children in character data")
+    public override fun getFirstChild(): Nothing? = null
+    public override fun getLastChild(): Nothing? = null
+
+}
