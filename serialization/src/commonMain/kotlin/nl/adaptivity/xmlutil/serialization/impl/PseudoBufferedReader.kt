@@ -36,6 +36,7 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
     override val attributeCount: Int get() = ifNotPeeking { attributeCount }
     override val piData: String get() = ifNotPeeking { piData }
     override val piTarget: String get() = ifNotPeeking { piTarget }
+    override val isKnownEntity: Boolean get() = ifNotPeeking { isKnownEntity }
     override val text: String get() = ifNotPeeking { text }
     override val isStarted: Boolean get() = if (hasPeekItems) delegate.eventType != EventType.START_DOCUMENT else delegate.isStarted
     override val prefix: String get() = ifNotPeeking { prefix }

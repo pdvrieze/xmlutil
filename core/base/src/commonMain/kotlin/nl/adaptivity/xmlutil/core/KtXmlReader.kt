@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
-import nl.adaptivity.xmlutil.core.impl.EntityMap
+import nl.adaptivity.xmlutil.core.impl.DefaultEntityMap
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
@@ -69,6 +69,13 @@ public class KtXmlReader internal constructor(
         get() = state != State.BEFORE_START
 
     private var entityName: String? = null
+
+    override public val isKnownEntity: Boolean
+        get() = when (_eventType) {
+            ENTITY_REF -> !unresolvedEntity
+
+            else -> throw IllegalStateException("isKnownEntity is only relevant for entities")
+        }
 
     public override val localName: String
         get() = when (_eventType) {
@@ -140,8 +147,6 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private var entityMap = EntityMap()
-
     private val namespaceHolder = NamespaceHolder()
 
     public override val depth: Int
@@ -164,7 +169,7 @@ public class KtXmlReader internal constructor(
     //    private int stackMismatch = 0;
     private var error: String? = null
 
-    private var unresolved = false
+    private var unresolvedEntity = false
 
     private var state = State.BEFORE_START
 
@@ -920,6 +925,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun pushRefEntity() {
+        unresolvedEntity = false
         val first = read()
         val codeBuilder = StringBuilder(8)
 
@@ -948,8 +954,8 @@ public class KtXmlReader internal constructor(
             entityName = code
         }
 
-        val result = entityMap[code]
-        unresolved = result == null
+        val result = DefaultEntityMap[code]
+        unresolvedEntity = result == null
         when {
             result != null -> push(result)
             expandEntities -> exception("Unknown entity \"&$code;\" in entity expanding mode")
@@ -1662,21 +1668,21 @@ public class KtXmlReader internal constructor(
     private fun readCName() {
         var left = srcBufPos
 
-        var bufEnd: Int
-        run {
-            val cnt = srcBufCount
-            if (BUF_SIZE < cnt) {
-                if (left == BUF_SIZE) {
-                    swapInputBuffer()
-                    left = 0
-                    bufEnd = minOf(BUF_SIZE, srcBufCount)
-                } else {
-                    bufEnd = BUF_SIZE
-                }
-            } else {
+        val cnt = srcBufCount
+
+        var bufEnd: Int = when {
+            BUF_SIZE >= cnt -> {
                 if (left >= cnt) exception(UNEXPECTED_EOF)
-                bufEnd = cnt
+                cnt
             }
+
+            left == BUF_SIZE -> {
+                swapInputBuffer()
+                left = 0
+                minOf(BUF_SIZE, srcBufCount)
+            }
+
+            else -> BUF_SIZE
         }
 
         var srcBuf = bufLeft

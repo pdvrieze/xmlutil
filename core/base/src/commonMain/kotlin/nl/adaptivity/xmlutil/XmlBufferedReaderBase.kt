@@ -61,6 +61,11 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
             else -> throw XmlException("Attribute not defined here: namespaceUri (current event: ${current?.eventType})")
         }
 
+    override val isKnownEntity: Boolean
+        get() = when (val c = current) {
+            is EntityRefEvent -> c.isResolved
+            else -> throw XmlException("Current event is not an entity")
+        }
 
     override val localName: String
         get() = when (current?.eventType) {

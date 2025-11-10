@@ -58,6 +58,9 @@ public class XmlBufferReader private constructor(
     override val isStarted: Boolean
         get() = currentPos >= 0
 
+    override val isKnownEntity: Boolean
+        get() = current<EntityRefEvent>().isResolved
+
     override val text: String
         get() = current<TextEvent>().text
 

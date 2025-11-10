@@ -457,6 +457,8 @@ internal open class XmlDecoderBase internal constructor(
 
         override val isStarted: Boolean get() = pos >= 0
 
+        override val isKnownEntity: Boolean get() = throw XmlSerialException("Entity references are not strings")
+
         override val text: String
             get() {
                 if (pos != 0) throw XmlSerialException("Not in text position")

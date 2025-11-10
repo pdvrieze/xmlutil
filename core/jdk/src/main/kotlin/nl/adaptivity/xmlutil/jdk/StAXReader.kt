@@ -31,9 +31,8 @@ import javax.xml.transform.Source
  * An implementation of [XmlReader] based upon the JDK StAX implementation.
  * @author Created by pdvrieze on 16/11/15.
  */
-public class StAXReader @JvmOverloads constructor(
+public class StAXReader(
     private val delegate: XMLStreamReader,
-    private val expandEntities: Boolean = false
 ) : XmlReader {
 
     override var isStarted: Boolean = false
@@ -45,9 +44,16 @@ public class StAXReader @JvmOverloads constructor(
 
     private val namespaceHolder = NamespaceHolder()
 
+    @Deprecated("ExpandEntities is only used for creating the reader. It has already been set")
+    public constructor(delegate: XMLStreamReader, expandEntities: Boolean) : this(delegate)
+
     @Throws(XMLStreamException::class)
     @JvmOverloads
-    public constructor(reader: Reader, expandEntities: Boolean = false) : this(safeInputFactory().createXMLStreamReader(reader), expandEntities)
+    public constructor(reader: Reader, expandEntities: Boolean = false) : this(
+        safeInputFactory().apply {
+            setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, expandEntities)
+        }.createXMLStreamReader(reader)
+    )
 
     /**
      * Create a new reader
@@ -58,16 +64,19 @@ public class StAXReader @JvmOverloads constructor(
     @Throws(XMLStreamException::class)
     @JvmOverloads
     public constructor(inputStream: InputStream, encoding: String? = null, expandEntities: Boolean = false) : this(
-        safeInputFactory().createXMLStreamReader(
+        safeInputFactory().apply {
+            setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, expandEntities)
+        }.createXMLStreamReader(
             inputStream,
             encoding,
-        ),
-        expandEntities
+        )
     )
 
     @Throws(XMLStreamException::class)
     @JvmOverloads
-    public constructor(source: Source, expandEntities: Boolean = false) : this(safeInputFactory().createXMLStreamReader(source), expandEntities)
+    public constructor(source: Source, expandEntities: Boolean = false) : this(safeInputFactory().apply {
+        setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, expandEntities)
+    }.createXMLStreamReader(source))
 
     @Throws(XmlException::class)
     override fun close() {
@@ -116,6 +125,9 @@ public class StAXReader @JvmOverloads constructor(
     public fun hasText(): Boolean {
         return delegate.hasText()
     }
+
+    override val isKnownEntity: Boolean
+        get() = eventType == EventType.ENTITY_REF && text.isNotEmpty()
 
     public val textCharacters: CharArray
         @Deprecated("", ReplaceWith("text.toCharArray()"))
@@ -286,6 +298,8 @@ public class StAXReader @JvmOverloads constructor(
     }
 
     private companion object {
+
+        const val EXPAND_ENTITIES_PROP = "javax.xml.stream.isReplacingEntityReferences"
 
         fun safeInputFactory(): XMLInputFactory {
             return XMLInputFactory.newFactory().apply {

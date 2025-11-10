@@ -40,7 +40,7 @@ import java.io.StringReader
  */
 @Suppress("DEPRECATION")
 public actual class XMLFragmentStreamReader private constructor(delegate: XmlReader) :
-    XmlDelegatingReader(delegate), XMLFragmentStreamReaderJava, XmlReader {
+    XmlDelegatingReader(delegate), XMLFragmentStreamReaderJava {
 
     override val delegate: XmlReader get() = super.delegate
 

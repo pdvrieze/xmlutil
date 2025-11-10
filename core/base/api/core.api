@@ -185,6 +185,7 @@ public final class nl/adaptivity/xmlutil/XmlBufferReader : nl/adaptivity/xmlutil
 	public fun getText ()Ljava/lang/String;
 	public fun getVersion ()Ljava/lang/String;
 	public fun hasNext ()Z
+	public fun isKnownEntity ()Z
 	public fun isStarted ()Z
 	public synthetic fun next ()Ljava/lang/Object;
 	public fun next ()Lnl/adaptivity/xmlutil/EventType;
@@ -275,6 +276,7 @@ public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/X
 	public fun hasNext ()Z
 	public fun isCharacters ()Z
 	public fun isEndElement ()Z
+	public fun isKnownEntity ()Z
 	public fun isStartElement ()Z
 	public fun isStarted ()Z
 	public fun isWhitespace ()Z
@@ -375,8 +377,10 @@ public final class nl/adaptivity/xmlutil/XmlEvent$EndElementEvent : nl/adaptivit
 public final class nl/adaptivity/xmlutil/XmlEvent$EntityRefEvent : nl/adaptivity/xmlutil/XmlEvent$TextEvent {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;ZLjava/lang/String;)V
 	public final fun getLocalName ()Ljava/lang/String;
 	public fun isIgnorable ()Z
+	public final fun isResolved ()Z
 	public fun toString ()Ljava/lang/String;
 	public fun writeTo (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
@@ -490,6 +494,7 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closea
 	public abstract fun hasNext ()Z
 	public fun isCharacters ()Z
 	public fun isEndElement ()Z
+	public abstract fun isKnownEntity ()Z
 	public fun isStartElement ()Z
 	public abstract fun isStarted ()Z
 	public fun isWhitespace ()Z
@@ -752,6 +757,7 @@ public final class nl/adaptivity/xmlutil/core/KtXmlReader : nl/adaptivity/xmluti
 	public fun getVersion ()Ljava/lang/String;
 	public fun hasNext ()Z
 	public final fun isEmptyElementTag ()Z
+	public fun isKnownEntity ()Z
 	public fun isStarted ()Z
 	public fun isWhitespace ()Z
 	public synthetic fun next ()Ljava/lang/Object;
@@ -1186,7 +1192,7 @@ public final class nl/adaptivity/xmlutil/util/ICompactFragmentSerializer : nl/ad
 	public fun serializeXML (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/util/ICompactFragment;Z)V
 }
 
-public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReader : nl/adaptivity/xmlutil/XmlDelegatingReader, nl/adaptivity/xmlutil/XmlReader, nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava {
+public final class nl/adaptivity/xmlutil/util/XMLFragmentStreamReader : nl/adaptivity/xmlutil/XmlDelegatingReader, nl/adaptivity/xmlutil/util/XMLFragmentStreamReaderJava {
 	public static final field Companion Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader$Companion;
 	public fun <init> (Ljava/io/Reader;Ljava/lang/Iterable;)V
 	public static final fun from (Ljava/io/Reader;)Lnl/adaptivity/xmlutil/util/XMLFragmentStreamReader;

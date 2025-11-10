@@ -69,8 +69,17 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
     public class EntityRefEvent(
         extLocationInfo: XmlReader.LocationInfo?,
         public val localName: String,
+        public val isResolved: Boolean,
         text: String
     ) : TextEvent(extLocationInfo, EventType.ENTITY_REF, text) {
+
+        public constructor(
+            extLocationInfo: XmlReader.LocationInfo?,
+            localName: String,
+            text: String
+        ): this(extLocationInfo, localName, text.isNotEmpty(), text)
+
+        @Deprecated("locationInfo is deprecated")
         public constructor(locationInfo: String, localName: String, text: String) :
                 this(locationInfo.let(XmlReader::StringLocationInfo), localName, text)
 

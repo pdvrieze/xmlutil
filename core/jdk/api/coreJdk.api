@@ -1,4 +1,5 @@
 public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/XmlReader {
+	public static final field EXPAND_ENTITIES_PROP Ljava/lang/String;
 	public fun <init> (Ljava/io/InputStream;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;Z)V
@@ -8,7 +9,6 @@ public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/
 	public synthetic fun <init> (Ljava/io/Reader;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljavax/xml/stream/XMLStreamReader;)V
 	public fun <init> (Ljavax/xml/stream/XMLStreamReader;Z)V
-	public synthetic fun <init> (Ljavax/xml/stream/XMLStreamReader;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljavax/xml/transform/Source;)V
 	public fun <init> (Ljavax/xml/transform/Source;Z)V
 	public synthetic fun <init> (Ljavax/xml/transform/Source;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -45,6 +45,7 @@ public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/
 	public final fun hasText ()Z
 	public fun isCharacters ()Z
 	public fun isEndElement ()Z
+	public fun isKnownEntity ()Z
 	public final fun isStandalone ()Z
 	public fun isStartElement ()Z
 	public fun isStarted ()Z

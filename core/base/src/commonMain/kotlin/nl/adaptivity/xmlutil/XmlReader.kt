@@ -95,6 +95,8 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public val depth: Int
 
+    public val isKnownEntity: Boolean// get() = eventType == EventType.ENTITY_REF && text.isNotEmpty()
+
     public val text: String
 
     /** Target for processing instructions. */

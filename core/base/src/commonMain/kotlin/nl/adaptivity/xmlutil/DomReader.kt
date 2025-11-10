@@ -86,6 +86,10 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
             return (c as ProcessingInstruction).getData()
         }
 
+
+    override val isKnownEntity: Boolean
+        get() = eventType == EventType.ENTITY_REF && (current as CharacterData).data.isNotEmpty()
+
     @Suppress("DEPRECATION")
     override val text: String
         get() = when (current?.nodeType) {

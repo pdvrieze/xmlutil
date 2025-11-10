@@ -115,6 +115,9 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
     override val attributeCount: Int
         get() = parser.attributeCount
 
+    override val isKnownEntity: Boolean
+        get() = eventType == EventType.ENTITY_REF && text.isNotEmpty()
+
     override fun getAttributeLocalName(index: Int): String = parser.getAttributeName(index)
 
     override fun getAttributePrefix(index: Int): String = parser.getAttributePrefix(index)

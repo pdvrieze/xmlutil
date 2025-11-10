@@ -42,6 +42,7 @@ public final class nl/adaptivity/xmlutil/core/AndroidXmlReader : nl/adaptivity/x
 	public fun getText ()Ljava/lang/String;
 	public fun getVersion ()Ljava/lang/String;
 	public fun hasNext ()Z
+	public fun isKnownEntity ()Z
 	public fun isStarted ()Z
 	public fun isWhitespace ()Z
 	public synthetic fun next ()Ljava/lang/Object;
