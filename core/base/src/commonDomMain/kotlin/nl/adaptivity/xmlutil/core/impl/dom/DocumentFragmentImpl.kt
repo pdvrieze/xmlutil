@@ -85,7 +85,7 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         val oldIdx = _childNodes.elements.indexOf(old)
-        if (oldIdx < 0) throw DOMException("Old child not found")
+        if (oldIdx < 0) throw DOMException.notFoundErr("Old child not found")
 
         _childNodes.elements[oldIdx].setParentNode(null)
         when(val new = checkNode(newChild)) {
@@ -109,7 +109,7 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
     override fun removeChild(node: PlatformNode): INode {
         val c = checkNode(node)
 
-        if (!_childNodes.elements.remove(c)) throw DOMException("Node not found")
+        if (!_childNodes.elements.remove(c)) throw DOMException.notFoundErr("Node not found")
         c.setParentNode(null)
 
         return c

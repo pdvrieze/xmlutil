@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentType
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
 
@@ -63,7 +64,7 @@ internal class DocumentTypeImpl(
     override fun getTextContent(): String? = null
 
     override fun setTextContent(value: String) {
-        throw UnsupportedOperationException("Documents have no (direct) text content")
+        throw DOMException.hierarchyRequestErr("Documents have no (direct) text content")
     }
 
     override fun lookupPrefix(namespace: String): String? {

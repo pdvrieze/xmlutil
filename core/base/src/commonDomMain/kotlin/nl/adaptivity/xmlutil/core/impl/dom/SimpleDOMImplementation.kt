@@ -45,8 +45,8 @@ internal object SimpleDOMImplementation : IDOMImplementation {
                 }
                 check (elem.getOwnerDocument() == doc) { "Owner document mismatch" }
                 doc.appendChild(elem)
-            } else {
-                if (namespace.isNullOrEmpty()) throw DOMException.namespaceErr("Creating documents with a namespace but no qualified name is not possible")
+            } else if (!namespace.isNullOrEmpty()) {
+                throw DOMException.namespaceErr("Creating documents with a namespace but no qualified name is not possible")
             }
         }
     }

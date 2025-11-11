@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.core.impl.idom.IAttr
 import nl.adaptivity.xmlutil.core.impl.idom.IElement
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom2.NodeType
 
@@ -37,7 +38,7 @@ internal class AttrImpl(
     constructor(ownerDocument: DocumentImpl, original: PlatformAttr) : this(
         ownerDocument,
         original.getNamespaceURI(),
-        checkNotNull(original.getLocalName()){ "Local name not set for attribute" },
+        original.getLocalName() ?: throw DOMException.invalidCharacterErr("Local name not set for attribute") ,
         original.getPrefix(),
         original.getValue()
     )

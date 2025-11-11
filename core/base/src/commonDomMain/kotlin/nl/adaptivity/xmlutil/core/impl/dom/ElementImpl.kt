@@ -158,7 +158,7 @@ internal class ElementImpl(
         newNode.parentNode?.removeChild(newNode)
 
         val idx = _childNodes.indexOf(old)
-        if (idx < 0) throw DOMException()
+        if (idx < 0) throw DOMException.notFoundErr("Old node not a child of this element")
 
         _childNodes.elements[idx].setParentNode(null)
 
@@ -175,7 +175,7 @@ internal class ElementImpl(
     override fun removeChild(node: PlatformNode): INode {
         val n = checkNode(node)
 
-        if (!_childNodes.elements.remove(n)) throw DOMException("Node to remove not found")
+        if (!_childNodes.elements.remove(n)) throw DOMException.notFoundErr("Node to remove not found")
 
         n.setParentNode(null)
         return n
@@ -301,7 +301,7 @@ internal class ElementImpl(
     override fun removeAttributeNode(attr: PlatformAttr): IAttr {
         val a = checkNode(attr) as AttrImpl
         if (!_attributes.remove(a)) {
-            throw DOMException("Missing attribute for removal")
+            throw DOMException.notFoundErr("Missing attribute for removal")
         }
         return a
     }
@@ -379,15 +379,13 @@ internal class ElementImpl(
         }
 
         override fun setNamedItem(attr: PlatformAttr): IAttr? {
-            val a = checkNode(attr)
-            if (a !is AttrImpl) throw DOMException("")
+            val a = checkNode(attr) as AttrImpl
 
             return setAttrAt(getAttrIdx(a.getName()), a)
         }
 
         override fun setNamedItemNS(attr: PlatformAttr): IAttr? {
-            val a = checkNode(attr)
-            if (a !is AttrImpl) throw DOMException("")
+            val a = checkNode(attr) as AttrImpl
 
             return setAttrAt(getAttrIdxNS(a.getNamespaceURI(), a.getLocalName()), a)
         }
