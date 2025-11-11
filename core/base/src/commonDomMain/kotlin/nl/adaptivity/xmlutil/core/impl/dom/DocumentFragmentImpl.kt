@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.core.impl.idom.INodeList
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.parentNode
 
 internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : NodeImpl(), IDocumentFragment {
     override fun getOwnerDocument(): DocumentImpl = ownerDocument
@@ -73,6 +74,7 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
             }
 
             else -> {
+                n.parentNode?.removeChild(n)
                 _childNodes.elements.add(n)
                 n.setParentNode(this)
             }
@@ -91,9 +93,11 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
                 val elems = new._childNodes.elements
                 for (e in elems) e.setParentNode(this)
                 _childNodes.elements.addAll(oldIdx, elems)
+                new._childNodes.elements.clear() // remove nodes from fragment
             }
 
             else -> {
+                new.parentNode?.removeChild(new)
                 _childNodes.elements[oldIdx] = new
                 new.setParentNode(this)
             }

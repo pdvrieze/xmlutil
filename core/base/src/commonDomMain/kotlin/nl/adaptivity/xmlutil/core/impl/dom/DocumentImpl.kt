@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.core.impl.idom.*
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.nodeType
+import nl.adaptivity.xmlutil.dom2.ownerDocument
 import nl.adaptivity.xmlutil.dom2.parentNode
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
@@ -32,6 +33,8 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
         if (doctype?.maybeOwnerDocument != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
         doctype?.setOwnerDocument(this)
     }
+
+    private val docId = nextDocId()
 
     constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
 
@@ -123,25 +126,34 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
 
     override fun appendChild(node: PlatformNode): INode {
         val n = checkNode(node)
-        when (n) {
-            is DocumentFragmentImpl -> for (child in n.getChildNodes()) {
+        if (n == _documentElement) return n
+        check(n.getOwnerDocument() == this) { "Node not owned by this document" }
+
+        if (n is DocumentFragmentImpl) {
+            for (child in n.getChildNodes()) {
                 appendChild(child)
                 n._childNodes.elements.clear()
             }
+        } else {
 
-            is ElementImpl -> {
-                if (_documentElement != null) throw UnsupportedOperationException("Only one root element is supported for now")
-                _documentElement = n
+            if (n.parentNode != null) n.setParentNode(null)
+
+            when (n) {
+                is ElementImpl -> {
+                    if (_documentElement != null) throw UnsupportedOperationException("Only one root element is supported for now")
+                    _documentElement = n
+                }
+
+                is PlatformComment,
+                is ProcessingInstructionImpl -> Unit // fine
+
+                is TextImpl -> require(isXmlWhitespace(n.getData())) { "Non-whitespace nodes cannot be added directly to a document" }
+                else -> throw IllegalArgumentException("Attempting to add node ${n.getNodetype()} where not permitted")
             }
 
-            is PlatformComment,
-            is ProcessingInstructionImpl -> Unit // fine
-
-            is TextImpl -> require(isXmlWhitespace(n.getData())) { "Non-whitespace nodes cannot be added directly to a document" }
-            else -> throw IllegalArgumentException("Attempting to add node ${n.getNodetype()} where not permitted")
+            n.setParentNode(this)
+            _childNodes.elements.add(n)
         }
-        n.setParentNode(this)
-        _childNodes.elements.add(n)
 
         return n
     }
@@ -160,7 +172,9 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
         if (old != _documentElement) throw DOMException("Old node not found in document")
         val newChild = checkNode(newChild)
         if (newChild !is ElementImpl) throw UnsupportedOperationException("Only element children to root supported for now")
+        newChild.parentNode?.removeChild(old)
         _documentElement = newChild
+        newChild.setParentNode(this)
         return old
     }
 
@@ -219,10 +233,15 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
 
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
-        else -> e.toString()
+        else -> "document<$docId>"
+//        else -> e.toString()
     }
 
     companion object {
+        private var nextDocId: Int = 1
+
+        private fun nextDocId(): Int = nextDocId++
+
         fun coerce(document: PlatformDocument): DocumentImpl {
             return (document as? DocumentImpl) ?: throw IllegalArgumentException("Documents can not be adopted")
         }
@@ -230,7 +249,8 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
 }
 
 internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
-    if (node.getOwnerDocument() != getOwnerDocument()) throw DOMException("Node not owned by this document")
+    if (node is DocumentImpl) return node
+    if (getOwnerDocument() != node.getOwnerDocument()) throw DOMException("Node (${node.getNodetype()}) not owned by this document ($ownerDocument != ${node.ownerDocument})")
     when (node) {
         is NodeImpl -> {}
         is ICharacterData -> throw DOMException("Node is icharacterdata")
@@ -246,7 +266,8 @@ internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
 }
 
 internal fun INode.checkNode(node: INode): NodeImpl {
-    if (node.getOwnerDocument() != getOwnerDocument()) throw DOMException("Node not owned by this document")
+    if (node is DocumentImpl) return node
+    if (ownerDocument != node.getOwnerDocument()) throw DOMException("Node (${node.getNodetype()}) not owned by this document")
     if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
     return node
 }

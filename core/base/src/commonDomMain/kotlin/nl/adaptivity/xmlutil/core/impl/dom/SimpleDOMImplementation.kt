@@ -36,14 +36,15 @@ internal object SimpleDOMImplementation : IDOMImplementation {
     }
 
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: IDocumentType?): IDocument {
-        return DocumentImpl(documentType).also {
-            (documentType as DocumentTypeImpl?)?.setOwnerDocument(it)
+        return DocumentImpl(documentType).also { doc ->
+            (documentType as DocumentTypeImpl?)?.setOwnerDocument(doc)
             if (!qualifiedName.isNullOrBlank()) {
                 val elem = when (namespace) {
-                    null -> it.createElement(qualifiedName)
-                    else -> it.createElementNS(namespace, qualifiedName)
+                    null -> doc.createElement(qualifiedName)
+                    else -> doc.createElementNS(namespace, qualifiedName)
                 }
-                it.appendChild(elem)
+                check (elem.getOwnerDocument() == doc) { "Owner document mismatch" }
+                doc.appendChild(elem)
             } else {
                 if (namespace.isNullOrEmpty()) throw DOMException.namespaceErr("Creating documents with a namespace but no qualified name is not possible")
             }

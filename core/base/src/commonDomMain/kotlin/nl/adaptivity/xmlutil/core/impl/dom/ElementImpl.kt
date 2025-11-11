@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.parentNode
 
 internal class ElementImpl(
     private var ownerDocument: DocumentImpl,
@@ -140,7 +141,7 @@ internal class ElementImpl(
             }
 
             else -> {
-                n.getParentNode()?.removeChild(n)
+                check (n.parentNode == null) { "Node to be appended already has a parent node" }
 
                 n.setParentNode(this)
 
@@ -152,13 +153,21 @@ internal class ElementImpl(
 
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
+        if (newChild == oldChild) return old
+        val newNode = checkNode(newChild)
+        newNode.parentNode?.removeChild(newNode)
+
         val idx = _childNodes.indexOf(old)
         if (idx < 0) throw DOMException()
-        val newNode = checkNode(newChild)
 
         _childNodes.elements[idx].setParentNode(null)
-        _childNodes.elements[idx] = newNode
+
         newNode.setParentNode(this)
+
+        _childNodes.elements[idx] = newNode
+
+        check(oldChild.parentNode == null)
+        check(newChild.parentNode == this)
 
         return old
     }
