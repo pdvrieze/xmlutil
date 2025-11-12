@@ -3,19 +3,19 @@
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization.impl
@@ -46,30 +46,46 @@ import kotlin.math.ceil
  *
  * @author uday
  */
-internal class LRUCache<K : Any, V : Any>(private val cacheSize: Int, fillFactor: Float = 0.5f) {
-    // An array to hold linked list positions
-    private val linkedData: IntArray
-    private val modulo: Int
-    private val positionModulo: Int
+internal class LRUCache<K : Any, V : Any>private constructor(
+    private val cacheSize: Int,
+    private val modulo: Int,
+    private val positionModulo: Int,
+    private val linkedData: IntArray, // An array to hold linked list positions
+    private val objData: Array<Any?>,// A separate array to hold keys and values
+    private var oldestPosition: DoubledPos,
+    private var newestPosition: DoubledPos,
+    size: Int = 0
+) {
 
-    // A separate array to hold keys and values
-    private val objData: Array<Any?>
+    constructor(cacheSize: Int, fillFactor: Float = 0.5f): this(
+        cacheSize = cacheSize,
+        capacity = calculateArraySize(cacheSize, fillFactor),
+    )
 
-    var size = 0
+    private constructor(cacheSize: Int, capacity: Int, maxPosition: Int = capacity * NUM_INTEGERS_TO_HOLD_ENTRY): this(
+        cacheSize = cacheSize,
+        modulo = capacity - 1,
+        positionModulo = maxPosition - 1,
+        linkedData = IntArray(maxPosition).also { it.fill(-1) },
+        objData = arrayOfNulls(maxPosition),
+        oldestPosition = DoubledPos(-1),
+        newestPosition = DoubledPos(-1),
+    )
+
+    var size = size
         private set
 
-    private var oldestPosition = DoubledPos(-1)
-    private var newestPosition = DoubledPos(-1)
 
-    init {
-        val capacity = calculateArraySize(cacheSize, fillFactor)
-        val maxPosition = capacity * NUM_INTEGERS_TO_HOLD_ENTRY
-        modulo = capacity - 1
-        positionModulo = maxPosition - 1
-        linkedData = IntArray(maxPosition)
-        objData = arrayOfNulls(maxPosition)
-        linkedData.fill(-1)
-    }
+    fun copy(): LRUCache<K, V> = LRUCache(
+        cacheSize,
+        modulo,
+        positionModulo,
+        linkedData.copyOf(),
+        objData.copyOf(),
+        oldestPosition,
+        newestPosition,
+        size
+    )
 
     /**
      * Clears the cache for re-use.

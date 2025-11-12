@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization
@@ -40,15 +40,27 @@ import kotlin.jvm.JvmStatic
  * intended to be stored on the config, thus reused through multiple serializations.
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
-public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableFormatCache {
+public class DefaultFormatCache private constructor(
+    private val typeDescCache: LRUCache<TypeKey, XmlTypeDescriptor>,
+    private val elemDescCache: LRUCache<DescKey, XmlDescriptor>
+) : FormatCache(), DelegatableFormatCache {
+    public constructor(cacheSize: Int): this(
+        LRUCache<TypeKey, XmlTypeDescriptor>(cacheSize),
+        LRUCache<DescKey, XmlDescriptor>(cacheSize)
+    )
+
     public constructor() : this(512)
 
-    private val typeDescCache = LRUCache<TypeKey, XmlTypeDescriptor>(cacheSize)
 
-    private val elemDescCache = LRUCache<DescKey, XmlDescriptor>(cacheSize)
     private val pendingDescs = HashSet<DescKey>()
 
-    override fun copy(): DefaultFormatCache = DefaultFormatCache()
+    override fun copy(): DefaultFormatCache {
+        check(pendingDescs.isEmpty()) { "Copying is not allowed while descriptors are pending" }
+        return DefaultFormatCache(
+            typeDescCache.copy(),
+            elemDescCache.copy()
+        )
+    }
 
     override fun <R> useUnsafe(action: (FormatCache) -> R): R {
         return action(this)
@@ -167,11 +179,14 @@ public class DefaultFormatCache(cacheSize: Int) : FormatCache(), DelegatableForm
     }
 
     @XmlUtilInternal
-    override fun appendFrom(other: DefaultFormatCache) {
+    override fun appendFrom(other: DefaultFormatCache): DefaultFormatCache {
         check(pendingDescs.isEmpty()) { "This cache is not stable, refusing to add elements" }
+        if (other.typeDescCache.size == 0 && other.elemDescCache.size == 0) return this
 
-        typeDescCache.putAll(other.typeDescCache)
-        elemDescCache.putAll(other.elemDescCache)
+        return copy().apply<DefaultFormatCache> {
+            typeDescCache.putAll(other.typeDescCache)
+            elemDescCache.putAll(other.elemDescCache)
+        }
     }
 
     /**
