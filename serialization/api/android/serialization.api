@@ -31,6 +31,7 @@ public final class nl/adaptivity/xmlutil/serialization/CompactFragmentSerializer
 public final class nl/adaptivity/xmlutil/serialization/DefaultFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache, nl/adaptivity/xmlutil/serialization/DelegatableFormatCache {
 	public fun <init> ()V
 	public fun <init> (I)V
+	public synthetic fun appendFrom (Lnl/adaptivity/xmlutil/serialization/DefaultFormatCache;)Lnl/adaptivity/xmlutil/serialization/DelegatableFormatCache;
 	public fun copy ()Lnl/adaptivity/xmlutil/serialization/DefaultFormatCache;
 	public synthetic fun copy ()Lnl/adaptivity/xmlutil/serialization/DelegatableFormatCache;
 	public synthetic fun copy$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
@@ -181,7 +182,11 @@ public final class nl/adaptivity/xmlutil/serialization/KotlinxSerializationProvi
 }
 
 public final class nl/adaptivity/xmlutil/serialization/LayeredCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public static final field Companion Lnl/adaptivity/xmlutil/serialization/LayeredCache$Companion;
 	public fun <init> ()V
+}
+
+public final class nl/adaptivity/xmlutil/serialization/LayeredCache$Companion {
 }
 
 public final class nl/adaptivity/xmlutil/serialization/NodeSerializer : nl/adaptivity/xmlutil/XmlSerializer {
