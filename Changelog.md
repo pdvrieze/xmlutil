@@ -1,4 +1,15 @@
 # 1.0.0-rc1-SNAPSHOT
+Changes:
+- The DOM implementation is streamlined and refactored. There are some bug
+  fixes and more importantly API changes. This should lead to an overall
+  better experience using dom with existing DOM implementations (JS/Java)
+- Remove most deprecated code (some over 5 years old), but introduce a
+  few more new deprecations for poor APIs that were not deprecated (or
+  internal) yet.
+
+Fixes:
+- Fix threadsafety for LayeredFormatCache by making defensive copy on write
+  when the cache is updated.
 
 # 0.91.3
 *(Oct 28, 2025)<br />*
