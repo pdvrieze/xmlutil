@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025.
+ * Copyright (c) 2025.
  *
  * This file is part of xmlutil.
  *
@@ -20,12 +20,29 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializerOrNull
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.KClass
 
-internal expect val KClass<*>.maybeSerialName: String?
+@OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+internal actual val KClass<*>.maybeSerialName: String?
+    get() = this.serializerOrNull()
+        ?.run { descriptor.serialName }
+        ?: qualifiedName
 
-internal expect class CompatLock()
+internal actual class CompatLock {
+    internal val lock = ReentrantLock()
+}
 
-internal expect inline fun <R> CompatLock.invoke(action: () -> R): R
+internal actual inline fun <R> CompatLock.invoke(action: () -> R): R {
+    lock.lock()
+    try {
+        return action()
+    } finally {
+        lock.unlock()
+    }
+}
 
-internal expect fun currentThreadId(): Any
+internal actual fun currentThreadId(): Any = Thread.currentThread().threadId()

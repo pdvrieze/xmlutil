@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025.
+ * Copyright (c) 2025.
  *
  * This file is part of xmlutil.
  *
@@ -20,12 +20,18 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializerOrNull
 import kotlin.reflect.KClass
 
-internal expect val KClass<*>.maybeSerialName: String?
+// TODO note that wasm doesn't yet support reflection so names are not available
+@OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
+internal actual val KClass<*>.maybeSerialName: String?
+    get() = serializerOrNull()
+        ?.run { descriptor.serialName }
 
-internal expect class CompatLock()
+internal actual class CompatLock
 
-internal expect inline fun <R> CompatLock.invoke(action: () -> R): R
-
-internal expect fun currentThreadId(): Any
+internal actual inline fun <R> CompatLock.invoke(action: () -> R): R = action()
+internal actual fun currentThreadId(): Any = 1

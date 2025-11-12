@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.impl.CompatLock
+import nl.adaptivity.xmlutil.serialization.impl.invoke
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 public class LayeredCache private constructor(
@@ -234,5 +235,9 @@ public class LayeredCache private constructor(
                 )
         }
 
+    }
+
+    public companion object {
+        private val MULTI_TREAD_MARKER: Any = Any()
     }
 }
