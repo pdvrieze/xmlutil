@@ -28,13 +28,13 @@ public interface IAttr : INode, PlatformAttr {
     override fun getOwnerElement(): IElement?
 
     override fun appendChild(node: PlatformNode): Nothing =
-        throw DOMException("Attributes have no children")
+        throw DOMException.hierarchyRequestErr("Attributes have no children")
 
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw DOMException("Attributes have no children")
+        throw DOMException.hierarchyRequestErr("Attributes have no children")
 
     override fun removeChild(node: PlatformNode): Nothing =
-        throw DOMException("Attributes have no children")
+        throw DOMException.hierarchyRequestErr("Attributes have no children")
 
     override fun getFirstChild(): Nothing? = null
     override fun getLastChild(): Nothing? = null
