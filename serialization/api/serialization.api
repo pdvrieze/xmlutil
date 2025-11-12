@@ -158,7 +158,9 @@ public final class nl/adaptivity/xmlutil/serialization/PolyInfo {
 }
 
 public final class nl/adaptivity/xmlutil/serialization/ThreadLocalFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> ()V
 	public fun <init> (Ljava/util/function/Supplier;)V
+	public synthetic fun <init> (Ljava/util/function/Supplier;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun copy$serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
