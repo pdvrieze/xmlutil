@@ -28,19 +28,29 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val baseXmlConfig = XML {
-    recommended_0_91_0 { pedantic = true }
-
-    defaultToGenericParser=true // consistent output
-
-    indentString = " ".repeat(2)
-    xmlVersion = XmlVersion.XML10
-}
 
 class NamespaceCollectionWithCompactFragment315 {
+
+    private lateinit var baseXmlConfig: XML
+
+    @BeforeTest
+    fun initXml() {
+
+        baseXmlConfig = XML {
+            recommended_0_91_0 { pedantic = true }
+
+            defaultToGenericParser = true // consistent output
+
+            indentString = " ".repeat(2)
+            xmlVersion = XmlVersion.XML10
+        }
+    }
+
+
 
     @Test
     fun `test deserialize with ns decl on leaf elements`() {
