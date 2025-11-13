@@ -138,11 +138,33 @@ public enum class DocumentPreserveSpace {
     }
 }
 
-public sealed class XmlDescriptor(
-    codecConfig: XmlCodecConfig,
+public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     override val serializerParent: SafeParentInfo,
-    final override val tagParent: SafeParentInfo = serializerParent,
+    final override val tagParent: SafeParentInfo,
+    final override val overriddenSerializer: KSerializer<*>?,
+    protected val useNameInfo: DeclaredNameInfo,
+    override val typeDescriptor: XmlTypeDescriptor,
+    @ExperimentalXmlUtilApi
+    public val namespaceDecls: List<Namespace>,
+    tagNameProvider: XmlDescriptor.() -> Lazy<QName>,
+    decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties>,
 ) : SafeXmlDescriptor, Iterable<XmlDescriptor> {
+
+
+    protected constructor(
+        codecConfig: XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo = serializerParent
+    ) : this(
+        serializerParent,
+        tagParent,
+        overriddenSerializer = serializerParent.overriddenSerializer,
+        useNameInfo = serializerParent.elementUseNameInfo,
+        typeDescriptor = serializerParent.elementTypeDescriptor,
+        namespaceDecls = codecConfig.config.policy.elementNamespaceDecls(serializerParent),
+        tagNameProvider = { lazy(LazyThreadSafetyMode.PUBLICATION) { codecConfig.config.policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)} },
+        decoderPropertiesProvider = { lazy(LazyThreadSafetyMode.PUBLICATION) { DecoderProperties(codecConfig, this) }}
+    )
 
     /**
      * Does this value represent an xml ID attribute (requiring global uniqueness)
@@ -155,23 +177,11 @@ public sealed class XmlDescriptor(
             else -> outputKind
         }
 
-    final override val overriddenSerializer: KSerializer<*>? = serializerParent.overriddenSerializer
-
-    protected val useNameInfo: DeclaredNameInfo = serializerParent.elementUseNameInfo
-
-    override val typeDescriptor: XmlTypeDescriptor =
-        serializerParent.elementTypeDescriptor
 
     public open val isUnsigned: Boolean get() = false
 
-    @ExperimentalXmlUtilApi
-    public val namespaceDecls: List<Namespace> =
-        codecConfig.config.policy.elementNamespaceDecls(serializerParent)
-
-    override val tagName: QName by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        // not normalized to allow prefix to be preferred
-        codecConfig.config.policy.effectiveName(serializerParent, tagParent, outputKind, useNameInfo)
-    }
+    internal val _tagName = tagNameProvider()
+    override val tagName: QName get() = _tagName.value
 
     @Suppress("UNCHECKED_CAST", "OPT_IN_USAGE")
     internal fun <V> effectiveSerializationStrategy(fallback: SerializationStrategy<V>): SerializationStrategy<V> {
@@ -201,7 +211,8 @@ public sealed class XmlDescriptor(
     override val serialKind: SerialKind
         get() = typeDescriptor.serialDescriptor.kind
 
-    private val decoderProperties: DecoderProperties by lazy(LazyThreadSafetyMode.PUBLICATION) { DecoderProperties(codecConfig, this) }
+    internal val _decoderProperties = decoderPropertiesProvider()
+    private val decoderProperties: DecoderProperties get() = _decoderProperties.value
 
     /** Map between tag name and polymorphic info */
     internal val polyMap: QNameMap<PolyInfo> get() = decoderProperties.polyMap
@@ -280,73 +291,71 @@ public sealed class XmlDescriptor(
         return result
     }
 
-    private class DecoderProperties(codecConfig: XmlCodecConfig, xmlDescriptor: XmlDescriptor) {
-        val polyMap: QNameMap<PolyInfo>
-        val tagNameMap: QNameMap<Int>
-        val attrMap: QNameMap<Int>
-        val contextualChildren: IntArray
 
-        init {
-            val isUnchecked = codecConfig.config.isUnchecked
+    private fun DecoderProperties(codecConfig: XmlCodecConfig, xmlDescriptor: XmlDescriptor): DecoderProperties {
+        val isUnchecked = codecConfig.config.isUnchecked
 
-            val seenTagNames = HashSet<QName>()
-            val localPolyMap = QNameMap<PolyInfo>()
-            val localTagNameMap = QNameMap<Int>()
-            val localAttrMap = QNameMap<Int>()
-            val contextualChildren = mutableListOf<Int>()
+        val seenTagNames = HashSet<QName>()
+        val localPolyMap = QNameMap<PolyInfo>()
+        val localTagNameMap = QNameMap<Int>()
+        val localAttrMap = QNameMap<Int>()
+        val contextualChildrenList = mutableListOf<Int>()
 
-            val outerValueChild = xmlDescriptor.getValueChild()
-            @OptIn(ExperimentalSerializationApi::class)
-            for (idx in 0 until xmlDescriptor.elementsCount) {
-                val isValueChild = idx == outerValueChild
-                val elementDesc = xmlDescriptor.getElementDescriptor(idx).visibleDescendantOrSelf
-                when {
-                    // Transparent polymorphism adds all potential child tags
-                    elementDesc is XmlPolymorphicDescriptor && elementDesc.isTransparent -> {
-                        for (childDescriptor in elementDesc.polyInfo.values) {
-                            val tagName = when {
-                                isValueChild && childDescriptor.outputKind.isTextOrMixed -> QName("kotlin.String")
-                                else -> childDescriptor.tagName.normalize()
-                            }
-                            check(isUnchecked || seenTagNames.add(tagName)) {
-                                "Duplicate name $tagName:$idx as polymorphic child in ${xmlDescriptor.serialDescriptor.serialName}"
-                            }
-                            localPolyMap[tagName] = PolyInfo(tagName, idx, childDescriptor)
+        val outerValueChild = xmlDescriptor.getValueChild()
+        @OptIn(ExperimentalSerializationApi::class)
+        for (idx in 0 until xmlDescriptor.elementsCount) {
+            val isValueChild = idx == outerValueChild
+            val elementDesc = xmlDescriptor.getElementDescriptor(idx).visibleDescendantOrSelf
+            when {
+                // Transparent polymorphism adds all potential child tags
+                elementDesc is XmlPolymorphicDescriptor && elementDesc.isTransparent -> {
+                    for (childDescriptor in elementDesc.polyInfo.values) {
+                        val tagName = when {
+                            isValueChild && childDescriptor.outputKind.isTextOrMixed -> QName("kotlin.String")
+                            else -> childDescriptor.tagName.normalize()
                         }
-                    }
-
-                    elementDesc is XmlMapDescriptor && elementDesc.isListEluded && ! elementDesc.isValueCollapsed -> {
-                        localTagNameMap[elementDesc.entryName.normalize()] = idx
-                    }
-
-                    elementDesc is XmlContextualDescriptor && xmlDescriptor.serialKind !is PolymorphicKind -> {
-                        contextualChildren.add(idx)
-                    }
-
-                    elementDesc.effectiveOutputKind == OutputKind.Attribute -> {
-                        check(localAttrMap.put(elementDesc.tagName.normalize(), idx) == null || isUnchecked) {
-                            "Duplicate name ${elementDesc.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
+                        check(isUnchecked || seenTagNames.add(tagName)) {
+                            "Duplicate name $tagName:$idx as polymorphic child in ${xmlDescriptor.serialDescriptor.serialName}"
                         }
+                        localPolyMap[tagName] = PolyInfo(tagName, idx, childDescriptor)
                     }
+                }
 
-                    else -> {
-                        check(isUnchecked || seenTagNames.add(elementDesc.tagName)) {
-                            "Duplicate name ${elementDesc.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
-                        }
-                        localTagNameMap[elementDesc.tagName.normalize()] = idx
+                elementDesc is XmlMapDescriptor && elementDesc.isListEluded && !elementDesc.isValueCollapsed -> {
+                    localTagNameMap[elementDesc.entryName.normalize()] = idx
+                }
 
+                elementDesc is XmlContextualDescriptor && xmlDescriptor.serialKind !is PolymorphicKind -> {
+                    contextualChildrenList.add(idx)
+                }
+
+                elementDesc.effectiveOutputKind == OutputKind.Attribute -> {
+                    check(localAttrMap.put(elementDesc.tagName.normalize(), idx) == null || isUnchecked) {
+                        "Duplicate name ${elementDesc.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
                     }
+                }
 
+                else -> {
+                    check(isUnchecked || seenTagNames.add(elementDesc.tagName)) {
+                        "Duplicate name ${elementDesc.tagName} as child in ${xmlDescriptor.serialDescriptor.serialName}"
+                    }
+                    localTagNameMap[elementDesc.tagName.normalize()] = idx
 
                 }
-            }
 
-            polyMap = localPolyMap
-            tagNameMap = localTagNameMap
-            attrMap = localAttrMap
-            this.contextualChildren = contextualChildren.toIntArray()
+
+            }
         }
+
+        return DecoderProperties(localPolyMap, localTagNameMap, localAttrMap, contextualChildrenList.toIntArray())
     }
+
+    internal class DecoderProperties(
+        val polyMap: QNameMap<PolyInfo>,
+        val tagNameMap: QNameMap<Int>,
+        val attrMap: QNameMap<Int>,
+        val contextualChildren: IntArray,
+    )
 
     private inner class ElementIterator : Iterator<XmlDescriptor> {
         private var pos = 0
@@ -1010,17 +1019,13 @@ internal constructor(
 ) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
 
     init {
-        val requestedOutputKind = codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, false)
-        when (requestedOutputKind) {
+        when (val requestedOutputKind = codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, false)) {
             OutputKind.Element -> {} // fine
             OutputKind.Mixed -> { // only the case for `@XmlValue` elements.
                 // Permit this
             }
-            else -> {
-                codecConfig.config.policy.invalidOutputKind("Composite element: $tagName - Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
-            }
-        }
-        if (requestedOutputKind != OutputKind.Element) {
+
+            else -> codecConfig.config.policy.invalidOutputKind("Composite element: $tagName - Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
         }
     }
 
