@@ -610,7 +610,8 @@ public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$Xm
 }
 
 public final class nl/adaptivity/xmlutil/serialization/XmlSerializationPolicyKt {
-	public static final fun typeQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Ljavax/xml/namespace/QName;
+	public static final fun typeQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/SafeXmlDescriptor;)Ljavax/xml/namespace/QName;
+	public static final synthetic fun typeQName (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Ljavax/xml/namespace/QName;
 }
 
 public abstract interface annotation class nl/adaptivity/xmlutil/serialization/XmlValue : java/lang/annotation/Annotation {

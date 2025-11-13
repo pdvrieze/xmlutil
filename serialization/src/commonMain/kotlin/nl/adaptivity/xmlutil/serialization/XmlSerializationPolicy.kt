@@ -24,10 +24,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo
-import nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace
-import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
-import nl.adaptivity.xmlutil.serialization.structure.XmlOrderConstraint
+import nl.adaptivity.xmlutil.serialization.structure.*
 
 /**
  * Policies allow for customizing the behaviour of the xml serialization
@@ -292,6 +289,12 @@ public interface XmlSerializationPolicy {
 
 }
 
+public fun XmlSerializationPolicy.typeQName(xmlDescriptor: SafeXmlDescriptor): QName {
+    return xmlDescriptor.typeDescriptor.typeQname
+        ?: serialTypeNameToQName(xmlDescriptor.typeDescriptor.typeNameInfo, xmlDescriptor.tagParent.namespace)
+}
+
+@Deprecated("Use the function taking a SafeXmlDescriptor", level = DeprecationLevel.HIDDEN)
 public fun XmlSerializationPolicy.typeQName(xmlDescriptor: XmlDescriptor): QName {
     return xmlDescriptor.typeDescriptor.typeQname
         ?: serialTypeNameToQName(xmlDescriptor.typeDescriptor.typeNameInfo, xmlDescriptor.tagParent.namespace)
