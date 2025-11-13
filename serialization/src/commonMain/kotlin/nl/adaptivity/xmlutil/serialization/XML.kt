@@ -288,7 +288,12 @@ public class XML(
                 val newRootName = rootNameInfo.remapPrefix(prefixMap)
 
                 val newRoot = XmlRootDescriptor(remappedEncoderBase, serializer.descriptor, newRootName)
-                val newDescriptor = newRoot.getElementDescriptor(0)
+
+
+                val newDescriptor = when (val n = newRootName.annotatedName) {
+                    else -> newRoot.getElementDescriptor(0)
+//                    else -> RenamedDescriptor(newRoot.getElementDescriptor(0), n)
+                }
 
 
                 remappedEncoderBase.NSAttrXmlEncoder(
@@ -300,7 +305,6 @@ public class XML(
 
             else -> xmlEncoderBase.XmlEncoder(xmlDescriptor, -1)
         }
-
         encoder.encodeSerializableValue(serializer, value)
         target.flush()
     }
