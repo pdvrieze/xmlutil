@@ -166,6 +166,27 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
         decoderPropertiesProvider = { lazy(LazyThreadSafetyMode.PUBLICATION) { DecoderProperties(codecConfig, this) }}
     )
 
+    protected constructor(
+        original: XmlDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        useNameInfo: DeclaredNameInfo = original.useNameInfo,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+    ) : this(
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        useNameInfo,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+    )
+
     /**
      * Does this value represent an xml ID attribute (requiring global uniqueness)
      */
