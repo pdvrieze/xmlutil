@@ -21,7 +21,10 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 
@@ -50,6 +53,37 @@ public class XmlAttributeMapDescriptor : XmlValueDescriptor {
                 true
             )
         }
+    }
+
+    private constructor(
+        original: XmlAttributeMapDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        isCData: Boolean = original.isCData,
+        default: String? = original.default,
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+        keyDescriptor: Lazy<XmlDescriptor> = original._keyDescriptor,
+        valueDescriptor: Lazy<XmlDescriptor> = original._valueDescriptor,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+        isCData,
+        default
+    ) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        _keyDescriptor = keyDescriptor
+        _valueDescriptor = valueDescriptor
     }
 
     @ExperimentalXmlUtilApi

@@ -41,7 +41,6 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
             ?: tagParent.useAnnCData
             ?: serializerParent.elementTypeDescriptor.typeAnnCData) == true
         this.default = tagParent.useAnnDefault
-        this.defaultValue = UNSET
     }
 
     protected constructor(
@@ -55,7 +54,6 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
         decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
         isCData: Boolean = original.isCData,
         default: String? = original.default,
-        defaultValue: Any? = original.defaultValue,
     ) : super(
         original = original,
         serializerParent = serializerParent,
@@ -68,7 +66,6 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
     ) {
         this.isCData = isCData
         this.default = default
-        this.defaultValue = defaultValue
     }
 
     public final override val isCData: Boolean
@@ -77,7 +74,7 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
     @OptIn(ExperimentalXmlUtilApi::class)
     public val default: String?
 
-    private var defaultValue: Any?
+    private var defaultValue: Any? = UNSET
 
     internal fun <T> defaultValue(
         xmlCodecBase: XmlCodecBase,

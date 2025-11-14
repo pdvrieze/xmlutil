@@ -35,7 +35,7 @@ public class XmlMapDescriptor : XmlListLikeDescriptor {
         tagParent: SafeParentInfo,
         preserveSpace: TypePreserveSpace
     ) : super(codecConfig, serializerParent, tagParent, preserveSpace) {
-        descriptors = lazy { ChildDescs(codecConfig) }
+        descriptors = lazy { ChildDescs(codecConfig, this) }
     }
 
     private constructor(
@@ -128,43 +128,45 @@ public class XmlMapDescriptor : XmlListLikeDescriptor {
     }
 
 
-    private inner class ChildDescs(
+    private class ChildDescs(
         val keyDescriptor: XmlDescriptor,
         val valueDescriptor: XmlDescriptor,
         val isValueCollapsed: Boolean,
         val entryName: QName,
     ) {
 
-        constructor(codecConfig: XML.XmlCodecConfig): this(
+        constructor(codecConfig: XML.XmlCodecConfig, parent: XmlMapDescriptor): this(
             codecConfig = codecConfig,
-            keyDescriptor = Unit.run {
+            parent = parent,
+            keyDescriptor = parent.run {
                 val keyNameInfo = codecConfig.config.policy.mapKeyName(serializerParent)
-                val parentInfo = ParentInfo(codecConfig.config, this@XmlMapDescriptor, 0, keyNameInfo)
+                val parentInfo = ParentInfo(codecConfig.config, parent, 0, keyNameInfo)
                 val keyTagParent = InjectedParentTag(0, typeDescriptor[0], keyNameInfo, tagParent.namespace)
                 from(codecConfig, parentInfo, keyTagParent, canBeAttribute = true)
             },
-            valueDescriptor = Unit.run {
+            valueDescriptor = parent.run {
                 val valueNameInfo = codecConfig.config.policy.mapValueName(serializerParent, isListEluded)
-                val parentInfo = ParentInfo(codecConfig.config, this@XmlMapDescriptor, 1, valueNameInfo, if (isListEluded) OutputKind.Element else null)
+                val parentInfo = ParentInfo(codecConfig.config, parent, 1, valueNameInfo, if (isListEluded) OutputKind.Element else null)
                 val valueTagParent = InjectedParentTag(0, typeDescriptor[1], valueNameInfo, tagParent.namespace)
                 from(codecConfig, parentInfo, valueTagParent, canBeAttribute = true)
             },
         )
 
-        constructor(codecConfig: XML.XmlCodecConfig, keyDescriptor: XmlDescriptor, valueDescriptor: XmlDescriptor): this(
+        constructor(codecConfig: XML.XmlCodecConfig, parent: XmlMapDescriptor, keyDescriptor: XmlDescriptor, valueDescriptor: XmlDescriptor): this(
             codecConfig = codecConfig,
+            parent = parent,
             keyDescriptor = keyDescriptor,
             valueDescriptor = valueDescriptor,
-            isValueCollapsed = codecConfig.config.policy.isMapValueCollapsed(serializerParent, valueDescriptor),
+            isValueCollapsed = codecConfig.config.policy.isMapValueCollapsed(parent.serializerParent, valueDescriptor),
         )
 
-        constructor(codecConfig: XML.XmlCodecConfig, keyDescriptor: XmlDescriptor, valueDescriptor: XmlDescriptor, isValueCollapsed: Boolean): this(
+        constructor(codecConfig: XML.XmlCodecConfig, parent: XmlMapDescriptor, keyDescriptor: XmlDescriptor, valueDescriptor: XmlDescriptor, isValueCollapsed: Boolean): this(
             keyDescriptor = keyDescriptor,
             valueDescriptor = valueDescriptor,
             isValueCollapsed = isValueCollapsed,
             entryName = when {
                 isValueCollapsed -> valueDescriptor.tagName
-                else -> codecConfig.config.policy.mapEntryName(serializerParent, isListEluded)
+                else -> codecConfig.config.policy.mapEntryName(parent.serializerParent, parent.isListEluded)
             }
         )
 

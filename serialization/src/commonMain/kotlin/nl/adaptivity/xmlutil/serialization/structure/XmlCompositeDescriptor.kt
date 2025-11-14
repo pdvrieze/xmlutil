@@ -72,7 +72,6 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties>,
         isCData: Boolean,
         default: String?,
-        defaultValue: Any?,
         defaultPreserveSpace: TypePreserveSpace,
         lazyProps: Lazy<LazyProps>,
     ) : super(
@@ -86,7 +85,6 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         decoderPropertiesProvider,
         isCData,
         default,
-        defaultValue
     ) {
         this.defaultPreserveSpace = defaultPreserveSpace
         this._lazyProps = lazyProps
@@ -182,6 +180,7 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
             initialChildReorderInfo.sequenceStarts(elementsCount).fullFlatten(serialDescriptor, children)
 
         return LazyProps(
+            parent = this,
             children = children,
             attrMapChildIdx = if (attrMapChildIdx == Int.MAX_VALUE) CompositeDecoder.Companion.UNKNOWN_NAME else attrMapChildIdx,
             valueChildIdx = valueChildIdx,
@@ -214,7 +213,7 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
             desc
         }
 
-        return LazyProps(children, if (attrMapChildIdx == Int.MAX_VALUE) -1 else attrMapChildIdx, valueChildIdx)
+        return LazyProps(parent = this, children, if (attrMapChildIdx == Int.MAX_VALUE) -1 else attrMapChildIdx, valueChildIdx)
     }
 
 
@@ -263,7 +262,8 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         return result
     }
 
-    private inner class LazyProps(
+    private class LazyProps(
+        parent: XmlCompositeDescriptor,
         val children: List<XmlDescriptor>,
         val attrMapChildIdx: Int,
         val valueChildIdx: Int,
@@ -285,8 +285,8 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
                         .firstOrNull { idx -> idx != valueChildIdx && children[idx].outputKind == OutputKind.Element }
                     if (invalidIdx != null) {
                         throw XmlSerialException(
-                            "Types (${tagName}) with an @XmlValue member may not contain other child elements (${
-                                serialDescriptor.getElementDescriptor(
+                            "Types (${parent.tagName}) with an @XmlValue member may not contain other child elements (${
+                                parent.serialDescriptor.getElementDescriptor(
                                     invalidIdx
                                 )
                             }"
