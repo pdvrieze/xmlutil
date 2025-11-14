@@ -92,13 +92,16 @@ public class XmlInlineDescriptor internal constructor(
         from(codecConfig, useParentInfo, tagParent, canBeAttribute)
     }
 
+    override val isUnsigned: Boolean by lazy(LazyThreadSafetyMode.NONE) {
+        serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS || child.isUnsigned
+    }
+
+    override val visibleDescendantOrSelf: XmlDescriptor
+        get() = child.visibleDescendantOrSelf
+
     override fun getElementDescriptor(index: Int): XmlDescriptor {
         if (index != 0) throw IllegalArgumentException("Inline classes only have one child")
         return child
-    }
-
-    override val isUnsigned: Boolean by lazy(LazyThreadSafetyMode.NONE) {
-        serialDescriptor in UNSIGNED_SERIALIZER_DESCRIPTORS || child.isUnsigned
     }
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {

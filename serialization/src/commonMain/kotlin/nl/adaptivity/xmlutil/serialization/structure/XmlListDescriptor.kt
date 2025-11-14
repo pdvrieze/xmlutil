@@ -122,6 +122,12 @@ public class XmlListDescriptor internal constructor(
         )
     }
 
+    override val visibleDescendantOrSelf: XmlDescriptor
+        get() = when {
+            isListEluded -> childDescriptor.visibleDescendantOrSelf
+            else -> this
+        }
+
     override fun getElementDescriptor(index: Int): XmlDescriptor {
         return childDescriptor
     }

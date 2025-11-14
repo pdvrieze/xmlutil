@@ -98,26 +98,8 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
 
     public open val isUnsigned: Boolean get() = false
 
-    internal val _tagName = tagNameProvider()
+    private val _tagName: Lazy<QName> = tagNameProvider()
     override val tagName: QName get() = _tagName.value
-
-    @Suppress("UNCHECKED_CAST", "OPT_IN_USAGE")
-    internal fun <V> effectiveSerializationStrategy(fallback: SerializationStrategy<V>): SerializationStrategy<V> {
-        val oSer = (overriddenSerializer ?: return fallback) as SerializationStrategy<V>
-        if (oSer.descriptor.isNullable && oSer == (fallback as? KSerializer<Any>)?.nullable) return fallback
-        return oSer
-    }
-
-    @OptIn(ExperimentalSerializationApi::class)
-    @Suppress("UNCHECKED_CAST")
-    internal fun <V> effectiveDeserializationStrategy(fallback: DeserializationStrategy<V>): DeserializationStrategy<V> {
-        if (overriddenSerializer == null) return fallback
-        if (overriddenSerializer.descriptor.isNullable && !fallback.descriptor.isNullable) {
-            if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
-        }
-
-        return overriddenSerializer as DeserializationStrategy<V>
-    }
 
     override val serialDescriptor: SerialDescriptor get() = typeDescriptor.serialDescriptor
 
@@ -129,7 +111,7 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     override val serialKind: SerialKind
         get() = typeDescriptor.serialDescriptor.kind
 
-    internal val _decoderProperties = decoderPropertiesProvider()
+    private val _decoderProperties: Lazy<DecoderProperties> = decoderPropertiesProvider()
     private val decoderProperties: DecoderProperties get() = _decoderProperties.value
 
     /** Map between tag name and polymorphic info */
@@ -148,7 +130,25 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
      * This retrieves the descriptor of the actually visible tag (omitting transparent elements).
      * In many cases this is the descriptor itself.
      */
-    internal val visibleDescendantOrSelf by lazy(LazyThreadSafetyMode.PUBLICATION) { toNonTransparentChild() }
+    internal open val visibleDescendantOrSelf: XmlDescriptor get() = this
+
+    @Suppress("UNCHECKED_CAST", "OPT_IN_USAGE")
+    internal fun <V> effectiveSerializationStrategy(fallback: SerializationStrategy<V>): SerializationStrategy<V> {
+        val oSer = (overriddenSerializer ?: return fallback) as SerializationStrategy<V>
+        if (oSer.descriptor.isNullable && oSer == (fallback as? KSerializer<Any>)?.nullable) return fallback
+        return oSer
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Suppress("UNCHECKED_CAST")
+    internal fun <V> effectiveDeserializationStrategy(fallback: DeserializationStrategy<V>): DeserializationStrategy<V> {
+        if (overriddenSerializer == null) return fallback
+        if (overriddenSerializer.descriptor.isNullable && !fallback.descriptor.isNullable) {
+            if (overriddenSerializer == (fallback as? KSerializer<Any>)?.nullable) return fallback
+        }
+
+        return overriddenSerializer as DeserializationStrategy<V>
+    }
 
     public open fun getElementDescriptor(index: Int): XmlDescriptor {
         throw IndexOutOfBoundsException("There are no children")
@@ -284,22 +284,6 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     }
 
     internal companion object {
-
-        private fun XmlDescriptor.toNonTransparentChild(): XmlDescriptor {
-            var result = this
-            while (result is XmlInlineDescriptor || // Inline descriptors are only used when we actually elude the inline content
-                (result is XmlListDescriptor && result.isListEluded)
-            ) { // Lists may or may not be eluded
-
-                result = result.getElementDescriptor(0)
-            }
-            if (result is XmlMapDescriptor && result.isListEluded) {
-                if (result.isValueCollapsed) { // some transparent tags
-                    return result.getElementDescriptor(1).toNonTransparentChild()
-                }
-            }
-            return result
-        }
 
         /**
          * @param serializerParent The descriptor for the directly preceding serializer. This determines the actual

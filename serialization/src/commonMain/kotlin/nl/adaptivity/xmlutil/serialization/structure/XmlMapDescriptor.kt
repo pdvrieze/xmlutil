@@ -61,6 +61,12 @@ public class XmlMapDescriptor internal constructor(
         from(codecConfig, parentInfo, valueTagParent, canBeAttribute = true)
     }
 
+    override val visibleDescendantOrSelf: XmlDescriptor
+        get() = when {
+            isListEluded && isValueCollapsed -> valueDescriptor.visibleDescendantOrSelf
+            else -> this
+        }
+
     override fun getElementDescriptor(index: Int): XmlDescriptor {
         return when (index % 2) {
             0 -> keyDescriptor
