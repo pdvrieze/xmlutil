@@ -21,33 +21,78 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
 import kotlin.reflect.KClass
 
-public class XmlContextualDescriptor @ExperimentalXmlUtilApi
-internal constructor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo,
-    private val canBeAttribute: Boolean,
+public class XmlContextualDescriptor : XmlDescriptor {
+
+    @OptIn(ExperimentalSerializationApi::class)
+    public val context: KClass<*>?
+
+    private val canBeAttribute: Boolean
+
     @ExperimentalXmlUtilApi
-    override val defaultPreserveSpace: TypePreserveSpace,
-) : XmlDescriptor(codecConfig, serializerParent, tagParent) {
+    override val defaultPreserveSpace: TypePreserveSpace
+
+    @ExperimentalXmlUtilApi
+    internal constructor(
+        codecConfig: XML.XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean,
+        defaultPreserveSpace: TypePreserveSpace
+    ) : super(codecConfig, serializerParent, tagParent) {
+        this.context = serializerParent.elementSerialDescriptor.capturedKClass
+        this.canBeAttribute = canBeAttribute
+        this.defaultPreserveSpace = defaultPreserveSpace
+    }
+
+    private constructor(
+        original: XmlContextualDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        useNameInfo: XmlSerializationPolicy.DeclaredNameInfo = original.useNameInfo,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        context: KClass<*>? = original.context,
+        canBeAttribute: Boolean = original.canBeAttribute,
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        useNameInfo,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider
+    ) {
+        this.context = context
+        this.canBeAttribute = canBeAttribute
+        this.defaultPreserveSpace = defaultPreserveSpace
+    }
+
+
     @ExperimentalSerializationApi
     override val doInline: Boolean get() = false
+
+    override val effectiveOutputKind: OutputKind get() = outputKind
 
     override val isIdAttr: Boolean get() = false
 
     override val elementsCount: Int get() = 0
-
-    @OptIn(ExperimentalSerializationApi::class)
-    public val context: KClass<*>? = serializerParent.elementSerialDescriptor.capturedKClass
-
-    override val effectiveOutputKind: OutputKind get() = outputKind
 
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
         builder
