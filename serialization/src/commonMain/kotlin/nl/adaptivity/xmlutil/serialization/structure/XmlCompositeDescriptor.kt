@@ -21,33 +21,81 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.serialization.impl.OrderMatrix
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 
-public class XmlCompositeDescriptor @ExperimentalXmlUtilApi
-internal constructor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo,
-    @ExperimentalXmlUtilApi override val defaultPreserveSpace: TypePreserveSpace,
-) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
+public class XmlCompositeDescriptor: XmlValueDescriptor {
 
-    init {
-        when (val requestedOutputKind = codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, false)) {
-            OutputKind.Element -> {} // fine
+    @ExperimentalXmlUtilApi
+    internal constructor(
+        codecConfig: XML.XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        defaultPreserveSpace: TypePreserveSpace
+    ) : super(codecConfig, serializerParent, tagParent) {
+        when (val requestedOutputKind =
+            codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, false)) {
+            OutputKind.Element, // fine
             OutputKind.Mixed -> { // only the case for `@XmlValue` elements.
                 // Permit this
             }
 
             else -> codecConfig.config.policy.invalidOutputKind("Composite element: $tagName - Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
         }
+
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this._lazyProps = lazy {
+            when (val roInfo = initialChildReorderInfo) {
+                null -> createElementDescriptors(codecConfig)
+                else -> getReorderedElementDescriptors(codecConfig, roInfo)
+            }
+        }
     }
+
+    private constructor(
+        original: XmlCompositeDescriptor,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        overriddenSerializer: KSerializer<*>?,
+        typeDescriptor: XmlTypeDescriptor,
+        namespaceDecls: List<Namespace>,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName>,
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties>,
+        isCData: Boolean,
+        default: String?,
+        defaultValue: Any?,
+        defaultPreserveSpace: TypePreserveSpace,
+        lazyProps: Lazy<LazyProps>,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+        isCData,
+        default,
+        defaultValue
+    ) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this._lazyProps = lazyProps
+    }
+
+
+
+    @ExperimentalXmlUtilApi
+    public override val defaultPreserveSpace: TypePreserveSpace
 
     override val isIdAttr: Boolean get() = false
 
@@ -65,12 +113,7 @@ internal constructor(
     private val initialChildReorderInfo: Collection<XmlOrderConstraint>?
         get() = typeDescriptor.initialChildReorderInfo
 
-    private val _lazyProps: Lazy<LazyProps> = lazy {
-        when (val roInfo = initialChildReorderInfo) {
-            null -> createElementDescriptors(codecConfig)
-            else -> getReorderedElementDescriptors(codecConfig, roInfo)
-        }
-    }
+    private val _lazyProps: Lazy<LazyProps>
 
     private val lazyProps: LazyProps get() = _lazyProps.value
 
