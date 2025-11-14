@@ -25,13 +25,36 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 
-public class XmlAttributeMapDescriptor internal constructor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo,
+public class XmlAttributeMapDescriptor : XmlValueDescriptor {
+
+    internal constructor(
+        codecConfig: XML.XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        defaultPreserveSpace: TypePreserveSpace,
+    ) : super(codecConfig, serializerParent, tagParent) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        _keyDescriptor = lazy(LazyThreadSafetyMode.PUBLICATION) {
+            from(
+                codecConfig,
+                ParentInfo(codecConfig.config, this, 0, useOutputKind = OutputKind.Text),
+                tagParent,
+                true,
+            )
+        }
+        _valueDescriptor = lazy(LazyThreadSafetyMode.PUBLICATION) {
+            from(
+                codecConfig,
+                ParentInfo(codecConfig.config, this, 1, useOutputKind = OutputKind.Text),
+                tagParent,
+                true
+            )
+        }
+    }
+
     @ExperimentalXmlUtilApi
     override val defaultPreserveSpace: TypePreserveSpace
-) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
+
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = false
@@ -40,31 +63,20 @@ public class XmlAttributeMapDescriptor internal constructor(
 
     override val outputKind: OutputKind get() = OutputKind.Attribute
 
+    private val _keyDescriptor: Lazy<XmlDescriptor>
+
     /**
      * The descriptor for the key type of the map
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public val keyDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        from(
-            codecConfig,
-            ParentInfo(codecConfig.config, this, 0, useOutputKind = OutputKind.Text),
-            tagParent,
-            true,
-        )
-    }
+    public val keyDescriptor: XmlDescriptor get() = _keyDescriptor.value
 
+    private val _valueDescriptor: Lazy<XmlDescriptor>
     /**
      * The descriptor for the value type of the map
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public val valueDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        from(
-            codecConfig,
-            ParentInfo(codecConfig.config, this, 1, useOutputKind = OutputKind.Text),
-            tagParent,
-            true
-        )
-    }
+    public val valueDescriptor: XmlDescriptor get() = _valueDescriptor.value
 
     override val elementsCount: Int get() = 2
 
@@ -78,11 +90,16 @@ public class XmlAttributeMapDescriptor internal constructor(
             append(tagName.toString())
                 .appendLine(" (")
             appendIndent(indent)
-            keyDescriptor.toString(this, indent + 4, seen)
-                .appendLine(",")
+            when {
+                _keyDescriptor.isInitialized() -> keyDescriptor.toString(this, indent + 4, seen)
+                else -> append("<pending key descriptor>")
+            }.appendLine(",")
             appendIndent(indent)
-            valueDescriptor.toString(this, indent + 4, seen)
-                .append(')')
+
+            when {
+                _valueDescriptor.isInitialized() -> valueDescriptor.toString(this, indent + 4, seen)
+                else -> append("<pending value descriptor>")
+            }.append(')')
         }
     }
 
