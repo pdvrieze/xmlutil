@@ -98,7 +98,7 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
 
     public open val isUnsigned: Boolean get() = false
 
-    private val _tagName: Lazy<QName> = tagNameProvider()
+    internal val _tagName: Lazy<QName> = tagNameProvider()
     override val tagName: QName get() = _tagName.value
 
     override val serialDescriptor: SerialDescriptor get() = typeDescriptor.serialDescriptor
@@ -111,7 +111,7 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     override val serialKind: SerialKind
         get() = typeDescriptor.serialDescriptor.kind
 
-    private val _decoderProperties: Lazy<DecoderProperties> = decoderPropertiesProvider()
+    internal val _decoderProperties: Lazy<DecoderProperties> = decoderPropertiesProvider()
     private val decoderProperties: DecoderProperties get() = _decoderProperties.value
 
     /** Map between tag name and polymorphic info */
@@ -162,7 +162,10 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
             is XmlPrimitiveDescriptor -> appendTo(builder, indent, seen)
 
             else -> if (serialDescriptor.serialName in seen) {
-                builder.append(tagName.toString()).append("<...> = ").append(outputKind.name)
+                when {
+                    _tagName.isInitialized() -> builder.append(tagName.toString())
+                    else -> builder.append("<pendingTagName> ")
+                }.append("<...> = ").append(outputKind.name)
             } else {
                 seen.add(serialDescriptor.serialName)
                 appendTo(builder, indent, seen)

@@ -21,27 +21,63 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 
-public sealed class XmlValueDescriptor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo
-) : XmlDescriptor(codecConfig, serializerParent, tagParent) {
+public sealed class XmlValueDescriptor : XmlDescriptor {
 
-    public final override val isCData: Boolean = (serializerParent.useAnnCData
-        ?: tagParent.useAnnCData
-        ?: serializerParent.elementTypeDescriptor.typeAnnCData) == true
+    protected constructor(codecConfig: XML.XmlCodecConfig, serializerParent: SafeParentInfo, tagParent: SafeParentInfo) : super(
+        codecConfig,
+        serializerParent,
+        tagParent
+    ) {
+        this.isCData = (serializerParent.useAnnCData
+            ?: tagParent.useAnnCData
+            ?: serializerParent.elementTypeDescriptor.typeAnnCData) == true
+        this.default = tagParent.useAnnDefault
+        this.defaultValue = UNSET
+    }
+
+    protected constructor(
+        original: XmlValueDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        isCData: Boolean = original.isCData,
+        default: String? = original.default,
+        defaultValue: Any? = original.defaultValue,
+    ) : super(
+        original = original,
+        serializerParent = serializerParent,
+        tagParent = tagParent,
+        overriddenSerializer = overriddenSerializer,
+        typeDescriptor = typeDescriptor,
+        namespaceDecls = namespaceDecls,
+        tagNameProvider = tagNameProvider,
+        decoderPropertiesProvider = decoderPropertiesProvider
+    ) {
+        this.isCData = isCData
+        this.default = default
+        this.defaultValue = defaultValue
+    }
+
+    public final override val isCData: Boolean
 
 
     @OptIn(ExperimentalXmlUtilApi::class)
-    public val default: String? = tagParent.useAnnDefault
+    public val default: String?
 
-    private var defaultValue: Any? = UNSET
+    private var defaultValue: Any?
 
     internal fun <T> defaultValue(
         xmlCodecBase: XmlCodecBase,
