@@ -90,9 +90,11 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     public abstract val isIdAttr: Boolean
 
     public open val effectiveOutputKind: OutputKind
-        get() = when (outputKind) {
-            OutputKind.Inline -> getElementDescriptor(0).effectiveOutputKind
-            else -> outputKind
+        get() {
+            return when (val ok = outputKind) {
+                OutputKind.Inline -> getElementDescriptor(0).effectiveOutputKind
+                else -> ok
+            }
         }
 
 
