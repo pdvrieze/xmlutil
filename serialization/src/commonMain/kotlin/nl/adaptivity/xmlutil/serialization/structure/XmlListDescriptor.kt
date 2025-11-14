@@ -21,28 +21,32 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.toNamespace
 
-public class XmlListDescriptor internal constructor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo,
-    preserveSpace: TypePreserveSpace
-) : XmlListLikeDescriptor(codecConfig, serializerParent, tagParent, preserveSpace) {
+public class XmlListDescriptor : XmlListLikeDescriptor {
 
     override val outputKind: OutputKind
 
-    override val isIdAttr: Boolean get() = false
-
     public val delimiters: Array<String>
 
-    init {
+    private val _childDescriptor: Lazy<XmlDescriptor>
+    private val childDescriptor: XmlDescriptor get() = _childDescriptor.value
+
+    internal constructor(
+        codecConfig: XML.XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        preserveSpace: TypePreserveSpace
+    ) : super(codecConfig, serializerParent, tagParent, preserveSpace) {
         @OptIn(ExperimentalSerializationApi::class)
         outputKind = when {
             tagParent.useAnnIsElement == false ->
@@ -60,7 +64,8 @@ public class XmlListDescriptor internal constructor(
                 when (childTypeDescriptor.serialDescriptor.kind) {
                     is PolymorphicKind -> when {
                         codecConfig.config.policy.isTransparentPolymorphic(
-                            DetachedParent(namespace, childTypeDescriptor,
+                            DetachedParent(
+                                namespace, childTypeDescriptor,
                                 XmlSerializationPolicy.DeclaredNameInfo("item")
                             ),
                             tagParent
@@ -80,7 +85,6 @@ public class XmlListDescriptor internal constructor(
 
             else -> OutputKind.Element
         }
-
         @OptIn(ExperimentalXmlUtilApi::class)
         delimiters = when (outputKind) {
             OutputKind.Attribute ->
@@ -97,30 +101,66 @@ public class XmlListDescriptor internal constructor(
 
             else -> emptyArray()
         }
-    }
 
-    private val childDescriptor: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val childrenNameAnnotation = tagParent.useAnnChildrenName
+        _childDescriptor = lazy(LazyThreadSafetyMode.PUBLICATION) {
+            val childrenNameAnnotation = tagParent.useAnnChildrenName
 
-        val useNameInfo = when {
-            childrenNameAnnotation != null -> XmlSerializationPolicy.DeclaredNameInfo(
-                childrenNameAnnotation.value,
-                childrenNameAnnotation.toQName(tagName.toNamespace()),
-                childrenNameAnnotation.namespace == UNSET_ANNOTATION_VALUE
+            val useNameInfo = when {
+                childrenNameAnnotation != null -> XmlSerializationPolicy.DeclaredNameInfo(
+                    childrenNameAnnotation.value,
+                    childrenNameAnnotation.toQName(tagName.toNamespace()),
+                    childrenNameAnnotation.namespace == UNSET_ANNOTATION_VALUE
+                )
+
+                !isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
+
+                else -> tagParent.elementUseNameInfo
+            }
+
+            from(
+                codecConfig,
+                ParentInfo(codecConfig.config, this, 0, useNameInfo, outputKind),
+                tagParent,
+                canBeAttribute = false
             )
-
-            !isListEluded -> null // if we have a list, don't repeat the outer name (at least allow the policy to decide)
-
-            else -> tagParent.elementUseNameInfo
         }
-
-        from(
-            codecConfig,
-            ParentInfo(codecConfig.config, this, 0, useNameInfo, outputKind),
-            tagParent,
-            canBeAttribute = false
-        )
     }
+
+    private constructor(
+        original: XmlListDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        useNameInfo: XmlSerializationPolicy.DeclaredNameInfo = original.useNameInfo,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+        isListEluded: Boolean = original.isListEluded,
+        outputKind: OutputKind = original.outputKind,
+        delimiters: Array<String> = original.delimiters,
+        childDescriptorProvider: Lazy<XmlDescriptor> = original._childDescriptor,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        useNameInfo,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+        defaultPreserveSpace,
+        isListEluded
+    ) {
+        this.outputKind = outputKind
+        this.delimiters = delimiters
+        this._childDescriptor = childDescriptorProvider
+    }
+
+
+    override val isIdAttr: Boolean get() = false
 
     override val visibleDescendantOrSelf: XmlDescriptor
         get() = when {

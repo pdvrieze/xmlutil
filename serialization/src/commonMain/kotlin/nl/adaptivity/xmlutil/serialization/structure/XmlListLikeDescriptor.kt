@@ -21,20 +21,58 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
 
-public sealed class XmlListLikeDescriptor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo = serializerParent,
+public sealed class XmlListLikeDescriptor : XmlDescriptor {
+
     @ExperimentalXmlUtilApi
-    override val defaultPreserveSpace: TypePreserveSpace,
-) : XmlDescriptor(codecConfig, serializerParent, tagParent) {
+    final override val defaultPreserveSpace: TypePreserveSpace
 
-    public open val isListEluded: Boolean = when {
-        tagParent is DetachedParent && tagParent.isDocumentRoot -> false
-        else -> codecConfig.config.policy.isListEluded(serializerParent, tagParent)
+    public val isListEluded: Boolean
+
+    protected constructor(
+        codecConfig: XML.XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo = serializerParent,
+        defaultPreserveSpace: TypePreserveSpace
+    ) : super(codecConfig, serializerParent, tagParent) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this.isListEluded = when {
+            tagParent is DetachedParent && tagParent.isDocumentRoot -> false
+            else -> codecConfig.config.policy.isListEluded(serializerParent, tagParent)
+        }
+    }
+
+    protected constructor(
+        original: XmlListLikeDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        useNameInfo: XmlSerializationPolicy.DeclaredNameInfo = original.useNameInfo,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { _tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { _decoderProperties },
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+        isListEluded: Boolean = original.isListEluded,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        useNameInfo,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider
+    ) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this.isListEluded = isListEluded
     }
 
     @ExperimentalSerializationApi
