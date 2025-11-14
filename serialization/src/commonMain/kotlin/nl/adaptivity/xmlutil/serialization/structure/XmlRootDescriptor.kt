@@ -21,28 +21,62 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
 
-public class XmlRootDescriptor internal constructor(
-// TODO get rid of coded, put policy in its place
-    codecConfig: XML.XmlCodecConfig,
-    descriptor: SerialDescriptor,
-    tagName: XmlSerializationPolicy.DeclaredNameInfo,
-) : XmlDescriptor(codecConfig, DetachedParent(codecConfig, descriptor, tagName, true)) {
+public class XmlRootDescriptor : XmlDescriptor {
+
+    private val _element: Lazy<XmlDescriptor>
+
+    // TODO get rid of coded, put policy in its place
+    internal constructor(
+        codecConfig: XML.XmlCodecConfig,
+        descriptor: SerialDescriptor,
+        tagName: XmlSerializationPolicy.DeclaredNameInfo
+    ) : super(codecConfig, DetachedParent(codecConfig, descriptor, tagName, true)) {
+        _element = lazy(LazyThreadSafetyMode.PUBLICATION) {
+            from(codecConfig, tagParent, canBeAttribute = false)
+        }
+    }
 
     internal constructor(
         codecConfig: XML.XmlCodecConfig,
         descriptor: SerialDescriptor,
     ) : this(codecConfig, descriptor, XmlSerializationPolicy.DeclaredNameInfo(descriptor))
 
-    private val element: XmlDescriptor by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        from(codecConfig, tagParent, canBeAttribute = false)
+    private constructor(
+        original: XmlRootDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        useNameInfo: XmlSerializationPolicy.DeclaredNameInfo = original.useNameInfo,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { lazyOf(original.tagName) },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        element: Lazy<XmlDescriptor> = original._element
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        useNameInfo,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+    ) {
+        _element = element
     }
+
+
+    private val element: XmlDescriptor get() = _element.value
 
     override val isIdAttr: Boolean get() = false
 
