@@ -67,6 +67,10 @@ public class XmlMapDescriptor : XmlListLikeDescriptor {
         this.descriptors = descriptors
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlMapDescriptor {
+        return XmlMapDescriptor(this, tagNameProvider = nameProvider)
+    }
+
     override val outputKind: OutputKind get() = OutputKind.Element
 
     override val isIdAttr: Boolean get() = false
@@ -169,7 +173,6 @@ public class XmlMapDescriptor : XmlListLikeDescriptor {
                 else -> codecConfig.config.policy.mapEntryName(parent.serializerParent, parent.isListEluded)
             }
         )
-
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

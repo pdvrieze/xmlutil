@@ -75,6 +75,8 @@ public sealed class XmlListLikeDescriptor : XmlDescriptor {
         this.isListEluded = isListEluded
     }
 
+    override abstract fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlListLikeDescriptor
+
     @ExperimentalSerializationApi
     final override val doInline: Boolean get() = false
 

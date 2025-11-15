@@ -202,6 +202,10 @@ public class XmlPolymorphicDescriptor : XmlValueDescriptor {
         this.typeQNameToSerialName = typeQNameToSerialName
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlPolymorphicDescriptor {
+        return XmlPolymorphicDescriptor(this, tagNameProvider = nameProvider)
+    }
+
 
     @ExperimentalXmlUtilApi
     override val defaultPreserveSpace: TypePreserveSpace

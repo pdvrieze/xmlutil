@@ -159,6 +159,9 @@ public class XmlListDescriptor : XmlListLikeDescriptor {
         this._childDescriptor = childDescriptorProvider
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlListDescriptor {
+        return XmlListDescriptor(this, tagNameProvider = nameProvider)
+    }
 
     override val isIdAttr: Boolean get() = false
 

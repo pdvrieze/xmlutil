@@ -68,6 +68,8 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
         this.default = default
     }
 
+    override abstract fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlValueDescriptor
+
     public final override val isCData: Boolean
 
 

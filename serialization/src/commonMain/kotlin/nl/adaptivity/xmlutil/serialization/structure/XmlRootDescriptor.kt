@@ -75,6 +75,10 @@ public class XmlRootDescriptor : XmlDescriptor {
         _element = element
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlRootDescriptor {
+        return XmlRootDescriptor(this, tagNameProvider = nameProvider)
+    }
+
 
     private val element: XmlDescriptor get() = _element.value
 
@@ -90,8 +94,7 @@ public class XmlRootDescriptor : XmlDescriptor {
 
     override val tagName: QName
         get() {
-            val useNameInfo = useNameInfo
-            return useNameInfo.annotatedName ?: element.tagName
+            return this.useNameInfo.annotatedName ?: element.tagName
         }
 
     override val outputKind: OutputKind get() = OutputKind.Mixed

@@ -84,6 +84,9 @@ public class XmlContextualDescriptor : XmlDescriptor {
         this.defaultPreserveSpace = defaultPreserveSpace
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlContextualDescriptor {
+        return XmlContextualDescriptor(this, tagNameProvider = nameProvider)
+    }
 
     @ExperimentalSerializationApi
     override val doInline: Boolean get() = false

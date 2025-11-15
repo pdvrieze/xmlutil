@@ -63,17 +63,17 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
 
     private constructor(
         original: XmlCompositeDescriptor,
-        serializerParent: SafeParentInfo,
-        tagParent: SafeParentInfo,
-        overriddenSerializer: KSerializer<*>?,
-        typeDescriptor: XmlTypeDescriptor,
-        namespaceDecls: List<Namespace>,
-        tagNameProvider: XmlDescriptor.() -> Lazy<QName>,
-        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties>,
-        isCData: Boolean,
-        default: String?,
-        defaultPreserveSpace: TypePreserveSpace,
-        lazyProps: Lazy<LazyProps>,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        isCData: Boolean = original.isCData,
+        default: String? = original.default,
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+        lazyProps: Lazy<LazyProps> = original._lazyProps,
     ) : super(
         original,
         serializerParent,
@@ -90,6 +90,10 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         this._lazyProps = lazyProps
     }
 
+
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlCompositeDescriptor {
+        return XmlCompositeDescriptor(original = this, tagNameProvider = nameProvider)
+    }
 
 
     @ExperimentalXmlUtilApi

@@ -86,6 +86,10 @@ public class XmlAttributeMapDescriptor : XmlValueDescriptor {
         _valueDescriptor = valueDescriptor
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlAttributeMapDescriptor {
+        return XmlAttributeMapDescriptor(this, tagNameProvider = nameProvider)
+    }
+
     @ExperimentalXmlUtilApi
     override val defaultPreserveSpace: TypePreserveSpace
 

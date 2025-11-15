@@ -78,6 +78,10 @@ public class XmlInlineDescriptor : XmlValueDescriptor {
     }
 
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlInlineDescriptor {
+        return XmlInlineDescriptor(this, tagNameProvider = nameProvider)
+    }
+
     @ExperimentalXmlUtilApi
     public override val defaultPreserveSpace: TypePreserveSpace
 

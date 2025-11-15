@@ -755,6 +755,8 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/TypePreserve
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMapDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z
@@ -768,6 +770,8 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlAttributeMap
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAttrMapChild ()I
 	public final fun getChildConstraints ()Lnl/adaptivity/xmlutil/serialization/impl/OrderMatrix;
@@ -782,6 +786,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlCompositeDes
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlContextualDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getContext ()Lkotlin/reflect/KClass;
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
@@ -820,6 +825,8 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlInlineDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z
@@ -832,6 +839,8 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlInlineDescri
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlListDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDelimiters ()[Ljava/lang/String;
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
@@ -853,6 +862,8 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlListLikeD
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlMapDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlListLikeDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getElementDescriptor (I)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun getOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
@@ -881,6 +892,8 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlOrderConstra
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlPolymorphicDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z
@@ -898,6 +911,8 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPolymorphicD
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlPrimitiveDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlValueDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z
@@ -908,6 +923,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlPrimitiveDes
 }
 
 public final class nl/adaptivity/xmlutil/serialization/structure/XmlRootDescriptor : nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor {
+	public synthetic fun copy$serialization (Lkotlin/jvm/functions/Function1;)Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getDefaultPreserveSpace ()Lnl/adaptivity/xmlutil/serialization/structure/TypePreserveSpace;
 	public fun getDoInline ()Z

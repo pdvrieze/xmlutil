@@ -71,6 +71,10 @@ public class XmlPrimitiveDescriptor : XmlValueDescriptor {
         this.outputKind = outputKind
     }
 
+    override fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlPrimitiveDescriptor {
+        return XmlPrimitiveDescriptor(this, tagNameProvider = nameProvider)
+    }
+
 
     @ExperimentalXmlUtilApi
     override val defaultPreserveSpace: TypePreserveSpace

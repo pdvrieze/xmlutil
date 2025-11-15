@@ -105,6 +105,8 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
 
     override val serialDescriptor: SerialDescriptor get() = typeDescriptor.serialDescriptor
 
+    internal abstract fun copy(nameProvider: XmlDescriptor.() -> Lazy<QName>): XmlDescriptor
+
     @OptIn(ExperimentalSerializationApi::class)
     override val elementsCount: Int
         get() = typeDescriptor.serialDescriptor.elementsCount
@@ -428,6 +430,9 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
 
     }
 }
+
+internal fun <X: XmlDescriptor> X.copy(name: QName): X = copy( { lazyOf(name) }) as X
+
 
 /**
  * Determines the usage name information. As such it only looks at the property's serialName and XmlSerialName annotation.
