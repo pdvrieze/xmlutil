@@ -26,6 +26,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.isFullyEqual
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy
@@ -41,7 +42,12 @@ public class XmlRootDescriptor : XmlDescriptor {
         tagName: XmlSerializationPolicy.DeclaredNameInfo
     ) : super(codecConfig, DetachedParent(codecConfig, descriptor, tagName, true)) {
         _element = lazy(LazyThreadSafetyMode.PUBLICATION) {
-            from(codecConfig, tagParent, canBeAttribute = false)
+            val e = from(codecConfig, tagParent, canBeAttribute = false)
+            when (val a = tagName.annotatedName) {
+                null -> e
+                else if (a.isFullyEqual(e.tagName)) -> e
+                else -> e.copy(a)
+            }
         }
     }
 
