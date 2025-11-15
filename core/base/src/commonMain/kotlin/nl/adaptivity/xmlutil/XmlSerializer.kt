@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
@@ -24,7 +24,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SealedSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
 
 /**
  * Combined interface for custom serializers that support special casing by the XML Format.
@@ -55,7 +54,19 @@ public fun SerialDescriptor.xml(
  * can be retrieved through getElementDescriptor with negative value.
  */
 @XmlUtilInternal
+@Target()
 public annotation class XmlSerialDescriptorMarker
+
+/**
+ * Marker (only relevant to custom serializers) that signifies that serialization will
+ * contain custom QNames that can be collected when `isCollectingNSAttributes` is set to true.
+ *
+ * Presence of this marker in any of the reachable serializers will trigger a full two-step
+ * approach that collects the dynamic tag names.
+ */
+@ExperimentalXmlUtilApi
+@Target(AnnotationTarget.CLASS)
+public annotation class XmlDynamicNameMarker
 
 /**
  * Serial Descriptor delegate that supports special casing by the XML format. This means

@@ -325,6 +325,9 @@ public abstract interface class nl/adaptivity/xmlutil/XmlDeserializationStrategy
 	public static synthetic fun deserializeXML$default (Lnl/adaptivity/xmlutil/XmlDeserializationStrategy;Lkotlinx/serialization/encoding/Decoder;Lnl/adaptivity/xmlutil/XmlReader;Ljava/lang/Object;ZILjava/lang/Object;)Ljava/lang/Object;
 }
 
+public abstract interface annotation class nl/adaptivity/xmlutil/XmlDynamicNameMarker : java/lang/annotation/Annotation {
+}
+
 public abstract class nl/adaptivity/xmlutil/XmlEvent {
 	public static final field Companion Lnl/adaptivity/xmlutil/XmlEvent$Companion;
 	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -692,8 +695,10 @@ public final class nl/adaptivity/xmlutil/XmlWriterUtil {
 	public static final fun endTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;)V
 	public static final fun filterSubstream (Lnl/adaptivity/xmlutil/XmlWriter;)Lnl/adaptivity/xmlutil/XmlWriter;
 	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;Z)V
 	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/dom2/Node;)V
 	public static final fun serialize (Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Node;)V
+	public static synthetic fun serialize$default (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;ZILjava/lang/Object;)V
 	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public static final fun smartStartTag (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
@@ -712,6 +717,8 @@ public final class nl/adaptivity/xmlutil/XmlWriterUtil {
 	public static final fun writeAttribute (Lnl/adaptivity/xmlutil/XmlWriter;Ljavax/xml/namespace/QName;Ljava/lang/String;)V
 	public static final fun writeChild (Lnl/adaptivity/xmlutil/XmlWriter;Lorg/w3c/dom/Node;)V
 	public static final fun writeCurrentEvent (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;)V
+	public static final fun writeCurrentEvent (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;Z)V
+	public static synthetic fun writeCurrentEvent$default (Lnl/adaptivity/xmlutil/XmlWriter;Lnl/adaptivity/xmlutil/XmlReader;ZILjava/lang/Object;)V
 	public static final fun writeElement (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/util/Map;Lnl/adaptivity/xmlutil/XmlReader;)V
 	public static final fun writeElementContent (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/util/Map;Lnl/adaptivity/xmlutil/XmlReader;)V
 	public static final fun writeListIfNotEmpty (Lnl/adaptivity/xmlutil/XmlWriter;Ljava/lang/Iterable;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)V

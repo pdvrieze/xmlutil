@@ -26,6 +26,7 @@ import kotlinx.serialization.descriptors.capturedKClass
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlDynamicNameMarker
 import nl.adaptivity.xmlutil.core.impl.multiplatform.maybeAnnotations
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
@@ -71,6 +72,10 @@ public class XmlTypeDescriptor internal constructor(
     public var typeAnnPolyChildren: XmlPolyChildren? = null
         private set
 
+    @ExperimentalXmlUtilApi
+    public var typeAnnHasDynamicNames: Boolean = false
+        private set
+
     init {
         @OptIn(ExperimentalSerializationApi::class)
         for (a in serialDescriptor.annotations) {
@@ -84,6 +89,7 @@ public class XmlTypeDescriptor internal constructor(
                 is XmlElement -> typeAnnIsElement = a.value
                 is XmlChildrenName -> typeAnnChildrenName = a
                 is XmlPolyChildren -> typeAnnPolyChildren = a
+                is XmlDynamicNameMarker -> typeAnnHasDynamicNames = true
             }
         }
         if (typeAnnXmlSerialName==null) {

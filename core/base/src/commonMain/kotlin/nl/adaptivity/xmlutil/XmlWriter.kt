@@ -246,7 +246,8 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
  * @receiver The writer to write to
  * @param reader The reader to read from
  */
-public fun XmlWriter.serialize(reader: XmlReader) {
+@JvmOverloads
+public fun XmlWriter.serialize(reader: XmlReader, keepDuplicatedNsDecls: Boolean = true) {
     while (reader.hasNext()) {
         when (reader.next()) {
             EventType.START_DOCUMENT,
@@ -254,16 +255,16 @@ public fun XmlWriter.serialize(reader: XmlReader) {
             EventType.DOCDECL,
             EventType.END_DOCUMENT -> {
                 if (depth <= 0) {
-                    writeCurrentEvent(reader)
+                    writeCurrentEvent(reader, keepDuplicatedNsDecls)
                 }
             }
 
             EventType.IGNORABLE_WHITESPACE -> {
                 // Only write ignorable whitespace if we are not formatting with a set indent.
-                if (indentString.isEmpty()) writeCurrentEvent(reader)
+                if (indentString.isEmpty()) writeCurrentEvent(reader, keepDuplicatedNsDecls)
             }
 
-            else -> writeCurrentEvent(reader)
+            else -> writeCurrentEvent(reader, keepDuplicatedNsDecls)
         }
     }
 }
@@ -275,15 +276,29 @@ public fun XmlWriter.serialize(reader: XmlReader) {
  * @receiver the writer to write to
  * @param reader The reader to get the current event from.
  */
-public fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
+@JvmOverloads
+public fun XmlWriter.writeCurrentEvent(reader: XmlReader, keepDuplicatedNsDecls: Boolean = true,) {
     when (reader.eventType) {
         EventType.START_DOCUMENT -> startDocument(null, reader.encoding, reader.standalone)
 
         EventType.START_ELEMENT -> {
-            startTag(reader.namespaceURI, reader.localName, reader.prefix)
+            if (keepDuplicatedNsDecls) {
+                startTag(reader.namespaceURI, reader.localName, reader.prefix)
 
-            for (a in reader.namespaceDecls) {
-                namespaceAttr(a.prefix, a.namespaceURI)
+                for (a in reader.namespaceDecls) {
+                    namespaceAttr(a.prefix, a.namespaceURI)
+                }
+            } else {
+                when (val existingPrefix = getPrefix(reader.namespaceURI)) {
+                    null -> startTag(reader.namespaceURI, reader.localName, reader.prefix)
+                    else -> startTag(reader.namespaceURI, reader.localName, existingPrefix)
+                }
+
+                for (a in reader.namespaceDecls) {
+                    if (getPrefix(a.namespaceURI) == null) {
+                        namespaceAttr(a.prefix, a.namespaceURI)
+                    }
+                }
             }
 
             for (i in reader.attributeIndices) {

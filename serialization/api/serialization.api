@@ -943,6 +943,7 @@ public final class nl/adaptivity/xmlutil/serialization/structure/XmlTypeDescript
 	public final fun getSerialName ()Ljava/lang/String;
 	public final fun getTypeAnnCData ()Ljava/lang/Boolean;
 	public final fun getTypeAnnChildrenName ()Lnl/adaptivity/xmlutil/serialization/XmlChildrenName;
+	public final fun getTypeAnnHasDynamicNames ()Z
 	public final fun getTypeAnnIsElement ()Ljava/lang/Boolean;
 	public final fun getTypeAnnIsId ()Z
 	public final fun getTypeAnnIsXmlValue ()Ljava/lang/Boolean;

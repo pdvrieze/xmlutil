@@ -361,7 +361,10 @@ public class XML(
 
             for (childDescriptor in childrenToCollect) {
                 // Only check if we haven't seen a dynamic name yet.
-                if (!hasSeenDynamicQname && childDescriptor.overriddenSerializer.let { it is XmlSerializationStrategy<*> }) {
+                if (!hasSeenDynamicQname &&
+                    ((childDescriptor.typeDescriptor.typeAnnHasDynamicNames) ||
+                    (childDescriptor.overriddenSerializer.let { it is XmlSerializationStrategy<*> }))
+                ) {
                     hasSeenDynamicQname = true
                     return
                 }
@@ -382,6 +385,10 @@ public class XML(
         }
 
         if (hasSeenDynamicQname) {
+            // reset the collection. We do a full two-pass, so don't need to include unused namespaces.
+            prefixToNamespaceMap.clear()
+            namespaceToPrefixMap.clear()
+
             // Collect all namespaces by actually generating the full document.
             val collector = NamespaceCollectingXmlWriter(prefixToNamespaceMap, namespaceToPrefixMap, pendingNamespaces)
             val base = XmlEncoderBase(xmlEncoderBase.serializersModule, xmlEncoderBase.config, collector)

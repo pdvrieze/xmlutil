@@ -6,10 +6,24 @@ Changes:
 - Remove most deprecated code (some over 5 years old), but introduce a
   few more new deprecations for poor APIs that were not deprecated (or
   internal) yet.
+- Introduce a new annotation for implementations of `XmlSerializer`: 
+  (`@XmlDynamicNameMarker`). This annotation being present on a type triggers
+  full two-pass serialization for serialization configured with
+  `isCollectingNSAttributes=true`. This has been set on the relevant serializers
+  in the library (compact fragment, qname, node, element), but would also
+  be valid set on a regular (non-custom container).
+- When compact fragments are serialized it will now omit namespace attributes
+  if they are already declared on a higher level (and not overridden).
 
 Fixes:
 - Fix threadsafety for LayeredFormatCache by making defensive copy on write
   when the cache is updated.
+- Fix the root prefix being ignored if the element has already been cached
+  with a different prefix (this is not semantically relevant in the XML, but
+  not expected). See #315.
+- Fix collecting of namespace attributes in the root (#315) for dynamic/custom
+  serializer content, by using type annotation to ensure the full 2-pass
+  approach.
 
 # 0.91.3
 *(Oct 28, 2025)<br />*

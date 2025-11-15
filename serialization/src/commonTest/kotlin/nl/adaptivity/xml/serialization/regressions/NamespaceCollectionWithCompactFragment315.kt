@@ -21,6 +21,8 @@
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
@@ -233,6 +235,38 @@ class NamespaceCollectionWithCompactFragment315 {
     }
 
     @Test
+    fun `test whether qname values are also properly handled`() {
+        val thisXmlConfig = baseXmlConfig.copy { isCollectingNSAttributes = true }
+
+        val rootElement = RootElement(
+            "hello",
+            listOf(
+                ChildElement(
+                    QName("http://example.com/name", "bla", "name"), listOf(
+                        CompactFragment("<bar:thing1 xmlns:bar='http://example.com/bar'>test</bar:thing1>"),
+                        CompactFragment("<bar2:thing2 xmlns:bar2='http://example.com/bar'>test</bar2:thing2>"),
+                    )
+                ),
+            ), null
+        )
+
+        val output = thisXmlConfig.encodeToString(rootElement, "foo2")
+
+        val expectedOutput =
+            """|<?xml version='1.0' ?>
+               |<foo2:rootElement xmlns:foo2="http://example.com/foo" xmlns:bar="http://example.com/bar" xmlns:name="http://example.com/name" someAttribute="hello">
+               |  <foo2:childElement name="name:bla">
+               |    <bar:thing1>test</bar:thing1>
+               |    <bar:thing2>test</bar:thing2>
+               |  </foo2:childElement>
+               |</foo2:rootElement>
+            """.trimMargin()
+
+        // Fails, output actually matches `test reserialize with ns decl on root element`
+        assertEquals(expectedOutput, output)
+    }
+
+    @Test
     fun `test non-CompactFragment element with other namespace`() {
         val rootElement = RootElement("hello", listOf(), Other("text"))
 
@@ -303,7 +337,10 @@ data class RootElement(
 
 @Serializable
 @XmlSerialName("childElement", namespace = NS)
-data class ChildElement(@XmlValue val list: List<CompactFragment>)
+data class ChildElement(
+    val name: SerializableQName? = null,
+    @XmlValue val list: List<CompactFragment>
+)
 
 @Serializable
 @XmlSerialName("other", namespace = "http://example.com/baz", prefix = "baz")

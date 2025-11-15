@@ -10,6 +10,10 @@ open annotation class nl.adaptivity.xmlutil/ExperimentalXmlUtilApi : kotlin/Anno
     constructor <init>() // nl.adaptivity.xmlutil/ExperimentalXmlUtilApi.<init>|<init>(){}[0]
 }
 
+open annotation class nl.adaptivity.xmlutil/XmlDynamicNameMarker : kotlin/Annotation { // nl.adaptivity.xmlutil/XmlDynamicNameMarker|null[0]
+    constructor <init>() // nl.adaptivity.xmlutil/XmlDynamicNameMarker.<init>|<init>(){}[0]
+}
+
 open annotation class nl.adaptivity.xmlutil/XmlUtilDeprecatedInternal : kotlin/Annotation { // nl.adaptivity.xmlutil/XmlUtilDeprecatedInternal|null[0]
     constructor <init>() // nl.adaptivity.xmlutil/XmlUtilDeprecatedInternal.<init>|<init>(){}[0]
 }
@@ -1576,7 +1580,7 @@ final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/toEvent(): nl.
 final fun (nl.adaptivity.xmlutil/XmlReader).nl.adaptivity.xmlutil/writeCurrent(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil/writeCurrent|writeCurrent@nl.adaptivity.xmlutil.XmlReader(nl.adaptivity.xmlutil.XmlWriter){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/endTag(nl.adaptivity.xmlutil/QName) // nl.adaptivity.xmlutil/endTag|endTag@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/filterSubstream(): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/filterSubstream|filterSubstream@nl.adaptivity.xmlutil.XmlWriter(){}[0]
-final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serialize(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil/serialize|serialize@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.XmlReader){}[0]
+final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serialize(nl.adaptivity.xmlutil/XmlReader, kotlin/Boolean = ...) // nl.adaptivity.xmlutil/serialize|serialize@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.XmlReader;kotlin.Boolean){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(kotlin/String?, kotlin/String, kotlin/String? = ...): kotlin/String // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartStartTag(nl.adaptivity.xmlutil/QName) // nl.adaptivity.xmlutil/smartStartTag|smartStartTag@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(kotlin/String, kotlin/Any?) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(kotlin.String;kotlin.Any?){}[0]
@@ -1585,7 +1589,7 @@ final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(kotlin/String, kotlin/String?) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(kotlin.String;kotlin.String?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(kotlin/String, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(kotlin.String;nl.adaptivity.xmlutil.QName?){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeAttribute(nl.adaptivity.xmlutil/QName, kotlin/String?) // nl.adaptivity.xmlutil/writeAttribute|writeAttribute@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.QName;kotlin.String?){}[0]
-final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeCurrentEvent(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil/writeCurrentEvent|writeCurrentEvent@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.XmlReader){}[0]
+final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeCurrentEvent(nl.adaptivity.xmlutil/XmlReader, kotlin/Boolean = ...) // nl.adaptivity.xmlutil/writeCurrentEvent|writeCurrentEvent@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.XmlReader;kotlin.Boolean){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeElement(kotlin.collections/MutableMap<kotlin/String, kotlin/String>?, nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil/writeElement|writeElement@nl.adaptivity.xmlutil.XmlWriter(kotlin.collections.MutableMap<kotlin.String,kotlin.String>?;nl.adaptivity.xmlutil.XmlReader){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeElementContent(kotlin.collections/MutableMap<kotlin/String, kotlin/String>?, nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil/writeElementContent|writeElementContent@nl.adaptivity.xmlutil.XmlWriter(kotlin.collections.MutableMap<kotlin.String,kotlin.String>?;nl.adaptivity.xmlutil.XmlReader){}[0]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeSimpleElement(kotlin/String?, kotlin/String, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/writeSimpleElement|writeSimpleElement@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?;kotlin.String?){}[0]

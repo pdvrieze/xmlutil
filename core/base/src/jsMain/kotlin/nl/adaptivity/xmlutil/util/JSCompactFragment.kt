@@ -73,7 +73,7 @@ public actual class CompactFragment : ICompactFragment {
 
     actual override fun serialize(out: XmlWriter) {
         XMLFragmentStreamReader.from(this).let { reader: XmlReader ->
-            out.serialize(reader)
+            out.serialize(reader, keepDuplicatedNsDecls = false)
         }
     }
 

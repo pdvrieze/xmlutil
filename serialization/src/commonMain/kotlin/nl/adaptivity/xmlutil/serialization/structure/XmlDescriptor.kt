@@ -494,7 +494,7 @@ internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
 internal fun SerialDescriptor.getXmlOverride() = when {
     this is XmlSerialDescriptor -> xmlDescriptor
     isNullable &&
-            annotations.hasXmlSerialDesriptorMarker -> getElementDescriptor(-1).nullable
+            annotations.hasXmlSerialDescriptorMarker -> getElementDescriptor(-1).nullable
 
     else -> this
 }
@@ -503,7 +503,7 @@ internal fun QName.normalize(): QName {
     return copy(prefix = "")
 }
 
-private val List<Annotation>.hasXmlSerialDesriptorMarker: Boolean
+private val List<Annotation>.hasXmlSerialDescriptorMarker: Boolean
     get() {
         if (isEmpty()) return false
         return get(0) is XmlSerialDescriptorMarker

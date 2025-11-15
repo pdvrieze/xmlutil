@@ -21,13 +21,14 @@
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.*
 
 public expect class QName {
@@ -62,13 +63,16 @@ public typealias SerializableQName = @Serializable(QNameSerializer::class) QName
 
 @OptIn(ExperimentalSerializationApi::class)
 public object QNameSerializer : XmlSerializer<QName> {
+    @OptIn(InternalSerializationApi::class)
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("javax.xml.namespace.QName") {
         val stringSerializer = String.serializer()
         element("namespace", stringSerializer.descriptor, isOptional = true)
         element("localPart", stringSerializer.descriptor)
         element("prefix", stringSerializer.descriptor, isOptional = true)
     }.xml(
-        PrimitiveSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING),
+        buildSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING) {
+            annotations = listOf(XmlDynamicNameMarker())
+        },
         QName(XMLConstants.XSD_NS_URI, "QName", XMLConstants.XSD_PREFIX)
     )
 

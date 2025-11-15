@@ -39,6 +39,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("element") {
+        annotations = listOf(XmlDynamicNameMarker())
         element("namespace", serialDescriptor<String>(), isOptional = true)
         element("localname", serialDescriptor<String>())
         element("attributes", attrSerializer.descriptor, isOptional = true)

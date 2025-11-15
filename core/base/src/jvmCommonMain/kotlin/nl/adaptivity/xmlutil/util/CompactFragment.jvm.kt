@@ -60,7 +60,7 @@ public actual class CompactFragment : ICompactFragment {
     actual override fun serialize(out: XmlWriter) {
         val reader = XMLFragmentStreamReader.from(this)
         try {
-            out.serialize(reader)
+            out.serialize(reader, keepDuplicatedNsDecls = false)
         } finally {
             reader.close()
         }
