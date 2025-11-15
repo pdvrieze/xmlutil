@@ -21,34 +21,76 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.Namespace
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
 
-public class XmlPrimitiveDescriptor @ExperimentalXmlUtilApi
-internal constructor(
-    codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo,
-    canBeAttribute: Boolean,
-    @ExperimentalXmlUtilApi override val defaultPreserveSpace: TypePreserveSpace
-) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
+public class XmlPrimitiveDescriptor : XmlValueDescriptor {
 
-    override val isIdAttr: Boolean = serializerParent.useAnnIsId
+    @ExperimentalXmlUtilApi
+    internal constructor(
+        codecConfig: XML.XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        canBeAttribute: Boolean,
+        defaultPreserveSpace: TypePreserveSpace
+    ) : super(codecConfig, serializerParent, tagParent) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this.outputKind = codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
+    }
+
+    private constructor(
+        original: XmlPrimitiveDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        isCData: Boolean = original.isCData,
+        default: String? = original.default,
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+        outputKind: OutputKind = original.outputKind,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+        isCData,
+        default
+    ) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this.outputKind = outputKind
+    }
+
+
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace
+
+    override val isIdAttr: Boolean get() = serializerParent.useAnnIsId
 
     @ExperimentalSerializationApi
     override val doInline: Boolean
         get() = false
 
-    override val outputKind: OutputKind =
-        codecConfig.config.policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute)
+    override val outputKind: OutputKind
 
     override val elementsCount: Int get() = 0
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun appendTo(builder: Appendable, indent: Int, seen: MutableSet<String>) {
-        builder.append(tagName.toString())
-            .append(':')
+        when {
+            _tagName.isInitialized() -> builder.append(_tagName.value.toString())
+            else -> builder.append("<tagname pending>")
+        }.append(':')
             .append(kind.toString())
             .append(" = ")
             .append(outputKind.toString())

@@ -1050,12 +1050,12 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor : kotli
 }
 
 sealed class nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor : nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor { // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor|null[0]
+    final val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
+        final fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
     final val doInline // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline|{}doInline[0]
         final fun <get-doInline>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.doInline.<get-doInline>|<get-doInline>(){}[0]
-    open val defaultPreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.defaultPreserveSpace|{}defaultPreserveSpace[0]
-        open fun <get-defaultPreserveSpace>(): nl.adaptivity.xmlutil.serialization.structure/TypePreserveSpace // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.defaultPreserveSpace.<get-defaultPreserveSpace>|<get-defaultPreserveSpace>(){}[0]
-    open val isListEluded // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.isListEluded|{}isListEluded[0]
-        open fun <get-isListEluded>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.isListEluded.<get-isListEluded>|<get-isListEluded>(){}[0]
+    final val isListEluded // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.isListEluded|{}isListEluded[0]
+        final fun <get-isListEluded>(): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.isListEluded.<get-isListEluded>|<get-isListEluded>(){}[0]
 
     open fun equals(kotlin/Any?): kotlin/Boolean // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.equals|equals(kotlin.Any?){}[0]
     open fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlListLikeDescriptor.hashCode|hashCode(){}[0]

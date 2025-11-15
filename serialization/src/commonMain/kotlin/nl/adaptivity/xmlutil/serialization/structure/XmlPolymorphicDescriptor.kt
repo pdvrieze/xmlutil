@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
@@ -35,36 +36,20 @@ import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import kotlin.reflect.KClass
 
 @OptIn(ExperimentalSerializationApi::class)
-public class XmlPolymorphicDescriptor internal constructor(
-    private val codecConfig: XML.XmlCodecConfig,
-    serializerParent: SafeParentInfo,
-    tagParent: SafeParentInfo,
-    @ExperimentalXmlUtilApi
-    override val defaultPreserveSpace: TypePreserveSpace,
-) : XmlValueDescriptor(codecConfig, serializerParent, tagParent) {
+public class XmlPolymorphicDescriptor : XmlValueDescriptor {
 
-    override val isIdAttr: Boolean
-        get() = false
+    internal constructor(
+        codecConfig: XmlCodecConfig,
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo,
+        defaultPreserveSpace: TypePreserveSpace
+    ) : super(codecConfig, serializerParent, tagParent) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this.codecConfig = codecConfig
 
-    @ExperimentalSerializationApi
-    override val doInline: Boolean
-        get() = false
-
-    override val outputKind: OutputKind
-
-    public val polymorphicMode: PolymorphicMode
-    public val isTransparent: Boolean get() = polymorphicMode == PolymorphicMode.TRANSPARENT
-    public val polyInfo: Map<String, XmlDescriptor>
-    public val typeQNameToSerialName: Map<QName, String>
-
-    init {
         val policy = codecConfig.config.policy
-
         outputKind = policy.effectiveOutputKind(serializerParent, tagParent, canBeAttribute = false)
 
-        val xmlPolyChildren = tagParent.useAnnPolyChildren
-
-        // xmlPolyChildren and sealed also leads to a transparent polymorphic
         val polyAttrName = policy.polymorphicDiscriminatorName(serializerParent, tagParent)
         polymorphicMode = when {
             policy.isTransparentPolymorphic(serializerParent, tagParent) ->
@@ -74,9 +59,9 @@ public class XmlPolymorphicDescriptor internal constructor(
             else -> PolymorphicMode.ATTR(polyAttrName)
         }
 
+        val xmlPolyChildren = tagParent.useAnnPolyChildren
         val localPolyInfo = HashMap<String, XmlDescriptor>()
         val localQNameToSerialName = HashMap<QName, String>()
-
         val wrapperUseName = when (polymorphicMode) {
             PolymorphicMode.TRANSPARENT -> null
             PolymorphicMode.TAG -> from(
@@ -87,11 +72,10 @@ public class XmlPolymorphicDescriptor internal constructor(
             is PolymorphicMode.ATTR -> XmlSerializationPolicy.DeclaredNameInfo(tagName)
         }
 
-
         when {
             // If the [XmlPolyChildren] annotation is present, use that
             xmlPolyChildren != null -> {
-                val baseName = XmlSerializationPolicy.ActualNameInfo(
+                val baseName = ActualNameInfo(
                     tagParent.descriptor?.serialDescriptor?.serialName ?: "",
                     tagParent.descriptor?.tagName ?: QName("", "")
                 )
@@ -133,8 +117,10 @@ public class XmlPolymorphicDescriptor internal constructor(
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
                     var cd = xmlDescriptor
-                    while (cd is XmlInlineDescriptor) { cd = cd.getElementDescriptor(0) }
-                    val effectiveSerialName= if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
+                    while (cd is XmlInlineDescriptor) {
+                        cd = cd.getElementDescriptor(0)
+                    }
+                    val effectiveSerialName = if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
 
                     localPolyInfo[effectiveSerialName] = xmlDescriptor
                     val qName = policy.typeQName(xmlDescriptor).normalize()
@@ -162,8 +148,10 @@ public class XmlPolymorphicDescriptor internal constructor(
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
 
                     var cd = xmlDescriptor
-                    while (cd is XmlInlineDescriptor) { cd = cd.getElementDescriptor(0) }
-                    val effectiveSerialName= if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
+                    while (cd is XmlInlineDescriptor) {
+                        cd = cd.getElementDescriptor(0)
+                    }
+                    val effectiveSerialName = if (cd.outputKind.isTextOrMixed) "kotlin.String" else childDesc.serialName
 
                     localPolyInfo[effectiveSerialName] = xmlDescriptor
 
@@ -176,6 +164,63 @@ public class XmlPolymorphicDescriptor internal constructor(
         polyInfo = localPolyInfo
         typeQNameToSerialName = localQNameToSerialName
     }
+
+    private constructor(
+        original: XmlPolymorphicDescriptor,
+        serializerParent: SafeParentInfo = original.serializerParent,
+        tagParent: SafeParentInfo = original.tagParent,
+        overriddenSerializer: KSerializer<*>? = original.overriddenSerializer,
+        typeDescriptor: XmlTypeDescriptor = original.typeDescriptor,
+        namespaceDecls: List<Namespace> = original.namespaceDecls,
+        tagNameProvider: XmlDescriptor.() -> Lazy<QName> = { original._tagName },
+        decoderPropertiesProvider: XmlDescriptor.() -> Lazy<DecoderProperties> = { original._decoderProperties },
+        isCData: Boolean = original.isCData,
+        default: String? = original.default,
+        defaultPreserveSpace: TypePreserveSpace = original.defaultPreserveSpace,
+        codecConfig: XmlCodecConfig = original.codecConfig,
+        outputKind: OutputKind = original.outputKind,
+        polymorphicMode: PolymorphicMode = original.polymorphicMode,
+        polyInfo: Map<String, XmlDescriptor> = original.polyInfo,
+        typeQNameToSerialName: Map<QName, String> = original.typeQNameToSerialName,
+    ) : super(
+        original,
+        serializerParent,
+        tagParent,
+        overriddenSerializer,
+        typeDescriptor,
+        namespaceDecls,
+        tagNameProvider,
+        decoderPropertiesProvider,
+        isCData,
+        default,
+    ) {
+        this.defaultPreserveSpace = defaultPreserveSpace
+        this.codecConfig = codecConfig
+        this.outputKind = outputKind
+        this.polymorphicMode = polymorphicMode
+        this.polyInfo = polyInfo
+        this.typeQNameToSerialName = typeQNameToSerialName
+    }
+
+
+    @ExperimentalXmlUtilApi
+    override val defaultPreserveSpace: TypePreserveSpace
+
+    private val codecConfig: XmlCodecConfig
+
+    override val isIdAttr: Boolean
+        get() = false
+
+    @ExperimentalSerializationApi
+    override val doInline: Boolean
+        get() = false
+
+    override val outputKind: OutputKind
+
+    public val polymorphicMode: PolymorphicMode
+    public val isTransparent: Boolean get() = polymorphicMode == PolymorphicMode.TRANSPARENT
+    public val polyInfo: Map<String, XmlDescriptor>
+    public val typeQNameToSerialName: Map<QName, String>
 
     @OptIn(ExperimentalSerializationApi::class)
     public val parentSerialName: String? get() =
