@@ -755,10 +755,6 @@ abstract interface nl.adaptivity.xmlutil/XmlWriter : nl.adaptivity.xmlutil.core.
     open fun safeCdsect(kotlin/String) // nl.adaptivity.xmlutil/XmlWriter.safeCdsect|safeCdsect(kotlin.String){}[0]
 }
 
-abstract class nl.adaptivity.xmlutil.util/XmlDelegatingWriter : nl.adaptivity.xmlutil/XmlDelegatingWriter { // nl.adaptivity.xmlutil.util/XmlDelegatingWriter|null[0]
-    constructor <init>(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil.util/XmlDelegatingWriter.<init>|<init>(nl.adaptivity.xmlutil.XmlWriter){}[0]
-}
-
 abstract class nl.adaptivity.xmlutil/XmlDelegatingWriter : nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil/XmlDelegatingWriter|null[0]
     constructor <init>(nl.adaptivity.xmlutil/XmlWriter) // nl.adaptivity.xmlutil/XmlDelegatingWriter.<init>|<init>(nl.adaptivity.xmlutil.XmlWriter){}[0]
 
@@ -1119,10 +1115,6 @@ final class nl.adaptivity.xmlutil/XmlBufferedWriter : nl.adaptivity.xmlutil/XmlW
     final fun text(kotlin/String) // nl.adaptivity.xmlutil/XmlBufferedWriter.text|text(kotlin.String){}[0]
 }
 
-open class nl.adaptivity.xmlutil.util/XmlDelegatingReader : nl.adaptivity.xmlutil/XmlDelegatingReader { // nl.adaptivity.xmlutil.util/XmlDelegatingReader|null[0]
-    constructor <init>(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil.util/XmlDelegatingReader.<init>|<init>(nl.adaptivity.xmlutil.XmlReader){}[0]
-}
-
 open class nl.adaptivity.xmlutil/XmlBufferedReader : nl.adaptivity.xmlutil/XmlBufferedReaderBase { // nl.adaptivity.xmlutil/XmlBufferedReader|null[0]
     constructor <init>(nl.adaptivity.xmlutil/XmlReader) // nl.adaptivity.xmlutil/XmlBufferedReader.<init>|<init>(nl.adaptivity.xmlutil.XmlReader){}[0]
 
@@ -1285,7 +1277,6 @@ sealed class nl.adaptivity.xmlutil/XmlEvent { // nl.adaptivity.xmlutil/XmlEvent|
     }
 
     final class EntityRefEvent : nl.adaptivity.xmlutil/XmlEvent.TextEvent { // nl.adaptivity.xmlutil/XmlEvent.EntityRefEvent|null[0]
-        constructor <init>(kotlin/String, kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlEvent.EntityRefEvent.<init>|<init>(kotlin.String;kotlin.String;kotlin.String){}[0]
         constructor <init>(nl.adaptivity.xmlutil/XmlReader.LocationInfo?, kotlin/String, kotlin/Boolean, kotlin/String) // nl.adaptivity.xmlutil/XmlEvent.EntityRefEvent.<init>|<init>(nl.adaptivity.xmlutil.XmlReader.LocationInfo?;kotlin.String;kotlin.Boolean;kotlin.String){}[0]
         constructor <init>(nl.adaptivity.xmlutil/XmlReader.LocationInfo?, kotlin/String, kotlin/String) // nl.adaptivity.xmlutil/XmlEvent.EntityRefEvent.<init>|<init>(nl.adaptivity.xmlutil.XmlReader.LocationInfo?;kotlin.String;kotlin.String){}[0]
 
@@ -1803,10 +1794,6 @@ final val nl.adaptivity.xmlutil.dom2/publicId // nl.adaptivity.xmlutil.dom2/publ
     final fun (nl.adaptivity.xmlutil.dom/PlatformDocumentType).<get-publicId>(): kotlin/String // nl.adaptivity.xmlutil.dom2/publicId.<get-publicId>|<get-publicId>@nl.adaptivity.xmlutil.dom.PlatformDocumentType(){}[0]
 
 // Targets: [linuxX64, wasmJs, wasmWasi]
-final val nl.adaptivity.xmlutil.dom2/supportsWhitespaceAtToplevel // nl.adaptivity.xmlutil.dom2/supportsWhitespaceAtToplevel|@nl.adaptivity.xmlutil.dom.PlatformDocument{}supportsWhitespaceAtToplevel[0]
-    final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).<get-supportsWhitespaceAtToplevel>(): kotlin/Boolean // nl.adaptivity.xmlutil.dom2/supportsWhitespaceAtToplevel.<get-supportsWhitespaceAtToplevel>|<get-supportsWhitespaceAtToplevel>@nl.adaptivity.xmlutil.dom.PlatformDocument(){}[0]
-
-// Targets: [linuxX64, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/systemId // nl.adaptivity.xmlutil.dom2/systemId|@nl.adaptivity.xmlutil.dom.PlatformDocumentType{}systemId[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformDocumentType).<get-systemId>(): kotlin/String // nl.adaptivity.xmlutil.dom2/systemId.<get-systemId>|<get-systemId>@nl.adaptivity.xmlutil.dom.PlatformDocumentType(){}[0]
 
@@ -2163,10 +2150,6 @@ final val nl.adaptivity.xmlutil.dom2/previousSibling // nl.adaptivity.xmlutil.do
 // Targets: [js]
 final val nl.adaptivity.xmlutil.dom2/publicId // nl.adaptivity.xmlutil.dom2/publicId|@nl.adaptivity.xmlutil.dom2.DocumentType{}publicId[0]
     final fun (nl.adaptivity.xmlutil.dom2/DocumentType).<get-publicId>(): kotlin/String // nl.adaptivity.xmlutil.dom2/publicId.<get-publicId>|<get-publicId>@nl.adaptivity.xmlutil.dom2.DocumentType(){}[0]
-
-// Targets: [js]
-final val nl.adaptivity.xmlutil.dom2/supportsWhitespaceAtToplevel // nl.adaptivity.xmlutil.dom2/supportsWhitespaceAtToplevel|@nl.adaptivity.xmlutil.dom2.Document{}supportsWhitespaceAtToplevel[0]
-    final fun (nl.adaptivity.xmlutil.dom2/Document).<get-supportsWhitespaceAtToplevel>(): kotlin/Boolean // nl.adaptivity.xmlutil.dom2/supportsWhitespaceAtToplevel.<get-supportsWhitespaceAtToplevel>|<get-supportsWhitespaceAtToplevel>@nl.adaptivity.xmlutil.dom2.Document(){}[0]
 
 // Targets: [js]
 final val nl.adaptivity.xmlutil.dom2/systemId // nl.adaptivity.xmlutil.dom2/systemId|@nl.adaptivity.xmlutil.dom2.DocumentType{}systemId[0]

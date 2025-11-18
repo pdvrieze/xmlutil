@@ -279,10 +279,6 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
         }
     }
 
-    @Suppress("DEPRECATION", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "KotlinRedundantDiagnosticSuppress")
-    @Deprecated("Provided for compatibility.")
-    fun getDelegate(): PlatformNode? = delegate as? PlatformNode
-
     override fun getAttributeNamespace(index: Int): String {
         val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
         return attr.getNamespaceURI() ?: ""

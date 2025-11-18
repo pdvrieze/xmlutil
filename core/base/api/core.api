@@ -378,7 +378,6 @@ public final class nl/adaptivity/xmlutil/XmlEvent$EndElementEvent : nl/adaptivit
 }
 
 public final class nl/adaptivity/xmlutil/XmlEvent$EntityRefEvent : nl/adaptivity/xmlutil/XmlEvent$TextEvent {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/String;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;ZLjava/lang/String;)V
 	public final fun getLocalName ()Ljava/lang/String;
@@ -947,7 +946,6 @@ public final class nl/adaptivity/xmlutil/dom2/DocumentKt {
 	public static final fun getDocumentElement (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/Element;
 	public static final fun getImplementation (Lnl/adaptivity/xmlutil/dom2/Document;)Lnl/adaptivity/xmlutil/dom2/DOMImplementation;
 	public static final fun getInputEncoding (Lnl/adaptivity/xmlutil/dom2/Document;)Ljava/lang/String;
-	public static final fun getSupportsWhitespaceAtToplevel (Lnl/adaptivity/xmlutil/dom2/Document;)Z
 	public static final fun importNode (Lnl/adaptivity/xmlutil/dom2/Document;Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 }
 
@@ -1238,14 +1236,6 @@ public final class nl/adaptivity/xmlutil/util/XmlBooleanSerializer : kotlinx/ser
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Z)V
-}
-
-public class nl/adaptivity/xmlutil/util/XmlDelegatingReader : nl/adaptivity/xmlutil/XmlDelegatingReader {
-	protected fun <init> (Lnl/adaptivity/xmlutil/XmlReader;)V
-}
-
-public abstract class nl/adaptivity/xmlutil/util/XmlDelegatingWriter : nl/adaptivity/xmlutil/XmlDelegatingWriter {
-	public fun <init> (Lnl/adaptivity/xmlutil/XmlWriter;)V
 }
 
 public final class nl/adaptivity/xmlutil/util/XmlDoubleSerializer : kotlinx/serialization/KSerializer {

@@ -77,11 +77,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
             extLocationInfo: XmlReader.LocationInfo?,
             localName: String,
             text: String
-        ): this(extLocationInfo, localName, text.isNotEmpty(), text)
-
-        @Deprecated("locationInfo is deprecated")
-        public constructor(locationInfo: String, localName: String, text: String) :
-                this(locationInfo.let(XmlReader::StringLocationInfo), localName, text)
+        ) : this(extLocationInfo, localName, text.isNotEmpty(), text)
 
         override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
 

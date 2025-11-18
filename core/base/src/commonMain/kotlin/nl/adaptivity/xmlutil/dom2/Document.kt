@@ -60,10 +60,6 @@ public expect interface Document : Node {
 
 }
 
-@Deprecated("Use implementation", ReplaceWith("implementation.supportsWhitespaceAtToplevel"))
-public val Document.supportsWhitespaceAtToplevel: Boolean get() = getImplementation().supportsWhitespaceAtToplevel
-
-
 public inline val Document.implementation: DOMImplementation get() = getImplementation()
 public inline val Document.doctype: DocumentType? get() = getDoctype()
 public inline val Document.documentElement: Element? get() = getDocumentElement()
