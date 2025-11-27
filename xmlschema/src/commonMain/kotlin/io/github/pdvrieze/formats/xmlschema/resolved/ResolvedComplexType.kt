@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -51,10 +51,6 @@ sealed class ResolvedComplexType(
     override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
 
     abstract override val mdlScope: VComplexTypeScope
-
-    // context (only for local, not for global)
-    // TODO determine this on content type
-    val mdlDerivationMethod: VDerivationControl.Complex get() = model.mdlDerivationMethod
 
     // abstract only in global types
     // TODO transform to map[QName,IResolvedAttributeUse]
@@ -99,8 +95,8 @@ sealed class ResolvedComplexType(
     override fun isValidlyDerivedFrom(base: ResolvedType, asRestriction: Boolean): Boolean {
         if (this == base) return true // 2.1
 
-        if (asRestriction && mdlDerivationMethod != VDerivationControl.RESTRICTION) return false
-        if (base.mdlFinal.contains(mdlDerivationMethod)) return false
+        if (asRestriction && model.mdlDerivationMethod != VDerivationControl.RESTRICTION) return false
+        if (base.mdlFinal.contains(model.mdlDerivationMethod)) return false
 
         val btd = mdlBaseTypeDefinition
         // check derivation method is not in blocking
@@ -122,7 +118,7 @@ sealed class ResolvedComplexType(
 
         mdlContentType.check(this, checkHelper)
 
-        if (mdlDerivationMethod == VDerivationControl.EXTENSION) {
+        if (model.mdlDerivationMethod == VDerivationControl.EXTENSION) {
 
             when (mdlBaseTypeDefinition) {
                 is ResolvedComplexType -> checkExtensionOfComplex(checkHelper)
@@ -443,7 +439,9 @@ sealed class ResolvedComplexType(
 
             mdlDerivationMethod = when (derivation) {
                 is XSComplexContent.XSExtension -> VDerivationControl.EXTENSION
-                else -> VDerivationControl.RESTRICTION
+                is XSGlobalComplexTypeShorthand,
+                is XSLocalComplexTypeShorthand,
+                is XSComplexContent.XSRestriction -> VDerivationControl.RESTRICTION
             }
 
 
@@ -596,8 +594,10 @@ sealed class ResolvedComplexType(
         final override val mdlBaseTypeDefinition: ResolvedType =
             elem.elem.content.derivation.base?.let { schema.type(it) } ?: AnyType
 
-        override val mdlDerivationMethod: VDerivationControl.Complex =
-            elem.elem.content.derivation.derivationMethod
+        override val mdlDerivationMethod: VDerivationControl.Complex = when (elem.elem.content.derivation) {
+            is XSSimpleContentRestriction -> VDerivationControl.RESTRICTION
+            is XSSimpleContentExtension -> VDerivationControl.EXTENSION
+        }
 
         override val mdlContentType: ResolvedSimpleContentType get() = this
 
@@ -928,7 +928,7 @@ sealed class ResolvedComplexType(
                 }
 
                 // Extension/restriction. Only restriction can prohibit attributes.
-                when (baseType?.mdlDerivationMethod) {
+                when (baseType?.run { model.mdlDerivationMethod }) {
                     VDerivationControl.EXTENSION ->
                         for (a in baseType.mdlAttributeUses.values) {
                             val attrName = a.mdlQName
@@ -1007,7 +1007,7 @@ sealed class ResolvedComplexType(
                 }
             }
 
-            val attributeWildcard = when (ownerType.mdlDerivationMethod) {
+            val attributeWildcard = when (ownerType.model.mdlDerivationMethod) {
                 !is VDerivationControl.EXTENSION -> completeWildcard
                 else -> {
                     val baseWildcard = baseType?.mdlAttributeWildcard // 2.2.1.*
