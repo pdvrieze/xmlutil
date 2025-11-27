@@ -73,6 +73,8 @@ dependencies {
     dokka(projects.core)
     dokka(projects.coreJdk)
     dokka(projects.coreAndroid)
+    dokka(projects.coreKXIO)
     dokka(projects.serialization)
+    dokka(projects.serializationIo)
     dokka(projects.serialutil)
 }
