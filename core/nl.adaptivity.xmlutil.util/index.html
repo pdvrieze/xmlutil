@@ -1,22 +1,22 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>nl.adaptivity.xmlutil.util</title>
-<link href="../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+<link href="../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async></script>
@@ -24,36 +24,34 @@
 <link href="../../styles/main.css" rel="Stylesheet">
 <link href="../../styles/prism.css" rel="Stylesheet">
 <link href="../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../scripts/prism.js" async></script>
-<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer></script>
-<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-<a class="library-name--link" href="../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../index.html" tabindex="1">
                     xmlutil
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.2
+        <div class="library-version" id="library-version">0.91.3
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonDomMain">Native</button>
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonMain">Common</button>
-                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":core/jsMain">JS</button>
-                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":core/jvmCommonMain">JVM</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true" data-filter=":core/jsMain">JS</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmCommonMain">JVM</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
@@ -88,47 +86,49 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     xmlutil
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
 <div class="main-content" data-page-type="package" id="content" pageids="core::nl.adaptivity.xmlutil.util////PointingToDeclaration//588233207">
   <div class="breadcrumbs"><a href="../index.html">core</a><span class="delimiter">/</span><span class="current">nl.adaptivity.xmlutil.util</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
     <div class="platform-hinted UnderCoverText with-platform-tabs" data-platform-hinted="data-platform-hinted">
       <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div>    </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p></div>    </div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button></div>
     <div class="tabs-section-body">
       <div data-togglable="TYPE">
-        <h2 class="">Types</h2>
+        <h2 class="tableheader">Types</h2>
         <div class="table"><a data-name="-1100936213%2FClasslikes%2F-1116685823" anchor-label="CombiningReader" id="-1100936213%2FClasslikes%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-combining-reader/index.html"><span>Combining</span><wbr><span><span>Reader</span></span></a></div>
@@ -144,8 +144,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1206356489%2FClasslikes%2F588233207" anchor-label="CompactFragment" id="-1206356489%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1206356489%2FClasslikes%2F588233207" anchor-label="CompactFragment" id="-1206356489%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-compact-fragment/index.html"><span>Compact</span><wbr><span><span>Fragment</span></span></a></div>
@@ -156,13 +156,13 @@
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.2</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.2</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a></div></div><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.2</p></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.2</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.2</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="../../core/nl.adaptivity.xmlutil.util/-compact-fragment-serializer/index.html">CompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-compact-fragment/index.html">CompactFragment</a> : <a href="../../core/nl.adaptivity.xmlutil.util/-i-compact-fragment/index.html">ICompactFragment</a></div><div class="brief "><p class="paragraph">A class representing an xml fragment compactly. Created by pdvrieze on 06/11/15.2</p></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-419720955%2FClasslikes%2F-910832118" anchor-label="CompactFragmentSerializer" id="-419720955%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-compact-fragment-serializer/index.html"><span>Compact</span><wbr><span>Fragment</span><wbr><span><span>Serializer</span></span></a></div>
@@ -177,7 +177,7 @@
             </div>
           </div>
 <a data-name="-1004875697%2FClasslikes%2F-910832118" anchor-label="GatheringNamespaceContext" id="-1004875697%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-gathering-namespace-context/index.html"><span>Gathering</span><wbr><span>Namespace</span><wbr><span><span>Context</span></span></a></div>
@@ -192,7 +192,7 @@
             </div>
           </div>
 <a data-name="-769280338%2FClasslikes%2F-910832118" anchor-label="ICompactFragment" id="-769280338%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-i-compact-fragment/index.html"><span>ICompact</span><wbr><span><span>Fragment</span></span></a></div>
@@ -207,7 +207,7 @@
             </div>
           </div>
 <a data-name="821336316%2FClasslikes%2F-910832118" anchor-label="ICompactFragmentSerializer" id="821336316%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-i-compact-fragment-serializer/index.html"><span>ICompact</span><wbr><span>Fragment</span><wbr><span><span>Serializer</span></span></a></div>
@@ -222,7 +222,7 @@
             </div>
           </div>
 <a data-name="2137485312%2FClasslikes%2F1626307724" anchor-label="JSCompactFragment" id="2137485312%2FClasslikes%2F1626307724" data-filterable-set=":core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-j-s-compact-fragment/index.html"><span>JSCompact</span><wbr><span><span>Fragment</span></span></a></div>
@@ -239,7 +239,7 @@
             </div>
           </div>
 <a data-name="-116583257%2FClasslikes%2F-910832118" anchor-label="XmlBoolean" id="-116583257%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-boolean/index.html"><span>Xml</span><wbr><span><span>Boolean</span></span></a></div>
@@ -254,7 +254,7 @@
             </div>
           </div>
 <a data-name="176001973%2FClasslikes%2F-910832118" anchor-label="XmlBooleanSerializer" id="176001973%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-boolean-serializer/index.html"><span>Xml</span><wbr><span>Boolean</span><wbr><span><span>Serializer</span></span></a></div>
@@ -269,7 +269,7 @@
             </div>
           </div>
 <a data-name="-834847198%2FClasslikes%2F-910832118" anchor-label="XmlDouble" id="-834847198%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-double/index.html"><span>Xml</span><wbr><span><span>Double</span></span></a></div>
@@ -284,7 +284,7 @@
             </div>
           </div>
 <a data-name="1311793008%2FClasslikes%2F-910832118" anchor-label="XmlDoubleSerializer" id="1311793008%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-double-serializer/index.html"><span>Xml</span><wbr><span>Double</span><wbr><span><span>Serializer</span></span></a></div>
@@ -299,7 +299,7 @@
             </div>
           </div>
 <a data-name="964743283%2FClasslikes%2F-910832118" anchor-label="XmlFloat" id="964743283%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-float/index.html"><span>Xml</span><wbr><span><span>Float</span></span></a></div>
@@ -314,7 +314,7 @@
             </div>
           </div>
 <a data-name="1275199617%2FClasslikes%2F-910832118" anchor-label="XmlFloatSerializer" id="1275199617%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-float-serializer/index.html"><span>Xml</span><wbr><span>Float</span><wbr><span><span>Serializer</span></span></a></div>
@@ -328,8 +328,8 @@
               </div>
             </div>
           </div>
-<a data-name="202919392%2FClasslikes%2F588233207" anchor-label="XMLFragmentStreamReader" id="202919392%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="202919392%2FClasslikes%2F588233207" anchor-label="XMLFragmentStreamReader" id="202919392%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-x-m-l-fragment-stream-reader/index.html"><span>XMLFragment</span><wbr><span>Stream</span><wbr><span><span>Reader</span></span></a></div>
@@ -340,13 +340,13 @@
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html">XmlDelegatingReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html">XmlDelegatingReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading. Created by pdvrieze on 04/11/15.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">text<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">wrapperNamespaceContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-iterable/index.html">Iterable</a><span class="token operator">&lt;</span><a href="../nl.adaptivity.xmlutil/-namespace/index.html">Namespace</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html">XmlDelegatingReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a> : <a href="../../core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader-java/index.html">XMLFragmentStreamReaderJava</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading. This avoids the restriction of xml that a document only has 1 document element.</p></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html">XmlDelegatingReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html">XmlDelegatingReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading. Created by pdvrieze on 04/11/15.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">text<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">wrapperNamespaceContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-iterable/index.html">Iterable</a><span class="token operator">&lt;</span><a href="../nl.adaptivity.xmlutil/-namespace/index.html">Namespace</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html">XmlDelegatingReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-x-m-l-fragment-stream-reader/index.html">XMLFragmentStreamReader</a> : <a href="../nl.adaptivity.xmlutil/-xml-delegating-reader/index.html#-1242892086%2FMain%2F-1116685823">XmlDelegatingReader</a>, <a href="../../core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader-java/index.html">XMLFragmentStreamReaderJava</a>, <a href="../nl.adaptivity.xmlutil/-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div><div class="brief "><p class="paragraph">This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading. This avoids the restriction of xml that a document only has 1 document element.</p></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-1741588095%2FClasslikes%2F-910832118" anchor-label="XmlOnlyBooleanSerializer" id="-1741588095%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-only-boolean-serializer/index.html"><span>Xml</span><wbr><span>Only</span><wbr><span>Boolean</span><wbr><span><span>Serializer</span></span></a></div>
@@ -361,7 +361,7 @@
             </div>
           </div>
 <a data-name="1388482596%2FClasslikes%2F-910832118" anchor-label="XmlOnlyDoubleSerializer" id="1388482596%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-only-double-serializer/index.html"><span>Xml</span><wbr><span>Only</span><wbr><span>Double</span><wbr><span><span>Serializer</span></span></a></div>
@@ -376,7 +376,7 @@
             </div>
           </div>
 <a data-name="-523441843%2FClasslikes%2F-910832118" anchor-label="XmlOnlyFloatSerializer" id="-523441843%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-only-float-serializer/index.html"><span>Xml</span><wbr><span>Only</span><wbr><span>Float</span><wbr><span><span>Serializer</span></span></a></div>
@@ -396,17 +396,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -1,22 +1,22 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>SafeParentInfo</title>
-<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
@@ -24,33 +24,31 @@
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../../scripts/prism.js" async></script>
-<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script>
-<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-<a class="library-name--link" href="../../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
                     xmlutil
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.2
+        <div class="library-version" id="library-version">0.91.3
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":serialization/commonMain">Common</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":serialization/commonMain">Common</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
@@ -64,45 +62,47 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     xmlutil
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
 <div class="main-content" data-page-type="classlike" id="content" pageids="serialization::nl.adaptivity.xmlutil.serialization.structure/SafeParentInfo///PointingToDeclaration//401532105">
   <div class="breadcrumbs"><a href="../../index.html">serialization</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil.serialization.structure</a><span class="delimiter">/</span><span class="current">SafeParentInfo</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Safe</span><wbr><span>Parent</span><wbr><span><span>Info</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">SafeParentInfo</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.14.2/serialization/src/commonMain/kotlin/nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor.kt#L1832">source</a>)</span></span></div><p class="paragraph">Interface that provides parent info that does provide actual access to the child. As such it is safe to be used to determine properties of the child.</p><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-parent-info/index.html">ParentInfo</a></div></span></div><div></div></div></div></div></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">SafeParentInfo</a><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="file:/home/pdvrieze/.gradle/daemon/8.14.3/serialization/src/commonMain/kotlin/nl/adaptivity/xmlutil/serialization/structure/XmlDescriptor.kt#L1832">source</a>)</span></span></div><p class="paragraph">Interface that provides parent info that does provide actual access to the child. As such it is safe to be used to determine properties of the child.</p><h4 class="tableheader">Inheritors</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-parent-info/index.html">ParentInfo</a></div></span></div><div></div></div></div></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
     <div class="tabs-section-body">
       <div data-togglable="PROPERTY">
-        <h2 class="">Properties</h2>
+        <h2 class="tableheader">Properties</h2>
         <div class="table"><a data-name="1042872722%2FProperties%2F401532105" anchor-label="descriptor" id="1042872722%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="descriptor.html"><span><span>descriptor</span></span></a></div>
@@ -117,7 +117,7 @@
             </div>
           </div>
 <a data-name="1634808090%2FProperties%2F401532105" anchor-label="elementSerialDescriptor" id="1634808090%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-serial-descriptor.html"><span>element</span><wbr><span>Serial</span><wbr><span><span>Descriptor</span></span></a></div>
@@ -132,7 +132,7 @@
             </div>
           </div>
 <a data-name="806259220%2FProperties%2F401532105" anchor-label="elementTypeDescriptor" id="806259220%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-type-descriptor.html"><span>element</span><wbr><span>Type</span><wbr><span><span>Descriptor</span></span></a></div>
@@ -147,7 +147,7 @@
             </div>
           </div>
 <a data-name="818047936%2FProperties%2F401532105" anchor-label="elementUseAnnotations" id="818047936%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-use-annotations.html"><span>element</span><wbr><span>Use</span><wbr><span><span>Annotations</span></span></a></div>
@@ -162,7 +162,7 @@
             </div>
           </div>
 <a data-name="-1307391299%2FProperties%2F401532105" anchor-label="elementUseNameInfo" id="-1307391299%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-use-name-info.html"><span>element</span><wbr><span>Use</span><wbr><span>Name</span><wbr><span><span>Info</span></span></a></div>
@@ -177,7 +177,7 @@
             </div>
           </div>
 <a data-name="-39397983%2FProperties%2F401532105" anchor-label="elementUseOutputKind" id="-39397983%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-use-output-kind.html"><span>element</span><wbr><span>Use</span><wbr><span>Output</span><wbr><span><span>Kind</span></span></a></div>
@@ -192,7 +192,7 @@
             </div>
           </div>
 <a data-name="-2042921401%2FProperties%2F401532105" anchor-label="index" id="-2042921401%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="--index--.html"><span><span>index</span></span></a></div>
@@ -207,7 +207,7 @@
             </div>
           </div>
 <a data-name="1871929310%2FProperties%2F401532105" anchor-label="namespace" id="1871929310%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="namespace.html"><span><span>namespace</span></span></a></div>
@@ -222,7 +222,7 @@
             </div>
           </div>
 <a data-name="-1180962437%2FProperties%2F401532105" anchor-label="overriddenSerializer" id="-1180962437%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="overridden-serializer.html"><span>overridden</span><wbr><span><span>Serializer</span></span></a></div>
@@ -237,7 +237,7 @@
             </div>
           </div>
 <a data-name="-445164140%2FProperties%2F401532105" anchor-label="parentIsInline" id="-445164140%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="parent-is-inline.html"><span>parent</span><wbr><span>Is</span><wbr><span><span>Inline</span></span></a></div>
@@ -252,7 +252,7 @@
             </div>
           </div>
 <a data-name="-590231305%2FProperties%2F401532105" anchor-label="useAnnAfter" id="-590231305%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-after.html"><span>use</span><wbr><span>Ann</span><wbr><span><span>After</span></span></a></div>
@@ -267,7 +267,7 @@
             </div>
           </div>
 <a data-name="988272712%2FProperties%2F401532105" anchor-label="useAnnBefore" id="988272712%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-before.html"><span>use</span><wbr><span>Ann</span><wbr><span><span>Before</span></span></a></div>
@@ -282,7 +282,7 @@
             </div>
           </div>
 <a data-name="-1101221562%2FProperties%2F401532105" anchor-label="useAnnCData" id="-1101221562%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-c-data.html"><span>use</span><wbr><span>Ann</span><wbr><span><span>CData</span></span></a></div>
@@ -297,7 +297,7 @@
             </div>
           </div>
 <a data-name="604012925%2FProperties%2F401532105" anchor-label="useAnnChildrenName" id="604012925%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-children-name.html"><span>use</span><wbr><span>Ann</span><wbr><span>Children</span><wbr><span><span>Name</span></span></a></div>
@@ -312,7 +312,7 @@
             </div>
           </div>
 <a data-name="-1292618062%2FProperties%2F401532105" anchor-label="useAnnDefault" id="-1292618062%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-default.html"><span>use</span><wbr><span>Ann</span><wbr><span><span>Default</span></span></a></div>
@@ -327,7 +327,7 @@
             </div>
           </div>
 <a data-name="580499288%2FProperties%2F401532105" anchor-label="useAnnIgnoreWhitespace" id="580499288%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-ignore-whitespace.html"><span>use</span><wbr><span>Ann</span><wbr><span>Ignore</span><wbr><span><span>Whitespace</span></span></a></div>
@@ -342,7 +342,7 @@
             </div>
           </div>
 <a data-name="-1025285599%2FProperties%2F401532105" anchor-label="useAnnIsElement" id="-1025285599%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-is-element.html"><span>use</span><wbr><span>Ann</span><wbr><span>Is</span><wbr><span><span>Element</span></span></a></div>
@@ -357,7 +357,7 @@
             </div>
           </div>
 <a data-name="1240073506%2FProperties%2F401532105" anchor-label="useAnnIsId" id="1240073506%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-is-id.html"><span>use</span><wbr><span>Ann</span><wbr><span>Is</span><wbr><span><span>Id</span></span></a></div>
@@ -372,7 +372,7 @@
             </div>
           </div>
 <a data-name="951153398%2FProperties%2F401532105" anchor-label="useAnnIsOtherAttributes" id="951153398%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-is-other-attributes.html"><span>use</span><wbr><span>Ann</span><wbr><span>Is</span><wbr><span>Other</span><wbr><span><span>Attributes</span></span></a></div>
@@ -387,7 +387,7 @@
             </div>
           </div>
 <a data-name="-426105524%2FProperties%2F401532105" anchor-label="useAnnIsValue" id="-426105524%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-is-value.html"><span>use</span><wbr><span>Ann</span><wbr><span>Is</span><wbr><span><span>Value</span></span></a></div>
@@ -402,7 +402,7 @@
             </div>
           </div>
 <a data-name="-1251386487%2FProperties%2F401532105" anchor-label="useAnnKeyName" id="-1251386487%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-key-name.html"><span>use</span><wbr><span>Ann</span><wbr><span>Key</span><wbr><span><span>Name</span></span></a></div>
@@ -417,7 +417,7 @@
             </div>
           </div>
 <a data-name="1291188838%2FProperties%2F401532105" anchor-label="useAnnMapEntryName" id="1291188838%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-map-entry-name.html"><span>use</span><wbr><span>Ann</span><wbr><span>Map</span><wbr><span>Entry</span><wbr><span><span>Name</span></span></a></div>
@@ -432,7 +432,7 @@
             </div>
           </div>
 <a data-name="-950626289%2FProperties%2F401532105" anchor-label="useAnnNsDecls" id="-950626289%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-ns-decls.html"><span>use</span><wbr><span>Ann</span><wbr><span>Ns</span><wbr><span><span>Decls</span></span></a></div>
@@ -447,7 +447,7 @@
             </div>
           </div>
 <a data-name="953848796%2FProperties%2F401532105" anchor-label="useAnnPolyChildren" id="953848796%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-poly-children.html"><span>use</span><wbr><span>Ann</span><wbr><span>Poly</span><wbr><span><span>Children</span></span></a></div>
@@ -462,7 +462,7 @@
             </div>
           </div>
 <a data-name="557981693%2FProperties%2F401532105" anchor-label="useAnnXmlSerialName" id="557981693%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="use-ann-xml-serial-name.html"><span>use</span><wbr><span>Ann</span><wbr><span>Xml</span><wbr><span>Serial</span><wbr><span><span>Name</span></span></a></div>
@@ -479,9 +479,9 @@
         </div>
       </div>
       <div data-togglable="FUNCTION">
-        <h2 class="">Functions</h2>
+        <h2 class="tableheader">Functions</h2>
         <div class="table"><a data-name="-134094023%2FFunctions%2F401532105" anchor-label="copy" id="-134094023%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="copy.html"><span><span>copy</span></span></a></div>
@@ -496,7 +496,7 @@
             </div>
           </div>
 <a data-name="1381727634%2FFunctions%2F401532105" anchor-label="maybeOverrideSerializer" id="1381727634%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
-          <div class="table-row" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="maybe-override-serializer.html"><span>maybe</span><wbr><span>Override</span><wbr><span><span>Serializer</span></span></a></div>
@@ -516,17 +516,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

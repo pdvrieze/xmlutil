@@ -1,22 +1,22 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>IXmlStreaming</title>
-<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
@@ -24,35 +24,34 @@
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../../scripts/prism.js" async></script>
-<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script>
-<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-<a class="library-name--link" href="../../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
                     xmlutil
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.2
+        <div class="library-version" id="library-version">0.91.3
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonDomMain">Native</button>
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonMain">Common</button>
-                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":core/jsMain">JS</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true" data-filter=":core/jsMain">JS</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmCommonMain">JVM</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
@@ -77,35 +76,44 @@
                                 JS
                             </label>
                         </li>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/jvmCommonMain" data-filter=":core/jvmCommonMain">
+                                <span class="checkbox--icon"></span>
+                                JVM
+                            </label>
+                        </li>
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     xmlutil
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
 <div class="main-content" data-page-type="classlike" id="content" pageids="core::nl.adaptivity.xmlutil/IXmlStreaming///PointingToDeclaration//-910832118">
   <div class="breadcrumbs"><a href="../../index.html">core</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil</a><span class="delimiter">/</span><span class="current">IXmlStreaming</span></div>
   <div class="cover ">
@@ -116,9 +124,9 @@
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
     <div class="tabs-section-body">
       <div data-togglable="PROPERTY">
-        <h2 class="">Properties</h2>
+        <h2 class="tableheader">Properties</h2>
         <div class="table"><a data-name="-55671344%2FProperties%2F-910832118" anchor-label="genericDomImplementation" id="-55671344%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="generic-dom-implementation.html"><span>generic</span><wbr><span>Dom</span><wbr><span><span>Implementation</span></span></a></div>
@@ -132,12 +140,29 @@
               </div>
             </div>
           </div>
+<a data-name="351949132%2FProperties%2F-1116685823" anchor-label="genericFactory" id="351949132%2FProperties%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../generic-factory.html"><span>generic</span><wbr><span><span>Factory</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="351949132%2FProperties%2F-1116685823"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-active="" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../generic-factory.html">genericFactory</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-streaming/-generic-factory/index.html">XmlStreaming.GenericFactory</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div data-togglable="FUNCTION">
-        <h2 class="">Functions</h2>
+        <h2 class="tableheader">Functions</h2>
         <div class="table"><a data-name="-378654666%2FFunctions%2F-910832118" anchor-label="newGenericReader" id="-378654666%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="new-generic-reader.html"><span>new</span><wbr><span>Generic</span><wbr><span><span>Reader</span></span></a></div>
@@ -151,8 +176,25 @@
               </div>
             </div>
           </div>
+<a data-name="-1493182975%2FFunctions%2F-1116685823" anchor-label="newGenericReader" id="-1493182975%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../new-generic-reader.html"><span>new</span><wbr><span>Generic</span><wbr><span><span>Reader</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1493182975%2FFunctions%2F-1116685823"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-active="" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-generic-reader.html"><span class="token function">newGenericReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/InputStream.html">InputStream</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 <a data-name="449106012%2FFunctions%2F-910832118" anchor-label="newGenericWriter" id="449106012%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="../new-generic-writer.html"><span>new</span><wbr><span>Generic</span><wbr><span><span>Writer</span></span></a></div>
@@ -167,7 +209,7 @@
             </div>
           </div>
 <a data-name="360459594%2FFunctions%2F-910832118" anchor-label="newReader" id="360459594%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="new-reader.html"><span>new</span><wbr><span><span>Reader</span></span></a></div>
@@ -181,25 +223,25 @@
               </div>
             </div>
           </div>
-<a data-name="-1866875351%2FFunctions%2F1626307724" anchor-label="newReader" id="-1866875351%2FFunctions%2F1626307724" data-filterable-set=":core/jsMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+<a data-name="-694172311%2FFunctions%2F-1023227135" anchor-label="newReader" id="-694172311%2FFunctions%2F-1023227135" data-filterable-set=":core/jvmCommonMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain,:core/jsMain" data-filterable-set=":core/jvmCommonMain,:core/jsMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="../new-reader.html"><span>new</span><wbr><span><span>Reader</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1866875351%2FFunctions%2F1626307724"></span>
+                  <div><a href="../../../core/nl.adaptivity.xmlutil/index.html"><span>new</span><wbr><span><span>Reader</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-694172311%2FFunctions%2F-1023227135"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-dom-reader/index.html">DomReader</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../[-j-s]new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-dom-reader/index.html">DomReader</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/InputStream.html">InputStream</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../[-j-v-m]new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="526795214%2FFunctions%2F-910832118" anchor-label="newWriter" id="526795214%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="new-writer.html"><span>new</span><wbr><span><span>Writer</span></span></a></div>
@@ -213,25 +255,25 @@
               </div>
             </div>
           </div>
-<a data-name="1298882907%2FFunctions%2F-1559073322" anchor-label="newWriter" id="1298882907%2FFunctions%2F-1559073322" data-filterable-set=":core/jsMain,:core/commonMain,:core/commonDomMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jsMain,:core/commonMain,:core/commonDomMain" data-filterable-set=":core/jsMain,:core/commonMain,:core/commonDomMain">
+<a data-name="1601705236%2FFunctions%2F588233207" anchor-label="newWriter" id="1601705236%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="../new-writer.html"><span>new</span><wbr><span><span>Writer</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1298882907%2FFunctions%2F-1559073322"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1601705236%2FFunctions%2F588233207"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">dest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-parent-node/index.html">ParentNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">dest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-parent-node/index.html">ParentNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Writer.html">Writer</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="../new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-654601199%2FFunctions%2F-910832118" anchor-label="setFactory" id="-654601199%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="set-factory.html"><span>set</span><wbr><span><span>Factory</span></span></a></div>
@@ -251,17 +293,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

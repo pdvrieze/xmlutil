@@ -1,22 +1,22 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>nl.adaptivity.xmlutil.dom</title>
-<link href="../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+<link href="../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async></script>
@@ -24,36 +24,34 @@
 <link href="../../styles/main.css" rel="Stylesheet">
 <link href="../../styles/prism.css" rel="Stylesheet">
 <link href="../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../scripts/prism.js" async></script>
-<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer></script>
-<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-<a class="library-name--link" href="../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../index.html" tabindex="1">
                     xmlutil
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.2
+        <div class="library-version" id="library-version">0.91.3
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonDomMain">Native</button>
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonMain">Common</button>
-                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":core/jsMain">JS</button>
-                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":core/jvmCommonMain">JVM</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true" data-filter=":core/jsMain">JS</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmCommonMain">JVM</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
@@ -88,32 +86,34 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     xmlutil
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
 <div class="main-content" data-page-type="package" id="content" pageids="core::nl.adaptivity.xmlutil.dom////PointingToDeclaration//588233207">
   <div class="breadcrumbs"><a href="../index.html">core</a><span class="delimiter">/</span><span class="current">nl.adaptivity.xmlutil.dom</span></div>
   <div class="cover ">
@@ -123,128 +123,128 @@
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button><button class="section-tab" data-togglable="FUNCTION,EXTENSION_FUNCTION">Functions</button><button class="section-tab" data-togglable="PROPERTY,EXTENSION_PROPERTY">Properties</button></div>
     <div class="tabs-section-body">
       <div data-togglable="TYPE">
-        <h2 class="">Types</h2>
-        <div class="table"><a data-name="-1526266209%2FClasslikes%2F-651539368" anchor-label="Attr" id="-1526266209%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+        <h2 class="tableheader">Types</h2>
+        <div class="table"><a data-name="-1526266209%2FClasslikes%2F429495989" anchor-label="Attr" id="-1526266209%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-attr/index.html"><span><span>Attr</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1526266209%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-attr/index.html"><span><span>Attr</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1526266209%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-attr/index.html">Attr</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-attr/index.html">Attr</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-attr/index.html">Attr</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-attr/index.html">Attr</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-attr/index.html">Attr</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-attr/index.html">org.w3c.dom.Attr</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="13433816%2FClasslikes%2F-651539368" anchor-label="CDATASection" id="13433816%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="13433816%2FClasslikes%2F429495989" anchor-label="CDATASection" id="13433816%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-c-d-a-t-a-section/index.html"><span><span>CDATASection</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="13433816%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-c-d-a-t-a-section/index.html"><span><span>CDATASection</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="13433816%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-c-d-a-t-a-section/index.html">CDATASection</a> : <a href="[-native, -j-s]-text/index.html">Text</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-c-d-a-t-a-section/index.html">CDATASection</a> : <a href="[-native, -j-s]-text/index.html">Text</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-c-d-a-t-a-section/index.html">CDATASection</a> : <a href="[-native, -j-s]-text/index.html">Text</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-c-d-a-t-a-section/index.html">CDATASection</a> : <a href="[-native, -j-s]-text/index.html">Text</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-c-d-a-t-a-section/index.html">CDATASection</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-c-d-a-t-a-section/index.html">org.w3c.dom.CDATASection</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="608721087%2FClasslikes%2F-651539368" anchor-label="CharacterData" id="608721087%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="608721087%2FClasslikes%2F429495989" anchor-label="CharacterData" id="608721087%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-character-data/index.html"><span>Character</span><wbr><span><span>Data</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="608721087%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-character-data/index.html"><span>Character</span><wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="608721087%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-character-data/index.html">CharacterData</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-character-data/index.html">CharacterData</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-character-data/index.html">CharacterData</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-character-data/index.html">CharacterData</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-character-data/index.html">CharacterData</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-character-data/index.html">org.w3c.dom.CharacterData</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="936696595%2FClasslikes%2F-651539368" anchor-label="Comment" id="936696595%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="936696595%2FClasslikes%2F429495989" anchor-label="Comment" id="936696595%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-comment/index.html"><span><span>Comment</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="936696595%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-comment/index.html"><span><span>Comment</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="936696595%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-comment/index.html">Comment</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-comment/index.html">Comment</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-comment/index.html">Comment</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-comment/index.html">Comment</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-comment/index.html">Comment</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-comment/index.html">org.w3c.dom.Comment</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-315696331%2FClasslikes%2F-651539368" anchor-label="Document" id="-315696331%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="-315696331%2FClasslikes%2F429495989" anchor-label="Document" id="-315696331%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-document/index.html"><span><span>Document</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-315696331%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-document/index.html"><span><span>Document</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-315696331%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document/index.html">Document</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document/index.html">Document</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document/index.html">Document</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document/index.html">Document</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-document/index.html">Document</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-document/index.html">org.w3c.dom.Document</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1730318651%2FClasslikes%2F-651539368" anchor-label="DocumentFragment" id="-1730318651%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="-1730318651%2FClasslikes%2F429495989" anchor-label="DocumentFragment" id="-1730318651%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-document-fragment/index.html"><span>Document</span><wbr><span><span>Fragment</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1730318651%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-document-fragment/index.html"><span>Document</span><wbr><span><span>Fragment</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1730318651%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-fragment/index.html">DocumentFragment</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-fragment/index.html">DocumentFragment</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-fragment/index.html">DocumentFragment</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-fragment/index.html">DocumentFragment</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-document-fragment/index.html">DocumentFragment</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-document-fragment/index.html">org.w3c.dom.DocumentFragment</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="752176923%2FClasslikes%2F-651539368" anchor-label="DocumentType" id="752176923%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="752176923%2FClasslikes%2F429495989" anchor-label="DocumentType" id="752176923%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-document-type/index.html"><span>Document</span><wbr><span><span>Type</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="752176923%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-document-type/index.html"><span>Document</span><wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="752176923%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-type/index.html">DocumentType</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-type/index.html">DocumentType</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-type/index.html">DocumentType</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-document-type/index.html">DocumentType</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-document-type/index.html">DocumentType</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-document-type/index.html">org.w3c.dom.DocumentType</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-442838045%2FClasslikes%2F-1905896616" anchor-label="DOMException" id="-442838045%2FClasslikes%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-d-o-m-exception/index.html"><span><span>DOMException</span></span></a></div>
@@ -260,76 +260,76 @@
               </div>
             </div>
           </div>
-<a data-name="940670014%2FClasslikes%2F-651539368" anchor-label="DOMImplementation" id="940670014%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="940670014%2FClasslikes%2F429495989" anchor-label="DOMImplementation" id="940670014%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-d-o-m-implementation/index.html"><span><span>DOMImplementation</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="940670014%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-d-o-m-implementation/index.html"><span><span>DOMImplementation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="940670014%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-d-o-m-implementation/index.html">DOMImplementation</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-d-o-m-implementation/index.html">DOMImplementation</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-d-o-m-implementation/index.html">DOMImplementation</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-d-o-m-implementation/index.html">DOMImplementation</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-d-o-m-implementation/index.html">DOMImplementation</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-d-o-m-implementation/index.html">org.w3c.dom.DOMImplementation</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="68527382%2FClasslikes%2F-651539368" anchor-label="Element" id="68527382%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="68527382%2FClasslikes%2F429495989" anchor-label="Element" id="68527382%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-element/index.html"><span><span>Element</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="68527382%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-element/index.html"><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="68527382%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-element/index.html">Element</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-element/index.html">Element</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-element/index.html">Element</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-element/index.html">Element</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-element/index.html">Element</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-element/index.html">org.w3c.dom.Element</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1016327439%2FClasslikes%2F-651539368" anchor-label="NamedNodeMap" id="1016327439%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="1016327439%2FClasslikes%2F429495989" anchor-label="NamedNodeMap" id="1016327439%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-named-node-map/index.html"><span>Named</span><wbr><span>Node</span><wbr><span><span>Map</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1016327439%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-named-node-map/index.html"><span>Named</span><wbr><span>Node</span><wbr><span><span>Map</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1016327439%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-named-node-map/index.html">NamedNodeMap</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-named-node-map/index.html">NamedNodeMap</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-named-node-map/index.html">NamedNodeMap</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-named-node-map/index.html">NamedNodeMap</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-named-node-map/index.html">NamedNodeMap</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-named-node-map/index.html">org.w3c.dom.NamedNodeMap</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1558591406%2FClasslikes%2F-651539368" anchor-label="Node" id="1558591406%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="1558591406%2FClasslikes%2F429495989" anchor-label="Node" id="1558591406%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-node/index.html"><span><span>Node</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1558591406%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-node/index.html"><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1558591406%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-node/index.html">Node</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">org.w3c.dom.Node</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-1568299426%2FClasslikes%2F-910832118" anchor-label="NodeConsts" id="-1568299426%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-node-consts/index.html"><span>Node</span><wbr><span><span>Consts</span></span></a></div>
@@ -343,53 +343,53 @@
               </div>
             </div>
           </div>
-<a data-name="1883717168%2FClasslikes%2F1626307724" anchor-label="NodeList" id="1883717168%2FClasslikes%2F1626307724" data-filterable-set=":core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+<a data-name="1883717168%2FClasslikes%2F-1023227135" anchor-label="NodeList" id="1883717168%2FClasslikes%2F-1023227135" data-filterable-set=":core/jvmCommonMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jvmCommonMain,:core/jsMain" data-filterable-set=":core/jvmCommonMain,:core/jsMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-j-s]-node-list/index.html"><span>Node</span><wbr><span><span>List</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1883717168%2FClasslikes%2F1626307724"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-j-s]-node-list/index.html"><span>Node</span><wbr><span><span>List</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1883717168%2FClasslikes%2F-1023227135"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-j-s]-node-list/index.html">NodeList</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-j-s]-node-list/index.html">NodeList</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-node-list/index.html">NodeList</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node-list/index.html">org.w3c.dom.NodeList</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-657721417%2FClasslikes%2F-651539368" anchor-label="ProcessingInstruction" id="-657721417%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="-657721417%2FClasslikes%2F429495989" anchor-label="ProcessingInstruction" id="-657721417%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-processing-instruction/index.html"><span>Processing</span><wbr><span><span>Instruction</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-657721417%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-processing-instruction/index.html"><span>Processing</span><wbr><span><span>Instruction</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-657721417%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-processing-instruction/index.html">ProcessingInstruction</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-processing-instruction/index.html">ProcessingInstruction</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-processing-instruction/index.html">ProcessingInstruction</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-processing-instruction/index.html">ProcessingInstruction</a> : <a href="[-native, -j-s]-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-processing-instruction/index.html">ProcessingInstruction</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-processing-instruction/index.html">org.w3c.dom.ProcessingInstruction</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-2102626589%2FClasslikes%2F-651539368" anchor-label="Text" id="-2102626589%2FClasslikes%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+<a data-name="-2102626589%2FClasslikes%2F429495989" anchor-label="Text" id="-2102626589%2FClasslikes%2F429495989" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="[-native, -j-s]-text/index.html"><span><span>Text</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2102626589%2FClasslikes%2F-651539368"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil.dom/[-native, -j-s]-text/index.html"><span><span>Text</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2102626589%2FClasslikes%2F429495989"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
-                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-text/index.html">Text</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-text/index.html">Text</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div>                  </div>
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="[-native, -j-s]-text/index.html">Text</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="[-native, -j-s]-text/index.html">Text</a> : <a href="[-native, -j-s]-character-data/index.html">CharacterData</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-text/index.html">Text</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-text/index.html">org.w3c.dom.Text</a></div></div>                  </div>
                 </div>
               </div>
             </div>
@@ -397,9 +397,9 @@
         </div>
       </div>
       <div data-togglable="EXTENSION_PROPERTY">
-        <h2 class="">Properties</h2>
+        <h2 class="tableheader">Properties</h2>
         <div class="table"><a data-name="1378316433%2FProperties%2F-910832118" anchor-label="characterSet" id="1378316433%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="character-set.html"><span>character</span><wbr><span><span>Set</span></span></a></div>
@@ -413,8 +413,8 @@
               </div>
             </div>
           </div>
-<a data-name="1517871615%2FProperties%2F588233207" anchor-label="supportsWhitespaceAtToplevel" id="1517871615%2FProperties%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1517871615%2FProperties%2F588233207" anchor-label="supportsWhitespaceAtToplevel" id="1517871615%2FProperties%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="supports-whitespace-at-toplevel.html"><span>supports</span><wbr><span>Whitespace</span><wbr><span>At</span><wbr><span><span>Toplevel</span></span></a></div>
@@ -433,26 +433,26 @@
         </div>
       </div>
       <div data-togglable="EXTENSION_FUNCTION">
-        <h2 class="">Functions</h2>
-        <div class="table"><a data-name="931923589%2FFunctions%2F588233207" anchor-label="adoptNode" id="931923589%2FFunctions%2F588233207" data-filterable-set=":core/jvmCommonMain,:core/commonMain,:core/commonDomMain,:core/jsMain"></a>
-          <div class="table-row" data-filterable-current=":core/jvmCommonMain,:core/commonMain,:core/commonDomMain,:core/jsMain" data-filterable-set=":core/jvmCommonMain,:core/commonMain,:core/commonDomMain,:core/jsMain">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-722917981%2FFunctions%2F588233207" anchor-label="adoptNode" id="-722917981%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="adopt-node.html"><span>adopt</span><wbr><span><span>Node</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="931923589%2FFunctions%2F588233207"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-722917981%2FFunctions%2F588233207"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="[-native, -j-s]-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="[-native, -j-s]-node/index.html#1558591406%2FMain%2F-910832118">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="[-native, -j-s]-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="[-native, -j-s]-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="[-native, -j-s]-node/index.html#1558591406%2FMain%2F-910832118">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="[-native, -j-s]-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../nl.adaptivity.xmlutil.dom2/-document/index.html#770470987%2FMain%2F-1116685823">Document</a><span class="token punctuation">.</span><a href="adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-2140712884%2FFunctions%2F588233207" anchor-label="appendChild" id="-2140712884%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-2140712884%2FFunctions%2F588233207" anchor-label="appendChild" id="-2140712884%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="append-child.html"><span>append</span><wbr><span><span>Child</span></span></a></div>
@@ -468,8 +468,8 @@
               </div>
             </div>
           </div>
-<a data-name="1113577263%2FFunctions%2F588233207" anchor-label="createCDATASection" id="1113577263%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1113577263%2FFunctions%2F588233207" anchor-label="createCDATASection" id="1113577263%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-c-d-a-t-a-section.html"><span>create</span><wbr><span><span>CDATASection</span></span></a></div>
@@ -485,8 +485,8 @@
               </div>
             </div>
           </div>
-<a data-name="1500788377%2FFunctions%2F588233207" anchor-label="createComment" id="1500788377%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1500788377%2FFunctions%2F588233207" anchor-label="createComment" id="1500788377%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-comment.html"><span>create</span><wbr><span><span>Comment</span></span></a></div>
@@ -503,7 +503,7 @@
             </div>
           </div>
 <a data-name="-334357636%2FFunctions%2F-910832118" anchor-label="createDocument" id="-334357636%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-document.html"><span>create</span><wbr><span><span>Document</span></span></a></div>
@@ -517,8 +517,8 @@
               </div>
             </div>
           </div>
-<a data-name="177079607%2FFunctions%2F588233207" anchor-label="createDocumentFragment" id="177079607%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="177079607%2FFunctions%2F588233207" anchor-label="createDocumentFragment" id="177079607%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-document-fragment.html"><span>create</span><wbr><span>Document</span><wbr><span><span>Fragment</span></span></a></div>
@@ -534,8 +534,8 @@
               </div>
             </div>
           </div>
-<a data-name="-550395373%2FFunctions%2F588233207" anchor-label="createElement" id="-550395373%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-550395373%2FFunctions%2F588233207" anchor-label="createElement" id="-550395373%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-element.html"><span>create</span><wbr><span><span>Element</span></span></a></div>
@@ -551,8 +551,8 @@
               </div>
             </div>
           </div>
-<a data-name="1265414247%2FFunctions%2F588233207" anchor-label="createElementNS" id="1265414247%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1265414247%2FFunctions%2F588233207" anchor-label="createElementNS" id="1265414247%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-element-n-s.html"><span>create</span><wbr><span>Element</span><wbr><span><span>NS</span></span></a></div>
@@ -568,8 +568,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1275701669%2FFunctions%2F588233207" anchor-label="createProcessingInstruction" id="-1275701669%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1275701669%2FFunctions%2F588233207" anchor-label="createProcessingInstruction" id="-1275701669%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-processing-instruction.html"><span>create</span><wbr><span>Processing</span><wbr><span><span>Instruction</span></span></a></div>
@@ -585,8 +585,8 @@
               </div>
             </div>
           </div>
-<a data-name="1629954255%2FFunctions%2F588233207" anchor-label="createTextNode" id="1629954255%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1629954255%2FFunctions%2F588233207" anchor-label="createTextNode" id="1629954255%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="create-text-node.html"><span>create</span><wbr><span>Text</span><wbr><span><span>Node</span></span></a></div>
@@ -603,7 +603,7 @@
             </div>
           </div>
 <a data-name="-417466997%2FFunctions%2F-910832118" anchor-label="get" id="-417466997%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get.html"><span><span>get</span></span></a></div>
@@ -617,8 +617,8 @@
               </div>
             </div>
           </div>
-<a data-name="-808923765%2FFunctions%2F588233207" anchor-label="getAttributes" id="-808923765%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-808923765%2FFunctions%2F588233207" anchor-label="getAttributes" id="-808923765%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-attributes.html"><span>get</span><wbr><span><span>Attributes</span></span></a></div>
@@ -634,8 +634,8 @@
               </div>
             </div>
           </div>
-<a data-name="661377225%2FFunctions%2F588233207" anchor-label="getChildNodes" id="661377225%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="661377225%2FFunctions%2F588233207" anchor-label="getChildNodes" id="661377225%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-child-nodes.html"><span>get</span><wbr><span>Child</span><wbr><span><span>Nodes</span></span></a></div>
@@ -651,8 +651,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1437803646%2FFunctions%2F588233207" anchor-label="getData" id="-1437803646%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1437803646%2FFunctions%2F588233207" anchor-label="getData" id="-1437803646%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-data.html"><span>get</span><wbr><span><span>Data</span></span></a></div>
@@ -668,8 +668,8 @@
               </div>
             </div>
           </div>
-<a data-name="459018765%2FFunctions%2F588233207" anchor-label="getDoctype" id="459018765%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="459018765%2FFunctions%2F588233207" anchor-label="getDoctype" id="459018765%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-doctype.html"><span>get</span><wbr><span><span>Doctype</span></span></a></div>
@@ -685,8 +685,8 @@
               </div>
             </div>
           </div>
-<a data-name="1453177263%2FFunctions%2F588233207" anchor-label="getDocumentElement" id="1453177263%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1453177263%2FFunctions%2F588233207" anchor-label="getDocumentElement" id="1453177263%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-document-element.html"><span>get</span><wbr><span>Document</span><wbr><span><span>Element</span></span></a></div>
@@ -702,8 +702,8 @@
               </div>
             </div>
           </div>
-<a data-name="-331018775%2FFunctions%2F588233207" anchor-label="getFirstChild" id="-331018775%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-331018775%2FFunctions%2F588233207" anchor-label="getFirstChild" id="-331018775%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-first-child.html"><span>get</span><wbr><span>First</span><wbr><span><span>Child</span></span></a></div>
@@ -719,8 +719,8 @@
               </div>
             </div>
           </div>
-<a data-name="-658193399%2FFunctions%2F588233207" anchor-label="getImplementation" id="-658193399%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-658193399%2FFunctions%2F588233207" anchor-label="getImplementation" id="-658193399%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-implementation.html"><span>get</span><wbr><span><span>Implementation</span></span></a></div>
@@ -736,8 +736,8 @@
               </div>
             </div>
           </div>
-<a data-name="-365293129%2FFunctions%2F588233207" anchor-label="getInputEncoding" id="-365293129%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-365293129%2FFunctions%2F588233207" anchor-label="getInputEncoding" id="-365293129%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-input-encoding.html"><span>get</span><wbr><span>Input</span><wbr><span><span>Encoding</span></span></a></div>
@@ -753,8 +753,8 @@
               </div>
             </div>
           </div>
-<a data-name="-728536141%2FFunctions%2F588233207" anchor-label="getLastChild" id="-728536141%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-728536141%2FFunctions%2F588233207" anchor-label="getLastChild" id="-728536141%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-last-child.html"><span>get</span><wbr><span>Last</span><wbr><span><span>Child</span></span></a></div>
@@ -770,8 +770,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1916175958%2FFunctions%2F588233207" anchor-label="getLength" id="-1916175958%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1916175958%2FFunctions%2F588233207" anchor-label="getLength" id="-1916175958%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-length.html"><span>get</span><wbr><span><span>Length</span></span></a></div>
@@ -787,8 +787,8 @@
               </div>
             </div>
           </div>
-<a data-name="1403203314%2FFunctions%2F588233207" anchor-label="getLocalName" id="1403203314%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1403203314%2FFunctions%2F588233207" anchor-label="getLocalName" id="1403203314%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-local-name.html"><span>get</span><wbr><span>Local</span><wbr><span><span>Name</span></span></a></div>
@@ -804,8 +804,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1900227991%2FFunctions%2F588233207" anchor-label="getName" id="-1900227991%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1900227991%2FFunctions%2F588233207" anchor-label="getName" id="-1900227991%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-name.html"><span>get</span><wbr><span><span>Name</span></span></a></div>
@@ -821,8 +821,8 @@
               </div>
             </div>
           </div>
-<a data-name="576921804%2FFunctions%2F588233207" anchor-label="getNamespaceURI" id="576921804%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="576921804%2FFunctions%2F588233207" anchor-label="getNamespaceURI" id="576921804%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-namespace-u-r-i.html"><span>get</span><wbr><span>Namespace</span><wbr><span><span>URI</span></span></a></div>
@@ -838,8 +838,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1059607391%2FFunctions%2F588233207" anchor-label="getNextSibling" id="-1059607391%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1059607391%2FFunctions%2F588233207" anchor-label="getNextSibling" id="-1059607391%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-next-sibling.html"><span>get</span><wbr><span>Next</span><wbr><span><span>Sibling</span></span></a></div>
@@ -855,8 +855,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1195832759%2FFunctions%2F588233207" anchor-label="getNodeName" id="-1195832759%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1195832759%2FFunctions%2F588233207" anchor-label="getNodeName" id="-1195832759%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-node-name.html"><span>get</span><wbr><span>Node</span><wbr><span><span>Name</span></span></a></div>
@@ -872,8 +872,8 @@
               </div>
             </div>
           </div>
-<a data-name="1511574569%2FFunctions%2F588233207" anchor-label="getNodeType" id="1511574569%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1511574569%2FFunctions%2F588233207" anchor-label="getNodeType" id="1511574569%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-node-type.html"><span>get</span><wbr><span>Node</span><wbr><span><span>Type</span></span></a></div>
@@ -889,8 +889,8 @@
               </div>
             </div>
           </div>
-<a data-name="817499555%2FFunctions%2F588233207" anchor-label="getOwnerDocument" id="817499555%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="817499555%2FFunctions%2F588233207" anchor-label="getOwnerDocument" id="817499555%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-owner-document.html"><span>get</span><wbr><span>Owner</span><wbr><span><span>Document</span></span></a></div>
@@ -906,8 +906,8 @@
               </div>
             </div>
           </div>
-<a data-name="1842766377%2FFunctions%2F588233207" anchor-label="getOwnerElement" id="1842766377%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1842766377%2FFunctions%2F588233207" anchor-label="getOwnerElement" id="1842766377%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-owner-element.html"><span>get</span><wbr><span>Owner</span><wbr><span><span>Element</span></span></a></div>
@@ -924,7 +924,7 @@
             </div>
           </div>
 <a data-name="1413613909%2FFunctions%2F-910832118" anchor-label="getParentElement" id="1413613909%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-parent-element.html"><span>get</span><wbr><span>Parent</span><wbr><span><span>Element</span></span></a></div>
@@ -938,8 +938,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1036231191%2FFunctions%2F588233207" anchor-label="getParentNode" id="-1036231191%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1036231191%2FFunctions%2F588233207" anchor-label="getParentNode" id="-1036231191%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-parent-node.html"><span>get</span><wbr><span>Parent</span><wbr><span><span>Node</span></span></a></div>
@@ -955,8 +955,8 @@
               </div>
             </div>
           </div>
-<a data-name="1718703948%2FFunctions%2F588233207" anchor-label="getPrefix" id="1718703948%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1718703948%2FFunctions%2F588233207" anchor-label="getPrefix" id="1718703948%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-prefix.html"><span>get</span><wbr><span><span>Prefix</span></span></a></div>
@@ -972,8 +972,8 @@
               </div>
             </div>
           </div>
-<a data-name="1587981225%2FFunctions%2F588233207" anchor-label="getPreviousSibling" id="1587981225%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1587981225%2FFunctions%2F588233207" anchor-label="getPreviousSibling" id="1587981225%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-previous-sibling.html"><span>get</span><wbr><span>Previous</span><wbr><span><span>Sibling</span></span></a></div>
@@ -989,8 +989,8 @@
               </div>
             </div>
           </div>
-<a data-name="1924674031%2FFunctions%2F588233207" anchor-label="getTagName" id="1924674031%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1924674031%2FFunctions%2F588233207" anchor-label="getTagName" id="1924674031%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-tag-name.html"><span>get</span><wbr><span>Tag</span><wbr><span><span>Name</span></span></a></div>
@@ -1006,8 +1006,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1918175299%2FFunctions%2F588233207" anchor-label="getTarget" id="-1918175299%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1918175299%2FFunctions%2F588233207" anchor-label="getTarget" id="-1918175299%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-target.html"><span>get</span><wbr><span><span>Target</span></span></a></div>
@@ -1023,8 +1023,8 @@
               </div>
             </div>
           </div>
-<a data-name="913510567%2FFunctions%2F588233207" anchor-label="getTextContent" id="913510567%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="913510567%2FFunctions%2F588233207" anchor-label="getTextContent" id="913510567%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-text-content.html"><span>get</span><wbr><span>Text</span><wbr><span><span>Content</span></span></a></div>
@@ -1040,8 +1040,8 @@
               </div>
             </div>
           </div>
-<a data-name="-2083081605%2FFunctions%2F588233207" anchor-label="getValue" id="-2083081605%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-2083081605%2FFunctions%2F588233207" anchor-label="getValue" id="-2083081605%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-value.html"><span>get</span><wbr><span><span>Value</span></span></a></div>
@@ -1058,7 +1058,7 @@
             </div>
           </div>
 <a data-name="-777400479%2FFunctions%2F-910832118" anchor-label="importNode" id="-777400479%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="import-node.html"><span>import</span><wbr><span><span>Node</span></span></a></div>
@@ -1073,7 +1073,7 @@
             </div>
           </div>
 <a data-name="-1642782985%2FFunctions%2F-910832118" anchor-label="iterator" id="-1642782985%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="iterator.html"><span><span>iterator</span></span></a></div>
@@ -1087,8 +1087,8 @@
               </div>
             </div>
           </div>
-<a data-name="-666138484%2FFunctions%2F588233207" anchor-label="removeChild" id="-666138484%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-666138484%2FFunctions%2F588233207" anchor-label="removeChild" id="-666138484%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="remove-child.html"><span>remove</span><wbr><span><span>Child</span></span></a></div>
@@ -1104,8 +1104,8 @@
               </div>
             </div>
           </div>
-<a data-name="1930281551%2FFunctions%2F588233207" anchor-label="replaceChild" id="1930281551%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1930281551%2FFunctions%2F588233207" anchor-label="replaceChild" id="1930281551%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="replace-child.html"><span>replace</span><wbr><span><span>Child</span></span></a></div>
@@ -1121,8 +1121,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1451195300%2FFunctions%2F588233207" anchor-label="setData" id="-1451195300%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1451195300%2FFunctions%2F588233207" anchor-label="setData" id="-1451195300%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="set-data.html"><span>set</span><wbr><span><span>Data</span></span></a></div>
@@ -1138,8 +1138,8 @@
               </div>
             </div>
           </div>
-<a data-name="967670095%2FFunctions%2F588233207" anchor-label="setValue" id="967670095%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="967670095%2FFunctions%2F588233207" anchor-label="setValue" id="967670095%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="set-value.html"><span>set</span><wbr><span><span>Value</span></span></a></div>
@@ -1161,17 +1161,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

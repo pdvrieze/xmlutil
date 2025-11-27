@@ -1,22 +1,22 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>StAXWriter</title>
-<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
@@ -24,33 +24,31 @@
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../../scripts/prism.js" async></script>
-<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script>
-<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-<a class="library-name--link" href="../../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
                     xmlutil
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.2
+        <div class="library-version" id="library-version">0.91.3
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":coreJdk/main">Jdk</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":coreJdk/main">Jdk</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
@@ -64,45 +62,47 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     xmlutil
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
 <div class="main-content" data-page-type="classlike" id="content" pageids="core-jdk::nl.adaptivity.xmlutil.jdk/StAXWriter///PointingToDeclaration//477397712">
   <div class="breadcrumbs"><a href="../../index.html">core-jdk</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil.jdk</a><span class="delimiter">/</span><span class="current">StAXWriter</span></div>
   <div class="cover ">
     <h1 class="cover"><span>St</span><wbr><span><span>AXWriter</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">StAXWriter</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>delegate<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html">XMLStreamWriter</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>autoCloseEmpty<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="nl.adaptivity.xmlutil.core.impl/PlatformXmlWriterBase///PointingToDeclaration/">PlatformXmlWriterBase</span>, <a href="../../../core/nl.adaptivity.xmlutil/-xml-writer/index.html">XmlWriter</a><span class="clearfix"><span class="floating-right">(<a href="file:/home/pdvrieze/.gradle/daemon/8.14.2/core/jdk/src/main/kotlin/nl/adaptivity/xmlutil/jdk/StAXWriter.kt#L45">source</a>)</span></span></div><p class="paragraph">An implementation of <a href="../../../core/nl.adaptivity.xmlutil/-xml-writer/index.html">XmlWriter</a> that uses an underlying stax writer. Created by pdvrieze on 16/11/15.</p></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">StAXWriter</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>delegate<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html">XMLStreamWriter</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>autoCloseEmpty<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="nl.adaptivity.xmlutil.core.impl/PlatformXmlWriterBase///PointingToDeclaration/">PlatformXmlWriterBase</span>, <a href="../../../core/nl.adaptivity.xmlutil/-xml-writer/index.html">XmlWriter</a><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="file:/home/pdvrieze/.gradle/daemon/8.14.3/core/jdk/src/main/kotlin/nl/adaptivity/xmlutil/jdk/StAXWriter.kt#L45">source</a>)</span></span></div><p class="paragraph">An implementation of <a href="../../../core/nl.adaptivity.xmlutil/-xml-writer/index.html">XmlWriter</a> that uses an underlying stax writer. Created by pdvrieze on 16/11/15.</p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
     <div class="tabs-section-body">
       <div data-togglable="CONSTRUCTOR">
-        <h2 class="">Constructors</h2>
+        <h2 class="tableheader">Constructors</h2>
         <div class="table"><a data-name="1727394124%2FConstructors%2F477397712" anchor-label="StAXWriter" id="1727394124%2FConstructors%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-st-a-x-writer.html"><span>St</span><wbr><span><span>AXWriter</span></span></a></div>
@@ -111,7 +111,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Writer.html">Writer</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">outputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/OutputStream.html">OutputStream</a><span class="token punctuation">, </span></span><span class="parameter ">encoding<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">result<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/transform/Result.html">Result</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html">XMLStreamWriter</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None<span class="token punctuation">, </span></span><span class="parameter ">autoCloseEmpty<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span></span></span><span class="token punctuation">)</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/stream/XMLStreamWriter.html">XMLStreamWriter</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None<span class="token punctuation">, </span></span><span class="parameter ">autoCloseEmpty<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Writer.html">Writer</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">outputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/OutputStream.html">OutputStream</a><span class="token punctuation">, </span></span><span class="parameter ">encoding<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">result<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/transform/Result.html">Result</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>
@@ -119,9 +119,9 @@
         </div>
       </div>
       <div data-togglable="PROPERTY">
-        <h2 class="">Properties</h2>
+        <h2 class="tableheader">Properties</h2>
         <div class="table"><a data-name="-1855740825%2FProperties%2F477397712" anchor-label="autoCloseEmpty" id="-1855740825%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="auto-close-empty.html"><span>auto</span><wbr><span>Close</span><wbr><span><span>Empty</span></span></a></div>
@@ -130,13 +130,13 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="auto-close-empty.html">autoCloseEmpty</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span></div><div class="brief "><p class="paragraph">Determines whether empty tags are coalesced into self-closing tags.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="auto-close-empty.html">autoCloseEmpty</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Determines whether empty tags are coalesced into self-closing tags.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="897477062%2FProperties%2F477397712" anchor-label="delegate" id="897477062%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="delegate.html"><span><span>delegate</span></span></a></div>
@@ -151,7 +151,7 @@
             </div>
           </div>
 <a data-name="549637420%2FProperties%2F477397712" anchor-label="depth" id="549637420%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="depth.html"><span><span>depth</span></span></a></div>
@@ -166,7 +166,7 @@
             </div>
           </div>
 <a data-name="-1802462346%2FProperties%2F477397712" anchor-label="indent" id="-1802462346%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="index.html#-1802462346%2FProperties%2F477397712"><span><span>indent</span></span></a></div>
@@ -181,7 +181,7 @@
             </div>
           </div>
 <a data-name="1177642421%2FProperties%2F477397712" anchor-label="indentSequence" id="1177642421%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="index.html#1177642421%2FProperties%2F477397712"><span>indent</span><wbr><span><span>Sequence</span></span></a></div>
@@ -196,7 +196,7 @@
             </div>
           </div>
 <a data-name="-1469560411%2FProperties%2F477397712" anchor-label="indentString" id="-1469560411%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="index.html#-1469560411%2FProperties%2F477397712"><span>indent</span><wbr><span><span>String</span></span></a></div>
@@ -211,7 +211,7 @@
             </div>
           </div>
 <a data-name="-221572009%2FProperties%2F477397712" anchor-label="namespaceContext" id="-221572009%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="namespace-context.html"><span>namespace</span><wbr><span><span>Context</span></span></a></div>
@@ -220,13 +220,13 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="namespace-context.html">namespaceContext</a><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="namespace-context.html">namespaceContext</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-namespace-context/index.html">NamespaceContext</a></div></div></div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="1324822251%2FProperties%2F477397712" anchor-label="xmlDeclMode" id="1324822251%2FProperties%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="xml-decl-mode.html"><span>xml</span><wbr><span>Decl</span><wbr><span><span>Mode</span></span></a></div>
@@ -235,7 +235,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="xml-decl-mode.html">xmlDeclMode</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a></div><div class="brief "><p class="paragraph">This determines how automatic xml declarations are written. Note that     explicit calls to <a href="start-document.html">startDocument</a> ignore this.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="xml-decl-mode.html">xmlDeclMode</a><span class="token operator">: </span><a href="../../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a></div><div class="brief "><p class="paragraph">This determines how automatic xml declarations are written. Note that     explicit calls to startDocument ignore this.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -243,9 +243,9 @@
         </div>
       </div>
       <div data-togglable="FUNCTION">
-        <h2 class="">Functions</h2>
+        <h2 class="tableheader">Functions</h2>
         <div class="table"><a data-name="-900482708%2FFunctions%2F477397712" anchor-label="attribute" id="-900482708%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="attribute.html"><span><span>attribute</span></span></a></div>
@@ -260,7 +260,7 @@
             </div>
           </div>
 <a data-name="-1777386787%2FFunctions%2F477397712" anchor-label="cdsect" id="-1777386787%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="cdsect.html"><span><span>cdsect</span></span></a></div>
@@ -275,7 +275,7 @@
             </div>
           </div>
 <a data-name="295128983%2FFunctions%2F477397712" anchor-label="close" id="295128983%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="close.html"><span><span>close</span></span></a></div>
@@ -290,7 +290,7 @@
             </div>
           </div>
 <a data-name="2009052788%2FFunctions%2F477397712" anchor-label="comment" id="2009052788%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="comment.html"><span><span>comment</span></span></a></div>
@@ -305,7 +305,7 @@
             </div>
           </div>
 <a data-name="-722324553%2FFunctions%2F477397712" anchor-label="docdecl" id="-722324553%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="docdecl.html"><span><span>docdecl</span></span></a></div>
@@ -320,7 +320,7 @@
             </div>
           </div>
 <a data-name="-1630670151%2FFunctions%2F477397712" anchor-label="endDocument" id="-1630670151%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="end-document.html"><span>end</span><wbr><span><span>Document</span></span></a></div>
@@ -335,7 +335,7 @@
             </div>
           </div>
 <a data-name="-1545876914%2FFunctions%2F477397712" anchor-label="endTag" id="-1545876914%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="end-tag.html"><span>end</span><wbr><span><span>Tag</span></span></a></div>
@@ -350,7 +350,7 @@
             </div>
           </div>
 <a data-name="320892293%2FFunctions%2F477397712" anchor-label="entityRef" id="320892293%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="entity-ref.html"><span>entity</span><wbr><span><span>Ref</span></span></a></div>
@@ -365,7 +365,7 @@
             </div>
           </div>
 <a data-name="-1106282485%2FFunctions%2F477397712" anchor-label="flush" id="-1106282485%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="flush.html"><span><span>flush</span></span></a></div>
@@ -380,7 +380,7 @@
             </div>
           </div>
 <a data-name="1915479196%2FFunctions%2F477397712" anchor-label="getNamespaceUri" id="1915479196%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-namespace-uri.html"><span>get</span><wbr><span>Namespace</span><wbr><span><span>Uri</span></span></a></div>
@@ -395,7 +395,7 @@
             </div>
           </div>
 <a data-name="1050382118%2FFunctions%2F477397712" anchor-label="getPrefix" id="1050382118%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="get-prefix.html"><span>get</span><wbr><span><span>Prefix</span></span></a></div>
@@ -410,7 +410,7 @@
             </div>
           </div>
 <a data-name="-1588118017%2FFunctions%2F477397712" anchor-label="ignorableWhitespace" id="-1588118017%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="ignorable-whitespace.html"><span>ignorable</span><wbr><span><span>Whitespace</span></span></a></div>
@@ -425,7 +425,7 @@
             </div>
           </div>
 <a data-name="-1316238090%2FFunctions%2F477397712" anchor-label="namespaceAttr" id="-1316238090%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="index.html#-789805680%2FFunctions%2F477397712"><span>namespace</span><wbr><span><span>Attr</span></span></a></div>
@@ -440,7 +440,7 @@
             </div>
           </div>
 <a data-name="938295609%2FFunctions%2F477397712" anchor-label="processingInstruction" id="938295609%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="processing-instruction.html"><span>processing</span><wbr><span><span>Instruction</span></span></a></div>
@@ -454,8 +454,23 @@
               </div>
             </div>
           </div>
+<a data-name="-2046072654%2FFunctions%2F477397712" anchor-label="safeCdsect" id="-2046072654%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-2046072654%2FFunctions%2F477397712"><span>safe</span><wbr><span><span>Cdsect</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2046072654%2FFunctions%2F477397712"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":coreJdk/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="index.html#-2046072654%2FFunctions%2F477397712"><span class="token function">safeCdsect</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">text<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
 <a data-name="773141390%2FFunctions%2F477397712" anchor-label="setPrefix" id="773141390%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="set-prefix.html"><span>set</span><wbr><span><span>Prefix</span></span></a></div>
@@ -470,7 +485,7 @@
             </div>
           </div>
 <a data-name="-1854192148%2FFunctions%2F477397712" anchor-label="startDocument" id="-1854192148%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="start-document.html"><span>start</span><wbr><span><span>Document</span></span></a></div>
@@ -485,7 +500,7 @@
             </div>
           </div>
 <a data-name="1581966439%2FFunctions%2F477397712" anchor-label="startTag" id="1581966439%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="start-tag.html"><span>start</span><wbr><span><span>Tag</span></span></a></div>
@@ -500,7 +515,7 @@
             </div>
           </div>
 <a data-name="-440673370%2FFunctions%2F477397712" anchor-label="text" id="-440673370%2FFunctions%2F477397712" data-filterable-set=":coreJdk/main"></a>
-          <div class="table-row" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
+          <div class="table-row table-row_content" data-filterable-current=":coreJdk/main" data-filterable-set=":coreJdk/main">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="text.html"><span><span>text</span></span></a></div>
@@ -520,17 +535,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

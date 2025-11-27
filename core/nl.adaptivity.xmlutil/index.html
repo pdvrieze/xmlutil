@@ -1,22 +1,22 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>nl.adaptivity.xmlutil</title>
-<link href="../../images/logo-icon.svg" rel="icon" type="image/svg">    <script>var pathToRoot = "../../";</script>
-    <script>document.documentElement.classList.replace("no-js","js");</script>
+<link href="../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
-    if (storage == null) {
+      if (storage == null) {
         const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         if (osDarkSchemePreferred === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    } else {
+      } else {
         const savedDarkMode = JSON.parse(storage)
-        if(savedDarkMode === true) {
-            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
         }
-    }
+      }
     </script>
 <script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async></script>
@@ -24,36 +24,34 @@
 <link href="../../styles/main.css" rel="Stylesheet">
 <link href="../../styles/prism.css" rel="Stylesheet">
 <link href="../../styles/logo-styles.css" rel="Stylesheet">
-<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
 <link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
-<script type="text/javascript" src="../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../scripts/safe-local-storage_blocking.js"></script>
 <script type="text/javascript" src="../../scripts/navigation-loader.js" async></script>
 <script type="text/javascript" src="../../scripts/platform-content-handler.js" async></script>
 <script type="text/javascript" src="../../scripts/main.js" defer></script>
 <script type="text/javascript" src="../../scripts/prism.js" async></script>
-<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer></script>
-<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
-    <div class="root">
-    <nav class="navigation theme-dark" id="navigation-wrapper">
-<a class="library-name--link" href="../../index.html">
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../index.html" tabindex="1">
                     xmlutil
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.2
+        <div class="library-version" id="library-version">0.91.3
         </div>
         <div class="navigation-controls">
-        <div class="filter-section filter-section_loading" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonDomMain">Native</button>
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":core/commonMain">Common</button>
-                <button class="platform-tag platform-selector js-like" data-active="" data-filter=":core/jsMain">JS</button>
-                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":core/jvmCommonMain">JVM</button>
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true" data-filter=":core/jsMain">JS</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmCommonMain">JVM</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
-                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
-                    <div class="dropdown--header"><span>Platform filter</span>
-                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
@@ -88,47 +86,49 @@
                 </ul>
                 <div class="dropdown--overlay"></div>
             </div>
-        </div>
+        </ul>
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
             </div>
         </div>
-    </nav>
-        <div id="container">
-            <div class="sidebar" id="leftColumn">
-                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox">
-                        <div class="dropdown--header">
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
                             <span>
                                     xmlutil
                             </span>
-                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
-                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
-                            </button>
-                        </div>
-                        <div class="sidebar--inner" id="sideMenu"></div>
-                    </ul>
-                    <div class="dropdown--overlay"></div>
-                </div>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
-            <div id="main">
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
 <div class="main-content" data-page-type="package" id="content" pageids="core::nl.adaptivity.xmlutil////PointingToDeclaration//588233207">
   <div class="breadcrumbs"><a href="../index.html">core</a><span class="delimiter">/</span><span class="current">nl.adaptivity.xmlutil</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Package-level</span></span> <span><span>declarations</span></span></h1>
     <div class="platform-hinted UnderCoverText with-platform-tabs" data-platform-hinted="data-platform-hinted">
       <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div>    </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p></div>    </div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="TYPE">Types</button><button class="section-tab" data-togglable="FUNCTION,EXTENSION_FUNCTION">Functions</button><button class="section-tab" data-togglable="PROPERTY,EXTENSION_PROPERTY">Properties</button></div>
     <div class="tabs-section-body">
       <div data-togglable="TYPE">
-        <h2 class="">Types</h2>
+        <h2 class="tableheader">Types</h2>
         <div class="table"><a data-name="1844079473%2FClasslikes%2F-910832118" anchor-label="DomWriter" id="1844079473%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-dom-writer/index.html"><span>Dom</span><wbr><span><span>Writer</span></span></a></div>
@@ -143,7 +143,7 @@
             </div>
           </div>
 <a data-name="1806405554%2FClasslikes%2F-910832118" anchor-label="EventType" id="1806405554%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-event-type/index.html"><span>Event</span><wbr><span><span>Type</span></span></a></div>
@@ -158,7 +158,7 @@
             </div>
           </div>
 <a data-name="91329235%2FClasslikes%2F-910832118" anchor-label="ExperimentalXmlUtilApi" id="91329235%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-experimental-xml-util-api/index.html"><span>Experimental</span><wbr><span>Xml</span><wbr><span>Util</span><wbr><span><span>Api</span></span></a></div>
@@ -173,7 +173,7 @@
             </div>
           </div>
 <a data-name="-1474124810%2FClasslikes%2F-910832118" anchor-label="IterableNamespaceContext" id="-1474124810%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-iterable-namespace-context/index.html"><span>Iterable</span><wbr><span>Namespace</span><wbr><span><span>Context</span></span></a></div>
@@ -188,7 +188,7 @@
             </div>
           </div>
 <a data-name="-850855662%2FClasslikes%2F-910832118" anchor-label="IXmlStreaming" id="-850855662%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-i-xml-streaming/index.html"><span>IXml</span><wbr><span><span>Streaming</span></span></a></div>
@@ -203,7 +203,7 @@
             </div>
           </div>
 <a data-name="-876362453%2FClasslikes%2F-910832118" anchor-label="Namespace" id="-876362453%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-namespace/index.html"><span><span>Namespace</span></span></a></div>
@@ -217,8 +217,8 @@
               </div>
             </div>
           </div>
-<a data-name="604322632%2FClasslikes%2F588233207" anchor-label="NamespaceContext" id="604322632%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="604322632%2FClasslikes%2F588233207" anchor-label="NamespaceContext" id="604322632%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-namespace-context/index.html"><span>Namespace</span><wbr><span><span>Context</span></span></a></div>
@@ -229,13 +229,13 @@
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="-namespace-context/index.html">NamespaceContext</a></div><div class="brief "><p class="paragraph">Interface that provides access to namespace queries</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">interface </span><a href="-namespace-context/index.html">NamespaceContext</a></div><div class="brief "><p class="paragraph">Interface that provides access to namespace queries</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="-namespace-context/index.html">NamespaceContext</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">typealias </span><a href="-namespace-context/index.html">NamespaceContext</a><span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/namespace/NamespaceContext.html">javax.xml.namespace.NamespaceContext</a></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="-namespace-context/index.html">NamespaceContext</a></div><div class="brief "><p class="paragraph">Interface that provides access to namespace queries</p></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">interface </span><a href="-namespace-context/index.html">NamespaceContext</a></div><div class="brief "><p class="paragraph">Interface that provides access to namespace queries</p></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="-namespace-context/index.html">NamespaceContext</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">typealias </span><a href="-namespace-context/index.html">NamespaceContext</a><span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/namespace/NamespaceContext.html">javax.xml.namespace.NamespaceContext</a></div><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-namespace-context/index.html">NamespaceContext</a><span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/namespace/NamespaceContext.html">javax.xml.namespace.NamespaceContext</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="1824409994%2FClasslikes%2F588233207" anchor-label="QName" id="1824409994%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="1824409994%2FClasslikes%2F588233207" anchor-label="QName" id="1824409994%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-q-name/index.html"><span><span>QName</span></span></a></div>
@@ -246,13 +246,13 @@
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-q-name/index.html">QName</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">localPart<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-q-name/index.html">QName</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">localPart<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-q-name/index.html">QName</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">localPart<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">typealias </span><a href="-q-name/index.html">QName</a><span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/namespace/QName.html">javax.xml.namespace.QName</a></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-q-name/index.html">QName</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">localPart<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">class </span><a href="-q-name/index.html">QName</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">localPart<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">class </span><a href="-q-name/index.html">QName</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">localPart<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">typealias </span><a href="-q-name/index.html">QName</a><span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/namespace/QName.html">javax.xml.namespace.QName</a></div><div class="symbol monospace"><span class="token keyword">typealias </span><a href="-q-name/index.html">QName</a><span class="token operator"> = </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.xml/javax/xml/namespace/QName.html">javax.xml.namespace.QName</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-804763432%2FClasslikes%2F-910832118" anchor-label="QNameSerializer" id="-804763432%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-q-name-serializer/index.html"><span>QName</span><wbr><span><span>Serializer</span></span></a></div>
@@ -267,7 +267,7 @@
             </div>
           </div>
 <a data-name="404463337%2FClasslikes%2F-910832118" anchor-label="SerializableQName" id="404463337%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-serializable-q-name/index.html"><span>Serializable</span><wbr><span><span>QName</span></span></a></div>
@@ -282,7 +282,7 @@
             </div>
           </div>
 <a data-name="-787939978%2FClasslikes%2F-910832118" anchor-label="SimpleNamespaceContext" id="-787939978%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-simple-namespace-context/index.html"><span>Simple</span><wbr><span>Namespace</span><wbr><span><span>Context</span></span></a></div>
@@ -297,7 +297,7 @@
             </div>
           </div>
 <a data-name="1215764685%2FClasslikes%2F-910832118" anchor-label="XmlBufferedReader" id="1215764685%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-buffered-reader/index.html"><span>Xml</span><wbr><span>Buffered</span><wbr><span><span>Reader</span></span></a></div>
@@ -312,7 +312,7 @@
             </div>
           </div>
 <a data-name="953250044%2FClasslikes%2F-910832118" anchor-label="XmlBufferedReaderBase" id="953250044%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-buffered-reader-base/index.html"><span>Xml</span><wbr><span>Buffered</span><wbr><span>Reader</span><wbr><span><span>Base</span></span></a></div>
@@ -327,7 +327,7 @@
             </div>
           </div>
 <a data-name="290935581%2FClasslikes%2F-910832118" anchor-label="XmlBufferedWriter" id="290935581%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-buffered-writer/index.html"><span>Xml</span><wbr><span>Buffered</span><wbr><span><span>Writer</span></span></a></div>
@@ -342,7 +342,7 @@
             </div>
           </div>
 <a data-name="-1201076020%2FClasslikes%2F-910832118" anchor-label="XmlBufferReader" id="-1201076020%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-buffer-reader/index.html"><span>Xml</span><wbr><span>Buffer</span><wbr><span><span>Reader</span></span></a></div>
@@ -357,7 +357,7 @@
             </div>
           </div>
 <a data-name="1029469732%2FClasslikes%2F-910832118" anchor-label="XMLConstants" id="1029469732%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-x-m-l-constants/index.html"><span><span>XMLConstants</span></span></a></div>
@@ -372,7 +372,7 @@
             </div>
           </div>
 <a data-name="545313474%2FClasslikes%2F-910832118" anchor-label="XmlDeclMode" id="545313474%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-decl-mode/index.html"><span>Xml</span><wbr><span>Decl</span><wbr><span><span>Mode</span></span></a></div>
@@ -387,7 +387,7 @@
             </div>
           </div>
 <a data-name="-1242892086%2FClasslikes%2F-910832118" anchor-label="XmlDelegatingReader" id="-1242892086%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-delegating-reader/index.html"><span>Xml</span><wbr><span>Delegating</span><wbr><span><span>Reader</span></span></a></div>
@@ -402,7 +402,7 @@
             </div>
           </div>
 <a data-name="2127246106%2FClasslikes%2F-910832118" anchor-label="XmlDelegatingWriter" id="2127246106%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-delegating-writer/index.html"><span>Xml</span><wbr><span>Delegating</span><wbr><span><span>Writer</span></span></a></div>
@@ -417,7 +417,7 @@
             </div>
           </div>
 <a data-name="1897900465%2FClasslikes%2F-910832118" anchor-label="XmlDeserializationStrategy" id="1897900465%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-deserialization-strategy/index.html"><span>Xml</span><wbr><span>Deserialization</span><wbr><span><span>Strategy</span></span></a></div>
@@ -432,7 +432,7 @@
             </div>
           </div>
 <a data-name="44995641%2FClasslikes%2F-910832118" anchor-label="XmlEvent" id="44995641%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-event/index.html"><span>Xml</span><wbr><span><span>Event</span></span></a></div>
@@ -447,7 +447,7 @@
             </div>
           </div>
 <a data-name="-1162536156%2FClasslikes%2F-910832118" anchor-label="XmlException" id="-1162536156%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-exception/index.html"><span>Xml</span><wbr><span><span>Exception</span></span></a></div>
@@ -462,7 +462,7 @@
             </div>
           </div>
 <a data-name="1018133129%2FClasslikes%2F-910832118" anchor-label="XmlPeekingReader" id="1018133129%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-peeking-reader/index.html"><span>Xml</span><wbr><span>Peeking</span><wbr><span><span>Reader</span></span></a></div>
@@ -477,7 +477,7 @@
             </div>
           </div>
 <a data-name="-408564820%2FClasslikes%2F-910832118" anchor-label="XmlReader" id="-408564820%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-reader/index.html"><span>Xml</span><wbr><span><span>Reader</span></span></a></div>
@@ -492,7 +492,7 @@
             </div>
           </div>
 <a data-name="611193452%2FClasslikes%2F-910832118" anchor-label="XmlSerialDescriptor" id="611193452%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-serial-descriptor/index.html"><span>Xml</span><wbr><span>Serial</span><wbr><span><span>Descriptor</span></span></a></div>
@@ -507,7 +507,7 @@
             </div>
           </div>
 <a data-name="1122398994%2FClasslikes%2F-910832118" anchor-label="XmlSerialDescriptorMarker" id="1122398994%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-serial-descriptor-marker/index.html"><span>Xml</span><wbr><span>Serial</span><wbr><span>Descriptor</span><wbr><span><span>Marker</span></span></a></div>
@@ -522,7 +522,7 @@
             </div>
           </div>
 <a data-name="1274324848%2FClasslikes%2F-910832118" anchor-label="XmlSerializationStrategy" id="1274324848%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-serialization-strategy/index.html"><span>Xml</span><wbr><span>Serialization</span><wbr><span><span>Strategy</span></span></a></div>
@@ -537,7 +537,7 @@
             </div>
           </div>
 <a data-name="1111213757%2FClasslikes%2F-910832118" anchor-label="XmlSerializer" id="1111213757%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-serializer/index.html"><span>Xml</span><wbr><span><span>Serializer</span></span></a></div>
@@ -551,8 +551,8 @@
               </div>
             </div>
           </div>
-<a data-name="546248775%2FClasslikes%2F588233207" anchor-label="XmlStreamingFactory" id="546248775%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="546248775%2FClasslikes%2F588233207" anchor-label="XmlStreamingFactory" id="546248775%2FClasslikes%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-streaming-factory/index.html"><span>Xml</span><wbr><span>Streaming</span><wbr><span><span>Factory</span></span></a></div>
@@ -569,7 +569,7 @@
             </div>
           </div>
 <a data-name="193631773%2FClasslikes%2F-910832118" anchor-label="XmlUtilDeprecatedInternal" id="193631773%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-util-deprecated-internal/index.html"><span>Xml</span><wbr><span>Util</span><wbr><span>Deprecated</span><wbr><span><span>Internal</span></span></a></div>
@@ -584,7 +584,7 @@
             </div>
           </div>
 <a data-name="1972675728%2FClasslikes%2F-910832118" anchor-label="XmlUtilInternal" id="1972675728%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-util-internal/index.html"><span>Xml</span><wbr><span>Util</span><wbr><span><span>Internal</span></span></a></div>
@@ -599,7 +599,7 @@
             </div>
           </div>
 <a data-name="-1333393924%2FClasslikes%2F-910832118" anchor-label="XmlWriter" id="-1333393924%2FClasslikes%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-xml-writer/index.html"><span>Xml</span><wbr><span><span>Writer</span></span></a></div>
@@ -616,9 +616,9 @@
         </div>
       </div>
       <div data-togglable="PROPERTY">
-        <h2 class="">Properties</h2>
+        <h2 class="tableheader">Properties</h2>
         <div class="table"><a data-name="-1242673494%2FProperties%2F-910832118" anchor-label="attributeIndices" id="-1242673494%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="attribute-indices.html"><span>attribute</span><wbr><span><span>Indices</span></span></a></div>
@@ -633,7 +633,7 @@
             </div>
           </div>
 <a data-name="-1734654442%2FProperties%2F-910832118" anchor-label="attributes" id="-1734654442%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="attributes.html"><span><span>attributes</span></span></a></div>
@@ -648,7 +648,7 @@
             </div>
           </div>
 <a data-name="-1489162418%2FProperties%2F-910832118" anchor-label="DEFAULT_FLAGS" id="-1489162418%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-d-e-f-a-u-l-t_-f-l-a-g-s.html"><span>DEFAULT_</span><wbr><span>FLAGS</span></a></div>
@@ -663,7 +663,7 @@
             </div>
           </div>
 <a data-name="-620074407%2FProperties%2F-910832118" anchor-label="FLAG_OMIT_XMLDECL" id="-620074407%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-f-l-a-g_-o-m-i-t_-x-m-l-d-e-c-l.html"><span>FLAG_</span><wbr><span>OMIT_</span><wbr><span>XMLDECL</span></a></div>
@@ -678,7 +678,7 @@
             </div>
           </div>
 <a data-name="-695216481%2FProperties%2F-910832118" anchor-label="FLAG_REPAIR_NS" id="-695216481%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="-f-l-a-g_-r-e-p-a-i-r_-n-s.html"><span>FLAG_</span><wbr><span>REPAIR_</span><wbr><span>NS</span></a></div>
@@ -692,25 +692,25 @@
               </div>
             </div>
           </div>
-<a data-name="-2015581834%2FProperties%2F-1116685823" anchor-label="genericFactory" id="-2015581834%2FProperties%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+<a data-name="351949132%2FProperties%2F-1116685823" anchor-label="genericFactory" id="351949132%2FProperties%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="generic-factory.html"><span>generic</span><wbr><span><span>Factory</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2015581834%2FProperties%2F-1116685823"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="351949132%2FProperties%2F-1116685823"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-active="" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">val </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="generic-factory.html">genericFactory</a><span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-xml-streaming/-generic-factory/index.html">XmlStreaming.GenericFactory</a></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="generic-factory.html">genericFactory</a><span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-xml-streaming/-generic-factory/index.html">XmlStreaming.GenericFactory</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="1562036587%2FProperties%2F-910832118" anchor-label="localPart" id="1562036587%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="local-part.html"><span>local</span><wbr><span><span>Part</span></span></a></div>
@@ -725,7 +725,7 @@
             </div>
           </div>
 <a data-name="696162098%2FProperties%2F-910832118" anchor-label="namespaceURI" id="696162098%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="namespace-u-r-i.html"><span>namespace</span><wbr><span><span>URI</span></span></a></div>
@@ -740,7 +740,7 @@
             </div>
           </div>
 <a data-name="608820403%2FProperties%2F-910832118" anchor-label="prefix" id="608820403%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="prefix.html"><span><span>prefix</span></span></a></div>
@@ -755,7 +755,7 @@
             </div>
           </div>
 <a data-name="972280199%2FProperties%2F-910832118" anchor-label="qname" id="972280199%2FProperties%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_PROPERTY" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="qname.html"><span><span>qname</span></span></a></div>
@@ -769,8 +769,8 @@
               </div>
             </div>
           </div>
-<a data-name="-1882403176%2FProperties%2F588233207" anchor-label="xmlStreaming" id="-1882403176%2FProperties%2F588233207" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/commonDomMain,:core/jsMain,:core/jvmCommonMain">
+<a data-name="-1882403176%2FProperties%2F588233207" anchor-label="xmlStreaming" id="-1882403176%2FProperties%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="xml-streaming.html"><span>xml</span><wbr><span><span>Streaming</span></span></a></div>
@@ -781,7 +781,7 @@
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-i-xml-streaming/index.html">IXmlStreaming</a></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">val </span><a href="xml-streaming.html">xmlStreaming</a><span class="token operator">: </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a></div></div>                  </div>
                 </div>
               </div>
             </div>
@@ -789,9 +789,9 @@
         </div>
       </div>
       <div data-togglable="FUNCTION">
-        <h2 class="">Functions</h2>
+        <h2 class="tableheader">Functions</h2>
         <div class="table"><a data-name="-187670021%2FFunctions%2F-910832118" anchor-label="allConsecutiveTextContent" id="-187670021%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="all-consecutive-text-content.html"><span>all</span><wbr><span>Consecutive</span><wbr><span>Text</span><wbr><span><span>Content</span></span></a></div>
@@ -806,7 +806,7 @@
             </div>
           </div>
 <a data-name="1904536057%2FFunctions%2F-910832118" anchor-label="allText" id="1904536057%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="all-text.html"><span>all</span><wbr><span><span>Text</span></span></a></div>
@@ -821,7 +821,7 @@
             </div>
           </div>
 <a data-name="1247967791%2FFunctions%2F-910832118" anchor-label="asQName" id="1247967791%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="as-q-name.html"><span>as</span><wbr><span><span>QName</span></span></a></div>
@@ -836,7 +836,7 @@
             </div>
           </div>
 <a data-name="1145620025%2FFunctions%2F-910832118" anchor-label="asSubstream" id="1145620025%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="as-substream.html"><span>as</span><wbr><span><span>Substream</span></span></a></div>
@@ -851,7 +851,7 @@
             </div>
           </div>
 <a data-name="-1427875328%2FFunctions%2F-910832118" anchor-label="consecutiveTextContent" id="-1427875328%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="consecutive-text-content.html"><span>consecutive</span><wbr><span>Text</span><wbr><span><span>Content</span></span></a></div>
@@ -866,7 +866,7 @@
             </div>
           </div>
 <a data-name="-1408895001%2FFunctions%2F-910832118" anchor-label="elementContentToFragment" id="-1408895001%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-content-to-fragment.html"><span>element</span><wbr><span>Content</span><wbr><span>To</span><wbr><span><span>Fragment</span></span></a></div>
@@ -881,7 +881,7 @@
             </div>
           </div>
 <a data-name="-6726894%2FFunctions%2F-910832118" anchor-label="elementToFragment" id="-6726894%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="element-to-fragment.html"><span>element</span><wbr><span>To</span><wbr><span><span>Fragment</span></span></a></div>
@@ -896,7 +896,7 @@
             </div>
           </div>
 <a data-name="601431276%2FFunctions%2F-910832118" anchor-label="endTag" id="601431276%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="end-tag.html"><span>end</span><wbr><span><span>Tag</span></span></a></div>
@@ -911,7 +911,7 @@
             </div>
           </div>
 <a data-name="-265492381%2FFunctions%2F-910832118" anchor-label="filterSubstream" id="-265492381%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="filter-substream.html"><span>filter</span><wbr><span><span>Substream</span></span></a></div>
@@ -926,7 +926,7 @@
             </div>
           </div>
 <a data-name="1094127340%2FFunctions%2F-910832118" anchor-label="isElement" id="1094127340%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="is-element.html"><span>is</span><wbr><span><span>Element</span></span></a></div>
@@ -941,7 +941,7 @@
             </div>
           </div>
 <a data-name="300854757%2FFunctions%2F-910832118" anchor-label="isEquivalent" id="300854757%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="is-equivalent.html"><span>is</span><wbr><span><span>Equivalent</span></span></a></div>
@@ -956,7 +956,7 @@
             </div>
           </div>
 <a data-name="495894606%2FFunctions%2F-910832118" anchor-label="isIgnorable" id="495894606%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="is-ignorable.html"><span>is</span><wbr><span><span>Ignorable</span></span></a></div>
@@ -971,7 +971,7 @@
             </div>
           </div>
 <a data-name="1642004856%2FFunctions%2F-910832118" anchor-label="isPrefixDeclaredInElement" id="1642004856%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="is-prefix-declared-in-element.html"><span>is</span><wbr><span>Prefix</span><wbr><span>Declared</span><wbr><span>In</span><wbr><span><span>Element</span></span></a></div>
@@ -986,7 +986,7 @@
             </div>
           </div>
 <a data-name="-184429928%2FFunctions%2F-910832118" anchor-label="isXml" id="-184429928%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="is-xml.html"><span>is</span><wbr><span><span>Xml</span></span></a></div>
@@ -1001,7 +1001,7 @@
             </div>
           </div>
 <a data-name="-821062794%2FFunctions%2F-910832118" anchor-label="isXmlWhitespace" id="-821062794%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="is-xml-whitespace.html"><span>is</span><wbr><span>Xml</span><wbr><span><span>Whitespace</span></span></a></div>
@@ -1015,25 +1015,25 @@
               </div>
             </div>
           </div>
-<a data-name="-17118185%2FFunctions%2F-1116685823" anchor-label="newGenericReader" id="-17118185%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+<a data-name="-1493182975%2FFunctions%2F-1116685823" anchor-label="newGenericReader" id="-1493182975%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="new-generic-reader.html"><span>new</span><wbr><span>Generic</span><wbr><span><span>Reader</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-17118185%2FFunctions%2F-1116685823"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1493182975%2FFunctions%2F-1116685823"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-active="" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="new-generic-reader.html"><span class="token function">newGenericReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/InputStream.html">InputStream</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-generic-reader.html"><span class="token function">newGenericReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/InputStream.html">InputStream</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="449106012%2FFunctions%2F-910832118" anchor-label="newGenericWriter" id="449106012%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="new-generic-writer.html"><span>new</span><wbr><span>Generic</span><wbr><span><span>Writer</span></span></a></div>
@@ -1047,42 +1047,42 @@
               </div>
             </div>
           </div>
-<a data-name="-1308408954%2FFunctions%2F-1023227135" anchor-label="newReader" id="-1308408954%2FFunctions%2F-1023227135" data-filterable-set=":core/jvmCommonMain,:core/jsMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain,:core/jsMain" data-filterable-set=":core/jvmCommonMain,:core/jsMain">
+<a data-name="-694172311%2FFunctions%2F-1023227135" anchor-label="newReader" id="-694172311%2FFunctions%2F-1023227135" data-filterable-set=":core/jvmCommonMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain,:core/jsMain" data-filterable-set=":core/jvmCommonMain,:core/jsMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="new-reader.html"><span>new</span><wbr><span><span>Reader</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1308408954%2FFunctions%2F-1023227135"></span>
+                  <div><a href="../../core/nl.adaptivity.xmlutil/index.html"><span>new</span><wbr><span><span>Reader</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-694172311%2FFunctions%2F-1023227135"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-dom-reader/index.html">DomReader</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/InputStream.html">InputStream</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="[-j-s]new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">delegate<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-dom-reader/index.html">DomReader</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">inputStream<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/InputStream.html">InputStream</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="[-j-v-m]new-reader.html"><span class="token function">newReader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1299294199%2FFunctions%2F588233207" anchor-label="newWriter" id="-1299294199%2FFunctions%2F588233207" data-filterable-set=":core/jsMain,:core/jvmCommonMain,:core/commonMain,:core/commonDomMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jsMain,:core/jvmCommonMain,:core/commonMain,:core/commonDomMain" data-filterable-set=":core/jsMain,:core/jvmCommonMain,:core/commonMain,:core/commonDomMain">
+<a data-name="1601705236%2FFunctions%2F588233207" anchor-label="newWriter" id="1601705236%2FFunctions%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="new-writer.html"><span>new</span><wbr><span><span>Writer</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1299294199%2FFunctions%2F588233207"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1601705236%2FFunctions%2F588233207"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">dest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-parent-node/index.html">ParentNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Writer.html">Writer</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Appendable.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">dest<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-parent-node/index.html">ParentNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-dom-writer/index.html">DomWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html">XmlWriter</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Writer.html">Writer</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a><span class="token operator"> = </span>XmlDeclMode.None</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">output<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/-appendable/index.html">Appendable</a><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a></div><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="-i-xml-streaming/index.html#-850855662%2FMain%2F-1116685823">IXmlStreaming</a><span class="token punctuation">.</span><a href="new-writer.html"><span class="token function">newWriter</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">writer<span class="token operator">: </span><span data-unresolved-link="nl.adaptivity.xmlutil.core.impl.multiplatform/Writer///PointingToDeclaration/">Writer</span><span class="token punctuation">, </span></span><span class="parameter ">repairNamespaces<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token punctuation">, </span></span><span class="parameter ">xmlDeclMode<span class="token operator">: </span><a href="../../core/nl.adaptivity.xmlutil/-xml-decl-mode/index.html">XmlDeclMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-127370945%2FFunctions%2F-910832118" anchor-label="qname" id="-127370945%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="qname.html"><span><span>qname</span></span></a></div>
@@ -1097,7 +1097,7 @@
             </div>
           </div>
 <a data-name="296208639%2FFunctions%2F-910832118" anchor-label="readSimpleElement" id="296208639%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="read-simple-element.html"><span>read</span><wbr><span>Simple</span><wbr><span><span>Element</span></span></a></div>
@@ -1111,25 +1111,25 @@
               </div>
             </div>
           </div>
-<a data-name="-837349132%2FFunctions%2F-1033322941" anchor-label="serialize" id="-837349132%2FFunctions%2F-1033322941" data-filterable-set=":core/jvmCommonMain,:core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain,:core/commonMain" data-filterable-set=":core/jvmCommonMain,:core/commonMain">
+<a data-name="-182844234%2FFunctions%2F-1033322941" anchor-label="serialize" id="-182844234%2FFunctions%2F-1033322941" data-filterable-set=":core/commonMain,:core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="serialize.html"><span><span>serialize</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-837349132%2FFunctions%2F-1033322941"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-182844234%2FFunctions%2F-1033322941"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-active="" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-writer/index.html">XmlWriter</a><span class="token punctuation">.</span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="-xml-reader/index.html">XmlReader</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Serialize the content of the reader to the writer. This will continue until the reader has no more events. Note that this does not attempt to balance the tags. It will ignore star/end document events, processing instructions and document declarations if the writer has depth&gt;0 (is in an element where such instructions are illegal).</p></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-writer/index.html">XmlWriter</a><span class="token punctuation">.</span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-writer/index.html">XmlWriter</a><span class="token punctuation">.</span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">reader<span class="token operator">: </span><a href="-xml-reader/index.html">XmlReader</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Serialize the content of the reader to the writer. This will continue until the reader has no more events. Note that this does not attempt to balance the tags. It will ignore star/end document events, processing instructions and document declarations if the writer has depth&gt;0 (is in an element where such instructions are illegal).</p></div><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-writer/index.html">XmlWriter</a><span class="token punctuation">.</span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></span></span><span class="token punctuation">)</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a><span class="token punctuation">.</span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-1567519109%2FFunctions%2F-910832118" anchor-label="siblingsToFragment" id="-1567519109%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="siblings-to-fragment.html"><span>siblings</span><wbr><span>To</span><wbr><span><span>Fragment</span></span></a></div>
@@ -1144,7 +1144,7 @@
             </div>
           </div>
 <a data-name="471758856%2FFunctions%2F-910832118" anchor-label="skipElement" id="471758856%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="skip-element.html"><span>skip</span><wbr><span><span>Element</span></span></a></div>
@@ -1159,7 +1159,7 @@
             </div>
           </div>
 <a data-name="-546614838%2FFunctions%2F-910832118" anchor-label="skipPreamble" id="-546614838%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="skip-preamble.html"><span>skip</span><wbr><span><span>Preamble</span></span></a></div>
@@ -1174,7 +1174,7 @@
             </div>
           </div>
 <a data-name="-1826847448%2FFunctions%2F-910832118" anchor-label="smartStartTag" id="-1826847448%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="smart-start-tag.html"><span>smart</span><wbr><span>Start</span><wbr><span><span>Tag</span></span></a></div>
@@ -1189,7 +1189,7 @@
             </div>
           </div>
 <a data-name="-1408911643%2FFunctions%2F-910832118" anchor-label="startTag" id="-1408911643%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="start-tag.html"><span>start</span><wbr><span><span>Tag</span></span></a></div>
@@ -1203,25 +1203,25 @@
               </div>
             </div>
           </div>
-<a data-name="-1870127068%2FFunctions%2F-1116685823" anchor-label="toCharArrayWriter" id="-1870127068%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+<a data-name="9582598%2FFunctions%2F-1116685823" anchor-label="toCharArrayWriter" id="9582598%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="to-char-array-writer.html"><span>to</span><wbr><span>Char</span><wbr><span>Array</span><wbr><span><span>Writer</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1870127068%2FFunctions%2F-1116685823"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="9582598%2FFunctions%2F-1116685823"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-active="" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="to-char-array-writer.html"><span class="token function">toCharArrayWriter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/CharArrayWriter.html">CharArrayWriter</a></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-reader/index.html#-408564820%2FMain%2F-1116685823">XmlReader</a><span class="token punctuation">.</span><a href="to-char-array-writer.html"><span class="token function">toCharArrayWriter</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/CharArrayWriter.html">CharArrayWriter</a></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="526660672%2FFunctions%2F-910832118" anchor-label="toCName" id="526660672%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="to-c-name.html"><span>to</span><wbr><span><span>CName</span></span></a></div>
@@ -1236,7 +1236,7 @@
             </div>
           </div>
 <a data-name="624537962%2FFunctions%2F-910832118" anchor-label="toEvent" id="624537962%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="to-event.html"><span>to</span><wbr><span><span>Event</span></span></a></div>
@@ -1251,7 +1251,7 @@
             </div>
           </div>
 <a data-name="765676045%2FFunctions%2F-910832118" anchor-label="toNamespace" id="765676045%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="to-namespace.html"><span>to</span><wbr><span><span>Namespace</span></span></a></div>
@@ -1266,7 +1266,7 @@
             </div>
           </div>
 <a data-name="-441079181%2FFunctions%2F-910832118" anchor-label="toQname" id="-441079181%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="to-qname.html"><span>to</span><wbr><span><span>Qname</span></span></a></div>
@@ -1281,7 +1281,7 @@
             </div>
           </div>
 <a data-name="1700192640%2FFunctions%2F-910832118" anchor-label="writeAttribute" id="1700192640%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-attribute.html"><span>write</span><wbr><span><span>Attribute</span></span></a></div>
@@ -1295,25 +1295,25 @@
               </div>
             </div>
           </div>
-<a data-name="980536555%2FFunctions%2F-1116685823" anchor-label="writeChild" id="980536555%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
+<a data-name="-143178963%2FFunctions%2F-1116685823" anchor-label="writeChild" id="-143178963%2FFunctions%2F-1116685823" data-filterable-set=":core/jvmCommonMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-child.html"><span>write</span><wbr><span><span>Child</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="980536555%2FFunctions%2F-1116685823"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-143178963%2FFunctions%2F-1116685823"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
                   <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
                     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-active="" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><span data-unresolved-link="/<Error class: unknown class>///PointingToDeclaration/">&lt;Error class: unknown class&gt;</span><span class="token punctuation">.</span><a href="write-child.html"><span class="token function">writeChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="-xml-writer/index.html#-1333393924%2FMain%2F-1116685823">XmlWriter</a><span class="token punctuation">.</span><a href="write-child.html"><span class="token function">writeChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-node/index.html">Node</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
                 </div>
               </div>
             </div>
           </div>
 <a data-name="-701998125%2FFunctions%2F-910832118" anchor-label="writeCurrent" id="-701998125%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-current.html"><span>write</span><wbr><span><span>Current</span></span></a></div>
@@ -1328,7 +1328,7 @@
             </div>
           </div>
 <a data-name="732518209%2FFunctions%2F-910832118" anchor-label="writeCurrentEvent" id="732518209%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-current-event.html"><span>write</span><wbr><span>Current</span><wbr><span><span>Event</span></span></a></div>
@@ -1343,7 +1343,7 @@
             </div>
           </div>
 <a data-name="-1656672352%2FFunctions%2F-910832118" anchor-label="writeElement" id="-1656672352%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-element.html"><span>write</span><wbr><span><span>Element</span></span></a></div>
@@ -1358,7 +1358,7 @@
             </div>
           </div>
 <a data-name="-1297497355%2FFunctions%2F-910832118" anchor-label="writeElementContent" id="-1297497355%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-element-content.html"><span>write</span><wbr><span>Element</span><wbr><span><span>Content</span></span></a></div>
@@ -1373,7 +1373,7 @@
             </div>
           </div>
 <a data-name="2086157145%2FFunctions%2F-910832118" anchor-label="writeListIfNotEmpty" id="2086157145%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-list-if-not-empty.html"><span>write</span><wbr><span>List</span><wbr><span>If</span><wbr><span>Not</span><wbr><span><span>Empty</span></span></a></div>
@@ -1388,7 +1388,7 @@
             </div>
           </div>
 <a data-name="-1977838580%2FFunctions%2F-910832118" anchor-label="writeSimpleElement" id="-1977838580%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="write-simple-element.html"><span>write</span><wbr><span>Simple</span><wbr><span><span>Element</span></span></a></div>
@@ -1403,7 +1403,7 @@
             </div>
           </div>
 <a data-name="1524465928%2FFunctions%2F-910832118" anchor-label="xml" id="1524465928%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="xml.html"><span><span>xml</span></span></a></div>
@@ -1418,7 +1418,7 @@
             </div>
           </div>
 <a data-name="441423918%2FFunctions%2F-910832118" anchor-label="xmlCollapseWhitespace" id="441423918%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="xml-collapse-whitespace.html"><span>xml</span><wbr><span>Collapse</span><wbr><span><span>Whitespace</span></span></a></div>
@@ -1433,7 +1433,7 @@
             </div>
           </div>
 <a data-name="467337782%2FFunctions%2F-910832118" anchor-label="xmlEncode" id="467337782%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="xml-encode.html"><span>xml</span><wbr><span><span>Encode</span></span></a></div>
@@ -1448,7 +1448,7 @@
             </div>
           </div>
 <a data-name="-1303613149%2FFunctions%2F-910832118" anchor-label="xmlTrimWhitespace" id="-1303613149%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
-          <div class="table-row" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
+          <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
                   <div><a href="xml-trim-whitespace.html"><span>xml</span><wbr><span>Trim</span><wbr><span><span>Whitespace</span></span></a></div>
@@ -1468,17 +1468,21 @@
   </div>
 </div>
     <div class="footer">
-        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
-        <span>© 2025 Copyright</span>
-        <span class="pull-right">
-            <span>Generated by </span>
-            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
-                <span>dokka</span>
-            </a>
-        </span>
-    </div>
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
             </div>
         </div>
     </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
