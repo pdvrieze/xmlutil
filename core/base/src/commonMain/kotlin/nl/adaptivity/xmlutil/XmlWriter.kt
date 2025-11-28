@@ -304,15 +304,17 @@ public fun XmlWriter.writeCurrentEvent(reader: XmlReader, keepDuplicatedNsDecls:
             for (i in reader.attributeIndices) {
                 val attrPrefix = reader.getAttributePrefix(i)
                 val namespace = if (attrPrefix == "") "" else reader.getAttributeNamespace(i)
-                val prefix = when (namespace) {
-                    "" -> ""
-                    namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
-                    else -> namespaceContext.getPrefix(namespace) ?: attrPrefix
+                if (namespace != XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+                    val prefix = when (namespace) {
+                        "" -> ""
+                        namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
+                        else -> namespaceContext.getPrefix(namespace) ?: attrPrefix
+                    }
+                    attribute(
+                        namespace, reader.getAttributeLocalName(i),
+                        prefix, reader.getAttributeValue(i)
+                    )
                 }
-                attribute(
-                    namespace, reader.getAttributeLocalName(i),
-                    prefix, reader.getAttributeValue(i)
-                )
             }
         }
 
