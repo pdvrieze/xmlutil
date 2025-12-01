@@ -45,4 +45,3 @@ internal actual inline fun <R> CompatLock.invoke(action: () -> R): R {
     }
 }
 
-internal actual fun currentThreadId(): Any = Thread.currentThread().id

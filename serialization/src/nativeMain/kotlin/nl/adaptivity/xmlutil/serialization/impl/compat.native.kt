@@ -24,7 +24,6 @@ import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializerOrNull
-import platform.posix.pthread_self
 import kotlin.reflect.KClass
 
 @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
@@ -46,4 +45,3 @@ internal actual inline fun <R> CompatLock.invoke(action: () -> R): R {
     }
 }
 
-internal actual fun currentThreadId(): Any = pthread_self()
