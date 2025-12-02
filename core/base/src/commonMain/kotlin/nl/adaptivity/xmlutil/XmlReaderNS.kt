@@ -41,7 +41,7 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
     r.skipPreamble()
     if (r.hasNext()) {
         r.require(EventType.START_ELEMENT, null, null)
-        r.next()
+        val _ = r.next()
         return r.siblingsToFragment()
     }
     return CompactFragment("")
@@ -50,11 +50,12 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
 public fun XmlReader.siblingsToFragment(): CompactFragment {
     val appendable: Appendable = StringBuilder()
     if (!isStarted) {
-        if (hasNext()) {
-            next()
-        } else {
+        if (!hasNext()) {
             return CompactFragment("")
         }
+
+        // read the fist tag
+        val _ = next()
     }
 
     val startLocation = extLocationInfo
@@ -116,11 +117,9 @@ public fun XmlReader.siblingsToFragment(): CompactFragment {
 public fun XmlReader.elementToFragment(): CompactFragment {
     val output = StringBuilder()
     if (!isStarted) {
-        if (hasNext()) {
-            next()
-        } else {
-            return CompactFragment("")
-        }
+        if (!hasNext()) return CompactFragment("")
+
+        val _ = next()
     }
 
     val startLocation = extLocationInfo
@@ -136,7 +135,7 @@ public fun XmlReader.elementToFragment(): CompactFragment {
             out.indentString = "" // disable indents
             while (eventType == EventType.IGNORABLE_WHITESPACE) {
                 out.ignorableWhitespace(text)
-                next()
+                val _ = next()
             }
             if (eventType == EventType.END_ELEMENT || eventType == EventType.END_DOCUMENT) {
                 return CompactFragment(output.toString())
@@ -144,8 +143,6 @@ public fun XmlReader.elementToFragment(): CompactFragment {
 
             require(EventType.START_ELEMENT, null, null)
 
-
-            val namespaceForPrefix = out.getNamespaceUri(prefix)
             writeCurrent(out) // writes the start tag
             @Suppress("DEPRECATION")
             out.addUndeclaredNamespaces(this, missingNamespaces)

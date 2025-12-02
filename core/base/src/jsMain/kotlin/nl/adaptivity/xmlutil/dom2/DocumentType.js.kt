@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 public actual interface DocumentType : Node {
@@ -25,9 +27,15 @@ public actual interface DocumentType : Node {
     public actual fun getPublicId(): String
     public actual fun getSystemId(): String
 
+    @IgnorableReturnValue
     public actual override fun appendChild(node: Node): Nothing
+
+    @IgnorableReturnValue
     public actual override fun replaceChild(newChild: Node, oldChild: Node): Nothing
+
+    @IgnorableReturnValue
     public actual override fun removeChild(node: Node): Nothing
+
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
 }

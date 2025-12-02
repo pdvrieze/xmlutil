@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
@@ -42,15 +44,21 @@ public expect interface Node {
 
     public fun lookupNamespaceURI(prefix: String): String?
 
+    @IgnorableReturnValue
     public fun appendChild(node: Node): Node
 
+    @IgnorableReturnValue
     public fun replaceChild(newChild: Node, oldChild: Node): Node
 
+    @IgnorableReturnValue
     public fun removeChild(node: Node): Node
 }
 
+@IgnorableReturnValue
 public expect fun Node.appendChild(node: PlatformNode): Node
+@IgnorableReturnValue
 public expect fun Node.replaceChild(newChild: PlatformNode, oldChild: Node): Node
+@IgnorableReturnValue
 public expect fun Node.removeChild(node: PlatformNode): Node
 
 public inline val Node.nodeType: Short get() = getNodetype().value

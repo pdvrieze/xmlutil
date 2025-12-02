@@ -20,6 +20,7 @@
 @file:JvmMultifileClass
 @file:JvmName("XmlWriterUtil")
 @file:Suppress("NOTHING_TO_INLINE")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -371,6 +372,7 @@ public inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.() -> Un
  * @return The used prefix
  */
 @JvmOverloads
+@IgnorableReturnValue
 public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? = null): String {
     if (nsUri == null || nsUri == XMLConstants.XML_NS_URI || nsUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
         val namespace = namespaceContext.getNamespaceURI(prefix ?: DEFAULT_NS_PREFIX) ?: NULL_NS_URI

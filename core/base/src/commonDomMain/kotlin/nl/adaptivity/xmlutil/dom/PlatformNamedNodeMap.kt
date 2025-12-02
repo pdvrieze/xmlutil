@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.dom
 
@@ -44,6 +45,10 @@ public actual interface PlatformNamedNodeMap : Iterable<Attr> {
     public fun removeNamedItemNS(namespace: String?, localName: String): PlatformAttr?
 }
 
+/**
+ * Cross platform function for those implementations that do not implement get in the main class.
+ */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline operator fun PlatformNamedNodeMap.get(index:Int): PlatformAttr? = item(index)
 
 

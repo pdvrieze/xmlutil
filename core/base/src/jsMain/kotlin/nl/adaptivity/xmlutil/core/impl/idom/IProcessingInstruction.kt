@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction as ProcessingInstruction1
@@ -29,8 +31,8 @@ public interface IProcessingInstruction : INode, ProcessingInstruction1, Process
 
     override fun getData(): String = data
 
-    override fun setData(value: String) {
-        data = value
+    override fun setData(data: String) {
+        this.data = data
     }
 
 }

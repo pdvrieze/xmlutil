@@ -18,11 +18,13 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom
 
 public actual interface PlatformCharacterData : PlatformNode {
     public fun getData(): String
-    public fun setData(value: String)
+    public fun setData(data: String)
 
     public fun substringData(offset: Int, count: Int): String
 

@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom.PlatformNode
@@ -33,10 +35,13 @@ public interface INode : PlatformNode {
 
     override fun getParentElement(): IElement? = getParentNode() as? IElement
 
+    @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): INode
 
+    @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode
 
+    @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): INode
 }
 

@@ -300,6 +300,7 @@ class ProjectPlugin @Inject constructor(
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
         progressiveMode = true
         languageVersion = KotlinVersion.DEFAULT
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
         configureOptins()
         if (this is KotlinJvmCompilerOptions) {
             project.logger.info("Setting common compilation options for $name")

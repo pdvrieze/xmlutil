@@ -257,8 +257,8 @@ open class TestXmlWriter {
             xmlStreaming.newWriter(builder, false).use { out ->
                 val input = xmlStreaming.newReader(dw.target)
                 while (input.hasNext()) {
-                    input.next()
-                    if (!input.eventType.isIgnorable)
+                    val et = input.next()
+                    if (!et.isIgnorable)
                         input.writeCurrent(out)
                 }
             }

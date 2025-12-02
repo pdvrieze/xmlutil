@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.DeserializationStrategy
@@ -38,6 +40,7 @@ import nl.adaptivity.xmlutil.util.impl.createDocument
 internal object ElementSerializer : XmlSerializer<Element> {
     private val attrSerializer = MapSerializer(String.serializer(), String.serializer())
 
+    @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("element") {
         annotations = listOf(XmlDynamicNameMarker())
         element("namespace", serialDescriptor<String>(), isOptional = true)
@@ -115,7 +118,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
             }
             encodeStringElement(descriptor, 1, value.getLocalName())
 
-            if (value.getAttributes().getLength() > 0) {
+            if (value.getAttributes().size > 0) {
                 val attrIterator: Iterator<Attr> = value.getAttributes().iterator()
                 val m = attrIterator.asSequence().associate { it.nodeName to it.getValue() }
                 encodeSerializableElement(descriptor, 2, attrSerializer, m)
@@ -166,8 +169,8 @@ private class Document2CompositeDecoder(private val delegate: CompositeDecoder, 
 }
 
 private class WrappedDeserializationStrategy2<T>(
-    public val delegate: DeserializationStrategy<T>,
-    public val document: Document
+    val delegate: DeserializationStrategy<T>,
+    val document: Document
 ) :
     DeserializationStrategy<T> {
     override val descriptor: SerialDescriptor get() = delegate.descriptor
@@ -224,6 +227,6 @@ internal fun Node.writeTo(output: XmlWriter) = when (nodeType) {
     NodeConsts.TEXT_NODE -> writeText(output, this as Text)
     NodeConsts.COMMENT_NODE -> writeComment(output, this as Comment)
     NodeConsts.PROCESSING_INSTRUCTION_NODE -> writePI(output, this as ProcessingInstruction)
-    else -> throw IllegalArgumentException("Can not serialize node: ${this}")
+    else -> throw IllegalArgumentException("Can not serialize node: $this")
 }
 

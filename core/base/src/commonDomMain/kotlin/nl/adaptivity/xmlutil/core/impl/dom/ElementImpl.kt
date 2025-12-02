@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XMLConstants
@@ -129,6 +131,7 @@ internal class ElementImpl(
         return NodeListImpl(elems)
     }
 
+    @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): INode {
         val n = checkNode(node)
         when (n) {
@@ -151,6 +154,7 @@ internal class ElementImpl(
         return n
     }
 
+    @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         if (newChild == oldChild) return old
@@ -172,6 +176,7 @@ internal class ElementImpl(
         return old
     }
 
+    @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): INode {
         val n = checkNode(node)
 
@@ -254,9 +259,9 @@ internal class ElementImpl(
         localName: String,
         prefix: String?,
         value: String
-    ): Any {
-        return when {
-            idx >= 0 -> _attributes[idx].setValue(value)
+    ) {
+        when (idx) {
+            in 0.._attributes.size -> _attributes[idx].setValue(value)
             else -> _attributes.add(
                 AttrImpl(getOwnerDocument(), namespaceURI, localName, prefix, value).apply {
                     setOwnerElement(this@ElementImpl)
@@ -378,22 +383,26 @@ internal class ElementImpl(
             (it.getNamespaceURI() ?: "") == (namespace ?: "") && it.getLocalName() == localName
         }
 
+        @IgnorableReturnValue
         override fun setNamedItem(attr: PlatformAttr): IAttr? {
             val a = checkNode(attr) as AttrImpl
 
             return setAttrAt(getAttrIdx(a.getName()), a)
         }
 
+        @IgnorableReturnValue
         override fun setNamedItemNS(attr: PlatformAttr): IAttr? {
             val a = checkNode(attr) as AttrImpl
 
             return setAttrAt(getAttrIdxNS(a.getNamespaceURI(), a.getLocalName()), a)
         }
 
+        @IgnorableReturnValue
         override fun removeNamedItem(qualifiedName: String): IAttr? {
             return removeAttrAt(getAttrIdx(qualifiedName))
         }
 
+        @IgnorableReturnValue
         override fun removeNamedItemNS(namespace: String?, localName: String): IAttr? {
             return removeAttrAt(getAttrIdxNS(getNamespaceURI(), localName))
         }

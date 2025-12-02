@@ -22,6 +22,7 @@
  * Created by pdvrieze on 13/04/16.
  */
 @file:JvmName("XmlUtil")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -160,12 +161,16 @@ public fun NamespaceContext.asQName(name: String): QName {
 
 }
 
+/**
+ * Function that attempts to parse the entire file and returns true if ths does not throw an exception.
+ */
+@Deprecated("Unintended function, that has poor semantics")
 public fun XmlReader.isXml(): Boolean {
-    try {
-        while (hasNext()) next()
-    } catch (e: XmlException) {
-        return false
-    }
+    runCatching {
+        while (hasNext()) {
+            val _ = next()
+        }
+    }.onFailure { return false }
     return true
 }
 

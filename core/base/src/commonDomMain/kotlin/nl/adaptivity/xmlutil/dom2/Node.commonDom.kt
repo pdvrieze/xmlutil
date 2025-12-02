@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.dom2
 
@@ -26,10 +27,12 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual typealias Node = PlatformNode
 
+@IgnorableReturnValue
 public actual fun Node.appendChild(node: PlatformNode): Node {
     return appendChild(node) // child member
 }
 
+@IgnorableReturnValue
 public actual fun Node.replaceChild(
     newChild: PlatformNode,
     oldChild: Node
@@ -37,6 +40,7 @@ public actual fun Node.replaceChild(
     return replaceChild(newChild, oldChild) // child member
 }
 
+@IgnorableReturnValue
 public actual fun Node.removeChild(node: PlatformNode): Node {
     return removeChild(node)
 }

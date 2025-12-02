@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.ICharacterData
@@ -38,8 +40,8 @@ internal abstract class CharacterDataImpl(
 
     override fun getData(): String = data
 
-    override fun setData(value: String) {
-        data = value
+    override fun setData(data: String) {
+        this.data = data
     }
 
     final override fun getFirstChild(): Nothing? = null

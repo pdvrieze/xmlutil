@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.IDocumentFragment
@@ -63,11 +65,12 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
         appendChild(getOwnerDocument().createTextNode(value))
     }
 
+    @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): INode {
         if (node === this) throw DOMException.hierarchyRequestErr("Node cannot be added to itself")
         val n = checkNode(node)
         when (n) {
-            is DocumentFragmentImpl -> for(n2 in n._childNodes) {
+            is DocumentFragmentImpl -> for (n2 in n._childNodes) {
                 _childNodes.elements.add(n2)
                 n2.setParentNode(this)
                 n._childNodes.elements.clear()
@@ -82,13 +85,14 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
         return n
     }
 
+    @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         val oldIdx = _childNodes.elements.indexOf(old)
         if (oldIdx < 0) throw DOMException.notFoundErr("Old child not found")
 
         _childNodes.elements[oldIdx].setParentNode(null)
-        when(val new = checkNode(newChild)) {
+        when (val new = checkNode(newChild)) {
             is DocumentFragmentImpl -> {
                 val elems = new._childNodes.elements
                 for (e in elems) e.setParentNode(this)
@@ -106,6 +110,7 @@ internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : N
         return old
     }
 
+    @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): INode {
         val c = checkNode(node)
 

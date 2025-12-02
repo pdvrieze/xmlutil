@@ -28,10 +28,9 @@ import kotlin.test.*
 
 class TestKtXmlReaderExpandEntities : TestCommonReader() {
 
-    override fun createReader(it: String): XmlReader {
-        return xmlStreaming.newGenericReader(it, expandEntities = true).also {
-            assertIs<KtXmlReader>(it)
-            assertTrue(it.expandEntities, "Expand entities not set")
+    override fun createReader(xml: String): XmlReader {
+        return xmlStreaming.newGenericReader(xml, expandEntities = true).also {
+            assertTrue(assertIs<KtXmlReader>(it).expandEntities, "Expand entities not set")
         }
     }
 
@@ -82,7 +81,7 @@ class TestKtXmlReaderExpandEntities : TestCommonReader() {
         val data = "<x>   dude &amp; &lt;dudette&gt;   </x>"
         val r = assertIs<KtXmlReader>(createReader(data))
         assertTrue(r.expandEntities)
-        r.nextTag()
+        val _ = r.nextTag()
         r.require(EventType.START_ELEMENT, "", "x")
         assertEquals(EventType.TEXT, r.next())
         r.require(EventType.TEXT, null)

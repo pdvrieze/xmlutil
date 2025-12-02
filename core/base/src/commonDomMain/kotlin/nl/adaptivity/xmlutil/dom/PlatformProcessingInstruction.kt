@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.dom
 
@@ -29,7 +30,7 @@ package nl.adaptivity.xmlutil.dom
 public actual interface PlatformProcessingInstruction : PlatformNode {
     public fun getData(): String
 
-    public fun setData(value: String)
+    public fun setData(data: String)
 
     public fun getTarget(): String
 }

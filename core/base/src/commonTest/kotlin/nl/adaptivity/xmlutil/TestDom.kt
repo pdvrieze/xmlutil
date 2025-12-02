@@ -178,7 +178,7 @@ class TestDom {
         fun getTestElementRoot(): Element = xmlStreaming.newReader(NESTED_ELEMENTS_TAG_SOUP).let { r ->
             DomWriter().also { w ->
                 while (r.hasNext()) {
-                    r.next()
+                    val _ = r.next()
                     r.writeCurrent(w)
                 }
             }.target.documentElement

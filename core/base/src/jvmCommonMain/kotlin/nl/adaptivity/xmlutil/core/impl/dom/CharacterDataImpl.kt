@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.ICharacterData
@@ -35,20 +37,20 @@ internal abstract class CharacterDataImpl<N : CharacterData>(delegate: N) : Node
     override fun substringData(offset: Int, count: Int): String =
         delegate.substringData(offset, count)
 
-    override fun appendData(arg: String) {
-        delegate.appendData(arg)
+    override fun appendData(data: String) {
+        delegate.appendData(data)
     }
 
-    override fun insertData(offset: Int, arg: String) {
-        delegate.insertData(offset, arg)
+    override fun insertData(offset: Int, data: String) {
+        delegate.insertData(offset, data)
     }
 
     override fun deleteData(offset: Int, count: Int) {
         delegate.deleteData(offset, count)
     }
 
-    override fun replaceData(offset: Int, count: Int, arg: String) {
-        delegate.replaceData(offset, count, arg)
+    override fun replaceData(offset: Int, count: Int, data: String) {
+        delegate.replaceData(offset, count, data)
     }
 
     override fun getFirstChild(): Nothing? = null

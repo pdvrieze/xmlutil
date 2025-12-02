@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom.DOMException
@@ -27,12 +29,15 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 public interface IAttr : INode, PlatformAttr {
     override fun getOwnerElement(): IElement?
 
+    @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): Nothing =
         throw DOMException.hierarchyRequestErr("Attributes have no children")
 
+    @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
         throw DOMException.hierarchyRequestErr("Attributes have no children")
 
+    @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): Nothing =
         throw DOMException.hierarchyRequestErr("Attributes have no children")
 

@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 public expect interface NamedNodeMap : Iterable<Attr> {
@@ -56,7 +58,7 @@ private class NamedNodeMapIterator(private val map: NamedNodeMap) : Iterator<Att
 
     private var pos = 0
 
-    override fun hasNext(): Boolean = pos < map.getLength()
+    override fun hasNext(): Boolean = pos < map.size
 
     override fun next(): Attr = map.get(pos++) ?: throw NoSuchElementException("Iterating beyond node map")
 }

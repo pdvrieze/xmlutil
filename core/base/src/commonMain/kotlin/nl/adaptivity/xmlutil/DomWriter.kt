@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -82,15 +83,9 @@ public class DomWriter internal constructor(
                 currentNode = current
             }
 
-            is Node -> {
+            else -> {
                 docDelegate = current.ownerDocument
                 currentNode = current
-            }
-
-            else -> {
-                val doc = xmlStreaming.genericDomImplementation.createDocument()
-                docDelegate = doc
-                currentNode = doc.adoptNode(current)
             }
         }
 

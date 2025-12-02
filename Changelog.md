@@ -1,6 +1,6 @@
 # 1.0.0-rc1-SNAPSHOT
 Changes:
-- Update to kotlin 2.3.0-RC2, updating the api version to 2.2 to enable return
+- Update to kotlin 2.3.0-RC2, updating the api version to 2.3 to enable return
   value checking (kotlinx.serialization requires this too)
 - The DOM implementation is streamlined and refactored. There are some bug
   fixes and more importantly API changes. This should lead to an overall

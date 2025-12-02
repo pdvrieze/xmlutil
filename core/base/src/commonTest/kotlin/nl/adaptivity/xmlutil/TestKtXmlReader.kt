@@ -34,7 +34,7 @@ import kotlin.test.assertEquals
 
 class TestKtXmlReader : TestCommonReader() {
 
-    override fun createReader(it: String): XmlReader = xmlStreaming.newGenericReader(it)
+    override fun createReader(xml: String): XmlReader = xmlStreaming.newGenericReader(xml)
 
     @Test
     fun testReadEntityInAttribute() {

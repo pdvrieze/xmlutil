@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.util
 
 import kotlinx.serialization.builtins.ListSerializer
@@ -31,11 +33,12 @@ import nl.adaptivity.xmlutil.*
 public object CompactFragmentSerializer : XmlSerializer<CompactFragment> {
     private val namespacesSerializer = ListSerializer(Namespace)
 
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("nl.adaptivity.xmlutil.util.compactFragment") {
-        annotations = listOf(XmlDynamicNameMarker())
-        element("namespaces", namespacesSerializer.descriptor)
-        element("content", serialDescriptor<String>())
-    }
+    override val descriptor: SerialDescriptor =
+        buildClassSerialDescriptor("nl.adaptivity.xmlutil.util.compactFragment") {
+            annotations = listOf(XmlDynamicNameMarker())
+            element("namespaces", namespacesSerializer.descriptor)
+            element("content", serialDescriptor<String>())
+        }
 
     override fun deserializeXML(
         decoder: Decoder,
@@ -49,7 +52,7 @@ public object CompactFragmentSerializer : XmlSerializer<CompactFragment> {
             }
 
             else -> decoder.decodeStructure(descriptor) {
-                input.next()
+                val _ = input.next()
                 input.siblingsToFragment()
             }
         }

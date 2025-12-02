@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.QName
@@ -66,7 +68,14 @@ public inline val Document.documentElement: Element? get() = getDocumentElement(
 public inline val Document.inputEncoding: String? get() = getInputEncoding()
 
 public expect fun Document.importNode(node: PlatformNode, deep: Boolean): Node
+
+/**
+ * Helper extension for cross platform use. Some implementations have member implementations.
+ */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public fun Document.importNode(node: Node): Node = importNode(node, false)
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val Document.characterSet: String? get() = getInputEncoding()
 
 public fun Document.createElementNS(qName: QName): Element = when {

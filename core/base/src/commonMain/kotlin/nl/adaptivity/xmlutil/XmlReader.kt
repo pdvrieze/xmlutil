@@ -20,6 +20,7 @@
 
 @file:JvmMultifileClass
 @file:JvmName("XmlReaderUtil")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -338,21 +339,19 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
         loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
             when (event?.eventType) {
                 EventType.PROCESSING_INSTRUCTION,
-                EventType.COMMENT
-                -> {
-                    t.next();Unit
-                } // ignore
+                EventType.COMMENT -> {
+                    val _ = t.next() // ignore
+                }
 
                 // ignore whitespace starting the element.
                 EventType.IGNORABLE_WHITESPACE
                 -> {
-                    t.next(); whiteSpace.append(t.text)
+                    val _ = t.next(); whiteSpace.append(t.text)
                 }
 
                 EventType.TEXT,
                 EventType.ENTITY_REF,
-                EventType.CDSECT
-                -> {
+                EventType.CDSECT -> {
                     t.next()
                     if (isNotEmpty()) {
                         append(whiteSpace)
@@ -361,8 +360,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     append(t.text)
                 }
 
-                EventType.START_ELEMENT
-                -> {
+                EventType.START_ELEMENT -> {
                     // If we have text we will actually not ignore the whitespace
                     if (isNotEmpty()) {
                         append(whiteSpace); whiteSpace.clear()
@@ -409,7 +407,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
             when (eventType) {
                 EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT -> {
-                    t.next();Unit
+                    val _ = t.next()
                 } // ignore
 
                 // ignore whitespace starting the element.
@@ -417,7 +415,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
                 EventType.TEXT,
                 EventType.ENTITY_REF,
                 EventType.CDSECT -> {
-                    t.next()
+                    val _ = t.next()
                     append(t.text)
                 }
 
@@ -481,7 +479,7 @@ public fun XmlReader.readSimpleElement(): String {
  */
 public fun XmlReader.skipPreamble() {
     while ((!isStarted || isIgnorable()) && hasNext()) {
-        next()
+        val _ = next()
     }
 }
 

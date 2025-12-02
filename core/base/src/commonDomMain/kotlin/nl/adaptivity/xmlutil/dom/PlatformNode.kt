@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.dom
 
@@ -62,10 +63,13 @@ public actual interface PlatformNode {
 
     public fun lookupNamespaceURI(prefix: String): String?
 
+    @IgnorableReturnValue
     public fun appendChild(node: PlatformNode): PlatformNode
 
+    @IgnorableReturnValue
     public fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): PlatformNode
 
+    @IgnorableReturnValue
     public fun removeChild(node: PlatformNode): PlatformNode
 
 //    public fun getNodeType(): Short = nodeType.value

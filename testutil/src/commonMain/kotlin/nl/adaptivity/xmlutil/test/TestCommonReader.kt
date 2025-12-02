@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.test
 
 import nl.adaptivity.xmlutil.*
@@ -271,7 +273,7 @@ abstract class TestCommonReader {
         }
     }
 
-    protected abstract fun createReader(it: String): XmlReader
+    protected abstract fun createReader(xml: String): XmlReader
 
     @Test
     open fun testReadCompactFragmentWithNamespaceInOuter() {

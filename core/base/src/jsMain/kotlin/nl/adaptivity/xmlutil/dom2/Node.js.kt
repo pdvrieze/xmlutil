@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
@@ -41,16 +43,24 @@ public actual interface Node {
     public actual fun getParentElement(): Element?
     public actual fun lookupPrefix(namespace: String): String?
     public actual fun lookupNamespaceURI(prefix: String): String?
+
+    @IgnorableReturnValue
     public actual fun appendChild(node: Node): Node
+
+    @IgnorableReturnValue
     public actual fun replaceChild(newChild: Node, oldChild: Node): Node
+
+    @IgnorableReturnValue
     public actual fun removeChild(node: Node): Node
 }
 
+@IgnorableReturnValue
 public actual fun Node.appendChild(node: PlatformNode): Node {
     val n = node as? Node ?: getOwnerDocument().adoptNode(node)
     return appendChild(n)
 }
 
+@IgnorableReturnValue
 public actual fun Node.replaceChild(
     newChild: PlatformNode,
     oldChild: Node
@@ -59,6 +69,7 @@ public actual fun Node.replaceChild(
     return replaceChild(n, oldChild)
 }
 
+@IgnorableReturnValue
 public actual fun Node.removeChild(node: PlatformNode): Node {
     val n = node as? Node ?: node.wrap()
     return removeChild(n)

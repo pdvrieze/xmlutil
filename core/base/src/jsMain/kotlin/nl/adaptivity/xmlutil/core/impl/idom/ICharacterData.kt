@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom2.Node
@@ -28,8 +30,8 @@ public interface ICharacterData : INode, CharacterData1, CharacterData2 {
 
     override fun getData(): String = data
 
-    override fun setData(value: String) {
-        data = value
+    override fun setData(data: String) {
+        this.data = data
     }
 
     public override fun appendChild(node: Node): Nothing =

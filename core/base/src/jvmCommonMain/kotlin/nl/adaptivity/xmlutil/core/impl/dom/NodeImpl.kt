@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.*
@@ -59,8 +61,8 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
 
     final override fun getTextContent(): String? = delegate.textContent
 
-    final override fun setTextContent(textContent: String) {
-        delegate.textContent = textContent
+    final override fun setTextContent(value: String) {
+        delegate.textContent = value
     }
 
     final override fun getChildNodes(): INodeList = WrappingNodeList(delegate.childNodes)

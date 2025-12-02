@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.*
@@ -124,6 +126,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
         }
     }
 
+    @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): INode {
         val n = checkNode(node)
         if (n == _documentElement) return n
@@ -147,7 +150,10 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
                 is PlatformComment,
                 is ProcessingInstructionImpl -> Unit // fine
 
-                is TextImpl -> if(! isXmlWhitespace(n.getData())) { throw DOMException.notSupportedErr("Non-whitespace nodes cannot be added directly to a document") }
+                is TextImpl -> if (!isXmlWhitespace(n.getData())) {
+                    throw DOMException.notSupportedErr("Non-whitespace nodes cannot be added directly to a document")
+                }
+
                 else -> throw DOMException.notSupportedErr("Attempting to add node ${n.getNodetype()} where not permitted")
             }
 
@@ -158,6 +164,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
         return n
     }
 
+    @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): INode {
         val n = checkNode(node)
         val idx = _childNodes.elements.indexOf(node)
@@ -168,6 +175,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
         return n
     }
 
+    @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
         val old = checkNode(oldChild)
         if (old != _documentElement) throw DOMException.notFoundErr("Old node not found in document")
@@ -260,10 +268,10 @@ internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
         is IDocumentType -> throw DOMException.wrongDocumentErr("Node is idocumenttype")
         is IElement -> throw DOMException.wrongDocumentErr("Node is ielement")
         is INode -> throw DOMException.wrongDocumentErr("Node is an inode")
-        else -> DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+        else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
     }
 //    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
-    return node as NodeImpl
+    return node
 }
 
 internal fun INode.checkNode(node: INode): NodeImpl {

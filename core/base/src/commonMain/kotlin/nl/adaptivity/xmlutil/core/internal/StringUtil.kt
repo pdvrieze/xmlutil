@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.internal
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -215,7 +217,8 @@ private val NAMECHAR: BooleanArray = BooleanArray(256).also { b ->
     for (c in 0xd8..0xff) b[c] = true
 }
 
-internal fun Appendable.appendCodepoint(codepoint: Int) = when {
+@IgnorableReturnValue
+internal fun Appendable.appendCodepoint(codepoint: Int): Appendable = when {
     codepoint > 0xffff -> {
         val down = codepoint - 0x10000
         val highSurogate = (down shr 10) + 0xd800

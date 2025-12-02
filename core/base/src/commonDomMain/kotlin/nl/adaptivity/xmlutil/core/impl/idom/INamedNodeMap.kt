@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.dom.PlatformAttr
@@ -35,12 +37,16 @@ public interface INamedNodeMap : PlatformNamedNodeMap, Collection<PlatformAttr> 
 
     override fun getNamedItemNS(namespace: String?, localName: String): IAttr?
 
+    @IgnorableReturnValue
     override fun setNamedItem(attr: PlatformAttr): IAttr?
 
+    @IgnorableReturnValue
     override fun setNamedItemNS(attr: PlatformAttr): IAttr?
 
+    @IgnorableReturnValue
     override fun removeNamedItem(qualifiedName: String): IAttr?
 
+    @IgnorableReturnValue
     override fun removeNamedItemNS(namespace: String?, localName: String): IAttr?
 
     override fun iterator(): Iterator<IAttr>

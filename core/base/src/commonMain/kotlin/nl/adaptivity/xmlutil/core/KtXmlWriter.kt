@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.NamespaceContext
@@ -146,15 +148,16 @@ public class KtXmlWriter(
         open val isAttr: Boolean get() = false
     }
 
+
+    private fun Appendable.appendNumCharRef(code: Int) {
+        append("&#x").append(code.toString(16)).append(';')
+    }
+
+    private fun throwInvalid(code: Int): Nothing {
+        throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
+    }
+
     private fun Appendable.appendXmlCodepoint(codepoint: Int, mode: EscapeMode) {
-
-        fun appendNumCharRef(code: Int) {
-            append("&#x").append(code.toString(16)).append(';')
-        }
-
-        fun throwInvalid(code: Int): Nothing {
-            throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
-        }
 
         val ch = when (codepoint) {
             0x9, 0xA, 0xD, in (0x20..0xd7ff), in (0xe000..0xfffd) ->
@@ -201,14 +204,6 @@ public class KtXmlWriter(
     }
 
     private fun Appendable.appendXmlChar(char: Char, mode: EscapeMode) {
-
-        fun appendNumCharRef(code: Int) {
-            append("&#x").append(code.toString(16)).append(';')
-        }
-
-        fun throwInvalid(code: Int): Nothing {
-            throw IllegalArgumentException("In xml ${xmlVersion.versionString} the character 0x${code.toString(16)} is not valid")
-        }
 
         when {
             char.code >= ESCAPED_CHARS.size -> {
@@ -298,7 +293,7 @@ public class KtXmlWriter(
     private fun writeIndent(newDepth: Int = depth) {
         if (lastTagDepth >= 0 && indentString.isNotEmpty() && lastTagDepth != depth) {
             ignorableWhitespace("\n")
-            for (i in 0 until depth) {
+            for (_ in 0 until depth) {
                 writer.append(indentString)
             }
         }

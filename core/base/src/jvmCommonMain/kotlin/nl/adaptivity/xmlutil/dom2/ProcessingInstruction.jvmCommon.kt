@@ -18,10 +18,12 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 public actual interface ProcessingInstruction : Node {
     public actual fun getTarget(): String
     public actual fun getData(): String
-    public actual fun setData(value: String)
+    public actual fun setData(data: String)
 }
