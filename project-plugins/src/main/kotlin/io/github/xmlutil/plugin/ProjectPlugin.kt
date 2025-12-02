@@ -108,7 +108,7 @@ class ProjectPlugin @Inject constructor(
             applyLayout.convention(true)
             val apiVer = libs.findVersion("apiVersion").getOrNull()
                 ?.run { requiredVersion.let { KotlinVersion.fromVersion(it) } }
-                ?: KotlinVersion.KOTLIN_2_0
+                ?: KotlinVersion.KOTLIN_2_2
             kotlinApiVersion.convention(apiVer)
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
             createAndroidCompatComponent.convention(false)
