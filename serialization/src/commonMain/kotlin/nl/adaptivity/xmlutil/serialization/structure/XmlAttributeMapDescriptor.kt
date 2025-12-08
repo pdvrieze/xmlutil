@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi

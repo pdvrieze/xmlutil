@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -129,8 +131,8 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         val policy = codecConfig.config.policy
 
         var attrMapChildIdx =
-            if (policy.isStrictOtherAttributes) Int.MAX_VALUE else CompositeDecoder.Companion.UNKNOWN_NAME
-        var valueChildIdx = CompositeDecoder.Companion.UNKNOWN_NAME
+            if (policy.isStrictOtherAttributes) Int.MAX_VALUE else CompositeDecoder.UNKNOWN_NAME
+        var valueChildIdx = CompositeDecoder.UNKNOWN_NAME
 
 
         fun XmlOrderNode.ensureDescriptor(): XmlDescriptor {
@@ -160,7 +162,7 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         initialChildReorderInfo.sequenceStarts(elementsCount).let { sequenceStarts ->
             for (orderedSequence in sequenceStarts) {
                 for (element in orderedSequence.flatten()) {
-                    element.ensureDescriptor()
+                    val _ = element.ensureDescriptor()
                 }
             }
         }
@@ -172,7 +174,7 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
             updatedReorderInfo.sequenceStarts(elementsCount).let { sequenceStarts ->
                 for (orderedSequence in sequenceStarts) {
                     for (element in orderedSequence.flatten()) {
-                        element.ensureDescriptor()
+                        val _ = element.ensureDescriptor()
                     }
                 }
             }
@@ -186,7 +188,7 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
         return LazyProps(
             parent = this,
             children = children,
-            attrMapChildIdx = if (attrMapChildIdx == Int.MAX_VALUE) CompositeDecoder.Companion.UNKNOWN_NAME else attrMapChildIdx,
+            attrMapChildIdx = if (attrMapChildIdx == Int.MAX_VALUE) CompositeDecoder.UNKNOWN_NAME else attrMapChildIdx,
             valueChildIdx = valueChildIdx,
             childReorderMap = childReorderInfo.second,
             childConstraints = childReorderInfo.first,
@@ -197,7 +199,7 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
     private fun createElementDescriptors(
         codecConfig: XML.XmlCodecConfig
     ): LazyProps {
-        var valueChildIdx = CompositeDecoder.Companion.UNKNOWN_NAME
+        var valueChildIdx = CompositeDecoder.UNKNOWN_NAME
         val isStrictOtherAttributes = codecConfig.config.policy.isStrictOtherAttributes
 
         var attrMapChildIdx = if (isStrictOtherAttributes) Int.MAX_VALUE else -1

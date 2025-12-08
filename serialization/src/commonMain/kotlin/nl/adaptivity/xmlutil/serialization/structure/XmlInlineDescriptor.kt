@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -167,7 +169,8 @@ public class XmlInlineDescriptor : XmlValueDescriptor {
                     // This is needed as this descriptor is not complete yet and would use this element's
                     // unset name for the namespace.
                     val serialName = typeDescriptor.serialDescriptor.getElementName(0)
-                    val annotation = typeDescriptor.serialDescriptor.getElementAnnotations(0).firstOrNull<XmlSerialName>()
+                    val annotation =
+                        typeDescriptor.serialDescriptor.getElementAnnotations(0).firstOrNull<XmlSerialName>()
                     val qName = annotation?.toQName(serialName, tagParent.namespace)
                     val childUseNameInfo =
                         XmlSerializationPolicy.DeclaredNameInfo(
@@ -185,8 +188,13 @@ public class XmlInlineDescriptor : XmlValueDescriptor {
                 }
             }
 
-            val useParentInfo = ParentInfo(codecConfig.config, parent, 0, effectiveUseNameInfo,
-                parent.serializerParent.elementUseOutputKind)
+            val useParentInfo = ParentInfo(
+                config = codecConfig.config,
+                descriptor = parent,
+                index = 0,
+                useNameInfo = effectiveUseNameInfo,
+                useOutputKind = parent.serializerParent.elementUseOutputKind
+            )
 
             child = from(codecConfig, useParentInfo, tagParent, canBeAttribute)
 

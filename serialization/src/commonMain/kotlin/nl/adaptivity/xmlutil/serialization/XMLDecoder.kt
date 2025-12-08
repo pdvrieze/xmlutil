@@ -2029,6 +2029,7 @@ internal open class XmlDecoderBase internal constructor(
         typeDiscriminatorName: QName?,
         inheritedPreserveWhitespace: DocumentPreserveSpace,
     ) : MapDecoderBase(deserializer, xmlDescriptor, polyInfo, typeDiscriminatorName, inheritedPreserveWhitespace) {
+        @IgnorableReturnValue
         override fun Int.checkRepeat(): Int = this
 
         override fun decodeElementIndex(): Int {

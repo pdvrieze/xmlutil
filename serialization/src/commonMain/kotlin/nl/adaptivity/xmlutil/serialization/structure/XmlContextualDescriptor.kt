@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization.structure
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -50,6 +52,7 @@ public class XmlContextualDescriptor : XmlDescriptor {
         canBeAttribute: Boolean,
         defaultPreserveSpace: TypePreserveSpace
     ) : super(codecConfig, serializerParent, tagParent) {
+        @OptIn(ExperimentalSerializationApi::class)
         this.context = serializerParent.elementSerialDescriptor.capturedKClass
         this.canBeAttribute = canBeAttribute
         this.defaultPreserveSpace = defaultPreserveSpace

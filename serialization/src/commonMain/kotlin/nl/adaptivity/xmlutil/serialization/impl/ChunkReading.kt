@@ -1,26 +1,29 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization.impl
 
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.XmlException
+import nl.adaptivity.xmlutil.XmlPeekingReader
+import nl.adaptivity.xmlutil.XmlReader
 
 
 private const val MAXCHUNKSIZE = 16384
@@ -46,15 +49,14 @@ internal fun XmlReader.readSimpleElementChunked(consumeChunk: (chunk: String) ->
     while ((t.next()) !== EventType.END_ELEMENT) {
         when (t.eventType) {
             EventType.COMMENT,
-            EventType.PROCESSING_INSTRUCTION -> {
-            }
+            EventType.PROCESSING_INSTRUCTION -> Unit
+
             EventType.IGNORABLE_WHITESPACE,
             EventType.TEXT,
             EventType.ENTITY_REF,
             EventType.CDSECT -> consumeChunksFromString(t.text, consumeChunk)
-            else -> throw XmlException(
-                "Expected text content or end tag, found: ${t.eventType}"
-            )
+
+            else -> throw XmlException("Expected text content or end tag, found: ${t.eventType}")
         }/* Ignore */
     }
 }
@@ -68,22 +70,20 @@ internal fun XmlPeekingReader.allConsecutiveTextContentChunked(consumeChunk: (ch
     loop@ while ((t.peekNextEvent().also { eventType = it }) !== EventType.END_ELEMENT) {
         when (eventType) {
             EventType.PROCESSING_INSTRUCTION,
-            EventType.COMMENT
-            -> {
-                t.next();Unit
+            EventType.COMMENT -> {
+                val _ = t.next()
             } // ignore
 
             // ignore whitespace starting the element.
             EventType.IGNORABLE_WHITESPACE,
             EventType.TEXT,
             EventType.ENTITY_REF,
-            EventType.CDSECT
-            -> {
-                t.next()
+            EventType.CDSECT -> {
+                val _ = t.next()
                 consumeChunksFromString(t.text, consumeChunk)
             }
-            EventType.START_ELEMENT
-            -> {
+
+            EventType.START_ELEMENT -> {
                 // don't progress the event either
                 break@loop
             }
@@ -113,6 +113,7 @@ internal fun XmlReader.allTextChunked(consumeChunk: (chunk: String) -> Unit) {
             EventType.IGNORABLE_WHITESPACE -> {
                 if (writtenChunk) consumeChunksFromString(t.text, consumeChunk)
             }
+
             EventType.ENTITY_REF,
             EventType.TEXT,
             EventType.CDSECT -> {

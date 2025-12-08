@@ -113,7 +113,6 @@ private constructor(
         indentString = builder.indentString,
         policy = builder.policy ?: DefaultXmlSerializationPolicy.Builder().apply {
             pedantic = false
-            autoPolymorphic = builder.autoPolymorphic ?: false
         }.build(),
         nilAttribute = builder.nilAttribute,
         xmlVersion = builder.xmlVersion,
@@ -416,9 +415,7 @@ private constructor(
          */
         @Suppress("FunctionName")
         public fun recommended_0_90_2() {
-            val hadAutoPolymorphic = autoPolymorphic != null
             recommended_0_90_2 { }
-            if (!hadAutoPolymorphic) autoPolymorphic = null
         }
 
         /**
@@ -442,9 +439,7 @@ private constructor(
          */
         @Suppress("FunctionName")
         public fun recommended_0_91_0() {
-            val hadAutoPolymorphic = autoPolymorphic != null
             recommended_0_91_0 { }
-            if (!hadAutoPolymorphic) autoPolymorphic = null
         }
 
         /**
@@ -465,9 +460,7 @@ private constructor(
          */
         @Suppress("FunctionName")
         public fun fast_0_90_2() {
-            val hadAutoPolymorphic = autoPolymorphic != null
             fast_0_90_2 { }
-            if (!hadAutoPolymorphic) autoPolymorphic = null
         }
 
         /**
@@ -493,9 +486,7 @@ private constructor(
          */
         @Suppress("FunctionName")
         public fun fast_0_91_1() {
-            val hadAutoPolymorphic = autoPolymorphic != null
             fast_0_91_1 { }
-            if (!hadAutoPolymorphic) autoPolymorphic = null
         }
 
         /**
@@ -528,9 +519,7 @@ private constructor(
          */
         @OptIn(ExperimentalXmlUtilApi::class)
         public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
-            val defaultPolicy = policyBuilder().apply(configure).build()
-            policy = defaultPolicy
-            if (autoPolymorphic != null) autoPolymorphic = defaultPolicy.autoPolymorphic
+            policy = policyBuilder().apply(configure).build()
         }
 
         @OptIn(ExperimentalXmlUtilApi::class)
@@ -539,7 +528,7 @@ private constructor(
             is DefaultXmlSerializationPolicy -> p.builder()
             null -> DefaultXmlSerializationPolicy.Builder()
             else -> DefaultXmlSerializationPolicy.Builder(p)
-        }.also { autoPolymorphic?.let { ap -> it.autoPolymorphic = ap } }
+        }
     }
 
     public companion object {

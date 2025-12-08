@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization.impl
 
 import kotlin.jvm.JvmInline
@@ -46,7 +48,7 @@ import kotlin.math.ceil
  *
  * @author uday
  */
-internal class LRUCache<K : Any, V : Any>private constructor(
+internal class LRUCache<K : Any, V : Any> private constructor(
     private val cacheSize: Int,
     private val modulo: Int,
     private val positionModulo: Int,
@@ -57,12 +59,12 @@ internal class LRUCache<K : Any, V : Any>private constructor(
     size: Int = 0
 ) {
 
-    constructor(cacheSize: Int, fillFactor: Float = 0.5f): this(
+    constructor(cacheSize: Int, fillFactor: Float = 0.5f) : this(
         cacheSize = cacheSize,
         capacity = calculateArraySize(cacheSize, fillFactor),
     )
 
-    private constructor(cacheSize: Int, capacity: Int, maxPosition: Int = capacity * NUM_INTEGERS_TO_HOLD_ENTRY): this(
+    private constructor(cacheSize: Int, capacity: Int, maxPosition: Int = capacity * NUM_INTEGERS_TO_HOLD_ENTRY) : this(
         cacheSize = cacheSize,
         modulo = capacity - 1,
         positionModulo = maxPosition - 1,
@@ -99,12 +101,15 @@ internal class LRUCache<K : Any, V : Any>private constructor(
         size = 0
     }
 
-    operator fun set(key: K, value: V) { put(key, value) }
+    operator fun set(key: K, value: V) {
+        put(key, value)
+    }
 
     /**
      * Inserts key, value into the cache. Returns any previous value associated with the given key,
-     * otherwise [this.NULL] is returned.
+     * otherwise `null` is returned.
      */
+    @IgnorableReturnValue
     fun put(key: K, value: V): V? {
         check(size <= cacheSize) { "Cache size exceeded expected bounds!" }
         val position = posFromHash(key)
@@ -154,7 +159,7 @@ internal class LRUCache<K : Any, V : Any>private constructor(
 
     /**
      * Inserts key, value into the cache. Returns any previous value associated with the given key,
-     * otherwise [this.NULL] is returned.
+     * otherwise `null` is returned.
      */
     fun getOrPut(key: K, defaultValue: () -> V): V {
         check(size <= cacheSize) { "Cache size exceeded expected bounds!" }
@@ -204,11 +209,10 @@ internal class LRUCache<K : Any, V : Any>private constructor(
     }
 
     fun putAll(other: LRUCache<out K, out V>) {
-        if (other.size ==0) return
-
+        if (other.size == 0) return
 
         var pos = other.oldestPosition
-        check(! other.getOlder(pos).isSet)
+        check(!other.getOlder(pos).isSet)
         while (pos.isSet) {
             put(other.getKey(pos)!!, other.getValue(pos)!!)
             pos = other.getNewer(pos)
@@ -217,7 +221,7 @@ internal class LRUCache<K : Any, V : Any>private constructor(
     }
 
     /**
-     * Returns the value associated with the given key, otherwise [this.NULL] is returned.
+     * Returns the value associated with the given key, otherwise `null` is returned.
      */
     operator fun get(key: K): V? {
         val position = posFromHash(key)
@@ -237,7 +241,7 @@ internal class LRUCache<K : Any, V : Any>private constructor(
 
     /**
      * Removes the given key from the cache. Returns the value associated with key if it is
-     * removed, otherwise [this.NULL] is returned.
+     * removed, otherwise `null` is returned.
      */
     fun remove(key: K): V? {
         val position = posFromHash(key)
@@ -415,9 +419,11 @@ internal class LRUCache<K : Any, V : Any>private constructor(
         private const val RIGHT_OFFSET = 1
         private const val NUM_INTEGERS_TO_HOLD_ENTRY = 2
 
+        /*
         init {
             check((NUM_INTEGERS_TO_HOLD_ENTRY and NUM_INTEGERS_TO_HOLD_ENTRY - 1) == 0) { "Invalid entry size, should be power of 2!" }
         }
+        */
 
         /**
          * Returns the least power of two larger than or equal to `Math.ceil( expected / f
@@ -433,7 +439,7 @@ internal class LRUCache<K : Any, V : Any>private constructor(
          */
         private fun calculateArraySize(expectedSize: Int, f: Float): Int {
             var desiredCapacity = ceil((expectedSize / f).toDouble()).toLong()
-            require(desiredCapacity <= Int.Companion.MAX_VALUE) {
+            require(desiredCapacity <= Int.MAX_VALUE) {
                 "Storage gets too large with expected size $expectedSize, load factor $f"
             }
             // find next closest power of 2.

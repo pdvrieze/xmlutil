@@ -34,12 +34,15 @@ public interface ICharacterData : INode, CharacterData1, CharacterData2 {
         this.data = data
     }
 
+    @IgnorableReturnValue
     public override fun appendChild(node: Node): Nothing =
         throw UnsupportedOperationException("No children in character nodes")
 
+    @IgnorableReturnValue
     public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
         throw UnsupportedOperationException("No children in character nodes")
 
+    @IgnorableReturnValue
     public override fun removeChild(node: Node): Nothing =
         throw UnsupportedOperationException("No children in character nodes")
 

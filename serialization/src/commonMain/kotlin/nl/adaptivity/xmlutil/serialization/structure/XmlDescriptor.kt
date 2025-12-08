@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.serialization.structure
 
@@ -35,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameIn
 import nl.adaptivity.xmlutil.serialization.impl.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 
-public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
+public sealed class XmlDescriptor @XmlUtilInternal constructor(
     override val serializerParent: SafeParentInfo,
     final override val tagParent: SafeParentInfo,
     final override val overriddenSerializer: KSerializer<*>?,
@@ -159,6 +160,7 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
+    @IgnorableReturnValue
     internal fun <A : Appendable> toString(builder: A, indent: Int, seen: MutableSet<String>): A {
         when (this) {
             is XmlContextualDescriptor,
@@ -431,8 +433,8 @@ public sealed class XmlDescriptor @XmlUtilInternal protected constructor(
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 internal fun <X: XmlDescriptor> X.copy(name: QName): X = copy( { lazyOf(name) }) as X
-
 
 /**
  * Determines the usage name information. As such it only looks at the property's serialName and XmlSerialName annotation.
@@ -484,6 +486,7 @@ internal fun XmlTypeDescriptor.declOutputKind(): OutputKind? = when {
 }
 
 
+@IgnorableReturnValue
 internal fun <A : Appendable> A.appendIndent(count: Int) = apply {
     for (i in 0 until count) {
         append(' ')
