@@ -41,13 +41,13 @@ class AndroidStrings225 {
 
     val xml: XML
         get() = XML(
-        SerializersModule {
-            polymorphic(Any::class, String::class, String.serializer())
-            polymorphic(Any::class, Element::class, Element.serializer())
+            SerializersModule {
+                polymorphic(Any::class, String::class, String.serializer())
+                polymorphic(Any::class, Element::class, Element.serializer())
+            }
+        ) {
+            recommended_0_91_0 { pedantic = true }
         }
-    ) {
-        recommended_0_91_0 { pedantic = true }
-    }
 
     @Test
     fun testDecodeAny() {
@@ -60,17 +60,17 @@ class AndroidStrings225 {
                     <string name="test_string_2">test 2</string>
                 </resources>""".trimIndent()
 
-        val parsed = xml.decodeFromString(Resources.serializer(), data)
+        val (strings) = xml.decodeFromString(Resources.serializer(), data)
 
-        assertEquals(2, parsed.strings.size)
-        val p1 = parsed.strings[0]
+        assertEquals(2, strings.size)
+        val p1 = strings[0]
         assertEquals("string_android", p1.name)
         assertEquals(3, p1.node.size)
         assertEquals("Test with argument ", p1.node[0])
-        assertIs<Element>(p1.node[1])
+        val _ = assertIs<Element>(p1.node[1])
         assertEquals(" here", p1.node[2])
 
-        val p2 = parsed.strings[1]
+        val p2 = strings[1]
         assertEquals("test_string_2", p2.name)
         assertEquals(listOf("test 2"), p2.node)
 
@@ -94,7 +94,7 @@ class AndroidStrings225 {
         assertEquals("string_android", p1.name)
         assertEquals(3, p1.node.size)
         assertEquals("Test with argument ", p1.node[0].textContent)
-        assertIs<Element>(p1.node[1])
+        val _ = assertIs<Element>(p1.node[1])
         assertEquals(" here", p1.node[2].textContent)
 
         val p2 = parsed.strings[1]

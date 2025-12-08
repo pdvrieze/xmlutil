@@ -22,6 +22,8 @@
 //
 
 
+@file:Suppress("AssignedValueIsNeverRead")
+
 package nl.adaptivity.xml.serialization.regressions.soap
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -87,7 +89,7 @@ class Envelope<out T : Any>(
 
     constructor(content: T) : this(Body<T>(content))
 
-    public class Serializer<T : Any>(bodyContentSerializer: KSerializer<T>) : KSerializer<Envelope<T>> {
+    class Serializer<T : Any>(bodyContentSerializer: KSerializer<T>) : KSerializer<Envelope<T>> {
         private val bodySerializer: KSerializer<Body<T>> = Body.serializer(bodyContentSerializer)
 
         @OptIn(ExperimentalSerializationApi::class)
@@ -100,6 +102,7 @@ class Envelope<out T : Any>(
                 element("body", bodySerializer.descriptor)
             }
 
+        @Suppress("VariableNeverRead")
         override fun deserialize(decoder: Decoder): Envelope<T> {
             var header = Header()
             lateinit var body: Body<T>
@@ -136,22 +139,22 @@ class Envelope<out T : Any>(
 
     companion object {
 
-        const val NAMESPACE = "http://www.w3.org/2003/05/soap-envelope"
+        internal const val NAMESPACE = "http://www.w3.org/2003/05/soap-envelope"
 
-        const val ELEMENTLOCALNAME = "Envelope"
+        internal const val ELEMENTLOCALNAME = "Envelope"
 
-        const val PREFIX = "soap"
+        internal const val PREFIX = "soap"
 
-        val ELEMENTNAME = QName(NAMESPACE, ELEMENTLOCALNAME, PREFIX)
+        internal val ELEMENTNAME = QName(NAMESPACE, ELEMENTLOCALNAME, PREFIX)
 
-        const val MIMETYPE = "application/soap+xml"
+        internal const val MIMETYPE = "application/soap+xml"
 
         @JvmStatic
         private val attrsSerializer = MapSerializer(QNameSerializer, String.serializer())
 
         @JvmStatic
         fun deserialize(reader: XmlReader): Envelope<CompactFragment> {
-            return XML { indent = 2; autoPolymorphic = true }.decodeFromReader(
+            return XML { setIndent(2); defaultPolicy { autoPolymorphic = true } }.decodeFromReader(
                 serializer(CompactFragmentSerializer),
                 reader
             )

@@ -43,7 +43,7 @@ class ACompactFragment : PlatformTestBase<CompactFragment>(
     fun testSerializeValueFragment269() {
         val expected = "<root attribute=\"value\"><child>Hello</child><child>World!</child></root>"
         val data = Root("value", CompactFragment("<child>Hello</child><child>World!</child>"))
-        val actual = baseXmlFormat.copy { indent = 0 }.encodeToString(data)
+        val actual = baseXmlFormat.copy { setIndent(0) }.encodeToString(data)
         assertEquals(expected, actual)
     }
 

@@ -43,8 +43,7 @@ abstract class TestCommonReader {
         val xml = "<f:root xmlns:f=\"foobar\">$inner</f:root>"
 
         val input = createReader(xml)
-        val _ = input.nextTag()
-        input.require(EventType.START_ELEMENT, "foobar", "root")
+        input.requireNextTag(EventType.START_ELEMENT, "foobar", "root")
 
         val _ = input.next()
         val frag = input.siblingsToFragment()
@@ -83,8 +82,7 @@ abstract class TestCommonReader {
         val xml = "<root xmlns=\"foobar\">$inner</root>"
 
         val input = createReader(xml)
-        val _ = input.nextTag()
-        input.require(EventType.START_ELEMENT, "foobar", "root")
+        input.requireNextTag(EventType.START_ELEMENT, "foobar", "root")
 
         val _ = input.next()
         val frag = input.siblingsToFragment()
@@ -363,8 +361,7 @@ abstract class TestCommonReader {
     open fun testWhiteSpaceWithEntity() {
         val data = "<x>   dude &amp; &lt;dudette&gt;   </x>"
         val r = createReader(data)
-        val _ = r.nextTag()
-        r.require(EventType.START_ELEMENT, "", "x")
+        r.requireNextTag(EventType.START_ELEMENT, "", "x")
 
         assertEquals(EventType.TEXT, r.next())
         r.require(EventType.TEXT, null)

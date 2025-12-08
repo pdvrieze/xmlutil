@@ -93,6 +93,25 @@ public interface XmlReader : Closeable, Iterator<EventType> {
         return require(type, name?.namespaceURI, name?.localPart)
     }
 
+    public fun requireNext(type: EventType, namespace: String?, name: String?) {
+        val _ = next()
+        require(type, namespace, name)
+    }
+
+    public fun requireNext(type: EventType, name: QName?) {
+        val _ = next()
+        require(type, name)
+    }
+
+    public fun requireNextTag(type: EventType, namespace: String?, name: String?) {
+        val _ = nextTag()
+        require(type, namespace, name)
+    }
+
+    public fun requireNextTag(type: EventType, name: QName?) {
+        val _ = nextTag()
+        require(type, name)
+    }
 
     public val depth: Int
 

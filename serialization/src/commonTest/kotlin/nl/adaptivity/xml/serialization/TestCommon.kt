@@ -114,7 +114,7 @@ class TestCommon {
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
         val xml = XML(Tag.module) {
-            autoPolymorphic = true
+            defaultPolicy { autoPolymorphic = true }
         }
         val deserialized = xml.decodeFromString(Tag.serializer(), contentText)
 
@@ -142,7 +142,7 @@ class TestCommon {
 
         val xml = XML(Tag.module) {
             indentString = ""
-            autoPolymorphic = true
+            defaultPolicy { autoPolymorphic = true }
         }
 
         val serialized = xml.encodeToString(Tag.serializer(), expectedObj)

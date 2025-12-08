@@ -697,6 +697,10 @@ abstract interface nl.adaptivity.xmlutil/XmlReader : kotlin.collections/Iterator
     open fun nextTag(): nl.adaptivity.xmlutil/EventType // nl.adaptivity.xmlutil/XmlReader.nextTag|nextTag(){}[0]
     open fun require(nl.adaptivity.xmlutil/EventType, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/XmlReader.require|require(nl.adaptivity.xmlutil.EventType;kotlin.String?;kotlin.String?){}[0]
     open fun require(nl.adaptivity.xmlutil/EventType, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/XmlReader.require|require(nl.adaptivity.xmlutil.EventType;nl.adaptivity.xmlutil.QName?){}[0]
+    open fun requireNext(nl.adaptivity.xmlutil/EventType, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/XmlReader.requireNext|requireNext(nl.adaptivity.xmlutil.EventType;kotlin.String?;kotlin.String?){}[0]
+    open fun requireNext(nl.adaptivity.xmlutil/EventType, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/XmlReader.requireNext|requireNext(nl.adaptivity.xmlutil.EventType;nl.adaptivity.xmlutil.QName?){}[0]
+    open fun requireNextTag(nl.adaptivity.xmlutil/EventType, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/XmlReader.requireNextTag|requireNextTag(nl.adaptivity.xmlutil.EventType;kotlin.String?;kotlin.String?){}[0]
+    open fun requireNextTag(nl.adaptivity.xmlutil/EventType, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/XmlReader.requireNextTag|requireNextTag(nl.adaptivity.xmlutil.EventType;nl.adaptivity.xmlutil.QName?){}[0]
 
     abstract interface LocationInfo // nl.adaptivity.xmlutil/XmlReader.LocationInfo|null[0]
 
@@ -1184,6 +1188,10 @@ open class nl.adaptivity.xmlutil/XmlDelegatingReader : nl.adaptivity.xmlutil/Xml
     open fun nextTag(): nl.adaptivity.xmlutil/EventType // nl.adaptivity.xmlutil/XmlDelegatingReader.nextTag|nextTag(){}[0]
     open fun require(nl.adaptivity.xmlutil/EventType, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/XmlDelegatingReader.require|require(nl.adaptivity.xmlutil.EventType;kotlin.String?;kotlin.String?){}[0]
     open fun require(nl.adaptivity.xmlutil/EventType, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/XmlDelegatingReader.require|require(nl.adaptivity.xmlutil.EventType;nl.adaptivity.xmlutil.QName?){}[0]
+    open fun requireNext(nl.adaptivity.xmlutil/EventType, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/XmlDelegatingReader.requireNext|requireNext(nl.adaptivity.xmlutil.EventType;kotlin.String?;kotlin.String?){}[0]
+    open fun requireNext(nl.adaptivity.xmlutil/EventType, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/XmlDelegatingReader.requireNext|requireNext(nl.adaptivity.xmlutil.EventType;nl.adaptivity.xmlutil.QName?){}[0]
+    open fun requireNextTag(nl.adaptivity.xmlutil/EventType, kotlin/String?, kotlin/String?) // nl.adaptivity.xmlutil/XmlDelegatingReader.requireNextTag|requireNextTag(nl.adaptivity.xmlutil.EventType;kotlin.String?;kotlin.String?){}[0]
+    open fun requireNextTag(nl.adaptivity.xmlutil/EventType, nl.adaptivity.xmlutil/QName?) // nl.adaptivity.xmlutil/XmlDelegatingReader.requireNextTag|requireNextTag(nl.adaptivity.xmlutil.EventType;nl.adaptivity.xmlutil.QName?){}[0]
 }
 
 open class nl.adaptivity.xmlutil/XmlException : nl.adaptivity.xmlutil.core.impl.multiplatform/IOException { // nl.adaptivity.xmlutil/XmlException|null[0]

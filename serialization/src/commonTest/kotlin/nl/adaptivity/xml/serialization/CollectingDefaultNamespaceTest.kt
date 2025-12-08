@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:UseSerializers(QNameSerializer::class)
@@ -28,23 +28,37 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.*
-import kotlin.test.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 /**
  * Test to check that namespace collecting works "better": #135
  */
 class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespaceTest.GPXv11>(
-    GPXv11("kotlinx.serialization", tracks = listOf(
-        GPXv11.Track("Test", GPXv11.Track.Extensions(
-            GPXv11.Track.Extensions.TrackExtension("red"),
-            GPXv11.Track.Extensions.DefaultNsExtension("Some comment")
-        ))
-    )),
+    GPXv11(
+        "kotlinx.serialization", tracks = listOf(
+            GPXv11.Track(
+                "Test", GPXv11.Track.Extensions(
+                    GPXv11.Track.Extensions.TrackExtension("red"),
+                    GPXv11.Track.Extensions.DefaultNsExtension("Some comment")
+                )
+            )
+        )
+    ),
     GPXv11.serializer(),
-    baseXmlFormat = XML { isCollectingNSAttributes = true; autoPolymorphic = true; indent = 4 },
+    baseXmlFormat = XML {
+        isCollectingNSAttributes = true
+        defaultPolicy {
+            autoPolymorphic = true
+        }
+        setIndent(4)
+    },
     baseJsonFormat = Json { encodeDefaults = false }
 ) {
     override val expectedXML: String =
@@ -72,7 +86,7 @@ class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespa
         val serialized = baseXmlFormat.encodeToString(serializer, value)
         val lines = serialized.lines()
         for ((idx, line) in lines.drop(1).withIndex()) {
-            assertFalse(actual = "xmlns" in line, "Namespace declaration found in line ${idx+1}: $line")
+            assertFalse(actual = "xmlns" in line, "Namespace declaration found in line ${idx + 1}: $line")
         }
         val xmlDecls = lines[0].split(" ")
             .filter { it.startsWith("xmlns:") }

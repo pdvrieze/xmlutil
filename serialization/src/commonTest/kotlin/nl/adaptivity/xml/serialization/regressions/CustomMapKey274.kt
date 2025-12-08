@@ -18,9 +18,12 @@
  * permissions and limitations under the License.
  */
 
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -160,7 +163,8 @@ class CustomMapKey274 {
 
     @Test
     fun testStringMapDescriptor() {
-        val myObjDesc = assertIs<XmlCompositeDescriptor>(xml.xmlDescriptor(MyClass.serializer()).getElementDescriptor(0))
+        val myObjDesc =
+            assertIs<XmlCompositeDescriptor>(xml.xmlDescriptor(MyClass.serializer()).getElementDescriptor(0))
         assertEquals(QName("MyClass"), myObjDesc.tagName)
 
         assertEquals(1, myObjDesc.elementsCount)

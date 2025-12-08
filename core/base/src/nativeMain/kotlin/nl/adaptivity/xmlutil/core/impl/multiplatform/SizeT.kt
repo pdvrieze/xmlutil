@@ -38,7 +38,7 @@ public value class SizeT(public val value: size_t) {
     public fun toInt(): Int = value.toInt()
 
     // Conversion function is needed for 32bit targets
-    @Suppress("RemoveRedundantCallsOfConversionMethods")
+    @Suppress("RemoveRedundantCallsOfConversionMethods", "REDUNDANT_CALL_OF_CONVERSION_METHOD", "RedundantSuppression")
     public fun toULong(): ULong = value.toULong()
 
     @Suppress("NOTHING_TO_INLINE")

@@ -81,8 +81,7 @@ class TestKtXmlReaderExpandEntities : TestCommonReader() {
         val data = "<x>   dude &amp; &lt;dudette&gt;   </x>"
         val r = assertIs<KtXmlReader>(createReader(data))
         assertTrue(r.expandEntities)
-        val _ = r.nextTag()
-        r.require(EventType.START_ELEMENT, "", "x")
+        r.requireNextTag(EventType.START_ELEMENT, "", "x")
         assertEquals(EventType.TEXT, r.next())
         r.require(EventType.TEXT, null)
         assertEquals("   dude & <dudette>   ", r.text)

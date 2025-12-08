@@ -31,14 +31,14 @@ import kotlin.test.assertEquals
 
 class AttributeWithNamespace179 {
     val xml get() = XML {
-        recommended_0_91_0 {
-            isStrictAttributeNames = true
-            pedantic = true
+            recommended_0_91_0 {
+                isStrictAttributeNames = true
+                pedantic = true
+            }
+            defaultToGenericParser = true
+            xmlDeclMode = XmlDeclMode.None
+            setIndent(0)
         }
-        defaultToGenericParser = true
-        xmlDeclMode = XmlDeclMode.None
-        indent = 0
-    }
 
     @Test
     fun testSerializeDefaultInstance() {
@@ -80,10 +80,11 @@ class AttributeWithNamespace179 {
 
         val xml = XML {
             xmlDeclMode = XmlDeclMode.Charset
-            autoPolymorphic = true
+            defaultPolicy { autoPolymorphic = true }
+
             repairNamespaces = true
             indentString = "    "
-            indent = 1
+            setIndent(1)
             defaultToGenericParser = true
         }
 

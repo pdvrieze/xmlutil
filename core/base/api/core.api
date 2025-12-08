@@ -286,6 +286,10 @@ public class nl/adaptivity/xmlutil/XmlDelegatingReader : nl/adaptivity/xmlutil/X
 	public fun remove ()V
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public fun requireNext (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun requireNext (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public fun requireNextTag (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun requireNextTag (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
 }
 
 public abstract class nl/adaptivity/xmlutil/XmlDelegatingWriter : nl/adaptivity/xmlutil/XmlWriter {
@@ -504,6 +508,10 @@ public abstract interface class nl/adaptivity/xmlutil/XmlReader : java/io/Closea
 	public fun nextTag ()Lnl/adaptivity/xmlutil/EventType;
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
 	public fun require (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public fun requireNext (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun requireNext (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public fun requireNextTag (Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public fun requireNextTag (Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
 }
 
 public final class nl/adaptivity/xmlutil/XmlReader$DefaultImpls {
@@ -517,6 +525,10 @@ public final class nl/adaptivity/xmlutil/XmlReader$DefaultImpls {
 	public static fun nextTag (Lnl/adaptivity/xmlutil/XmlReader;)Lnl/adaptivity/xmlutil/EventType;
 	public static fun require (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
 	public static fun require (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public static fun requireNext (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public static fun requireNext (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
+	public static fun requireNextTag (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljava/lang/String;Ljava/lang/String;)V
+	public static fun requireNextTag (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/EventType;Ljavax/xml/namespace/QName;)V
 }
 
 public final class nl/adaptivity/xmlutil/XmlReader$ExtLocationInfo : nl/adaptivity/xmlutil/XmlReader$LocationInfo {

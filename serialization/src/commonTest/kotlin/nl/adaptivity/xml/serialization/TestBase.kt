@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
@@ -43,7 +43,7 @@ private fun XmlReader.nextNotIgnored() {
     } while (ev.isIgnorable && hasNext())
 }
 
-private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
+private fun assertXmlEquals(expected: XmlReader, actual: XmlReader) {
     do {
         expected.nextNotIgnored()
         actual.nextNotIgnored()
@@ -53,10 +53,10 @@ private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
     } while (expected.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
 
     while (expected.hasNext() && expected.isIgnorable()) {
-        expected.next()
+        val _ = expected.next()
     }
     while (actual.hasNext() && actual.isIgnorable()) {
-        actual.next()
+        val _ = actual.next()
     }
 
     assertEquals(expected.hasNext(), actual.hasNext())
@@ -90,22 +90,24 @@ private fun assertStartElementEquals(
     assertContentEquals(expectedAttrs, actualAttrs)
 }
 
-internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerializersModule()) = XML(serializersModule) {
-    recommended {
-        autoPolymorphic = false
-        typeDiscriminatorName = null
-        pedantic = true
-        formatCache = TestFormatCache(LayeredCache())
+internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerializersModule()) =
+    XML(serializersModule) {
+        recommended {
+            autoPolymorphic = false
+            typeDiscriminatorName = null
+            pedantic = true
+            formatCache = TestFormatCache(LayeredCache())
+        }
+        xmlDeclMode = XmlDeclMode.None
     }
-    xmlDeclMode = XmlDeclMode.None
-}
 
 internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
     defaultJsonTestConfiguration()
     this.serializersModule = serializersModule
 }
 
-expect abstract class PlatformXmlTestBase<T> constructor(
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+expect abstract class PlatformXmlTestBase<T>(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule = EmptySerializersModule(),
@@ -155,6 +157,7 @@ abstract class XmlTestBase<T>(
 
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect abstract class PlatformTestBase<T>(
     value: T,
     serializer: KSerializer<T>,
@@ -163,7 +166,7 @@ expect abstract class PlatformTestBase<T>(
     baseJsonFormat: Json = defaultJsonFormat(serializersModule)
 ) : TestBase<T>
 
-abstract class TestBase<T> constructor(
+abstract class TestBase<T>(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule = EmptySerializersModule(),
@@ -195,6 +198,7 @@ abstract class TestBase<T> constructor(
 
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect abstract class PlatformTestPolymorphicBase<T>(
     value: T,
     serializer: KSerializer<T>,
@@ -227,7 +231,7 @@ abstract class TestPolymorphicBase<T>(
 
     abstract val expectedXSIPolymorphicXML: String
 
-    val nonAutoPolymorphicXml = baseXmlFormat.copy {
+    val nonAutoPolymorphicXml: XML = baseXmlFormat.copy {
         defaultPolicy {
             autoPolymorphic = false
         }
@@ -308,6 +312,6 @@ abstract class TestPolymorphicBase<T>(
 
 
     companion object {
-        val xsiType = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+        val xsiType: QName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
     }
 }
