@@ -966,7 +966,7 @@ internal open class XmlDecoderBase internal constructor(
                     effectiveDeserializer.merge(decoder, previousValue)
 
                 else -> try {
-                    // For value children ignore whitespace content
+                    // For value children ignore (initial) whitespace content
                     if (isValueChild && !input.hasPeekItems && input.eventType == EventType.IGNORABLE_WHITESPACE) {
                         val _ = input.next()
                     }
@@ -1323,9 +1323,11 @@ internal open class XmlDecoderBase internal constructor(
                                 // empty value
                                 input.pushBackCurrent()
                             }
+
                             EventType.CDSECT,
                             EventType.IGNORABLE_WHITESPACE,
                             EventType.TEXT -> currentPolyInfo = polyChildren["", "kotlin.String"]
+
                             else -> {}
                         }
 
@@ -1365,17 +1367,23 @@ internal open class XmlDecoderBase internal constructor(
                             if (input.isWhitespace()) {
                                 if (valueChild != CompositeDecoder.UNKNOWN_NAME) {
                                     var valueDesc = xmlDescriptor.getElementDescriptor(valueChild)
-                                    while (valueDesc is XmlListDescriptor && valueDesc.isListEluded) {
-                                        valueDesc = valueDesc.getElementDescriptor(0)
-                                    }
-                                    val actualPreserveWS = preserveWhitespace.withDefault(valueDesc.defaultPreserveSpace)
 
-                                    if (actualPreserveWS.withDefault(true)) {
-                                        if (valueDesc.defaultPreserveSpace.withDefault(true)) { // if the type is not explicitly marked to ignore whitespace
-                                            if (valueDesc.outputKind.isTextOrMixed) { // this allows all primitives (
-                                                seenItems[valueChild] = true
-                                                currentPolyInfo = polyChildren["", "kotlin.String"]
-                                                return valueChild // We can handle whitespace
+                                    // If a value child is not a list, already seen, and we see some whitespace, ignore that
+                                    if (!seenItems[valueChild] || valueDesc is XmlListDescriptor) {
+
+                                        while (valueDesc is XmlListDescriptor && valueDesc.isListEluded) {
+                                            valueDesc = valueDesc.getElementDescriptor(0)
+                                        }
+                                        val actualPreserveWS =
+                                            preserveWhitespace.withDefault(valueDesc.defaultPreserveSpace)
+
+                                        if (actualPreserveWS.withDefault(true)) {
+                                            if (valueDesc.defaultPreserveSpace.withDefault(true)) { // if the type is not explicitly marked to ignore whitespace
+                                                if (valueDesc.outputKind.isTextOrMixed) { // this allows all primitives (
+                                                    seenItems[valueChild] = true
+                                                    currentPolyInfo = polyChildren["", "kotlin.String"]
+                                                    return valueChild // We can handle whitespace
+                                                }
                                             }
                                         }
                                     }
@@ -2188,15 +2196,17 @@ internal open class XmlDecoderBase internal constructor(
                             input.eventType == EventType.CDSECT)
                         -> "kotlin.String" // hardcode handling text input polymorphically
 
+                    input.eventType != EventType.START_ELEMENT -> {
+                        error("PolyInfo is null for a transparent polymorphic decoder and not in start element context")
+                    }
+
                     else -> {
-                        if (input.eventType == EventType.START_ELEMENT) {
-                            val m = xmlDescriptor.resolvePolymorphicTypeNameCandidates(input.name, serializersModule)
-                            when (m.size) {
-                                0 -> error("No XmlSerializable found to handle unrecognized value tag ${input.name} in polymorphic context")
-                                1 -> m.first()
-                                else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context (${m.joinToString()})")
-                            }
-                        } else error("PolyInfo is null for a transparent polymorphic decoder and not in start element context")
+                        val m = xmlDescriptor.resolvePolymorphicTypeNameCandidates(input.name, serializersModule)
+                        when (m.size) {
+                            0 -> error("No XmlSerializable found to handle unrecognized value tag ${input.name} in polymorphic context")
+                            1 -> m.first()
+                            else -> error("No unique non-primitive polymorphic candidate for value child ${input.name} in polymorphic context (${m.joinToString()})")
+                        }
                     }
                 }
 
