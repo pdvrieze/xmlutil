@@ -3,6 +3,8 @@ Features:
 - Add `decodeToSequence` and `decodeWrappedToSequence` functions that allow
   decoding to a sequence. This can be either wrapped or unwrapped (or wrapped
   externally).
+- Add `decodeToSequenceFromSource` etc. functions for kotlinx.io sources for
+  cross platform use without having to manually create an xml reader.
 
 Changes:
 - Update to kotlin 2.3.0-RC2, updating the api version to 2.3 to enable return

@@ -422,7 +422,7 @@ public class XML(
      * @param deserializer The deserializer to use.
      * @param string The string input
      */
-    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML", "", "") string: String): T {
+    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @Language("XML") string: String): T {
         val xr = when {
             config.defaultToGenericParser -> xmlStreaming.newGenericReader(string)
             else -> xmlStreaming.newReader(string)
@@ -435,8 +435,8 @@ public class XML(
      * Decode the given string value using the deserializer. It is equivalent to
      * `decodeFromReader(deserializer, XmlStreaming.newReader(string))`.
      * @param deserializer The deserializer to use.
-     * @param rootName The QName to use for the root tag
-     * @param string The string input
+     * @param string The text to decode
+     * @param rootName The expected name of the root element, if `null` it will be automatically detected.
      */
     public fun <T> decodeFromString(
         deserializer: DeserializationStrategy<T>,
@@ -451,9 +451,12 @@ public class XML(
     }
 
     /**
-     * Decode the given string value with the expected root name.
+     * Decode the given string value using the deserializer. It is equivalent to
+     * `decodeFromReader(deserializer, XmlStreaming.newReader(string))`.
+     * @param string The text to decode
+     * @param rootName The expected name of the root element, if `null` it will be automatically detected.
      */
-    public inline fun <reified T> decodeFromString(string: String, rootName: QName?): T {
+    public inline fun <reified T> decodeFromString(@Language("XML") string: String, rootName: QName?): T {
         return decodeFromString(serializersModule.serializer<T>(), string, rootName)
     }
 
@@ -498,7 +501,7 @@ public class XML(
      *
      * @param reader An [XmlReader] that contains the XML from which to read the object
      * @param rootName The QName to use for the root tag
-     * @param deserializer The loader to use to read the object
+     * @param deserializer The loader to use to read the object, if `null` it will be automatically detected.
      */
     @JvmOverloads
     public fun <T> decodeFromReader(
