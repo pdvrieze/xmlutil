@@ -1,4 +1,9 @@
 # 1.0.0-rc1-SNAPSHOT
+Features:
+- Add `decodeToSequence` and `decodeWrappedToSequence` functions that allow
+  decoding to a sequence. This can be either wrapped or unwrapped (or wrapped
+  externally).
+
 Changes:
 - Update to kotlin 2.3.0-RC2, updating the api version to 2.3 to enable return
   value checking (kotlinx.serialization requires this too)

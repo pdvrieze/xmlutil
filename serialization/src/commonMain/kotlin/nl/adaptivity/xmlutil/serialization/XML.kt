@@ -23,6 +23,7 @@
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
 import kotlinx.serialization.encoding.CompositeDecoder
@@ -510,6 +511,197 @@ public class XML(
         }
     }
 
+    /**
+     * Decode the sequence of elements of type `T` incrementally. The elements are required to not
+     * be primitives (that encode to/parse from text).
+     *
+     * There are two modes: a sequence of elements, and as a wrapped collection.
+     *
+     * Wrapped collections function as expected, and read first the wrapper element, then the
+     * elements.
+     *
+     * For sequence of elements, parsing will either stop on end of the reader, or on an end element.
+     * It is the responsbility of the caller to handle (push back) the end of element event where
+     * it occurs.
+     *
+     * Note that when the element name is not provided, it is detected on the first element.
+     * Subsequent elements must have the same name (namespace, localname).
+     *
+     * @param reader The reader used to read from
+     * @param wrapperName The name of the wrapping element. Setting this value triggers wrapper mode.
+     * @param elementName The name of the element. If null, automatically detected on content.
+     */
+    @ExperimentalXmlUtilApi
+    public inline fun <reified T> decodeToSequence(
+        reader: XmlReader,
+        wrapperName: QName?,
+        elementName: QName? = null,
+    ): Sequence<T> = decodeToSequence(serializer<T>(), reader, wrapperName, elementName)
+
+    /**
+     * Decode a wrapped sequence of elements of type `T` incrementally. The elements are required to not
+     * be primitives (that encode to/parse from text).
+     *
+     * This function will assume an unspecified wrapper element. It will read this element and
+     * return a sequence of the child elements,
+     *
+     * Note that when the element name is not provided, it is detected on the first element.
+     * Subsequent elements must have the same name (namespace, localname).
+     *
+     * @param reader The reader used to read from
+     * @param elementName The name of the element. If null, automatically detected on content.
+     */
+    @ExperimentalXmlUtilApi
+    public inline fun <reified T> decodeWrappedToSequence(
+        reader: XmlReader,
+        elementName: QName? = null,
+    ): Sequence<T> = decodeWrappedToSequence(serializer<T>(), reader, elementName)
+
+    /**
+     * Decode a wrapped sequence of elements of type `T` incrementally. The elements are required to not
+     * be primitives (that encode to/parse from text).
+     *
+     * This function will assume an unspecified wrapper element. It will read this element and
+     * return a sequence of the child elements,
+     *
+     * Note that when the element name is not provided, it is detected on the first element.
+     * Subsequent elements must have the same name (namespace, localname).
+     *
+     * @param deserializer The deserializer to decode the elements.
+     * @param reader The reader used to read from
+     * @param elementName The name of the element. If null, automatically detected on content.
+     */
+    @ExperimentalXmlUtilApi
+    public fun <T> decodeWrappedToSequence(
+        deserializer: DeserializationStrategy<T>,
+        reader: XmlReader,
+        elementName: QName? = null,
+    ): Sequence<T> {
+        reader.skipPreamble()
+        if (reader.eventType != EventType.START_ELEMENT) {
+            throw XmlException("Unexpected event when looking for wrapper element: ${reader.eventType}", reader.extLocationInfo)
+        }
+
+        val wrapperName = reader.name
+
+        return useUnsafeCodecConfig { codecConfig ->
+            decodeToSequence(codecConfig, deserializer, reader, wrapperName, elementName)
+        }
+    }
+
+
+    /**
+     * Decode the sequence of elements of type `T` incrementally. The elements are required to not
+     * be primitives (that encode to/parse from text).
+     *
+     * There are two modes: a sequence of elements, and as a wrapped collection.
+     *
+     * Wrapped collections function as expected, and read first the wrapper element, then the
+     * elements.
+     *
+     * For sequence of elements, parsing will either stop on end of the reader, or on an end element.
+     * It is the responsbility of the caller to handle (push back) the end of element event where
+     * it occurs.
+     *
+     * Note that when the element name is not provided, it is detected on the first element.
+     * Subsequent elements must have the same name (namespace, localname).
+     *
+     * @param deserializer The deserializer to decode the elements.
+     * @param reader The reader used to read from
+     * @param wrapperName The name of the wrapping element. Setting this value triggers wrapper mode.
+     * @param elementName The name of the element. If null, automatically detected on content.
+     */
+    @ExperimentalXmlUtilApi
+    public fun <T> decodeToSequence(
+        deserializer: DeserializationStrategy<T>,
+        reader: XmlReader,
+        wrapperName: QName?,
+        elementName: QName? = null,
+    ): Sequence<T> {
+        return useUnsafeCodecConfig { codecConfig ->
+            decodeToSequence(codecConfig, deserializer, reader, wrapperName, elementName)
+        }
+    }
+
+    private fun <T> decodeToSequence(
+        unsafeCodecConfig: XmlCodecConfig,
+        deserializer: DeserializationStrategy<T>,
+        reader: XmlReader,
+        wrapperName: QName?,
+        elementName: QName?,
+    ): Sequence<T> {
+        val (config, serializersModule) = unsafeCodecConfig
+
+        require(deserializer.descriptor.kind !is PrimitiveKind) {
+            "Deserialization to sequence does not support string elements"
+        }
+
+        reader.skipPreamble()
+
+        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
+
+        if (wrapperName != null) {
+            reader.require(EventType.START_ELEMENT, wrapperName)
+            for (attrIdx in 0 until reader.attributeCount) {
+                when (reader.getAttributeNamespace(attrIdx)) {
+                    XMLConstants.XML_NS_URI,
+                    XMLConstants.XSI_NS_URI, -> Unit // Ignore
+
+                    else -> throw XmlException(
+                        "Unexpected attribute in wrapper: ${reader.attributes[attrIdx]}",
+                        reader.extLocationInfo
+                    )
+                }
+            }
+
+            do {
+                val _ = reader.next()
+            } while (reader.hasNext() && reader.isIgnorable())
+        }
+
+        // Empty sequence
+        if (! reader.hasNext() || reader.eventType == EventType.END_ELEMENT) { return sequenceOf() }
+
+        val elementNameInfo = rootNameInfo(unsafeCodecConfig, deserializer.descriptor, elementName, reader.name)
+        val realElementName = elementNameInfo.annotatedName ?: reader.name
+        val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, elementNameInfo)
+
+        val elementDescriptor = rootDescriptor.getElementDescriptor(0)
+
+        return sequence {
+            do {
+                when (reader.eventType) {
+                    EventType.START_ELEMENT -> {
+                        val polyInfo: PolyInfo? = polyInfoForElement(elementDescriptor, reader, rootDescriptor, "element")
+
+                        if (polyInfo == null && ! reader.name.isEquivalent(realElementName)) {
+                            throw XmlException("Unexpected child element ${reader.name} instead of ${realElementName}", reader.extLocationInfo)
+                        }
+
+                        val decoder = xmlDecoderBase.XmlDecoder(elementDescriptor, polyInfo, inheritedPreserveWhitespace = DocumentPreserveSpace.DEFAULT)
+                        yield(decoder.decodeSerializableValue(deserializer))
+                    }
+
+                    EventType.TEXT if (! reader.isIgnorable()) ->
+                        throw XmlException("Unexpected text in sequence decoding: '${reader.text}'", reader.extLocationInfo)
+
+                    EventType.TEXT,
+                    EventType.PROCESSING_INSTRUCTION,
+                    EventType.IGNORABLE_WHITESPACE,
+                    EventType.END_ELEMENT -> Unit // ignore
+
+                    else -> throw XmlException("Unexpected event type: ${reader.eventType}", reader.extLocationInfo)
+                }
+            } while (reader.hasNext() && reader.next() != EventType.END_ELEMENT)
+
+            if (wrapperName != null) {
+                reader.require(EventType.END_ELEMENT, wrapperName)
+            }
+        }
+
+
+    }
+
     private fun <T> decodeFromReader(
         unsafeCodecConfig: XmlCodecConfig,
         deserializer: DeserializationStrategy<T>,
@@ -529,23 +721,30 @@ public class XML(
 
         val elementDescriptor = rootDescriptor.getElementDescriptor(0)
 
-        val polyInfo: PolyInfo? = if (elementDescriptor is XmlPolymorphicDescriptor) {
-            val tagName = reader.name
-            val info = elementDescriptor.polyInfo.values.singleOrNull {
-                tagName.isEquivalent(it.tagName)
-            }
-            info?.let { PolyInfo(tagName, 0, it) }
-        } else {
-            // only check names when not having polymorphic root
-            val serialName = rootDescriptor.getElementDescriptor(0).tagName
-            if (!serialName.isEquivalent(reader.name)) {
-                throw XmlException("Local name \"${reader.name}\" for root tag does not match expected name \"$serialName\"")
-            }
-            null
-        }
+        val polyInfo: PolyInfo? = polyInfoForElement(elementDescriptor, reader, rootDescriptor, "root")
 
         val decoder = xmlDecoderBase.XmlDecoder(elementDescriptor, polyInfo, inheritedPreserveWhitespace = DocumentPreserveSpace.DEFAULT)
         return decoder.decodeSerializableValue(deserializer)
+    }
+
+    private fun polyInfoForElement(
+        elementDescriptor: XmlDescriptor,
+        reader: XmlReader,
+        rootDescriptor: XmlRootDescriptor,
+        tagName: String,
+    ): PolyInfo? = if (elementDescriptor is XmlPolymorphicDescriptor) {
+        val tagName = reader.name
+        val info = elementDescriptor.polyInfo.values.singleOrNull {
+            tagName.isEquivalent(it.tagName)
+        }
+        info?.let { PolyInfo(tagName, 0, it) }
+    } else {
+        // only check names when not having polymorphic root
+        val serialName = rootDescriptor.getElementDescriptor(0).tagName
+        if (!serialName.isEquivalent(reader.name)) {
+            throw XmlException("Local name \"${reader.name}\" for ${tagName} tag does not match expected name \"$serialName\"")
+        }
+        null
     }
 
     @JvmOverloads
@@ -597,7 +796,7 @@ public class XML(
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
-         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * serialization library (either it has a built-in serializer or it is [Serializable].
          * @param value The object to transform
          * @param serializer The serializer to user
          */
@@ -608,7 +807,7 @@ public class XML(
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
-         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * serialization library (either it has a built-in serializer or it is [Serializable].
          * @param value The object to transform
          * @param serializer The serializer to user
          * @param prefix The namespace prefix to use
@@ -618,7 +817,7 @@ public class XML(
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
-         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * serialization library (either it has a built-in serializer or it is [Serializable].
          * @param value The object to transform
          * @param serializer The serializer to user
          * @param rootName The QName to use for the root tag
@@ -628,7 +827,7 @@ public class XML(
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
-         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * serialization library (either it has a built-in serializer or it is [Serializable].
          * @param obj The object to transform
          * @param prefix The namespace prefix to use
          */
@@ -637,7 +836,7 @@ public class XML(
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
-         * serialization library (either it has a built-in serializer or it is [kotlinx.serialization.Serializable].
+         * serialization library (either it has a built-in serializer or it is [Serializable].
          * @param obj The object to transform
          * @param rootName The QName to use for the root tag
          */

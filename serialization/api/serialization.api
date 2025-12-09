@@ -196,6 +196,10 @@ public final class nl/adaptivity/xmlutil/serialization/XML : kotlinx/serializati
 	public static synthetic fun decodeFromReader$default (Lnl/adaptivity/xmlutil/serialization/XML;Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Ljava/lang/Object;
 	public fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
 	public final fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;Ljavax/xml/namespace/QName;)Ljava/lang/Object;
+	public final fun decodeToSequence (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;Ljavax/xml/namespace/QName;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeToSequence$default (Lnl/adaptivity/xmlutil/serialization/XML;Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public final fun decodeWrappedToSequence (Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeWrappedToSequence$default (Lnl/adaptivity/xmlutil/serialization/XML;Lkotlinx/serialization/DeserializationStrategy;Lnl/adaptivity/xmlutil/XmlReader;Ljavax/xml/namespace/QName;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
 	public fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
 	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/String;
 	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Ljavax/xml/namespace/QName;)Ljava/lang/String;
