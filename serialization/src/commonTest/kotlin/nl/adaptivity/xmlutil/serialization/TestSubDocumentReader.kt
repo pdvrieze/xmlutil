@@ -96,9 +96,12 @@ class TestSubDocumentReader {
         assertEquals(0, nested.depth)
 
         assertFalse(nested.hasNext())
-        assertFailsWith<IllegalStateException> { nested.next() }
+        assertEquals(
+            assertFailsWith<IllegalStateException> { nested.next() }.message!!,
+            "Reading beyond end of subdocument reader"
+        )
 
-        r.require(EventType.END_ELEMENT, "", "root")
+        r.requireNext(EventType.END_ELEMENT, "", "root")
         assertEquals(1, r.depth)
     }
 
