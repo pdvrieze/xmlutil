@@ -159,9 +159,8 @@ internal class SubDocumentReader(
 
     private inline fun <R> checkInValidState(body: () -> R): R = when {
         ! started -> throw IllegalStateException("The sub reader has not started yet")
-        delegate.hasPeekItems -> return body() // may fail in delegate, but we are not beyond the reader
-        initialDepth >= 0 && initialDepth > delegate.depth -> throw IllegalStateException("Sub reader is finished")
-        else -> return body()
+        !delegate.hasPeekItems && (initialDepth >= 0 && initialDepth > delegate.depth) -> throw IllegalStateException("Sub reader is finished")
+        else -> return body()// may fail in delegate, but we are not beyond the reader
     }
 
     override fun getAttributeNamespace(index: Int): String = checkInValidState {
