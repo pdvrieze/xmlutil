@@ -58,7 +58,7 @@ class TestSoapNewline319 {
     }
 
     @Test
-    fun faultExampleWithTypedDetailsFails() {
+    fun faultExampleWithDefaultIgnoredWhitespaceTypedDetails() {
         val xml = XML(
             serializersModule = SerializersModule {
                 polymorphic(Any::class, FooString::class, FooString.serializer())

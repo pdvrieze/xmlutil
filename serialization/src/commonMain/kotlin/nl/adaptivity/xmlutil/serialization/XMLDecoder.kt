@@ -1369,24 +1369,44 @@ internal open class XmlDecoderBase internal constructor(
                                     var valueDesc = xmlDescriptor.getElementDescriptor(valueChild)
 
                                     // If a value child is not a list, already seen, and we see some whitespace, ignore that
-                                    if (!seenItems[valueChild] || valueDesc is XmlListDescriptor) {
 
-                                        while (valueDesc is XmlListDescriptor && valueDesc.isListEluded) {
-                                            valueDesc = valueDesc.getElementDescriptor(0)
-                                        }
-                                        val actualPreserveWS =
-                                            preserveWhitespace.withDefault(valueDesc.defaultPreserveSpace)
-
-                                        if (actualPreserveWS.withDefault(true)) {
-                                            if (valueDesc.defaultPreserveSpace.withDefault(true)) { // if the type is not explicitly marked to ignore whitespace
-                                                if (valueDesc.outputKind.isTextOrMixed) { // this allows all primitives (
-                                                    seenItems[valueChild] = true
-                                                    currentPolyInfo = polyChildren["", "kotlin.String"]
-                                                    return valueChild // We can handle whitespace
-                                                }
-                                            }
-                                        }
+                                    while (valueDesc is XmlListDescriptor && valueDesc.isListEluded) {
+                                        valueDesc = valueDesc.getElementDescriptor(0)
                                     }
+                                    val actualPreserveWS =
+                                        preserveWhitespace.withDefault(valueDesc.defaultPreserveSpace)
+
+                                    when (actualPreserveWS) {
+                                        DocumentPreserveSpace.DEFAULT,
+                                        DocumentPreserveSpace.DEFAULT_PRESERVE -> when {
+                                            valueDesc.outputKind.isTextOrMixed && (valueDesc is XmlListLikeDescriptor || !seenItems[valueChild]) -> {
+                                                seenItems[valueChild] = true
+                                                currentPolyInfo = polyChildren["", "kotlin.String"]
+                                                return valueChild
+                                            }
+                                            else -> continue
+                                        }
+
+                                        DocumentPreserveSpace.DOCUMENT_PRESERVE if (valueDesc.outputKind.isTextOrMixed) -> {
+                                            seenItems[valueChild] = true
+                                            currentPolyInfo = polyChildren["", "kotlin.String"]
+                                            return valueChild // always the value child
+                                        }
+
+                                        DocumentPreserveSpace.DOCUMENT_PRESERVE -> {
+                                            config.policy.handleUnknownContentRecovering(
+                                                input,
+                                                InputKind.Text,
+                                                xmlDescriptor,
+                                                QName("<CDATA>"),
+                                                emptyList()
+                                            ).let { pendingRecovery.addAll(it) }
+                                            return decodeElementIndex() // recurse to next
+                                        }
+
+                                        DocumentPreserveSpace.DEFAULT_IGNORE -> continue // next element in loop
+                                    }
+
                                 }
                             } else if (!input.isWhitespace()) {
                                 currentPolyInfo = polyChildren["", "kotlin.String"]
