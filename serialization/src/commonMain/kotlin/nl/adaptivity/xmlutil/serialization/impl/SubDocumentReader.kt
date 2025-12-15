@@ -102,8 +102,18 @@ internal class SubDocumentReader(
         get() = !started || delegate.hasPeekItems
 
     override fun peekNextEvent(): EventType? = when {
-        started -> delegate.peekNextEvent()
-        else -> delegate.eventType
+        !started -> delegate.eventType
+        initialDepth < 0 -> null // At end of reader
+        delegate.depth == initialDepth -> when {
+            isParseAllSiblings -> delegate.peekNextEvent().takeIf {
+                it != EventType.END_ELEMENT
+            }
+
+            eventType != EventType.END_ELEMENT -> delegate.peekNextEvent()
+            else -> null
+        }
+
+        else -> delegate.peekNextEvent()
     }
 
     override fun hasNext(): Boolean {
