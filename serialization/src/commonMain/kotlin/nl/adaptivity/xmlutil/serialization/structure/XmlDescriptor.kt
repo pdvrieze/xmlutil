@@ -407,7 +407,7 @@ public sealed class XmlDescriptor @XmlUtilInternal constructor(
                         )
 
                     else -> when {
-                        codecConfig.config.isInlineCollapsed &&
+                        codecConfig.config.policy.isInlineCollapsed(serializerParent, tagParent) &&
                                 elementSerialDescriptor.isInline ->
                             XmlInlineDescriptor(
                                 codecConfig,

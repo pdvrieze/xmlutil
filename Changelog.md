@@ -7,6 +7,10 @@ Features:
   cross platform use without having to manually create an xml reader.
 
 Changes:
+- Change the recommended method for configuring the format. The constructor that
+  takes a configuration function as parameter is now deprecated to be replaced
+  by a factory function that names the configuration chosen: recommended_1_0,
+  fast_1_0, etc. This avoids multiple configuration layers being needed.
 - Update to kotlin 2.3.0-RC2, updating the api version to 2.3 to enable return
   value checking (kotlinx.serialization requires this too)
 - The DOM implementation is streamlined and refactored. There are some bug

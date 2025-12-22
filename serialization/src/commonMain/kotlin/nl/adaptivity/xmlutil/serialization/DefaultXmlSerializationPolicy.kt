@@ -29,6 +29,7 @@ import kotlinx.serialization.descriptors.StructureKind
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
+import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.XmlEncodeDefault
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 /**
@@ -61,7 +62,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     public val formatCache: FormatCache = builder.formatCache
     public open val pedantic: Boolean = builder.pedantic
     public open val autoPolymorphic: Boolean = builder.autoPolymorphic
-    public open val encodeDefault: XmlSerializationPolicy.XmlEncodeDefault = builder.encodeDefault
+    public open val encodeDefault: XmlEncodeDefault = builder.encodeDefault
     public open val unknownChildHandler: UnknownChildHandler = builder.unknownChildHandler
     public open val typeDiscriminatorName: QName? = builder.typeDiscriminatorName
     public open val throwOnRepeatedElement: Boolean = builder.throwOnRepeatedElement
@@ -70,6 +71,18 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     public override val isStrictBoolean: Boolean = builder.isStrictBoolean
     public override val isXmlFloat: Boolean = builder.isXmlFloat
     public override val isStrictOtherAttributes: Boolean = builder.isStrictOtherAttributes
+
+    /**
+     * Determines whether inline classes are merged with their content. Note that inline classes
+     * may still determine the tag name used for the data even if the actual contents come from
+     * the child content.
+     *
+     * This value is used by default by the implementation of [isInlineCollapsed].
+     *
+     * If the value is `false` inline classes will be handled like non-inline classes
+     */
+
+    public val isInlineCollapsedDefault: Boolean = builder.isInlineCollapsedDefault
 
     @ExperimentalXmlUtilApi
     public override val defaultPrimitiveOutputKind: OutputKind = builder.defaultPrimitiveOutputKind
@@ -81,10 +94,12 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
     @OptIn(ExperimentalXmlUtilApi::class)
     public constructor(original: XmlSerializationPolicy?) : this(
-        (original as? DefaultXmlSerializationPolicy)?.builder() ?: original?.let { Builder(it) } ?: Builder()
+        (original as? DefaultXmlSerializationPolicy)?.builder()
+            ?: original?.let { Builder10(it) }
+            ?: Builder10()
     )
 
-    public constructor(config: Builder.() -> Unit) : this(Builder().apply(config))
+    public constructor(config: Builder10.() -> Unit) : this(Builder10().apply(config))
 
     //endregion
 
@@ -285,9 +300,9 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
     override fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean {
         return when (encodeDefault) {
-            XmlSerializationPolicy.XmlEncodeDefault.NEVER -> false
-            XmlSerializationPolicy.XmlEncodeDefault.ALWAYS -> true
-            XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED -> (elementDescriptor as? XmlValueDescriptor)?.default == null
+            XmlEncodeDefault.NEVER -> false
+            XmlEncodeDefault.ALWAYS -> true
+            XmlEncodeDefault.ANNOTATED -> (elementDescriptor as? XmlValueDescriptor)?.default == null
         }
     }
 
@@ -316,6 +331,13 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         return null
     }
 
+    override fun isInlineCollapsed(
+        serializerParent: SafeParentInfo,
+        tagParent: SafeParentInfo
+    ): Boolean {
+        return isInlineCollapsedDefault
+    }
+
     /**
      * Default implementation that uses [XmlBefore] and [XmlAfter]. It does
      * not use the parent descriptor at all.
@@ -331,7 +353,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         }
 
         fun String.toChildIndex(): Int = when (this) {
-            "*" -> XmlOrderConstraint.Companion.OTHERS
+            "*" -> XmlOrderConstraint.OTHERS
             else -> nameToIdx[this]
                 ?: throw XmlSerialException("Could not find the attribute in ${parentDescriptor.serialName} with the name: $this\n  Candidates were: ${nameToIdx.keys.joinToString()}")
         }
@@ -453,7 +475,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     }
 
     @Suppress("DEPRECATION")
-    private val pseudoConfig = XmlConfig(XmlConfig.Builder(policy = this))
+    private val pseudoConfig = XmlConfig(XmlConfig.CompatBuilder(policy = this))
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {
@@ -497,7 +519,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     /**
      * Create a builder for this policy. This function allows subclasses to have their own configuration.
      */
-    public open fun builder(): Builder = Builder(this)
+    public open fun builder(): Builder = Builder10(this)
 
     /**
      * Create a copy of this configuration with the changes specified through the config parameter.
@@ -567,14 +589,16 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
      *   toFloat/Float.toString functions from the Kotlin standard library.
      */
     @OptIn(ExperimentalXmlUtilApi::class)
-    public open class Builder internal constructor(
+    @XmlConfigDsl
+    public abstract class Builder protected constructor(
         public var pedantic: Boolean,
         public var autoPolymorphic: Boolean,
-        public var encodeDefault: XmlSerializationPolicy.XmlEncodeDefault,
+        public var encodeDefault: XmlEncodeDefault,
         public var unknownChildHandler: UnknownChildHandler,
         public var typeDiscriminatorName: QName?,
         public var throwOnRepeatedElement: Boolean,
         public var verifyElementOrder: Boolean,
+        public var isInlineCollapsedDefault: Boolean,
         public var isStrictAttributeNames: Boolean,
         public var isStrictBoolean: Boolean,
         public var isXmlFloat: Boolean,
@@ -584,18 +608,20 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         public var defaultPrimitiveOutputKind: OutputKind,
         public var defaultObjectOutputKind: OutputKind,
     ) {
+
         /**
          * Constructor for default builder. To set any values, use the property setters. The primary constructor
          * is internal as it is not stable as new configuration options are added.
          */
-        public constructor() : this(
+        private constructor() : this(
             pedantic = false,
             autoPolymorphic = false,
-            encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
+            encodeDefault = XmlEncodeDefault.ANNOTATED,
             unknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
             typeDiscriminatorName = null,
             throwOnRepeatedElement = false,
             verifyElementOrder = false,
+            isInlineCollapsedDefault = true,
             isStrictAttributeNames = false,
             isStrictBoolean = false,
             isXmlFloat = false,
@@ -610,7 +636,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         )
 
         @ExperimentalXmlUtilApi
-        public constructor(policy: DefaultXmlSerializationPolicy) : this(
+        protected constructor(policy: DefaultXmlSerializationPolicy) : this(
             pedantic = policy.pedantic,
             autoPolymorphic = policy.autoPolymorphic,
             encodeDefault = policy.encodeDefault,
@@ -618,6 +644,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
             typeDiscriminatorName = policy.typeDiscriminatorName,
             throwOnRepeatedElement = policy.throwOnRepeatedElement,
             verifyElementOrder = policy.verifyElementOrder,
+            isInlineCollapsedDefault = policy.isInlineCollapsedDefault,
             isStrictAttributeNames = policy.isStrictAttributeNames,
             isStrictBoolean = policy.isStrictBoolean,
             isXmlFloat = policy.isXmlFloat,
@@ -628,16 +655,17 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         )
 
         @ExperimentalXmlUtilApi
-        public constructor(policy: XmlSerializationPolicy) : this(
+        protected constructor(policy: XmlSerializationPolicy) : this(
             pedantic = (policy as? DefaultXmlSerializationPolicy)?.pedantic ?: false,
             autoPolymorphic = (policy as? DefaultXmlSerializationPolicy)?.autoPolymorphic ?: false,
             encodeDefault = (policy as? DefaultXmlSerializationPolicy)?.encodeDefault
-                ?: XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED,
+                ?: XmlEncodeDefault.ANNOTATED,
             unknownChildHandler = (policy as? DefaultXmlSerializationPolicy)?.unknownChildHandler
                 ?: XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
             typeDiscriminatorName = (policy as? DefaultXmlSerializationPolicy)?.typeDiscriminatorName,
             throwOnRepeatedElement = (policy as? DefaultXmlSerializationPolicy)?.throwOnRepeatedElement ?: false,
             verifyElementOrder = policy.verifyElementOrder,
+            isInlineCollapsedDefault = (policy as? DefaultXmlSerializationPolicy)?.isInlineCollapsedDefault ?: true,
             isStrictAttributeNames = policy.isStrictAttributeNames,
             isStrictBoolean = policy.isStrictBoolean,
             isXmlFloat = policy.isXmlFloat,
@@ -651,6 +679,10 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
             defaultObjectOutputKind = policy.defaultObjectOutputKind,
         )
 
+
+        public open fun build(): DefaultXmlSerializationPolicy =
+            DefaultXmlSerializationPolicy(this)
+
         public fun ignoreUnknownChildren() {
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_CHILD_HANDLER
         }
@@ -659,27 +691,107 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
             unknownChildHandler = XmlConfig.IGNORING_UNKNOWN_NAMESPACE_HANDLER
         }
 
-        @Suppress("FunctionName")
-        @ExperimentalXmlUtilApi
-        public fun setDefaults_0_91_0() {
+    }
+
+    public class BuilderCompat: Builder {
+        /**
+         * Constructor for default builder. To set any values, use the property setters. The primary constructor
+         * is internal as it is not stable as new configuration options are added.
+         */
+        public constructor() : super(
+            pedantic = false,
+            autoPolymorphic = false,
+            encodeDefault = XmlEncodeDefault.ANNOTATED,
+            unknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+            typeDiscriminatorName = null,
+            throwOnRepeatedElement = false,
+            verifyElementOrder = false,
+            isInlineCollapsedDefault = true,
+            isStrictAttributeNames = false,
+            isStrictBoolean = false,
+            isXmlFloat = false,
+            isStrictOtherAttributes = false,
+            formatCache = try {
+                defaultSharedFormatCache()
+            } catch (e: Error) {
+                FormatCache.Dummy
+            },
+            defaultPrimitiveOutputKind = OutputKind.Attribute,
+            defaultObjectOutputKind = OutputKind.Element,
+        )
+
+        public constructor(policy: DefaultXmlSerializationPolicy) : super(policy)
+        public constructor(policy: XmlSerializationPolicy) : super(policy)
+
+        public fun setDefaults_0_86_3() {
             autoPolymorphic = true
             pedantic = false
             typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
-            encodeDefault = XmlSerializationPolicy.XmlEncodeDefault.ANNOTATED
+            encodeDefault = XmlEncodeDefault.ANNOTATED
             throwOnRepeatedElement = true
             isStrictAttributeNames = true
-            isStrictOtherAttributes = true
-            isStrictBoolean = true
-            isXmlFloat = true
+            isInlineCollapsedDefault = true
         }
 
-        public fun build(): DefaultXmlSerializationPolicy {
-            return DefaultXmlSerializationPolicy(this)
+        public fun setDefaults_0_87_0() {
+            setDefaults_0_86_3()
+            isStrictOtherAttributes = true
+        }
+
+        public fun setDefaults_0_90_2() {
+            setDefaults_0_87_0()
+            isStrictBoolean = true
+        }
+
+        @Suppress("FunctionName")
+        @ExperimentalXmlUtilApi
+        public fun setDefaults_0_91_0() {
+            setDefaults_0_90_2()
+            isXmlFloat = true
         }
     }
 
+    public class Builder10 : Builder {
+        /**
+         * Constructor for default builder. To set any values, use the property setters. The primary constructor
+         * is internal as it is not stable as new configuration options are added.
+         */
+        public constructor() : super(
+            pedantic = false,
+            autoPolymorphic = true,
+            encodeDefault = XmlEncodeDefault.ANNOTATED,
+            unknownChildHandler = XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER,
+            typeDiscriminatorName = null,
+            throwOnRepeatedElement = true,
+            verifyElementOrder = false,
+            isInlineCollapsedDefault = true,
+            isStrictAttributeNames = true,
+            isStrictBoolean = true,
+            isXmlFloat = true,
+            isStrictOtherAttributes = true,
+            formatCache = try { defaultSharedFormatCache() } catch (_: Error) { FormatCache.Dummy },
+            defaultPrimitiveOutputKind = OutputKind.Attribute,
+            defaultObjectOutputKind = OutputKind.Element,
+        ) {
+            typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+        }
+
+        public constructor(policy: DefaultXmlSerializationPolicy) : super(policy)
+        public constructor(policy: XmlSerializationPolicy) : super(policy)
+
+    }
+
     private companion object {
+
+        @Deprecated("Replace with Builder10", ReplaceWith("Builder10()"))
+        public fun Builder(): Builder10 = Builder10()
+        @Deprecated("Replace with Builder10", ReplaceWith("Builder10(policy)"))
+        public fun Builder(policy: DefaultXmlSerializationPolicy): Builder10 = Builder10(policy)
+        @Deprecated("Replace with Builder10", ReplaceWith("Builder10(policy)"))
+        public fun Builder(policy: XmlSerializationPolicy): Builder10 = Builder10(policy)
+
         val ILLEGALNAMES = arrayOf("xml", "xmlns")
+
         val RESTRICTED_PREFIXES = mapOf(
             XMLConstants.XML_NS_PREFIX to XMLConstants.XML_NS_URI,
             XMLConstants.XMLNS_ATTRIBUTE to XMLConstants.XMLNS_ATTRIBUTE_NS_URI

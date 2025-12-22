@@ -33,6 +33,7 @@ import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.defaultPolicy
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull

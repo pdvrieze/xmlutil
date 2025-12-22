@@ -127,21 +127,6 @@ internal class SubDocumentReader(
             isParseAllSiblings -> delegate.peekNextEvent() != EventType.END_ELEMENT
 
             else -> delegate.eventType != EventType.END_ELEMENT
-
-            /*
-                        initialDepth < 0 -> false
-
-                        delegate.depth == initialDepth &&
-                                !isParseAllSiblings &&
-                                delegate.eventType == EventType.END_ELEMENT
-                                     -> false
-
-                        delegate.peekNextEvent() == EventType.END_ELEMENT -> {
-                            delegate.depth < initialDepth
-                        }
-
-                        else -> true
-            */
         }
     }
 

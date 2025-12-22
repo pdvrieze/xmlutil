@@ -29,10 +29,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.LayeredCache
-import nl.adaptivity.xmlutil.serialization.TestFormatCache
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.copy
+import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -232,9 +229,9 @@ abstract class TestPolymorphicBase<T>(
     abstract val expectedXSIPolymorphicXML: String
 
     val nonAutoPolymorphicXml: XML = baseXmlFormat.copy {
-        defaultPolicy {
+        policy = DefaultXmlSerializationPolicy.BuilderCompat(policy).apply {
             autoPolymorphic = false
-        }
+        }.build()
     }
 
     @Test

@@ -84,6 +84,17 @@ public interface XmlSerializationPolicy {
         useName: DeclaredNameInfo = tagParent.elementUseNameInfo
     ): QName
 
+    /**
+     * Determines whether inline classes are merged with their content. Note that inline classes
+     * may still determine the tag name used for the data even if the actual contents come from
+     * the child content. The actual name used is ultimately determined by the policy.
+     *
+     * @param serializerParent The information from the semantically containing serializer
+     * @param tagParent The information from the serializer for the containing tag (this can skip
+     *        elements compared to the serializerParent or have introduced synthetic tags)
+     */
+    public fun isInlineCollapsed(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): Boolean = true
+
     public fun isListEluded(
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo

@@ -61,7 +61,7 @@ class RecoveryTest {
     @Test
     fun testDeserializeRecoveringWithParser() {
         val xml = XML {
-            policy = object: DefaultXmlSerializationPolicy(Builder().apply { pedantic = true }) {
+            policy = object: DefaultXmlSerializationPolicy(Builder10().apply { pedantic = true }) {
                 @ExperimentalXmlUtilApi
                 override fun handleUnknownContentRecovering(
                     input: XmlReader,

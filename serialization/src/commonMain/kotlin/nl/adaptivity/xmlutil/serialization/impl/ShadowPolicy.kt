@@ -34,6 +34,7 @@ import nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlOrderConstraint
 
+// TODO ignore type or use cache
 internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cache: FormatCache): XmlSerializationPolicy {
     internal val basePolicy: XmlSerializationPolicy = when (basePolicy) {
         is ShadowPolicy -> basePolicy.basePolicy
