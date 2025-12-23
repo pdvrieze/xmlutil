@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
@@ -44,23 +46,23 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
 
     final override fun getParentNode(): INode? = delegate.parentNode?.wrap()
 
-    final override fun getFirstChild(): INode? = delegate.firstChild?.wrap()
+    override fun getFirstChild(): INode? = delegate.firstChild?.wrap()
 
-    final override fun getLastChild(): INode? = delegate.lastChild?.wrap()
+    override fun getLastChild(): INode? = delegate.lastChild?.wrap()
 
     final override fun getPreviousSibling(): INode? = delegate.previousSibling?.wrap()
 
     final override fun getNextSibling(): INode? = delegate.nextSibling?.wrap()
 
     final override fun getNodeName(): String = delegate.nodeName
-    final override val nodetype: NodeType get() = NodeType(delegate.nodeType)
+    final override fun getNodetype(): NodeType = NodeType(delegate.nodeType)
 
     final override fun getNodeType(): Short = delegate.nodeType
 
     final override fun getTextContent(): String? = delegate.textContent
 
-    final override fun setTextContent(textContent: String) {
-        delegate.textContent = textContent
+    final override fun setTextContent(value: String) {
+        delegate.textContent = value
     }
 
     final override fun getChildNodes(): INodeList = WrappingNodeList(delegate.childNodes)
@@ -139,12 +141,12 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
         return delegate.appendChild(newChild.unWrap()).wrap()
     }
 
-    final override fun replaceChild(oldChild: INode, newChild: INode): INode {
-        return delegate.replaceChild(oldChild.unWrap(), newChild.unWrap()).wrap()
+    final override fun replaceChild(newChild: INode, oldChild: INode): INode {
+        return delegate.replaceChild(newChild.unWrap(), oldChild.unWrap()).wrap()
     }
 
     final override fun replaceChild(newChild: DomNode, oldChild: DomNode): INode {
-        return delegate.replaceChild(oldChild.unWrap(), newChild.unWrap()).wrap()
+        return delegate.replaceChild(newChild.unWrap(), oldChild.unWrap()).wrap()
     }
 
     final override fun removeChild(node: INode): INode {
@@ -168,6 +170,7 @@ internal abstract class NodeImpl<N : DomNode>(delegate: N) : INode {
         return delegate.hashCode()
     }
 
+    override fun toString(): String = delegate.toString()
 
 }
 
@@ -210,7 +213,7 @@ internal fun DomNode.wrap(): INode = when (this) {
 
 internal fun Node2.wrap(): INode = when (this) {
     is INode -> this
-    else -> error("Node type $nodetype not supported")
+    else -> error("Node type ${getNodetype()} not supported")
 }
 
 internal fun DomDocument.wrap(): IDocument = when (this) {

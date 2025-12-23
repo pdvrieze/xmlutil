@@ -1,30 +1,33 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isXmlWhitespace
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlIgnoreWhitespace
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.test.multiplatform.Target
@@ -32,7 +35,7 @@ import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.*
 
 class ElementChildren237 {
-    val xml get() = XML { recommended_0_91_0 { pedantic = true } }
+    private val xml get() = XML1_0.pedantic()
 
     @Test
     fun testDeserializedElement() {
@@ -59,7 +62,7 @@ class ElementChildren237 {
         val verification = assertIs<Element>(adVerChildren[1])
 
         assertEquals("Verification", verification.localName)
-        assertEquals(1, verification.attributes.getLength())
+        assertEquals(1, verification.attributes.size)
         assertEquals("Something", verification.getAttribute("vendor"))
 
         val jsResource = assertIs<Element>(
@@ -67,7 +70,7 @@ class ElementChildren237 {
                 .nextSibling
         )
         assertEquals("JavaScriptResource", jsResource.localName)
-        assertEquals(2, jsResource.attributes.getLength())
+        assertEquals(2, jsResource.attributes.size)
         assertEquals("omid", jsResource.getAttribute("apiFramework"))
         assertEquals("true", jsResource.getAttribute("browserOptional"))
 
@@ -82,12 +85,12 @@ class ElementChildren237 {
             jsResource.nextSibling.assertWS().nextSibling
         )
         assertEquals("VerificationParameters", verParams.localName)
-        assertEquals(0, verParams.attributes.getLength())
+        assertEquals(0, verParams.attributes.size)
 
         val keys = assertIs<Text>(
             verParams.firstChild.assertWS().nextSibling
         )
-        assertEquals("""{"key":"21649"}""", keys.data )
+        assertEquals("""{"key":"21649"}""", keys.data)
         assertNull(keys.nextSibling.assertWS().nextSibling)
     }
 
@@ -116,7 +119,7 @@ class ElementChildren237 {
         val verification = assertIs<Element>(adVerChildren[1])
 
         assertEquals("Verification", verification.localName)
-        assertEquals(1, verification.attributes.getLength())
+        assertEquals(1, verification.attributes.size)
         assertEquals("Something", verification.getAttribute("vendor"))
 
         val jsResource = assertIs<Element>(
@@ -124,7 +127,7 @@ class ElementChildren237 {
                 .nextSibling
         )
         assertEquals("JavaScriptResource", jsResource.localName)
-        assertEquals(2, jsResource.attributes.getLength())
+        assertEquals(2, jsResource.attributes.size)
         assertEquals("omid", jsResource.getAttribute("apiFramework"))
         assertEquals("true", jsResource.getAttribute("browserOptional"))
 
@@ -139,12 +142,12 @@ class ElementChildren237 {
             jsResource.nextSibling.assertWS().nextSibling
         )
         assertEquals("VerificationParameters", verParams.localName)
-        assertEquals(0, verParams.attributes.getLength())
+        assertEquals(0, verParams.attributes.size)
 
         val keys = assertIs<Text>(
             verParams.firstChild.assertWS().nextSibling
         )
-        assertEquals("""{"key":"21649"}""", keys.data )
+        assertEquals("""{"key":"21649"}""", keys.data)
         assertNull(keys.nextSibling.assertWS().nextSibling)
     }
 
@@ -179,11 +182,13 @@ class ElementChildren237 {
 
     companion object {
 
-        fun <T: Node> T?.assertWS():T = also { assertIs<Text>(it).assertWS() }!!
+        @IgnorableReturnValue
+        fun <T : Node> T?.assertWS(): T = also { assertIs<Text>(it).assertWS() }!!
 
-        fun <T: Text> T.assertWS():T = also { assertTrue(isXmlWhitespace(it.data)) }
+        @IgnorableReturnValue
+        fun <T : Text> T.assertWS(): T = also { assertTrue(isXmlWhitespace(it.data)) }
 
-        val XMLSTRING = """|<Extensions>
+        internal val XMLSTRING = """|<Extensions>
             |    <Extension type="AdVerifications">
             |        <AdVerifications>
             |            <Verification vendor="Something">

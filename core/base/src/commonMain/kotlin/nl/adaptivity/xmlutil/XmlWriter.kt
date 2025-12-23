@@ -20,6 +20,7 @@
 @file:JvmMultifileClass
 @file:JvmName("XmlWriterUtil")
 @file:Suppress("NOTHING_TO_INLINE")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -56,26 +57,10 @@ public interface XmlWriter : Closeable {
             indentString = " ".repeat(value)
         }
 
-    @Deprecated(
-        "Use the version that takes strings",
-        ReplaceWith("setPrefix(prefix.toString(), namespaceUri.toString())")
-    )
-    public fun setPrefix(prefix: CharSequence, namespaceUri: CharSequence) {
-        setPrefix(prefix.toString(), namespaceUri.toString())
-    }
-
     /**
      * Bind the prefix to the given uri for this element.
      */
     public fun setPrefix(prefix: String, namespaceUri: String)
-
-    @Deprecated(
-        "Use the version that takes strings",
-        ReplaceWith("namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())")
-    )
-    public fun namespaceAttr(namespacePrefix: CharSequence, namespaceUri: CharSequence) {
-        namespaceAttr(namespacePrefix.toString(), namespaceUri.toString())
-    }
 
     /**
      * Write a namespace declaration attribute.
@@ -221,8 +206,7 @@ public interface XmlWriter : Closeable {
  * @param reader The reader from which the namespace information is retrieved
  * @param missingNamespaces Map to which the "missing" namespace is added.
  */
-@Deprecated("This function should be internal")
-public fun XmlWriter.addUndeclaredNamespaces(reader: XmlReader, missingNamespaces: MutableMap<String, String>) {
+internal fun XmlWriter.addUndeclaredNamespaces(reader: XmlReader, missingNamespaces: MutableMap<String, String>) {
     undeclaredPrefixes(reader, missingNamespaces)
 }
 
@@ -263,7 +247,8 @@ private fun XmlWriter.undeclaredPrefixes(reader: XmlReader, missingNamespaces: M
  * @receiver The writer to write to
  * @param reader The reader to read from
  */
-public fun XmlWriter.serialize(reader: XmlReader) {
+@JvmOverloads
+public fun XmlWriter.serialize(reader: XmlReader, keepDuplicatedNsDecls: Boolean = true) {
     while (reader.hasNext()) {
         when (reader.next()) {
             EventType.START_DOCUMENT,
@@ -271,16 +256,16 @@ public fun XmlWriter.serialize(reader: XmlReader) {
             EventType.DOCDECL,
             EventType.END_DOCUMENT -> {
                 if (depth <= 0) {
-                    writeCurrentEvent(reader)
+                    writeCurrentEvent(reader, keepDuplicatedNsDecls)
                 }
             }
 
             EventType.IGNORABLE_WHITESPACE -> {
                 // Only write ignorable whitespace if we are not formatting with a set indent.
-                if (indentString.isEmpty()) writeCurrentEvent(reader)
+                if (indentString.isEmpty()) writeCurrentEvent(reader, keepDuplicatedNsDecls)
             }
 
-            else -> writeCurrentEvent(reader)
+            else -> writeCurrentEvent(reader, keepDuplicatedNsDecls)
         }
     }
 }
@@ -292,29 +277,45 @@ public fun XmlWriter.serialize(reader: XmlReader) {
  * @receiver the writer to write to
  * @param reader The reader to get the current event from.
  */
-public fun XmlWriter.writeCurrentEvent(reader: XmlReader) {
+@JvmOverloads
+public fun XmlWriter.writeCurrentEvent(reader: XmlReader, keepDuplicatedNsDecls: Boolean = true,) {
     when (reader.eventType) {
         EventType.START_DOCUMENT -> startDocument(null, reader.encoding, reader.standalone)
 
         EventType.START_ELEMENT -> {
-            startTag(reader.namespaceURI, reader.localName, reader.prefix)
+            if (keepDuplicatedNsDecls) {
+                startTag(reader.namespaceURI, reader.localName, reader.prefix)
 
-            for (a in reader.namespaceDecls) {
-                namespaceAttr(a.prefix, a.namespaceURI)
+                for (a in reader.namespaceDecls) {
+                    namespaceAttr(a.prefix, a.namespaceURI)
+                }
+            } else {
+                when (val existingPrefix = getPrefix(reader.namespaceURI)) {
+                    null -> startTag(reader.namespaceURI, reader.localName, reader.prefix)
+                    else -> startTag(reader.namespaceURI, reader.localName, existingPrefix)
+                }
+
+                for (a in reader.namespaceDecls) {
+                    if (getPrefix(a.namespaceURI) == null) {
+                        namespaceAttr(a.prefix, a.namespaceURI)
+                    }
+                }
             }
 
             for (i in reader.attributeIndices) {
                 val attrPrefix = reader.getAttributePrefix(i)
                 val namespace = if (attrPrefix == "") "" else reader.getAttributeNamespace(i)
-                val prefix = when (namespace) {
-                    "" -> ""
-                    namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
-                    else -> namespaceContext.getPrefix(namespace) ?: attrPrefix
+                if (namespace != XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+                    val prefix = when (namespace) {
+                        "" -> ""
+                        namespaceContext.getNamespaceURI(attrPrefix) -> attrPrefix
+                        else -> namespaceContext.getPrefix(namespace) ?: attrPrefix
+                    }
+                    attribute(
+                        namespace, reader.getAttributeLocalName(i),
+                        prefix, reader.getAttributeValue(i)
+                    )
                 }
-                attribute(
-                    namespace, reader.getAttributeLocalName(i),
-                    prefix, reader.getAttributeValue(i)
-                )
             }
         }
 
@@ -362,22 +363,6 @@ public inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.() -> Un
     smartStartTag(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix(), body)
 }
 
-@Deprecated("Use strings", ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString())"))
-@JvmOverloads
-public fun XmlWriter.smartStartTag(nsUri: CharSequence?, localName: CharSequence, prefix: CharSequence? = null) {
-    smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString())
-}
-
-/**
- * Function present only for binary compatibility.
- */
-@Deprecated("Present for return value change only", level = DeprecationLevel.HIDDEN)
-@JvmOverloads
-@JvmName("smartStartTag")
-public fun XmlWriter.smartStartTagCompat(nsUri: String?, localName: String, prefix: String? = null) {
-    smartStartTag(nsUri, localName, prefix)
-}
-
 /**
  * Enhanced function for writing start tags, that will attempt to reuse prefixes. Rather than use
  * the passed prefix it will look up the prefix for the given namespace, and if present use that.
@@ -387,6 +372,7 @@ public fun XmlWriter.smartStartTagCompat(nsUri: String?, localName: String, pref
  * @return The used prefix
  */
 @JvmOverloads
+@IgnorableReturnValue
 public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: String? = null): String {
     if (nsUri == null || nsUri == XMLConstants.XML_NS_URI || nsUri == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
         val namespace = namespaceContext.getNamespaceURI(prefix ?: DEFAULT_NS_PREFIX) ?: NULL_NS_URI
@@ -407,19 +393,6 @@ public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: St
         if (writeNs) this.namespaceAttr(usedPrefix, nsUri)
         return usedPrefix
     }
-}
-
-@Deprecated(
-    "Use strings",
-    ReplaceWith("smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)")
-)
-public inline fun XmlWriter.smartStartTag(
-    nsUri: CharSequence?,
-    localName: CharSequence,
-    prefix: CharSequence? = null,
-    body: XmlWriter.() -> Unit
-) {
-    smartStartTag(nsUri?.toString(), localName.toString(), prefix?.toString(), body)
 }
 
 /**
@@ -458,24 +431,6 @@ public inline fun <T> XmlWriter.writeListIfNotEmpty(
     }
 }
 
-@Deprecated(
-    "Should be moved to the xmlserializable library",
-    ReplaceWith("this.serializeAll(iterable)", "nl.adaptivity.xmlutil.xmlserializable.serializeAll")
-)
-@Suppress("DEPRECATION")
-public inline fun <T : XmlSerializable> XmlWriter.serializeAll(iterable: Iterable<T>) {
-    iterable.forEach { it.serialize(this) }
-}
-
-@Deprecated(
-    "Should be moved to the xmlserializable library",
-    ReplaceWith("this.serializeAll(iterable)", "nl.adaptivity.xmlutil.xmlserializable.serializeAll")
-)
-@Suppress("DEPRECATION")
-public inline fun <T : XmlSerializable> XmlWriter.serializeAll(sequence: Sequence<T>) {
-    sequence.forEach { it.serialize(this) }
-}
-
 public inline fun XmlWriter.startTag(
     nsUri: String?,
     localName: String,
@@ -499,7 +454,7 @@ public fun XmlWriter.writeSimpleElement(
 ) {
     smartStartTag(nsUri, localName, prefix)
     if (!value.isNullOrEmpty()) {
-        text(value.toString())
+        text(value)
     }
     endTag(nsUri, localName, prefix)
 }

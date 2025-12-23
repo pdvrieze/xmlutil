@@ -26,9 +26,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 fun main() {
     val t = Team(listOf(Person("Joe", 15)))
-    val xml = XML {
-        jacksonPolicy()
-    }
+    val xml = XML.jacksonPolicy()
 
     val encodedString = xml.encodeToString(t) // both versions are available
     println("jackson output:\n${encodedString.prependIndent("    ")}\n")

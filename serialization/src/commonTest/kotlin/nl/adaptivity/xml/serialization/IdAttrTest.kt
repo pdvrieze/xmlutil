@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization
 
@@ -24,9 +26,14 @@ import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XmlId
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.jvm.JvmInline
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertFails
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalXmlUtilApi::class)
 class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
@@ -45,7 +52,7 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
 
     @Test
     fun testIdInDescriptor() {
-        val descriptor = XML.xmlDescriptor(serializer)
+        val descriptor = XML1_0.xmlDescriptor(serializer)
         assertQNameEquivalent(QName("container"), descriptor.tagName)
         val element = descriptor.getElementDescriptor(0).getElementDescriptor(0).getElementDescriptor(0)
         assertQNameEquivalent(QName("element"), element.tagName)
@@ -64,14 +71,14 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
     @Test
     fun testDuplicateIds() {
         assertFails {
-            XML.decodeFromString(serializer, duplicateIds1)
+            XML.compat.decodeFromString(serializer, duplicateIds1)
         }
     }
 
     @Test
     fun testDuplicateIds2() {
         assertFails {
-            XML.decodeFromString(serializer, duplicateIds2)
+            XML.compat.decodeFromString(serializer, duplicateIds2)
         }
     }
 

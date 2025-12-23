@@ -30,12 +30,6 @@ abstract class DelegatingSerializer<T, D>(
     val delegateSerializer: KSerializer<D>
 ): KSerializer<T> {
 
-    @Deprecated("Use serializer that specifies the serial name")
-    constructor(delegateSerializer: KSerializer<D>) : this(
-        delegateSerializer.descriptor.serialName + "_delegate",
-        delegateSerializer
-    )
-
     abstract fun fromDelegate(delegate: D): T
 
     abstract fun T.toDelegate(): D

@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmls
 import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.defaultPolicy
 import org.w3.xml.xmschematestsuite.TSTestSet
 import org.w3.xml.xmschematestsuite.TSTestSuite
 import org.w3.xml.xmschematestsuite.override.CompactOverride
@@ -62,12 +63,12 @@ inline fun measure(name:String, rounds: Int = 20, warmups: Int = 1, action: Meas
 }
 
 
-internal fun testXmlSchemaUrls(xml: XML = XML {}): List<Pair<URL, URL>> {
+internal fun testXmlSchemaUrls(xml: XML = XML.recommended_1_0 {}): List<Pair<URL, URL>> {
 
     val p = xml.config.policy as? DefaultXmlSerializationPolicy
     val xml2 = when (p?.autoPolymorphic) {
         true -> xml
-        else -> xml.copy { autoPolymorphic = true }
+        else -> xml.copy { defaultPolicy { autoPolymorphic = true } }
     }
 
     val suiteURL: URL = MeasureInfo::class.java.getResource("/xsts/suite.xml")!!
@@ -90,7 +91,7 @@ internal fun testXmlSchemaUrls(xml: XML = XML {}): List<Pair<URL, URL>> {
                 val tsName = "$folderName - ${testSet.name}"
 
                 testSet.testGroups.flatMap { gr ->
-                    gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.mapNotNull { sd ->
+                    gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.map { sd ->
                         (setBaseUrl to setBaseUrl.resolve(sd.href))
                     } ?: emptyList()
                 }

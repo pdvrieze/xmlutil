@@ -32,7 +32,7 @@ import java.net.URL
 fun Project.configureDokka(
     myModuleName: Provider<String>,
     myModuleVersion: Provider<String>,
-    dokkaOverrideTarget: Provider<String?>
+    dokkaOverrideTarget: Provider<String>
 ) {
     logger.lifecycle("Configuring dokka for project($name)")
     tasks.configureEach {

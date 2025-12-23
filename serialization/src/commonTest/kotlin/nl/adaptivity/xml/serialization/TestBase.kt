@@ -1,23 +1,24 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
 @file:OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
 
 package nl.adaptivity.xml.serialization
@@ -29,10 +30,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.LayeredCache
-import nl.adaptivity.xmlutil.serialization.TestFormatCache
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.copy
+import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -43,7 +41,7 @@ private fun XmlReader.nextNotIgnored() {
     } while (ev.isIgnorable && hasNext())
 }
 
-private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
+private fun assertXmlEquals(expected: XmlReader, actual: XmlReader) {
     do {
         expected.nextNotIgnored()
         actual.nextNotIgnored()
@@ -53,10 +51,10 @@ private fun assertXmlEquals(expected: XmlReader, actual: XmlReader): Unit {
     } while (expected.eventType != EventType.END_DOCUMENT && expected.hasNext() && actual.hasNext())
 
     while (expected.hasNext() && expected.isIgnorable()) {
-        expected.next()
+        val _ = expected.next()
     }
     while (actual.hasNext() && actual.isIgnorable()) {
-        actual.next()
+        val _ = actual.next()
     }
 
     assertEquals(expected.hasNext(), actual.hasNext())
@@ -90,22 +88,23 @@ private fun assertStartElementEquals(
     assertContentEquals(expectedAttrs, actualAttrs)
 }
 
-internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerializersModule()) = XML(serializersModule) {
-    recommended {
-        autoPolymorphic = false
-        typeDiscriminatorName = null
-        pedantic = true
-        formatCache = TestFormatCache(LayeredCache())
+internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerializersModule()) =
+    XML1_0.pedantic(serializersModule) {
+        policy {
+            autoPolymorphic = false
+            typeDiscriminatorName = null
+            formatCache = TestFormatCache(LayeredCache())
+        }
+        xmlDeclMode = XmlDeclMode.None
     }
-    xmlDeclMode = XmlDeclMode.None
-}
 
 internal fun defaultJsonFormat(serializersModule: SerializersModule) = Json {
     defaultJsonTestConfiguration()
     this.serializersModule = serializersModule
 }
 
-expect abstract class PlatformXmlTestBase<T> constructor(
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+expect abstract class PlatformXmlTestBase<T>(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule = EmptySerializersModule(),
@@ -116,9 +115,8 @@ abstract class XmlTestBase<T>(
     val value: T,
     val serializer: KSerializer<T>,
     val serializersModule: SerializersModule = EmptySerializersModule(),
-    protected val baseXmlFormat: XML = XML(serializersModule) {
-        recommended {
-            pedantic = true
+    protected val baseXmlFormat: XML = XML1_0.recommended(serializersModule) {
+        policy {
             autoPolymorphic = false
             typeDiscriminatorName = null
         }
@@ -155,6 +153,7 @@ abstract class XmlTestBase<T>(
 
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect abstract class PlatformTestBase<T>(
     value: T,
     serializer: KSerializer<T>,
@@ -163,13 +162,12 @@ expect abstract class PlatformTestBase<T>(
     baseJsonFormat: Json = defaultJsonFormat(serializersModule)
 ) : TestBase<T>
 
-abstract class TestBase<T> constructor(
+abstract class TestBase<T>(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule = EmptySerializersModule(),
-    baseXmlFormat: XML = XML(serializersModule) {
-        recommended {
-            autoPolymorphic = true
+    baseXmlFormat: XML = XML1_0.recommended(serializersModule) {
+        policy {
             typeDiscriminatorName = null
         }
         xmlDeclMode = XmlDeclMode.None
@@ -195,6 +193,7 @@ abstract class TestBase<T> constructor(
 
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect abstract class PlatformTestPolymorphicBase<T>(
     value: T,
     serializer: KSerializer<T>,
@@ -214,8 +213,8 @@ abstract class TestPolymorphicBase<T>(
     value,
     serializer,
     serializersModule,
-    XML(serializersModule) {
-        recommended {
+    XML1_0.recommended(serializersModule) {
+        policy {
             typeDiscriminatorName = null
         }
         xmlDeclMode = XmlDeclMode.None
@@ -227,10 +226,10 @@ abstract class TestPolymorphicBase<T>(
 
     abstract val expectedXSIPolymorphicXML: String
 
-    val nonAutoPolymorphicXml = baseXmlFormat.copy {
-        defaultPolicy {
+    val nonAutoPolymorphicXml: XML = baseXmlFormat.copy {
+        policy = DefaultXmlSerializationPolicy.BuilderCompat(policy).apply {
             autoPolymorphic = false
-        }
+        }.build()
     }
 
     @Test
@@ -250,10 +249,9 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_serialization_should_work() {
-        val xml = XML(serializersModule = serializersModule) {
-            recommended {
+        val xml = XML1_0.recommended(serializersModule = serializersModule) {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType
             }
             xmlDeclMode = XmlDeclMode.None
@@ -265,10 +263,9 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_deserialization_should_work() {
-        val actualValue = XML(serializersModule = serializersModule) {
-            recommended {
+        val actualValue = XML1_0.recommended(serializersModule = serializersModule) {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType
             }
             xmlDeclMode = XmlDeclMode.None
@@ -280,10 +277,9 @@ abstract class TestPolymorphicBase<T>(
     @Test
     open fun attribute_discriminator_deserialization_should_work() {
         val modifiedXml = expectedXSIPolymorphicXML.replace(XMLConstants.XSI_NS_URI, "urn:notquitexsi")
-        val actualValue = XML(serializersModule = serializersModule) {
-            recommended {
+        val actualValue = XML1_0.recommended(serializersModule = serializersModule) {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi")
             }
             xmlDeclMode = XmlDeclMode.None
@@ -294,11 +290,10 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_deserialization_should_work_implicitly() {
-        val actualValue = XML(serializersModule = serializersModule) {
+        val actualValue = XML1_0.recommended(serializersModule = serializersModule) {
             xmlDeclMode = XmlDeclMode.None
-            recommended {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType
             }
         }.decodeFromString(serializer, expectedXSIPolymorphicXML)
@@ -308,6 +303,9 @@ abstract class TestPolymorphicBase<T>(
 
 
     companion object {
-        val xsiType = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+        val xsiType: QName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
     }
 }
+
+inline fun XML1_0.pedantic(serializersModule: SerializersModule = EmptySerializersModule(), configure: XmlConfig.DefaultBuilder.() -> Unit = {}) =
+    recommended(serializersModule) { policy { pedantic = true }; configure() }

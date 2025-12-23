@@ -31,8 +31,6 @@ import javax.xml.transform.Source
  * Android version of the streaming factory.
  */
 public class AndroidStreamingFactory : XmlStreamingFactory {
-
-    @Throws(XmlException::class)
     override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
         return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
     }
@@ -46,18 +44,6 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
     ): XmlWriter {
         val writer = OutputStreamWriter(outputStream, encoding)
         return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
-    }
-
-    @Throws(XmlException::class)
-    @Deprecated("Usage of results only works on the JVM", level = DeprecationLevel.ERROR)
-    override fun newWriter(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
-        throw UnsupportedOperationException("Results are not supported on Android")
-    }
-
-    @Deprecated("Usage of sources only works on the JVM", level = DeprecationLevel.ERROR)
-    @Throws(XmlException::class)
-    override fun newReader(source: Source): XmlReader {
-        throw UnsupportedOperationException("Sources are not supported on Android")
     }
 
     @Throws(XmlException::class)

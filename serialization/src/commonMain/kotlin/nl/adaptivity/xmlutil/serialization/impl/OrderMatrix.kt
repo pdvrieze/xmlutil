@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization.impl
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -34,22 +36,22 @@ public class OrderMatrix(public val size: Int) {
         this[x + (y * this@OrderMatrix.size)] = value
     }
 
-    public fun isOrderedBefore(self: Int, ref:Int) : Boolean {
+    public fun isOrderedBefore(self: Int, ref: Int): Boolean {
         require(self in 0 until size)
         require(ref in 0 until size)
         return data[ref, self]
     }
 
-    public fun isOrderedAfter(self: Int, ref:Int) : Boolean {
+    public fun isOrderedAfter(self: Int, ref: Int): Boolean {
         require(self in 0 until size)
         require(ref in 0 until size)
         return data[self, ref]
     }
 
-    public fun setOrderedBefore(self: Int, ref: Int) {
+    public fun setOrderedBefore(self: Int, ref: Int): Boolean {
         require(self in 0 until size)
         require(ref in 0 until size)
-        setOrderedAfterImpl(ref, self)
+        return setOrderedAfterImpl(ref, self)
     }
 
     public fun setOrderedAfter(self: Int, ref: Int): Boolean {
@@ -58,6 +60,11 @@ public class OrderMatrix(public val size: Int) {
         return setOrderedAfterImpl(self, ref)
     }
 
+    /**
+     * Implementation for setting that this object (`self`) is ordered after `ref`
+     *
+     * @return `true` if the data was changed, `false` if not
+     */
     private fun setOrderedAfterImpl(self: Int, ref: Int): Boolean {
         return when {
             data[self, ref] -> false
@@ -66,12 +73,12 @@ public class OrderMatrix(public val size: Int) {
                 // transitively set order given the existing state
                 for (i in 0 until size) {
                     if (data[ref, i]) { // for all items i are ordered before ref
-                        setOrderedAfterImpl(self, i) // mark self as ordered after i
+                        val _ = setOrderedAfterImpl(self, i) // mark self as ordered after i
                     }
                 }
                 for (i in 0 until size) {
                     if (data[i, self]) { // for all items i after self
-                        setOrderedAfterImpl(i, ref) // mark i as ordered after ref
+                        val _ = setOrderedAfterImpl(i, ref) // mark i as ordered after ref
                     }
                 }
                 true
@@ -80,16 +87,24 @@ public class OrderMatrix(public val size: Int) {
     }
 
     override fun toString(): String = buildString {
-        val lblWidth = (size -1).toString().length
-        val absent = "".padEnd(2*lblWidth+1,'.')
-        (0 until size).joinTo(this, " ", "".padStart(lblWidth+1)) { it.toString().padStart(lblWidth + lblWidth/2+1).padEnd(lblWidth*2+1) }
+        val lblWidth = (size - 1).toString().length
+        val absent = "".padEnd(2 * lblWidth + 1, '.')
+        (0 until size).joinTo(this, " ", "".padStart(lblWidth + 1)) {
+            it.toString().padStart(lblWidth + lblWidth / 2 + 1).padEnd(lblWidth * 2 + 1)
+        }
+
         for (y in 0 until size) {
-            val ys = y.toString().padEnd(lblWidth,'_')
+            val ys = y.toString().padEnd(lblWidth, '_')
             appendLine()
             val lbl = y.toString()
-            for(i in 0..(lblWidth-lbl.length)) append(' ')
+            for (_ in 0..(lblWidth - lbl.length)) append(' ')
             append(lbl).append(' ')
-            (0 until size).joinTo(this," ") { x-> if(data[x, y]) "${x.toString().padStart(lblWidth, ' ')}>$ys" else absent}
+            (0 until size).joinTo(this, " ") { x ->
+                when {
+                    data[x, y] -> "${x.toString().padStart(lblWidth, ' ')}>$ys"
+                    else -> absent
+                }
+            }
         }
     }
 

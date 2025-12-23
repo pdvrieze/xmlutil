@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.test
 
 import nl.adaptivity.xmlutil.*
@@ -41,9 +43,9 @@ abstract class TestCommonReader {
         val xml = "<f:root xmlns:f=\"foobar\">$inner</f:root>"
 
         val input = createReader(xml)
-        input.nextTag()
-        input.require(EventType.START_ELEMENT, "foobar", "root")
-        input.next()
+        input.requireNextTag(EventType.START_ELEMENT, "foobar", "root")
+
+        val _ = input.next()
         val frag = input.siblingsToFragment()
         assertEquals(inner, frag.contentString.replace(" />", "/>"))
         assertEquals(emptyList(), frag.namespaces.toList())
@@ -80,16 +82,17 @@ abstract class TestCommonReader {
         val xml = "<root xmlns=\"foobar\">$inner</root>"
 
         val input = createReader(xml)
-        input.nextTag()
-        input.require(EventType.START_ELEMENT, "foobar", "root")
-        input.next()
+        input.requireNextTag(EventType.START_ELEMENT, "foobar", "root")
+
+        val _ = input.next()
         val frag = input.siblingsToFragment()
         assertEquals(inner, frag.contentString)
         assertEquals(listOf(XmlEvent.NamespaceImpl("", "foobar")), frag.namespaces.toList())
     }
 
     protected fun testReadSingleTag(createReader: (String) -> XmlReader) {
-        val xml = "<MixedAttributeContainer xmlns:a=\"a\" xmlns:e=\"c\" attr1=\"value1\" a:b=\"dyn1\" e:d=\"dyn2\" attr2=\"value2\"/>"
+        val xml =
+            "<MixedAttributeContainer xmlns:a=\"a\" xmlns:e=\"c\" attr1=\"value1\" a:b=\"dyn1\" e:d=\"dyn2\" attr2=\"value2\"/>"
 
         createReader(xml).use { reader ->
             assertTrue(reader.hasNext())
@@ -109,7 +112,7 @@ abstract class TestCommonReader {
             (assertEquals(
                 EventType.END_DOCUMENT,
                 reader.next(),
-                "Expected end of document, location: ${reader.locationInfo}"
+                "Expected end of document, location: ${reader.extLocationInfo}"
             ))
 
             assertFalse(reader.hasNext())
@@ -191,7 +194,8 @@ abstract class TestCommonReader {
 
             assertEquals(EventType.PROCESSING_INSTRUCTION, event)
             writer.writeCurrentEvent(reader)
-            val storedEvent = (reader.toEvent() as? XmlEvent.ProcessingInstructionEvent) ?: fail("Event should be textEvent")
+            val storedEvent =
+                (reader.toEvent() as? XmlEvent.ProcessingInstructionEvent) ?: fail("Event should be textEvent")
 
             assertEquals(EventType.PROCESSING_INSTRUCTION, storedEvent.eventType)
             assertEquals("xpacket begin='' id='from_166'", storedEvent.text)
@@ -207,7 +211,7 @@ abstract class TestCommonReader {
             writer.writeCurrentEvent(reader)
 
             while (reader.hasNext()) {
-                reader.next()
+                val _ = reader.next()
                 writer.writeCurrentEvent(reader)
             }
         }
@@ -245,7 +249,7 @@ abstract class TestCommonReader {
             val reader = createReader(text)
 
             while (reader.hasNext()) {
-                reader.next()
+                val _ = reader.next()
                 reader.writeCurrent(writer)
             }
             val doc = writer.target
@@ -271,7 +275,7 @@ abstract class TestCommonReader {
         }
     }
 
-    protected abstract fun createReader(it: String): XmlReader
+    protected abstract fun createReader(xml: String): XmlReader
 
     @Test
     open fun testReadCompactFragmentWithNamespaceInOuter() {
@@ -336,7 +340,7 @@ abstract class TestCommonReader {
     }
 
     /**
-     * Test that triggers invalid handling of ]]> inside attribute values. #266
+     * Test that triggers invalid handling of `]]>` inside attribute values. #266
      */
     @Test
     open fun testEmbeddedJS() {
@@ -357,8 +361,8 @@ abstract class TestCommonReader {
     open fun testWhiteSpaceWithEntity() {
         val data = "<x>   dude &amp; &lt;dudette&gt;   </x>"
         val r = createReader(data)
-        r.nextTag()
-        r.require(EventType.START_ELEMENT, "", "x")
+        r.requireNextTag(EventType.START_ELEMENT, "", "x")
+
         assertEquals(EventType.TEXT, r.next())
         r.require(EventType.TEXT, null)
         if (r.text == "   dude ") { // either parse as 3 parts or as a single text

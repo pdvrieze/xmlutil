@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization.impl
@@ -36,6 +36,7 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
     override val attributeCount: Int get() = ifNotPeeking { attributeCount }
     override val piData: String get() = ifNotPeeking { piData }
     override val piTarget: String get() = ifNotPeeking { piTarget }
+    override val isKnownEntity: Boolean get() = ifNotPeeking { isKnownEntity }
     override val text: String get() = ifNotPeeking { text }
     override val isStarted: Boolean get() = if (hasPeekItems) delegate.eventType != EventType.START_DOCUMENT else delegate.isStarted
     override val prefix: String get() = ifNotPeeking { prefix }
@@ -51,13 +52,6 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
 
             else -> delegate.depth
         }
-
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String? get() = delegate.locationInfo
 
     override val extLocationInfo: XmlReader.LocationInfo?
         get() = delegate.extLocationInfo

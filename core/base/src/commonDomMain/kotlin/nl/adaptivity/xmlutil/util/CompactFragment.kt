@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.util
@@ -31,14 +31,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.use
  */
 @Serializable(CompactFragmentSerializer::class)
 public actual class CompactFragment : ICompactFragment {
-
-    @Suppress("DEPRECATION")
-    public actual class Factory : XmlDeserializerFactory<CompactFragment> {
-
-        actual override fun deserialize(reader: XmlReader): CompactFragment {
-            return Companion.deserialize(reader)
-        }
-    }
 
     actual override val isEmpty: Boolean
         get() = content.isEmpty()
@@ -67,8 +59,7 @@ public actual class CompactFragment : ICompactFragment {
 
     actual override fun serialize(out: XmlWriter) {
         XMLFragmentStreamReader.from(this).use { reader ->
-            println("out.serialize(reader)")
-            out.serialize(reader)
+            out.serialize(reader, keepDuplicatedNsDecls = false)
         }
     }
 
@@ -102,10 +93,6 @@ public actual class CompactFragment : ICompactFragment {
         get() = content.concatToString()
 
     public actual companion object {
-
-        @Suppress("DEPRECATION")
-        @XmlUtilInternal
-        public val FACTORY: XmlDeserializerFactory<CompactFragment> = Factory()
 
         @Throws(XmlException::class)
         public actual fun deserialize(reader: XmlReader): CompactFragment {

@@ -23,32 +23,26 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.util.filterTyped
-import nl.adaptivity.xmlutil.util.forEachAttr
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
-import nl.adaptivity.xmlutil.dom.Node as Node1
-import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**
  * [XmlReader] that reads from DOM.
  *
  * @author Created by pdvrieze on 22/03/17.
  */
-@Deprecated("Don't use directly. Instead create an instance through xmlStreaming", ReplaceWith("xmlStreaming.newReader(delegate)", "nl.adaptivity.xmlutil.xmlStreaming"))
-@XmlUtilDeprecatedInternal
-public class DomReader(public val delegate: Node2, public val expandEntities: Boolean) : XmlReader {
-
-    public constructor(delegate: Node2) : this(delegate, false)
+internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlReader {
 
     @Suppress("DEPRECATION")
-    public constructor(delegate: Node1) :
-            this((delegate as? Node2) ?: createDocument(QName("XX")).adoptNode(delegate))
+    constructor(delegate: PlatformNode) :
+            this((delegate as? Node) ?: createDocument(QName("XX")).adoptNode(delegate), false)
 
-    private var current: Node2? = null
+    private var current: Node? = null
 
     override val namespaceURI: String
         get() = currentElement?.run { getNamespaceURI() ?: "" }
@@ -92,6 +86,10 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
             return (c as ProcessingInstruction).getData()
         }
 
+
+    override val isKnownEntity: Boolean
+        get() = eventType == EventType.ENTITY_REF && (current as CharacterData).data.isNotEmpty()
+
     @Suppress("DEPRECATION")
     override val text: String
         get() = when (current?.nodeType) {
@@ -130,7 +128,7 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() {
-            fun <A : Appendable> helper(node: Node2?, result: A): A = when (node?.nodetype) {
+            fun <A : Appendable> helper(node: Node?, result: A): A = when (node?.getNodetype()) {
                 null, NodeType.DOCUMENT_NODE
                     -> result
 
@@ -145,13 +143,6 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
 
             return XmlReader.StringLocationInfo(helper(current, StringBuilder()).toString())
         }
-
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String
-        get() = extLocationInfo.toString()
 
     private val requireCurrent get() = current ?: throw IllegalStateException("No current element")
     private val requireCurrentElem get() = currentElement ?: throw IllegalStateException("No current element")
@@ -180,7 +171,7 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
                 return sequence<Namespace> {
                     var c: Element? = currentElement
                     while (c != null) {
-                        c.getAttributes().forEachAttr { attr ->
+                        for (attr in c.attributes) {
                             when {
                                 attr.getPrefix() == "xmlns" ->
                                     yield(
@@ -235,7 +226,7 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
     override val version: String get() = "1.0"
 
     override fun hasNext(): Boolean {
-        return !(atEndOfElement && current?.parentNode == null) || current != delegate
+        return !(atEndOfElement && current?.parentNode !is Element) || current != delegate
     }
 
     override fun next(): EventType {
@@ -288,10 +279,6 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
         }
     }
 
-    @Suppress("DEPRECATION", "UNCHECKED_CAST_TO_EXTERNAL_INTERFACE", "KotlinRedundantDiagnosticSuppress")
-    @Deprecated("Provided for compatibility.")
-    public fun getDelegate(): Node1? = delegate as? Node1
-
     override fun getAttributeNamespace(index: Int): String {
         val attr: Attr = requireCurrentElem.getAttributes()[index] ?: throw IndexOutOfBoundsException()
         return attr.getNamespaceURI() ?: ""
@@ -330,7 +317,7 @@ public class DomReader(public val delegate: Node2, public val expandEntities: Bo
 }
 
 
-private fun Node2.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
+private fun Node.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
     @Suppress("DEPRECATION")
     return when (nodeType) {
         NodeConsts.ATTRIBUTE_NODE -> EventType.ATTRIBUTE

@@ -1,34 +1,34 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core.impl.idom
 
 import nl.adaptivity.xmlutil.core.impl.dom.unWrap
 import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom.Node as Node1
+import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 import org.w3c.dom.Node as DomNode
 
 public interface INode : Node1, Node2 {
     public val delegate: DomNode
-    override val nodetype: NodeType get() = NodeType(nodeType)
+    override fun getNodetype(): NodeType = NodeType(nodeType)
     override val ownerDocument: IDocument
     override val parentNode: INode?
     override val parentElement: IElement? get() = parentNode as? IElement
@@ -47,14 +47,13 @@ public interface INode : Node1, Node2 {
     override fun getLastChild(): INode? = lastChild
     override fun getPreviousSibling(): INode? = previousSibling
     override fun getNextSibling(): INode? = nextSibling
-    override fun getNodeType(): Short = nodeType
     override fun getChildNodes(): INodeList = childNodes
 
     override fun appendChild(node: Node2): INode = appendChild(node.unWrap())
     public fun appendChild(node: INode): INode = appendChild(node.delegate)
     public fun appendChild(newChild: DomNode): INode
 
-    override fun replaceChild(oldChild: Node2, newChild: Node2): INode =
+    override fun replaceChild(newChild: Node2, oldChild: Node2): INode =
         replaceChild(oldChild.unWrap(), newChild.unWrap())
 
     public fun replaceChild(oldChild: INode, newChild: INode): INode =

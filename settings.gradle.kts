@@ -45,10 +45,6 @@ pluginManagement {
 */
 }
 
-plugins {
-    id ("com.gradle.enterprise") version "3.1.1"
-}
-
 val includeSchema = providers.gradleProperty("excludeSchema").map {
     it.lowercase() == "false"
 }.getOrElse(true)
@@ -81,11 +77,5 @@ project(":coreKXIO").projectDir = file("core/kxio")
 
 include(":xmlutil-bom")
 project(":xmlutil-bom").projectDir = file("bom")
-
-gradleEnterprise {
-    buildScan {
-        // plugin configuration
-    }
-}
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

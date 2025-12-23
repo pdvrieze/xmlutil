@@ -55,13 +55,6 @@ tasks.register<Copy>("pages") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
-
-    publishOnFailureIf("true".equals(System.getenv("TRAVIS")))
-}
-
 idea {
     module {
         isDownloadSources = true

@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+// note that this type is deprecated on multiplatform. It only makes sense for the JVM target
 public expect interface XmlStreamingFactory
 
 /** Flag to indicate that the xml declaration should be omitted, when possible.  */

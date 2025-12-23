@@ -1,27 +1,28 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 /**
  * Created by pdvrieze on 13/04/16.
  */
 @file:JvmName("XmlUtil")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -84,21 +85,6 @@ public fun xmlTrimWhitespace(original: String): String = buildString(original.le
     }
 }
 
-
-@Deprecated(
-    "Use the version that takes string parameters",
-    ReplaceWith("qname(namespaceUri.toString(), localname.toString(), prefix.toString())")
-)
-public fun qname(
-    namespaceUri: CharSequence?,
-    localname: CharSequence,
-    prefix: CharSequence? = DEFAULT_NS_PREFIX
-): QName =
-    QName(
-        namespaceUri?.toString() ?: NULL_NS_URI,
-        localname.toString(),
-        prefix?.toString() ?: DEFAULT_NS_PREFIX
-    )
 
 public fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS_PREFIX): QName =
     QName(
@@ -175,12 +161,16 @@ public fun NamespaceContext.asQName(name: String): QName {
 
 }
 
+/**
+ * Function that attempts to parse the entire file and returns true if ths does not throw an exception.
+ */
+@Deprecated("Unintended function, that has poor semantics")
 public fun XmlReader.isXml(): Boolean {
-    try {
-        while (hasNext()) next()
-    } catch (e: XmlException) {
-        return false
-    }
+    runCatching {
+        while (hasNext()) {
+            val _ = next()
+        }
+    }.onFailure { return false }
     return true
 }
 

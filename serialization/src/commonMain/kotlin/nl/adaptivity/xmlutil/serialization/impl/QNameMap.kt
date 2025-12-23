@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.serialization.impl
 
@@ -24,14 +26,14 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
-internal class QNameMap<T : Any>  private constructor(
+internal class QNameMap<T : Any> private constructor(
     private var namespaces: Array<String?>,
-    private var maps: Array<HashMap<String,T>?>,
+    private var maps: Array<HashMap<String, T>?>,
     private var namespaceCount: Int,
     size: Int,
-): MutableMap<QName, T> {
+) : MutableMap<QName, T> {
 
-    constructor(): this(arrayOfNulls(8), arrayOfNulls(8), 0, 0)
+    constructor() : this(arrayOfNulls(8), arrayOfNulls(8), 0, 0)
 
     override var size: Int = size
         private set
@@ -53,8 +55,10 @@ internal class QNameMap<T : Any>  private constructor(
             return elements.all { this@QNameMap[it.key] == it.value }
         }
 
+        @IgnorableReturnValue
         override fun retainAll(elements: Collection<MutableMap.MutableEntry<QName, T>>): Boolean {
-            val perNS = elements.groupByTo(HashMap(), { it.key.namespaceURI }, { SimpleEntry(it.key.localPart, it.value)})
+            val perNS =
+                elements.groupByTo(HashMap(), { it.key.namespaceURI }, { SimpleEntry(it.key.localPart, it.value) })
 
             var changed = false
             for (i in 0 until namespaceCount) {
@@ -66,6 +70,7 @@ internal class QNameMap<T : Any>  private constructor(
             return changed
         }
 
+        @IgnorableReturnValue
         override fun removeAll(elements: Collection<MutableMap.MutableEntry<QName, T>>): Boolean {
             var newSize = 0
             for (i in 0 until namespaceCount) {
@@ -81,6 +86,7 @@ internal class QNameMap<T : Any>  private constructor(
             return (this@QNameMap.size != newSize).also { this@QNameMap.size = newSize }
         }
 
+        @IgnorableReturnValue
         override fun remove(element: MutableMap.MutableEntry<QName, T>): Boolean {
             val ns = element.key.namespaceURI
             withNamespace(ns) {
@@ -92,6 +98,7 @@ internal class QNameMap<T : Any>  private constructor(
             return false
         }
 
+        @IgnorableReturnValue
         override fun add(element: MutableMap.MutableEntry<QName, T>): Boolean {
             if(this@QNameMap.put(element.key, element.value) == null) {
                 this@QNameMap.size += 1
@@ -100,6 +107,7 @@ internal class QNameMap<T : Any>  private constructor(
             return false
         }
 
+        @IgnorableReturnValue
         override fun addAll(elements: Collection<MutableMap.MutableEntry<QName, T>>): Boolean {
             var changed = false
             for (e in elements) {
@@ -114,6 +122,7 @@ internal class QNameMap<T : Any>  private constructor(
     }
 
     override val keys = object : MutableSet<QName> {
+        @IgnorableReturnValue
         override fun add(element: QName): Nothing {
             throw UnsupportedOperationException()
         }
@@ -121,6 +130,7 @@ internal class QNameMap<T : Any>  private constructor(
         override val size: Int
             get() = this@QNameMap.size
 
+        @IgnorableReturnValue
         override fun addAll(elements: Collection<QName>): Nothing {
             throw UnsupportedOperationException()
         }
@@ -142,16 +152,19 @@ internal class QNameMap<T : Any>  private constructor(
             return SimpleIterator { nsPos, ns, (ln, _) -> QName(ns, ln) }
         }
 
+        @IgnorableReturnValue
         override fun remove(element: QName): Boolean {
             return this@QNameMap.remove(element) != null
         }
 
+        @IgnorableReturnValue
         override fun removeAll(elements: Collection<QName>): Boolean {
             var changed = false
             for (e in elements) { changed = changed || remove(e) }
             return changed
         }
 
+        @IgnorableReturnValue
         override fun retainAll(elements: Collection<QName>): Boolean {
             val perNS = elements.groupBy({ it.namespaceURI}, { it.localPart })
 
@@ -167,6 +180,7 @@ internal class QNameMap<T : Any>  private constructor(
     }
 
     override val values = object:  MutableCollection<T> {
+        @IgnorableReturnValue
         override fun add(element: T): Nothing {
             throw UnsupportedOperationException()
         }
@@ -174,6 +188,7 @@ internal class QNameMap<T : Any>  private constructor(
         override val size: Int
             get() = this@QNameMap.size
 
+        @IgnorableReturnValue
         override fun addAll(elements: Collection<T>): Nothing {
             throw UnsupportedOperationException()
         }
@@ -195,14 +210,17 @@ internal class QNameMap<T : Any>  private constructor(
             return SimpleIterator { _, _, (_, v) -> v }
         }
 
+        @IgnorableReturnValue
         override fun remove(element: T): Nothing {
             throw UnsupportedOperationException()
         }
 
+        @IgnorableReturnValue
         override fun removeAll(elements: Collection<T>): Nothing {
             throw UnsupportedOperationException()
         }
 
+        @IgnorableReturnValue
         override fun retainAll(elements: Collection<T>): Nothing {
             throw UnsupportedOperationException()
         }
@@ -264,12 +282,14 @@ internal class QNameMap<T : Any>  private constructor(
         size = 0
     }
 
+    @IgnorableReturnValue
     override fun put(key: QName, value: T): T? {
         val namespace = key.namespaceURI
         val localPart = key.localPart
         return put(namespace, localPart, value)
     }
 
+    @IgnorableReturnValue
     fun put(namespace: String, localPart: String, value: T): T? {
         withNamespace(namespace) { idx ->
             val newMap = maps[idx]
@@ -302,12 +322,14 @@ internal class QNameMap<T : Any>  private constructor(
         }
     }
 
+    @IgnorableReturnValue
     override fun remove(key: QName): T? {
         val namespace = key.namespaceURI
         val localPart = key.localPart
         return remove(namespace, localPart)
     }
 
+    @IgnorableReturnValue
     fun remove(namespace: String, localPart: String): T? {
         for (i in 0 until namespaceCount) {
             if (namespaces[i] == namespace) {
@@ -329,7 +351,7 @@ internal class QNameMap<T : Any>  private constructor(
         return null
     }
 
-    private inline fun withNamespace(namespace: String, action: (Int) -> Unit): Unit {
+    private inline fun withNamespace(namespace: String, action: (Int) -> Unit) {
         for (i in 0 until namespaceCount) {
             if (namespaces[i] == namespace) {
                 action(i)
@@ -338,10 +360,12 @@ internal class QNameMap<T : Any>  private constructor(
         }
     }
 
-    private inner class QNameEntry(val pos: Int, val subEntry: Map.Entry<String, T>): MutableMap.MutableEntry<QName, T> {
+    private inner class QNameEntry(val pos: Int, val subEntry: Map.Entry<String, T>) :
+        MutableMap.MutableEntry<QName, T> {
         override val key: QName get() = QName(namespaces[pos]!!, subEntry.key)
         override val value: T get() = subEntry.value
 
+        @IgnorableReturnValue
         override fun setValue(newValue: T): T {
             withNamespace(key.namespaceURI) {
                 maps[it]!!.set(key.localPart, newValue)
@@ -351,10 +375,12 @@ internal class QNameMap<T : Any>  private constructor(
     }
 
     private class SimpleEntry<V>(override val key: String, override val value: V) : MutableMap.MutableEntry<String, V> {
+        @IgnorableReturnValue
         override fun setValue(newValue: V) = throw UnsupportedOperationException()
     }
 
-    private inner class SimpleIterator<R>(private val transform: (Int, String, MutableMap.MutableEntry<String, T>) -> R) : MutableIterator<R> {
+    private inner class SimpleIterator<R>(private val transform: (Int, String, MutableMap.MutableEntry<String, T>) -> R) :
+        MutableIterator<R> {
         private var currentPos = 0
         private var currentIterator: MutableIterator<MutableMap.MutableEntry<String, T>>? =
             entryIteratorFor(0)
@@ -385,7 +411,7 @@ internal class QNameMap<T : Any>  private constructor(
             currentIterator!!.remove()
             this@QNameMap.size -= 1
             if (maps[currentPos]!!.isEmpty()) {
-                maps.copyInto(maps, currentPos, currentPos+1, namespaceCount)
+                maps.copyInto(maps, currentPos, currentPos + 1, namespaceCount)
                 --namespaceCount
             }
             currentIterator = entryIteratorFor(currentPos)
@@ -394,7 +420,7 @@ internal class QNameMap<T : Any>  private constructor(
 
     private fun entryIteratorFor(pos: Int): MutableIterator<MutableMap.MutableEntry<String, T>>? =
         when {
-            pos <namespaceCount -> maps[pos]!!.iterator()
+            pos < namespaceCount -> maps[pos]!!.iterator()
             else -> null
         }
 

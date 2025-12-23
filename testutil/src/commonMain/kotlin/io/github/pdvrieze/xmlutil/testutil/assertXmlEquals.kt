@@ -126,10 +126,10 @@ fun assertXmlEquals(expected: XmlReader, actual: XmlReader, ignoreDocDecl: DocDe
     }
 
     while (expected.hasNext() && expected.isIgnorable()) {
-        expected.next()
+        val _ = expected.next()
     }
     while (actual.hasNext() && actual.isIgnorable()) {
-        actual.next()
+        val _ = actual.next()
     }
 
     assertEquals(expected.hasNext(), actual.hasNext(), messageProvider())

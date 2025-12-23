@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
@@ -31,9 +33,10 @@ import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.core.impl.newReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.defaultPolicy
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -52,9 +55,12 @@ import kotlin.time.Instant
 @OptIn(ExperimentalTime::class)
 class TestXSTestSuite {
 
-    var xml: XML = XML {
+    init {
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
+    }
+    var xml: XML = XML.compat {
         recommended_0_87_0()
+        defaultToGenericParser = true
     }
 
     @Test
@@ -111,12 +117,8 @@ class TestXSTestSuite {
     @Test
     @Disabled
     fun testDeserializeGenericSpeed() {
-        xml = XML {
+        xml = XML1_0.recommended {
             isUnchecked = false
-            defaultPolicy {
-                autoPolymorphic = true
-                throwOnRepeatedElement = true
-            }
         }
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
         testDeserializeSpeed()
@@ -126,12 +128,7 @@ class TestXSTestSuite {
     @Test
     @Disabled
     fun testDeserializeStaxSpeed() {
-        xml = XML {
-            defaultPolicy {
-                autoPolymorphic = true
-                throwOnRepeatedElement = true
-            }
-        }
+        xml = XML1_0.recommended()
         xmlStreaming.setFactory(StAXStreamingFactory())
         testDeserializeSpeed()
         xmlStreaming.setFactory(null)
@@ -185,7 +182,7 @@ class TestXSTestSuite {
             for ((setBaseUri, uri) in schemaUrls) {
                 val resolver = SimpleResolver(xml, setBaseUri)
                 try {
-                    val schema = resolver.readSchema(VAnyURI(uri.toString()))
+                    val _ = resolver.readSchema(VAnyURI(uri.toString()))
                 } catch (e: Exception) {
                     System.err.println("Failure to read schema: $uri \n${e.message?.prependIndent("        ")}")
                 }
@@ -230,7 +227,7 @@ class TestXSTestSuite {
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
 
         val override = javaClass.getResource("/override.xml").withXmlReader {
-            val compact = XML { recommended() }.decodeFromReader<CompactOverride>(it)
+            val compact = XML1_0.recommended().decodeFromReader<CompactOverride>(it)
             OTSSuite(compact)
         }
 

@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
@@ -34,61 +35,32 @@ import nl.adaptivity.xmlutil.dom2.Node
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-@Deprecated(
-    "Don't use directly", ReplaceWith(
-        "xmlStreaming",
-        "nl.adaptivity.xmlutil.xmlStreaming",
-        "nl.adaptivity.xmlutil.newWriter",
-        "nl.adaptivity.xmlutil.newGenericWriter",
-    )
-)
-public actual object XmlStreaming : IXmlStreaming {
+internal actual object XmlStreaming : IXmlStreaming {
 
-    public actual override fun setFactory(factory: XmlStreamingFactory?) {
-        throw UnsupportedOperationException("Native does not support setting the factory")
-    }
-
-    @Deprecated("Does not work", level = DeprecationLevel.ERROR)
-    public inline fun <reified T : Any> deSerialize(@Suppress("UNUSED_PARAMETER") input: String): T {
-        throw UnsupportedOperationException("Cannot work")
-    }
-
-    public actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
+    actual override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader {
         return newGenericReader(input, expandEntities)
     }
 
-    public actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
+    actual override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
         return newGenericReader(reader, expandEntities)
     }
 
-    public actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
+    actual override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader =
         newGenericReader(StringReader(input.toString()), expandEntities = expandEntities)
 
-    public actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
+    actual override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader =
         KtXmlReader(reader, expandEntities = expandEntities)
 
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: Node): XmlReader {
-        @Suppress("DEPRECATION")
-        return DomReader(source)
+        return DomReader(source, false)
     }
 
     actual override fun newWriter(): DomWriter = DomWriter()
 
-    @Suppress("DEPRECATION")
     actual override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
-    public fun newWriter(
-        output: Appendable,
-        repairNamespaces: Boolean,
-        omitXmlDecl: Boolean
-    ): XmlWriter {
-        @Suppress("DEPRECATION")
-        return newWriter(output, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-    }
-
-    @Deprecated("Use overload in IXmlStreaming")
-    public actual fun newWriter(
+    fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
@@ -96,21 +68,7 @@ public actual object XmlStreaming : IXmlStreaming {
         return KtXmlWriter(output, repairNamespaces, xmlDeclMode)
     }
 
-    public actual fun newGenericWriter(
-        output: Appendable,
-        isRepairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
-    ): KtXmlWriter {
-        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
-    }
-
-    public fun newWriter(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean): XmlWriter {
-        @Suppress("DEPRECATION")
-        return newWriter(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
-    }
-
-    @Deprecated("Use overload on IXmlStreaming", ReplaceWith("newWriter(writer, repairNamespace, xmlDeclMode"))
-    public actual fun newWriter(
+    fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean,
         xmlDeclMode: XmlDeclMode
@@ -120,21 +78,20 @@ public actual object XmlStreaming : IXmlStreaming {
 
     actual override val genericDomImplementation: DOMImplementation
         get() = SimpleDOMImplementation
+
+    actual override val platformDOMImplementation: PlatformDOMImplementation
+        get() = SimpleDOMImplementation
 }
 
-@Suppress("DEPRECATION")
-public actual val xmlStreaming: IXmlStreaming
-    get() = XmlStreaming
+public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
 
-@Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode
 ): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
 
-@Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean,

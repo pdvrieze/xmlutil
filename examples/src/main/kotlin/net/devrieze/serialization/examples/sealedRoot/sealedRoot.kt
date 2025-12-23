@@ -18,11 +18,13 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.serialization.examples.sealedRoot
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
 /* This is code extended from issue #98 */
@@ -58,7 +60,7 @@ sealed class Base {
 
 fun main() {
 
-    val xml = XML { recommended_0_91_0() }
+    val xml = XML1_0.recommended()
 
     val carsFoundXml = """
     <cars context="main">

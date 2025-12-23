@@ -1,78 +1,67 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.core.impl.idom.*
-import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.nodeType
+import nl.adaptivity.xmlutil.dom2.ownerDocument
+import nl.adaptivity.xmlutil.dom2.parentNode
 import nl.adaptivity.xmlutil.isXmlWhitespace
-import nl.adaptivity.xmlutil.dom.Attr as Attr1
-import nl.adaptivity.xmlutil.dom.CDATASection as CDATASection1
-import nl.adaptivity.xmlutil.dom.Comment as Comment1
-import nl.adaptivity.xmlutil.dom.Document as Document1
-import nl.adaptivity.xmlutil.dom.DocumentFragment as DocumentFragment1
-import nl.adaptivity.xmlutil.dom.DocumentType as DocumentType1
-import nl.adaptivity.xmlutil.dom.Element as Element1
-import nl.adaptivity.xmlutil.dom.Node as Node1
-import nl.adaptivity.xmlutil.dom.ProcessingInstruction as ProcessingInstruction1
-import nl.adaptivity.xmlutil.dom.Text as Text1
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
-import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
-import nl.adaptivity.xmlutil.dom2.Comment as Comment2
-import nl.adaptivity.xmlutil.dom2.Document as Document2
-import nl.adaptivity.xmlutil.dom2.DocumentFragment as DocumentFragment2
-import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
-import nl.adaptivity.xmlutil.dom2.Element as Element2
-import nl.adaptivity.xmlutil.dom2.Node as Node2
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction as ProcessingInstruction2
-import nl.adaptivity.xmlutil.dom2.Text as Text2
 
-internal class DocumentImpl(doctype: DocumentTypeImpl?) : IDocument {
+internal class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) : NodeImpl(), IDocument {
+    init {
+        if (doctype?.maybeOwnerDocument != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
+        doctype?.setOwnerDocument(this)
+    }
 
-    constructor(doctype1: DocumentType1?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
+    private val docId = nextDocId()
 
-    constructor(doctype2: DocumentType2?) : this(doctype = doctype2?.let(DocumentTypeImpl::coerce))
+    constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
 
-    constructor(idoctype: IDocumentType?) : this(doctype = idoctype?.let { DocumentTypeImpl.coerce(it as DocumentType2) })
+    override fun getDoctype(): IDocumentType? = doctype
 
-    override val doctype: IDocumentType? = doctype
-
-    override val implementation: IDOMImplementation get() = SimpleDOMImplementation
+    override fun getImplementation(): IDOMImplementation = SimpleDOMImplementation
 
     private var _documentElement: ElementImpl? = null
-    override val documentElement: IElement? get() = _documentElement
+    override fun getDocumentElement(): IElement? = _documentElement
+
+    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
+        if (this !== ownerDocument) {
+            throw DOMException.notSupportedErr("Documents can only be owned by themselves")
+        }
+    }
 
     override var characterSet: String = "UTF-8"
 
-    override val nodetype: NodeType get() = NodeType.DOCUMENT_NODE
+    override fun getNodetype(): NodeType = NodeType.DOCUMENT_NODE
 
     override fun getNodeName(): String = "#document"
 
-    override fun getOwnerDocument(): IDocument = this
+    override fun getOwnerDocument(): DocumentImpl = this
 
-    override var parentNode: INode?
-        get() = null
-        set(_) {
-            throw UnsupportedOperationException()
-        }
+    override fun getParentNode(): Nothing? = null
 
     private val _childNodes: NodeListImpl = NodeListImpl()
 
@@ -89,120 +78,113 @@ internal class DocumentImpl(doctype: DocumentTypeImpl?) : IDocument {
     override fun getTextContent(): String? = null
 
     override fun setTextContent(value: String) {
-        throw UnsupportedOperationException("Documents have no (direct) text content")
+        throw DOMException.notSupportedErr("Documents have no (direct) text content")
     }
 
-    override fun getInputEncoding(): String? = null
-
-    override fun adoptNode(node: Node1): INode {
-        if (node !is NodeImpl) throw DOMException("Not supported")
-        if (node.getOwnerDocument() === this) return node
-        node.getParentNode()?.removeChild((node as Node1))
-        node.ownerDocument = this
+    override fun adoptNode(node: PlatformNode): INode {
+        when (node) {
+            is PlatformDocument, is PlatformDocumentType -> throw DOMException.notSupportedErr("node (${node.nodeType}) cannot be adopted")
+            !is NodeImpl -> throw DOMException.notSupportedErr("node is of a different implementation and cannot be adopted")
+        }
+        if (node.getOwnerDocument() === this) {
+            node.parentNode?.removeChild(node)
+            node.setParentNode(null)
+            return node
+        }
+        node.getParentNode()?.removeChild(node)
+        node.setOwnerDocument(this)
         return node
     }
 
-    override fun adoptNode(node: Node2): INode {
-        if (node !is NodeImpl) throw DOMException("Not supported")
-        if (node.getOwnerDocument() === this) return node
-        node.getParentNode()?.removeChild((node as Node1))
-        node.ownerDocument = this
-        return node
-    }
 
-    override fun importNode(node: Node1, deep: Boolean): INode {
-        return importNodeX(node as NodeImpl, deep)
-    }
-
-    override fun importNode(node: Node2, deep: Boolean): INode {
-        return importNodeX(node as NodeImpl, deep)
-    }
-
-    private fun importNodeX(
-        node: INode,
-        deep: Boolean
-    ): INode {
+    override fun importNode(node: PlatformNode, deep: Boolean): INode {
         return when (node) {
-            is Attr1 -> AttrImpl(this, node)
-            is Attr2 -> AttrImpl(this, node)
-            is CDATASection1 -> CDATASectionImpl(this, node)
-            is CDATASection2 -> CDATASectionImpl(this, node)
-            is Comment1 -> CommentImpl(this, node)
-            is Comment2 -> CommentImpl(this, node)
-            is Document1 -> throw DOMException("Documents cannot be imported")
-            is Document2 -> throw DOMException("Documents cannot be imported")
-            is DocumentFragment1,
-            is DocumentFragment2 -> DocumentFragmentImpl(this).also { cpy ->
+            is PlatformAttr -> AttrImpl(this, node)
+            is PlatformCDATASection -> CDATASectionImpl(this, node)
+            is PlatformComment -> CommentImpl(this, node)
+            is PlatformDocument -> throw DOMException.notSupportedErr("Documents cannot be imported")
+            is PlatformDocumentFragment -> DocumentFragmentImpl(this).also { cpy ->
                 if (deep) {
                     for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNodeX(child, deep))
+                        cpy.appendChild(importNode(child, deep))
                     }
                 }
             }
 
-            is Element1 -> ElementImpl(this, node).also { cpy ->
+            is PlatformElement -> ElementImpl(this, node).also { cpy ->
                 if (deep) {
                     for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNodeX(child, deep))
+                        cpy.appendChild(importNode(child, deep))
                     }
                 }
             }
 
-            is Element2 -> ElementImpl(this, node).also { cpy ->
-                if (deep) {
-                    for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNodeX(child, deep))
-                    }
-                }
-            }
 
-            is ProcessingInstruction1 -> ProcessingInstructionImpl(this, node)
-            is ProcessingInstruction2 -> ProcessingInstructionImpl(this, node)
-            is Text1 -> TextImpl(this, node)
-            is Text2 -> TextImpl(this, node)
-            else -> throw DOMException("Unsupported node subtype")
+            is PlatformProcessingInstruction -> ProcessingInstructionImpl(this, node)
+            is PlatformText -> TextImpl(this, node)
+            else -> throw DOMException.notSupportedErr("Unsupported node subtype")
         }
     }
 
-    override fun appendChild(node: INode): INode {
+    @IgnorableReturnValue
+    override fun appendChild(node: PlatformNode): INode {
         val n = checkNode(node)
-        when (n) {
-            is DocumentFragmentImpl -> for (child in n.getChildNodes()) {
+        if (n == _documentElement) return n
+        check(n.getOwnerDocument() == this) { "Node not owned by this document" }
+
+        if (n is DocumentFragmentImpl) {
+            for (child in n.getChildNodes()) {
                 appendChild(child)
                 n._childNodes.elements.clear()
             }
+        } else {
 
-            is ElementImpl -> {
-                if (getDocumentElement() != null) throw UnsupportedOperationException("Only one root element is supported for now")
-                _documentElement = n
+            if (n.parentNode != null) n.setParentNode(null)
+
+            when (n) {
+                is ElementImpl -> {
+                    if (_documentElement != null) throw DOMException.hierarchyRequestErr("Only one root element is supported for now")
+                    _documentElement = n
+                }
+
+                is PlatformComment,
+                is ProcessingInstructionImpl -> Unit // fine
+
+                is TextImpl -> if (!isXmlWhitespace(n.getData())) {
+                    throw DOMException.notSupportedErr("Non-whitespace nodes cannot be added directly to a document")
+                }
+
+                else -> throw DOMException.notSupportedErr("Attempting to add node ${n.getNodetype()} where not permitted")
             }
 
-            is Comment1,
-            is ProcessingInstructionImpl -> Unit // fine
-
-            is TextImpl -> require(isXmlWhitespace(n.getData())) { "Non-whitespace nodes cannot be added directly to a document" }
-            else -> throw IllegalArgumentException("Attempting to add node ${n.getNodeType()} where not permitted")
+            n.setParentNode(this)
+            _childNodes.elements.add(n)
         }
-        n.parentNode = this
-        _childNodes.elements.add(n)
 
         return n
     }
 
-    override fun removeChild(node: INode): INode {
-        if (node != _documentElement) throw DOMException("Node is not a child of this document")
-        _documentElement = null
-        _childNodes.elements.remove(node)
-        (node as? NodeImpl)?.let { it.parentNode = null }
-        return node
+    @IgnorableReturnValue
+    override fun removeChild(node: PlatformNode): INode {
+        val n = checkNode(node)
+        val idx = _childNodes.elements.indexOf(node)
+        if (idx < 0) throw DOMException.notFoundErr("Node is not a child of this document")
+        if (n == _documentElement) _documentElement = null
+        _childNodes.elements.remove(n)
+        n.setParentNode(null)
+        return n
     }
 
-    override fun replaceChild(oldChild: INode, newChild: INode): INode {
-        if (oldChild != _documentElement) throw DOMException("Old node not found in document")
-        checkNode(newChild)
-        if (newChild !is ElementImpl) throw UnsupportedOperationException("Only element children to root supported for now")
+    @IgnorableReturnValue
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): INode {
+        val old = checkNode(oldChild)
+        if (old != _documentElement) throw DOMException.notFoundErr("Old node not found in document")
+        val newChild = checkNode(newChild)
+        if (newChild !is ElementImpl) throw DOMException.notSupportedErr("Only element children to root supported for now")
+        newChild.parentNode?.removeChild(old)
         _documentElement = newChild
-        return oldChild
+        newChild.setParentNode(this)
+        return old
     }
 
     override fun createDocumentFragment(): IDocumentFragment {
@@ -210,12 +192,17 @@ internal class DocumentImpl(doctype: DocumentTypeImpl?) : IDocument {
     }
 
     override fun createElement(localName: String): IElement {
+        if (localName.isEmpty()) throw DOMException.invalidCharacterErr("Element name cannot be empty")
+        if (localName.indexOf(':')>=0) throw DOMException.namespaceErr("Prefix in name without namespace uri")
         return ElementImpl(this, null, localName, null)
     }
 
     override fun createElementNS(namespaceURI: String, qualifiedName: String): IElement {
         val localName = qualifiedName.substringAfterLast(':', qualifiedName)
-        val prefix = qualifiedName.substringBeforeLast(':', "").takeUnless { it.isEmpty() }
+        if (localName.isEmpty()) throw DOMException.invalidCharacterErr("Element name cannot be empty")
+        val prefix = qualifiedName.substringBeforeLast(':', "").takeUnless { it.isEmpty() }?.also {
+            if (namespaceURI.isEmpty()) throw DOMException.namespaceErr("Missing namespace in presence of a prefix")
+        }
         return ElementImpl(this, namespaceURI, localName, prefix)
     }
 
@@ -255,34 +242,41 @@ internal class DocumentImpl(doctype: DocumentTypeImpl?) : IDocument {
 
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
-        else -> e.toString()
+        else -> "document<$docId>"
+//        else -> e.toString()
     }
 
     companion object {
-        fun coerce(document: Document1): DocumentImpl {
-            return (document as? DocumentImpl) ?: throw IllegalArgumentException("Documents can not be adopted")
-        }
+        private var nextDocId: Int = 1
 
-        fun coerce(document: Document2): DocumentImpl {
-            return (document as? DocumentImpl) ?: throw IllegalArgumentException("Documents can not be adopted")
+        private fun nextDocId(): Int = nextDocId++
+
+        fun coerce(document: PlatformDocument): DocumentImpl {
+            return (document as? DocumentImpl) ?: throw DOMException.notSupportedErr("Documents can not be adopted")
         }
     }
 }
 
-internal fun Node1.checkNode(node: Node1): NodeImpl {
-    if (node.ownerDocument != ownerDocument) throw DOMException("Node not owned by this document")
-    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
-    return node
-}
-
-internal fun Node2.checkNode(node: Node2): NodeImpl {
-    if (node.getOwnerDocument() != getOwnerDocument()) throw DOMException("Node not owned by this document")
-    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
+internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
+    if (node is DocumentImpl) return node
+    if (getOwnerDocument() != node.getOwnerDocument()) throw DOMException.wrongDocumentErr("Node (${node.getNodetype()}) not owned by this document ($ownerDocument != ${node.ownerDocument})")
+    when (node) {
+        is NodeImpl -> {}
+        is ICharacterData -> throw DOMException.wrongDocumentErr("Node is icharacterdata")
+        is IDocument -> throw DOMException.wrongDocumentErr("Node is idocument")
+        is IDocumentFragment -> throw DOMException.wrongDocumentErr("Node is idocumentfragment")
+        is IDocumentType -> throw DOMException.wrongDocumentErr("Node is idocumenttype")
+        is IElement -> throw DOMException.wrongDocumentErr("Node is ielement")
+        is INode -> throw DOMException.wrongDocumentErr("Node is an inode")
+        else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+    }
+//    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
     return node
 }
 
 internal fun INode.checkNode(node: INode): NodeImpl {
-    if (node.getOwnerDocument() != getOwnerDocument()) throw DOMException("Node not owned by this document")
-    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
+    if (node is DocumentImpl) return node
+    if (ownerDocument != node.getOwnerDocument()) throw DOMException.wrongDocumentErr("Node (${node.getNodetype()}) not owned by this document")
+    if (node !is NodeImpl) throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
     return node
 }

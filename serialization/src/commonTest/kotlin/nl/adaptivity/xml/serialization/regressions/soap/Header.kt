@@ -21,6 +21,7 @@
 // Generated on: 2009.09.24 at 08:12:58 PM CEST
 //
 
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization.regressions.soap
 
@@ -34,6 +35,7 @@ import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 
@@ -82,14 +84,13 @@ class Header(
         override fun get(): T = data
 
         override fun toCompactFragment(): CompactFragment {
-            val s: SerializationStrategy<T> = serializer
-            return CompactFragment(XML.encodeToString<T>(s, value = data))
+            return CompactFragment(XML1_0.recommended { xmlDeclMode = XmlDeclMode.None }
+                .encodeToString(serializer, value = data))
         }
 
         companion object {
             inline operator fun <reified T : Any> invoke(data: T): SupportedBlock<T> {
-                val serializer = serializer<T>()
-                return SupportedBlock(data, serializer)
+                return SupportedBlock(data, serializer<T>())
             }
         }
     }

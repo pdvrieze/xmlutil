@@ -1,25 +1,26 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:JvmMultifileClass
 @file:JvmName("XmlReaderUtil")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -92,8 +93,29 @@ public interface XmlReader : Closeable, Iterator<EventType> {
         return require(type, name?.namespaceURI, name?.localPart)
     }
 
+    public fun requireNext(type: EventType, namespace: String?, name: String?) {
+        val _ = next()
+        require(type, namespace, name)
+    }
+
+    public fun requireNext(type: EventType, name: QName?) {
+        val _ = next()
+        require(type, name)
+    }
+
+    public fun requireNextTag(type: EventType, namespace: String?, name: String?) {
+        val _ = nextTag()
+        require(type, namespace, name)
+    }
+
+    public fun requireNextTag(type: EventType, name: QName?) {
+        val _ = nextTag()
+        require(type, name)
+    }
 
     public val depth: Int
+
+    public val isKnownEntity: Boolean// get() = eventType == EventType.ENTITY_REF && text.isNotEmpty()
 
     public val text: String
 
@@ -123,7 +145,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public fun getAttributeValue(nsUri: String?, localName: String): String?
 
-    public fun getAttributeValue(name: QName): String? = getAttributeValue(name.namespaceURI, name.localPart)
+    public fun getAttributeValue(name: QName): String? = getAttributeValue(name.namespaceURI.takeIf { it.isNotEmpty() }, name.localPart)
 
     public fun getNamespacePrefix(namespaceUri: String): String?
 
@@ -146,16 +168,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     public val namespaceDecls: List<Namespace>
 
-
-    /** Get some information on the current location in the file. This is implementation dependent.  */
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        ReplaceWith("extLocationInfo?.toString()")
-    )
-    public val locationInfo: String?
-
-    @Suppress("DEPRECATION")
-    public val extLocationInfo: LocationInfo? get() = locationInfo?.let(::StringLocationInfo)
+    public val extLocationInfo: LocationInfo?
 
     /** The current namespace context */
     public val namespaceContext: IterableNamespaceContext
@@ -345,21 +358,19 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
         loop@ while ((t.peek().apply { event = this@apply })?.eventType !== EventType.END_ELEMENT) {
             when (event?.eventType) {
                 EventType.PROCESSING_INSTRUCTION,
-                EventType.COMMENT
-                -> {
-                    t.next();Unit
-                } // ignore
+                EventType.COMMENT -> {
+                    val _ = t.next() // ignore
+                }
 
                 // ignore whitespace starting the element.
                 EventType.IGNORABLE_WHITESPACE
                 -> {
-                    t.next(); whiteSpace.append(t.text)
+                    val _ = t.next(); whiteSpace.append(t.text)
                 }
 
                 EventType.TEXT,
                 EventType.ENTITY_REF,
-                EventType.CDSECT
-                -> {
+                EventType.CDSECT -> {
                     t.next()
                     if (isNotEmpty()) {
                         append(whiteSpace)
@@ -368,8 +379,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     append(t.text)
                 }
 
-                EventType.START_ELEMENT
-                -> {
+                EventType.START_ELEMENT -> {
                     // If we have text we will actually not ignore the whitespace
                     if (isNotEmpty()) {
                         append(whiteSpace); whiteSpace.clear()
@@ -416,7 +426,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
             when (eventType) {
                 EventType.PROCESSING_INSTRUCTION,
                 EventType.COMMENT -> {
-                    t.next();Unit
+                    val _ = t.next()
                 } // ignore
 
                 // ignore whitespace starting the element.
@@ -424,7 +434,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
                 EventType.TEXT,
                 EventType.ENTITY_REF,
                 EventType.CDSECT -> {
-                    t.next()
+                    val _ = t.next()
                     append(t.text)
                 }
 
@@ -488,7 +498,7 @@ public fun XmlReader.readSimpleElement(): String {
  */
 public fun XmlReader.skipPreamble() {
     while ((!isStarted || isIgnorable()) && hasNext()) {
-        next()
+        val _ = next()
     }
 }
 

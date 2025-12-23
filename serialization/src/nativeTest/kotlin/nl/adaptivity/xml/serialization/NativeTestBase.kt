@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xml.serialization
@@ -26,7 +26,6 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.ownerDocument
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
@@ -83,13 +82,14 @@ private fun parseToElementChildren(parent: Element, xmlReader: XmlReader) {
             EventType.END_DOCUMENT,
             EventType.ATTRIBUTE,
             EventType.END_ELEMENT -> throw UnsupportedOperationException("Should not happen: ${xmlReader.eventType}")
-            EventType.ENTITY_REF -> parent.appendChild(parent.ownerDocument.createTextNode(xmlReader.text))
-            EventType.COMMENT -> parent.appendChild(parent.ownerDocument.createComment(xmlReader.text))
-            EventType.TEXT -> parent.appendChild(parent.ownerDocument.createTextNode(xmlReader.text))
-            EventType.CDSECT -> parent.appendChild(parent.ownerDocument.createCDATASection(xmlReader.text))
-            EventType.PROCESSING_INSTRUCTION -> parent.appendChild(parent.ownerDocument.createProcessingInstruction(xmlReader.name.toCName(), xmlReader.text))
+            EventType.ENTITY_REF -> parent.appendChild(parent.getOwnerDocument().createTextNode(xmlReader.text))
+            EventType.COMMENT -> parent.appendChild(parent.getOwnerDocument().createComment(xmlReader.text))
+            EventType.TEXT -> parent.appendChild(parent.getOwnerDocument().createTextNode(xmlReader.text))
+            EventType.CDSECT -> parent.appendChild(parent.getOwnerDocument().createCDATASection(xmlReader.text))
+            EventType.PROCESSING_INSTRUCTION -> parent.appendChild(parent.getOwnerDocument()
+                .createProcessingInstruction(xmlReader.name.toCName(), xmlReader.text))
             EventType.DOCDECL -> Unit // ignore
-            EventType.IGNORABLE_WHITESPACE -> parent.appendChild(parent.ownerDocument.createTextNode(xmlReader.text))
+            EventType.IGNORABLE_WHITESPACE -> parent.appendChild(parent.getOwnerDocument().createTextNode(xmlReader.text))
         }
     }
 }

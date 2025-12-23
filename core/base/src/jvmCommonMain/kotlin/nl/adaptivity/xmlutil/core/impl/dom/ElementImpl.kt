@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
@@ -25,7 +27,7 @@ import nl.adaptivity.xmlutil.core.impl.idom.IElement
 import nl.adaptivity.xmlutil.core.impl.idom.INamedNodeMap
 import nl.adaptivity.xmlutil.core.impl.idom.INodeList
 import org.w3c.dom.TypeInfo
-import nl.adaptivity.xmlutil.dom.Attr as DomAttr
+import nl.adaptivity.xmlutil.dom.PlatformAttr as DomAttr
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import org.w3c.dom.Element as DomElement
 
@@ -78,24 +80,24 @@ internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate
     override fun getAttribute(qualifiedName: String): String? =
         delegate.getAttribute(qualifiedName)
 
-    override fun setAttribute(name: String, value: String?) =
-        delegate.setAttribute(name, value)
+    override fun setAttribute(qualifiedName: String, value: String?) =
+        delegate.setAttribute(qualifiedName, value)
 
-    override fun removeAttribute(name: String) = delegate.removeAttribute(name)
+    override fun removeAttribute(qualifiedName: String) = delegate.removeAttribute(qualifiedName)
 
     override fun getAttributeNS(namespace: String?, localName: String): String? =
-        delegate.getAttributeNS(namespace, localName)
+        delegate.getAttributeNS(namespace?.takeIf { it.isNotEmpty() }, localName)
 
-    override fun setAttributeNS(namespaceURI: String?, qualifiedName: String, value: String) =
-        delegate.setAttributeNS(namespaceURI, qualifiedName, value)
+    override fun setAttributeNS(namespace: String?, cName: String, value: String) =
+        delegate.setAttributeNS(namespace, cName, value)
 
-    override fun removeAttributeNS(namespaceURI: String?, localName: String) =
-        delegate.removeAttributeNS(namespaceURI, localName)
+    override fun removeAttributeNS(namespace: String?, localName: String) =
+        delegate.removeAttributeNS(namespace, localName)
 
-    override fun hasAttribute(name: String): Boolean = delegate.hasAttribute(name)
+    override fun hasAttribute(qualifiedName: String): Boolean = delegate.hasAttribute(qualifiedName)
 
-    override fun hasAttributeNS(namespaceURI: String?, localName: String): Boolean =
-        delegate.hasAttributeNS(namespaceURI, localName)
+    override fun hasAttributeNS(namespace: String?, localName: String): Boolean =
+        delegate.hasAttributeNS(namespace, localName)
 
     override fun setIdAttribute(name: String, isId: Boolean) {
         delegate.setIdAttribute(name, isId)

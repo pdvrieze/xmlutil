@@ -1,29 +1,32 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xml.serialization.pedantic
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
@@ -40,7 +43,7 @@ class AutoPrefixLoop251 {
 
     @Test
     fun testPrefixLoopWorksForAttributes() {
-        val actual = XML { recommended_0_91_0 { pedantic = true } }.encodeToString(Outer1("value1", "value2", "value3", "value4", "value5"))
+        val actual = XML1_0.pedantic().encodeToString(Outer1("value1", "value2", "value3", "value4", "value5"))
         assertXmlEquals("<Outer1 " +
                 "xmlns:n1=\"a\" " +
                 "xmlns:n2=\"b\" " +
@@ -56,7 +59,7 @@ class AutoPrefixLoop251 {
 
     @Test
     fun testPrefixLoopWorksForElements() {
-        val actual = XML { recommended_0_91_0 { pedantic = true } }.encodeToString(Outer2("value1", "value2"))
+        val actual = XML1_0.pedantic().encodeToString(Outer2("value1", "value2"))
         assertXmlEquals("<Outer2 xmlns:n2=\"b\"><a xmlns=\"a\">value1</a><b xmlns=\"b\">value2</b></Outer2>", actual)
     }
 

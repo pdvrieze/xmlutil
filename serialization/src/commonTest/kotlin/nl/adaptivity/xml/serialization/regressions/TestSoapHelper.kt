@@ -14,18 +14,21 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.serializer
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xml.serialization.regressions.soap.Envelope
 import nl.adaptivity.xml.serialization.regressions.soap.Fault
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.*
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -40,13 +43,13 @@ class TestSoapHelper {
     @Test
     fun testUnmarshalSoapResponse() {
         val env = Envelope.deserialize(xmlStreaming.newReader(SOAP_RESPONSE1))
-        val bodyContent = env.body.child as CompactFragment
+        val bodyContent = env.body.child
         assertXmlEquals(SOAP_RESPONSE1_BODY, bodyContent.contentString)
     }
 
     @Test
     fun testRoundtripSoapResponse() {
-        val xml = XML { defaultPolicy { pedantic = true }; indent = 2; autoPolymorphic = true; }
+        val xml = XML1_0.pedantic { setIndent(2) }
         val serializer = serializer<Envelope<CompactFragment>>()
         val env: Envelope<CompactFragment> = xml.decodeFromString(serializer, SOAP_RESPONSE1)
         assertXmlEquals(SOAP_RESPONSE1_BODY, env.body.child.contentString.trim())
@@ -57,7 +60,7 @@ class TestSoapHelper {
 
     @Test
     fun testRoundtripSoapResponse2() {
-        val xml = XML { defaultPolicy { pedantic = true }; indent = 2; autoPolymorphic = true }
+        val xml = XML1_0.pedantic { setIndent(2) }
         val env: Envelope<CompactFragment> = Envelope.deserialize(xmlStreaming.newReader(SOAP_RESPONSE2))
         val sw = StringWriter()
         xmlStreaming.newWriter(sw).use { out ->
@@ -77,11 +80,13 @@ class TestSoapHelper {
         val doc = dbf.createDocument().also { d ->
             val i =xmlStreaming.newReader(SOAP_RESPONSE1)
             val o = xmlStreaming.newWriter(d)
-            while (i.hasNext()) { i.next(); i.writeCurrent(o) }
+            while (i.hasNext()) {
+                i.next().writeEvent(o, i)
+            }
         }
 
-        val env = Envelope.Companion.deserialize(xmlStreaming.newReader(doc))
-        val bodyContent = env.body.child as CompactFragment
+        val env = Envelope.deserialize(xmlStreaming.newReader(doc))
+        val bodyContent = env.body.child
         assertXmlEquals(SOAP_RESPONSE1_BODY, bodyContent.contentString)
     }
 
@@ -98,19 +103,19 @@ class TestSoapHelper {
         val doc = dbf.createDocument().also { d ->
             val i =xmlStreaming.newReader(input)
             val o = xmlStreaming.newWriter(d)
-            while (i.hasNext()) { i.next(); i.writeCurrent(o) }
+            while (i.hasNext()) { i.next().writeEvent(o, i) }
         }
 
         val reader = xmlStreaming.newReader(doc)
         assertFalse(reader.isStarted)
 
-        if (reader.next() == EventType.START_DOCUMENT) reader.next()
+        if (reader.next() == EventType.START_DOCUMENT) { val _ = reader.next() }
 
         reader.require(EventType.START_ELEMENT, "urn:bar", "foo")
-        reader.next()
-        reader.require(EventType.START_ELEMENT, "http://www.w3.org/2003/05/soap-rpc", "result")
+        reader.requireNext(EventType.START_ELEMENT, "http://www.w3.org/2003/05/soap-rpc", "result")
         val parseResult = reader.siblingsToFragment()
-        assertEquals("<rpc:result xmlns:rpc=\"http://www.w3.org/2003/05/soap-rpc\">result</rpc:result>", parseResult.contentString)
+
+        assertEquals("<rpc:result xmlns:rpc=\"http://www.w3.org/2003/05/soap-rpc\">result</rpc:result>",parseResult.contentString)
         assertFalse(parseResult.namespaces.iterator().hasNext(), "Unexpected namespaces: ${parseResult.namespaces.joinToString()} - '${parseResult.contentString}'")
     }
 
@@ -118,7 +123,7 @@ class TestSoapHelper {
     fun testResponse3_234() {
         if (testTarget == Target.Node) return
 
-        val xml = XML { recommended_0_91_0 { pedantic = true } }
+        val xml = XML1_0.pedantic()
         val soap = xml.decodeFromString<Envelope<Fault>>(SOAP_RESPONSE3)
         val fault = soap.body.child
         assertNull(fault.role)

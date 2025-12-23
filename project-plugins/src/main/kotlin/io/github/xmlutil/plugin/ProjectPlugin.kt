@@ -108,7 +108,7 @@ class ProjectPlugin @Inject constructor(
             applyLayout.convention(true)
             val apiVer = libs.findVersion("apiVersion").getOrNull()
                 ?.run { requiredVersion.let { KotlinVersion.fromVersion(it) } }
-                ?: KotlinVersion.KOTLIN_2_0
+                ?: KotlinVersion.KOTLIN_2_2
             kotlinApiVersion.convention(apiVer)
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
             createAndroidCompatComponent.convention(false)
@@ -300,6 +300,7 @@ class ProjectPlugin @Inject constructor(
     private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
         progressiveMode = true
         languageVersion = KotlinVersion.DEFAULT
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
         configureOptins()
         if (this is KotlinJvmCompilerOptions) {
             project.logger.info("Setting common compilation options for $name")
@@ -324,7 +325,7 @@ class ProjectPlugin @Inject constructor(
 abstract class ProjectConfigurationExtension {
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
-    abstract val dokkaOverrideTarget: Property<String?>
+    abstract val dokkaOverrideTarget: Property<String>
     abstract val applyLayout: Property<Boolean>
     abstract val kotlinApiVersion: Property<KotlinVersion>
     abstract val kotlinTestVersion: Property<KotlinVersion>

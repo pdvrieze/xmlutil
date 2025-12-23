@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.serialization.examples.webdav
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -29,12 +31,12 @@ import kotlinx.serialization.descriptors.nullable
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 fun main() {
-    val xml = XML { recommended_0_91_0() }
+    val xml = XML1_0.recommended()
 
     val p = WebDavMultiStatus::class.java.getResourceAsStream("/net/devrieze/serialization/examples/webdav/multiresponse.xml").use { s ->
         xml.decodeFromReader(WebDavMultiStatus.serializer(), xmlStreaming.newReader(s))

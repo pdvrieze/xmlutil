@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
@@ -55,53 +56,25 @@ public expect val xmlStreaming: IXmlStreaming
  * instances. Some interfaces are common, others are limited to some
  * architectures.
  */
-@Deprecated(
-    "Don't use directly",
-    ReplaceWith(
-        "xmlStreaming",
-        "nl.adaptivity.xmlutil.xmlStreaming",
-        "nl.adaptivity.xmlutil.newWriter",
-        "nl.adaptivity.xmlutil.newGenericWriter",
-    )
-)
-public expect object XmlStreaming : IXmlStreaming {
-    public fun newGenericWriter(
-        output: Appendable,
-        isRepairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): KtXmlWriter
+internal expect object XmlStreaming : IXmlStreaming {
+    override val genericDomImplementation: DOMImplementation
+    override val platformDOMImplementation: PlatformDOMImplementation
 
-    public fun newWriter(
-        output: Appendable,
-        repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter
-
-    public fun newWriter(
-        writer: Writer,
-        repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter
-
-    public override val genericDomImplementation: DOMImplementation
-
-    public override fun newWriter(): DomWriter
+    override fun newWriter(): DomWriter
 
     @ExperimentalXmlUtilApi
-    public override fun newWriter(dest: Node): DomWriter
+    override fun newWriter(dest: Node): DomWriter
 
-    public override fun setFactory(factory: XmlStreamingFactory?)
+    override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader
 
-    public override fun newReader(input: CharSequence, expandEntities: Boolean): XmlReader
-
-    public override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
+    override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
 
     @ExperimentalXmlUtilApi
-    public override fun newReader(source: Node): XmlReader
+    override fun newReader(source: Node): XmlReader
 
-    public override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader
+    override fun newGenericReader(input: CharSequence, expandEntities: Boolean): XmlReader
 
-    public override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader
+    override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader
 }
 
 

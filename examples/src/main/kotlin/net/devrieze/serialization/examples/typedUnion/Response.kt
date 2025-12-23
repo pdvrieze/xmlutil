@@ -42,14 +42,12 @@ sealed interface Response<out T> {
 }
 
 fun main() {
-    val xml = XML(SerializersModule {
+    val xml = XML.recommended_1_0(SerializersModule {
         polymorphic(Any::class) {
             subclass(String.serializer())
         }
     }) {
-        recommended_0_91_0 {
-            xmlDeclMode = XmlDeclMode.None
-        }
+        xmlDeclMode = XmlDeclMode.None
     }
 
     println(xml.encodeToString<Response<String>>(Response.Success("Good")))

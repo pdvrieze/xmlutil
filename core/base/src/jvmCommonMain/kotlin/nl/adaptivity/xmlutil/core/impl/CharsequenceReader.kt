@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.core.impl
 
@@ -38,13 +40,13 @@ internal class CharsequenceReader(
     private var pos: Int = 0
     private var mark: Int = 0
 
-    private val lock = ReentrantLock()
+    private val reentrantLock = ReentrantLock()
 
-    override fun close() = lock {
+    override fun close() = reentrantLock {
         pos = -1
     }
 
-    override fun read(): Int = lock {
+    override fun read(): Int = reentrantLock {
         when {
             pos < 0 -> throw IllegalStateException("Reader closed")
             pos >= sequence.length -> -1
@@ -53,7 +55,7 @@ internal class CharsequenceReader(
     }
 
     override fun skip(n: Long): Long {
-        lock {
+        reentrantLock {
             val origPos = pos
             pos = (pos + n.toInt()).coerceAtMost(sequence.length)
             return (pos - origPos).toLong()
@@ -61,23 +63,23 @@ internal class CharsequenceReader(
     }
 
     override fun ready(): Boolean {
-        lock {
+        reentrantLock {
             return pos in sequence.indices
         }
     }
 
-    override fun reset() = lock {
+    override fun reset() = reentrantLock {
         pos = mark
     }
 
     override fun markSupported(): Boolean = true
 
-    override fun mark(readAheadLimit: Int) = lock {
+    override fun mark(readAheadLimit: Int) = reentrantLock {
         mark = pos
     }
 
     override fun read(cbuf: CharArray, off: Int, len: Int): Int {
-        lock {
+        reentrantLock {
             // Make sure to signal end of file
             if (pos >= sequence.length) return -1
 

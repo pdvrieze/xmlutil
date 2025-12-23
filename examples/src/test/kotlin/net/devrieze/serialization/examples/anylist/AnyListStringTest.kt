@@ -18,16 +18,18 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.serialization.examples.anylist
 
 import kotlinx.serialization.serializer
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class AnyListStringTest {
-    val parser = XML(anyListModule) { recommended_0_91_0() }
+    val parser = XML1_0.recommended(anyListModule)
 
     @Test
     fun testSerializeAnyListWithSpace() {

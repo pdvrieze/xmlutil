@@ -23,6 +23,7 @@
  */
 
 @file:Suppress("PublicApiImplicitType")
+@file:MustUseReturnValues
 
 package net.devrieze.serialization.examples.anylist
 
@@ -43,9 +44,7 @@ internal val anyListModule = SerializersModule {
     }
 }
 
-private val parser = XML(anyListModule) {
-    recommended_0_91_0()
-}
+private val parser = XML1_0.recommended(anyListModule)
 
 interface XmlEntity
 

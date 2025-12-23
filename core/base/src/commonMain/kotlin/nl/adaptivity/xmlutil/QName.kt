@@ -1,33 +1,34 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.*
 
 public expect class QName {
@@ -45,6 +46,11 @@ public infix fun QName.isEquivalent(other: QName): Boolean {
             getNamespaceURI() == other.getNamespaceURI()
 }
 
+@XmlUtilInternal
+public infix fun QName.isFullyEqual(other: QName): Boolean {
+    return isEquivalent(other) && getPrefix() == other.getPrefix()
+}
+
 public inline val QName.prefix: String get() = getPrefix()
 public inline val QName.localPart: String get() = getLocalPart()
 public inline val QName.namespaceURI: String get() = getNamespaceURI()
@@ -57,13 +63,16 @@ public typealias SerializableQName = @Serializable(QNameSerializer::class) QName
 
 @OptIn(ExperimentalSerializationApi::class)
 public object QNameSerializer : XmlSerializer<QName> {
+    @OptIn(InternalSerializationApi::class)
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("javax.xml.namespace.QName") {
         val stringSerializer = String.serializer()
         element("namespace", stringSerializer.descriptor, isOptional = true)
         element("localPart", stringSerializer.descriptor)
         element("prefix", stringSerializer.descriptor, isOptional = true)
     }.xml(
-        PrimitiveSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING),
+        buildSerialDescriptor("javax.xml.namespace.QName", PrimitiveKind.STRING) {
+            annotations = listOf(XmlDynamicNameMarker())
+        },
         QName(XMLConstants.XSD_NS_URI, "QName", XMLConstants.XSD_PREFIX)
     )
 

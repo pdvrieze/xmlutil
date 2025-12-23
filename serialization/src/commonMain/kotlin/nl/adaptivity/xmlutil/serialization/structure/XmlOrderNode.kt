@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.serialization.structure
 
@@ -31,7 +33,7 @@ internal class XmlOrderNode(val elementIdx: Int) {
         mutableListOf()
     val successors: MutableList<XmlOrderNode> =
         mutableListOf()
-    var wildCard : OrderWildcard = NONE
+    var wildCard: OrderWildcard = NONE
 
     fun addSuccessors(vararg nodes: XmlOrderNode) {
         for (node in nodes) {
@@ -90,15 +92,16 @@ internal fun Iterable<XmlOrderConstraint>.sequenceStarts(childCount: Int): Colle
     val nodes = Array(childCount) { XmlOrderNode(it) }
 
     // Make contraints reflexive
-    for(constraint in this) {
-        if (constraint.after == XmlOrderConstraint.OTHERS) {
+    for ((beforeIdx, afterIdx) in this) {
+        if (afterIdx == XmlOrderConstraint.OTHERS) {
             hasWildCard = true
-            beforeAny[constraint.before] = true
-        } else if (constraint.before == XmlOrderConstraint.OTHERS) {
+            beforeAny[beforeIdx] = true
+        } else if (beforeIdx == XmlOrderConstraint.OTHERS) {
             hasWildCard = true
-            afterAny[constraint.after] = true
-        } else  {
-            val (before, after) = constraint.map { nodes[it] }
+            afterAny[afterIdx] = true
+        } else {
+            val before = nodes[beforeIdx]
+            val after = nodes[afterIdx]
 
             before.addSuccessors(after)
             after.addPredecessors(before)
@@ -107,9 +110,9 @@ internal fun Iterable<XmlOrderConstraint>.sequenceStarts(childCount: Int): Colle
 
     if (hasWildCard) {
         for (idx in beforeAny.indices) {
-            if(beforeAny[idx]) {
+            if (beforeAny[idx]) {
                 nodes[idx].wildCard = BEFORE
-            } else if(afterAny[idx]) {
+            } else if (afterAny[idx]) {
                 nodes[idx].wildCard = AFTER
             }
         }
@@ -274,27 +277,31 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
             val beforeIdx = node.elementIdx
             constraints.add(XmlOrderConstraint(beforeIdx, XmlOrderConstraint.OTHERS))
             for (gnode in general) {
-                orderMatrix.setOrderedBefore(beforeIdx, gnode.elementIdx)
+                val _ = orderMatrix.setOrderedBefore(beforeIdx, gnode.elementIdx)
             }
             for (anode in after) {
-                orderMatrix.setOrderedBefore(beforeIdx, anode.elementIdx)
+                val _ = orderMatrix.setOrderedBefore(beforeIdx, anode.elementIdx)
             }
         }
         for (node in after) {
             val afterIdx = node.elementIdx
             constraints.add(XmlOrderConstraint(XmlOrderConstraint.OTHERS, afterIdx))
             for (gnode in general) {
-                orderMatrix.setOrderedAfter(afterIdx, gnode.elementIdx)
+                val _ = orderMatrix.setOrderedAfter(afterIdx, gnode.elementIdx)
             }
         }
 
         //now flatten the list for the before/general/after partitions (in order)
         for (partition in arrayOf(before, general, after)) {
             val nodesInPartition = BooleanArray(children.size)
-            for (node in partition) { nodesInPartition[node.elementIdx] = true}
+            for (node in partition) {
+                nodesInPartition[node.elementIdx] = true
+            }
 
             val forwardQueue = partition
-                .filterTo(ArrayList(partition.size)) { it.predecessors.none { nodesInPartition[it.elementIdx] } }
+                .filterTo(ArrayList(partition.size)) {
+                    it.predecessors.none { pred -> nodesInPartition[pred.elementIdx] }
+                }
 
             val predsSorted = BooleanArray(children.size)
             while (forwardQueue.isNotEmpty()) {
@@ -308,7 +315,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
                             elementIdx
                         }
 
-                    // In the case that the predecessors are not sorted yet, Order as if at end of queue
+                        // In the case that the predecessors are not sorted yet, Order as if at end of queue
                         else -> serialDescriptor.elementsCount
                     }
                 }
@@ -317,7 +324,7 @@ internal fun Collection<XmlOrderNode>.fullFlatten(
                 declToOrderMap[next.elementIdx] = nextElemIdx
                 nextElemIdx++
                 for (successor in next.successors) {
-                    orderMatrix.setOrderedAfter(successor.elementIdx, next.elementIdx)
+                    val _ = orderMatrix.setOrderedAfter(successor.elementIdx, next.elementIdx)
                     // Check that the successor is actually within this partition, otherwise just ignore it (it will be in a later one)
                     if (nodesInPartition[successor.elementIdx]) { // This ensures 2*3 independent partitions
 //                        constraints.add(XmlOrderConstraint(next.elementIdx, successor.elementIdx))

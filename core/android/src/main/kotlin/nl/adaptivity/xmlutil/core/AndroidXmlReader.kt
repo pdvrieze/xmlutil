@@ -115,6 +115,9 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
     override val attributeCount: Int
         get() = parser.attributeCount
 
+    override val isKnownEntity: Boolean
+        get() = eventType == EventType.ENTITY_REF && text.isNotEmpty()
+
     override fun getAttributeLocalName(index: Int): String = parser.getAttributeName(index)
 
     override fun getAttributePrefix(index: Int): String = parser.getAttributePrefix(index)
@@ -150,14 +153,6 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
 
         return null
     }
-
-    @Deprecated("Use extLocationInfo as that allows more detailed information", ReplaceWith("extLocationInfo?.toString()"))
-    override val locationInfo: String
-        get() = buildString {
-            append(parser.lineNumber)
-            append(':')
-            append(parser.columnNumber)
-        }
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() = XmlReader.ExtLocationInfo(

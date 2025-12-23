@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil
 
@@ -24,7 +26,8 @@ import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
 @XmlUtilInternal
-public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader, XmlPeekingReader {
+public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader,
+    XmlPeekingReader {
     private val namespaceHolder = NamespaceHolder()
 
     init { // Record also for the first element
@@ -34,7 +37,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
     }
 
     @XmlUtilInternal
-    public override abstract val hasPeekItems: Boolean
+    public abstract override val hasPeekItems: Boolean
 
     @XmlUtilInternal
     protected var current: XmlEvent?
@@ -61,6 +64,11 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
             else -> throw XmlException("Attribute not defined here: namespaceUri (current event: ${current?.eventType})")
         }
 
+    override val isKnownEntity: Boolean
+        get() = when (val c = current) {
+            is EntityRefEvent -> c.isResolved
+            else -> throw XmlException("Current event is not an entity")
+        }
 
     override val localName: String
         get() = when (current?.eventType) {
@@ -84,8 +92,9 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
     override val depth: Int
         get() = namespaceHolder.depth
 
-    protected fun incDepth() { namespaceHolder.incDepth() }
-    protected fun decDepth() { namespaceHolder.decDepth() }
+    protected fun incDepth(): Unit = namespaceHolder.incDepth()
+
+    protected fun decDepth(): Unit = namespaceHolder.decDepth()
 
     override val piTarget: String
         get() = (current as ProcessingInstructionEvent).target
@@ -112,13 +121,6 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         } else {
             throw XmlException("Attempting to read beyond the end of the stream")
         }
-
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String?
-        get() = extLocationInfo?.toString()
 
     override val extLocationInfo: XmlReader.LocationInfo?
         get() = current?.extLocationInfo ?: delegate.extLocationInfo
@@ -155,7 +157,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         if (!hasNext()) {
             throw NoSuchElementException()
         }
-        peek()
+        val _ = peek()
         return removeFirstToCurrent()
     }
 
@@ -202,8 +204,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
     @XmlUtilInternal
     protected open fun doPeek(): List<XmlEvent> {
         if (delegate.hasNext()) {
-            delegate.next() // Don't forget to actually read the next element
-            val event = XmlEvent.from(delegate)
+            val event = delegate.next().createEvent(delegate)
             val result = ArrayList<XmlEvent>(1)
             result.add(event)
             return result
@@ -235,6 +236,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
     protected abstract fun peekLast(): XmlEvent?
 
     @XmlUtilInternal
+    @IgnorableReturnValue
     protected abstract fun bufferRemoveLast(): XmlEvent
 
     @XmlUtilInternal
@@ -274,6 +276,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         }
     }
 
+    @IgnorableReturnValue
     override fun next(): EventType {
         return nextEvent().eventType
     }

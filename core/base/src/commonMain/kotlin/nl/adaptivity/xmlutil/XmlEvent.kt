@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
@@ -28,12 +28,6 @@ package nl.adaptivity.xmlutil
 public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?) {
 
     protected constructor(locationInfo: String?) : this(locationInfo?.let(XmlReader::StringLocationInfo))
-
-    @Deprecated(
-        "More detail is available from extLocationInfo",
-        ReplaceWith("extLocationInfo?.toString()")
-    )
-    public val locationInfo: String? = extLocationInfo?.toString()
 
     public companion object {
 
@@ -75,10 +69,15 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
     public class EntityRefEvent(
         extLocationInfo: XmlReader.LocationInfo?,
         public val localName: String,
+        public val isResolved: Boolean,
         text: String
     ) : TextEvent(extLocationInfo, EventType.ENTITY_REF, text) {
-        public constructor(locationInfo: String, localName: String, text: String) :
-                this(locationInfo.let(XmlReader::StringLocationInfo), localName, text)
+
+        public constructor(
+            extLocationInfo: XmlReader.LocationInfo?,
+            localName: String,
+            text: String
+        ) : this(extLocationInfo, localName, text.isNotEmpty(), text)
 
         override fun writeTo(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
 
@@ -226,28 +225,6 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
             parentNamespaceContext: IterableNamespaceContext
         ) : this(extLocationInfo = null, namespaceUri, localName, prefix, emptyArray(), parentNamespaceContext, emptyList())
 
-        @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
-        public constructor(namespaceUri: String, localName: String, prefix: String) :
-                this(namespaceUri, localName, prefix, SimpleNamespaceContext())
-
-        @Deprecated("Use version that takes the parent tag's namespace context.", level = DeprecationLevel.ERROR)
-        public constructor(
-            locationInfo: String?,
-            namespaceUri: String,
-            localName: String,
-            prefix: String,
-            attributes: Array<out Attribute>,
-            namespaceDecls: List<Namespace>
-        ) : this(
-            locationInfo?.let(XmlReader::StringLocationInfo),
-            namespaceUri,
-            localName,
-            prefix,
-            attributes,
-            SimpleNamespaceContext(),
-            namespaceDecls
-        )
-
         override fun writeTo(writer: XmlWriter) {
             writer.startTag(namespaceUri, localName, prefix)
 
@@ -271,14 +248,6 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
                 null -> parentNamespaceContext.getNamespaceURI(prefix)
                 else -> decl
             }
-        }
-
-        @Deprecated(
-            "Just use the version that takes a string",
-            ReplaceWith("getNamespaceURI(prefix.toString())")
-        )
-        public fun getNamespaceUri(prefix: CharSequence): String? {
-            return getNamespaceURI(prefix.toString())
         }
 
         public val namespaceContext: IterableNamespaceContext

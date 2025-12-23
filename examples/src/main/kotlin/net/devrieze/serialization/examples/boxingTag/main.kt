@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.serialization.examples.boxingTag
 
 import kotlinx.serialization.KSerializer
@@ -25,9 +27,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.*
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 /*
@@ -44,7 +45,7 @@ class Header(
 fun main() {
     val data = Header("foo", "bar", "baz")
 
-    println(XML { recommended_0_91_0() }.encodeToString(data))
+    println(XML1_0.encodeToString(data))
 }
 
 typealias BoxedString = @Serializable(BoxedSerializer::class) String

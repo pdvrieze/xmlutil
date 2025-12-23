@@ -20,4 +20,5 @@
 
 package nl.adaptivity.xmlutil
 
+@Deprecated("XmlStreamingFactory makes no sense in native", level = DeprecationLevel.ERROR)
 public actual interface XmlStreamingFactory

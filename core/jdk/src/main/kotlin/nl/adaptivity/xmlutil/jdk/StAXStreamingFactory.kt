@@ -55,16 +55,6 @@ public class StAXStreamingFactory : XmlStreamingFactory {
     }
 
     @Throws(XmlException::class)
-    @Deprecated("Usage of results only works on the JVM")
-    override fun newWriter(result: Result, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
-        try {
-            return StAXWriter(result, repairNamespaces, xmlDeclMode)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
-        }
-    }
-
-    @Throws(XmlException::class)
     override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
         try {
             return StAXReader(reader, expandEntities)
@@ -85,25 +75,6 @@ public class StAXStreamingFactory : XmlStreamingFactory {
     override fun newReader(inputStream: InputStream, encoding: String, expandEntities: Boolean): XmlReader {
         try {
             return StAXReader(inputStream, encoding)
-        } catch (e: XMLStreamException) {
-            throw XmlException(e)
-        }
-    }
-
-    @Throws(XmlException::class)
-    @Deprecated("Usage of results only works on the JVM")
-    override fun newReader(source: Source): XmlReader {
-        try {
-            return when (source) {
-                is StreamSource -> StAXReader(source)
-                else -> {
-                    val tf = TransformerFactory.newInstance()
-                    val trans = tf.newTransformer()
-                    val sw = StringWriter()
-                    trans.transform(source, StreamResult(sw))
-                    newReader(sw.toString())
-                }
-            }
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }

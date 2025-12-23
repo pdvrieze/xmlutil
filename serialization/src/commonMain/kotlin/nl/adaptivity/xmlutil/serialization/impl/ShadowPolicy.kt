@@ -34,6 +34,7 @@ import nl.adaptivity.xmlutil.serialization.structure.TypePreserveSpace
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlOrderConstraint
 
+// TODO ignore type or use cache
 internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cache: FormatCache): XmlSerializationPolicy {
     internal val basePolicy: XmlSerializationPolicy = when (basePolicy) {
         is ShadowPolicy -> basePolicy.basePolicy
@@ -65,29 +66,6 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
         return basePolicy.polymorphicDiscriminatorName(serializerParent, tagParent)
     }
 
-    @Suppress("DEPRECATION")
-    @Deprecated("It is recommended to override serialTypeNameToQName and serialUseNameToQName instead")
-    override fun serialNameToQName(serialName: String, parentNamespace: Namespace): QName {
-        return basePolicy.serialNameToQName(serialName, parentNamespace)
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Don't use or implement this, use the 3 parameter version")
-    override fun effectiveOutputKind(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): OutputKind {
-        return basePolicy.effectiveOutputKind(serializerParent, tagParent)
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use the recoverable version that allows returning a value")
-    override fun handleUnknownContent(
-        input: XmlReader,
-        inputKind: InputKind,
-        name: QName?,
-        candidates: Collection<Any>
-    ) {
-        return basePolicy.handleUnknownContent(input, inputKind, name, candidates)
-    }
-
     override fun shouldEncodeElementDefault(elementDescriptor: XmlDescriptor?): Boolean {
         return basePolicy.shouldEncodeElementDefault(elementDescriptor)
     }
@@ -97,10 +75,6 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
 
     override val defaultObjectOutputKind: OutputKind
         get() = basePolicy.defaultObjectOutputKind
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Use isStrictAttributeNames instead")
-    override val isStrictNames: Boolean get() = basePolicy.isStrictNames
 
     override val isStrictAttributeNames: Boolean get() = basePolicy.isStrictAttributeNames
     override val isStrictBoolean: Boolean get() = basePolicy.isStrictBoolean

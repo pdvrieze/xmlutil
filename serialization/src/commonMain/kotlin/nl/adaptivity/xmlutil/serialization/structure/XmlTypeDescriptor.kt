@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2020-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization.structure
@@ -26,6 +26,7 @@ import kotlinx.serialization.descriptors.capturedKClass
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlDynamicNameMarker
 import nl.adaptivity.xmlutil.core.impl.multiplatform.maybeAnnotations
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
@@ -71,12 +72,15 @@ public class XmlTypeDescriptor internal constructor(
     public var typeAnnPolyChildren: XmlPolyChildren? = null
         private set
 
+    @ExperimentalXmlUtilApi
+    public var typeAnnHasDynamicNames: Boolean = false
+        private set
+
     init {
         @OptIn(ExperimentalSerializationApi::class)
         for (a in serialDescriptor.annotations) {
             @Suppress("DEPRECATION")
             when (a) {
-                is XmlNamespaceDeclSpec -> typeAnnNsDecls = a.namespaces
                 is XmlNamespaceDeclSpecs -> typeAnnNsDecls = a.namespaces
                 is XmlSerialName -> typeAnnXmlSerialName = a
                 is XmlCData -> typeAnnCData = a.value
@@ -85,6 +89,7 @@ public class XmlTypeDescriptor internal constructor(
                 is XmlElement -> typeAnnIsElement = a.value
                 is XmlChildrenName -> typeAnnChildrenName = a
                 is XmlPolyChildren -> typeAnnPolyChildren = a
+                is XmlDynamicNameMarker -> typeAnnHasDynamicNames = true
             }
         }
         if (typeAnnXmlSerialName==null) {

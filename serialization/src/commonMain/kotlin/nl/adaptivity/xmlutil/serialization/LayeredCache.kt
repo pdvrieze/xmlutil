@@ -3,19 +3,19 @@
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization
@@ -26,10 +26,11 @@ import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.serialization.impl.CompatLock
+import nl.adaptivity.xmlutil.serialization.impl.invoke
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 public class LayeredCache private constructor(
-    private val baseCache: DelegatableFormatCache
+    private var baseCache: DelegatableFormatCache
 ): FormatCache() {
 
     public constructor() : this(DefaultFormatCache())
@@ -37,7 +38,10 @@ public class LayeredCache private constructor(
     private val lock = CompatLock()
 
     override fun copy(): FormatCache {
-        return LayeredCache(baseCache.copy())
+        val cpy = lock.invoke {
+            baseCache.copy()
+        }
+        return LayeredCache(cpy)
     }
 
     private fun unsafeCache(): AbstractLayer {
@@ -48,11 +52,11 @@ public class LayeredCache private constructor(
     }
 
     override fun <R> useUnsafe(action: (FormatCache) -> R): R {
-        val cache = unsafeCache()
+        val cache = lock.invoke { unsafeCache() }
 
         return action(cache).also {
             lock.invoke {
-                baseCache.appendFrom(cache.extCache)
+                baseCache = baseCache.appendFrom(cache.extCache)
             }
         }
     }
@@ -62,7 +66,10 @@ public class LayeredCache private constructor(
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return unsafeCache().lookupTypeOrStore(namespace, serialDesc, defaultValue)
+        return when (val b = baseCache) {
+            is DefaultFormatCache -> lock.invoke { b.lookupTypeOrStore(namespace, serialDesc, defaultValue) }
+            else -> useUnsafe { it.lookupTypeOrStore(namespace, serialDesc, defaultValue) }
+        }
     }
 
     override fun lookupTypeOrStore(
@@ -70,7 +77,10 @@ public class LayeredCache private constructor(
         serialDesc: SerialDescriptor,
         defaultValue: () -> XmlTypeDescriptor
     ): XmlTypeDescriptor {
-        return unsafeCache().lookupTypeOrStore(parentName, serialDesc, defaultValue)
+        return when (val b = baseCache) {
+            is DefaultFormatCache -> lock.invoke { b.lookupTypeOrStore(parentName, serialDesc, defaultValue) }
+            else -> useUnsafe { it.lookupTypeOrStore(parentName, serialDesc, defaultValue) }
+        }
     }
 
     override fun lookupDescriptorOrStore(
@@ -80,7 +90,15 @@ public class LayeredCache private constructor(
         canBeAttribute: Boolean,
         defaultValue: () -> XmlDescriptor
     ): XmlDescriptor {
-        return unsafeCache().lookupDescriptorOrStore(overridenSerializer, serializerParent, tagParent, canBeAttribute, defaultValue)
+        return when (val b = baseCache) {
+            is DefaultFormatCache -> lock.invoke {
+                b.lookupDescriptorOrStore(overridenSerializer, serializerParent, tagParent, canBeAttribute, defaultValue)
+            }
+
+            else -> useUnsafe {
+                it.lookupDescriptorOrStore(overridenSerializer, serializerParent, tagParent, canBeAttribute, defaultValue)
+            }
+        }
     }
 
     override fun getCompositeDescriptor(
@@ -165,7 +183,7 @@ public class LayeredCache private constructor(
         }
     }
 
-    private class FallbackLayer constructor(
+    private class FallbackLayer(
         override val base: DelegatableFormatCache,
         extCache: DefaultFormatCache = DefaultFormatCache()
     ) : AbstractLayer(extCache) {
@@ -217,5 +235,9 @@ public class LayeredCache private constructor(
                 )
         }
 
+    }
+
+    public companion object {
+        private val MULTI_TREAD_MARKER: Any = Any()
     }
 }

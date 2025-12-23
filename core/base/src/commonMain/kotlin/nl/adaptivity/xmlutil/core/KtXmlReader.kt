@@ -18,11 +18,13 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.core
 
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.EventType.*
-import nl.adaptivity.xmlutil.core.impl.EntityMap
+import nl.adaptivity.xmlutil.core.impl.DefaultEntityMap
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
@@ -40,7 +42,8 @@ private const val outputBufLeft = 0
  * @param reader Reader for the input
  * @param encoding The encoding to record, note this doesn't impact the actual parsing (that is handled in the reader)
  * @param relaxed If `true` ignore various syntax and namespace errors
- * @param ignorePos If `true` don't record current position (line/offset)
+ * @param expandEntities true if entities are expanded as text, rather than exposed as entities. Note that unresolved entities
+ *              will cause an exception in expanding mode.
  */
 public class KtXmlReader internal constructor(
     private val reader: Reader,
@@ -49,8 +52,11 @@ public class KtXmlReader internal constructor(
     public val expandEntities: Boolean = false,
 ) : XmlReader {
 
-    public constructor(reader: Reader, relaxed: Boolean = false) : this(reader, null, relaxed)
-    public constructor(reader: Reader, expandEntities: Boolean, relaxed: Boolean = false) : this(reader, null, relaxed, expandEntities)
+    public constructor(reader: Reader, relaxed: Boolean = false) :
+            this(reader, null, relaxed)
+
+    public constructor(reader: Reader, expandEntities: Boolean, relaxed: Boolean = false) :
+            this(reader, null, relaxed, expandEntities)
 
     private var line: Int = 1
     private val column: Int get() = offset - lastColumnStart + 1
@@ -69,6 +75,13 @@ public class KtXmlReader internal constructor(
         get() = state != State.BEFORE_START
 
     private var entityName: String? = null
+
+    public override val isKnownEntity: Boolean
+        get() = when (_eventType) {
+            ENTITY_REF -> !unresolvedEntity
+
+            else -> throw IllegalStateException("isKnownEntity is only relevant for entities")
+        }
 
     public override val localName: String
         get() = when (_eventType) {
@@ -140,8 +153,6 @@ public class KtXmlReader internal constructor(
         }
     }
 
-    private var entityMap = EntityMap()
-
     private val namespaceHolder = NamespaceHolder()
 
     public override val depth: Int
@@ -164,7 +175,7 @@ public class KtXmlReader internal constructor(
     //    private int stackMismatch = 0;
     private var error: String? = null
 
-    private var unresolved = false
+    private var unresolvedEntity = false
 
     private var state = State.BEFORE_START
 
@@ -190,7 +201,7 @@ public class KtXmlReader internal constructor(
         line += 1
     }
 
-    private fun adjustNsp(prefix: String?, localName: String): Boolean {
+    private fun adjustNsp(prefix: String?, localName: String) {
         var hasActualAttribute = false
 
         // Loop through all attributes to collect namespace attributes and split name into prefix/localName.
@@ -202,16 +213,20 @@ public class KtXmlReader internal constructor(
             val aLocalName: String = attr.localName!!
             val aPrefix: String? = attr.prefix
 
-            if (aPrefix == "xmlns") {
-                namespaceHolder.addPrefixToContext(aLocalName, attr.value)
-                if (attr.value == "") error("illegal empty namespace")
+            when (aPrefix) {
+                "xmlns" -> {
+                    namespaceHolder.addPrefixToContext(aLocalName, attr.value)
+                    if (attr.value == "") error("illegal empty namespace")
 
-                attr.localName = null // mark for deletion
-            } else if (aPrefix == null && aLocalName == "xmlns") {
-                namespaceHolder.addPrefixToContext("", attr.value)
-                attr.localName = null // mark for deletion
-            } else {
-                hasActualAttribute = true
+                    attr.localName = null // mark for deletion
+                }
+
+                null if aLocalName == "xmlns" -> {
+                    namespaceHolder.addPrefixToContext("", attr.value)
+                    attr.localName = null // mark for deletion
+                }
+
+                else -> hasActualAttribute = true
             }
         }
         if (hasActualAttribute) {
@@ -238,7 +253,7 @@ public class KtXmlReader internal constructor(
                     } else if (attrPrefix != null) {
                         val attrNs = namespaceHolder.getNamespaceUri(attrPrefix)
                         if (attrNs == null) {
-                            elementStack[depth-1].also {
+                            elementStack[depth - 1].also {
                                 it.localName = localName
                                 it.prefix = prefix
                                 it.namespace = "<not yet set>"
@@ -271,8 +286,6 @@ public class KtXmlReader internal constructor(
         elementStack[d].prefix = prefix
         elementStack[d].localName = localName
         elementStack[d].namespace = ns
-
-        return hasActualAttribute
     }
 
     private fun error(desc: String) {
@@ -285,7 +298,7 @@ public class KtXmlReader internal constructor(
         throw XmlException(
             when {
                 desc.length < 100 -> desc
-                else -> "${desc.substring(0, 100)}\n"
+                else -> "${desc.take(100)}\n"
             },
             this
         )
@@ -439,7 +452,7 @@ public class KtXmlReader internal constructor(
 
             COMMENT -> parseComment()
 
-            ENTITY_REF if(expandEntities) -> pushRegularText('<', true)
+            ENTITY_REF if (expandEntities) -> pushRegularText('<', true)
             ENTITY_REF -> pushEntity()
 
             START_ELEMENT -> {
@@ -650,17 +663,17 @@ public class KtXmlReader internal constructor(
         val expectedLength = (expectedPrefix?.run { length + 1 } ?: 0) + expectedLocalName.length
 
         val expectedEnd = srcBufPos + expectedLength
-        if (expectedEnd>srcBufCount) exception(UNEXPECTED_EOF)
+        if (expectedEnd > srcBufCount) exception(UNEXPECTED_EOF)
         if (expectedEnd < BUF_SIZE) { // fast path implementation that just verifies the tags
             // (rather than parsing them directly without that knowledge of expectation)
             val left2: Int
             if (expectedPrefix != null) {
                 val left = srcBufPos
                 for (i in expectedPrefix.indices)
-                if (bufLeft[left + i] != expectedPrefix[i]) {
-                    val expectedFullName = fullname(expectedPrefix, expectedLocalName)
-                    error("expected: $expectedFullName read: ${readName()}")
-                }
+                    if (bufLeft[left + i] != expectedPrefix[i]) {
+                        val expectedFullName = fullname(expectedPrefix, expectedLocalName)
+                        error("expected: $expectedFullName read: ${readName()}")
+                    }
                 left2 = left + expectedPrefix.length + 1
             } else {
                 left2 = srcBufPos
@@ -686,7 +699,7 @@ public class KtXmlReader internal constructor(
             if (readPrefix != expectedPrefix || readLocalname != expectedLocalName) {
                 val expectedFullName = fullname(expectedPrefix, expectedLocalName)
                 val fullName = fullname(readPrefix, readLocalname!!)
-                error("expected: ${expectedFullName} read: $fullName")
+                error("expected: $expectedFullName read: $fullName")
             }
         }
     }
@@ -823,7 +836,9 @@ public class KtXmlReader internal constructor(
                     readAssert('/')
                     if (isXmlWhitespace(peek().toChar())) {
                         error("ERR: Whitespace between empty content tag closing elements")
-                        while (isXmlWhitespace(peek().toChar())) read()
+                        while (isXmlWhitespace(peek().toChar())) {
+                            val _ = read()
+                        }
                     }
                     read('>')
                     break
@@ -841,7 +856,7 @@ public class KtXmlReader internal constructor(
                 }
 
                 ' '.code, '\t'.code, '\n'.code, '\r'.code -> {
-                    next() // ignore whitespace
+                    val _ = next() // ignore whitespace
                 }
 
                 else -> when {
@@ -920,6 +935,7 @@ public class KtXmlReader internal constructor(
     }
 
     private fun pushRefEntity() {
+        unresolvedEntity = false
         val first = read()
         val codeBuilder = StringBuilder(8)
 
@@ -948,8 +964,8 @@ public class KtXmlReader internal constructor(
             entityName = code
         }
 
-        val result = entityMap[code]
-        unresolved = result == null
+        val result = DefaultEntityMap[code]
+        unresolvedEntity = result == null
         when {
             result != null -> push(result)
             expandEntities -> exception("Unknown entity \"&$code;\" in entity expanding mode")
@@ -1203,8 +1219,6 @@ public class KtXmlReader internal constructor(
     /**
      * Specialisation of pushText that does not recognize whitespace (thus able to be used at that point)
      * @param delimiter The "stopping" delimiter
-     * @param resolveEntities Whether entities should be resolved directly (in attributes) or exposed as entity
-     *                        references (content text if expandEntities is false).
      */
     private fun pushAttributeValue(delimiter: Char) {
         var bufCount = srcBufCount
@@ -1369,10 +1383,10 @@ public class KtXmlReader internal constructor(
         if (a != c.code) error("expected: '" + c + "' actual: '" + a.toChar() + "'")
     }
 
-    private fun readAssert(c: Char) {
-        /*val a = */read()
+    private fun readAssert(c: Char) = read(c)/* {
+        *//*val a = *//*read()
 //        assert(a == c.code) { "This should have parsed as '$c', but was '${a.toChar()}'" }
-    }
+    }*/
 
     private fun read(): Int {
         val pos = srcBufPos
@@ -1662,21 +1676,21 @@ public class KtXmlReader internal constructor(
     private fun readCName() {
         var left = srcBufPos
 
-        var bufEnd: Int
-        run {
-            val cnt = srcBufCount
-            if (BUF_SIZE < cnt) {
-                if (left == BUF_SIZE) {
-                    swapInputBuffer()
-                    left = 0
-                    bufEnd = minOf(BUF_SIZE, srcBufCount)
-                } else {
-                    bufEnd = BUF_SIZE
-                }
-            } else {
+        val cnt = srcBufCount
+
+        var bufEnd: Int = when {
+            BUF_SIZE >= cnt -> {
                 if (left >= cnt) exception(UNEXPECTED_EOF)
-                bufEnd = cnt
+                cnt
             }
+
+            left == BUF_SIZE -> {
+                swapInputBuffer()
+                left = 0
+                minOf(BUF_SIZE, srcBufCount)
+            }
+
+            else -> BUF_SIZE
         }
 
         var srcBuf = bufLeft
@@ -1779,7 +1793,7 @@ public class KtXmlReader internal constructor(
 
             else -> { // nonwhitespace text
                 var textCpy = text
-                if (textCpy.length > 16) textCpy = textCpy.substring(0, 16) + "..."
+                if (textCpy.length > 16) textCpy = textCpy.take(16) + "..."
                 buf.append(textCpy)
             }
         }
@@ -1793,13 +1807,6 @@ public class KtXmlReader internal constructor(
     override fun toString(): String {
         return "KtXmlReader [${getPositionDescription()}]"
     }
-
-    @Deprecated(
-        "Use extLocationInfo as that allows more detailed information",
-        replaceWith = ReplaceWith("extLocationInfo?.toString()")
-    )
-    override val locationInfo: String
-        get() = if (offset >= 0) "$line:$column" else "<unknown>"
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() = XmlReader.ExtLocationInfo(col = column, line = line, offset = offset)
@@ -1884,7 +1891,7 @@ public class KtXmlReader internal constructor(
             State.EOF -> error("Reading past end of file")
         }
 //        assert((offset - srcBufPos) % BUF_SIZE == 0) { "Offset error: ($offset - $srcBufPos) % $BUF_SIZE != 0" }
-        return when(val et = eventType) {
+        return when (val et = eventType) {
             ENTITY_REF if (expandEntities) -> TEXT
             else -> et
         }
@@ -1895,12 +1902,13 @@ public class KtXmlReader internal constructor(
     }
 
     override fun nextTag(): EventType {
+        var et: EventType
         do {
-            next()
-        } while (_eventType?.isIgnorable == true || (_eventType == TEXT && isWhitespace))
+            et = next()
+        } while (et.isIgnorable || (et == TEXT && isWhitespace))
 
-        if (_eventType != END_ELEMENT && _eventType != START_ELEMENT) exception("unexpected type")
-        return eventType
+        if (et != END_ELEMENT && et != START_ELEMENT) exception("unexpected type")
+        return et
     }
 
     override fun require(type: EventType, namespace: String?, name: String?) {
