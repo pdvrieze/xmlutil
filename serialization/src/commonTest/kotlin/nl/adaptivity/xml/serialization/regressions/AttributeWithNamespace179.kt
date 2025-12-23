@@ -18,20 +18,23 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AttributeWithNamespace179 {
-    val xml get() = XML {
-            recommended_0_91_0 {
+    val xml get() = XML1_0.recommended {
+            policy {
                 isStrictAttributeNames = true
                 pedantic = true
             }
@@ -42,6 +45,19 @@ class AttributeWithNamespace179 {
 
     @Test
     fun testSerializeDefaultInstance() {
+        @Suppress("DEPRECATION")
+        testSerializeDefaultInstance(XML.compat.instance)
+
+    }
+
+    @Test
+    fun testSerializeDefaultInstance1_0() {
+        @Suppress("DEPRECATION")
+        testSerializeDefaultInstance(XML1_0.compactInstance)
+
+    }
+
+    private fun testSerializeDefaultInstance(format: XML) {
         val food = Food("veryTasty", "burgers", "pricy", "Pricy Burgers", 500)
         val expected = "<ns:food xmlns:ns=\"https://schema.restaurant.info\" ns:istasty=\"veryTasty\">" +
                 "<name>burgers</name>" +
@@ -50,9 +66,10 @@ class AttributeWithNamespace179 {
                 "<calories>500</calories>" +
                 "</ns:food>"
 
-        val serialized = XML.encodeToString(food)
-        assertEquals(expected, serialized)
 
+        @Suppress("DEPRECATION")
+        val serialized = format.encodeToString(food)
+        assertEquals(expected, serialized)
     }
 
     @Test
@@ -78,12 +95,10 @@ class AttributeWithNamespace179 {
                 " <ns:food ns:istasty=\"true\" />\n" +
                 "</ns:breakfast_menu>"
 
-        val xml = XML {
+        val xml = XML1_0.recommended {
             xmlDeclMode = XmlDeclMode.Charset
-            defaultPolicy { autoPolymorphic = true }
 
             repairNamespaces = true
-            indentString = "    "
             setIndent(1)
             defaultToGenericParser = true
         }

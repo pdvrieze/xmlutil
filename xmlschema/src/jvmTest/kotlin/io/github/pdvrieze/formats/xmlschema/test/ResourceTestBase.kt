@@ -18,18 +18,21 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.newGenericReader
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.InputStreamReader
 
 abstract class ResourceTestBase(val baseDir: String) {
     fun deserializeXsd(fileName: String): XSSchema {
-        val resourceName = "${baseDir.dropLastWhile { it=='/' }}/$fileName"
+        val resourceName = "${baseDir.dropLastWhile { it == '/' }}/$fileName"
         return javaClass.classLoader.getResourceAsStream(resourceName)!!.use { inStream ->
             xmlStreaming.newGenericReader(inStream, "UTF-8").use { reader ->
                 format.decodeFromReader(XSSchema.serializer(), reader)
@@ -38,7 +41,7 @@ abstract class ResourceTestBase(val baseDir: String) {
     }
 
     fun readResourceAsString(fileName: String): String {
-        val resourceName = "${baseDir.dropLastWhile { it=='/' }}/$fileName"
+        val resourceName = "${baseDir.dropLastWhile { it == '/' }}/$fileName"
         return javaClass.classLoader.getResourceAsStream(resourceName)!!.use { inStream ->
             InputStreamReader(inStream).use { reader ->
                 reader.readText()
@@ -47,11 +50,9 @@ abstract class ResourceTestBase(val baseDir: String) {
     }
 
     companion object {
-        val format = XML {
-            autoPolymorphic = true
-            indent = 4
+        val format: XML = XML1_0.recommended {
+            setIndent(4)
             xmlDeclMode = XmlDeclMode.None
-//            isCollectingNSAttributes = true
         }
     }
 }

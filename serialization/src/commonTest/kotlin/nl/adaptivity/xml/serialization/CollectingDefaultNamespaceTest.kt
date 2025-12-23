@@ -18,18 +18,16 @@
  * permissions and limitations under the License.
  */
 
-@file:UseSerializers(QNameSerializer::class)
 @file:OptIn(ExperimentalXmlUtilApi::class)
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
@@ -52,11 +50,8 @@ class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespa
         )
     ),
     GPXv11.serializer(),
-    baseXmlFormat = XML {
+    baseXmlFormat = XML1_0.recommended {
         isCollectingNSAttributes = true
-        defaultPolicy {
-            autoPolymorphic = true
-        }
         setIndent(4)
     },
     baseJsonFormat = Json { encodeDefaults = false }
@@ -84,7 +79,7 @@ class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespa
     @Test
     fun testNamespaceDecls() {
         val serialized = baseXmlFormat.encodeToString(serializer, value)
-        val lines = serialized.lines()
+        val lines = serialized.lines().dropWhile { it.startsWith("<?xml") }
         for ((idx, line) in lines.drop(1).withIndex()) {
             assertFalse(actual = "xmlns" in line, "Namespace declaration found in line ${idx + 1}: $line")
         }
@@ -145,11 +140,11 @@ class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespa
                 data class TrackExtension(
                     @SerialName("DisplayColor") @XmlElement(true)
                     val displayColor: String? = null,
-                ): Extension()
+                ) : Extension()
 
                 @Serializable
                 @XmlSerialName("comment", "", "")
-                data class DefaultNsExtension(val data: String): Extension()
+                data class DefaultNsExtension(val data: String) : Extension()
             }
         }
     }

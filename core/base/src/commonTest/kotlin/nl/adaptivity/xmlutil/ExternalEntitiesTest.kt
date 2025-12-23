@@ -18,12 +18,15 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.test
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.xmlStreaming
@@ -37,11 +40,9 @@ class ExternalEntitiesTests() {
         @XmlElement(true) val text: String,
     )
 
-    val xml: XML = XML {
+    val xml: XML = XML1_0.recommended {
         setIndent(4)
-        defaultPolicy {
-            pedantic = false
-        }
+        policy { pedantic = false }
     }
 
     @Test

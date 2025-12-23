@@ -18,17 +18,17 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -42,12 +42,9 @@ class NamespaceCollectionWithCompactFragment315 {
     @BeforeTest
     fun initXml() {
 
-        baseXmlConfig = XML {
-            recommended_0_91_0 { pedantic = true }
-
+        baseXmlConfig = XML1_0.pedantic() {
             defaultToGenericParser = true // consistent output
-
-            indentString = " ".repeat(2)
+            setIndent(2)
             xmlVersion = XmlVersion.XML10
         }
     }

@@ -18,13 +18,16 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isXmlWhitespace
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlIgnoreWhitespace
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.test.multiplatform.Target
@@ -32,7 +35,7 @@ import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.*
 
 class ElementChildren237 {
-    private val xml get() = XML { recommended_0_91_0 { pedantic = true } }
+    private val xml get() = XML1_0.pedantic()
 
     @Test
     fun testDeserializedElement() {

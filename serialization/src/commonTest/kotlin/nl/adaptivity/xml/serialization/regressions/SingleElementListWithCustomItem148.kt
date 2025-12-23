@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
+
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization.regressions
 
@@ -29,7 +31,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -81,13 +85,24 @@ class SingleElementListWithCustomItem148 {
 
     @Test
     fun xml_list_test() {
-        val data = Wrapper(testAttr = 500, dataList = listOf( Inner("test1"), Inner("test2")))
+        xmlListTest(XML.compat { defaultPolicy { pedantic = true } })
+    }
 
-        val x = XML{ defaultPolicy { pedantic = true } }
-        val res = x.encodeToString(Wrapper.serializer(), data)
-        assertXmlEquals("<Wrapper testAttr=\"500\"><CustomInner test=\"test1\"/><CustomInner test=\"test2\"/></Wrapper>", res)
+    @Test
+    fun xml_list_test_1_0() {
+        xmlListTest(XML1_0.pedantic())
+    }
 
-        val des = x.decodeFromString<Wrapper>(res)
+    private fun xmlListTest(format: XML) {
+        val data = Wrapper(testAttr = 500, dataList = listOf(Inner("test1"), Inner("test2")))
+
+        val res = format.encodeToString(Wrapper.serializer(), data)
+        assertXmlEquals(
+            "<Wrapper testAttr=\"500\"><CustomInner test=\"test1\"/><CustomInner test=\"test2\"/></Wrapper>",
+            res
+        )
+
+        val des = format.decodeFromString<Wrapper>(res)
         println(des)
         assertEquals(data.dataList, des.dataList)
     }

@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("KDocUnresolvedReference")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xmlutil.serialization
 
@@ -31,6 +32,7 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
 import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
@@ -46,7 +48,7 @@ private val defaultXmlModule = getPlatformDefaultModule() + SerializersModule {
     contextual(QName::class, QNameSerializer)
 }
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "FunctionName")
 /**
  * Class that provides access to XML parsing and serialization for the Kotlin Serialization system. In most cases the
  * companion functions would be used. Creating an object explicitly however allows for the serialization to be configured.
@@ -189,7 +191,8 @@ public class XML(
      * @param target The [XmlWriter] to append the object to
      * @param prefix The prefix (if any) to use for the namespace
      */
-    public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, prefix: String?) {
+    @JvmOverloads
+    public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, prefix: String? = null) {
         encodeToWriter(target, serializer<T>(), value, prefix)
     }
 
@@ -288,6 +291,8 @@ public class XML(
             config.isCollectingNSAttributes -> {
                 val collectedNamespaces = collectNamespaces(xmlDescriptor, xmlEncoderBase, serializer, value)
                 val prefixMap = collectedNamespaces.associate { it.namespaceURI to it.prefix }
+
+                @Suppress("DEPRECATION")
                 val newConfig = XmlConfig(XmlConfig.CompatBuilder(config).apply {
                     policy = PrefixWrappingPolicy(policy ?: policyBuilder().build(), prefixMap)
                 })
@@ -767,8 +772,8 @@ public class XML(
     }
 
     @JvmOverloads
-    public fun xmlDescriptor(deserializer: KSerializer<*>, rootName: QName? = null): XmlDescriptor {
-        return useUnsafeCodecConfig { xmlDescriptor(it, deserializer.descriptor, rootName) }
+    public fun xmlDescriptor(serializer: KSerializer<*>, rootName: QName? = null): XmlDescriptor {
+        return useUnsafeCodecConfig { xmlDescriptor(it, serializer.descriptor, rootName) }
     }
 
     private fun xmlDescriptor(
@@ -781,27 +786,224 @@ public class XML(
         return XmlRootDescriptor(unsafeCodecConfig, serialDescriptor, nameInfo)
     }
 
+    public abstract class XmlCompanion: StringFormat {
+        override val serializersModule: SerializersModule = EmptySerializersModule()
+
+        public abstract val instance: XML
+
+        public abstract fun recommended(serializersModule: SerializersModule = EmptySerializersModule()): XML
+
+        public abstract fun fast(serializersModule: SerializersModule = EmptySerializersModule()): XML
+
+        @PublishedApi
+        internal fun <P: XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
+            return XmlConfig.CustomBuilder(policy = policy)
+        }
+
+        public inline fun <P: XmlSerializationPolicy> customPolicy(
+            policy: P,
+            serializersModule: SerializersModule = EmptySerializersModule(),
+            configure: XmlConfig.CustomBuilder<P>.() -> Unit
+        ): XML = XML(
+            XmlConfig(customBuilder(policy).apply<XmlConfig.CustomBuilder<P>>(configure)),
+            serializersModule
+        )
+
+        public inline fun <reified T> xmlDescriptor(rootName: QName? = null): XmlDescriptor =
+            xmlDescriptor(serializer<T>(), rootName)
+
+        public fun xmlDescriptor(serializer: SerializationStrategy<*>, rootName: QName? = null): XmlDescriptor =
+            instance.xmlDescriptor(serializer, rootName)
+
+        public fun xmlDescriptor(deserializer: DeserializationStrategy<*>, rootName: QName? = null): XmlDescriptor =
+            instance.xmlDescriptor(deserializer, rootName)
+
+        public fun xmlDescriptor(serializer: KSerializer<*>, rootName: QName? = null): XmlDescriptor =
+            instance.xmlDescriptor(serializer, rootName)
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [Serializable].
+         * @param value The object to transform
+         * @param serializer The serializer to user
+         */
+        final override fun <T> encodeToString(
+            serializer: SerializationStrategy<T>,
+            value: T,
+        ): String = encodeToString(serializer, value, null)
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [Serializable].
+         * @param value The object to transform
+         * @param serializer The serializer to user
+         * @param prefix The namespace prefix to use
+         */
+        public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, prefix: String?): String =
+            instance.encodeToString(serializer, value, prefix)
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [Serializable].
+         * @param value The object to transform
+         * @param serializer The serializer to user
+         * @param rootName The QName to use for the root tag
+         */
+        public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String =
+            instance.encodeToString(serializer, value, rootName)
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [Serializable].
+         * @param obj The object to transform
+         * @param prefix The namespace prefix to use
+         */
+        public inline fun <reified T : Any> encodeToString(obj: T, prefix: String? = null): String =
+            encodeToString(serializer<T>(), obj, prefix)
+
+        /**
+         * Transform the object into an XML string. This requires the object to be serializable by the kotlin
+         * serialization library (either it has a built-in serializer or it is [Serializable].
+         * @param obj The object to transform
+         * @param rootName The QName to use for the root tag
+         */
+        public inline fun <reified T : Any> encodeToString(obj: T, rootName: QName): String =
+            encodeToString(serializer<T>(), obj, rootName)
+
+        /**
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param value The actual object
+         * @param prefix The prefix (if any) to use for the namespace
+         */
+        public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, prefix: String? = null) {
+            encodeToWriter(target, serializer<T>(), value, prefix)
+        }
+
+        /**
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param value The actual object
+         * @param rootName The QName to use for the root tag
+         */
+        public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, rootName: QName) {
+            encodeToWriter(target, serializer<T>(), value, rootName)
+        }
+
+        /**
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param serializer The serializer to use
+         * @param value The actual object
+         * @param prefix The prefix (if any) to use for the namespace
+         */
+        public fun <T> encodeToWriter(
+            target: XmlWriter,
+            serializer: SerializationStrategy<T>,
+            value: T,
+            prefix: String? = null
+        ) {
+            instance.encodeToWriter(target, serializer, value, prefix)
+        }
+
+        /**
+         * Write the object to the given writer
+         *
+         * @param target The [XmlWriter] to append the object to
+         * @param serializer The serializer to use
+         * @param value The actual object
+         * @param rootName The QName to use for the root tag
+         */
+        public fun <T> encodeToWriter(
+            target: XmlWriter,
+            serializer: SerializationStrategy<T>,
+            value: T,
+            rootName: QName
+        ) {
+            @Suppress("DEPRECATION")
+            instance.encodeToWriter(target, serializer, value, rootName)
+        }
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param str The source of the XML events
+         * @param rootName The QName to use for the root tag
+         */
+        @JvmOverloads
+        public inline fun <reified T : Any> decodeFromString(str: String, rootName: QName? = null): T =
+            decodeFromString(serializer(), str, rootName)
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param deserializer The loader to use
+         * @param string The source of the XML events
+         */
+        override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+            return instance.decodeFromString(deserializer, string)
+        }
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param deserializer The loader to use
+         * @param rootName The QName to use for the root tag
+         * @param string The source of the XML events
+         */
+        public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String, rootName: QName?): T {
+            return instance.decodeFromString(deserializer, string, rootName)
+        }
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param reader The source of the XML events
+         * @param rootName The QName to use for the root tag
+         */
+        public inline fun <reified T : Any> decodeFromReader(reader: XmlReader, rootName: QName? = null): T =
+            decodeFromReader(serializer(), reader, rootName)
+
+        /**
+         * Parse an object of the type [T] out of the reader
+         * @param deserializer The loader to use (rather than the default)
+         * @param rootName The QName to use for the root tag
+         * @param reader The source of the XML events
+         */
+        @JvmOverloads
+        public fun <T : Any> decodeFromReader(
+            deserializer: DeserializationStrategy<T>,
+            reader: XmlReader,
+            rootName: QName? = null
+        ): T = instance.decodeFromReader(deserializer, reader, rootName)
+
+    }
 
     public companion object : StringFormat {
 
         @Suppress("DEPRECATION")
-        @Deprecated("Replace with defaultInstance_1_0")
-        public val defaultInstance: XML by lazy { XML { defaultPolicy { } } }
+        @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
+        public val compat: Compat get() = Compat
 
-        public val defaultInstance_1_0: XML by lazy { recommended_1_0() }
+        @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
+        public object Compat: XmlCompanion() {
+            override val instance: XML = compat { defaultPolicy { } }
 
-        public fun compat(
-            serializersModule: SerializersModule = EmptySerializersModule(),
-            configure: XmlConfig.CompatBuilder.() -> Unit = {}
-        ): XML {
-            @Suppress("DEPRECATION")
-            return XML(XmlConfig(XmlConfig.CompatBuilder().apply(configure)), serializersModule)
+            override fun recommended(serializersModule: SerializersModule): XML {
+                return compat(serializersModule) {
+                    setIndent(4)
+                    repairNamespaces = false
+                    xmlVersion = XmlVersion.XML11
+                    xmlDeclMode = XmlDeclMode.Minimal
+                    policy = compatPolicyBuilder().apply {
+                        setDefaults_0_91_0()
+                    }.build()
+                }
+            }
+
+            override fun fast(serializersModule: SerializersModule): XML {
+                return compat(serializersModule) { fast_0_91_1() }
+            }
         }
-
-        public inline fun recommended(
-            serializersModule: SerializersModule = EmptySerializersModule(),
-            configure: XmlConfig.DefaultBuilder.() -> Unit = {}
-        ): XML = recommended_1_0(serializersModule, configure)
 
         @PublishedApi
         internal fun recommended1_0Builder(): XmlConfig.DefaultBuilder =
@@ -827,41 +1029,48 @@ public class XML(
             serializersModule
         )
 
-        @PublishedApi
-        internal fun <P: XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
-            return XmlConfig.CustomBuilder(policy = policy)
+        @Suppress("DEPRECATION")
+        @Deprecated("Replace with compat instance", ReplaceWith("XML.compat.instance"))
+        public val defaultInstance: XML get() = Compat.instance
+
+        @Deprecated("Replace with XML1_0", ReplaceWith("XML1_0.instance"))
+        public val defaultInstance_1_0: XML1_0 get() = XML1_0
+
+        @Suppress("DEPRECATION")
+        @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
+        public fun compat(
+            serializersModule: SerializersModule = EmptySerializersModule(),
+            configure: XmlConfig.CompatBuilder.() -> Unit = {}
+        ): XML {
+            return XML(XmlConfig(XmlConfig.CompatBuilder().apply(configure)), serializersModule)
         }
 
-        public inline fun <P: XmlSerializationPolicy> customPolicy(
-            policy: P,
+        public inline fun recommended(
             serializersModule: SerializersModule = EmptySerializersModule(),
-            configure: XmlConfig.CustomBuilder<P>.() -> Unit
-        ): XML = XML(
-            XmlConfig(customBuilder(policy).apply<XmlConfig.CustomBuilder<P>>(configure)),
-            serializersModule
-        )
+            configure: XmlConfig.DefaultBuilder.() -> Unit = {}
+        ): XML = recommended_1_0(serializersModule, configure)
 
         @Suppress("DEPRECATION")
         @Deprecated("The format no longer has a default serializers module", ReplaceWith("EmptySerializersModule()"))
         override val serializersModule: SerializersModule
-            get() = defaultInstance.serializersModule
+            get() = compat.serializersModule
 
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.xmlDescriptor(serializer)"))
         public fun xmlDescriptor(serializer: SerializationStrategy<*>): XmlDescriptor {
             @Suppress("DEPRECATION")
-            return defaultInstance.xmlDescriptor(serializer)
+            return compat.xmlDescriptor(serializer)
         }
 
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.xmlDescriptor(deserializer)"))
         public fun xmlDescriptor(deserializer: DeserializationStrategy<*>): XmlDescriptor {
             @Suppress("DEPRECATION")
-            return defaultInstance.xmlDescriptor(deserializer)
+            return compat.xmlDescriptor(deserializer)
         }
 
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.xmlDescriptor(serializer)"))
         public fun xmlDescriptor(serializer: KSerializer<*>): XmlDescriptor {
             @Suppress("DEPRECATION")
-            return defaultInstance.xmlDescriptor(serializer)
+            return compat.xmlDescriptor(serializer)
         }
 
         /**
@@ -875,7 +1084,7 @@ public class XML(
         override fun <T> encodeToString(
             serializer: SerializationStrategy<T>,
             value: T
-        ): String = defaultInstance.encodeToString(serializer, value)
+        ): String = compat.encodeToString(serializer, value)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -885,9 +1094,12 @@ public class XML(
          * @param prefix The namespace prefix to use
          */
         @Suppress("DEPRECATION")
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToString(serializer, value, prefix)"))
-        public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, prefix: String): String =
-            defaultInstance.encodeToString(serializer, value, prefix)
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.encodeToString(serializer, value, prefix)")
+        )
+        public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, prefix: String?): String =
+            compat.encodeToString(serializer, value, prefix)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -897,9 +1109,12 @@ public class XML(
          * @param rootName The QName to use for the root tag
          */
         @Suppress("DEPRECATION")
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToString(serializer, value, rootName)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.encodeToString(serializer, value, rootName)")
+        )
         public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String =
-            defaultInstance.encodeToString(serializer, value, rootName)
+            compat.encodeToString(serializer, value, rootName)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -910,7 +1125,7 @@ public class XML(
         @Suppress("DEPRECATION")
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToString(obj, prefix)"))
         public inline fun <reified T : Any> encodeToString(obj: T, prefix: String? = null): String =
-            defaultInstance.encodeToString(serializer<T>(), obj, prefix)
+            encodeToString(serializer<T>(), obj, prefix)
 
         /**
          * Transform the object into an XML string. This requires the object to be serializable by the kotlin
@@ -930,10 +1145,13 @@ public class XML(
          * @param value The actual object
          * @param prefix The prefix (if any) to use for the namespace
          */
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToWriter(target, value, prefix)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.encodeToWriter(target, value, prefix)")
+        )
         public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, prefix: String? = null) {
             @Suppress("DEPRECATION")
-            defaultInstance.encodeToWriter(target, serializer<T>(), value, prefix)
+            encodeToWriter(target, serializer<T>(), value, prefix)
         }
 
         /**
@@ -943,10 +1161,13 @@ public class XML(
          * @param value The actual object
          * @param rootName The QName to use for the root tag
          */
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToWriter(target, value, rootName)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.encodeToWriter(target, value, rootName)")
+        )
         public inline fun <reified T : Any> encodeToWriter(target: XmlWriter, value: T, rootName: QName) {
             @Suppress("DEPRECATION")
-            defaultInstance.encodeToWriter(target, serializer<T>(), value, rootName)
+            encodeToWriter(target, serializer<T>(), value, rootName)
         }
 
         /**
@@ -957,7 +1178,10 @@ public class XML(
          * @param value The actual object
          * @param prefix The prefix (if any) to use for the namespace
          */
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToWriter(target, serializer, value, prefix)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.encodeToWriter(target, serializer, value, prefix)")
+        )
         public fun <T> encodeToWriter(
             target: XmlWriter,
             serializer: SerializationStrategy<T>,
@@ -965,7 +1189,7 @@ public class XML(
             prefix: String? = null
         ) {
             @Suppress("DEPRECATION")
-            defaultInstance.encodeToWriter(target, serializer, value, prefix)
+            compat.encodeToWriter(target, serializer, value, prefix)
         }
 
         /**
@@ -976,7 +1200,10 @@ public class XML(
          * @param value The actual object
          * @param rootName The QName to use for the root tag
          */
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.encodeToWriter(target, serializer, value, rootName)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.encodeToWriter(target, serializer, value, rootName)")
+        )
         public fun <T> encodeToWriter(
             target: XmlWriter,
             serializer: SerializationStrategy<T>,
@@ -984,7 +1211,7 @@ public class XML(
             rootName: QName
         ) {
             @Suppress("DEPRECATION")
-            defaultInstance.encodeToWriter(target, serializer, value, rootName)
+            compat.encodeToWriter(target, serializer, value, rootName)
         }
 
         /**
@@ -992,6 +1219,7 @@ public class XML(
          * @param str The source of the XML events
          * @param rootName The QName to use for the root tag
          */
+        @Suppress("DEPRECATION")
         @JvmOverloads
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.decodeFromString(str, rootName)"))
         public inline fun <reified T : Any> decodeFromString(str: String, rootName: QName? = null): T =
@@ -1005,7 +1233,7 @@ public class XML(
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.decodeFromString(deserializer, str)"))
         override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
             @Suppress("DEPRECATION")
-            return defaultInstance.decodeFromString(deserializer, string)
+            return compat.decodeFromString(deserializer, string)
         }
 
         /**
@@ -1014,10 +1242,13 @@ public class XML(
          * @param rootName The QName to use for the root tag
          * @param string The source of the XML events
          */
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.decodeFromString(deserializer, str, rootName)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.decodeFromString(deserializer, str, rootName)")
+        )
         public fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String, rootName: QName?): T {
             @Suppress("DEPRECATION")
-            return defaultInstance.decodeFromString(deserializer, string, rootName)
+            return compat.decodeFromString(deserializer, string, rootName)
         }
 
         /**
@@ -1029,7 +1260,7 @@ public class XML(
         @JvmOverloads
         @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.decodeFromString(reader, rootName)"))
         public inline fun <reified T : Any> decodeFromReader(reader: XmlReader, rootName: QName? = null): T =
-            defaultInstance.decodeFromReader(reader, rootName)
+            decodeFromReader(serializer(), reader, rootName)
 
         /**
          * Parse an object of the type [T] out of the reader
@@ -1039,12 +1270,15 @@ public class XML(
          */
         @Suppress("DEPRECATION")
         @JvmOverloads
-        @Deprecated("Use a versioned instance", ReplaceWith("defaultInstance_1_0.decodeFromString(deserializer, reader, rootName)"))
+        @Deprecated(
+            "Use a versioned instance",
+            ReplaceWith("defaultInstance_1_0.decodeFromString(deserializer, reader, rootName)")
+        )
         public fun <T : Any> decodeFromReader(
             deserializer: DeserializationStrategy<T>,
             reader: XmlReader,
             rootName: QName? = null
-        ): T = defaultInstance.decodeFromReader(deserializer, reader, rootName)
+        ): T = compat.decodeFromReader(deserializer, reader, rootName)
 
     }
 
@@ -1232,3 +1466,57 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
 
 @RequiresOptIn("This function will become private in the future", RequiresOptIn.Level.WARNING)
 public annotation class WillBePrivate
+
+/**
+ * Shortcut to the default 1.0 instance
+ */
+public object XML1_0: XML.XmlCompanion() {
+
+    override val instance: XML = XML.recommended_1_0()
+
+    public val compactInstance: XML = compact()
+
+    public val defaultInstance1_0: XML1_0 get() = XML1_0
+
+    override val serializersModule: SerializersModule = EmptySerializersModule()
+
+    public fun compact(serializersModule: SerializersModule = EmptySerializersModule()): XML {
+        return recommended(serializersModule) {
+            setIndent(0)
+            xmlDeclMode = XmlDeclMode.None
+        }
+    }
+
+    override fun recommended(serializersModule: SerializersModule): XML {
+        return recommended(serializersModule) {}
+    }
+
+    @PublishedApi
+    internal fun recommendedBuilder(): XmlConfig.DefaultBuilder =
+        XmlConfig.DefaultBuilder().apply { recommended_1_0_0() }
+
+    public inline fun recommended(
+        serializersModule: SerializersModule = EmptySerializersModule(),
+        configure: XmlConfig.DefaultBuilder.() -> Unit = {}
+    ): XML = XML(
+        XmlConfig(recommendedBuilder().apply(configure)),
+        serializersModule
+    )
+
+    @PublishedApi
+    internal fun fastBuilder(): XmlConfig.DefaultBuilder =
+        XmlConfig.DefaultBuilder().apply { fast_1_0_0() }
+
+    override fun fast(serializersModule: SerializersModule): XML {
+        return fast(serializersModule) { }
+    }
+
+    public inline fun fast(
+        serializersModule: SerializersModule = EmptySerializersModule(),
+        configure: XmlConfig.DefaultBuilder.() -> Unit = {}
+    ): XML = XML(
+        XmlConfig(fastBuilder().apply(configure)),
+        serializersModule
+    )
+
+}

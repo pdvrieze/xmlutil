@@ -125,7 +125,7 @@ To serialize a very simple type you have the following:
 @Serializable
 data class HelloWorld(val user: String)
 
-println(XML.encodeToString(HelloWorld("You!")))
+println(XML.defaultInstance_1_0.encodeToString(HelloWorld("You!")))
 ```
 
 To deserialize you would do:
@@ -133,7 +133,7 @@ To deserialize you would do:
 @Serializable
 data class HelloWorld(val user: String)
 
-XML.decodeFromString(HelloWorld.serializer(), "<HelloWorld user='You!' />")
+XML.defaultInstance_1_0.decodeFromString(HelloWorld.serializer(), "<HelloWorld user='You!' />")
 ```
 
 Please look at the examples and the documentation for further features

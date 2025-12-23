@@ -19,6 +19,7 @@
  */
 
 @file:Suppress("UnusedVariable", "unused")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization.regressions
 
@@ -30,9 +31,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.serialization.DefaultFormatCache
 import nl.adaptivity.xmlutil.serialization.OutputKind
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
@@ -46,7 +48,7 @@ class TestCachedDescriptorCache {
 
     @Test
     fun testParameterisedSerializerCache() {
-        val format = XML { defaultPolicy { pedantic = true } }
+        val format = XML1_0.pedantic()
 
         val serialized1 = format.encodeToString(Outer(Inner1(1, 2)))
         assertXmlEquals("<Outer><Inner1 data1=\"1\" data2=\"2\"/></Outer>", serialized1)
@@ -57,9 +59,8 @@ class TestCachedDescriptorCache {
 
     @Test
     fun testCacheXmlValues() {
-        val format = XML(listModule) {
-            recommended_0_91_0 {
-                autoPolymorphic = true
+        val format = XML1_0.recommended(listModule) {
+            policy {
                 formatCache = DefaultFormatCache() // skip the layering for debugging
             }
         }

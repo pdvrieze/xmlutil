@@ -18,14 +18,17 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.qname
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -37,11 +40,8 @@ import kotlin.test.assertContentEquals
  */
 class ListOfNullableEntriesWithNilAttr {
 
-    val format = XML {
-        recommended_0_91_0 { pedantic = true }
-
+    val format = XML1_0.pedantic {
         nilAttribute = qname("http://www.w3.org/2001/XMLSchema-instance", "nil", "xsi") to "true"
-
     }
 
     val expected = "<Root><ExpiryDateTimeArray><ExpiryDateTime xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></ExpiryDateTimeArray></Root>"

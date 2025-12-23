@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.xmlutil.serialization.kxio
 
 import kotlinx.io.Sink
@@ -34,8 +36,28 @@ import nl.adaptivity.xmlutil.core.kxio.newWriter
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.xmlStreaming
 
+public inline fun <reified T> XML.XmlCompanion.encodeToSink(sink: Sink, value: T, prefix: String? = null) {
+    return encodeToSink(sink, serializer<T>(), value, prefix)
+}
+
+public inline fun <reified T> XML.XmlCompanion.encodeToSink(sink: Sink, value: T, rootName: QName) {
+    return encodeToSink(sink, serializer<T>(), value, rootName)
+}
+
+public fun <T> XML.XmlCompanion.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, prefix: String? = null) {
+    return instance.encodeToSink(sink, serializer, value, prefix)
+}
+
+public fun <T> XML.XmlCompanion.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, rootName: QName) {
+    return instance.encodeToSink(sink, serializer, value, rootName)
+}
+
 public inline fun <reified T> XML.encodeToSink(sink: Sink, value: T, prefix: String? = null) {
     return encodeToSink(sink, serializer<T>(), value, prefix)
+}
+
+public inline fun <reified T> XML.encodeToSink(sink: Sink, value: T, rootName: QName) {
+    return encodeToSink(sink, serializer<T>(), value, rootName)
 }
 
 public fun <T> XML.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, prefix: String? = null) {
@@ -47,11 +69,7 @@ public fun <T> XML.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>
     }
 }
 
-public inline fun <reified T> XML.encodeToSink(sink: Sink, value: T, rootName: QName?) {
-    return encodeToSink(sink, serializer<T>(), value, rootName)
-}
-
-public fun <T> XML.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, rootName: QName?) {
+public fun <T> XML.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, rootName: QName) {
     when {
         config.defaultToGenericParser -> xmlStreaming.newGenericWriter(sink)
         else -> xmlStreaming.newWriter(sink)
@@ -59,6 +77,12 @@ public fun <T> XML.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>
         encodeToWriter(target, serializer, value, rootName)
     }
 }
+
+public inline fun <reified T> XML.XmlCompanion.decodeFromSource(source: Source, rootName: QName? = null): T =
+    instance.decodeFromSource(source, rootName)
+
+public fun <T> XML.XmlCompanion.decodeFromSource(serializer: DeserializationStrategy<T>, source: Source, rootName: QName? = null): T =
+    instance.decodeFromSource(serializer, source, rootName)
 
 /**
  * Parse an object of the type [T] out of the reader. This function is intended mostly to be used indirectly where
@@ -82,6 +106,18 @@ public inline fun <reified T> XML.decodeFromSource(source: Source, rootName: QNa
 public fun <T> XML.decodeFromSource(serializer: DeserializationStrategy<T>, source: Source, rootName: QName? = null): T {
     return decodeFromReader(serializer, xmlStreaming.newReader(source), rootName)
 }
+
+public inline fun <reified T> XML.XmlCompanion.decodeToSequenceFromSource(source: Source, wrapperName: QName?, elementName: QName? = null): Sequence<T> =
+    instance.decodeToSequenceFromSource(source, wrapperName, elementName)
+
+public fun <T> XML.XmlCompanion.decodeToSequenceFromSource(deserializer: DeserializationStrategy<T>, source: Source, wrapperName: QName?, elementName: QName? = null): Sequence<T> =
+    instance.decodeToSequenceFromSource(deserializer, source, wrapperName, elementName)
+
+public inline fun <reified T> XML.XmlCompanion.decodeWrappedToSequenceFromSource(source: Source, elementName: QName? = null): Sequence<T> =
+    instance.decodeWrappedToSequenceFromSource(source, elementName)
+
+public fun <T> XML.XmlCompanion.decodeWrappedToSequenceFromSource(deserializer: DeserializationStrategy<T>, source: Source, elementName: QName?): Sequence<T> =
+    instance.decodeWrappedToSequenceFromSource(deserializer, source, elementName)
 
 /**
  * Decode the sequence of elements of type `T` incrementally. The elements are required to not

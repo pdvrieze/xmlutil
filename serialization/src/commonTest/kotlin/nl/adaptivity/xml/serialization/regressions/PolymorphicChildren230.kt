@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
@@ -28,7 +30,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlConfig.Companion.IGNORING_UNKNOWN_CHILD_HANDLER
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -82,11 +84,10 @@ class PolymorphicChildren230 {
         }
     }
 
-    val xml = XML(serializersModule = baseModule) {
-        fast {
+    val xml = XML1_0.fast(serializersModule = baseModule) {
+        policy {
             unknownChildHandler = IGNORING_UNKNOWN_CHILD_HANDLER
         }
-        isUnchecked = true
     }
 
     @Test

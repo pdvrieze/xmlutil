@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
@@ -55,7 +57,7 @@ class NodeContainerTest {
 
             ),
             NodeContainer.serializer(),
-            baseXmlFormat = XML { recommended_0_86_3() }
+            baseXmlFormat = XML.compat { recommended_0_86_3() }
         ) {
 
             override val expectedXML: String = "<c><a>Foo</a>Bar<b attr='zzz'><c>buzz</c></b></c>"

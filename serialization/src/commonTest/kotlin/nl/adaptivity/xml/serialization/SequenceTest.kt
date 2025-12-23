@@ -18,12 +18,16 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.*
 
@@ -34,7 +38,7 @@ class SequenceTest {
         SimpleList("7", "8", "9"),
     )
 
-    fun getFormat() = XML { recommended_0_91_0() }
+    fun getFormat() = XML1_0.recommended()
 
     val expectedXML: String = "<w>  " +
             "<l2><value>1</value>\n<value>2</value><value>3</value></l2>" +
@@ -192,30 +196,28 @@ class SequenceTest {
         assertFalse(it.hasNext(), "Expected end of sequence")
     }
 
-    /*
-        @Test
-        fun testUnwrappedListSerialization() {
-            val data = listOf(
-                SimpleList("1"),
-                SimpleList("2"),
-                SimpleList("3"),
-            )
-            val expectedXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
-            val serializedXml = XML.encodeToString(data)
-            assertEquals(expectedXml, serializedXml)
-        }
+    @Test
+    fun testUnwrappedListSerialization() {
+        val data = listOf(
+            SimpleList("1"),
+            SimpleList("2"),
+            SimpleList("3"),
+        )
+        val expectedXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
+        val serializedXml = XML1_0.compactInstance.encodeToString(data)
+        assertEquals(expectedXml, serializedXml)
+    }
 
-        @Test
-        fun testUnwrappedListDeserialization() {
-            val expectedData = listOf(
-                SimpleList("1"),
-                SimpleList("2"),
-                SimpleList("3"),
-            )
-            val serialXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
-            val decodedData = XML.decodeFromString<List<SimpleList>>(serialXml)
-            assertEquals(expectedData, decodedData)
-        }
-    */
+    @Test
+    fun testUnwrappedListDeserialization() {
+        val expectedData = listOf(
+            SimpleList("1"),
+            SimpleList("2"),
+            SimpleList("3"),
+        )
+        val serialXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
+        val decodedData = XML1_0.compactInstance.decodeFromString<List<SimpleList>>(serialXml)
+        assertEquals(expectedData, decodedData)
+    }
 
 }

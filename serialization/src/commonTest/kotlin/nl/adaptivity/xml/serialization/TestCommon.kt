@@ -19,6 +19,7 @@
  */
 
 @file:OptIn(ExperimentalSerializationApi::class)
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization
 
@@ -36,10 +37,7 @@ import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.impl.createDocument
@@ -72,10 +70,10 @@ class TestCommon {
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
-        val format = XML {
+        val format = XML1_0.recommended {
             xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Charset
-            indentString = "    "
+            setIndent(4)
         }
 
         val serializedModel = format.encodeToString(SampleModel1.serializer(), model).normalizeXml().replace('\'', '"')
@@ -97,7 +95,7 @@ class TestCommon {
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
-        val format = XML {
+        val format = XML1_0.recommended {
             xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Minimal
             indentString = "<!--i-->"
@@ -113,9 +111,7 @@ class TestCommon {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
-        val xml = XML(Tag.module) {
-            defaultPolicy { autoPolymorphic = true }
-        }
+        val xml = XML1_0.recommended(Tag.module)
         val deserialized = xml.decodeFromString(Tag.serializer(), contentText)
 
         assertEquals(expectedObj, deserialized)
@@ -140,9 +136,9 @@ class TestCommon {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
-        val xml = XML(Tag.module) {
-            indentString = ""
-            defaultPolicy { autoPolymorphic = true }
+        val xml = XML1_0.recommended(Tag.module) {
+            setIndent(0)
+            xmlDeclMode = XmlDeclMode.None
         }
 
         val serialized = xml.encodeToString(Tag.serializer(), expectedObj)
@@ -152,10 +148,9 @@ class TestCommon {
 
     @Test
     fun deserializeXmlWithEntity() {
-        val xml = XML {
+        val xml = XML1_0.recommended {
             repairNamespaces = true
-            defaultPolicy {
-                pedantic = false
+            policy {
                 autoPolymorphic = false
             }
         }
@@ -174,10 +169,9 @@ class TestCommon {
     fun deserializeToElementXmlWithEntity() {
         if (testTarget == Target.Node) return
 
-        val xml = XML {
+        val xml = XML1_0.recommended {
             repairNamespaces = true
-            defaultPolicy {
-                pedantic = false
+            policy {
                 autoPolymorphic = false
             }
         }
@@ -204,18 +198,37 @@ class TestCommon {
 
     @Test
     fun serialize_issue121() {
+        serialize_issue121(XML.compat.instance)
+    }
+
+    @Test
+    fun serialize_issue121_1_0() {
+        serialize_issue121(XML1_0.recommended { xmlDeclMode = XmlDeclMode.None })
+    }
+
+    private fun serialize_issue121(format: XML) {
         val data = StringHolder("\u26a0\ufe0f")
         val expected = "<StringHolder>⚠️</StringHolder>"
-        assertEquals(expected, XML.encodeToString(data))
+        assertEquals(expected, format.encodeToString(data))
     }
 
     @Test
     fun serializeIndependent_issue121() {
+        @Suppress("DEPRECATION")
+        serializeIndependent_issue121(XML.compat.instance)
+    }
+
+    @Test
+    fun serializeIndependent_issue121_1_0() {
+        serializeIndependent_issue121(XML1_0.compactInstance)
+    }
+
+    private fun serializeIndependent_issue121(format: XML) {
         val data = StringHolder("⚠️"/*"\u26a0\ufe0f"*/)
         val expected = "<StringHolder>⚠️</StringHolder>"
         val actual = StringWriter().also { sw ->
             KtXmlWriter(sw, xmlDeclMode = XmlDeclMode.None).use { out ->
-                XML.encodeToWriter(out, data)
+                format.encodeToWriter(out, data)
             }
         }.toString()
         assertEquals(expected, actual)
@@ -223,18 +236,38 @@ class TestCommon {
 
     @Test
     fun serializeEmoji() {
+        @Suppress("DEPRECATION")
+        serializeEmoji(XML.compat.instance)
+    }
+
+    @Test
+    fun serializeEmoji_1_0() {
+        serializeEmoji(XML1_0.compactInstance)
+    }
+
+    private fun serializeEmoji(format: XML) {
         val data = StringHolder("\uD83D\uDE0A")
         val expected = "<StringHolder>😊</StringHolder>"
-        assertEquals(expected, XML.encodeToString(data))
+        assertEquals(expected, format.encodeToString(data))
     }
 
     @Test
     fun serializeEmojiIndependent() {
+        @Suppress("DEPRECATION")
+        serializeEmojiIndependent(XML.compat.instance)
+    }
+
+    @Test
+    fun serializeEmojiIndependent1_0() {
+        serializeEmojiIndependent(XML1_0.compactInstance)
+    }
+
+    private fun serializeEmojiIndependent(format: XML) {
         val data = StringHolder("\uD83D\uDE0A")
         val expected = "<StringHolder>😊</StringHolder>"
         val actual = StringWriter().also { sw ->
             KtXmlWriter(sw, xmlDeclMode = XmlDeclMode.None).use { out ->
-                XML.encodeToWriter(out, data)
+                format.encodeToWriter(out, data)
             }
         }.toString()
         assertEquals(expected, actual)
@@ -244,26 +277,26 @@ class TestCommon {
     fun serializeRawEmoji() {
         val data = StringHolder("😊")
         val expected = "<StringHolder>😊</StringHolder>"
-        assertEquals(expected, XML.encodeToString(data))
+        assertEquals(expected, XML1_0.compactInstance.encodeToString(data))
     }
 
     @Test
     fun deserializeEmoji() {
         val xml = "<StringHolder>😊</StringHolder>"
-        val deserialized = XML.decodeFromString<StringHolder>(xml)
+        val deserialized = XML1_0.decodeFromString<StringHolder>(xml)
         assertEquals("\uD83D\uDE0A", deserialized.value)
     }
 
     @Test
     fun deserializeEmojiEntity() {
         val xml = "<StringHolder>&#x1F60A;</StringHolder>"
-        val deserialized = XML.decodeFromString<StringHolder>(xml)
+        val deserialized = XML1_0.decodeFromString<StringHolder>(xml)
         assertEquals("😊", deserialized.value)
     }
 
     @Test
     fun serializeXmlWithEntity() {
-        val xml = XML {
+        val xml = XML.compat {
             repairNamespaces = true
             defaultPolicy {
                 pedantic = false
@@ -364,7 +397,7 @@ class TestCommon {
 
     @Test
     fun testSerializeObject() {
-        val xml  = XML { recommended_0_91_0() }
+        val xml  = XML1_0.recommended()
         val data = Container(MyObjectInCommon)
         val expected = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
         assertXmlEquals(expected, xml.encodeToString(data))
@@ -372,7 +405,7 @@ class TestCommon {
 
     @Test
     fun testDeserializeObject() {
-        val xml  = XML { recommended_0_91_0() }
+        val xml  = XML1_0.recommended()
         val expected = Container(MyObjectInCommon)
         val data = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
         assertEquals(expected, xml.decodeFromString<Container>(data))

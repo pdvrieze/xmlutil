@@ -14,18 +14,21 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.serializer
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xml.serialization.regressions.soap.Envelope
 import nl.adaptivity.xml.serialization.regressions.soap.Fault
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.*
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -46,7 +49,7 @@ class TestSoapHelper {
 
     @Test
     fun testRoundtripSoapResponse() {
-        val xml = XML { defaultPolicy { pedantic = true; autoPolymorphic = true }; setIndent(2) }
+        val xml = XML1_0.pedantic { setIndent(2) }
         val serializer = serializer<Envelope<CompactFragment>>()
         val env: Envelope<CompactFragment> = xml.decodeFromString(serializer, SOAP_RESPONSE1)
         assertXmlEquals(SOAP_RESPONSE1_BODY, env.body.child.contentString.trim())
@@ -57,7 +60,7 @@ class TestSoapHelper {
 
     @Test
     fun testRoundtripSoapResponse2() {
-        val xml = XML { defaultPolicy { pedantic = true; autoPolymorphic = true }; setIndent(2) }
+        val xml = XML1_0.pedantic { setIndent(2) }
         val env: Envelope<CompactFragment> = Envelope.deserialize(xmlStreaming.newReader(SOAP_RESPONSE2))
         val sw = StringWriter()
         xmlStreaming.newWriter(sw).use { out ->
@@ -120,7 +123,7 @@ class TestSoapHelper {
     fun testResponse3_234() {
         if (testTarget == Target.Node) return
 
-        val xml = XML { recommended_0_91_0 { pedantic = true } }
+        val xml = XML1_0.pedantic()
         val soap = xml.decodeFromString<Envelope<Fault>>(SOAP_RESPONSE3)
         val fault = soap.body.child
         assertNull(fault.role)

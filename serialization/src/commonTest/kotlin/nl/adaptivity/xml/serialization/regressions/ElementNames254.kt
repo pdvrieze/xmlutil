@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
@@ -25,9 +27,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -40,10 +44,7 @@ class ElementNames254 {
 
     @BeforeTest
     fun setup() {
-        xml = XML {
-            recommended_0_91_0 { pedantic = true }
-            setIndent(4)
-        }
+        xml = XML1_0.pedantic()
     }
 
     @Serializable

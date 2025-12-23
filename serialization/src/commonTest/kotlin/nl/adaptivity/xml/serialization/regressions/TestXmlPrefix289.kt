@@ -18,18 +18,21 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.UnknownXmlFieldException
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -40,7 +43,7 @@ class TestXmlPrefix289 {
 
     @Test
     fun textNamespaceInDesc() {
-        val desc = XML{ recommended_0_91_0 { pedantic = true } }.xmlDescriptor(SerializableWithLang.serializer())
+        val desc = XML1_0.pedantic().xmlDescriptor(SerializableWithLang.serializer())
         val tag = desc.getElementDescriptor(0)
         assertEquals("SerializableWithLang", tag.tagName.localPart)
 
@@ -52,7 +55,7 @@ class TestXmlPrefix289 {
 
     @Test
     fun textNamespaceInDescPedantic() {
-        val xml = XML { recommended_0_91_0 { pedantic = true }}
+        val xml = XML1_0.pedantic()
         val desc = xml.xmlDescriptor(SerializableWithLang.serializer())
         val tag = desc.getElementDescriptor(0)
         assertEquals("SerializableWithLang", tag.tagName.localPart)
@@ -68,7 +71,7 @@ class TestXmlPrefix289 {
         val data = SerializableWithLang("en")
         val expected = "<SerializableWithLang xml:lang=\"en\"/>"
 
-        val actual = XML { recommended { pedantic = true } }.encodeToString( data)
+        val actual = XML1_0.pedantic().encodeToString( data)
         assertXmlEquals(expected, actual)
     }
 
@@ -77,7 +80,7 @@ class TestXmlPrefix289 {
         val expected = SerializableWithLang("en")
         val data = "<SerializableWithLang xml:lang=\"en\"/>"
 
-        val actual = XML { recommended { pedantic = true } }.decodeFromString<SerializableWithLang>( data)
+        val actual = XML1_0.pedantic().decodeFromString<SerializableWithLang>( data)
         assertEquals(expected, actual)
     }
 
@@ -85,7 +88,7 @@ class TestXmlPrefix289 {
     fun testDeserializeUnprefixed() {
         val data = "<SerializableWithLang lang=\"en\"/>"
 
-        val xml = XML { recommended { pedantic = true } }
+        val xml = XML1_0.pedantic()
         val e = assertFailsWith<UnknownXmlFieldException> {
             xml.decodeFromString<SerializableWithLang>( data)
         }

@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
@@ -27,6 +29,7 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -40,12 +43,11 @@ class SimpleResolver(internal val xml: XML, private val baseURI: URI, val isNetw
                 this(xml, baseUrl.toURI(), isNetworkResolvingAllowed)
 
     constructor(baseURI: URI, isNetworkResolvingAllowed: Boolean = false) : this(
-        XML {
-            defaultPolicy {
+        XML1_0.recommended {
+            policy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true
                 verifyElementOrder = true
-                isStrictAttributeNames = true
             }
         },
         baseURI,

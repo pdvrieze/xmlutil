@@ -23,6 +23,7 @@
 
 
 @file:Suppress("AssignedValueIsNeverRead")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization.regressions.soap
 
@@ -42,7 +43,7 @@ import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -154,7 +155,7 @@ class Envelope<out T : Any>(
 
         @JvmStatic
         fun deserialize(reader: XmlReader): Envelope<CompactFragment> {
-            return XML { setIndent(2); defaultPolicy { autoPolymorphic = true } }.decodeFromReader(
+            return XML1_0.recommended { setIndent(2) }.decodeFromReader(
                 serializer(CompactFragmentSerializer),
                 reader
             )

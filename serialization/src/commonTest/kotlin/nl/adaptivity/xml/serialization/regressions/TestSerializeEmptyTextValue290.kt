@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.SerialName
@@ -35,7 +37,7 @@ import kotlin.test.assertEquals
  */
 class TestSerializeEmptyTextValue290 {
 
-    val xml = XML {
+    val xml = XML.compat {
         recommended {
             pedantic = true
         }

@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.serialization.examples.soap
 
 import kotlinx.serialization.encodeToString
@@ -25,7 +27,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.XmlDeclMode
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import kotlin.reflect.KClass
 
 /**
@@ -41,10 +43,9 @@ fun main() {
             subclass(GeResult::class as KClass<GeResult<GeResultData>>, serializer())
         }
     }
-    val xml = XML(module) {
-        recommended_0_91_0()
+    val xml = XML1_0.recommended(module) {
         xmlDeclMode = XmlDeclMode.Minimal
-        indentString = "    "
+        setIndent(4)
     }
 
     val serializer = serializer<Envelope<GeResult<GeResultData>>>()

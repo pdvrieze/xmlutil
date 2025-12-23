@@ -18,18 +18,18 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.textContent
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
@@ -40,14 +40,12 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 class AndroidStrings225 {
 
     val xml: XML
-        get() = XML(
+        get() = XML1_0.pedantic(
             SerializersModule {
                 polymorphic(Any::class, String::class, String.serializer())
                 polymorphic(Any::class, Element::class, Element.serializer())
             }
-        ) {
-            recommended_0_91_0 { pedantic = true }
-        }
+        )
 
     @Test
     fun testDecodeAny() {

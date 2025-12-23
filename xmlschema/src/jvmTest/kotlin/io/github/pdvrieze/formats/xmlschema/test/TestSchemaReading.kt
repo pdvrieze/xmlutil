@@ -18,11 +18,13 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.newGenericReader
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -31,8 +33,8 @@ class TestSchemaReading {
 
     @Test
     fun testDeserializeDatatypes() {
-        val deserialized = javaClass.classLoader.getResourceAsStream("datatypes.xsd").use { inStream ->
-            XML { autoPolymorphic = true }
+        val deserialized = javaClass.classLoader.getResourceAsStream("datatypes.xsd")!!.use { inStream ->
+            XML1_0.recommended()
                 .decodeFromReader(XSSchema.serializer(), xmlStreaming.newGenericReader(inStream, "UTF-8"))
         }
         assertNotNull(deserialized)

@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -481,6 +483,7 @@ private constructor(
          * Configure the format using the recommended configuration as of version 0.87.0. This configuration is stable.
          */
         @Suppress("FunctionName")
+        @Deprecated("Use the new 1_0 accessors instead, it is equivalent")
         public fun recommended_0_91_0() {
             recommended_0_91_0 { }
         }
@@ -491,6 +494,7 @@ private constructor(
          * required for XML 1.1 (otherwise it reverts to 1.0).
          */
         @Suppress("FunctionName")
+        @Deprecated("Use the new 1_0 accessors instead, it is equivalent")
         public inline fun recommended_0_91_0(configurePolicy: DefaultXmlSerializationPolicy.BuilderCompat.() -> Unit) {
             setIndent(4)
             repairNamespaces = false
@@ -683,9 +687,8 @@ private constructor(
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
             xmlDeclMode = XmlDeclMode.Minimal
-            repairNamespaces = false
             setIndent(4)
-            defaultPolicy {
+            policy {
                 autoPolymorphic = true
                 pedantic = false
                 typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
@@ -700,16 +703,7 @@ private constructor(
             }
         }
 
-        /**
-         * This function allows configuring the policy based on the default (or already set
-         * configuration). When the policy set is (derived from) `DefaultXmlSerializationPolicy`,
-         * this is effectively equivalent to getting access to its builder to update the settings.
-         *
-         * If the already set policy does not inherit `DefaultXmlSerializationPolicy` this will
-         * set the policy to a new default policy with default configuration (inheriting only the
-         * properties defined on `XmlSerializationPolicy`).
-         */
-        @OptIn(ExperimentalXmlUtilApi::class)
+        @Deprecated("Use policy instead", ReplaceWith("policy(configure)"))
         public inline fun defaultPolicy(configure: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
             policy = policyBuilder().apply(configure).build()
         }
@@ -720,6 +714,16 @@ private constructor(
             return DefaultXmlSerializationPolicy.Builder10(policy)
         }
 
+        /**
+         * This function allows configuring the policy based on the default (or already set
+         * configuration). When the policy set is (derived from) `DefaultXmlSerializationPolicy`,
+         * this is effectively equivalent to getting access to its builder to update the settings.
+         *
+         * If the already set policy does not inherit `DefaultXmlSerializationPolicy` this will
+         * set the policy to a new default policy with default configuration (inheriting only the
+         * properties defined on `XmlSerializationPolicy`).
+         */
+        @OptIn(ExperimentalXmlUtilApi::class)
         public inline fun policy(configure: DefaultXmlSerializationPolicy.Builder10.() -> Unit) {
             policy = policyBuilder().apply(configure).build()
         }

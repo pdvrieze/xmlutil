@@ -33,7 +33,7 @@ plugins {
 
 config {
     generateJavaModules = false
-    kotlinApiVersion = KotlinVersion.KOTLIN_2_2
+    kotlinApiVersion = KotlinVersion.DEFAULT
 }
 
 kotlin {

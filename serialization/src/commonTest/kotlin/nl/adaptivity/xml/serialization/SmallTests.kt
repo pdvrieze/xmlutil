@@ -55,7 +55,7 @@ class SmallTests {
                    |    <comment>$TESTCOMMENT</comment>
                    |</registry>""".trimMargin("|")
 
-            val xml: XML = XML {
+            val xml: XML = XML1_0.recommended {
                 setIndent(4)
                 xmlDeclMode = XmlDeclMode.Charset
                 xmlVersion = XmlVersion.XML10
@@ -91,7 +91,7 @@ class SmallTests {
     @Test
     fun test1DeserializationErrorMessage() {
         val e = assertFails {
-            XML.decodeFromString<Test1>(Test1.TESTDATA)
+            XML1_0.decodeFromString<Test1>(Test1.TESTDATA)
         }
         assertContains(e.message ?: fail("Missing message"), "candidates: comment (Attribute)")
     }
@@ -109,7 +109,7 @@ class SmallTests {
     fun testDetectDuplicateElements() {
         val xml = """<Container><registry comment="value" /><registry comment="value2" /></Container>"""
         val t = assertFailsWith<XmlSerialException> {
-            val decoded = XML { recommended() }.decodeFromString<Container>(xml)
+            val decoded = XML.compat.recommended().decodeFromString<Container>(xml)
             assertEquals(Test1("value"), decoded.inner)
         }
         assertContains(t.message ?: "", "duplicate child", true)

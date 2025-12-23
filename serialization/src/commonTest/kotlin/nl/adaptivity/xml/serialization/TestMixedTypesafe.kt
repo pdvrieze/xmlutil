@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-@file:Suppress("EXPERIMENTAL_API_USAGE")
+@file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization
 
@@ -31,7 +31,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.serialutil.MixedContent
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -51,7 +51,7 @@ class TestMixedTypesafe {
                 elem(TypedMixed.G())
             })
         }
-        val xml = XML(TypedMixed.module) { defaultPolicy { autoPolymorphic = true } }
+        val xml = XML1_0.compact(TypedMixed.module)
         val actual = xml.encodeToString(TypedMixed.serializer(), data).replace(" />", "/>")
         assertEquals(expected, actual)
     }
@@ -69,7 +69,7 @@ class TestMixedTypesafe {
                 elem(TypedMixed.G())
             })
         }
-        val xml = XML(TypedMixed.module) { defaultPolicy { autoPolymorphic = true } }
+        val xml = XML1_0.recommended(TypedMixed.module)
         val actual = xml.decodeFromString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
@@ -129,7 +129,7 @@ class TestMixedTypesafe {
             text("b")
         }
         val expectedXml = "<mixed>a<e> </e>b</mixed>"
-        val xml = XML(TypedMixed.module) { defaultPolicy { autoPolymorphic = true } }
+        val xml = XML1_0.recommended(TypedMixed.module)
         assertXmlEquals(expectedXml, xml.encodeToString(TypedMixed.serializer(), data))
 
         assertEquals(data, xml.decodeFromString(TypedMixed.serializer(), expectedXml))
@@ -145,8 +145,8 @@ internal class TypedMixed(
     @XmlValue(true)
     override val data: List<MixedContent<TypedMixedContent>>
 ) : TypeMixedBase<TypedMixedContent>() {
-    constructor(config: TypeMixedBase.Builder<TypedMixedContent>.() -> Unit)
-            : this(TypeMixedBase.Builder<TypedMixedContent>().apply(config).toList())
+    constructor(config: Builder<TypedMixedContent>.() -> Unit)
+            : this(Builder<TypedMixedContent>().apply(config).toList())
 
     @Serializable
     @SerialName("b")
@@ -161,8 +161,8 @@ internal class TypedMixed(
     class E(@XmlValue(true) override val data: List<MixedContent<EContent>>) :
         TypeMixedBase<EContent>(), TypedMixedContent {
 
-        constructor(config: TypeMixedBase.Builder<EContent>.() -> Unit)
-                : this(TypeMixedBase.Builder<EContent>().apply(config).toList())
+        constructor(config: Builder<EContent>.() -> Unit)
+                : this(Builder<EContent>().apply(config).toList())
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -218,11 +218,11 @@ internal class TypedMixed(
 }
 
 @Serializable
-abstract class TypeMixedBase<T>() {
+abstract class TypeMixedBase<T> {
     //    constructor(config: Builder.()->Unit): this(Builder().a)
     abstract val data: List<MixedContent<T>>
 
-    open class Builder<T>() {
+    open class Builder<T> {
         private val content = mutableListOf<MixedContent<T>>()
         fun toList(): List<MixedContent<T>> {
             return content

@@ -18,6 +18,7 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
 @file:OptIn(ExperimentalXmlUtilApi::class, ExperimentalSerializationApi::class)
 
 package nl.adaptivity.xml.serialization
@@ -88,11 +89,10 @@ private fun assertStartElementEquals(
 }
 
 internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerializersModule()) =
-    XML(serializersModule) {
-        recommended {
+    XML1_0.pedantic(serializersModule) {
+        policy {
             autoPolymorphic = false
             typeDiscriminatorName = null
-            pedantic = true
             formatCache = TestFormatCache(LayeredCache())
         }
         xmlDeclMode = XmlDeclMode.None
@@ -115,9 +115,8 @@ abstract class XmlTestBase<T>(
     val value: T,
     val serializer: KSerializer<T>,
     val serializersModule: SerializersModule = EmptySerializersModule(),
-    protected val baseXmlFormat: XML = XML(serializersModule) {
-        recommended {
-            pedantic = true
+    protected val baseXmlFormat: XML = XML1_0.recommended(serializersModule) {
+        policy {
             autoPolymorphic = false
             typeDiscriminatorName = null
         }
@@ -167,9 +166,8 @@ abstract class TestBase<T>(
     value: T,
     serializer: KSerializer<T>,
     serializersModule: SerializersModule = EmptySerializersModule(),
-    baseXmlFormat: XML = XML(serializersModule) {
-        recommended {
-            autoPolymorphic = true
+    baseXmlFormat: XML = XML1_0.recommended(serializersModule) {
+        policy {
             typeDiscriminatorName = null
         }
         xmlDeclMode = XmlDeclMode.None
@@ -215,8 +213,8 @@ abstract class TestPolymorphicBase<T>(
     value,
     serializer,
     serializersModule,
-    XML(serializersModule) {
-        recommended {
+    XML1_0.recommended(serializersModule) {
+        policy {
             typeDiscriminatorName = null
         }
         xmlDeclMode = XmlDeclMode.None
@@ -251,10 +249,9 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_serialization_should_work() {
-        val xml = XML(serializersModule = serializersModule) {
-            recommended {
+        val xml = XML1_0.recommended(serializersModule = serializersModule) {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType
             }
             xmlDeclMode = XmlDeclMode.None
@@ -266,10 +263,9 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_deserialization_should_work() {
-        val actualValue = XML(serializersModule = serializersModule) {
-            recommended {
+        val actualValue = XML1_0.recommended(serializersModule = serializersModule) {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType
             }
             xmlDeclMode = XmlDeclMode.None
@@ -281,10 +277,9 @@ abstract class TestPolymorphicBase<T>(
     @Test
     open fun attribute_discriminator_deserialization_should_work() {
         val modifiedXml = expectedXSIPolymorphicXML.replace(XMLConstants.XSI_NS_URI, "urn:notquitexsi")
-        val actualValue = XML(serializersModule = serializersModule) {
-            recommended {
+        val actualValue = XML1_0.recommended(serializersModule = serializersModule) {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType.copy(namespaceURI = "urn:notquitexsi")
             }
             xmlDeclMode = XmlDeclMode.None
@@ -295,11 +290,10 @@ abstract class TestPolymorphicBase<T>(
 
     @Test
     open fun xsi_deserialization_should_work_implicitly() {
-        val actualValue = XML(serializersModule = serializersModule) {
+        val actualValue = XML1_0.recommended(serializersModule = serializersModule) {
             xmlDeclMode = XmlDeclMode.None
-            recommended {
+            policy {
                 autoPolymorphic = false
-                pedantic = false
                 typeDiscriminatorName = xsiType
             }
         }.decodeFromString(serializer, expectedXSIPolymorphicXML)
@@ -312,3 +306,6 @@ abstract class TestPolymorphicBase<T>(
         val xsiType: QName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
     }
 }
+
+inline fun XML1_0.pedantic(serializersModule: SerializersModule = EmptySerializersModule(), configure: XmlConfig.DefaultBuilder.() -> Unit = {}) =
+    recommended(serializersModule) { policy { pedantic = true }; configure() }

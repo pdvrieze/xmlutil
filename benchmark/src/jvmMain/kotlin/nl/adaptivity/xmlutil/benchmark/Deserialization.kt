@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.benchmark
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
@@ -28,6 +30,7 @@ import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapperImpl
 import nl.adaptivity.xmlutil.benchmark.util.testXmlSchemaUrls
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -63,35 +66,25 @@ open class Deserialization {
     @Setup
     fun setup() {
         println("Setup called (fast: $fast)")
-        retainedXml = XML {
-            when {
-                fast -> fast_0_90_2()
-                else -> recommended_0_90_2()
-            }
-//            isUnchecked = unchecked
-/*
-            defaultPolicy {
-                autoPolymorphic = true
-                throwOnRepeatedElement = true
-                verifyElementOrder = true
-                isStrictAttributeNames = true
-            }
-*/
+        retainedXml = when {
+            fast -> XML1_0.fast()
+            else -> XML1_0.recommended()
         }
+
     }
 
     @Benchmark
     fun testDeserializeGenericSpeed(bh : Blackhole) = testDeserializeGenericSpeedImpl(BlackholeWrapperImpl(bh))
 
     fun testDeserializeGenericSpeedImpl(bh: BlackholeWrapper) {
-        val xml = XML {
+        val xml =
             when {
-                fast -> fast_0_90_2()
-                else -> recommended_0_90_2 {
-                    throwOnRepeatedElement = true
+                fast -> XML1_0.fast()
+                else -> XML1_0.recommended {
+                    policy { throwOnRepeatedElement = true }
                 }
             }
-        }
+
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
         testDeserializeAndParseSpeed(bh, xml)
         xmlStreaming.setFactory(null)
@@ -118,14 +111,14 @@ open class Deserialization {
     fun testDeserializeStaxSpeed(bh : Blackhole) = testDeserializeStaxSpeed(BlackholeWrapperImpl(bh))
 
     fun testDeserializeStaxSpeed(bh : BlackholeWrapper) {
-        val xml = XML {
+        val xml =
             when {
-                fast -> fast_0_90_2()
-                else -> recommended_0_90_2 {
-                    throwOnRepeatedElement = true
+                fast -> XML1_0.fast()
+                else -> XML1_0.recommended {
+                    policy { throwOnRepeatedElement = true }
                 }
             }
-        }
+
         xmlStreaming.setFactory(StAXStreamingFactory())
         testDeserializeAndParseSpeed(bh, xml)
         xmlStreaming.setFactory(null)

@@ -27,7 +27,6 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMEN
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     id("projectPlugin")
@@ -119,7 +118,6 @@ addNativeTargets(includeWasm = false, includeWasi = false)
 
 config {
     dokkaModuleName = "xmlschema"
-    kotlinApiVersion = KotlinVersion.KOTLIN_2_2
 }
 
 idea {

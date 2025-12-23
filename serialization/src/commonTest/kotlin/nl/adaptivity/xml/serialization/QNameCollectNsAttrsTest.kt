@@ -18,17 +18,16 @@
  * permissions and limitations under the License.
  */
 
-@file:UseSerializers(QNameSerializer::class)
+@file:MustUseReturnValues
 @file:OptIn(ExperimentalXmlUtilApi::class)
 
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs
@@ -39,7 +38,7 @@ import kotlin.test.assertContains
 class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Container>(
     Container(Child1(Child2(QName("urn:foo", "bar", "baz")))),
     Container.serializer(),
-    baseXmlFormat = XML { isCollectingNSAttributes = true },
+    baseXmlFormat = XML.compat { isCollectingNSAttributes = true },
     baseJsonFormat = Json { encodeDefaults = false }
 ) {
     override val expectedXML: String =
@@ -54,7 +53,7 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
 
     @Test
     fun testNamespaceDecls() {
-        val xml = XML { isCollectingNSAttributes = false }
+        val xml = XML.compat { isCollectingNSAttributes = false }
         val serialized = xml.encodeToString(serializer, value)
         assertContains(serialized, "xmlns:prefix5=\"urn:example.org/5\"")
         assertContains(serialized, "xmlns:prefix6=\"urn:example.org/6\"")
@@ -69,7 +68,7 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
 
     @Serializable
     @XmlSerialName("child2", namespace = "urn:example.org/4", prefix = "prefix3")
-    data class Child2(@XmlElement(true) val child: QName, val nestedContainer: Container? = null)
+    data class Child2(@XmlElement(true) val child: SerializableQName, val nestedContainer: Container? = null)
 
 
     @Serializable

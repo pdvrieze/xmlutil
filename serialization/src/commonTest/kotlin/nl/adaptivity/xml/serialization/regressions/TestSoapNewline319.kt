@@ -18,12 +18,14 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
@@ -33,13 +35,11 @@ class TestSoapNewline319 {
 
     @Test
     fun faultExampleWithTypedDetails() {
-        val xml = XML(
+        val xml = XML1_0.recommended(
             serializersModule = SerializersModule {
                 polymorphic(Any::class, FooString::class, FooString.serializer())
             }
-        ) {
-            defaultPolicy { autoPolymorphic = true }
-        }
+        )
 
         val faultMessage = SoapFault(detail = FooString)
 
@@ -59,13 +59,12 @@ class TestSoapNewline319 {
 
     @Test
     fun faultExampleWithDefaultIgnoredWhitespaceTypedDetails() {
-        val xml = XML(
+        val xml = XML1_0.recommended(
             serializersModule = SerializersModule {
                 polymorphic(Any::class, FooString::class, FooString.serializer())
             }
         ) {
             defaultToGenericParser = true
-            defaultPolicy { autoPolymorphic = true }
         }
 
         val faultMessage = SoapFault(detail = FooString)

@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.serialization
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
@@ -49,10 +51,7 @@ class JvmSerializationTest {
             })
         }
 
-        val xml = XML {
-            autoPolymorphic = true
-        }
-        val deserialized = xml.decodeFromString(Element.serializer(), contentText)
+        val deserialized = XML1_0.decodeFromString(Element.serializer(), contentText)
 
         val expected:String = expectedObj.toXmlString()
 
@@ -72,7 +71,7 @@ class JvmSerializationTest {
     @Suppress("DEPRECATION")
     @Test
     fun `update dom node with additional attribute`() {
-        val xml = XML {}
+        val xml = XML1_0.compact()
         val rootNode: Element = xml.decodeFromString(Element.serializer(), "<root></root>")
         rootNode.setAttribute("test", "value")
         assertEquals("<root test=\"value\"/>", xml.encodeToString(Element.serializer(), rootNode))
@@ -93,10 +92,7 @@ class JvmSerializationTest {
             })
         }
 
-        val xml = XML {
-            indentString = ""
-            autoPolymorphic = true
-        }
+        val xml = XML1_0.compact()
 
         val serialized = xml.encodeToString(Element.serializer(), element)
         assertEquals(expected, serialized)

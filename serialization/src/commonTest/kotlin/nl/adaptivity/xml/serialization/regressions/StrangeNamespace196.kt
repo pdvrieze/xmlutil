@@ -18,13 +18,14 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xml.serialization.regressions
 
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xml.serialization.pedantic
+import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.serialization.*
 import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,13 +37,27 @@ class StrangeNamespace196 {
 
     @Test
     fun testSerialize() {
-        val xml = XML {
+        val xml = XML.compat {
             recommended_0_87_0 { pedantic = true }
             repairNamespaces = false
             indentString = ""
         }
 
-//        val data = Container(Code("ABC", "null", "null", "null", LanguageTagCode("null")))
+        testSerialize(xml)
+    }
+
+    @Test
+    fun testSerialize1_0() {
+        val xml = XML1_0.pedantic {
+            xmlDeclMode = XmlDeclMode.None
+            repairNamespaces = false
+            setIndent(0)
+        }
+
+        testSerialize(xml)
+    }
+
+    private fun testSerialize(xml: XML) {
         val data = Container(Code("ABC", "null", "null", "null", LanguageTagCode("xxxx")))
 
         val serialized = xml.encodeToString(Container.serializer(), data)
@@ -50,7 +65,6 @@ class StrangeNamespace196 {
             "<Container><ReceivingSystem xmlns=\"http://myrealns.example.com/foo\" listID=\"null\" listVersionID=\"null\" name=\"null\" languageID=\"xxxx\">ABC</ReceivingSystem></Container>",
             serialized
         )
-
     }
 
     @Serializable

@@ -18,11 +18,13 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package net.devrieze.serialization.examples.custompolymorphic
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XML1_0
 
 val fruits: List<Fruit> = listOf(
     Apple("MyApple", 5),
@@ -30,8 +32,8 @@ val fruits: List<Fruit> = listOf(
 )
 
 fun main() {
-    val xml = XML {
-        recommended_0_91_0 {
+    val xml = XML1_0.recommended {
+        policy {
             autoPolymorphic = false
             pedantic = true
         }
