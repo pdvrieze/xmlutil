@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ExternalEntitiesTests() {
+class ExternalEntitiesTests {
     @Serializable
     @XmlSerialName("manifest", "http://example.com/", "")
     data class Manifest(
@@ -58,7 +58,7 @@ class ExternalEntitiesTests() {
         try {
             val deserialized = xml.decodeFromString<Manifest>(manifest)
             assertEquals(deserialized.text, "")
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // This is allowed to throw an exception instead of returning empty. Different implementations have different
             // behaviour. Important is that local files are not accessible.
         }
@@ -75,14 +75,13 @@ class ExternalEntitiesTests() {
     }
 
     fun testReadFileReaderImpl(readerFactory: (String) -> XmlReader) {
-        val manifest =
-            """
-       <?xml version="1.0" standalone="no" ?>
-       <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
-       <manifest xmlns="http://example.com/">
-         <text>&xxe;</text>
-       </manifest>
-   """.trimIndent()
+        val manifest = """
+           <?xml version="1.0" standalone="no" ?>
+           <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+           <manifest xmlns="http://example.com/">
+             <text>&xxe;</text>
+           </manifest>
+           """.trimIndent()
         val reader = readerFactory(manifest)
         try {
             val deserialized = xml.decodeFromReader<Manifest>(reader)

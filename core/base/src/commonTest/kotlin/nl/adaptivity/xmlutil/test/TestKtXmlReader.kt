@@ -18,15 +18,15 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.test
 
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
-import nl.adaptivity.xmlutil.test.TestCommonReader
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test

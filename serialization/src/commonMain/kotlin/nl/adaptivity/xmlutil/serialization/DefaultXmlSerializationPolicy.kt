@@ -60,17 +60,17 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializationPolicy {
     @ExperimentalXmlUtilApi
     public val formatCache: FormatCache = builder.formatCache
-    public open val pedantic: Boolean = builder.pedantic
-    public open val autoPolymorphic: Boolean = builder.autoPolymorphic
-    public open val encodeDefault: XmlEncodeDefault = builder.encodeDefault
-    public open val unknownChildHandler: UnknownChildHandler = builder.unknownChildHandler
-    public open val typeDiscriminatorName: QName? = builder.typeDiscriminatorName
-    public open val throwOnRepeatedElement: Boolean = builder.throwOnRepeatedElement
-    public override val verifyElementOrder: Boolean = builder.verifyElementOrder
-    public override val isStrictAttributeNames: Boolean = builder.isStrictAttributeNames
-    public override val isStrictBoolean: Boolean = builder.isStrictBoolean
-    public override val isXmlFloat: Boolean = builder.isXmlFloat
-    public override val isStrictOtherAttributes: Boolean = builder.isStrictOtherAttributes
+    public val pedantic: Boolean = builder.pedantic
+    public val autoPolymorphic: Boolean = builder.autoPolymorphic
+    public val encodeDefault: XmlEncodeDefault = builder.encodeDefault
+    public val unknownChildHandler: UnknownChildHandler = builder.unknownChildHandler
+    public val typeDiscriminatorName: QName? = builder.typeDiscriminatorName
+    public val throwOnRepeatedElement: Boolean = builder.throwOnRepeatedElement
+    public final override val verifyElementOrder: Boolean = builder.verifyElementOrder
+    public final override val isStrictAttributeNames: Boolean = builder.isStrictAttributeNames
+    public final override val isStrictBoolean: Boolean = builder.isStrictBoolean
+    public final override val isXmlFloat: Boolean = builder.isXmlFloat
+    public final override val isStrictOtherAttributes: Boolean = builder.isStrictOtherAttributes
 
     /**
      * Determines whether inline classes are merged with their content. Note that inline classes
@@ -81,7 +81,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
      *
      * If the value is `false` inline classes will be handled like non-inline classes
      */
-
     public val isInlineCollapsedDefault: Boolean = builder.isInlineCollapsedDefault
 
     @ExperimentalXmlUtilApi
@@ -409,25 +408,6 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
         return if (orderConstraints.isEmpty()) null else orderConstraints.toList()
     }
 
-    /*
-        override fun updateReorderMap(
-            original: Collection<XmlOrderConstraint>,
-            children: List<XmlDescriptor>
-        ): Collection<XmlOrderConstraint> {
-            fun Int.isAttribute(): Boolean = children[this].effectiveOutputKind == OutputKind.Attribute
-
-            return original.filter { constraint ->
-                if (constraint.before == XmlOrderConstraint.OTHERS || constraint.after == XmlOrderConstraint.OTHERS) {
-                    true
-                } else {
-                    val (isBeforeAttribute, isAfterAttribute) = constraint.map { it.isAttribute() }
-
-                    isBeforeAttribute || (!isAfterAttribute)
-                }
-            }
-        }
-    */
-
     @OptIn(ExperimentalSerializationApi::class)
     @ExperimentalXmlUtilApi
     override fun preserveSpace(serializerParent: SafeParentInfo, tagParent: SafeParentInfo): TypePreserveSpace {
@@ -571,6 +551,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     /**
      * A configuration builder for the default serialization policy.
      *
+     * @property formatCache The cache used to speed up mapping for serializer to xml representation.
      * @property pedantic Enable some stricter behaviour
      * @property autoPolymorphic Rather than using type wrappers use the tag name to distinguish polymorphic types
      * @property encodeDefault Determine whether defaults need to be encoded
@@ -778,6 +759,21 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
 
         public constructor(policy: DefaultXmlSerializationPolicy) : super(policy)
         public constructor(policy: XmlSerializationPolicy) : super(policy)
+
+        @Suppress("FunctionName")
+        @ExperimentalXmlUtilApi
+        public fun setDefaults_1_0_0() {
+            autoPolymorphic = true
+            pedantic = false
+            typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
+            encodeDefault = XmlEncodeDefault.ANNOTATED
+            throwOnRepeatedElement = true
+            isInlineCollapsedDefault = true
+            isStrictAttributeNames = true
+            isStrictOtherAttributes = true
+            isStrictBoolean = true
+            isXmlFloat = true
+        }
 
     }
 

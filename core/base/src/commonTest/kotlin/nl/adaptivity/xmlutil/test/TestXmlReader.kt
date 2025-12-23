@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
@@ -18,12 +18,22 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.test
 
-import nl.adaptivity.xmlutil.test.TestXmlWriter
+import nl.adaptivity.xmlutil.DomReader
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.xmlStreaming
 
-class TestPlatformXmlWriter: TestXmlWriter() {
-    override fun createWriter(output: Appendable): XmlWriter {
-        return xmlStreaming.newWriter(output, repairNamespaces = false, xmlDeclMode = XmlDeclMode.None)
+class TestXmlReader : TestCommonReader() {
+
+    override fun createReader(xml: String): XmlReader = xmlStreaming.newReader(xml)
+
+    override fun testReadUnknownEntity() {
+        val r = createReader("<x/>")
+        @Suppress("DEPRECATION")
+        if (r is KtXmlReader || r is DomReader) {
+            super.testReadUnknownEntity()
+        }
     }
 }

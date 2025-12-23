@@ -113,6 +113,7 @@ private constructor(
     public var defaultToGenericParser: Boolean = false
         private set
 
+    @Suppress("DEPRECATION")
     @OptIn(ExperimentalXmlUtilApi::class)
     @JvmOverloads
     public constructor(builder: Builder<*> = DefaultBuilder()) : this(
@@ -141,6 +142,7 @@ private constructor(
     }
 
     internal fun shadowCache(cache: FormatCache): XmlConfig {
+        @Suppress("DEPRECATION")
         return XmlConfig(CompatBuilder(this).apply {
             policy = ShadowPolicy(this@XmlConfig.policy, cache)
         })
@@ -191,8 +193,7 @@ private constructor(
      * @property xmlDeclMode Should the generated XML contain an XML declaration or not. This is passed to the [XmlWriter]
      * @property indentString The indentation to use. This is passed to the [XmlWriter]. Note that at this point no validation
      *           of the indentation is done, if it is not valid whitespace it will produce unexpected XML.
-     * @property indent The indentation level (in spaces) to use. This is derived from [indentString]. Tabs are counted as 8
-     *                  characters, everything else as 1. When setting it will update [indentString] with `indent` space characters
+     * @property indentString The indentation to use. Note that this expects whitespace or comments.
      */
     @XmlConfigDsl
     public abstract class Builder<P: XmlSerializationPolicy?>
@@ -225,7 +226,7 @@ private constructor(
          * as the xsi:nil attribute from xml schema). The value is a pair of the QName of the attribute
          * and the string to indicate that the value is in fact null.
          *
-         * For serializing this property means that (for tags only ) the tag will be written with empty
+         * For serializing this property means that (for tags only) the tag will be written with empty
          * content and the given attribute. For attributes or a `null` value the element is not written
          * at all.
          *
@@ -234,6 +235,25 @@ private constructor(
          */
         public var nilAttribute: Pair<QName, String>? = null
 
+        /**
+         * Shortcut to set [nilAttribute] to serialize as XMLSchema Instance nil (`xsi:nil`)
+         * attribute.
+         */
+        public fun useXsiNil() {
+            nilAttribute = Pair(QName(XMLConstants.XSI_NS_URI, "nil", XMLConstants.XSI_PREFIX), "true")
+        }
+
+        /**
+         * Allow decoding `xsi:nil` (from the xml schema instance namespace) independent of the configured
+         * nil attribute (that will also be detected if present). This does not change engoding/serialization.
+         */
+        public var isAlwaysDecodeXsiNil: Boolean = true
+
+        /**
+         * The version of XML to write. Reading ignores this option and supports both (the standard
+         * would treat documents without explicit version as 1.0 - while the parser may nonetheless
+         * accept characters only valid in 1.1 in such documents).
+         */
         public var xmlVersion: XmlVersion = XmlVersion.XML11
 
         /**
@@ -252,12 +272,6 @@ private constructor(
          * This should speed up processing, but may give surprising results in the presence of an error.
          */
         public var isUnchecked: Boolean = false
-
-        /**
-         * Allow decoding `xsi:nil` (from the xml schema instance namespace) independent of the configured
-         * nil attribute (that will also be detected if present). This does not change engoding/serialization.
-         */
-        public var isAlwaysDecodeXsiNil: Boolean = true
 
         /**
          * Set the indent as the `count` amount of spaces. Indentation does also involve newlines, if not 0.
@@ -661,7 +675,7 @@ private constructor(
             defaultToGenericParser = true
             indentString = ""
 
-            defaultPolicy {
+            policy {
                 formatCache = try { defaultSharedFormatCache() } catch (_: Error) { FormatCache.Dummy }
                 autoPolymorphic = true
                 pedantic = false

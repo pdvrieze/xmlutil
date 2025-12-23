@@ -33,16 +33,16 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public fun effectiveOutputKind (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun elementNamespaceDecls (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Ljava/util/List;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getAutoPolymorphic ()Z
+	public final fun getAutoPolymorphic ()Z
 	public fun getDefaultObjectOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public fun getDefaultPrimitiveOutputKind ()Lnl/adaptivity/xmlutil/serialization/OutputKind;
-	public fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
+	public final fun getEncodeDefault ()Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$XmlEncodeDefault;
 	public final fun getFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
-	public fun getPedantic ()Z
-	public fun getThrowOnRepeatedElement ()Z
-	public fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
-	public fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
-	public fun getVerifyElementOrder ()Z
+	public final fun getPedantic ()Z
+	public final fun getThrowOnRepeatedElement ()Z
+	public final fun getTypeDiscriminatorName ()Ljavax/xml/namespace/QName;
+	public final fun getUnknownChildHandler ()Lnl/adaptivity/xmlutil/serialization/UnknownChildHandler;
+	public final fun getVerifyElementOrder ()Z
 	public fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
 	public fun hashCode ()I
 	public fun ignoredSerialInfo (Ljava/lang/String;)V
@@ -51,11 +51,11 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public final fun isInlineCollapsedDefault ()Z
 	public fun isListEluded (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public fun isMapValueCollapsed (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z
-	public fun isStrictAttributeNames ()Z
-	public fun isStrictBoolean ()Z
-	public fun isStrictOtherAttributes ()Z
+	public final fun isStrictAttributeNames ()Z
+	public final fun isStrictBoolean ()Z
+	public final fun isStrictOtherAttributes ()Z
 	public fun isTransparentPolymorphic (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
-	public fun isXmlFloat ()Z
+	public final fun isXmlFloat ()Z
 	public fun mapEntryName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Ljavax/xml/namespace/QName;
 	public fun mapKeyName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
 	public fun mapValueName (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Z)Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy$DeclaredNameInfo;
@@ -111,6 +111,7 @@ public final class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPo
 	public fun <init> ()V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/serialization/XmlSerializationPolicy;)V
+	public final fun setDefaults_1_0_0 ()V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$BuilderCompat : nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy$Builder {
@@ -468,6 +469,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/XmlConfig$Builder {
 	public final fun setUnchecked (Z)V
 	public final fun setXmlDeclMode (Lnl/adaptivity/xmlutil/XmlDeclMode;)V
 	public final fun setXmlVersion (Lnl/adaptivity/xmlutil/core/XmlVersion;)V
+	public final fun useXsiNil ()V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/XmlConfig$Companion {

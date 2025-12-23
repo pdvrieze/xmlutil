@@ -18,20 +18,16 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.test
 
-import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.test.TestCommonReader
+import nl.adaptivity.xmlutil.XmlBufferedReader
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.xmlStreaming
 
-class TestXmlReader : TestCommonReader() {
+class TestBufferedXmlReader : TestCommonReader() {
 
-    override fun createReader(xml: String): XmlReader = xmlStreaming.newReader(xml)
-
-    override fun testReadUnknownEntity() {
-        val r = createReader("<x/>")
-        @Suppress("DEPRECATION")
-        if (r is KtXmlReader || r is DomReader) {
-            super.testReadUnknownEntity()
-        }
+    override fun createReader(xml: String) : XmlReader {
+        return XmlBufferedReader(xmlStreaming.newGenericReader(xml))
     }
+
 }

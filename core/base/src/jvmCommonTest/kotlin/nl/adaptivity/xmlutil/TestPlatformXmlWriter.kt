@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
+import nl.adaptivity.xmlutil.test.TestXmlWriter
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 

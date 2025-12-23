@@ -18,8 +18,9 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil
+package nl.adaptivity.xmlutil.test
 
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
