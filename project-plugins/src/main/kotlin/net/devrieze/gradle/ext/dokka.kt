@@ -117,14 +117,12 @@ private fun Project.configureDokkaSourceSet(
                 suppress.set(true)
             }
             logger.lifecycle("Dokka source set: '$name'")
-            if (true || "Main" in name) {
-                val readme = project.file(project.relativePath("src/README.md"))
-                if (readme.exists() && readme.canRead()) {
-                    includes.from(listOf(readme))
-                    logger.lifecycle("Adding $readme to sourceSet :${project.name}:${name}(${displayName.orNull})")
-                } else {
-                    logger.warn("Missing $readme for project ${project.name}")
-                }
+            val readme = project.file(project.relativePath("src/README.md"))
+            if (readme.exists() && readme.canRead()) {
+                includes.from(listOf(readme))
+                logger.lifecycle("Adding $readme to sourceSet :${project.name}:${name}(${displayName.orNull})")
+            } else {
+                logger.warn("Missing $readme for project ${project.name}")
             }
         }
     } else {

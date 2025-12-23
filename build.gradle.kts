@@ -62,6 +62,12 @@ idea {
     }
 }
 
+dokka {
+    dokkaPublications.configureEach {
+        includes.from(file("src/README.md"))
+    }
+}
+
 dependencies {
     dokka(projects.core)
     dokka(projects.coreJdk)
