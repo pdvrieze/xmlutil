@@ -24,33 +24,9 @@ serialization based upon Kotlin's standard serialization library and plugin.
   that is somewhat limited in advanced features such as DTD and validation support. 
   Ideally integration with a well-developed native library as an option would be beneficial.
 
-#### Notes
-Please note that the JVM target will **not** work on Android due to different
-serialization libraries. It is possible to consume the multiplatform targets on
-single-target Kotlin although there may be issues with older Gradle versions not
-finding the correct version. As a workaround for single-platform Android projects,
-try adding the following code to your Gradle build file:
-
-```kotlin
-kotlin {
-    target {
-        attributes {
-            if (KotlinPlatformType.attribute !in this) {
-                attribute(KotlinPlatformType.attribute, KotlinPlatformType.androidJvm)
-            }
-        }
-    }
-}
-
-KotlinPlatformType.setupAttributesMatchingStrategy(dependencies.attributesSchema)
-```
-This code tells Gradle that are targeting Android when it resolves multi-platform libraries.
-In other cases you can use the different platform types.
-
 ### Versioning scheme
-This library is based upon the unstable [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) library. 
-While every effort is made to limit incompatible changes, this cannot be guaranteed even in "minor" versions when
-the changes are due to bugs. These changes *should* mostly be limited to the serialization part of the library.
+This library is based upon the [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) library. 
+Every effort is made to limit incompatible changes.
 
 ## How to use
 The library is designed as a multiplatform Kotlin module, but platform-specific versions can also be used were appropriate.
@@ -101,23 +77,6 @@ that mirrors the Java API)
    implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-RC1")
 ```
 
-#### JVM (also works for Android)
-```
-   implementation("io.github.pdvrieze.xmlutil:serialization-jvm:1.0.0-RC1")
-```
-
-#### js
-```
-   implementation("io.github.pdvrieze.xmlutil:serialization-js:1.0.0-RC1")
-```
-
-### -Ktor- (Deprecated)
-
-**Deprecated**
-
-This library is no longer supported. Instead use official Ktor xml serialization
-support. It is mostly equal to this version.
-
 ## Serialization help
 ### Hello world
 To serialize a very simple type you have the following:
@@ -143,7 +102,7 @@ used (how lists and polymorphic types are handled), etc.
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
 ### Format
-The entrypoint to the library is the `XML` format. There is a default, but often a child is better. 
+The entrypoint to the library is the `XML1_0` (for 1.0) format (or `XML` generally). There is a default, but often a child is better. 
 Custom formats are created through:
 ```kotlin
 val format = XML1_0.recommended(mySerialModule) {  
