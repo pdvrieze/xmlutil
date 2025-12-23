@@ -1,4 +1,7 @@
-# 1.0.0-rc1-SNAPSHOT
+# 1.0.0-rc2-SNAPSHOT
+
+# 1.0.0-rc1
+*(Dec 23, 2025)<br />*
 Features:
 - Add `decodeToSequence` and `decodeWrappedToSequence` functions that allow
   decoding to a sequence. This can be either wrapped or unwrapped (or wrapped
@@ -7,7 +10,7 @@ Features:
   cross platform use without having to manually create an xml reader.
 
 Changes:
-- Change the recommended method for configuring the format. The constructor that
+- **Change the recommended method for configuring the format**. The constructor that
   takes a configuration function as parameter is now deprecated to be replaced
   by a factory function that names the configuration chosen: recommended_1_0,
   fast_1_0, compat, etc. This avoids multiple configuration layers being needed.
