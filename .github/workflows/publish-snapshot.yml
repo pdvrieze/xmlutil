@@ -39,12 +39,8 @@ jobs:
                     path: |
                         **/build/reports/
                         **/build/test-results/
-            -   name: Assemble
-                run: ./gradlew assemble -PexcludeSchema -Pnative.deploy=all --stacktrace
-            -   name: Javadoc jar
-                run: ./gradlew javadocJar -PexcludeSchema -Pnative.deploy=all --stacktrace
-            -   name: Sources Jar
-                run: ./gradlew kotlinSourcesJar -PexcludeSchema -Pnative.deploy=all --stacktrace
+            -   name: Check
+                run: ./gradlew check
             -   name: Upload
-                run: ./gradlew publishAllPublicationsToMavenSnapshotRepository -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+                run: ./gradlew publishToSonatype -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash

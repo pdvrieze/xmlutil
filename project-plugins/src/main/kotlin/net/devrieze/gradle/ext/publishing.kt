@@ -20,7 +20,6 @@
 
 package net.devrieze.gradle.ext
 
-import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
@@ -48,6 +47,7 @@ fun Project.doPublish(
     configure<PublishingExtension> {
         this.repositories {
             when {
+/*
                 isSnapshot -> maven {
                     name = "mavenSnapshot"
                     url = uri("https://central.sonatype.com/repository/maven-snapshots/")
@@ -56,6 +56,7 @@ fun Project.doPublish(
                         password = project.findProperty("ossrh.password") as String?
                     }
                 }
+*/
 
                 else -> maven {
                     name = "projectLocal"

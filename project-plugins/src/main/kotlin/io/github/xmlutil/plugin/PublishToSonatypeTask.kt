@@ -24,16 +24,13 @@ import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URI
+import java.net.URLEncoder
+import java.time.LocalDateTime
 import java.util.*
 
 abstract class PublishToSonatypeTask() : DefaultTask() {
@@ -54,7 +51,18 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
         val encoded = String(Base64.getEncoder().encode("$username:$password".toByteArray()), Charsets.US_ASCII)
 
         val client = HttpClientBuilder.create().build()
-        val post = HttpPost("https://central.sonatype.com/api/v1/publisher/upload")
+        val versionName: String = when {
+            project.isSnapshot -> "${project.version}-${LocalDateTime.now().format(TIMESTAMP_FORMATTER)}"
+
+            else -> project.version.toString()
+        }
+
+        val deploymentName = URLEncoder.encode("XMLUtil deployment $versionName", Charsets.UTF_8)
+        val deploymentType = when {
+            project.isSnapshot -> "AUTOMATIC"
+            else -> "USER_MANAGED"
+        }
+        val post = HttpPost("https://central.sonatype.com/api/v1/publisher/upload?name=$deploymentName&publishingType=$deploymentType")
         post.addHeader("Authorization", "Bearer $encoded")
 
         post.entity = MultipartEntityBuilder.create()

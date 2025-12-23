@@ -48,14 +48,17 @@ import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 import kotlin.jvm.optionals.getOrNull
+import kotlin.time.ExperimentalTime
 
 @Suppress("unused")
 class ProjectPlugin @Inject constructor(
     private val softwareComponentFactory: SoftwareComponentFactory
 ): Plugin<Project> {
+    @OptIn(ExperimentalTime::class)
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
@@ -71,12 +74,12 @@ class ProjectPlugin @Inject constructor(
             else -> project.logger.debug("Project release is not a snapshot release {}", project.version)
         }
 
-        if (project == project.rootProject && !project.isSnapshot) {
+        if (project == project.rootProject) {
             val collateTask = project.tasks.register<Zip>("collateModuleRepositories") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Zip task that collates all local repositories into a single zip file"
                 destinationDirectory = project.layout.buildDirectory.dir("repositoryArchive")
-                archiveBaseName = "${project.name}-${project.version}-publishing"
+                archiveBaseName = "${project.name}-publishing"
             }
 
             val publishToSonatype = project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
@@ -333,4 +336,20 @@ abstract class ProjectConfigurationExtension {
     abstract val generateJavaModules: Property<Boolean>
 }
 
-val Project.isSnapshot: Boolean get() = "SNAPSHOT" in version.toString().uppercase(Locale.getDefault())
+private var _isSnapshot: Int = -1
+
+val Project.isSnapshot: Boolean
+    get() = when (_isSnapshot) {
+        0 -> false
+        1 -> true
+
+        else -> {
+            val r: Boolean = providers.gradleProperty("forceSnapshot")
+                .map { it.lowercase() == "true" }
+                .getOrElse(false) || "SNAPSHOT" in version.toString().uppercase(Locale.getDefault())
+
+            r.also { _isSnapshot = if (it) 1 else 0 }
+        }
+    }
+
+val TIMESTAMP_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm'Z'")

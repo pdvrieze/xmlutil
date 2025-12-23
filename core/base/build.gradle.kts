@@ -48,19 +48,20 @@ kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
 
-    val testTask = tasks.create("test") {
+    val testTask = tasks.register("test") {
         group = "verification"
     }
-    val cleanTestTask = tasks.create("cleanTest") {
+    val cleanTestTask = tasks.register("cleanTest") {
         group = "verification"
     }
 
     jvm("jvmCommon") {
         compilations.all {
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
+            val targetTestTask = tasks.named<Test>("${target.name}Test")
+            testTask.configure { dependsOn(targetTestTask) }
+            cleanTestTask.configure {
+                dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
             }
-            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
         }
         tasks.withType<Jar>().named(artifactsTaskName) {
             from(project.file("src/r8-workaround.pro")) {
