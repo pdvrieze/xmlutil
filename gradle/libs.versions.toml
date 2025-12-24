@@ -6,8 +6,8 @@ dokka = "2.1.0"
 javaVersion = "8"
 jmh = "0.7.3"
 jmh-core = "1.37"
-benchmark = "0.4.14"
-junit5-jupiter = "5.14.0"
+benchmark = "0.4.15"
+junit5-jupiter = "5.14.1"
 kotlin = "2.3.0"
 kotlinx-serialization = "1.10.0-RC"
 kotlinx-io = "0.8.2"
@@ -15,14 +15,13 @@ kxml2 = "2.3.0"
 woodstox = "7.1.1"
 xmlutil = "1.0.0-rc2-SNAPSHOT"
 httpComponents = "4.5.14"
-httpComponents5 = "5.5.1"
+httpComponents5 = "5.6"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
 kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 
-httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
 httpclient = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
 
 junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
