@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.core.kxio
@@ -27,14 +27,17 @@ import kotlinx.io.asOutputStream
 import nl.adaptivity.xmlutil.*
 import java.io.OutputStreamWriter
 
+/** Create a new (platform specific) reader for the given source (as [java.io.InputStream]). */
 public actual fun IXmlStreaming.newReader(source: Source): XmlReader {
     return newReader(source.asInputStream())
 }
 
+/** Create a new generic reader for the given source (as [java.io.InputStream]). */
 public actual fun IXmlStreaming.newGenericReader(source: Source): XmlReader {
     return newGenericReader(source.asInputStream())
 }
 
+/** Create a new (platform specific) writer for the given sink (as [java.io.OutputStream]). */
 public actual fun IXmlStreaming.newWriter(
     target: Sink,
     repairNamespaces: Boolean,
@@ -44,6 +47,7 @@ public actual fun IXmlStreaming.newWriter(
     return newWriter(output, repairNamespaces, xmlDeclMode).onClose { output.close() }
 }
 
+/** Create a new generic writer for the given sink (as [java.io.OutputStream]). */
 public actual fun IXmlStreaming.newGenericWriter(
     target: Sink,
     repairNamespaces: Boolean,

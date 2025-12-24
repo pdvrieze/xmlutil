@@ -29,6 +29,9 @@ import javax.xml.transform.Source
 
 /**
  * An implementation of [XmlReader] based upon the JDK StAX implementation.
+ *
+ * @constructor Create a new reader that wraps the given [XMLStreamReader].
+ * @param delegate The stream reader to wrap
  */
 public class StAXReader(
     private val delegate: XMLStreamReader,
@@ -46,6 +49,12 @@ public class StAXReader(
     @Deprecated("ExpandEntities is only used for creating the reader. It has already been set")
     public constructor(delegate: XMLStreamReader, expandEntities: Boolean) : this(delegate)
 
+    /**
+     * Shortcut constructor that creates an XMLStreamReader for the [reader].
+     *
+     * @param reader The reader to read from.
+     * @param expandEntities Influences whether the [XMLStreamReader] will expand entities
+     */
     @Throws(XMLStreamException::class)
     @JvmOverloads
     public constructor(reader: Reader, expandEntities: Boolean = false) : this(
@@ -55,10 +64,11 @@ public class StAXReader(
     )
 
     /**
-     * Create a new reader
+     * Create a new reader.
      * @param inputStream The bytestream to read from
      * @param encoding The encoding to use, or null to use autodetection (also using the encoding
      *     attribute in the document)
+     * @param expandEntities Influences whether the [XMLStreamReader] will expand entities
      */
     @Throws(XMLStreamException::class)
     @JvmOverloads
@@ -71,6 +81,13 @@ public class StAXReader(
         )
     )
 
+    /**
+     * Shortcut constructor that creates an XMLStreamReader for the [reader].
+     *
+     * @param source The source to read from.
+     * @param expandEntities Influences whether the [XMLStreamReader] will expand entities
+     */
+    @Deprecated("Sources are a poor design that should be avoided")
     @Throws(XMLStreamException::class)
     @JvmOverloads
     public constructor(source: Source, expandEntities: Boolean = false) : this(safeInputFactory().apply {

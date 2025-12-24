@@ -5,8 +5,11 @@ module is **deprecated** except for those cases that require:
  - compatibility
  - integration with the native pull parser implementation (reading only)
 
+For writing XML only the generic writer implementation is used as there
+are compatibility issues with the native Android implementation.
+
 # Package nl.adaptivity.xmlutil.core
 Core package for a wrapper that provides XML pull parsing access. Note
 that the implementations may do some adjustments beyond what is provided
 by the underlying implementation to improve compatibility across platforms.
-The access point to the package/module is (XmlStreaming)[nl.adaptivity.xml.XmlStreaming].
+The access point to the package/module is `[nl.adaptivity.xml.xmlStreaming]` ([nl.adaptivity.xml.IXmlStreaming]).

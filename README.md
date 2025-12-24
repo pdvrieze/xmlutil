@@ -12,7 +12,7 @@ This project is a cross-platform XML serialization (wrapping) library compatible
 It supports all platforms although native is at beta quality.
 
 Based upon the core xml library, the serialization module supports automatic object
-serialization based upon Kotlin's standard serialization library and plugin. 
+serialization based upon Kotlin's standard serialization library and plugin.
 
 **Help wanted**: Any help with extending this project is welcome. Help is especially needed for the following aspects:
 
