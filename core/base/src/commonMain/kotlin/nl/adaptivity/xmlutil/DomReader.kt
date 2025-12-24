@@ -34,7 +34,6 @@ import nl.adaptivity.xmlutil.util.myLookupPrefix
 /**
  * [XmlReader] that reads from DOM.
  *
- * @author Created by pdvrieze on 22/03/17.
  */
 internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlReader {
 

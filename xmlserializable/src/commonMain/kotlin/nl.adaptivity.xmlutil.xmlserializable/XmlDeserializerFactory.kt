@@ -28,7 +28,6 @@ import nl.adaptivity.xmlutil.XmlReader
  * Interface that factories need to implement to handle be deserialization in a "shared"
  * non-reflective approach.
  *
- * @author Created by pdvrieze on 27/08/15.
  */
 @Deprecated("This should be replaced by kotlinx.serialization")
 public interface XmlDeserializerFactory<T> {

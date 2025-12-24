@@ -36,6 +36,9 @@ import nl.adaptivity.xmlutil.util.myLookupPrefix
 
 /**
  * Writer that uses the DOM for the underlying storage (rather than writing to some string).
+ * @property isAppend Should the writing append new children (`true`) or replace the existing
+ *         children (`false`)
+ * @property xmlDeclMode Determine whether an XML declaration is written
  */
 public class DomWriter internal constructor(
     current: Node?,
@@ -44,14 +47,27 @@ public class DomWriter internal constructor(
     dummy: Boolean = false,
 ) : XmlWriter {
 
+    /**
+     * Create a new writer.
+     * @param current The node that will receive the new nodes as children
+     * @param isAppend Should the writing append new children (`true`) or replace the existing
+     *   children (`false`)
+     * @param xmlDeclMode Determine whether an XML declaration is written
+     */
     internal constructor(
         current: PlatformNode,
         isAppend: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.None
     ) : this(current as? Node ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode, false)
 
+    /**
+     * The sequence of events to use for indentation
+     */
     public var indentSequence: List<XmlEvent.TextEvent> = emptyList()
 
+    /**
+     * Shortcut string to use for indentation. This uses [indentSequence] as storage.
+     */
     @OptIn(XmlUtilInternal::class)
     override var indentString: String
         get() = indentSequence.toIndentString()
@@ -59,14 +75,19 @@ public class DomWriter internal constructor(
             indentSequence = value.toIndentSequence()
         }
 
-
     private var docDelegate: Document?
 
+    /**
+     * Create a new writer.
+     * @param xmlDeclMode Determine whether an XML declaration is written
+     */
     public constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
 
+    /** The document that is used to create nodes */
     @XmlUtilInternal
     public val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
 
+    /** The current node that events would need to be written to */
     @XmlUtilInternal
     public var currentNode: Node?
         private set

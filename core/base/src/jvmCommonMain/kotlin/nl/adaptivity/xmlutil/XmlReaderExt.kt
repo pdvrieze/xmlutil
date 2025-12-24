@@ -27,11 +27,11 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import java.io.CharArrayWriter
 
-/*
- * Functions that work on both js/jvm but have different implementations
+/**
+ * Write all the remaining content of the reader to a [CharArrayWriter]. Note that this likely
+ * fails if the reader is not at the start (as the writer would fail due to an invalid XML
+ * document).
  */
-
-
 public fun XmlReader.toCharArrayWriter(): CharArrayWriter {
     return CharArrayWriter().also {
         @Suppress("DEPRECATION")

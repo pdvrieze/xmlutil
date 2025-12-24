@@ -31,7 +31,6 @@ import kotlin.jvm.JvmOverloads
 
 
 /**
- * Created by pdvrieze on 04/11/15.
  */
 @Deprecated("Use kotlinx.serialization instead")
 public interface XmlDeserializable {

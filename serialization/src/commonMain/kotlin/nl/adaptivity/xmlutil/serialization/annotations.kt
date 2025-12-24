@@ -37,6 +37,7 @@ import nl.adaptivity.xmlutil.XmlEvent
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlSerialName(
     val value: String = UNSET_ANNOTATION_VALUE,
     val namespace: String = UNSET_ANNOTATION_VALUE,
@@ -56,6 +57,7 @@ public annotation class XmlSerialName(
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlNamespaceDeclSpecs(
     vararg val value: String,
 )
@@ -84,8 +86,10 @@ public val XmlNamespaceDeclSpecs.namespaces: List<Namespace>
  *     the name is prefixed with a `.` the package name of the container will be prefixed. Prefix is
  *     the namespace prefix to use (the namespace will be looked up based upon this). Localname
  *     allows to specify the local name of the tag.
- */@SerialInfo
+ */
+@SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlPolyChildren(val value: Array<String>)
 
 /**
@@ -100,6 +104,7 @@ public annotation class XmlPolyChildren(val value: Array<String>)
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlChildrenName(
     val value: String,
     val namespace: String = UNSET_ANNOTATION_VALUE,
@@ -115,6 +120,7 @@ public annotation class XmlChildrenName(
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlKeyName(
     val value: String,
     val namespace: String = UNSET_ANNOTATION_VALUE,
@@ -132,6 +138,7 @@ public annotation class XmlKeyName(
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlMapEntryName(
     val value: String,
     val namespace: String = UNSET_ANNOTATION_VALUE,
@@ -147,6 +154,7 @@ public annotation class XmlMapEntryName(
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlElement(val value: Boolean = true)
 
 /**
@@ -160,6 +168,7 @@ public annotation class XmlElement(val value: Boolean = true)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlValue(val value: Boolean = true)
 
 /**
@@ -168,6 +177,7 @@ public annotation class XmlValue(val value: Boolean = true)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlId
 
 /**
@@ -177,6 +187,7 @@ public annotation class XmlId
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlIgnoreWhitespace(val value: Boolean = true)
 
 /**
@@ -188,6 +199,7 @@ public annotation class XmlIgnoreWhitespace(val value: Boolean = true)
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlOtherAttributes
 
 /**
@@ -197,6 +209,7 @@ public annotation class XmlOtherAttributes
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlCData(
     val value: Boolean = true
 )
@@ -211,6 +224,7 @@ public annotation class XmlCData(
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlDefault(val value: String)
 
 /**
@@ -227,6 +241,7 @@ public annotation class XmlDefault(val value: String)
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlBefore(vararg val value: String)
 
 /**
@@ -242,6 +257,7 @@ public annotation class XmlBefore(vararg val value: String)
 @SerialInfo
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY)
+@MustBeDocumented
 public annotation class XmlAfter(vararg val value: String)
 
 /**

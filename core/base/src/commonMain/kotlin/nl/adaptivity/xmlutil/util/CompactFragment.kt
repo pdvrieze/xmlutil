@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.XmlWriter
 
 /**
  * A class representing an xml fragment compactly.
- * Created by pdvrieze on 06/11/15.2
+2
  */
 @Serializable(CompactFragmentSerializer::class)
 public expect class CompactFragment : ICompactFragment {

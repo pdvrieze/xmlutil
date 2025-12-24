@@ -31,36 +31,92 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.*
 
+/**
+ * Platform independent implementation of QName
+ */
 public expect class QName {
+    /**
+     * Create a new constructor with the given namespace uri, local part and prefix.
+     *
+     * @param namespaceURI The namespace for this name
+     * @param localPart The local part of the name
+     * @param prefix The prefix for this name
+     */
     public constructor(namespaceURI: String, localPart: String, prefix: String)
+
+    /**
+     * Create a new constructor with the given namespace uri and local part. The prefix
+     * is unspecified (empty).
+     *
+     * @param namespaceURI The namespace for this name
+     * @param localPart The local part of the name
+     */
     public constructor(namespaceURI: String, localPart: String)
+
+    /**
+     * Create a new QName in the default namespace with the given local name and null prefix.
+     * @param localPart The local part of the name. May not contain a '`:`' character.
+     */
     public constructor(localPart: String)
 
+    /**
+     * Retrieve the prefix for this QName.
+     */
     public fun getPrefix(): String
+
+    /**
+     * Retrieve the local part of this QName.
+     */
     public fun getLocalPart(): String
+
+    /**
+     * Retrieve the namespace URI for this QName.
+     */
     public fun getNamespaceURI(): String
 }
 
+/**
+ * Determine whether two QNames are equivalent (the prefix is ignored, the others
+ * compared textually).
+ */
 public infix fun QName.isEquivalent(other: QName): Boolean {
     return getLocalPart() == other.getLocalPart() &&
             getNamespaceURI() == other.getNamespaceURI()
 }
 
+/**
+ * Determine whether the two QNames are fully equal
+ */
 @XmlUtilInternal
 public infix fun QName.isFullyEqual(other: QName): Boolean {
     return isEquivalent(other) && getPrefix() == other.getPrefix()
 }
 
+/** Property syntax accessor for [QName.getPrefix] */
 public inline val QName.prefix: String get() = getPrefix()
+/** Property syntax accessor for [QName.getLocalPart] */
 public inline val QName.localPart: String get() = getLocalPart()
+/** Property syntax accessor for [QName.getNamespaceURI] */
 public inline val QName.namespaceURI: String get() = getNamespaceURI()
 
+/** Extract the namespace for the QName (excluding the local name) */
 public fun QName.toNamespace(): Namespace {
     return XmlEvent.NamespaceImpl(prefix, namespaceURI)
 }
 
+/**
+ * Shortcut alias for QName that associates the QNameSerializer with the type.
+ * Note that the QNameSerializer has special features for the XML format.
+ */
 public typealias SerializableQName = @Serializable(QNameSerializer::class) QName
 
+/**
+ * Serializer for QNames that allows writing in XML context to be as `prefix:localPart` where
+ * the namespace declaration is added when needed.
+ *
+ * As this serializer introduces content dependent namespaces that will cause for two-pass
+ * serialization if `isCollectingNSAttributes` is `true`.
+ */
 @OptIn(ExperimentalSerializationApi::class)
 public object QNameSerializer : XmlSerializer<QName> {
     @OptIn(InternalSerializationApi::class)
@@ -76,6 +132,9 @@ public object QNameSerializer : XmlSerializer<QName> {
         QName(XMLConstants.XSD_NS_URI, "QName", XMLConstants.XSD_PREFIX)
     )
 
+    /**
+     * Deserialize a cname string to a QName (using the input to resolve the prefix to namespace).
+     */
     override fun deserializeXML(
         decoder: Decoder,
         input: XmlReader,
@@ -111,6 +170,7 @@ public object QNameSerializer : XmlSerializer<QName> {
         return QName(namespace, localPart, prefix)
     }
 
+    /** Deserialize as struct */
     override fun deserialize(decoder: Decoder): QName = decoder.decodeStructure(descriptor) {
         var prefix = ""
         var namespace = ""
@@ -127,6 +187,7 @@ public object QNameSerializer : XmlSerializer<QName> {
         QName(namespace, localPart, prefix)
     }
 
+    /** Serialize a QName as CName by writing a namespace attribute if needed. The prefix is used as hint only. */
     override fun serializeXML(encoder: Encoder, output: XmlWriter, value: QName, isValueChild: Boolean) {
         var effectivePrefix = when (value.namespaceURI) {
             output.getNamespaceUri(value.prefix) -> value.prefix
@@ -146,6 +207,7 @@ public object QNameSerializer : XmlSerializer<QName> {
         encoder.encodeString("$effectivePrefix:${value.localPart}")
     }
 
+    /** Regular serializatin as struct of namespaceUri, localpart and prefix. */
     @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: QName) {
         encoder.encodeStructure(descriptor) {

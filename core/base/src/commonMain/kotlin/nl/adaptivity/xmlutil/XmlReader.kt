@@ -263,6 +263,9 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     }
 }
 
+/**
+ * Get an array of all attributes in the current (startTag) event.
+ */
 public val XmlReader.attributes: Array<out XmlEvent.Attribute>
     get() =
         Array(attributeCount) { i ->
@@ -275,14 +278,29 @@ public val XmlReader.attributes: Array<out XmlEvent.Attribute>
             )
         }
 
+/**
+ * Get a range for the attributes in the reader
+ */
 public val XmlReader.attributeIndices: IntRange get() = 0 until attributeCount
 
+/**
+ * Read a QName text from the reader. This will read `prefix:localName` values and resolve the
+ * namespace.
+ */
 public val XmlReader.qname: QName get() = text.toQname()
 
+/**
+ * Determine whether the given prefix is known in the reader (up to this point). This can be used
+ * for reading text that could reference a namespace prefix (e.g. when parsing XPath expressions).
+ */
 public fun XmlReader.isPrefixDeclaredInElement(prefix: String): Boolean {
     return namespaceDecls.any { it.prefix == prefix }
 }
 
+/**
+ * Determine whether the current event of the XMLReader is an element with the given name. Note that
+ * this ignores the prefix of the name.
+ */
 public fun XmlReader.isElement(elementname: QName): Boolean {
     return isElement(
         EventType.START_ELEMENT, elementname.getNamespaceURI(), elementname.getLocalPart(),
@@ -502,6 +520,11 @@ public fun XmlReader.skipPreamble() {
     }
 }
 
+/**
+ * Determine whether the current event in the reader is ignorable. This ignores:
+ * comments, start/end document, processing instructions, document declarations, ignorable
+ * whitespace, and text that is effectively xml whitespace.
+ */
 public fun XmlReader.isIgnorable(): Boolean = when (eventType) {
     EventType.COMMENT,
     EventType.START_DOCUMENT,
@@ -534,7 +557,7 @@ public fun XmlReader.isElement(type: EventType, elementname: QName): Boolean {
  *
  * @param elementName The local name to check against
  *
- * @param elementPrefix The mPrefix to fall back on if the namespace can't be determined
+ * @param elementPrefix The prefix to fall back on if the namespace can't be determined
  *
  * @return `true` if it matches, otherwise `false`
  */

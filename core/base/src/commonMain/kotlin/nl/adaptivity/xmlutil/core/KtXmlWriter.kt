@@ -36,7 +36,6 @@ import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 
 /**
  * A cross-platform implementation of XmlWriter.
- * Created by pdvrieze on 15/11/15.
  *
  * @property isRepairNamespaces Should missing namespace attributes be added automatically
  * @property xmlDeclMode Should the xml declaration be emitted automatically?

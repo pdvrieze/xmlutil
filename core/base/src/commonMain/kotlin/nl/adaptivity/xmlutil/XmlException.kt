@@ -26,7 +26,6 @@ import kotlin.jvm.JvmOverloads
 
 /**
  * Simple exception for xml related things.
- * @author Created by pdvrieze on 15/11/15.
  */
 public open class XmlException : IOException {
 

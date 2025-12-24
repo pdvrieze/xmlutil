@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 
 /**
  * A class representing an xml fragment compactly.
- * Created by pdvrieze on 06/11/15.2
  */
 @Serializable(CompactFragmentSerializer::class)
 public actual class CompactFragment : ICompactFragment {

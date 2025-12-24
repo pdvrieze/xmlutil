@@ -369,7 +369,10 @@ public inline fun XmlWriter.smartStartTag(qName: QName, body: XmlWriter.() -> Un
  * It will also ensure to write the appropriate namespace attribute if needed. If the namespace is
  * the default/null, xml or the xmlns namespace the implementation will be as expected.
  *
- * @return The used prefix
+ * @param nsUri The namespace to use
+ * @param localName The local name to use
+ * @param prefix A hint (if not `null`) for the prefix to use.
+ * @return The actually used prefix
  */
 @JvmOverloads
 @IgnorableReturnValue
@@ -396,7 +399,8 @@ public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: St
 }
 
 /**
- * Helper function for writing tags that will automatically write the end tag. Otherwise
+ * Helper function for writing tags that will automatically write the end tag. Otherwise uses
+ * the version that does not take a [body] parameter.
  */
 @JvmOverloads
 public inline fun XmlWriter.smartStartTag(
@@ -431,6 +435,9 @@ public inline fun <T> XmlWriter.writeListIfNotEmpty(
     }
 }
 
+/**
+ * Helper function for a tag that allows writing the body but closes the tag on completion.
+ */
 public inline fun XmlWriter.startTag(
     nsUri: String?,
     localName: String,
@@ -442,10 +449,22 @@ public inline fun XmlWriter.startTag(
     endTag(nsUri, localName, prefix)
 }
 
+/**
+ * Helper function that writes a simple element without attributes and a simple value.
+ * @param qName The name to use for the element
+ * @param value The value to write. If `null` write an empty tag.
+ */
 public fun XmlWriter.writeSimpleElement(qName: QName, value: String?) {
     writeSimpleElement(qName.getNamespaceURI(), qName.getLocalPart(), qName.getPrefix(), value)
 }
 
+/**
+ * Helper function that writes a simple element without attributes and a simple value.
+ * @param nsUri Namespace URI for the element
+ * @param localName The local name for the element
+ * @param prefix Hint for the prefix to use (see [smartStartTag])
+ * @param value The value to write. If `null` write an empty tag.
+ */
 public fun XmlWriter.writeSimpleElement(
     nsUri: String?,
     localName: String,
@@ -459,14 +478,29 @@ public fun XmlWriter.writeSimpleElement(
     endTag(nsUri, localName, prefix)
 }
 
+/**
+ * Write an attribute (must be in tag writing state - no content written yet).
+ * @param name The local name to use
+ * @param value The value to use for the attribute
+ */
 public fun XmlWriter.writeAttribute(name: String, value: String?) {
     value?.let { attribute(null, name, null, it) }
 }
 
+/**
+ * Write an attribute (must be in tag writing state - no content written yet).
+ * @param name The local name to use
+ * @param value The value to use for the attribute
+ */
 public fun XmlWriter.writeAttribute(name: String, value: Any?) {
     value?.let { attribute(null, name, null, it.toString()) }
 }
 
+/**
+ * Write an attribute (must be in tag writing state - no content written yet).
+ * @param name The QName to use
+ * @param value The value to use for the attribute
+ */
 public fun XmlWriter.writeAttribute(name: QName, value: String?) {
     if (value != null) {
         if (name.namespaceURI.isEmpty() && name.prefix.isEmpty()) {
@@ -477,16 +511,31 @@ public fun XmlWriter.writeAttribute(name: QName, value: String?) {
     }
 }
 
+/**
+ * Write an attribute (must be in tag writing state - no content written yet).
+ * @param name The local name to use
+ * @param value The value to use for the attribute
+ */
 public fun XmlWriter.writeAttribute(name: String, value: Double) {
     if (!value.isNaN()) {
         writeAttribute(name, value.toString())
     }
 }
 
+/**
+ * Write an attribute (must be in tag writing state - no content written yet).
+ * @param name The local name to use
+ * @param value The value to use for the attribute
+ */
 public fun XmlWriter.writeAttribute(name: String, value: Long) {
     writeAttribute(name, value.toString())
 }
 
+/**
+ * Write an attribute (must be in tag writing state - no content written yet).
+ * @param name The local name to use
+ * @param value The value to use for the attribute. The namespace presence will be declared.
+ */
 public fun XmlWriter.writeAttribute(name: String, value: QName?) {
     if (value != null) {
         var prefix: String?
@@ -510,15 +559,24 @@ public fun XmlWriter.writeAttribute(name: String, value: QName?) {
     }
 }
 
+/**
+ * Write an end tag event.
+ * @param predelemname The QName to end.
+ */
 public fun XmlWriter.endTag(predelemname: QName) {
     this.endTag(predelemname.getNamespaceURI(), predelemname.getLocalPart(), predelemname.getPrefix())
 }
 
+/**
+ * Create a writer that wraps a substream ensuring that document level events are ignored.
+ */
 public fun XmlWriter.filterSubstream(): XmlWriter {
     return SubstreamFilterWriter(this)
 }
 
-
+/**
+ * Helper to write the given node to the xml writer.
+ */
 public fun XmlWriter.serialize(node: Node2) {
     serialize(xmlStreaming.newReader(node))
 }

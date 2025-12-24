@@ -114,25 +114,65 @@ internal actual object XmlStreaming : IXmlStreaming {
         get() = DOMImplementationImpl.delegate as PlatformDOMImplementation
 }
 
+/**
+ * Retrieve a platform independent accessor to create Streaming XML parsing objects
+ */
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
+/**
+ * Create a new [DomWriter] that results in writing to a new DOM document.
+ * @return The [DomWriter]
+ */
 @Suppress("UnusedReceiverParameter", "EXTENSION_SHADOWED_BY_MEMBER")
 @Deprecated("Use the member function", level = DeprecationLevel.HIDDEN)
 public fun IXmlStreaming.newWriter(): DomWriter = XmlStreaming.newWriter()
 
+/**
+ * Create a new [DomWriter] that results in writing to DOM with [dest] as the receiver node.
+ * @param dest Destination node that will be the root
+ * @return The [DomWriter]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newWriter(dest: ParentNode): DomWriter = XmlStreaming.newWriter(dest as Node2)
 
+/**
+ * Create a new XML reader with the given source node as starting point.  Depending on the
+ * configuration, this parser can be platform specific.
+ * @param delegate The node to expose
+ * @return A (potentially platform specific) [XmlReader], generally a [DomReader]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(delegate: DomNode): XmlReader = XmlStreaming.newReader(delegate as Node2)
 
-
+/**
+ * Create a new [XmlWriter] that appends to the given [Appendable]. This writer
+ * could be a platform specific writer.
+ *
+ * @param output The appendable to which the XML will be written
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode
 ): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
 
+/**
+ * Create a new [XmlWriter] that appends to the given [Writer]. This writer
+ * could be a platform specific writer.
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public actual fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean,

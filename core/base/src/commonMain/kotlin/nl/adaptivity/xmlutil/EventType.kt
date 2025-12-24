@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2025.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.XmlEvent.*
 
 /** Enum representing the type of an xml node/event. */
 public enum class EventType {
+    /** Event representing the start of a document. */
     START_DOCUMENT {
         override val isIgnorable: Boolean get() = true
 
@@ -35,6 +36,7 @@ public enum class EventType {
             writer.startDocument(reader.version, reader.encoding, reader.standalone)
         }
     },
+    /** Event representing a start tag. Self-closing tags will also have an [END_ELEMENT] generated. */
     START_ELEMENT {
         override fun createEvent(reader: XmlReader): StartElementEvent =
             reader.run {
@@ -75,6 +77,7 @@ public enum class EventType {
             }
         }
     },
+    /** Event representing an end tag. This event is also generated for self-closing tags. */
     END_ELEMENT {
         override fun createEvent(reader: XmlReader): EndElementEvent = reader.run {
             EndElementEvent(extLocationInfo, namespaceURI, localName, prefix, namespaceContext)
@@ -84,6 +87,7 @@ public enum class EventType {
             writer.endTag(reader.namespaceURI, reader.localName, reader.prefix)
         }
     },
+    /** Event representing an XML comment. */
     COMMENT {
         override val isIgnorable: Boolean get() = true
 
@@ -101,6 +105,7 @@ public enum class EventType {
             writer.comment(reader.text)
         }
     },
+    /** Event representing a text (content) event. */
     TEXT {
         override val isTextElement: Boolean get() = true
 
@@ -116,6 +121,7 @@ public enum class EventType {
             writer.text(reader.text)
         }
     },
+    /** Event representing a CDATA sequence. */
     CDSECT {
         override val isTextElement: Boolean get() = true
 
@@ -131,6 +137,7 @@ public enum class EventType {
             writer.cdsect(reader.text)
         }
     },
+    /** Event representing a document declaration. */
     DOCDECL {
         override val isIgnorable: Boolean get() = true
 
@@ -146,6 +153,7 @@ public enum class EventType {
             writer.docdecl(reader.text)
         }
     },
+    /** Event representing the end of a document. */
     END_DOCUMENT {
         override val isIgnorable: Boolean get() = true
 
@@ -157,6 +165,7 @@ public enum class EventType {
             writer.endDocument()
         }
     },
+    /** Event representing an entity reference. */
     ENTITY_REF {
         override val isTextElement: Boolean get() = true
 
@@ -172,6 +181,7 @@ public enum class EventType {
             writer.text(reader.text)
         }
     },
+    /** Event representing ignorable whitespace. */
     IGNORABLE_WHITESPACE {
         override val isIgnorable: Boolean get() = true
         override val isTextElement: Boolean get() = true
@@ -190,6 +200,7 @@ public enum class EventType {
             writer.ignorableWhitespace(reader.text)
         }
     },
+    /** Event representing an attribute (note that generally these events are not generated). */
     ATTRIBUTE {
         override fun createEvent(reader: XmlReader): Attribute = reader.run {
             Attribute(extLocationInfo, this.namespaceURI, localName, prefix, text)
@@ -199,6 +210,7 @@ public enum class EventType {
             writer.attribute(reader.namespaceURI, reader.localName, reader.prefix, reader.text)
         }
     },
+    /** Event representing a processing instruction. */
     PROCESSING_INSTRUCTION {
 
         override val isIgnorable: Boolean get() = true

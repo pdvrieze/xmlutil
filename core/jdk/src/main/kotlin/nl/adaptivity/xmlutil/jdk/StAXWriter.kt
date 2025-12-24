@@ -36,7 +36,6 @@ import javax.xml.transform.Result
 
 /**
  * An implementation of [XmlWriter] that uses an underlying stax writer.
- * Created by pdvrieze on 16/11/15.
  *
  * @property delegate The [XMLStreamWriter] that is wrapped
  * @property xmlDeclMode This determines how automatic xml declarations are written. Note that

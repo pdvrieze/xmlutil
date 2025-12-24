@@ -36,7 +36,6 @@ import kotlin.test.*
 
 
 /**
- * Created by pdvrieze on 03/12/15.
  */
 class TestSoapHelper {
 
