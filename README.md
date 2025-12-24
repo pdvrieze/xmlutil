@@ -1,5 +1,5 @@
 # XmlUtil
-[![Build Status](https://dev.azure.com/pdvrieze/xmlutil/_apis/build/status/pdvrieze.xmlutil?branchName=master)](https://dev.azure.com/pdvrieze/xmlutil/_build/latest?definitionId=1&branchName=master)
+![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
 [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
 - Core:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/core)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/core)
 - Serialization:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialization)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialization)
@@ -8,8 +8,6 @@
 XmlUtil is a set of packages that supports multiplatform XML in Kotlin.
 
 ### Introduction
-* Gradle wrapper validation: ![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
-
 This project is a cross-platform XML serialization (wrapping) library compatible with kotlinx.serialization. 
 It supports all platforms although native is at beta quality.
 
