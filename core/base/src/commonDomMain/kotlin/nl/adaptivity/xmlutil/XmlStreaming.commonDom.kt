@@ -83,15 +83,39 @@ internal actual object XmlStreaming : IXmlStreaming {
         get() = SimpleDOMImplementation
 }
 
+/**
+ * Retrieve a platform independent accessor to create Streaming XML parsing objects
+ */
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
-
+/**
+ * Create a new [XmlWriter] that appends to the given [Appendable].
+ *
+ * @param output The appendable to which the XML will be written
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode
 ): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
 
+/**
+ * Create a new [XmlWriter] that appends to the given [Writer]. This writer
+ * could be a platform specific writer.
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public actual fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean,

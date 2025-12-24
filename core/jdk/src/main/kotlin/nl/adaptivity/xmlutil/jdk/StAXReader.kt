@@ -29,7 +29,6 @@ import javax.xml.transform.Source
 
 /**
  * An implementation of [XmlReader] based upon the JDK StAX implementation.
- * @author Created by pdvrieze on 16/11/15.
  */
 public class StAXReader(
     private val delegate: XMLStreamReader,

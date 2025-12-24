@@ -26,19 +26,37 @@ import kotlin.jvm.JvmName
 
 /** Interface that provides access to namespace queries */
 public expect interface NamespaceContext {
+    /**
+     * Return the namespace uri for a given prefix. Note that some prefixes are predefined.
+     * @return The uri, or `null` if not found.
+     */
     public fun getNamespaceURI(prefix: String): String?
+
+    /**
+     * Return a prefix for a given namespace uri. If there are multiple candidates the returned
+     * prefix is implementation defined.
+     * @return `null` if no prefix is found, otherwise a matching prefix.
+     */
     public fun getPrefix(namespaceURI: String): String?
+
+    /**
+     * Return an iterator that provides all prefixes for the given namespace.
+     */
     public fun getPrefixes(namespaceURI: String): Iterator<String>
 }
 
 /** Namespace context that allows iterating over the namespaces. */
 @MpJvmDefaultWithCompatibility
 public interface IterableNamespaceContext : NamespaceContext, Iterable<Namespace> {
+    /** Create a copy of the namespace context that will not change externally. */
     public fun freeze(): IterableNamespaceContext = SimpleNamespaceContext(this)
 
 
+    /** Create a new context that combines both */
     public operator fun plus(secondary: IterableNamespaceContext): IterableNamespaceContext =
         SimpleNamespaceContext((asSequence() + secondary.asSequence()).toList())
 
+    /** Retrieve an iterator returning all the known namespaces in this context. */
+    override fun iterator(): Iterator<Namespace>
 }
 

@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil
 /**
  * A class to represent the events that can occur in XML Documents
  *
- * @author Created by pdvrieze on 16/11/15.
  */
 public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?) {
 

@@ -31,7 +31,6 @@ public typealias JSCompactFragment = CompactFragment
 
 /**
  * A class representing an xml fragment compactly.
- * Created by pdvrieze on 06/11/15.
  */
 @Serializable(CompactFragmentSerializer::class)
 public actual class CompactFragment : ICompactFragment {

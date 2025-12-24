@@ -33,7 +33,6 @@ import java.io.StringReader
  * pair of wrapper elements, and then ignoring those on reading. This avoids the restriction of
  * xml that a document only has 1 document element.
  *
- * @author Created by pdvrieze on 04/11/15.
  *
  * @param reader The reader to read the "fragment" from.
  * @param namespaces A list of namespace/prefix declarations to resolve for the fragment.

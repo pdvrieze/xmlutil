@@ -25,6 +25,13 @@ import nl.adaptivity.xmlutil.core.impl.AppendableWriter
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import java.io.*
 
+/**
+ * A factory that can be used to customize [xmlStreaming] to use these custom factory functions
+ * when not using the explicit generic implementations. Factories are picked up using service
+ * loaders.
+ *
+ * @see IXmlStreaming.setFactory
+ */
 @Suppress(
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
 )

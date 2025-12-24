@@ -47,6 +47,12 @@ public fun XmlReader.elementContentToFragment(): ICompactFragment {
     return CompactFragment("")
 }
 
+/**
+ * Read the current event and all subsequent siblings into a compact fragment.
+ *
+ * @receiver The source, note that this event and all siblings will be consumed.
+ * @return A compact fragment with the elements, including namespace declarations needed.
+ */
 public fun XmlReader.siblingsToFragment(): CompactFragment {
     val appendable: Appendable = StringBuilder()
     if (!isStarted) {

@@ -20,14 +20,25 @@
 
 package nl.adaptivity.xmlutil
 
+/**
+ * A factory that can be used to customize [xmlStreaming] to use these custom factory functions
+ * when not using the explicit generic implementations.
+ *
+ * This is only really supported for the JVM/Android platforms.
+ *
+ * @see IXmlStreaming.setFactory
+ */
 // note that this type is deprecated on multiplatform. It only makes sense for the JVM target
 public expect interface XmlStreamingFactory
 
-/** Flag to indicate that the xml declaration should be omitted, when possible.  */
+/** Flag for [XmlSerializable] to indicate that the xml declaration should be omitted, when possible.  */
+@Deprecated("Should no longer exist here")
 public const val FLAG_OMIT_XMLDECL: Int = 1
 
-/** Flag to indicate that the namespace usable should be automatically repaired. */
+/** Flag for [XmlSerializable] to indicate that the namespace usable should be automatically repaired. */
+@Deprecated("Should no longer exist here")
 public const val FLAG_REPAIR_NS: Int = 2
 
-/** The default used flags */
+/** The default used flags for [XmlSerializable] */
+@Deprecated("Should no longer exist here")
 public const val DEFAULT_FLAGS: Int = FLAG_OMIT_XMLDECL

@@ -25,6 +25,10 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.XmlEvent.*
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 
+/**
+ * Base class for XML readers that support buffering of the parsing results.
+ * @property delegate The actual delegate that
+ */
 @XmlUtilInternal
 public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delegate: XmlReader) : XmlReader,
     XmlPeekingReader {

@@ -19,7 +19,6 @@
  */
 
 /**
- * Created by pdvrieze on 13/04/16.
  */
 @file:JvmName("XmlUtil")
 @file:MustUseReturnValues
@@ -30,7 +29,7 @@ import nl.adaptivity.xmlutil.XMLConstants.DEFAULT_NS_PREFIX
 import nl.adaptivity.xmlutil.XMLConstants.NULL_NS_URI
 import kotlin.jvm.JvmName
 
-/** Determine whether the character is xml whitespace. */
+/** Determine whether the character is XML whitespace. */
 public fun isXmlWhitespace(char: Char): Boolean = when(char) {
     '\u000A',
     '\u0009',
@@ -40,10 +39,22 @@ public fun isXmlWhitespace(char: Char): Boolean = when(char) {
     else -> false
 }
 
+/**
+ * Determine whether all the characters in the array are XML Whitespace.
+ */
 public fun isXmlWhitespace(data: CharArray): Boolean = data.all { isXmlWhitespace(it) }
 
+/**
+ * Determine whether all the characters in the sequence are XML Whitespace.
+ */
 public fun isXmlWhitespace(data: CharSequence): Boolean = data.all { isXmlWhitespace(it) }
 
+/**
+ * Implementation of the XMLSchema whitespace collapsing algorithm. This involves:
+ * - Trimming start/end
+ * - Replacing all whitespace to space
+ * - Shortening all resulting sequences of whitespace to a single space
+ */
 public fun xmlCollapseWhitespace(original: String): String = buildString(original.length) {
     var last = ' ' // Start with space, to trim start of symbol
     for (c in original) {
@@ -58,6 +69,11 @@ public fun xmlCollapseWhitespace(original: String): String = buildString(origina
     if (last == ' ' && isNotEmpty()) this.deleteAt(this.length - 1) // make sure to trim
 }
 
+/**
+ * Implementation of the XML whitespace trimming algorithm. Unlike [xmlCollapseWhitespace] this
+ * function does not collapse multi-whitespace sequences, but still normalizes to space, and trims
+ * start and end.
+ */
 public fun xmlTrimWhitespace(original: String): String = buildString(original.length) {
     var start = -1
     for (i in original.indices) {
@@ -85,7 +101,9 @@ public fun xmlTrimWhitespace(original: String): String = buildString(original.le
     }
 }
 
-
+/**
+ * Shorthand function to create a QName.
+ */
 public fun qname(namespaceUri: String?, localname: String, prefix: String? = DEFAULT_NS_PREFIX): QName =
     QName(
         namespaceUri ?: NULL_NS_URI,
@@ -94,7 +112,9 @@ public fun qname(namespaceUri: String?, localname: String, prefix: String? = DEF
     )
 
 /**
- * Convert the string as fqn literal to an actual qname
+ * Convert the string as fqn literal to an actual qname. The formats handled are:
+ * - `{namespaceuri}localname`: for name with namespace URI
+ * - `localname`: a local name only (with null namespace), the name may not include '}'
  */
 public fun CharSequence.toQname(): QName {
     val split = indexOf('}')
@@ -112,6 +132,9 @@ public fun CharSequence.toQname(): QName {
 }
 
 /**
+ * Convert the string as fqn literal to an actual qname. The formats handled are:
+ * - `{namespaceuri}localname`: for name with namespace URI
+ * - `localname`: a local name only (with null namespace), the name may not include '}'
  * Convert the string as fqn literal to actual name, but use the namespace parameter to fill in namespace (but not prefix)
  */
 public fun CharSequence.toQname(namespace: Namespace): QName {
@@ -129,6 +152,9 @@ public fun CharSequence.toQname(namespace: Namespace): QName {
     return QName(nsUri, localname)
 }
 
+/**
+ * Get the CName part of a QName
+ */
 public fun QName.toCName(): String {
     if (NULL_NS_URI == getPrefix()) return getLocalPart()
     return "${getPrefix()}:${getLocalPart()}"
@@ -174,6 +200,10 @@ public fun XmlReader.isXml(): Boolean {
     return true
 }
 
+/**
+ * Encode the text such that it escapes the '`<`', '`>`', and '`&`' characters. This does not
+ * encode quotation characters (as would be needed in attributes).
+ */
 public fun CharSequence.xmlEncode(): String = buildString(length.let { it + (it shr 4) }) {
     for (c in this@xmlEncode) {
         when (c) {

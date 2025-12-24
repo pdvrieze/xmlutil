@@ -28,7 +28,6 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 
 /**
  * Class that gathers namespace queries and records them in the given map (prefix, namespace uri).
- * @author Created by pdvrieze on 20/10/15.
  */
 @XmlUtilInternal
 public class GatheringNamespaceContext(

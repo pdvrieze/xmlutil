@@ -27,13 +27,35 @@ import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 
-
+/**
+ * Create a new [XmlWriter] that appends to the given [Appendable]. This writer
+ * could be a platform specific writer.
+ *
+ * @param output The appendable to which the XML will be written
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public expect fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean = false,
     xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ): XmlWriter
 
+/**
+ * Create a new [XmlWriter] that appends to the given [Writer]. This writer
+ * could be a platform specific writer.
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public expect fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean = false,
@@ -41,6 +63,17 @@ public expect fun IXmlStreaming.newWriter(
 ): XmlWriter
 
 
+/**
+ * Create a new [XmlWriter] that appends to the given [Appendable]. This writer
+ * could be a platform specific writer.
+ *
+ * @param output The appendable to which the XML will be written
+ * @param isRepairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A platform independent [XmlWriter], generally [nl.adaptivity.xmlutil.core.KtXmlWriter]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newGenericWriter(
     output: Appendable,
@@ -48,7 +81,9 @@ public fun IXmlStreaming.newGenericWriter(
     xmlDeclMode: XmlDeclMode = XmlDeclMode.None
 ): KtXmlWriter = KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
 
-
+/**
+ * Retrieve a platform independent accessor to create Streaming XML parsing objects
+ */
 public expect val xmlStreaming: IXmlStreaming
 
 /**
@@ -77,7 +112,9 @@ internal expect object XmlStreaming : IXmlStreaming {
     override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader
 }
 
-
+/**
+ * Mode to use for writing the XML Declaration.
+ */
 public enum class XmlDeclMode {
     /** Don't emit XML Declaration */
     None,
@@ -92,6 +129,9 @@ public enum class XmlDeclMode {
     Charset;
 
     public companion object {
+        /**
+         * Helper function that is used to convert a boolean to [XmlDeclMode]
+         */
         @XmlUtilInternal
         public fun from(value: Boolean): XmlDeclMode = when (value) {
             true -> None

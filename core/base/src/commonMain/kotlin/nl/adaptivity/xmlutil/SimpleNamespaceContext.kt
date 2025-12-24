@@ -37,12 +37,12 @@ import kotlin.jvm.JvmName
 
 
 /**
- * A simple namespace context that stores namespaces in a single array
- * Created by pdvrieze on 24/08/15.
+ * A simple namespace context that stores namespaces in a single array. It is not mutable.
+ * @suppress
  */
 @Serializable(SimpleNamespaceContext.Serializer::class)
 @XmlUtilInternal
-public open class SimpleNamespaceContext internal constructor(public val buffer: Array<out String>) :
+public open class SimpleNamespaceContext internal constructor(private val buffer: Array<out String>) :
     IterableNamespaceContext {
 
     public val indices: IntRange get() = 0 until size
@@ -83,30 +83,50 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
         }
     }
 
+    /** Create an (initially) empty namespace context */
     public constructor() : this(emptyArray())
 
+    /**
+     * Create a namespace context initialised with the prefix, namespace pairs of the map
+     * @param prefixMap A map from prefix to namespaceUri
+     */
     public constructor(prefixMap: Map<out CharSequence, CharSequence>) :
             this(flatten(prefixMap.entries, { key.toString() }, { value.toString() }))
 
+    /**
+     * Create a namespace context initialised using the parameters. Both arrays must have the same length
+     * and map array index indicates correspondance.     *
+     */
     public constructor(prefixes: Array<out CharSequence>, namespaces: Array<out CharSequence>) :
             this(Array(prefixes.size * 2) { (if (it % 2 == 0) prefixes[it / 2] else namespaces[it / 2]).toString() })
 
+    /** Create a namespace context initialised with a single prefix, namespace pair. */
     public constructor(prefix: CharSequence, namespace: CharSequence) :
             this(arrayOf(prefix.toString(), namespace.toString()))
 
+    /** Create a namespace context initialised with the list of namespaces. */
     public constructor(namespaces: Collection<Namespace>) :
             this(flatten(namespaces, { prefix }, { namespaceURI }))
 
+    /** Create a namespace context initialised with the list of namespaces.
+     * This overload uses the list structure for efficiency. */
     public constructor(namespaces: List<Namespace>) :
             this(Array(namespaces.size * 2) { i -> if (i % 2 == 0) namespaces[i / 2].prefix else namespaces[i / 2].namespaceURI })
 
+    /** Create a namespace context initialised with the list of namespaces. */
     public constructor(namespaces: Iterable<Namespace>) :
             this(namespaces as? Collection<Namespace> ?: namespaces.toList())
 
+    /** Create a copy namespace context (that shares the underlying buffer). */
     public constructor(original: SimpleNamespaceContext) : this(original.buffer)
 
+    /** As this type is immutable, freeze returns this context */
     override fun freeze(): SimpleNamespaceContext = this
 
+    /**
+     * Create a new namespace context combining both, ensuring uniqueness. The prefixes already
+     * in this context prevail over the added ones.
+     */
     public operator fun plus(other: SimpleNamespaceContext): SimpleNamespaceContext {
         val result = mutableMapOf<String, String>()
         for (i in indices.reversed()) {
@@ -128,6 +148,12 @@ public open class SimpleNamespaceContext internal constructor(public val buffer:
         return plus(other)
     }
 
+    /**
+     * Return a namespace context that contains the union of namespaces of this one and the
+     * parameter.
+     *
+     * Note that this could return the same object if the parameter is empty.
+     */
     public operator fun plus(other: Iterable<Namespace>): SimpleNamespaceContext {
         if (size == 0) {
             return from(other)

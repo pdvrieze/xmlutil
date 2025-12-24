@@ -79,6 +79,7 @@ public abstract interface class nl/adaptivity/xmlutil/IXmlStreaming {
 
 public abstract interface class nl/adaptivity/xmlutil/IterableNamespaceContext : java/lang/Iterable, javax/xml/namespace/NamespaceContext, kotlin/jvm/internal/markers/KMappedMarker {
 	public fun freeze ()Lnl/adaptivity/xmlutil/IterableNamespaceContext;
+	public abstract fun iterator ()Ljava/util/Iterator;
 	public fun plus (Lnl/adaptivity/xmlutil/IterableNamespaceContext;)Lnl/adaptivity/xmlutil/IterableNamespaceContext;
 }
 

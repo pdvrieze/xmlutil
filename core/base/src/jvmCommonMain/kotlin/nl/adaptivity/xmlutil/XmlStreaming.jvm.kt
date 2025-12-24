@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
@@ -35,6 +36,9 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer as MPWriter
 import org.w3c.dom.Node as DomNode
 import java.io.Writer as JavaIoWriter
 
+/**
+ * Set the factory that is used to initialise the non-generic readers/writers.
+ */
 // Suppression should be fine as the member is hidden
 @Suppress("UnusedReceiverParameter", "EXTENSION_SHADOWED_BY_MEMBER")
 public fun IXmlStreaming.setFactory(factory: XmlStreamingFactory?) {
@@ -192,37 +196,91 @@ internal actual object XmlStreaming : IXmlStreaming {
 
 }
 
-@Suppress("DEPRECATION")
+/**
+ * Retrieve a platform independent accessor to create Streaming XML parsing objects
+ */
 public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 
+/**
+ * Get a streaming factory that returns the platform independent serializer/deserializer
+ * implementations.
+ */
 @Suppress("UnusedReceiverParameter")
 @ExperimentalXmlUtilApi
 public val IXmlStreaming.genericFactory: XmlStreamingFactory get() = XmlStreaming.GenericFactory
 
+/**
+ * Create a new XML reader with the given source node as starting point.  Depending on the
+ * configuration, this parser can be platform specific.
+ * @param node The node to expose
+ * @return A (potentially platform specific) [XmlReader], generally a [DomReader]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(node: DomNode): XmlReader {
     return DomReader(node)
 }
+
+/**
+ * Create a new XML reader with the given source node as starting point.  Depending on the
+ * configuration, this parser can be platform specific. This would normally do some level of
+ * charset detection (e.g. using the xml declaration, a.o. UTF BOM based detection).
+ *
+ * @param inputStream The inputstream to read
+ * @return A (potentially platform specific) [XmlReader], generally a [DomReader]
+ */
 
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(inputStream: InputStream): XmlReader {
     return XmlStreaming.newReader(inputStream)
 }
 
+/**
+ * Create a new XML reader with the given source node as starting point.  Depending on the
+ * configuration, this parser can be platform specific.
+ *
+ * @param inputStream The inputstream to read
+ * @param encoding The character encoding used
+ * @return A (potentially platform specific) [XmlReader], generally a [DomReader]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newReader(inputStream: InputStream, encoding: String): XmlReader =
     XmlStreaming.newReader(inputStream, encoding)
 
+/**
+ * Create a new XML reader with the given source node as starting point. This reader is generic.
+ *
+ * @param inputStream The inputstream to read
+ * @return A platform independent [XmlReader], generally [nl.adaptivity.xmlutil.core.KtXmlReader]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newGenericReader(inputStream: InputStream): XmlReader {
     return XmlStreaming.newGenericReader(inputStream)
 }
 
+/**
+ * Create a new XML reader with the given source node as starting point. This reader is generic.
+ * This would does charset detection using BOM for UTF variants and the xml declaration.
+ *
+ * @param inputStream The inputstream to read
+ * @param encoding The character encoding used
+ * @return A platform independent [XmlReader], generally [nl.adaptivity.xmlutil.core.KtXmlReader]
+ */
 @Suppress("UnusedReceiverParameter")
 public fun IXmlStreaming.newGenericReader(inputStream: InputStream, encoding: String): XmlReader {
     return XmlStreaming.newGenericReader(inputStream, encoding)
 }
 
+/**
+ * Create a new [XmlWriter] that appends to the given [OutputStream]. This writer
+ * could be a platform specific writer.
+ *
+ * @param outputStream The output stream to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param encoding The character encoding to be used.
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 public fun IXmlStreaming.newWriter(
     outputStream: OutputStream,
     encoding: String,
@@ -230,12 +288,35 @@ public fun IXmlStreaming.newWriter(
 ): XmlWriter =
     (this as XmlStreaming).newWriter(outputStream, encoding, repairNamespaces)
 
+/**
+ * Create a new [XmlWriter] that appends to the given [Writer]. This writer
+ * could be a platform specific writer.
+ *
+ * @param output The output to write to
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 @Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode
 ): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
+
+/**
+ * Create a new [XmlWriter] that appends to the given multi-platform [MPWriter].
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 
 @Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
@@ -244,6 +325,17 @@ public actual fun IXmlStreaming.newWriter(
     xmlDeclMode: XmlDeclMode,
 ): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
 
+/**
+ * Create a new [XmlWriter] that appends to the given java specific [java.io.Writer].
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 @Suppress("DEPRECATION", "UnusedReceiverParameter")
 public fun IXmlStreaming.newWriter(
     writer: JavaIoWriter,

@@ -612,6 +612,7 @@ abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmluti
 }
 
 abstract interface nl.adaptivity.xmlutil/IterableNamespaceContext : kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>, nl.adaptivity.xmlutil/NamespaceContext { // nl.adaptivity.xmlutil/IterableNamespaceContext|null[0]
+    abstract fun iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil/IterableNamespaceContext.iterator|iterator(){}[0]
     open fun freeze(): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil/IterableNamespaceContext.freeze|freeze(){}[0]
     open fun plus(nl.adaptivity.xmlutil/IterableNamespaceContext): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil/IterableNamespaceContext.plus|plus(nl.adaptivity.xmlutil.IterableNamespaceContext){}[0]
 }
