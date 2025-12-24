@@ -43,7 +43,7 @@
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
         <div class="library-version" id="library-version">
-0.91.3        </div>
+1.0.0-rc1        </div>
         <div class="navigation-controls">
             <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
                     type="button">Switch theme
@@ -77,6 +77,45 @@
 <div class="main-content" id="content" pageIds="xmlutil::.ext/allModules///PointingToDeclaration//0">
   <div class="breadcrumbs"></div>
   <div class="cover ">
+    <div class="cover ">
+      <h1 class="">Introduction to XMLUtil</h1>
+      <p class="paragraph">This project is a cross-platform XML serialization (wrapping) library compatible with kotlinx.serialization. It supports all platforms although native is at beta quality.</p>
+      <p class="paragraph">Based upon the core xml library, the serialization module supports automatic object serialization based upon Kotlin's standard serialization library and plugin. </p>
+      <h2 class="">Usage</h2>
+      <p class="paragraph">Simple usage for serialization (gradle):</p>
+      <div class="sample-container">
+        <pre><code class="block lang-kotlin" theme="idea">implementation(&quot;io.github.pdvrieze.xmlutil:serialization:1.0.0-RC1&quot;)</code></pre>
+<span class="copy-tooltip">
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+<span class="copy-icon"></span></span></div>
+      <p class="paragraph">If only the core module (XML parsing) is needed:</p>
+      <div class="sample-container">
+        <pre><code class="block lang-kotlin" theme="idea">implementation(&quot;io.github.pdvrieze.xmlutil:core:1.0.0-RC1&quot;)</code></pre>
+<span class="copy-tooltip">
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+<span class="copy-icon"></span></span></div>
+      <h3 class="">Hello world</h3>
+      <p class="paragraph">To serialize a very simple type you have the following:</p>
+      <div class="sample-container">
+        <pre><code class="block lang-kotlin" theme="idea">@Serializable<br>data class HelloWorld(val user: String)<br><br>println(XML1_0.encodeToString(HelloWorld(&quot;You!&quot;)))</code></pre>
+<span class="copy-tooltip">
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+<span class="copy-icon"></span></span></div>
+      <p class="paragraph">To deserialize you would do:</p>
+      <div class="sample-container">
+        <pre><code class="block lang-kotlin" theme="idea">@Serializable<br>data class HelloWorld(val user: String)<br><br>XML1_0.decodeFromString(HelloWorld.serializer(), &quot;&lt;HelloWorld user='You!' /&gt;&quot;)</code></pre>
+<span class="copy-tooltip">
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+<span class="copy-icon"></span></span></div>
+      <p class="paragraph">Please look at the examples and the documentation for further features that can influence: the tag names/namespaces used, the actual structure used (how lists and polymorphic types are handled), etc.</p>
+      <h3 class="">Custom configuration</h3>
+      <p class="paragraph">The format can be configured using the <code class="lang-kotlin">XML1_0</code> accessor:</p>
+      <div class="sample-container">
+        <pre><code class="block lang-kotlin" theme="idea">val format = XML1_0.recommended(mySerialModule) {  <br>    // configuration options<br>    xmlDeclMode = XmlDeclMode.None<br>    policy {<br>        typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, &quot;type&quot;, XMLConstants.XSI_PREFIX)<br>    }<br>}</code></pre>
+<span class="copy-tooltip">
+          <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
+<span class="copy-icon"></span></span></div>
+    </div>
     <h2 class="">All modules:</h2>
     <div class="table"><a data-name="-387464810%2FMain%2F0" anchor-label="core" id="-387464810%2FMain%2F0" data-filterable-set=""></a>
       <div class="table-row table-row_multimodule">
@@ -125,7 +164,9 @@
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="786565234%2FMain%2F0"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
-          <div><span class="brief-comment"></span></div>
+          <div><span class="brief-comment">
+              <p class="paragraph">Module providing Jdk specific parsing implementations. Including this module  changes the default to us the jdk's xml parser/serializer implementations (the JDK uses serviceLoaders itself, so you could this way use implementations such as woodstox).</p>
+            </span></div>
         </div>
       </div>
 <a data-name="2121811613%2FMain%2F0" anchor-label="serialization" id="2121811613%2FMain%2F0" data-filterable-set=""></a>

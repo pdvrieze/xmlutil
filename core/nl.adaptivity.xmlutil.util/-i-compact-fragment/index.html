@@ -39,7 +39,7 @@
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.3
+        <div class="library-version" id="library-version">1.0.0-rc1
         </div>
         <div class="navigation-controls">
         <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
@@ -94,7 +94,7 @@
   <div class="breadcrumbs"><a href="../../index.html">core</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil.util</a><span class="delimiter">/</span><span class="current">ICompactFragment</span></div>
   <div class="cover ">
     <h1 class="cover"><span>ICompact</span><wbr><span><span>Fragment</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="../-i-compact-fragment-serializer/index.html">ICompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">interface </span><a href="index.html">ICompactFragment</a> : <a href="../../../core/nl.adaptivity.xmlutil/-xml-serializable/index.html">XmlSerializable</a></div><p class="paragraph">Base interface for CompactFragment implementations.</p><h4 class="tableheader">Inheritors</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-compact-fragment/index.html">CompactFragment</a></div></span></div><div></div></div></div></div></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html"><span class="token annotation builtin">Serializable</span></a><span class="token punctuation">(</span><span>with<span class="token operator"> = </span><a href="../-i-compact-fragment-serializer/index.html">ICompactFragmentSerializer::class</a></span><wbr><span class="token punctuation">)</span></div></div><span class="token keyword">interface </span><a href="index.html">ICompactFragment</a></div><p class="paragraph">Base interface for CompactFragment implementations.</p><h4 class="tableheader">Inheritors</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-compact-fragment/index.html">CompactFragment</a></div></span></div><div></div></div></div></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
@@ -180,17 +180,17 @@
               </div>
             </div>
           </div>
-<a data-name="695502497%2FFunctions%2F-910832118" anchor-label="serialize" id="695502497%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
+<a data-name="1348212259%2FFunctions%2F-910832118" anchor-label="serialize" id="1348212259%2FFunctions%2F-910832118" data-filterable-set=":core/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="index.html#695502497%2FFunctions%2F-910832118"><span><span>serialize</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="695502497%2FFunctions%2F-910832118"></span>
+                  <div><a href="serialize.html"><span><span>serialize</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1348212259%2FFunctions%2F-910832118"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="index.html#695502497%2FFunctions%2F-910832118"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">out<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil/-xml-writer/index.html">XmlWriter</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Write the object to an xml stream. The object is expected to write itself and its children.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">out<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil/-xml-writer/index.html">XmlWriter</a></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Write the content of the fragment to the provided xml writer</p></div></div></div>
                 </div>
               </div>
             </div>

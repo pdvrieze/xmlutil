@@ -1,0 +1,1092 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>PlatformDocument</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
+                    xmlutil
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">1.0.0-rc1
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true" data-filter=":core/jsMain">JS</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmCommonMain">JVM</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/commonDomMain" data-filter=":core/commonDomMain">
+                                <span class="checkbox--icon"></span>
+                                Native
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/commonMain" data-filter=":core/commonMain">
+                                <span class="checkbox--icon"></span>
+                                Common
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option js-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/jsMain" data-filter=":core/jsMain">
+                                <span class="checkbox--icon"></span>
+                                JS
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/jvmCommonMain" data-filter=":core/jvmCommonMain">
+                                <span class="checkbox--icon"></span>
+                                JVM
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    xmlutil
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="core::nl.adaptivity.xmlutil.dom/PlatformDocument///PointingToDeclaration//588233207">
+  <div class="breadcrumbs"><a href="../../index.html">core</a><span class="delimiter">/</span><a href="../index.html">nl.adaptivity.xmlutil.dom</a><span class="delimiter">/</span><span class="current">PlatformDocument</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Platform</span><wbr><span><span>Document</span></span></h1>
+    <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
+<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">interface </span><a href="index.html">PlatformDocument</a> : <a href="../-platform-node/index.html">PlatformNode</a></div></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">expect </span><span class="token keyword">interface </span><a href="index.html">PlatformDocument</a> : <a href="../-platform-node/index.html">PlatformNode</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">external </span><span class="token keyword">interface </span><a href="index.html">PlatformDocument</a> : <a href="../-platform-node/index.html">PlatformNode</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">typealias </span><a href="index.html">PlatformDocument</a><span class="token operator"> = </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/org.w3c.dom/-document/index.html">Document</a></div></div>    </div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="-1671092165%2FProperties%2F1626307724" anchor-label="baseURI" id="-1671092165%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/base-u-r-i.html"><span>base</span><wbr><span><span>URI</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1671092165%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/base-u-r-i.html">baseURI</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="843273828%2FProperties%2F-1905896616" anchor-label="characterSet" id="843273828%2FProperties%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="character-set.html"><span>character</span><wbr><span><span>Set</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="843273828%2FProperties%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="character-set.html">characterSet</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-99600689%2FProperties%2F1626307724" anchor-label="childNodes" id="-99600689%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/child-nodes.html"><span>child</span><wbr><span><span>Nodes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-99600689%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/child-nodes.html">childNodes</a><span class="token operator">: </span><a href="../-platform-node-list/index.html">PlatformNodeList</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1959631499%2FProperties%2F1626307724" anchor-label="doctype" id="1959631499%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="doctype.html"><span><span>doctype</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1959631499%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="doctype.html">doctype</a><span class="token operator">: </span><a href="../-platform-document-type/index.html">PlatformDocumentType</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-18256772%2FProperties%2F1626307724" anchor-label="documentElement" id="-18256772%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="document-element.html"><span>document</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-18256772%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="document-element.html">documentElement</a><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-517720744%2FProperties%2F1626307724" anchor-label="firstChild" id="-517720744%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/first-child.html"><span>first</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-517720744%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/first-child.html">firstChild</a><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="608901451%2FProperties%2F1626307724" anchor-label="implementation" id="608901451%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="implementation.html"><span><span>implementation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="608901451%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="implementation.html">implementation</a><span class="token operator">: </span><a href="../-platform-d-o-m-implementation/index.html">PlatformDOMImplementation</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1237959136%2FProperties%2F1626307724" anchor-label="inputEncoding" id="-1237959136%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="input-encoding.html"><span>input</span><wbr><span><span>Encoding</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1237959136%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="input-encoding.html">inputEncoding</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1307143440%2FProperties%2F1626307724" anchor-label="lastChild" id="1307143440%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/last-child.html"><span>last</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1307143440%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/last-child.html">lastChild</a><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-324303161%2FProperties%2F1626307724" anchor-label="nextSibling" id="-324303161%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/next-sibling.html"><span>next</span><wbr><span><span>Sibling</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-324303161%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/next-sibling.html">nextSibling</a><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1565234903%2FProperties%2F1626307724" anchor-label="nodeName" id="1565234903%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/node-name.html"><span>node</span><wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1565234903%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/node-name.html">nodeName</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1799957240%2FProperties%2F1626307724" anchor-label="nodeType" id="-1799957240%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/node-type.html"><span>node</span><wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1799957240%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/node-type.html">nodeType</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-short/index.html">Short</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="960839879%2FProperties%2F1626307724" anchor-label="nodeValue" id="960839879%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/node-value.html"><span>node</span><wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="960839879%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">var </span><a href="../-platform-node/node-value.html">nodeValue</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1835617080%2FProperties%2F1626307724" anchor-label="ownerDocument" id="-1835617080%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/owner-document.html"><span>owner</span><wbr><span><span>Document</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1835617080%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/owner-document.html">ownerDocument</a><span class="token operator">: </span><a href="index.html">PlatformDocument</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="300419908%2FProperties%2F1626307724" anchor-label="parentElement" id="300419908%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/parent-element.html"><span>parent</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="300419908%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/parent-element.html">parentElement</a><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-676593704%2FProperties%2F1626307724" anchor-label="parentNode" id="-676593704%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/parent-node.html"><span>parent</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-676593704%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/parent-node.html">parentNode</a><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1869595211%2FProperties%2F1626307724" anchor-label="previousSibling" id="1869595211%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/previous-sibling.html"><span>previous</span><wbr><span><span>Sibling</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1869595211%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="../-platform-node/previous-sibling.html">previousSibling</a><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1207162666%2FProperties%2F1626307724" anchor-label="textContent" id="1207162666%2FProperties%2F1626307724" data-filterable-set=":core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/text-content.html"><span>text</span><wbr><span><span>Content</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1207162666%2FProperties%2F1626307724"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-active="" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">var </span><a href="../-platform-node/text-content.html">textContent</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="-1516819818%2FFunctions%2F-651539368" anchor-label="adoptNode" id="-1516819818%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]adopt-node.html"><span>adopt</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1516819818%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-174387598%2FFunctions%2F-1905896616" anchor-label="adoptNode" id="-174387598%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../adopt-node.html"><span>adopt</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-174387598%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="../adopt-node.html"><span class="token function">adoptNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-894428417%2FFunctions%2F-1905896616" anchor-label="appendChild" id="-894428417%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/append-child.html"><span>append</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-894428417%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-ignorable-return-value/index.html"><span class="token annotation builtin">IgnorableReturnValue</span></a></div></div><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/append-child.html"><span class="token function">appendChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1355604831%2FFunctions%2F-1905896616" anchor-label="appendChild" id="1355604831%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../nl.adaptivity.xmlutil.dom2/append-child.html"><span>append</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1355604831%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-ignorable-return-value/index.html"><span class="token annotation builtin">IgnorableReturnValue</span></a></div></div><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a><span class="token punctuation">.</span><a href="../../nl.adaptivity.xmlutil.dom2/append-child.html"><span class="token function">appendChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="304161383%2FFunctions%2F-651539368" anchor-label="createAttribute" id="304161383%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-attribute.html"><span>create</span><wbr><span><span>Attribute</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="304161383%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-attribute.html"><span class="token function">createAttribute</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">localName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-attr/index.html">PlatformAttr</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-attribute.html"><span class="token function">createAttribute</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">localName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-attr/index.html">PlatformAttr</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="976787612%2FFunctions%2F-651539368" anchor-label="createAttributeNS" id="976787612%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-attribute-n-s.html"><span>create</span><wbr><span>Attribute</span><wbr><span><span>NS</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="976787612%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-attribute-n-s.html"><span class="token function">createAttributeNS</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespace<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">qualifiedName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-attr/index.html">PlatformAttr</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-attribute-n-s.html"><span class="token function">createAttributeNS</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespace<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">qualifiedName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-attr/index.html">PlatformAttr</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="210736923%2FFunctions%2F-651539368" anchor-label="createCDATASection" id="210736923%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-c-d-a-t-a-section.html"><span>create</span><wbr><span><span>CDATASection</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="210736923%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-c-d-a-t-a-section.html"><span class="token function">createCDATASection</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-c-d-a-t-a-section/index.html">PlatformCDATASection</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-c-d-a-t-a-section.html"><span class="token function">createCDATASection</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-c-d-a-t-a-section/index.html">PlatformCDATASection</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1586019094%2FFunctions%2F-651539368" anchor-label="createComment" id="-1586019094%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-comment.html"><span>create</span><wbr><span><span>Comment</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1586019094%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-comment.html"><span class="token function">createComment</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-comment/index.html">PlatformComment</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-comment.html"><span class="token function">createComment</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-comment/index.html">PlatformComment</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="154122486%2FFunctions%2F-651539368" anchor-label="createDocumentFragment" id="154122486%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-document-fragment.html"><span>create</span><wbr><span>Document</span><wbr><span><span>Fragment</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="154122486%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-document-fragment.html"><span class="token function">createDocumentFragment</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-document-fragment/index.html">PlatformDocumentFragment</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-document-fragment.html"><span class="token function">createDocumentFragment</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-document-fragment/index.html">PlatformDocumentFragment</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1676154823%2FFunctions%2F-651539368" anchor-label="createElement" id="1676154823%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-element.html"><span>create</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1676154823%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-element.html"><span class="token function">createElement</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">localName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-element.html"><span class="token function">createElement</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">localName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1926842169%2FFunctions%2F-651539368" anchor-label="createElementNS" id="1926842169%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/create-element-n-s.html"><span>create</span><wbr><span>Element</span><wbr><span><span>NS</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1926842169%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="create-element-n-s.html"><span class="token function">createElementNS</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">qName<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil/-q-name/index.html">QName</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-element/index.html">Element</a></div><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-element-n-s.html"><span class="token function">createElementNS</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">qualifiedName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-element-n-s.html"><span class="token function">createElementNS</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespaceURI<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">qualifiedName<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1397165163%2FFunctions%2F-651539368" anchor-label="createProcessingInstruction" id="1397165163%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-processing-instruction.html"><span>create</span><wbr><span>Processing</span><wbr><span><span>Instruction</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1397165163%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-processing-instruction.html"><span class="token function">createProcessingInstruction</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">target<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-processing-instruction/index.html">PlatformProcessingInstruction</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-processing-instruction.html"><span class="token function">createProcessingInstruction</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">target<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-processing-instruction/index.html">PlatformProcessingInstruction</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="607706386%2FFunctions%2F-651539368" anchor-label="createTextNode" id="607706386%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-text-node.html"><span>create</span><wbr><span>Text</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="607706386%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]create-text-node.html"><span class="token function">createTextNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-text/index.html">PlatformText</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]create-text-node.html"><span class="token function">createTextNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">data<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-text/index.html">PlatformText</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1040381589%2FFunctions%2F-1905896616" anchor-label="getChildNodes" id="-1040381589%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-child-nodes.html"><span>get</span><wbr><span>Child</span><wbr><span><span>Nodes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1040381589%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-child-nodes.html"><span class="token function">getChildNodes</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node-list/index.html">NodeList</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1252319231%2FFunctions%2F-1905896616" anchor-label="getDoctype" id="-1252319231%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-doctype.html"><span>get</span><wbr><span><span>Doctype</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1252319231%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="get-doctype.html"><span class="token function">getDoctype</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-document-type/index.html">PlatformDocumentType</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1202527218%2FFunctions%2F-1905896616" anchor-label="getDocumentElement" id="1202527218%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-document-element.html"><span>get</span><wbr><span>Document</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1202527218%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="get-document-element.html"><span class="token function">getDocumentElement</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1458501644%2FFunctions%2F-1905896616" anchor-label="getFirstChild" id="-1458501644%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-first-child.html"><span>get</span><wbr><span>First</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1458501644%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-first-child.html"><span class="token function">getFirstChild</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2033754901%2FFunctions%2F-1905896616" anchor-label="getImplementation" id="2033754901%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-implementation.html"><span>get</span><wbr><span><span>Implementation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2033754901%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="get-implementation.html"><span class="token function">getImplementation</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-d-o-m-implementation/index.html">PlatformDOMImplementation</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1746185450%2FFunctions%2F-1905896616" anchor-label="getInputEncoding" id="-1746185450%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-input-encoding.html"><span>get</span><wbr><span>Input</span><wbr><span><span>Encoding</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1746185450%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="get-input-encoding.html"><span class="token function">getInputEncoding</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="168417012%2FFunctions%2F-1905896616" anchor-label="getLastChild" id="168417012%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-last-child.html"><span>get</span><wbr><span>Last</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="168417012%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-last-child.html"><span class="token function">getLastChild</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="576260011%2FFunctions%2F-1905896616" anchor-label="getNextSibling" id="576260011%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-next-sibling.html"><span>get</span><wbr><span>Next</span><wbr><span><span>Sibling</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="576260011%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-next-sibling.html"><span class="token function">getNextSibling</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="4481139%2FFunctions%2F-1905896616" anchor-label="getNodeName" id="4481139%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-node-name.html"><span>get</span><wbr><span>Node</span><wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="4481139%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-node-name.html"><span class="token function">getNodeName</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1638674116%2FFunctions%2F-1905896616" anchor-label="getNodetype" id="1638674116%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-nodetype.html"><span>get</span><wbr><span><span>Nodetype</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1638674116%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-nodetype.html"><span class="token function">getNodetype</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node-type/index.html">NodeType</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="317164716%2FFunctions%2F-1905896616" anchor-label="getOwnerDocument" id="317164716%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-owner-document.html"><span>get</span><wbr><span>Owner</span><wbr><span><span>Document</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="317164716%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-owner-document.html"><span class="token function">getOwnerDocument</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PlatformDocument</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1841765592%2FFunctions%2F-1905896616" anchor-label="getParentElement" id="-1841765592%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-parent-element.html"><span>get</span><wbr><span>Parent</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1841765592%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-parent-element.html"><span class="token function">getParentElement</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-element/index.html">PlatformElement</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1617374604%2FFunctions%2F-1905896616" anchor-label="getParentNode" id="-1617374604%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-parent-node.html"><span>get</span><wbr><span>Parent</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1617374604%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-parent-node.html"><span class="token function">getParentNode</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="518664495%2FFunctions%2F-1905896616" anchor-label="getPreviousSibling" id="518664495%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-previous-sibling.html"><span>get</span><wbr><span>Previous</span><wbr><span><span>Sibling</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="518664495%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-previous-sibling.html"><span class="token function">getPreviousSibling</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2107725838%2FFunctions%2F-1905896616" anchor-label="getTextContent" id="2107725838%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/get-text-content.html"><span>get</span><wbr><span>Text</span><wbr><span><span>Content</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2107725838%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/get-text-content.html"><span class="token function">getTextContent</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1036438376%2FFunctions%2F-651539368" anchor-label="importNode" id="-1036438376%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-document/import-node.html"><span>import</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1036438376%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="import-node.html"><span class="token function">importNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-native]import-node.html"><span class="token function">importNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token punctuation">, </span></span><span class="parameter ">deep<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="[-j-s]import-node.html"><span class="token function">importNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token punctuation">, </span></span><span class="parameter ">deep<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-181952583%2FFunctions%2F-1905896616" anchor-label="importNode" id="-181952583%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../nl.adaptivity.xmlutil.dom2/import-node.html"><span>import</span><wbr><span><span>Node</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-181952583%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../../nl.adaptivity.xmlutil.dom2/-document/index.html">Document</a><span class="token punctuation">.</span><a href="../../nl.adaptivity.xmlutil.dom2/import-node.html"><span class="token function">importNode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token punctuation">, </span></span><span class="parameter ">deep<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1755998923%2FFunctions%2F-651539368" anchor-label="lookupNamespaceURI" id="1755998923%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-node/[-j-s]lookup-namespace-u-r-i.html"><span>lookup</span><wbr><span>Namespace</span><wbr><span><span>URI</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1755998923%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/[-native]lookup-namespace-u-r-i.html"><span class="token function">lookupNamespaceURI</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/[-j-s]lookup-namespace-u-r-i.html"><span class="token function">lookupNamespaceURI</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">prefix<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1408594740%2FFunctions%2F-651539368" anchor-label="lookupPrefix" id="-1408594740%2FFunctions%2F-651539368" data-filterable-set=":core/commonDomMain,:core/jsMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain,:core/jsMain" data-filterable-set=":core/commonDomMain,:core/jsMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../../core/nl.adaptivity.xmlutil.dom/-platform-node/[-j-s]lookup-prefix.html"><span>lookup</span><wbr><span><span>Prefix</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1408594740%2FFunctions%2F-651539368"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/[-native]lookup-prefix.html"><span class="token function">lookupPrefix</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespace<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/[-j-s]lookup-prefix.html"><span class="token function">lookupPrefix</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">namespace<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="265760617%2FFunctions%2F-1905896616" anchor-label="removeChild" id="265760617%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/remove-child.html"><span>remove</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="265760617%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-ignorable-return-value/index.html"><span class="token annotation builtin">IgnorableReturnValue</span></a></div></div><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/remove-child.html"><span class="token function">removeChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-831825847%2FFunctions%2F-1905896616" anchor-label="removeChild" id="-831825847%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../nl.adaptivity.xmlutil.dom2/remove-child.html"><span>remove</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-831825847%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-ignorable-return-value/index.html"><span class="token annotation builtin">IgnorableReturnValue</span></a></div></div><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a><span class="token punctuation">.</span><a href="../../nl.adaptivity.xmlutil.dom2/remove-child.html"><span class="token function">removeChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">node<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-269981245%2FFunctions%2F-1905896616" anchor-label="replaceChild" id="-269981245%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/replace-child.html"><span>replace</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-269981245%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-ignorable-return-value/index.html"><span class="token annotation builtin">IgnorableReturnValue</span></a></div></div><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/replace-child.html"><span class="token function">replaceChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">newChild<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token punctuation">, </span></span><span class="parameter ">oldChild<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-753789159%2FFunctions%2F-1905896616" anchor-label="replaceChild" id="-753789159%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../nl.adaptivity.xmlutil.dom2/replace-child.html"><span>replace</span><wbr><span><span>Child</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-753789159%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-ignorable-return-value/index.html"><span class="token annotation builtin">IgnorableReturnValue</span></a></div></div><span class="token keyword">actual </span><span class="token keyword">fun </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a><span class="token punctuation">.</span><a href="../../nl.adaptivity.xmlutil.dom2/replace-child.html"><span class="token function">replaceChild</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">newChild<span class="token operator">: </span><a href="../-platform-node/index.html">PlatformNode</a><span class="token punctuation">, </span></span><span class="parameter ">oldChild<span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../nl.adaptivity.xmlutil.dom2/-node/index.html">Node</a></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-994968534%2FFunctions%2F-1905896616" anchor-label="setTextContent" id="-994968534%2FFunctions%2F-1905896616" data-filterable-set=":core/commonDomMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-platform-node/set-text-content.html"><span>set</span><wbr><span>Text</span><wbr><span><span>Content</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-994968534%2FFunctions%2F-1905896616"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+                    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">fun </span><a href="../-platform-node/set-text-content.html"><span class="token function">setTextContent</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div>                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

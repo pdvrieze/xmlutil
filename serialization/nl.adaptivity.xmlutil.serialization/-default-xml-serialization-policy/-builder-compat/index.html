@@ -1,0 +1,480 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>BuilderCompat</title>
+<link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../../styles/style.css" rel="Stylesheet">
+<link href="../../../../styles/main.css" rel="Stylesheet">
+<link href="../../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../../ui-kit/ui-kit.min.js" defer></script></head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../../../../index.html" tabindex="1">
+                    xmlutil
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">1.0.0-rc1
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":serialization/commonMain">Common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":serialization/commonMain" data-filter=":serialization/commonMain">
+                                <span class="checkbox--icon"></span>
+                                Common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    xmlutil
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" data-page-type="classlike" id="content" pageids="serialization::nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.BuilderCompat///PointingToDeclaration//401532105">
+  <div class="breadcrumbs"><a href="../../../index.html">serialization</a><span class="delimiter">/</span><a href="../../index.html">nl.adaptivity.xmlutil.serialization</a><span class="delimiter">/</span><a href="../index.html">DefaultXmlSerializationPolicy</a><span class="delimiter">/</span><span class="current">BuilderCompat</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Builder</span><wbr><span><span>Compat</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">BuilderCompat</a> : <a href="../-builder/index.html">DefaultXmlSerializationPolicy.Builder</a><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="file:/home/pdvrieze/.gradle/daemon/9.1.0/serialization/src/commonMain/kotlin/nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy.kt#L677">source</a>)</span></span></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="tableheader">Constructors</h2>
+        <div class="table"><a data-name="-1366334812%2FConstructors%2F401532105" anchor-label="BuilderCompat" id="-1366334812%2FConstructors%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-togglable="CONSTRUCTOR" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-builder-compat.html"><span>Builder</span><wbr><span><span>Compat</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1366334812%2FConstructors%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Constructor for default builder. To set any values, use the property setters. The primary constructor is internal as it is not stable as new configuration options are added.</p></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">policy<span class="token operator">: </span><a href="../index.html">DefaultXmlSerializationPolicy</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">policy<span class="token operator">: </span><a href="../../-xml-serialization-policy/index.html">XmlSerializationPolicy</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="tableheader">Properties</h2>
+        <div class="table"><a data-name="-1656489569%2FProperties%2F401532105" anchor-label="autoPolymorphic" id="-1656489569%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/auto-polymorphic.html"><span>auto</span><wbr><span><span>Polymorphic</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1656489569%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/auto-polymorphic.html">autoPolymorphic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Rather than using type wrappers use the tag name to distinguish polymorphic types</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-759118639%2FProperties%2F401532105" anchor-label="defaultObjectOutputKind" id="-759118639%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/default-object-output-kind.html"><span>default</span><wbr><span>Object</span><wbr><span>Output</span><wbr><span><span>Kind</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-759118639%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/default-object-output-kind.html">defaultObjectOutputKind</a><span class="token operator">: </span><a href="../../-output-kind/index.html">OutputKind</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="329831001%2FProperties%2F401532105" anchor-label="defaultPrimitiveOutputKind" id="329831001%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/default-primitive-output-kind.html"><span>default</span><wbr><span>Primitive</span><wbr><span>Output</span><wbr><span><span>Kind</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="329831001%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/default-primitive-output-kind.html">defaultPrimitiveOutputKind</a><span class="token operator">: </span><a href="../../-output-kind/index.html">OutputKind</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1819738811%2FProperties%2F401532105" anchor-label="encodeDefault" id="1819738811%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/encode-default.html"><span>encode</span><wbr><span><span>Default</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1819738811%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/encode-default.html">encodeDefault</a><span class="token operator">: </span><a href="../../-xml-serialization-policy/-xml-encode-default/index.html">XmlSerializationPolicy.XmlEncodeDefault</a></div><div class="brief "><p class="paragraph">Determine whether defaults need to be encoded</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="2107923067%2FProperties%2F401532105" anchor-label="formatCache" id="2107923067%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/format-cache.html"><span>format</span><wbr><span><span>Cache</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2107923067%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="../../../../core/nl.adaptivity.xmlutil/-experimental-xml-util-api/index.html"><span class="token annotation builtin">ExperimentalXmlUtilApi</span></a></div></div><span class="token keyword">var </span><a href="../-builder/format-cache.html">formatCache</a><span class="token operator">: </span><a href="../../-format-cache/index.html">FormatCache</a></div><div class="brief "><p class="paragraph">The cache used to speed up mapping for serializer to xml representation.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1686580839%2FProperties%2F401532105" anchor-label="isInlineCollapsedDefault" id="1686580839%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/is-inline-collapsed-default.html"><span>is</span><wbr><span>Inline</span><wbr><span>Collapsed</span><wbr><span><span>Default</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1686580839%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/is-inline-collapsed-default.html">isInlineCollapsedDefault</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1307260587%2FProperties%2F401532105" anchor-label="isStrictAttributeNames" id="-1307260587%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/is-strict-attribute-names.html"><span>is</span><wbr><span>Strict</span><wbr><span>Attribute</span><wbr><span><span>Names</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1307260587%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/is-strict-attribute-names.html">isStrictAttributeNames</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Process attribute name reading strictly according to the XML standard, or a name handling that is a bit more lenient</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-154560783%2FProperties%2F401532105" anchor-label="isStrictBoolean" id="-154560783%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/is-strict-boolean.html"><span>is</span><wbr><span>Strict</span><wbr><span><span>Boolean</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-154560783%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/is-strict-boolean.html">isStrictBoolean</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Parse boolean data according to the requirements of XML, rather than the (very lenient) toBoolean function from the Kotlin standard library.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="490917746%2FProperties%2F401532105" anchor-label="isStrictOtherAttributes" id="490917746%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/is-strict-other-attributes.html"><span>is</span><wbr><span>Strict</span><wbr><span>Other</span><wbr><span><span>Attributes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="490917746%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/is-strict-other-attributes.html">isStrictOtherAttributes</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1143831429%2FProperties%2F401532105" anchor-label="isXmlFloat" id="1143831429%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/is-xml-float.html"><span>is</span><wbr><span>Xml</span><wbr><span><span>Float</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1143831429%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/is-xml-float.html">isXmlFloat</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Parse float/double data according to the requirements of XML, rather than the toFloat/Float.toString functions from the Kotlin standard library.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-571546398%2FProperties%2F401532105" anchor-label="pedantic" id="-571546398%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/pedantic.html"><span><span>pedantic</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-571546398%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/pedantic.html">pedantic</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Enable some stricter behaviour</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1693629289%2FProperties%2F401532105" anchor-label="throwOnRepeatedElement" id="-1693629289%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/throw-on-repeated-element.html"><span>throw</span><wbr><span>On</span><wbr><span>Repeated</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1693629289%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/throw-on-repeated-element.html">throwOnRepeatedElement</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">When a single-value elemement is repeated in the content, will this throw an exception or only retain the final value</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1659520025%2FProperties%2F401532105" anchor-label="typeDiscriminatorName" id="1659520025%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/type-discriminator-name.html"><span>type</span><wbr><span>Discriminator</span><wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1659520025%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/type-discriminator-name.html">typeDiscriminatorName</a><span class="token operator">: </span><a href="../../../../core/nl.adaptivity.xmlutil/-q-name/index.html">QName</a><span class="token operator">?</span></div><div class="brief "><p class="paragraph">When set, use a type discriminator property</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-603978770%2FProperties%2F401532105" anchor-label="unknownChildHandler" id="-603978770%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/unknown-child-handler.html"><span>unknown</span><wbr><span>Child</span><wbr><span><span>Handler</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-603978770%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/unknown-child-handler.html">unknownChildHandler</a><span class="token operator">: </span><a href="../../-unknown-child-handler/index.html">UnknownChildHandler</a></div><div class="brief "><p class="paragraph">Function called when an unknown child is encountered. By default it throws an exception, but this function can use its own recovery behaviour</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1733147895%2FProperties%2F401532105" anchor-label="verifyElementOrder" id="-1733147895%2FProperties%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/verify-element-order.html"><span>verify</span><wbr><span>Element</span><wbr><span><span>Order</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1733147895%2FProperties%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">var </span><a href="../-builder/verify-element-order.html">verifyElementOrder</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief "><p class="paragraph">Verify that element children are in the order required by order annotations (and fail if not correct). Note that attribute order in XML is arbitrary and not meaningful.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="tableheader">Functions</h2>
+        <div class="table"><a data-name="1953447416%2FFunctions%2F401532105" anchor-label="build" id="1953447416%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/build.html"><span><span>build</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1953447416%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="../-builder/build.html"><span class="token function">build</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../index.html">DefaultXmlSerializationPolicy</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="217237642%2FFunctions%2F401532105" anchor-label="ignoreNamespaces" id="217237642%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/ignore-namespaces.html"><span>ignore</span><wbr><span><span>Namespaces</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="217237642%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="../-builder/ignore-namespaces.html"><span class="token function">ignoreNamespaces</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-124594609%2FFunctions%2F401532105" anchor-label="ignoreUnknownChildren" id="-124594609%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-builder/ignore-unknown-children.html"><span>ignore</span><wbr><span>Unknown</span><wbr><span><span>Children</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-124594609%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="../-builder/ignore-unknown-children.html"><span class="token function">ignoreUnknownChildren</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="900130666%2FFunctions%2F401532105" anchor-label="setDefaults_0_86_3" id="900130666%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-defaults_0_86_3.html"><span>set</span><wbr><span>Defaults_</span><wbr><span>0_</span><wbr><span>86_</span><wbr><span>3</span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="900130666%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-defaults_0_86_3.html"><span class="token function">setDefaults_0_86_3</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="552334700%2FFunctions%2F401532105" anchor-label="setDefaults_0_87_0" id="552334700%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-defaults_0_87_0.html"><span>set</span><wbr><span>Defaults_</span><wbr><span>0_</span><wbr><span>87_</span><wbr><span>0</span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="552334700%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-defaults_0_87_0.html"><span class="token function">setDefaults_0_87_0</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1204335470%2FFunctions%2F401532105" anchor-label="setDefaults_0_90_2" id="-1204335470%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-defaults_0_90_2.html"><span>set</span><wbr><span>Defaults_</span><wbr><span>0_</span><wbr><span>90_</span><wbr><span>2</span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1204335470%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><span class="token keyword">fun </span><a href="set-defaults_0_90_2.html"><span class="token function">setDefaults_0_90_2</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1521111629%2FFunctions%2F401532105" anchor-label="setDefaults_0_91_0" id="-1521111629%2FFunctions%2F401532105" data-filterable-set=":serialization/commonMain"></a>
+          <div class="table-row table-row_content" data-filterable-current=":serialization/commonMain" data-filterable-set=":serialization/commonMain">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-defaults_0_91_0.html"><span>set</span><wbr><span>Defaults_</span><wbr><span>0_</span><wbr><span>91_</span><wbr><span>0</span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1521111629%2FFunctions%2F401532105"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":serialization/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="../../../../core/nl.adaptivity.xmlutil/-experimental-xml-util-api/index.html"><span class="token annotation builtin">ExperimentalXmlUtilApi</span></a></div></div><span class="token keyword">fun </span><a href="set-defaults_0_91_0.html"><span class="token function">setDefaults_0_91_0</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2025 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

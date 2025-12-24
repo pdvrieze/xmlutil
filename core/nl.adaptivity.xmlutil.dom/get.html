@@ -39,11 +39,11 @@
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">0.91.3
+        <div class="library-version" id="library-version">1.0.0-rc1
         </div>
         <div class="navigation-controls">
         <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
-                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
                 <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
@@ -54,9 +54,9 @@
                     </div>
                         <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
                             <label class="checkbox">
-                                <input type="checkbox" class="checkbox--input" id=":core/commonMain" data-filter=":core/commonMain">
+                                <input type="checkbox" class="checkbox--input" id=":core/commonDomMain" data-filter=":core/commonDomMain">
                                 <span class="checkbox--icon"></span>
-                                Common
+                                Native
                             </label>
                         </li>
                 </ul>
@@ -90,12 +90,14 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="member" id="content" pageids="core::nl.adaptivity.xmlutil.dom//get/nl.adaptivity.xmlutil.dom.NamedNodeMap#kotlin.Int/PointingToDeclaration//-910832118">
+<div class="main-content" data-page-type="member" id="content" pageids="core::nl.adaptivity.xmlutil.dom//get/nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap#kotlin.Int/PointingToDeclaration//-1905896616">
   <div class="breadcrumbs"><a href="../index.html">core</a><span class="delimiter">/</span><a href="index.html">nl.adaptivity.xmlutil.dom</a><span class="delimiter">/</span><span class="current">get</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>get</span></span></h1>
   </div>
-  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><a href="[-native, -j-s]-named-node-map/index.html#1016327439%2FMain%2F-910832118">NamedNodeMap</a><span class="token punctuation">.</span><a href="get.html"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="[-native, -j-s]-attr/index.html#-1526266209%2FMain%2F-910832118">Attr</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><a href="[-j-s]-node-list/index.html#1883717168%2FMain%2F-910832118">NodeList</a><span class="token punctuation">.</span><a href="get.html"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="[-native, -j-s]-node/index.html#1558591406%2FMain%2F-910832118">Node</a><span class="token operator">?</span></div></div></div>
+  <div class="platform-hinted  with-platform-tabs" data-platform-hinted="data-platform-hinted">
+    <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonDomMain"><div class="symbol monospace"><span class="token keyword">inline operator </span><span class="token keyword">fun </span><a href="-platform-named-node-map/index.html">PlatformNamedNodeMap</a><span class="token punctuation">.</span><a href="get.html"><span class="token function">get</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">index<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="-platform-attr/index.html">PlatformAttr</a><span class="token operator">?</span></div><p class="paragraph">Cross platform function for those implementations that do not implement get in the main class.</p></div>  </div>
 </div>
     <div class="footer">
         <div class="footer--container">
