@@ -812,16 +812,48 @@ public class XML(
             return XML(XmlConfig(recommendedBuilder()), serializersModule)
         }
 
+        public inline fun recommended(
+            serializersModule: SerializersModule = EmptySerializersModule(),
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.recommendedBuilder().apply(configure)),
+            serializersModule
+        )
+
+        public inline fun XmlCompanion<B>.fast(
+            serializersModule: SerializersModule = EmptySerializersModule(),
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.fastBuilder().apply(configure)),
+            serializersModule
+        )
 
         public fun fast(serializersModule: SerializersModule = EmptySerializersModule()): XML {
             return XML(XmlConfig(fastBuilder()), serializersModule)
         }
+
+        /**
+         * Shortcut function that creates a format instance that is compact. Note that this is a shortcut
+         * for calling `recommended { compact() }`, for reconfiguration that should be used.
+         */
+        public fun XmlCompanion<XmlConfig.DefaultBuilder>.compact(
+            serializersModule: SerializersModule = EmptySerializersModule(),
+        ): XML =
+            recommended(serializersModule) { this.compact() }
 
         @PublishedApi
         internal fun <P: XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
             return XmlConfig.CustomBuilder(policy = policy)
         }
 
+        /**
+         * Create a configuration corresponding to a custom xml serialization policy.
+         *
+         * @param policy The custom policy to use
+         * @param serializersModule The serializers module to use
+         * @param configure Configuration lambda that can be used to configure the XML configuration
+         *   options (that are not part of the policy).
+         */
         public inline fun <P: XmlSerializationPolicy> customPolicy(
             policy: P,
             serializersModule: SerializersModule = EmptySerializersModule(),
@@ -1476,32 +1508,6 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
 public annotation class WillBePrivate
 
 
-/**
- * Shortcut function that creates a format instance that is compact. Note that this is a shortcut
- * for calling `recommended { compact() }`, for reconfiguration that should be used.
- */
-public fun XmlCompanion<XmlConfig.DefaultBuilder>.compact(
-    serializersModule: SerializersModule = EmptySerializersModule(),
-): XML =
-    recommended(serializersModule) { this.compact() }
-
-
-public inline fun <B: XmlConfig.Builder<out XmlSerializationPolicy?>> XmlCompanion<B>.recommended(
-    serializersModule: SerializersModule = EmptySerializersModule(),
-    configure: B.() -> Unit = {}
-): XML = XML(
-    XmlConfig(this.recommendedBuilder().apply(configure)),
-    serializersModule
-)
-
-public inline fun <B: XmlConfig.Builder<out XmlSerializationPolicy?>> XmlCompanion<B>.fast(
-    serializersModule: SerializersModule = EmptySerializersModule(),
-    configure: B.() -> Unit = {}
-): XML = XML(
-    XmlConfig(this.fastBuilder().apply(configure)),
-    serializersModule
-)
-
 @Suppress("DEPRECATION")
 @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
 private object Compat: XmlCompanion<CompatBuilder>() {
@@ -1552,12 +1558,10 @@ private object XML1: XmlCompanion<XmlConfig.DefaultBuilder>() {
     "Use the encapsulated context",
     ReplaceWith("XML.v1", "nl.adaptivity.xmlutil.serialization.XML")
 )
-@XmlUtilInternal
 public object XML1_0: XmlCompanion<XmlConfig.DefaultBuilder>() {
 
     override val instance: XML = XML.recommended_1_0()
 
-    @Suppress("DEPRECATION")
     @Deprecated("Instead of an instance, you can use the compact shorthand",
         ReplaceWith("XML.v1.compact()", "nl.adaptivity.xmlutil.serialization.XML")
     )
@@ -1592,7 +1596,7 @@ public object XML1_0: XmlCompanion<XmlConfig.DefaultBuilder>() {
     @Deprecated("Use in-format version",
         ReplaceWith("XML.v1.recommended()",
             "nl.adaptivity.xmlutil.serialization.XML"))
-    public fun recommended(): XML = recommended {  }
+    public fun recommended(): XML = XML.v1.recommended()
 
     @Deprecated("Use in-format version",
         ReplaceWith("XML.v1.recommended(configure = configure)",
@@ -1600,14 +1604,6 @@ public object XML1_0: XmlCompanion<XmlConfig.DefaultBuilder>() {
     public inline fun recommended(
         configure: XmlConfig.DefaultBuilder.() -> Unit
     ): XML = XML.v1.recommended(configure = configure)
-
-    @Deprecated("Use in-format version",
-        ReplaceWith("XML.v1.recommended(serializersModule, configure)",
-            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.recommended"))
-    public inline fun recommended(
-        serializersModule: SerializersModule,
-        configure: XmlConfig.DefaultBuilder.() -> Unit = {}
-    ): XML = XML.v1.recommended(serializersModule, configure)
 
     @Deprecated("Use in-format version",
         ReplaceWith("XML.v1.fast()",
