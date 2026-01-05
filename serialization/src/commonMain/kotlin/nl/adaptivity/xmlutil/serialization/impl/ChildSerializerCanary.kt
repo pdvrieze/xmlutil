@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil.serialization.impl
@@ -29,15 +29,22 @@ import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.modules.SerializersModule
+import nl.adaptivity.xmlutil.XmlDeserializationStrategy
+import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
+import nl.adaptivity.xmlutil.serialization.structure.getXmlOverride
 
-internal fun DeserializationStrategy<*>.findChildSerializer(index: Int, serializersModule: SerializersModule): DeserializationStrategy<*> {
+internal fun DeserializationStrategy<*>.findChildSerializer(
+    index: Int,
+    serializersModule: SerializersModule
+): DeserializationStrategy<*> {
     /*
      * This function actually has to use a canary as the type argument serializers are hidden.
      */
     val canary = ChildSerializerCanary(index, serializersModule)
     try {
-        deserialize(canary)
-    } catch (e: ChildSerializerCanary.FinishedException) {
+        val _ = deserialize(canary)
+    } catch (_: ChildSerializerCanary.FinishedException) {
         return checkNotNull(canary.serializer)
     }
     error("No child serializer found")
@@ -46,7 +53,8 @@ internal fun DeserializationStrategy<*>.findChildSerializer(index: Int, serializ
 /**
  * Helper class that allows finding out the deserializer actually used for deserializing a class.
  */
-private class ChildSerializerCanary(val index: Int, override val serializersModule: SerializersModule) : Decoder, CompositeDecoder {
+private class ChildSerializerCanary(val index: Int, override val serializersModule: SerializersModule) : Decoder,
+    CompositeDecoder {
     var serializer: DeserializationStrategy<*>? = null
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = this
 
@@ -133,8 +141,8 @@ private class ChildSerializerCanary(val index: Int, override val serializersModu
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         check(serializer == null) { "serializer already set" }
         if (deserializer.descriptor.isNullable) {
-            deserializer.deserialize(this)
-            check(serializer != null) { "This should have " }
+            val _ = deserializer.deserialize(this)
+            check(serializer != null) { "This should have set the serializer" }
         } else {
             serializer = deserializer as KSerializer<*>
             throw FinishedException()
@@ -157,12 +165,21 @@ private class ChildSerializerCanary(val index: Int, override val serializersModu
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T {
-        if (deserializer.descriptor.kind == SerialKind.CONTEXTUAL) {
-            return deserializer.deserialize(this)
-        } else {
-            check(serializer == null) { "serializer already set" }
-            serializer = deserializer
-            throw FinishedException()
+        val desc = deserializer.descriptor.getXmlOverride()
+
+        return when {
+            desc.kind != SerialKind.CONTEXTUAL -> {
+                check(serializer == null) { "serializer already set" }
+                serializer = deserializer
+                throw FinishedException()
+            }
+
+            deserializer is XmlDeserializationStrategy -> deserializer.deserializeXML(
+                this,
+                KtXmlReader(StringReader("<dummy/>"))
+            )
+
+            else -> deserializer.deserialize(this)
         }
     }
 
@@ -173,7 +190,7 @@ private class ChildSerializerCanary(val index: Int, override val serializersModu
         deserializer: DeserializationStrategy<T?>,
         previousValue: T?
     ): T? {
-        return deserializer.deserialize(this)
+        return decodeSerializableElement(descriptor, index, deserializer, previousValue)
     }
 
     override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long {
