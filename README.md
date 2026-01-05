@@ -49,19 +49,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:1.0.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core:1.0.0-rc1")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.0-rc1")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.0-rc1")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.0-rc1")
 ```
 
 #### Native
@@ -72,7 +72,7 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform (this coordinate should be used by default)
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-RC1")
+   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-rc1")
 ```
 
 ## Serialization help
