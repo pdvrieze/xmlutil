@@ -25,7 +25,6 @@ package net.devrieze.serialization.examples.custompolymorphic
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 
 val fruits: List<Fruit> = listOf(
     Apple("MyApple", 5),
@@ -33,7 +32,7 @@ val fruits: List<Fruit> = listOf(
 )
 
 fun main() {
-    val xml = XML.v1.recommended {
+    val xml = XML.v1 { ->
         policy {
             autoPolymorphic = false
             pedantic = true

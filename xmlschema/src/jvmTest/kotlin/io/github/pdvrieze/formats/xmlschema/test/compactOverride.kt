@@ -25,7 +25,6 @@ package io.github.pdvrieze.formats.xmlschema.test
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.newWriter
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.xmlStreaming
 import org.w3.xml.xmschematestsuite.*
 import org.w3.xml.xmschematestsuite.override.*
@@ -33,7 +32,7 @@ import java.io.FileWriter
 import java.net.URI
 import java.net.URL
 
-private val xml = XML.v1.recommended()
+private val xml = XML.v1()
 
 fun main() {
     val suiteURL: URL = OTSSuite::class.java.getResource("/xsts/suite.xml")!!
@@ -51,9 +50,7 @@ fun main() {
 
         FileWriter("override.xml").use { out ->
             xmlStreaming.newWriter(out).use { writer ->
-                XML.v1.recommended {
-                    setIndent(2)
-                }.encodeToWriter(writer, compact, "")
+                XML.v1 { setIndent(2) }.encodeToWriter(writer, compact, "")
             }
         }
     }

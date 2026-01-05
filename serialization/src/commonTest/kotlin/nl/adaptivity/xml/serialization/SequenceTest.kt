@@ -29,8 +29,6 @@ import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.compact
-import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.*
 
 class SequenceTest {
@@ -40,7 +38,7 @@ class SequenceTest {
         SimpleList("7", "8", "9"),
     )
 
-    fun getFormat() = XML.v1.recommended()
+    fun getFormat() = XML.v1()
 
     val expectedXML: String = "<w>  " +
             "<l2><value>1</value>\n<value>2</value><value>3</value></l2>" +
@@ -206,7 +204,7 @@ class SequenceTest {
             SimpleList("3"),
         )
         val expectedXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
-        val serializedXml = XML.v1.recommended { compact() }.encodeToString(data)
+        val serializedXml = XML.v1 { compact() }.encodeToString(data)
         assertEquals(expectedXml, serializedXml)
     }
 

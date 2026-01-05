@@ -55,7 +55,7 @@ class SmallTests {
                    |    <comment>$TESTCOMMENT</comment>
                    |</registry>""".trimMargin("|")
 
-            val xml: XML = XML.v1.recommended {
+            val xml: XML = XML.v1 {
                 setIndent(4)
                 xmlDeclMode = XmlDeclMode.Charset
                 xmlVersion = XmlVersion.XML10
@@ -110,7 +110,7 @@ class SmallTests {
         val xml = """<Container><registry comment="value" /><registry comment="value2" /></Container>"""
         val t = assertFailsWith<XmlSerialException> {
             @Suppress("DEPRECATION")
-            val decoded = XML.compat.recommended().decodeFromString<Container>(xml)
+            val decoded = XML.compat().decodeFromString<Container>(xml)
             assertEquals(Test1("value"), decoded.inner)
         }
         assertContains(t.message ?: "", "duplicate child", true)

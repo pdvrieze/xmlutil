@@ -39,7 +39,7 @@ import kotlin.test.assertIs
 
 class CustomMapKey274 {
 
-    val xml: XML = XML.v1.recommended {
+    val xml: XML = XML.v1 {
         policy {
             formatCache = TestFormatCache(DefaultFormatCache())
             pedantic = true

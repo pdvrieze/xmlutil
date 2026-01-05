@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 fun main() {
-    val xml = XML.v1.recommended()
+    val xml = XML.v1()
 
     val p = WebDavMultiStatus::class.java.getResourceAsStream("/net/devrieze/serialization/examples/webdav/multiresponse.xml").use { s ->
         xml.decodeFromReader(WebDavMultiStatus.serializer(), xmlStreaming.newReader(s))

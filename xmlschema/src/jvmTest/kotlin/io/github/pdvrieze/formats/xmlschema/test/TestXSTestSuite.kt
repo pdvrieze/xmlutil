@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -36,7 +37,6 @@ import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.defaultPolicy
-import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -58,6 +58,7 @@ class TestXSTestSuite {
     init {
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
     }
+    @Suppress("DEPRECATION")
     var xml: XML = XML.compat {
         recommended_0_87_0()
         defaultToGenericParser = true
@@ -117,7 +118,7 @@ class TestXSTestSuite {
     @Test
     @Disabled
     fun testDeserializeGenericSpeed() {
-        xml = XML.v1.recommended {
+        xml = XML.v1 {
             isUnchecked = false
         }
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
@@ -128,12 +129,13 @@ class TestXSTestSuite {
     @Test
     @Disabled
     fun testDeserializeStaxSpeed() {
-        xml = XML.v1.recommended()
+        xml = XML.v1()
         xmlStreaming.setFactory(StAXStreamingFactory())
         testDeserializeSpeed()
         xmlStreaming.setFactory(null)
     }
 
+    @IgnorableReturnValue
     inline fun measure(name:String, rounds: Int = 20, warmups: Int = 1, action: MeasureInfo.() -> Unit): Long {
         val initTime = System.currentTimeMillis()
         var startTime = initTime
@@ -193,9 +195,9 @@ class TestXSTestSuite {
     }
 
     private fun testXmlSchemaUrls(): List<Pair<URL, URL>> {
-        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
+        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")!!
 
-        val override = javaClass.getResource("/override.xml").withXmlReader {
+        val override = javaClass.getResource("/override.xml")!!.withXmlReader {
             val compact = xml.decodeFromReader<CompactOverride>(it)
             OTSSuite(compact)
         }
@@ -205,7 +207,7 @@ class TestXSTestSuite {
             suite.testSetRefs
                 //                .filter { arrayOf("sunMeta/").any { m -> it.href.contains(m) } }
                 .flatMap { setRef ->
-                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
+                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")!!
                     val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
 
                     val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
@@ -213,7 +215,7 @@ class TestXSTestSuite {
                     val tsName = "$folderName - ${testSet.name}"
 
                     testSet.testGroups.flatMap { gr ->
-                        gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.mapNotNull { sd ->
+                        gr.schemaTest?.takeIf { it.expected.any { it.validity.parsable } }?.schemaDocuments?.map { sd ->
                             (setBaseUrl to setBaseUrl.resolve(sd.href))
                         } ?: emptyList()
                     }
@@ -227,7 +229,7 @@ class TestXSTestSuite {
         val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")!!
 
         val override = javaClass.getResource("/override.xml")!!.withXmlReader {
-            val compact = XML.v1.recommended().decodeFromReader<CompactOverride>(it)
+            val compact = XML.v1().decodeFromReader<CompactOverride>(it)
             OTSSuite(compact)
         }
 
@@ -246,7 +248,7 @@ class TestXSTestSuite {
 //                .filter { (it.href.contains("wgMeta/")) }
                 .map { setRef ->
 
-                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
+                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")!!
                     val testSet = override.applyTo(setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
 
                     val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
@@ -266,7 +268,7 @@ class TestXSTestSuite {
             nodes.addAll(subNodes)
             val typeTests = buildDynamicContainer("Test types") {
                 val schemaUrls: List<URL> = suite.testSetRefs.flatMap { setRef ->
-                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")
+                    val setBaseUrl: URL = javaClass.getResource("/xsts/${setRef.href}")!!
                     val resolver = SimpleResolver(setBaseUrl)
 
                     val ts = setBaseUrl.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) }
@@ -524,6 +526,7 @@ class TestXSTestSuite {
         ),
     )
 
+    @OptIn(ExperimentalSerializationApi::class)
     private suspend fun SequenceScope<DynamicNode>.testPropertyPresences(schemas: Sequence<XSSchema>) {
 
         val rootDescriptor = xml.xmlDescriptor(XSSchema.serializer()) as XmlRootDescriptor
@@ -664,7 +667,7 @@ private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
         when (version) {
             null -> {
                 for (ver in defaultVersions) {
-                    expecteds.getOrPut(ver) { e }
+                    expecteds.computeIfAbsent(ver) { e }
                 }
             }
             else -> expecteds[version] = e
@@ -789,6 +792,7 @@ inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
 }
 
 fun URL.resolve(path: String): URL {
+    @Suppress("DEPRECATION")
     return URL(this, path)
 }
 

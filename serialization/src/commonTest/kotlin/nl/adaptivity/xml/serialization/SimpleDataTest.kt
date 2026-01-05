@@ -71,7 +71,7 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
     fun deserialize_with_unused_attributes_and_custom_handler() {
         var ignoredName: QName? = null
         var ignoredKind: InputKind? = null
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             policy {
                 unknownChildHandler = UnknownChildHandler { _, inputKind, _, name, _ ->
                     ignoredName = name

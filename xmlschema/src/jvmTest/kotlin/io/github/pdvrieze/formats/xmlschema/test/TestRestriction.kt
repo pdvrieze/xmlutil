@@ -35,7 +35,7 @@ class TestRestriction {
                 "      <xs:minExclusive value=\"-999999999999999999\"/>\n" +
                 "    </xs:restriction>"
 
-        val data = XML.v1.recommended().decodeFromString(XSSimpleRestriction.serializer(), input)
+        val data = XML.v1().decodeFromString(XSSimpleRestriction.serializer(), input)
         assertEquals(0, data.otherContents.size)
     }
 }

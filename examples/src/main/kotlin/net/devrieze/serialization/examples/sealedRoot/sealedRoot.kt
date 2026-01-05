@@ -60,7 +60,7 @@ sealed class Base {
 
 fun main() {
 
-    val xml = XML.v1.recommended()
+    val xml = XML.v1()
 
     val carsFoundXml = """
     <cars context="main">

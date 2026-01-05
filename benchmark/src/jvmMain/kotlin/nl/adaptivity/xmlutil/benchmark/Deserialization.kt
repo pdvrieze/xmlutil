@@ -30,7 +30,6 @@ import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapperImpl
 import nl.adaptivity.xmlutil.benchmark.util.testXmlSchemaUrls
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -68,7 +67,7 @@ open class Deserialization {
         println("Setup called (fast: $fast)")
         retainedXml = when {
             fast -> XML.v1.fast()
-            else -> XML.v1.recommended()
+            else -> XML.v1()
         }
 
     }
@@ -80,9 +79,7 @@ open class Deserialization {
         val xml =
             when {
                 fast -> XML.v1.fast()
-                else -> XML.v1.recommended {
-                    policy { throwOnRepeatedElement = true }
-                }
+                else -> XML.v1 { -> policy { throwOnRepeatedElement = true } }
             }
 
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
@@ -114,9 +111,7 @@ open class Deserialization {
         val xml =
             when {
                 fast -> XML.v1.fast()
-                else -> XML.v1.recommended {
-                    policy { throwOnRepeatedElement = true }
-                }
+                else -> XML.v1 { policy { throwOnRepeatedElement = true } }
             }
 
         xmlStreaming.setFactory(StAXStreamingFactory())

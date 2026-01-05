@@ -37,7 +37,10 @@ import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.impl.createDocument
@@ -70,7 +73,7 @@ class TestCommon {
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
-        val format = XML.v1.recommended {
+        val format = XML.v1 {
             xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Charset
             setIndent(4)
@@ -95,7 +98,7 @@ class TestCommon {
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
-        val format = XML.v1.recommended {
+        val format = XML.v1 {
             xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Minimal
             indentString = "<!--i-->"
@@ -111,7 +114,7 @@ class TestCommon {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
-        val xml = XML.v1.recommended(Tag.module)
+        val xml = XML.v1(Tag.module)
         val deserialized = xml.decodeFromString(Tag.serializer(), contentText)
 
         assertEquals(expectedObj, deserialized)
@@ -145,7 +148,7 @@ class TestCommon {
 
     @Test
     fun deserializeXmlWithEntity() {
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             repairNamespaces = true
             policy {
                 autoPolymorphic = false
@@ -166,7 +169,7 @@ class TestCommon {
     fun deserializeToElementXmlWithEntity() {
         if (testTarget == Target.Node) return
 
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             repairNamespaces = true
             policy {
                 autoPolymorphic = false
@@ -201,7 +204,7 @@ class TestCommon {
 
     @Test
     fun serialize_issue121_1_0() {
-        serialize_issue121(XML.v1.recommended { xmlDeclMode = XmlDeclMode.None })
+        serialize_issue121(XML.v1 { xmlDeclMode = XmlDeclMode.None })
     }
 
     private fun serialize_issue121(format: XML) {
@@ -396,7 +399,7 @@ class TestCommon {
 
     @Test
     fun testSerializeObject() {
-        val xml  = XML.v1.recommended()
+        val xml  = XML.v1()
         val data = Container(MyObjectInCommon)
         val expected = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
         assertXmlEquals(expected, xml.encodeToString(data))
@@ -404,7 +407,7 @@ class TestCommon {
 
     @Test
     fun testDeserializeObject() {
-        val xml  = XML.v1.recommended()
+        val xml  = XML.v1()
         val expected = Container(MyObjectInCommon)
         val data = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
         assertEquals(expected, xml.decodeFromString<Container>(data))

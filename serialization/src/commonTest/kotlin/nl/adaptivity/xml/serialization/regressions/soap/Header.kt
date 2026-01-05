@@ -35,7 +35,6 @@ import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 
@@ -84,7 +83,7 @@ class Header(
         override fun get(): T = data
 
         override fun toCompactFragment(): CompactFragment {
-            return CompactFragment(XML.v1.recommended { xmlDeclMode = XmlDeclMode.None }
+            return CompactFragment(XML.v1 { xmlDeclMode = XmlDeclMode.None }
                 .encodeToString(serializer, value = data))
         }
 

@@ -30,7 +30,6 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -51,7 +50,7 @@ class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespa
         )
     ),
     GPXv11.serializer(),
-    baseXmlFormat = XML.v1.recommended {
+    baseXmlFormat = XML.v1 {
         isCollectingNSAttributes = true
         setIndent(4)
     },

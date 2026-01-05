@@ -44,7 +44,7 @@ internal val anyListModule = SerializersModule {
     }
 }
 
-private val parser = XML.v1.recommended(anyListModule)
+private val parser = XML.v1(anyListModule)
 
 interface XmlEntity
 

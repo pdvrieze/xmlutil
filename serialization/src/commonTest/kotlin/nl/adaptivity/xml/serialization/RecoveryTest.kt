@@ -62,7 +62,7 @@ class RecoveryTest {
      */
     @Test
     fun testDeserializeRecoveringWithParser() {
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             policy = object : DefaultXmlSerializationPolicy(Builder10().apply { pedantic = true }) {
                 @ExperimentalXmlUtilApi
                 override fun handleUnknownContentRecovering(
@@ -87,7 +87,7 @@ class RecoveryTest {
     fun testDeserializeRecovering() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             policy {
                 unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
                     assertEquals(QName("c"), name)
@@ -117,7 +117,7 @@ class RecoveryTest {
     fun testDeserializeRecoveringNotProvidingRequired() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             policy {
                 unknownChildHandler = UnknownChildHandler { _, _, _, name, _ ->
                     assertEquals(QName("c"), name)
@@ -135,7 +135,7 @@ class RecoveryTest {
     fun testDeserializeRecoveringDuplicateData() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             policy {
                 unknownChildHandler = UnknownChildHandler { input, _, _, name, _ ->
                     assertEquals(QName("c"), name)

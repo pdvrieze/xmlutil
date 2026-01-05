@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class AnyListStringTest {
-    val parser = XML.v1.recommended(anyListModule)
+    val parser = XML.v1(anyListModule)
 
     @Test
     fun testSerializeAnyListWithSpace() {

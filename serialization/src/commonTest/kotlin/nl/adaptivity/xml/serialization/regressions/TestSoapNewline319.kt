@@ -28,7 +28,6 @@ import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
-import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -36,11 +35,9 @@ class TestSoapNewline319 {
 
     @Test
     fun faultExampleWithTypedDetails() {
-        val xml = XML.v1.recommended(
-            serializersModule = SerializersModule {
-                polymorphic(Any::class, FooString::class, FooString.serializer())
-            }
-        )
+        val xml = XML.v1(SerializersModule {
+            polymorphic(Any::class, FooString::class, FooString.serializer())
+        })
 
         val faultMessage = SoapFault(detail = FooString)
 

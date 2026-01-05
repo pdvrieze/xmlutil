@@ -34,7 +34,7 @@ class TestSchemaReading {
     @Test
     fun testDeserializeDatatypes() {
         val deserialized = javaClass.classLoader.getResourceAsStream("datatypes.xsd")!!.use { inStream ->
-            XML.v1.recommended()
+            XML.v1()
                 .decodeFromReader(XSSchema.serializer(), xmlStreaming.newGenericReader(inStream, "UTF-8"))
         }
         assertNotNull(deserialized)

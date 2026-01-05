@@ -808,27 +808,70 @@ public class XML(
         @XmlUtilInternal
         public abstract fun fastBuilder(): B
 
-        public fun recommended(serializersModule: SerializersModule = EmptySerializersModule()): XML {
+        public operator fun invoke(): XML {
             return XML(XmlConfig(recommendedBuilder()), serializersModule)
         }
 
-        public inline fun recommended(
-            serializersModule: SerializersModule = EmptySerializersModule(),
+        public operator fun invoke(serializersModule: SerializersModule): XML {
+            return XML(XmlConfig(recommendedBuilder()), serializersModule)
+        }
+
+        public inline operator fun invoke(
+            serializersModule: SerializersModule,
             configure: B.() -> Unit = {}
         ): XML = XML(
             XmlConfig(this.recommendedBuilder().apply(configure)),
             serializersModule
         )
 
-        public inline fun XmlCompanion<B>.fast(
-            serializersModule: SerializersModule = EmptySerializersModule(),
+        public inline operator fun invoke(
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.recommendedBuilder().apply(configure)),
+            serializersModule
+        )
+
+        @Deprecated("Use invoke operator", ReplaceWith("this(serializersModule)"))
+        public fun recommended(serializersModule: SerializersModule): XML {
+            return this(serializersModule)
+        }
+
+        @Deprecated("Use invoke operator", ReplaceWith("this()"))
+        public open fun recommended(): XML {
+            return this(serializersModule)
+        }
+
+        @Deprecated("Use invoke operator", ReplaceWith("this(configure)"))
+        public inline fun recommended(
+            configure: B.() -> Unit
+        ): XML = invoke(configure)
+
+        @Deprecated("Use invoke operator", ReplaceWith("this(serializersModule, configure)"))
+        public inline fun recommended(
+            serializersModule: SerializersModule,
+            configure: B.() -> Unit
+        ): XML = invoke(serializersModule, configure)
+
+        public inline fun fast(
             configure: B.() -> Unit = {}
         ): XML = XML(
             XmlConfig(this.fastBuilder().apply(configure)),
             serializersModule
         )
 
-        public fun fast(serializersModule: SerializersModule = EmptySerializersModule()): XML {
+        public inline fun fast(
+            serializersModule: SerializersModule,
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.fastBuilder().apply(configure)),
+            serializersModule
+        )
+
+        public open fun fast(): XML {
+            return XML(XmlConfig(fastBuilder()), serializersModule)
+        }
+
+        public fun fast(serializersModule: SerializersModule): XML {
             return XML(XmlConfig(fastBuilder()), serializersModule)
         }
 
@@ -836,13 +879,12 @@ public class XML(
          * Shortcut function that creates a format instance that is compact. Note that this is a shortcut
          * for calling `recommended { compact() }`, for reconfiguration that should be used.
          */
-        public fun XmlCompanion<XmlConfig.DefaultBuilder>.compact(
+        public open fun compact(
             serializersModule: SerializersModule = EmptySerializersModule(),
-        ): XML =
-            recommended(serializersModule) { this.compact() }
+        ): XML = this(serializersModule) { this.compact() }
 
         @PublishedApi
-        internal fun <P: XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
+        internal fun <P : XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
             return XmlConfig.CustomBuilder(policy = policy)
         }
 
@@ -854,7 +896,7 @@ public class XML(
          * @param configure Configuration lambda that can be used to configure the XML configuration
          *   options (that are not part of the policy).
          */
-        public inline fun <P: XmlSerializationPolicy> customPolicy(
+        public inline fun <P : XmlSerializationPolicy> customPolicy(
             policy: P,
             serializersModule: SerializersModule = EmptySerializersModule(),
             configure: XmlConfig.CustomBuilder<P>.() -> Unit
@@ -1088,7 +1130,7 @@ public class XML(
         public inline fun recommended(
             serializersModule: SerializersModule = EmptySerializersModule(),
             configure: XmlConfig.DefaultBuilder.() -> Unit = {}
-        ): XML = v1.recommended(serializersModule, configure)
+        ): XML = v1(serializersModule, configure)
 
         @Suppress("DEPRECATION")
         @Deprecated("The format no longer has a default serializers module", ReplaceWith("EmptySerializersModule()"))
@@ -1577,12 +1619,12 @@ public object XML1_0: XmlCompanion<XmlConfig.DefaultBuilder>() {
 
     @Deprecated(
         "Use the compact shorthand inside the builder",
-        ReplaceWith("recommended(serializersModule) { compact() }",
-            "nl.adaptivity.xmlutil.serialization.recommended"
+        ReplaceWith("XML.v1(serializersModule) { compact() }",
+            "nl.adaptivity.xmlutil.serialization.XML"
         )
     )
-    public fun compact(serializersModule: SerializersModule = EmptySerializersModule()): XML {
-        return XML.v1.recommended(serializersModule) { compact() }
+    public override fun compact(serializersModule: SerializersModule): XML {
+        return XML.v1(serializersModule) { compact() }
     }
 
     @XmlUtilInternal
@@ -1593,36 +1635,54 @@ public object XML1_0: XmlCompanion<XmlConfig.DefaultBuilder>() {
     override fun fastBuilder(): XmlConfig.DefaultBuilder =
         XML.v1.fastBuilder()
 
-    @Deprecated("Use in-format version",
-        ReplaceWith("XML.v1.recommended()",
-            "nl.adaptivity.xmlutil.serialization.XML"))
-    public fun recommended(): XML = XML.v1.recommended()
+    @Deprecated(
+        "Use in-format version",
+        ReplaceWith("XML.v1()", "nl.adaptivity.xmlutil.serialization.XML")
+    )
+    public override fun recommended(): XML = XML.v1()
 
     @Deprecated("Use in-format version",
-        ReplaceWith("XML.v1.recommended(configure = configure)",
-            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.recommended"))
+        ReplaceWith(
+            "XML.v1(configure)",
+            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.recommended"
+        )
+    )
     public inline fun recommended(
+        dummy: Unit = Unit,
         configure: XmlConfig.DefaultBuilder.() -> Unit
-    ): XML = XML.v1.recommended(configure = configure)
+    ): XML = XML.v1(configure)
 
     @Deprecated("Use in-format version",
-        ReplaceWith("XML.v1.fast()",
-            "nl.adaptivity.xmlutil.serialization.XML"))
-    public fun fast(
+        ReplaceWith(
+            "XML.v1.fast()",
+            "nl.adaptivity.xmlutil.serialization.XML"
+        )
+    )
+    public override fun fast(
     ): XML = XML.v1.fast()
 
-    @Deprecated("Use in-format version",
-        ReplaceWith("XML.v1.fast(configure)",
-            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.fast"))
+    @Deprecated(
+        "Use in-format version",
+        ReplaceWith(
+            "XML.v1.fast(configure)",
+            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.fast"
+        )
+    )
     public inline fun fast(
+        dummy: Unit = Unit,
         configure: XmlConfig.DefaultBuilder.() -> Unit
-    ): XML = XML.v1.fast(configure = configure)
+    ): XML = XML.v1.fast(configure)
 
-    @Deprecated("Use in-format version",
-        ReplaceWith("XML.v1.fast(serializersModule, configure)",
-            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.fast"))
+    @Deprecated(
+        "Use in-format version",
+        ReplaceWith(
+            "XML.v1.fast(serializersModule, configure)",
+            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.fast"
+        )
+    )
     public inline fun fast(
         serializersModule: SerializersModule,
+        dummy: Unit = Unit,
         configure: XmlConfig.DefaultBuilder.() -> Unit = {}
     ): XML = XML.v1.fast(
         serializersModule,

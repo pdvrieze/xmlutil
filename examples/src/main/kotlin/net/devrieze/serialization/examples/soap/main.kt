@@ -28,7 +28,6 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.reflect.KClass
 
 /**

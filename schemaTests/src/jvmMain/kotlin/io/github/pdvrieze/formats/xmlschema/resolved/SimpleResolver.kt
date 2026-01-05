@@ -29,7 +29,6 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -43,7 +42,7 @@ class SimpleResolver(internal val xml: XML, private val baseURI: URI, val isNetw
                 this(xml, baseUrl.toURI(), isNetworkResolvingAllowed)
 
     constructor(baseURI: URI, isNetworkResolvingAllowed: Boolean = false) : this(
-        XML.v1.recommended {
+        XML.v1 {
             policy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true
@@ -93,16 +92,19 @@ class SimpleResolver(internal val xml: XML, private val baseURI: URI, val isNetw
                     schemaUri.host != baseURI.host)
         ) {
             if (schemaUri.scheme == "file") throw FileNotFoundException("Absolute file uri references are not supported")
-            when (schemaLocation.value) {
-                "http://www.w3.org/XML/2008/06/xlink.xsd" -> return javaClass.classLoader.getResourceAsStream("xlink.xsd").withXmlReader { reader ->
-                    xml.decodeFromReader<XSSchema>(reader)
-                }
-                else -> return null
+            return when (schemaLocation.value) {
+                "http://www.w3.org/XML/2008/06/xlink.xsd" ->
+                    javaClass.classLoader.getResourceAsStream("xlink.xsd")!!
+                        .withXmlReader { reader ->
+                            xml.decodeFromReader<XSSchema>(reader)
+                        }
+
+                else -> null
             }
         }
         val stream = try {
             baseURI.resolve2(schemaUri).toURL().openStream()
-        } catch (e: FileNotFoundException) {
+        } catch (_: FileNotFoundException) {
             return null
         }
 

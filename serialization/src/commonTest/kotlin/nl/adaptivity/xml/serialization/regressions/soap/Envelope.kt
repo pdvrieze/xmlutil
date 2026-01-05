@@ -43,7 +43,10 @@ import nl.adaptivity.serialutil.decodeElements
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
 import kotlin.jvm.JvmStatic
@@ -152,7 +155,7 @@ class Envelope<out T : Any>(
 
         @JvmStatic
         fun deserialize(reader: XmlReader): Envelope<CompactFragment> {
-            return XML.v1.recommended { setIndent(2) }.decodeFromReader(
+            return XML.v1 { setIndent(2) }.decodeFromReader(
                 serializer(CompactFragmentSerializer),
                 reader
             )

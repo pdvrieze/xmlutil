@@ -31,7 +31,7 @@ import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 
-private val xml = XML.v1.recommended()
+private val xml = XML.v1()
 
 fun main() {
     val suiteURL: URL = OTSSuite::class.java.getResource("/xsts/suite.xml")!!

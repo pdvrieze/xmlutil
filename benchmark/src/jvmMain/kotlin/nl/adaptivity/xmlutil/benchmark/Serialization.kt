@@ -32,7 +32,6 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.recommended
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -47,7 +46,7 @@ open class Serialization {
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML.compat { recommended_0_87_0() })
 
     val schemas: List<Pair<URL, XSSchema>> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val xml = XML.v1.recommended()
+        val xml = XML.v1()
         suites.map { (_, u) ->
             u.openStream().use { input ->
                 xmlStreaming.newGenericReader(input).use { reader ->
@@ -65,7 +64,7 @@ open class Serialization {
         println("Setup called (fast: $fast)")
         retainedXml = when {
             fast -> XML.v1.fast()
-            else -> XML.v1.recommended()
+            else -> XML.v1()
         }
     }
 
@@ -75,9 +74,7 @@ open class Serialization {
     fun testSerializeGenericSpeedImpl(bh: BlackholeWrapper) {
         val xml = when {
             fast -> XML.v1.fast()
-            else -> XML.v1.recommended {
-                policy { throwOnRepeatedElement = true }
-            }
+            else -> XML.v1({ -> policy { throwOnRepeatedElement = true } })
         }
 
         xmlStreaming.setFactory(xmlStreaming.genericFactory)

@@ -33,7 +33,6 @@ import kotlinx.serialization.modules.subclass
 import nl.adaptivity.serialutil.MixedContent
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
-import nl.adaptivity.xmlutil.serialization.compact
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -70,7 +69,7 @@ class TestMixedTypesafe {
                 elem(TypedMixed.G())
             })
         }
-        val xml = XML.v1.recommended(TypedMixed.module)
+        val xml = XML.v1(TypedMixed.module)
         val actual = xml.decodeFromString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
@@ -130,7 +129,7 @@ class TestMixedTypesafe {
             text("b")
         }
         val expectedXml = "<mixed>a<e> </e>b</mixed>"
-        val xml = XML.v1.recommended(TypedMixed.module)
+        val xml = XML.v1(TypedMixed.module)
         assertXmlEquals(expectedXml, xml.encodeToString(TypedMixed.serializer(), data))
 
         assertEquals(data, xml.decodeFromString(TypedMixed.serializer(), expectedXml))

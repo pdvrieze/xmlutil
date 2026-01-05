@@ -26,10 +26,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -54,8 +52,7 @@ class ListTest : PlatformTestBase<ListTest.SimpleList>(
 
     @Test
     fun testUnwrappedListSerialization1_0() {
-        testUnwrappedListSerialization(
-            XML.v1.recommended { xmlDeclMode = XmlDeclMode.None; setIndent(0) })
+        testUnwrappedListSerialization(XML.v1.compact())
     }
 
     private fun testUnwrappedListSerialization(format: XML) {

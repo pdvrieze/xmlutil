@@ -28,12 +28,11 @@ import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AttributeWithNamespace179 {
-    val xml get() = XML.v1.recommended {
+    val xml get() = XML.v1 {
             policy {
                 isStrictAttributeNames = true
                 pedantic = true
@@ -52,7 +51,7 @@ class AttributeWithNamespace179 {
 
     @Test
     fun testSerializeDefaultInstance1_0() {
-        testSerializeDefaultInstance(XML.v1.recommended { compact() })
+        testSerializeDefaultInstance(XML.v1 { compact() })
     }
 
     private fun testSerializeDefaultInstance(format: XML) {
@@ -93,7 +92,7 @@ class AttributeWithNamespace179 {
                 " <ns:food ns:istasty=\"true\" />\n" +
                 "</ns:breakfast_menu>"
 
-        val xml = XML.v1.recommended {
+        val xml = XML.v1 {
             xmlDeclMode = XmlDeclMode.Charset
 
             repairNamespaces = true

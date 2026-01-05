@@ -54,7 +54,7 @@ open class SerializationTest : Serialization() {
     @Test
     fun testAttributePositionRegression() {
         val schemaName = "/xsts/ibmData/valid/S3_12/s3_12v03.xsd"
-        val xml = XML.v1.recommended()
+        val xml = XML.v1()
         val schemaText = String(javaClass.getResourceAsStream(schemaName)!!.readAllBytes())
         val schema = xml.decodeFromString<XSSchema>(schemaText)
 

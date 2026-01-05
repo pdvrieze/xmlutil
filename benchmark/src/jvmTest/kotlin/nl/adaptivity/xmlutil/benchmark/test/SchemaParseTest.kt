@@ -35,7 +35,7 @@ import kotlin.test.assertIs
 class SchemaParseTest {
     @Test
     fun parseCompactFragment() {
-        val xml = XML.v1.recommended()
+        val xml = XML.v1()
         val schema = SchemaParseTest::class.java.getResourceAsStream("/xsts/saxonData/VC/vc003.xsd")!!.use {
             xml.decodeFromReader<XSSchema>(xmlStreaming.newReader(it))
         }
