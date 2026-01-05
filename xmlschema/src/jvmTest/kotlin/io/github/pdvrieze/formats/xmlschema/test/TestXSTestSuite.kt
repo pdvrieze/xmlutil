@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -35,8 +35,8 @@ import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.defaultPolicy
+import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -117,7 +117,7 @@ class TestXSTestSuite {
     @Test
     @Disabled
     fun testDeserializeGenericSpeed() {
-        xml = XML1_0.recommended {
+        xml = XML.v1.recommended {
             isUnchecked = false
         }
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
@@ -128,7 +128,7 @@ class TestXSTestSuite {
     @Test
     @Disabled
     fun testDeserializeStaxSpeed() {
-        xml = XML1_0.recommended()
+        xml = XML.v1.recommended()
         xmlStreaming.setFactory(StAXStreamingFactory())
         testDeserializeSpeed()
         xmlStreaming.setFactory(null)
@@ -224,10 +224,10 @@ class TestXSTestSuite {
     @DisplayName("Test suites: suite.xml")
     @TestFactory
     fun testFromTestSetRef(): List<DynamicNode> {
-        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")
+        val suiteURL: URL = javaClass.getResource("/xsts/suite.xml")!!
 
-        val override = javaClass.getResource("/override.xml").withXmlReader {
-            val compact = XML1_0.recommended().decodeFromReader<CompactOverride>(it)
+        val override = javaClass.getResource("/override.xml")!!.withXmlReader {
+            val compact = XML.v1.recommended().decodeFromReader<CompactOverride>(it)
             OTSSuite(compact)
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,8 @@ package io.github.pdvrieze.formats.xmlschema.test
 
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.newWriter
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.xmlStreaming
 import org.w3.xml.xmschematestsuite.*
 import org.w3.xml.xmschematestsuite.override.*
@@ -32,7 +33,7 @@ import java.io.FileWriter
 import java.net.URI
 import java.net.URL
 
-private val xml = XML1_0.recommended()
+private val xml = XML.v1.recommended()
 
 fun main() {
     val suiteURL: URL = OTSSuite::class.java.getResource("/xsts/suite.xml")!!
@@ -50,7 +51,7 @@ fun main() {
 
         FileWriter("override.xml").use { out ->
             xmlStreaming.newWriter(out).use { writer ->
-                XML1_0.recommended {
+                XML.v1.recommended {
                     setIndent(2)
                 }.encodeToWriter(writer, compact, "")
             }

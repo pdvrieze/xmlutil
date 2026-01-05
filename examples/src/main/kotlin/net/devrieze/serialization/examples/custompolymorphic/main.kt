@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,8 @@ package net.devrieze.serialization.examples.custompolymorphic
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.recommended
 
 val fruits: List<Fruit> = listOf(
     Apple("MyApple", 5),
@@ -32,7 +33,7 @@ val fruits: List<Fruit> = listOf(
 )
 
 fun main() {
-    val xml = XML1_0.recommended {
+    val xml = XML.v1.recommended {
         policy {
             autoPolymorphic = false
             pedantic = true

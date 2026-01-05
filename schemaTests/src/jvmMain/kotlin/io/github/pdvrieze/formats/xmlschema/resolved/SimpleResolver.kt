@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -43,7 +43,7 @@ class SimpleResolver(internal val xml: XML, private val baseURI: URI, val isNetw
                 this(xml, baseUrl.toURI(), isNetworkResolvingAllowed)
 
     constructor(baseURI: URI, isNetworkResolvingAllowed: Boolean = false) : this(
-        XML1_0.recommended {
+        XML.v1.recommended {
             policy {
                 autoPolymorphic = true
                 throwOnRepeatedElement = true

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -44,6 +44,7 @@ class ClassWithImplicitChildNamespace : PlatformTestBase<ClassWithImplicitChildN
     @Test
     fun invalidXmlDoesNotDeserialize() {
         assertFailsWith<UnknownXmlFieldException> {
+            @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, invalidXml)
         }
     }

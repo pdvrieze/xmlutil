@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,6 +29,7 @@ import kotlin.test.assertFails
 import kotlin.test.assertTrue
 
 class InvalidValueContainerTest {
+    @Suppress("DEPRECATION")
     val format = XML.compat()
     val data = InvalidValueContainer("foobar", Address("10", "Downing Street", "London"))
     val serializer = InvalidValueContainer.serializer()

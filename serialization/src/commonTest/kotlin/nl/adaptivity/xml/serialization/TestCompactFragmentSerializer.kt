@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -25,7 +25,7 @@ package nl.adaptivity.xml.serialization
 import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlEvent
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -37,7 +37,7 @@ class TestCompactFragmentSerializer {
     fun testSerializeCompactFragment() {
         val f = FragmentContainer(CompactFragment(listOf(XmlEvent.NamespaceImpl("ns", "urn:ns")), """<ns:a><ns:b>"hello"</ns:b></ns:a>"""), "bar")
         val expected = "<FragmentContainer c=\"bar\" xmlns:ns=\"urn:ns\">${f.fragment.contentString}</FragmentContainer>"
-        val actual = XML1_0.encodeToString(f)
+        val actual = XML.v1.encodeToString(f)
         assertXmlEquals(expected, actual)
     }
 
@@ -45,7 +45,7 @@ class TestCompactFragmentSerializer {
     fun testDeserializeCompactFragment() {
         val expected = FragmentContainer(CompactFragment(listOf(XmlEvent.NamespaceImpl("ns", "urn:ns")), """<ns:a><ns:b>"hello"</ns:b></ns:a>"""), "bar")
         val input = "<FragmentContainer xmlns:ns=\"urn:ns\" c=\"bar\">${expected.fragment.contentString}</FragmentContainer>"
-        val actual = XML1_0.decodeFromString<FragmentContainer>(input)
+        val actual = XML.v1.decodeFromString<FragmentContainer>(input)
         assertEquals(expected, actual)
     }
 

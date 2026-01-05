@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -33,14 +33,14 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.structure.XmlContextualDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ContextualSerializationPrimitive208 {
-    val xml get() = XML1_0.pedantic(
+    val xml get() = XML.v1.pedantic(
         SerializersModule {
             contextual(AnyIntSerializer)
         }

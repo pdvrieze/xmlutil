@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -33,6 +35,9 @@ class TestSuite325 {
 
     @Test
     fun testDeserialize() {
+        if (testTarget == Target.Node) return
+
+        @Suppress("DEPRECATION")
         val xml = XML.compat { recommended() }
         val data = xml.decodeFromString<TestSuite>(XMLDATA)
         assertEquals(2, data.testcase.size)

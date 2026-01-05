@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,8 +27,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.compact
+import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.*
 
 class SequenceTest {
@@ -38,7 +40,7 @@ class SequenceTest {
         SimpleList("7", "8", "9"),
     )
 
-    fun getFormat() = XML1_0.recommended()
+    fun getFormat() = XML.v1.recommended()
 
     val expectedXML: String = "<w>  " +
             "<l2><value>1</value>\n<value>2</value><value>3</value></l2>" +
@@ -204,7 +206,7 @@ class SequenceTest {
             SimpleList("3"),
         )
         val expectedXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
-        val serializedXml = XML1_0.compactInstance.encodeToString(data)
+        val serializedXml = XML.v1.recommended { compact() }.encodeToString(data)
         assertEquals(expectedXml, serializedXml)
     }
 
@@ -216,7 +218,7 @@ class SequenceTest {
             SimpleList("3"),
         )
         val serialXml = "<ArrayList><l><value>1</value></l><l><value>2</value></l><l><value>3</value></l></ArrayList>"
-        val decodedData = XML1_0.compactInstance.decodeFromString<List<SimpleList>>(serialXml)
+        val decodedData = XML.v1.compact().decodeFromString<List<SimpleList>>(serialXml)
         assertEquals(expectedData, decodedData)
     }
 

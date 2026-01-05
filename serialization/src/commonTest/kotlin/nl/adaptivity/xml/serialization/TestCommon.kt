@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -70,7 +70,7 @@ class TestCommon {
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
-        val format = XML1_0.recommended {
+        val format = XML.v1.recommended {
             xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Charset
             setIndent(4)
@@ -95,7 +95,7 @@ class TestCommon {
 
         val model = SampleModel1("0.0.1", "attrValue", "elementValue")
 
-        val format = XML1_0.recommended {
+        val format = XML.v1.recommended {
             xmlVersion = XmlVersion.XML10
             xmlDeclMode = XmlDeclMode.Minimal
             indentString = "<!--i-->"
@@ -111,7 +111,7 @@ class TestCommon {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
-        val xml = XML1_0.recommended(Tag.module)
+        val xml = XML.v1.recommended(Tag.module)
         val deserialized = xml.decodeFromString(Tag.serializer(), contentText)
 
         assertEquals(expectedObj, deserialized)
@@ -122,7 +122,7 @@ class TestCommon {
     fun serializeIntList() {
         val data = IntList(listOf(1, 2, 3, 4))
         val expectedXml = "<IntList><values>1</values><values>2</values><values>3</values><values>4</values></IntList>"
-        val xml = XML
+        val xml = XML.v1.compact()
         val serializer = IntList.serializer()
         val serialized = xml.encodeToString(serializer, data)
         assertEquals(expectedXml, serialized)
@@ -136,10 +136,7 @@ class TestCommon {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
         val expectedObj = Tag(listOf("some text ", B("some bold text", I("some bold italic text"))))
 
-        val xml = XML1_0.recommended(Tag.module) {
-            setIndent(0)
-            xmlDeclMode = XmlDeclMode.None
-        }
+        val xml = XML.v1.compact(Tag.module)
 
         val serialized = xml.encodeToString(Tag.serializer(), expectedObj)
         assertEquals(contentText, serialized)
@@ -148,7 +145,7 @@ class TestCommon {
 
     @Test
     fun deserializeXmlWithEntity() {
-        val xml = XML1_0.recommended {
+        val xml = XML.v1.recommended {
             repairNamespaces = true
             policy {
                 autoPolymorphic = false
@@ -169,7 +166,7 @@ class TestCommon {
     fun deserializeToElementXmlWithEntity() {
         if (testTarget == Target.Node) return
 
-        val xml = XML1_0.recommended {
+        val xml = XML.v1.recommended {
             repairNamespaces = true
             policy {
                 autoPolymorphic = false
@@ -198,12 +195,13 @@ class TestCommon {
 
     @Test
     fun serialize_issue121() {
+        @Suppress("DEPRECATION")
         serialize_issue121(XML.compat.instance)
     }
 
     @Test
     fun serialize_issue121_1_0() {
-        serialize_issue121(XML1_0.recommended { xmlDeclMode = XmlDeclMode.None })
+        serialize_issue121(XML.v1.recommended { xmlDeclMode = XmlDeclMode.None })
     }
 
     private fun serialize_issue121(format: XML) {
@@ -220,7 +218,7 @@ class TestCommon {
 
     @Test
     fun serializeIndependent_issue121_1_0() {
-        serializeIndependent_issue121(XML1_0.compactInstance)
+        serializeIndependent_issue121(XML.v1.compact())
     }
 
     private fun serializeIndependent_issue121(format: XML) {
@@ -242,7 +240,7 @@ class TestCommon {
 
     @Test
     fun serializeEmoji_1_0() {
-        serializeEmoji(XML1_0.compactInstance)
+        serializeEmoji(XML.v1.compact())
     }
 
     private fun serializeEmoji(format: XML) {
@@ -259,7 +257,7 @@ class TestCommon {
 
     @Test
     fun serializeEmojiIndependent1_0() {
-        serializeEmojiIndependent(XML1_0.compactInstance)
+        serializeEmojiIndependent(XML.v1.compact())
     }
 
     private fun serializeEmojiIndependent(format: XML) {
@@ -277,25 +275,26 @@ class TestCommon {
     fun serializeRawEmoji() {
         val data = StringHolder("😊")
         val expected = "<StringHolder>😊</StringHolder>"
-        assertEquals(expected, XML1_0.compactInstance.encodeToString(data))
+        assertEquals(expected, XML.v1.compact().encodeToString(data))
     }
 
     @Test
     fun deserializeEmoji() {
         val xml = "<StringHolder>😊</StringHolder>"
-        val deserialized = XML1_0.decodeFromString<StringHolder>(xml)
+        val deserialized = XML.v1.decodeFromString<StringHolder>(xml)
         assertEquals("\uD83D\uDE0A", deserialized.value)
     }
 
     @Test
     fun deserializeEmojiEntity() {
         val xml = "<StringHolder>&#x1F60A;</StringHolder>"
-        val deserialized = XML1_0.decodeFromString<StringHolder>(xml)
+        val deserialized = XML.v1.decodeFromString<StringHolder>(xml)
         assertEquals("😊", deserialized.value)
     }
 
     @Test
     fun serializeXmlWithEntity() {
+        @Suppress("DEPRECATION")
         val xml = XML.compat {
             repairNamespaces = true
             defaultPolicy {
@@ -397,7 +396,7 @@ class TestCommon {
 
     @Test
     fun testSerializeObject() {
-        val xml  = XML1_0.recommended()
+        val xml  = XML.v1.recommended()
         val data = Container(MyObjectInCommon)
         val expected = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
         assertXmlEquals(expected, xml.encodeToString(data))
@@ -405,7 +404,7 @@ class TestCommon {
 
     @Test
     fun testDeserializeObject() {
-        val xml  = XML1_0.recommended()
+        val xml  = XML.v1.recommended()
         val expected = Container(MyObjectInCommon)
         val data = "<Container><o:myObject xmlns:o=\"mynamespace\"/></Container>"
         assertEquals(expected, xml.decodeFromString<Container>(data))

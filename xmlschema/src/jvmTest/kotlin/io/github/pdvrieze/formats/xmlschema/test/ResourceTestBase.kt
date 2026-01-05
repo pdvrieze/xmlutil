@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.newGenericReader
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.recommended
 import nl.adaptivity.xmlutil.xmlStreaming
 import java.io.InputStreamReader
 
@@ -50,7 +50,7 @@ abstract class ResourceTestBase(val baseDir: String) {
     }
 
     companion object {
-        val format: XML = XML1_0.recommended {
+        val format: XML = XML.v1.recommended {
             setIndent(4)
             xmlDeclMode = XmlDeclMode.None
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,7 +29,7 @@ import kotlinx.serialization.encodeToString
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.serialization.DefaultFormatCache
 import nl.adaptivity.xmlutil.serialization.TestFormatCache
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.jvm.JvmInline
 import kotlin.test.Test
@@ -40,7 +40,7 @@ import kotlin.test.assertEquals
  */
 class PolymorphicValue280 {
 
-    val xml = XML1_0.pedantic() {
+    val xml = XML.v1.pedantic {
         policy {
             formatCache = TestFormatCache(DefaultFormatCache())
         }

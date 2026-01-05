@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,6 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -42,6 +41,7 @@ class ContextualWithTypeSerializer220 {
 
     @Test
     fun deserializeTest() {
+        @Suppress("DEPRECATION")
         val box: Box = XML.compat.decodeFromString(
             """<?xml version="1.0" encoding="UTF-8"?>
                <Box>
@@ -62,10 +62,11 @@ class ContextualWithTypeSerializer220 {
                </Box>""".trimIndent()
 
 
-        val actual = XML1_0.encodeToString(Box(1698937009364L))
+        val actual = XML.v1.encodeToString(Box(1698937009364L))
 
         assertXmlEquals(expected, actual)
 
+        @Suppress("DEPRECATION")
         val actual2 = XML.compat { defaultPolicy { pedantic = true } }.encodeToString(Box(1698937009364L))
         assertXmlEquals(expected, actual2)
     }

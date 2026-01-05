@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -30,14 +30,15 @@ import kotlinx.serialization.Serializable
 import net.devrieze.xmlutil.serialization.kxio.decodeFromSource
 import net.devrieze.xmlutil.serialization.kxio.encodeToSink
 import nl.adaptivity.xmlutil.XmlDeclMode
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class IOTest {
 
-    private val xml = XML1_0.recommended {
+    private val xml = XML.v1.recommended {
         xmlDeclMode = XmlDeclMode.None
     }
 

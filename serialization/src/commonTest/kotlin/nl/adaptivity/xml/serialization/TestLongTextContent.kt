@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025.
+ * Copyright (c) 2022-2026.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,6 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.newGenericWriter
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.xmlStreaming
@@ -43,7 +42,7 @@ class TestLongTextContent {
 
     @Test
     fun testSerializeLongTextToAttributeDefault1_0() {
-        testSerializeLongTextToAttributeDefault(XML1_0.instance)
+        testSerializeLongTextToAttributeDefault(XML.v1.instance)
     }
 
     private fun testSerializeLongTextToAttributeDefault(format: XML) {
@@ -61,7 +60,7 @@ class TestLongTextContent {
 
     @Test
     fun testSerializeLongTextToAttributeCrossPlatform1_0() {
-        testSerializeLongTextToAttributeCrossPlatform(XML1_0.instance)
+        testSerializeLongTextToAttributeCrossPlatform(XML.v1.instance)
     }
 
     private fun testSerializeLongTextToAttributeCrossPlatform(format: XML) {
@@ -83,7 +82,7 @@ class TestLongTextContent {
 
     @Test
     fun testDeserializeLongTextToAttributeDefault1_0() {
-        testDeserializeLongTextToAttributeDefault(XML1_0.instance)
+        testDeserializeLongTextToAttributeDefault(XML.v1.instance)
     }
 
     private fun testDeserializeLongTextToAttributeDefault(format: XML) {
@@ -101,7 +100,7 @@ class TestLongTextContent {
 
     @Test
     fun testDeserializeLongTextToAttributeCrossPlatform1_0() {
-        testDeserializeLongTextToAttributeCrossPlatform(XML1_0.instance)
+        testDeserializeLongTextToAttributeCrossPlatform(XML.v1.instance)
     }
 
     private fun testDeserializeLongTextToAttributeCrossPlatform(format: XML) {
@@ -121,7 +120,7 @@ class TestLongTextContent {
 
     @Test
     fun testSerializeLongTextToContentDefault1_0() {
-        testSerializeLongTextToContentDefault(XML1_0.instance)
+        testSerializeLongTextToContentDefault(XML.v1.instance)
     }
 
     private fun testSerializeLongTextToContentDefault(format: XML) {
@@ -139,7 +138,7 @@ class TestLongTextContent {
 
     @Test
     fun testSerializeLongTextToContentCrossPlatform1_0() {
-        testSerializeLongTextToContentCrossPlatform(XML1_0.instance)
+        testSerializeLongTextToContentCrossPlatform(XML.v1.instance)
     }
 
     private fun testSerializeLongTextToContentCrossPlatform(format: XML) {
@@ -161,7 +160,7 @@ class TestLongTextContent {
 
     @Test
     fun testDeserializeLongTextToContentDefault1_0() {
-        testDeserializeLongTextToContentDefault(XML1_0.instance)
+        testDeserializeLongTextToContentDefault(XML.v1.instance)
     }
 
     private fun testDeserializeLongTextToContentDefault(format: XML) {
@@ -179,7 +178,7 @@ class TestLongTextContent {
 
     @Test
     fun testDeserializeLongTextToContentCrossPlatform1_0() {
-        testDeserializeLongTextToContentCrossPlatform(XML1_0.instance)
+        testDeserializeLongTextToContentCrossPlatform(XML.v1.instance)
     }
 
     private fun testDeserializeLongTextToContentCrossPlatform(format: XML) {

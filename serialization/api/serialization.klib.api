@@ -714,7 +714,7 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
         open fun ensureNamespace(nl.adaptivity.xmlutil/QName): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/XML.XmlOutput.ensureNamespace|ensureNamespace(nl.adaptivity.xmlutil.QName){}[0]
     }
 
-    abstract class XmlCompanion : kotlinx.serialization/StringFormat { // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion|null[0]
+    abstract class <#A1: nl.adaptivity.xmlutil.serialization/XmlConfig.Builder<out nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy?>> XmlCompanion : kotlinx.serialization/StringFormat { // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion|null[0]
         constructor <init>() // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.<init>|<init>(){}[0]
 
         abstract val instance // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.instance|{}instance[0]
@@ -722,8 +722,6 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
         open val serializersModule // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.serializersModule|{}serializersModule[0]
             open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
 
-        abstract fun fast(kotlinx.serialization.modules/SerializersModule = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.fast|fast(kotlinx.serialization.modules.SerializersModule){}[0]
-        abstract fun recommended(kotlinx.serialization.modules/SerializersModule = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.recommended|recommended(kotlinx.serialization.modules.SerializersModule){}[0]
         final fun <#A2: kotlin/Any> decodeFromReader(kotlinx.serialization/DeserializationStrategy<#A2>, nl.adaptivity.xmlutil/XmlReader, nl.adaptivity.xmlutil/QName? = ...): #A2 // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.decodeFromReader|decodeFromReader(kotlinx.serialization.DeserializationStrategy<0:0>;nl.adaptivity.xmlutil.XmlReader;nl.adaptivity.xmlutil.QName?){0§<kotlin.Any>}[0]
         final fun <#A2: kotlin/Any?> decodeFromString(kotlinx.serialization/DeserializationStrategy<#A2>, kotlin/String, nl.adaptivity.xmlutil/QName?): #A2 // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.decodeFromString|decodeFromString(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.String;nl.adaptivity.xmlutil.QName?){0§<kotlin.Any?>}[0]
         final fun <#A2: kotlin/Any?> encodeToString(kotlinx.serialization/SerializationStrategy<#A2>, #A2): kotlin/String // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.encodeToString|encodeToString(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
@@ -732,6 +730,8 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
         final fun <#A2: kotlin/Any?> encodeToWriter(nl.adaptivity.xmlutil/XmlWriter, kotlinx.serialization/SerializationStrategy<#A2>, #A2, kotlin/String? = ...) // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.encodeToWriter|encodeToWriter(nl.adaptivity.xmlutil.XmlWriter;kotlinx.serialization.SerializationStrategy<0:0>;0:0;kotlin.String?){0§<kotlin.Any?>}[0]
         final fun <#A2: kotlin/Any?> encodeToWriter(nl.adaptivity.xmlutil/XmlWriter, kotlinx.serialization/SerializationStrategy<#A2>, #A2, nl.adaptivity.xmlutil/QName) // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.encodeToWriter|encodeToWriter(nl.adaptivity.xmlutil.XmlWriter;kotlinx.serialization.SerializationStrategy<0:0>;0:0;nl.adaptivity.xmlutil.QName){0§<kotlin.Any?>}[0]
         final fun <#A2: nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy> customBuilder(#A2): nl.adaptivity.xmlutil.serialization/XmlConfig.CustomBuilder<#A2> // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.customBuilder|customBuilder(0:0){0§<nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy>}[0]
+        final fun fast(kotlinx.serialization.modules/SerializersModule = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.fast|fast(kotlinx.serialization.modules.SerializersModule){}[0]
+        final fun recommended(kotlinx.serialization.modules/SerializersModule = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.recommended|recommended(kotlinx.serialization.modules.SerializersModule){}[0]
         final fun xmlDescriptor(kotlinx.serialization/DeserializationStrategy<*>, nl.adaptivity.xmlutil/QName? = ...): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.xmlDescriptor|xmlDescriptor(kotlinx.serialization.DeserializationStrategy<*>;nl.adaptivity.xmlutil.QName?){}[0]
         final fun xmlDescriptor(kotlinx.serialization/KSerializer<*>, nl.adaptivity.xmlutil/QName? = ...): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.xmlDescriptor|xmlDescriptor(kotlinx.serialization.KSerializer<*>;nl.adaptivity.xmlutil.QName?){}[0]
         final fun xmlDescriptor(kotlinx.serialization/SerializationStrategy<*>, nl.adaptivity.xmlutil/QName? = ...): nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor // nl.adaptivity.xmlutil.serialization/XML.XmlCompanion.xmlDescriptor|xmlDescriptor(kotlinx.serialization.SerializationStrategy<*>;nl.adaptivity.xmlutil.QName?){}[0]
@@ -767,13 +767,15 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
 
     final object Companion : kotlinx.serialization/StringFormat { // nl.adaptivity.xmlutil.serialization/XML.Companion|null[0]
         final val compat // nl.adaptivity.xmlutil.serialization/XML.Companion.compat|{}compat[0]
-            final fun <get-compat>(): nl.adaptivity.xmlutil.serialization/XML.Companion.Compat // nl.adaptivity.xmlutil.serialization/XML.Companion.compat.<get-compat>|<get-compat>(){}[0]
+            final fun <get-compat>(): nl.adaptivity.xmlutil.serialization/XML.XmlCompanion<nl.adaptivity.xmlutil.serialization/XmlConfig.CompatBuilder> // nl.adaptivity.xmlutil.serialization/XML.Companion.compat.<get-compat>|<get-compat>(){}[0]
         final val defaultInstance // nl.adaptivity.xmlutil.serialization/XML.Companion.defaultInstance|{}defaultInstance[0]
             final fun <get-defaultInstance>(): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.defaultInstance.<get-defaultInstance>|<get-defaultInstance>(){}[0]
         final val defaultInstance_1_0 // nl.adaptivity.xmlutil.serialization/XML.Companion.defaultInstance_1_0|{}defaultInstance_1_0[0]
             final fun <get-defaultInstance_1_0>(): nl.adaptivity.xmlutil.serialization/XML1_0 // nl.adaptivity.xmlutil.serialization/XML.Companion.defaultInstance_1_0.<get-defaultInstance_1_0>|<get-defaultInstance_1_0>(){}[0]
         final val serializersModule // nl.adaptivity.xmlutil.serialization/XML.Companion.serializersModule|{}serializersModule[0]
             final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/XML.Companion.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+        final val v1 // nl.adaptivity.xmlutil.serialization/XML.Companion.v1|{}v1[0]
+            final fun <get-v1>(): nl.adaptivity.xmlutil.serialization/XML.XmlCompanion<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder> // nl.adaptivity.xmlutil.serialization/XML.Companion.v1.<get-v1>|<get-v1>(){}[0]
 
         final fun <#A2: kotlin/Any> decodeFromReader(kotlinx.serialization/DeserializationStrategy<#A2>, nl.adaptivity.xmlutil/XmlReader, nl.adaptivity.xmlutil/QName? = ...): #A2 // nl.adaptivity.xmlutil.serialization/XML.Companion.decodeFromReader|decodeFromReader(kotlinx.serialization.DeserializationStrategy<0:0>;nl.adaptivity.xmlutil.XmlReader;nl.adaptivity.xmlutil.QName?){0§<kotlin.Any>}[0]
         final fun <#A2: kotlin/Any?> decodeFromString(kotlinx.serialization/DeserializationStrategy<#A2>, kotlin/String): #A2 // nl.adaptivity.xmlutil.serialization/XML.Companion.decodeFromString|decodeFromString(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.String){0§<kotlin.Any?>}[0]
@@ -798,14 +800,6 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
         final inline fun fast_1_0(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.fast_1_0|fast_1_0(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<nl.adaptivity.xmlutil.serialization.XmlConfig.DefaultBuilder,kotlin.Unit>){}[0]
         final inline fun recommended(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.recommended|recommended(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<nl.adaptivity.xmlutil.serialization.XmlConfig.DefaultBuilder,kotlin.Unit>){}[0]
         final inline fun recommended_1_0(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.recommended_1_0|recommended_1_0(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<nl.adaptivity.xmlutil.serialization.XmlConfig.DefaultBuilder,kotlin.Unit>){}[0]
-
-        final object Compat : nl.adaptivity.xmlutil.serialization/XML.XmlCompanion { // nl.adaptivity.xmlutil.serialization/XML.Companion.Compat|null[0]
-            final val instance // nl.adaptivity.xmlutil.serialization/XML.Companion.Compat.instance|{}instance[0]
-                final fun <get-instance>(): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.Compat.instance.<get-instance>|<get-instance>(){}[0]
-
-            final fun fast(kotlinx.serialization.modules/SerializersModule): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.Compat.fast|fast(kotlinx.serialization.modules.SerializersModule){}[0]
-            final fun recommended(kotlinx.serialization.modules/SerializersModule): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML.Companion.Compat.recommended|recommended(kotlinx.serialization.modules.SerializersModule){}[0]
-        }
     }
 }
 
@@ -939,6 +933,7 @@ final class nl.adaptivity.xmlutil.serialization/XmlConfig { // nl.adaptivity.xml
             final fun <get-policy>(): nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy // nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder.policy.<get-policy>|<get-policy>(){}[0]
             final fun <set-policy>(nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy) // nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder.policy.<set-policy>|<set-policy>(nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy){}[0]
 
+        final fun compact() // nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder.compact|compact(){}[0]
         final fun policyBuilder(): nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder10 // nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder.policyBuilder|policyBuilder(){}[0]
         final inline fun defaultPolicy(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder.defaultPolicy|defaultPolicy(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder,kotlin.Unit>){}[0]
         final inline fun policy(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder10, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder.policy|policy(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder10,kotlin.Unit>){}[0]
@@ -1189,28 +1184,10 @@ sealed class nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor : 
     open fun hashCode(): kotlin/Int // nl.adaptivity.xmlutil.serialization.structure/XmlValueDescriptor.hashCode|hashCode(){}[0]
 }
 
-final object nl.adaptivity.xmlutil.serialization/XML1_0 : nl.adaptivity.xmlutil.serialization/XML.XmlCompanion { // nl.adaptivity.xmlutil.serialization/XML1_0|null[0]
-    final val compactInstance // nl.adaptivity.xmlutil.serialization/XML1_0.compactInstance|{}compactInstance[0]
-        final fun <get-compactInstance>(): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.compactInstance.<get-compactInstance>|<get-compactInstance>(){}[0]
-    final val defaultInstance1_0 // nl.adaptivity.xmlutil.serialization/XML1_0.defaultInstance1_0|{}defaultInstance1_0[0]
-        final fun <get-defaultInstance1_0>(): nl.adaptivity.xmlutil.serialization/XML1_0 // nl.adaptivity.xmlutil.serialization/XML1_0.defaultInstance1_0.<get-defaultInstance1_0>|<get-defaultInstance1_0>(){}[0]
-    final val instance // nl.adaptivity.xmlutil.serialization/XML1_0.instance|{}instance[0]
-        final fun <get-instance>(): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.instance.<get-instance>|<get-instance>(){}[0]
-    final val serializersModule // nl.adaptivity.xmlutil.serialization/XML1_0.serializersModule|{}serializersModule[0]
-        final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/XML1_0.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
-
-    final fun compact(kotlinx.serialization.modules/SerializersModule = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.compact|compact(kotlinx.serialization.modules.SerializersModule){}[0]
-    final fun fast(kotlinx.serialization.modules/SerializersModule): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.fast|fast(kotlinx.serialization.modules.SerializersModule){}[0]
-    final fun fastBuilder(): nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder // nl.adaptivity.xmlutil.serialization/XML1_0.fastBuilder|fastBuilder(){}[0]
-    final fun recommended(kotlinx.serialization.modules/SerializersModule): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.recommended|recommended(kotlinx.serialization.modules.SerializersModule){}[0]
-    final fun recommendedBuilder(): nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder // nl.adaptivity.xmlutil.serialization/XML1_0.recommendedBuilder|recommendedBuilder(){}[0]
-    final inline fun fast(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.fast|fast(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<nl.adaptivity.xmlutil.serialization.XmlConfig.DefaultBuilder,kotlin.Unit>){}[0]
-    final inline fun recommended(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/XML1_0.recommended|recommended(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<nl.adaptivity.xmlutil.serialization.XmlConfig.DefaultBuilder,kotlin.Unit>){}[0]
-}
-
 final val nl.adaptivity.xmlutil.serialization/namespaces // nl.adaptivity.xmlutil.serialization/namespaces|@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs{}namespaces[0]
     final fun (nl.adaptivity.xmlutil.serialization/XmlNamespaceDeclSpecs).<get-namespaces>(): kotlin.collections/List<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil.serialization/namespaces.<get-namespaces>|<get-namespaces>@nl.adaptivity.xmlutil.serialization.XmlNamespaceDeclSpecs(){}[0]
 
+final fun (nl.adaptivity.xmlutil.serialization/XML.XmlCompanion<nl.adaptivity.xmlutil.serialization/XmlConfig.DefaultBuilder>).nl.adaptivity.xmlutil.serialization/compact(kotlinx.serialization.modules/SerializersModule = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/compact|compact@nl.adaptivity.xmlutil.serialization.XML.XmlCompanion<nl.adaptivity.xmlutil.serialization.XmlConfig.DefaultBuilder>(kotlinx.serialization.modules.SerializersModule){}[0]
 final fun (nl.adaptivity.xmlutil.serialization/XmlChildrenName).nl.adaptivity.xmlutil.serialization/toQName(): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/toQName|toQName@nl.adaptivity.xmlutil.serialization.XmlChildrenName(){}[0]
 final fun (nl.adaptivity.xmlutil.serialization/XmlSerialName).nl.adaptivity.xmlutil.serialization/toQName(kotlin/String, nl.adaptivity.xmlutil/Namespace?): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/toQName|toQName@nl.adaptivity.xmlutil.serialization.XmlSerialName(kotlin.String;nl.adaptivity.xmlutil.Namespace?){}[0]
 final fun (nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy).nl.adaptivity.xmlutil.serialization/typeQName(nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/typeQName|typeQName@nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy(nl.adaptivity.xmlutil.serialization.structure.SafeXmlDescriptor){}[0]
@@ -1218,6 +1195,8 @@ final fun (nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy).nl.adapti
 final fun nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache(): nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache|defaultSharedFormatCache(){}[0]
 final fun nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule|getPlatformDefaultModule(){}[0]
 final inline fun (nl.adaptivity.xmlutil.serialization/XmlConfig.Builder<in nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy>).nl.adaptivity.xmlutil.serialization/defaultPolicy(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder10, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/defaultPolicy|defaultPolicy@nl.adaptivity.xmlutil.serialization.XmlConfig.Builder<in|nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy>(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder10,kotlin.Unit>){}[0]
+final inline fun <#A: nl.adaptivity.xmlutil.serialization/XmlConfig.Builder<out nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy?>> (nl.adaptivity.xmlutil.serialization/XML.XmlCompanion<#A>).nl.adaptivity.xmlutil.serialization/fast(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<#A, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/fast|fast@nl.adaptivity.xmlutil.serialization.XML.XmlCompanion<0:0>(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<0:0,kotlin.Unit>){0§<nl.adaptivity.xmlutil.serialization.XmlConfig.Builder<out|nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy?>>}[0]
+final inline fun <#A: nl.adaptivity.xmlutil.serialization/XmlConfig.Builder<out nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy?>> (nl.adaptivity.xmlutil.serialization/XML.XmlCompanion<#A>).nl.adaptivity.xmlutil.serialization/recommended(kotlinx.serialization.modules/SerializersModule = ..., kotlin/Function1<#A, kotlin/Unit> = ...): nl.adaptivity.xmlutil.serialization/XML // nl.adaptivity.xmlutil.serialization/recommended|recommended@nl.adaptivity.xmlutil.serialization.XML.XmlCompanion<0:0>(kotlinx.serialization.modules.SerializersModule;kotlin.Function1<0:0,kotlin.Unit>){0§<nl.adaptivity.xmlutil.serialization.XmlConfig.Builder<out|nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy?>>}[0]
 
 // Targets: [linuxX64]
 final class nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache|null[0]

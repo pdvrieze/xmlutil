@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -39,7 +39,7 @@ import kotlin.test.assertIs
 
 class CustomMapKey274 {
 
-    val xml: XML = XML1_0.recommended {
+    val xml: XML = XML.v1.recommended {
         policy {
             formatCache = TestFormatCache(DefaultFormatCache())
             pedantic = true

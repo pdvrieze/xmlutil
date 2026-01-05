@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -31,7 +31,6 @@ import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.OutputKind
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -44,7 +43,7 @@ class ElementNames254 {
 
     @BeforeTest
     fun setup() {
-        xml = XML1_0.pedantic()
+        xml = XML.v1.pedantic()
     }
 
     @Serializable

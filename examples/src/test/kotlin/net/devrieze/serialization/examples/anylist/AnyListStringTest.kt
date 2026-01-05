@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,13 +23,13 @@
 package net.devrieze.serialization.examples.anylist
 
 import kotlinx.serialization.serializer
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class AnyListStringTest {
-    val parser = XML1_0.recommended(anyListModule)
+    val parser = XML.v1.recommended(anyListModule)
 
     @Test
     fun testSerializeAnyListWithSpace() {

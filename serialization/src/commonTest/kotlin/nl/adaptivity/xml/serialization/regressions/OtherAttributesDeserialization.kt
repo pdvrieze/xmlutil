@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -46,6 +46,7 @@ class OtherAttributesDeserialization {
             ),
         )
 
+        @Suppress("DEPRECATION")
         val format = XML.compat { defaultPolicy { pedantic = true } }
 
         val xml = format.encodeToString(Container.serializer(), container)

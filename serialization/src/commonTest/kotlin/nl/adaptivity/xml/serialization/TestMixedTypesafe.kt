@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -31,8 +31,9 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.serialutil.MixedContent
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.compact
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -51,7 +52,7 @@ class TestMixedTypesafe {
                 elem(TypedMixed.G())
             })
         }
-        val xml = XML1_0.compact(TypedMixed.module)
+        val xml = XML.v1.compact(TypedMixed.module)
         val actual = xml.encodeToString(TypedMixed.serializer(), data).replace(" />", "/>")
         assertEquals(expected, actual)
     }
@@ -69,7 +70,7 @@ class TestMixedTypesafe {
                 elem(TypedMixed.G())
             })
         }
-        val xml = XML1_0.recommended(TypedMixed.module)
+        val xml = XML.v1.recommended(TypedMixed.module)
         val actual = xml.decodeFromString(TypedMixed.serializer(), data)
         assertEquals(expected, actual)
     }
@@ -129,7 +130,7 @@ class TestMixedTypesafe {
             text("b")
         }
         val expectedXml = "<mixed>a<e> </e>b</mixed>"
-        val xml = XML1_0.recommended(TypedMixed.module)
+        val xml = XML.v1.recommended(TypedMixed.module)
         assertXmlEquals(expectedXml, xml.encodeToString(TypedMixed.serializer(), data))
 
         assertEquals(data, xml.decodeFromString(TypedMixed.serializer(), expectedXml))

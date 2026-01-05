@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,6 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlId
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.jvm.JvmInline
@@ -52,7 +51,7 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
 
     @Test
     fun testIdInDescriptor() {
-        val descriptor = XML1_0.xmlDescriptor(serializer)
+        val descriptor = XML.v1.xmlDescriptor(serializer)
         assertQNameEquivalent(QName("container"), descriptor.tagName)
         val element = descriptor.getElementDescriptor(0).getElementDescriptor(0).getElementDescriptor(0)
         assertQNameEquivalent(QName("element"), element.tagName)
@@ -71,6 +70,7 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
     @Test
     fun testDuplicateIds() {
         assertFails {
+            @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, duplicateIds1)
         }
     }
@@ -78,6 +78,7 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
     @Test
     fun testDuplicateIds2() {
         assertFails {
+            @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, duplicateIds2)
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -51,6 +51,7 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
     @Test
     fun fails_with_unexpected_child_tags() {
         val e = assertFailsWith<UnknownXmlFieldException> {
+            @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, noisyXml)
         }
         try {
@@ -59,7 +60,7 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
                 e.message?.substringBeforeLast(" at position")
             )
         } catch (f: AssertionError) {
-            f.addSuppressed(e);
+            f.addSuppressed(e)
             throw f
         }
     }
@@ -72,6 +73,8 @@ class OptionalBooleanTest : PlatformTestBase<OptionalBooleanTest.Location>(
         var ignoredKind: InputKind? = null
         var ignoredDescriptor: XmlDescriptor? = null
         var ignoredCandidates: Collection<Any>? = null
+
+        @Suppress("DEPRECATION")
         val xml = XML.compat {
             defaultPolicy {
                 unknownChildHandler = UnknownChildHandler { _, inputKind, descriptor, name, candidates ->

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,7 +28,10 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlElement
+import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -42,7 +45,7 @@ class NamespaceCollectionWithCompactFragment315 {
     @BeforeTest
     fun initXml() {
 
-        baseXmlConfig = XML1_0.pedantic() {
+        baseXmlConfig = XML.v1.pedantic() {
             defaultToGenericParser = true // consistent output
             setIndent(2)
             xmlVersion = XmlVersion.XML10

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -42,6 +42,7 @@ class InvertedPropertyOrder : PlatformTestBase<InvertedPropertyOrder.Inverted>(
     fun noticeMissingChild() {
         val xml = "<Inverted arg='5'/>"
         assertFailsWith<SerializationException> {
+            @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, xml)
         }
     }
@@ -50,6 +51,7 @@ class InvertedPropertyOrder : PlatformTestBase<InvertedPropertyOrder.Inverted>(
     fun noticeIncompleteSpecification() {
         val xml = "<Inverted arg='5' argx='4'><elem>v5</elem></Inverted>"
         assertFailsWith<UnknownXmlFieldException>("Could not find a field for name argx") {
+            @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, xml)
         }
 

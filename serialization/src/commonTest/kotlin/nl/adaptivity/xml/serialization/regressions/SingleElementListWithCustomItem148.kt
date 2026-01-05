@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -33,7 +33,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -85,12 +84,13 @@ class SingleElementListWithCustomItem148 {
 
     @Test
     fun xml_list_test() {
+        @Suppress("DEPRECATION")
         xmlListTest(XML.compat { defaultPolicy { pedantic = true } })
     }
 
     @Test
     fun xml_list_test_1_0() {
-        xmlListTest(XML1_0.pedantic())
+        xmlListTest(XML.v1.pedantic())
     }
 
     private fun xmlListTest(format: XML) {

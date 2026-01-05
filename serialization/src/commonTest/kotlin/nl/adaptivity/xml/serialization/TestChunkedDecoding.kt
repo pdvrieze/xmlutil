@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -48,6 +48,7 @@ class TestChunkedDecoding {
         }
 
         val xmlString = "<TextContainer>$textContent</TextContainer>"
+        @Suppress("DEPRECATION")
         val decoded = XML.compat.decodeFromString(TextContainer.serializer(), xmlString)
 
         assertEquals(textContent, decoded.text)

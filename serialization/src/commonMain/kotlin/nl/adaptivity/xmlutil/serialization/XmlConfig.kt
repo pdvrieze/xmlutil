@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -658,6 +658,17 @@ private constructor(
                 "The policy must be a default policy"
             }
         }
+
+        /**
+         * Shorthand to set the output to be more compact. This removes indentation, omits
+         * xml declarations, and sets the XML version to 1.0.
+         */
+        public fun compact() {
+            setIndent(0)
+            xmlDeclMode = XmlDeclMode.None
+            xmlVersion = XmlVersion.XML10
+        }
+
 
         /**
          * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.

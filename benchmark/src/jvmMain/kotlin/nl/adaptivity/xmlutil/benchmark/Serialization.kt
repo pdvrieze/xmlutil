@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.recommended
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -47,7 +47,7 @@ open class Serialization {
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML.compat { recommended_0_87_0() })
 
     val schemas: List<Pair<URL, XSSchema>> by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val xml = XML1_0.recommended()
+        val xml = XML.v1.recommended()
         suites.map { (_, u) ->
             u.openStream().use { input ->
                 xmlStreaming.newGenericReader(input).use { reader ->
@@ -64,8 +64,8 @@ open class Serialization {
     fun setup() {
         println("Setup called (fast: $fast)")
         retainedXml = when {
-            fast -> XML1_0.fast()
-            else -> XML1_0.recommended()
+            fast -> XML.v1.fast()
+            else -> XML.v1.recommended()
         }
     }
 
@@ -74,8 +74,8 @@ open class Serialization {
 
     fun testSerializeGenericSpeedImpl(bh: BlackholeWrapper) {
         val xml = when {
-            fast -> XML1_0.fast()
-            else -> XML1_0.recommended {
+            fast -> XML.v1.fast()
+            else -> XML.v1.recommended {
                 policy { throwOnRepeatedElement = true }
             }
         }

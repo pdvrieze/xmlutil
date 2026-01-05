@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -53,7 +53,7 @@ class RecoveryTest {
     @Test
     fun testDeserializeNonRecovering() {
         val input = "<Container><link:Stat xmlns:link=\"SomeNs\" value=\"foo\"/></Container>"
-        val parsed = XML1_0.decodeFromString<Container>(input)
+        val parsed = XML.v1.decodeFromString<Container>(input)
         assertEquals(Container(Stat("foo")), parsed)
     }
 
@@ -62,7 +62,7 @@ class RecoveryTest {
      */
     @Test
     fun testDeserializeRecoveringWithParser() {
-        val xml = XML1_0.recommended {
+        val xml = XML.v1.recommended {
             policy = object : DefaultXmlSerializationPolicy(Builder10().apply { pedantic = true }) {
                 @ExperimentalXmlUtilApi
                 override fun handleUnknownContentRecovering(
@@ -87,7 +87,7 @@ class RecoveryTest {
     fun testDeserializeRecovering() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
-        val xml = XML1_0.recommended {
+        val xml = XML.v1.recommended {
             policy {
                 unknownChildHandler = UnknownChildHandler { input, inputKind, descriptor, name, candidates ->
                     assertEquals(QName("c"), name)
@@ -117,7 +117,7 @@ class RecoveryTest {
     fun testDeserializeRecoveringNotProvidingRequired() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
-        val xml = XML1_0.recommended {
+        val xml = XML.v1.recommended {
             policy {
                 unknownChildHandler = UnknownChildHandler { _, _, _, name, _ ->
                     assertEquals(QName("c"), name)
@@ -135,7 +135,7 @@ class RecoveryTest {
     fun testDeserializeRecoveringDuplicateData() {
         val serialized = "<Data a=\"foo\" c=\"bar\" />"
 
-        val xml = XML1_0.recommended {
+        val xml = XML.v1.recommended {
             policy {
                 unknownChildHandler = UnknownChildHandler { input, _, _, name, _ ->
                     assertEquals(QName("c"), name)

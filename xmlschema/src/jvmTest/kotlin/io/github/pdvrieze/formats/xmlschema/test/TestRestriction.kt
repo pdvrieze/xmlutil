@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025.
+ * Copyright (c) 2022-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,7 +23,7 @@
 package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -35,7 +35,7 @@ class TestRestriction {
                 "      <xs:minExclusive value=\"-999999999999999999\"/>\n" +
                 "    </xs:restriction>"
 
-        val data = XML1_0.recommended().decodeFromString(XSSimpleRestriction.serializer(), input)
+        val data = XML.v1.recommended().decodeFromString(XSSimpleRestriction.serializer(), input)
         assertEquals(0, data.otherContents.size)
     }
 }

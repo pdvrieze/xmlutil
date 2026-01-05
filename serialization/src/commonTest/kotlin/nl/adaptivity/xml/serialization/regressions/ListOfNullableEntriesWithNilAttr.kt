@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,7 +28,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.qname
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -40,7 +40,7 @@ import kotlin.test.assertContentEquals
  */
 class ListOfNullableEntriesWithNilAttr {
 
-    val format = XML1_0.pedantic {
+    val format = XML.v1.pedantic {
         nilAttribute = qname("http://www.w3.org/2001/XMLSchema-instance", "nil", "xsi") to "true"
     }
 

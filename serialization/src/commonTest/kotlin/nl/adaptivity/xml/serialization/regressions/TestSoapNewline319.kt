@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -25,9 +25,10 @@ package nl.adaptivity.xml.serialization.regressions
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.recommended
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -35,7 +36,7 @@ class TestSoapNewline319 {
 
     @Test
     fun faultExampleWithTypedDetails() {
-        val xml = XML1_0.recommended(
+        val xml = XML.v1.recommended(
             serializersModule = SerializersModule {
                 polymorphic(Any::class, FooString::class, FooString.serializer())
             }
@@ -59,13 +60,9 @@ class TestSoapNewline319 {
 
     @Test
     fun faultExampleWithDefaultIgnoredWhitespaceTypedDetails() {
-        val xml = XML1_0.recommended(
-            serializersModule = SerializersModule {
-                polymorphic(Any::class, FooString::class, FooString.serializer())
-            }
-        ) {
-            defaultToGenericParser = true
-        }
+        val xml = XML.v1.recommended(SerializersModule {
+            polymorphic(Any::class, FooString::class, FooString.serializer())
+        }) { defaultToGenericParser = true }
 
         val faultMessage = SoapFault(detail = FooString)
 
