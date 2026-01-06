@@ -29,7 +29,7 @@ jobs:
                 name: Set up gradle
                 uses: gradle/actions/setup-gradle@v4
             -   name: Check
-                run: ./gradlew -PexcludeSchema nativeTest --stacktrace
+                run: ./gradlew -PexcludeSchema check --stacktrace
                 shell: bash
             -   name: Store reports
                 if: failure()
@@ -39,8 +39,6 @@ jobs:
                     path: |
                         **/build/reports/
                         **/build/test-results/
-            -   name: Check
-                run: ./gradlew check
             -   name: Upload
                 run: ./gradlew publishToSonatype -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
                 shell: bash
