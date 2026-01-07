@@ -31,7 +31,7 @@ jobs:
             -   name: Yarn lock upgrade
                 run: ./gradlew -PexcludeSchema kotlinUpgradeYarnLock
             -   name: Check
-                run: ./gradlew -PexcludeSchema check --stacktrace
+                run: ./gradlew -PexcludeSchema nativeTest jvmTest jvmCommonTest --stacktrace
                 shell: bash
             -   name: Store reports
                 if: failure()
