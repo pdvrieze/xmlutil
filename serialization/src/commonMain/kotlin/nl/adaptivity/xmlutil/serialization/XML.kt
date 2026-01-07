@@ -655,7 +655,7 @@ public class XML(
 
         reader.skipPreamble()
 
-        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
+        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader, mutableMapOf())
 
         if (wrapperName != null) {
             reader.require(EventType.START_ELEMENT, wrapperName)
@@ -732,7 +732,7 @@ public class XML(
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
 
-        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
+        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader, mutableMapOf())
         val rootNameInfo = rootNameInfo(unsafeCodecConfig, deserializer.descriptor, rootName, reader.name)
         val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, rootNameInfo)
 
@@ -1438,6 +1438,9 @@ public class XML(
         public val input: XmlReader
 
         public fun getNamespaceURI(prefix: String): String? = input.namespaceContext.getNamespaceURI(prefix)
+
+        @ExperimentalXmlUtilApi
+        public fun resolveIdRef(idRef: String): Any?
     }
 
     /**

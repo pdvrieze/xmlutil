@@ -348,6 +348,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/XML$XmlCompanion : kot
 public abstract interface class nl/adaptivity/xmlutil/serialization/XML$XmlInput : nl/adaptivity/xmlutil/serialization/XML$XmlCodecConfig {
 	public abstract fun getInput ()Lnl/adaptivity/xmlutil/XmlReader;
 	public fun getNamespaceURI (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun resolveIdRef (Ljava/lang/String;)Ljava/lang/Object;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/XML$XmlInput$DefaultImpls {

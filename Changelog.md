@@ -1,4 +1,16 @@
 # 1.0.0-rc2-SNAPSHOT
+Features:
+- Add support for resolving elements with ID attributes to `XML.XMLInput`.
+  This still requires a custom (de)serializer.
+
+Changes:
+- Change the entry point for configuration to `XML.v1` instead of
+  `XML1_0` (it is deprecated, to be removed in the final 1.0 release).
+  It should be noted that `XML.recommended`, `XML.fast` and their
+  versioned equivalents are also available.
+
+Fixes:
+- Fix some errors in handling ID attributes (@XmlID annotation).
 
 # 1.0.0-rc1
 *(Dec 23, 2025)<br />*

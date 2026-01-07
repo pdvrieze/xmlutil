@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
@@ -455,7 +455,7 @@ public open class DefaultXmlSerializationPolicy(builder: Builder) : XmlSerializa
     }
 
     @Suppress("DEPRECATION")
-    private val pseudoConfig = XmlConfig(XmlConfig.CompatBuilder(policy = this))
+    private val pseudoConfig = XmlConfig(XmlConfig.DefaultBuilder(policy = this))
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun isMapValueCollapsed(mapParent: SafeParentInfo, valueDescriptor: XmlDescriptor): Boolean {

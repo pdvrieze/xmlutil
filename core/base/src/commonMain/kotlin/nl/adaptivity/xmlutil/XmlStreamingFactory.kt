@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -31,14 +31,15 @@ package nl.adaptivity.xmlutil
 // note that this type is deprecated on multiplatform. It only makes sense for the JVM target
 public expect interface XmlStreamingFactory
 
-/** Flag for [XmlSerializable] to indicate that the xml declaration should be omitted, when possible.  */
+/** Flag for `XmlSerializable` to indicate that the XML declaration should be omitted, when possible.  */
 @Deprecated("Should no longer exist here")
 public const val FLAG_OMIT_XMLDECL: Int = 1
 
-/** Flag for [XmlSerializable] to indicate that the namespace usable should be automatically repaired. */
+/** Flag for `XmlSerializable` to indicate that the namespace usable should be automatically repaired. */
 @Deprecated("Should no longer exist here")
 public const val FLAG_REPAIR_NS: Int = 2
 
-/** The default used flags for [XmlSerializable] */
+/** The default used flags for `XmlSerializable` */
+@Suppress("DEPRECATION")
 @Deprecated("Should no longer exist here")
 public const val DEFAULT_FLAGS: Int = FLAG_OMIT_XMLDECL

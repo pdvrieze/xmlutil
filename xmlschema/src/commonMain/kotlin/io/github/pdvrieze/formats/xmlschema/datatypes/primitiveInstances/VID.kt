@@ -21,17 +21,12 @@
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xmlutil.XmlReader
 import kotlin.jvm.JvmInline
 
 @JvmInline
-@Serializable
+@Serializable(VID.Serializer::class)
 value class VID private constructor(override val xmlString: String) : VNCName {
 
     init {
@@ -40,27 +35,23 @@ value class VID private constructor(override val xmlString: String) : VNCName {
 
     override fun toString(): String = xmlString
 
-    companion object : KSerializer<VID> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-            "io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID",
-            PrimitiveKind.STRING
-        )
-
-        override fun serialize(encoder: Encoder, value: VID) {
-            encoder.encodeString(value.xmlString)
+    private class Serializer : SimpleTypeSerializer<VID>("ID") {
+        override fun deserialize(
+            raw: String,
+            input: XmlReader?
+        ): VID {
+            return VID.invoke(raw)
         }
+    }
 
-        override fun deserialize(decoder: Decoder): VID {
-            return invoke(decoder.decodeString())
-        }
+    companion object {
 
         operator fun invoke(rawId: String): VID {
-            return VID(
-                IDType.mdlFacets.validateRepresentationOnly(
-                    IDType,
-                    VString(rawId)
-                ).xmlString
+            val r = IDType.mdlFacets.validateRepresentationOnly(
+                IDType,
+                VString(rawId)
             )
+            return VID(r.xmlString)
         }
 
     }

@@ -701,6 +701,7 @@ final class nl.adaptivity.xmlutil.serialization/XML : kotlinx.serialization/Stri
         abstract val input // nl.adaptivity.xmlutil.serialization/XML.XmlInput.input|{}input[0]
             abstract fun <get-input>(): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil.serialization/XML.XmlInput.input.<get-input>|<get-input>(){}[0]
 
+        abstract fun resolveIdRef(kotlin/String): kotlin/Any? // nl.adaptivity.xmlutil.serialization/XML.XmlInput.resolveIdRef|resolveIdRef(kotlin.String){}[0]
         open fun getNamespaceURI(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.serialization/XML.XmlInput.getNamespaceURI|getNamespaceURI(kotlin.String){}[0]
     }
 
