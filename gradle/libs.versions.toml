@@ -13,7 +13,7 @@ kotlinx-serialization = "1.10.0-RC"
 kotlinx-io = "0.8.2"
 kxml2 = "2.3.0"
 woodstox = "7.1.1"
-xmlutil = "1.0.0-SNAPSHOT"
+xmlutil = "1.0.0-rc2-SNAPSHOT"
 httpComponents = "4.5.14"
 httpComponents5 = "5.6"
 
