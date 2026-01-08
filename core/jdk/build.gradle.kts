@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,7 +18,6 @@
  * permissions and limitations under the License.
  */
 
-import kotlinx.validation.ExperimentalBCVApi
 import net.devrieze.gradle.ext.doPublish
 
 plugins {
@@ -70,10 +69,6 @@ dependencies {
 }
 
 apiValidation {
-    @OptIn(ExperimentalBCVApi::class)
-    klib {
-        enabled = true
-    }
     nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")
     ignoredPackages.apply {
         add("nl.adaptivity.xmlutil.core.internal")

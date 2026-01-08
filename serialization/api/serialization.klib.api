@@ -1,5 +1,6 @@
 // Klib ABI Dump
-// Targets: [js, linuxX64, wasmJs, wasmWasi]
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -1225,7 +1226,7 @@ final fun nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache(): nl.ada
 final fun nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule|getPlatformDefaultModule(){}[0]
 final inline fun (nl.adaptivity.xmlutil.serialization/XmlConfig.Builder<in nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy>).nl.adaptivity.xmlutil.serialization/defaultPolicy(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder10, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/defaultPolicy|defaultPolicy@nl.adaptivity.xmlutil.serialization.XmlConfig.Builder<in|nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy>(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder10,kotlin.Unit>){}[0]
 
-// Targets: [linuxX64]
+// Targets: [native]
 final class nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache|null[0]
     constructor <init>(kotlin/Int = ..., kotlin/Function0<nl.adaptivity.xmlutil.serialization/FormatCache> = ...) // nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache.<init>|<init>(kotlin.Int;kotlin.Function0<nl.adaptivity.xmlutil.serialization.FormatCache>){}[0]
 

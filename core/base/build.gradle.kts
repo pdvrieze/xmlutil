@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,6 +22,7 @@ import kotlinx.validation.ExperimentalBCVApi
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
@@ -154,7 +155,8 @@ addNativeTargets()
 apiValidation {
     @OptIn(ExperimentalBCVApi::class)
     klib {
-        enabled = true
+        enabled = isKlibValidationEnabled()
+        strictValidation = false
     }
     nonPublicMarkers.add("nl.adaptivity.xmlutil.XmlUtilInternal")
     ignoredPackages.apply {
