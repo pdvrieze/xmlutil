@@ -41,6 +41,10 @@ jobs:
                     path: |
                         **/build/reports/
                         **/build/test-results/
+            -   name: Build
+                run: ./gradlew assemble -PforceSnapshot=true -PexcludeSchema -Pnative.deploy=all
+                shell: bash
             -   name: Upload
-                run: ./gradlew publishToSonatype -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+#                run: ./gradlew publishToSonatype -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+                run: ./gradlew publishAllPublicationsToMavenSnapshotRepository -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 shell: bash

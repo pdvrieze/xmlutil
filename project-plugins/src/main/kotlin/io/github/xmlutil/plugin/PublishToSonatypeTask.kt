@@ -51,23 +51,30 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
         val encoded = String(Base64.getEncoder().encode("$username:$password".toByteArray()), Charsets.US_ASCII)
 
         val client = HttpClientBuilder.create().build()
-        val versionName: String = when {
+        val deploymentType: String
+        val versionName: String
+        val apiBase: String
+
+        when {
             project.isSnapshot -> {
                 if ("SNAPSHOT" !in project.version.toString()) {
                     throw IllegalStateException("Attempting to publish a non-snapshot version as a snapshot: ${project.version}")
                 }
-                "${project.version}-${LocalDateTime.now().format(TIMESTAMP_FORMATTER)}"
+                versionName = "${project.version}-${LocalDateTime.now().format(TIMESTAMP_FORMATTER)}"
+                apiBase = "https://central.sonatype.com/repository/maven-snapshots"
+//                deploymentType = "AUTOMATIC"
+                deploymentType = "USER_MANAGED"
             }
 
-            else -> project.version.toString()
+            else -> {
+                versionName = project.version.toString()
+                deploymentType = "USER_MANAGED"
+                apiBase = "https://central.sonatype.com"
+            }
         }
 
         val deploymentName = URLEncoder.encode("XMLUtil deployment $versionName", Charsets.UTF_8)
-        val deploymentType = when {
-            project.isSnapshot -> "AUTOMATIC"
-            else -> "USER_MANAGED"
-        }
-        val post = HttpPost("https://central.sonatype.com/api/v1/publisher/upload?name=$deploymentName&publishingType=$deploymentType")
+        val post = HttpPost("$apiBase/api/v1/publisher/upload?name=$deploymentName&publishingType=$deploymentType")
         post.addHeader("Authorization", "Bearer $encoded")
 
         post.entity = MultipartEntityBuilder.create()
