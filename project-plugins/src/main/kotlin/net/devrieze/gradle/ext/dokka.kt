@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,11 +23,14 @@ package net.devrieze.gradle.ext
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.named
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.DokkaSourceSetSpec
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import org.jetbrains.dokka.gradle.engine.plugins.DokkaHtmlPluginParameters
 import java.net.URI
 import java.net.URL
+import java.util.*
 
 fun Project.configureDokka(
     myModuleName: Provider<String>,
@@ -44,6 +47,9 @@ fun Project.configureDokka(
         logger.debug("Configuring dokka extension: ${name}")
         moduleName.convention(myModuleName)
         moduleVersion.convention(myModuleVersion)
+        pluginsConfiguration.named<DokkaHtmlPluginParameters>("html") {
+            footerMessage.set("ⓒ2008-${Calendar.getInstance().get(Calendar.YEAR)} – Thanks for using XMLUtil!<img referrerpolicy=\"no-referrer-when-downgrade\" src=\"https://static.scarf.sh/a.png?x-pxid=01e4474b-ae2b-4919-8d89-91e972e1e42e\" />")
+        }
 
         dokkaSourceSets.configureEach {
             this@configureDokka.configureDokkaSourceSet(this, dokkaOverrideTarget.getOrNull())
