@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -52,7 +52,12 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
 
         val client = HttpClientBuilder.create().build()
         val versionName: String = when {
-            project.isSnapshot -> "${project.version}-${LocalDateTime.now().format(TIMESTAMP_FORMATTER)}"
+            project.isSnapshot -> {
+                if ("SNAPSHOT" !in project.version.toString()) {
+                    throw IllegalStateException("Attempting to publish a non-snapshot version as a snapshot: ${project.version}")
+                }
+                "${project.version}-${LocalDateTime.now().format(TIMESTAMP_FORMATTER)}"
+            }
 
             else -> project.version.toString()
         }
