@@ -2,6 +2,8 @@
 Features:
 - Add support for resolving elements with ID attributes to `XML.XMLInput`.
   This still requires a custom (de)serializer.
+- Add a new XmlDeclMode constant (IfRequired) that will write a minimal
+  declaration for xml 1.1, but not for xml 1.0.
 
 Changes:
 - Change the entry point for configuration to `XML.v1` instead of
@@ -11,6 +13,7 @@ Changes:
 
 Fixes:
 - Fix some errors in handling ID attributes (@XmlID annotation).
+- Fix some issues with writing of xml declarations in XML 1.0 mode.
 
 # 1.0.0-rc1
 *(Dec 23, 2025)<br />*

@@ -660,7 +660,7 @@ private constructor(
 
         public constructor(
             repairNamespaces: Boolean = true,
-            xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+            xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
             indentString: String = "",
             policy: DefaultXmlSerializationPolicy = DefaultXmlSerializationPolicy {},
         ) : super(repairNamespaces, xmlDeclMode, indentString) {
@@ -682,7 +682,7 @@ private constructor(
         internal inline fun fast_1_0_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit = {}) {
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
-            xmlDeclMode = XmlDeclMode.Minimal
+            xmlDeclMode = XmlDeclMode.IfRequired
             isAlwaysDecodeXsiNil = false
             isUnchecked = true
             isCollectingNSAttributes = false
@@ -714,7 +714,7 @@ private constructor(
         public inline fun recommended_1_0_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit = {}) {
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
-            xmlDeclMode = XmlDeclMode.Minimal
+            xmlDeclMode = XmlDeclMode.IfRequired
             setIndent(4)
             policy {
                 autoPolymorphic = true

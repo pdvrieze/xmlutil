@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.jdk
 
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.toIndentSequence
 import nl.adaptivity.xmlutil.core.impl.toIndentString
@@ -45,8 +46,13 @@ import javax.xml.transform.Result
 public class StAXWriter(
     public val delegate: XMLStreamWriter,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-    public val autoCloseEmpty: Boolean = true
+    public val autoCloseEmpty: Boolean = true,
+    public val xmlVersionHint: XmlVersion? = null,
 ) : XmlWriter {
+
+    @Deprecated("Present for compatibility only", level = DeprecationLevel.HIDDEN)
+    public constructor(delegate: XMLStreamWriter, xmlDeclMode: XmlDeclMode, autoCloseEmpty: Boolean):
+            this(delegate, xmlDeclMode, autoCloseEmpty, null)
 
     private var indentSequence: List<XmlEvent.TextEvent> = emptyList()
 
@@ -77,9 +83,18 @@ public class StAXWriter(
     public constructor(writer: Writer, repairNamespaces: Boolean, omitXmlDecl: Boolean)
             : this(writer, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
+    @Deprecated("Present for compatibility only", level = DeprecationLevel.HIDDEN)
     @Throws(XMLStreamException::class)
-    public constructor(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode = XmlDeclMode.None)
-            : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), xmlDeclMode)
+    public constructor(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode)
+            : this(writer, repairNamespaces, xmlDeclMode)
+
+    @Throws(XMLStreamException::class)
+    public constructor(
+        writer: Writer,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+        xmlVersionHint: XmlVersion? = null
+    ) : this(newFactory(repairNamespaces).createXMLStreamWriter(writer), xmlDeclMode, xmlVersionHint = xmlVersionHint)
 
     @Deprecated("Use version taking XmlDeclMode")
     @Throws(XMLStreamException::class)
@@ -90,14 +105,28 @@ public class StAXWriter(
         omitXmlDecl: Boolean = false
     ) : this(outputStream, encoding, repairNamespaces, XmlDeclMode.from(omitXmlDecl))
 
+    @Deprecated("Present for compatibility only", level = DeprecationLevel.HIDDEN)
     @Throws(XMLStreamException::class)
     public constructor(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+        xmlDeclMode: XmlDeclMode
     ) : this(
         newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding), xmlDeclMode
+    )
+
+    @Throws(XMLStreamException::class)
+    public constructor(
+        outputStream: OutputStream,
+        encoding: String,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+        xmlVersionHint: XmlVersion? = null
+    ) : this(
+        newFactory(repairNamespaces).createXMLStreamWriter(outputStream, encoding),
+        xmlDeclMode,
+        xmlVersionHint = xmlVersionHint
     )
 
     @Deprecated("Use version taking XmlDeclMode")
@@ -112,7 +141,13 @@ public class StAXWriter(
     @Throws(XmlException::class)
     override fun startTag(namespace: String?, localName: String, prefix: String?) {
         flushPending {
-            if (state == State.Empty) startDocument(null, null, null)
+            if (state == State.Empty) {
+                if (xmlDeclMode.resolve(xmlVersionHint) != XmlDeclMode.None) {
+                    startDocument(xmlVersionHint?.versionString, null, null)
+                } else {
+                    state = State.StartDocWritten
+                }
+            }
             namespaceHolder.incDepth()
 
             if (autoCloseEmpty) {

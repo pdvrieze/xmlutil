@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.XmlEvent
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
@@ -49,6 +50,7 @@ class NamespaceCollectionWithCompactFragment315 {
             defaultToGenericParser = true // consistent output
             setIndent(2)
             xmlVersion = XmlVersion.XML10
+            xmlDeclMode = XmlDeclMode.Minimal
         }
     }
 

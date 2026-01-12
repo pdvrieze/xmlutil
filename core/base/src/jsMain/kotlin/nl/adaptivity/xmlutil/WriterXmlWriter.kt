@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.dom.unWrap
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.dom2.Node
@@ -44,7 +45,7 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
                     }
                 }
 
-                val xmlDeclMode = delegate.xmlDeclMode
+                val xmlDeclMode = delegate.xmlDeclMode.resolve(delegate.requestedVersion?.let { XmlVersion.fromStringOrNull(it) })
                 if (xmlDeclMode != XmlDeclMode.None) {
                     val encoding = when (xmlDeclMode) {
                         XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"

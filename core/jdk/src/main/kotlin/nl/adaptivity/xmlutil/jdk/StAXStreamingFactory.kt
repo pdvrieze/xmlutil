@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,20 +21,19 @@
 package nl.adaptivity.xmlutil.jdk
 
 import nl.adaptivity.xmlutil.*
-import java.io.*
+import nl.adaptivity.xmlutil.core.XmlVersion
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.Reader
+import java.io.Writer
 import javax.xml.stream.XMLStreamException
-import javax.xml.transform.Result
-import javax.xml.transform.Source
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.stream.StreamSource
 
 public class StAXStreamingFactory : XmlStreamingFactory {
 
     @Throws(XmlException::class)
-    override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
+    override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode, xmlVersionHint: XmlVersion): XmlWriter {
         try {
-            return StAXWriter(writer, repairNamespaces, xmlDeclMode)
+            return StAXWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }
@@ -45,10 +44,11 @@ public class StAXStreamingFactory : XmlStreamingFactory {
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
+        xmlDeclMode: XmlDeclMode,
+        xmlVersionHint: XmlVersion
     ): XmlWriter {
         try {
-            return StAXWriter(outputStream, encoding, repairNamespaces, xmlDeclMode)
+            return StAXWriter(outputStream, encoding, repairNamespaces, xmlDeclMode, xmlVersionHint)
         } catch (e: XMLStreamException) {
             throw XmlException(e)
         }

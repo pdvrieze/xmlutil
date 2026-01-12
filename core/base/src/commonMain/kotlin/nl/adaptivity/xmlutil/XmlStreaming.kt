@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,11 +21,20 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
+import kotlin.jvm.JvmOverloads
+
+@Deprecated("Use 4 argument version", level = DeprecationLevel.HIDDEN)
+public fun IXmlStreaming.newWriter(
+    output: Appendable,
+    repairNamespaces: Boolean = false,
+    xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+): XmlWriter = newWriter(output, repairNamespaces, xmlDeclMode, XmlVersion.XML10)
 
 /**
  * Create a new [XmlWriter] that appends to the given [Appendable]. This writer
@@ -41,8 +50,17 @@ import nl.adaptivity.xmlutil.dom2.Node
 public expect fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean = false,
-    xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+    xmlVersionHint: XmlVersion = XmlVersion.XML10,
 ): XmlWriter
+
+@Deprecated("Use 4 argument version", level = DeprecationLevel.HIDDEN)
+public fun IXmlStreaming.newWriter(
+    writer: Writer,
+    repairNamespaces: Boolean = false,
+    xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+): XmlWriter = newWriter(writer, repairNamespaces, xmlDeclMode, XmlVersion.XML10)
+
 
 /**
  * Create a new [XmlWriter] that appends to the given [Writer]. This writer
@@ -59,7 +77,8 @@ public expect fun IXmlStreaming.newWriter(
 public expect fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean = false,
-    xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+    xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+    xmlVersionHint: XmlVersion = XmlVersion.XML10,
 ): XmlWriter
 
 
@@ -75,11 +94,13 @@ public expect fun IXmlStreaming.newWriter(
  * @return A platform independent [XmlWriter], generally [nl.adaptivity.xmlutil.core.KtXmlWriter]
  */
 @Suppress("UnusedReceiverParameter")
+@JvmOverloads
 public fun IXmlStreaming.newGenericWriter(
     output: Appendable,
     isRepairNamespaces: Boolean = false,
-    xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-): KtXmlWriter = KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
+    xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+    xmlVersion: XmlVersion = XmlVersion.XML10,
+): KtXmlWriter = KtXmlWriter(output, isRepairNamespaces, xmlDeclMode, xmlVersion)
 
 /**
  * Retrieve a platform independent accessor to create Streaming XML parsing objects
@@ -115,18 +136,34 @@ internal expect object XmlStreaming : IXmlStreaming {
 /**
  * Mode to use for writing the XML Declaration.
  */
-public enum class XmlDeclMode {
+public enum class XmlDeclMode(public val isMinimal: Boolean = false) {
     /** Don't emit XML Declaration */
     None,
 
     /** Emit an xml declaration just containing the xml version number. Only charsets that aren't UTF will be emitted. */
-    Minimal,
+    Minimal(true),
+
+    /** Emit a declaration only for XML 1.1 and higher (as required by the XML specification), otherwise minimal */
+    IfRequired(true) {
+        @XmlUtilInternal
+        override fun resolve(xmlVersion: XmlVersion?): XmlDeclMode = when (xmlVersion) {
+            null,
+            XmlVersion.XML10 -> None
+
+            else -> Minimal
+        }
+
+    },
 
     /** Emit an xml declaration whatever is provided by default, if possible minimal. */
     Auto,
 
     /** Emit an xml declaration that includes the character set. */
     Charset;
+
+    @XmlUtilInternal
+    /** Deterimine the effective mode based on the requested version */
+    public open fun resolve(xmlVersion: XmlVersion?): XmlDeclMode = this
 
     public companion object {
         /**

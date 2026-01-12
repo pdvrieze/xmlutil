@@ -177,8 +177,8 @@ public class XML(
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String {
         val stringWriter = StringWriter()
         val xw = when {
-            config.defaultToGenericParser -> xmlStreaming.newGenericWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
-            else -> xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
+            config.defaultToGenericParser -> xmlStreaming.newGenericWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode, config.xmlVersion)
+            else -> xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode, config.xmlVersion)
         }
 
         xw.use { xmlWriter ->
@@ -263,6 +263,10 @@ public class XML(
 
         if (target.depth == 0) {
             when (config.xmlDeclMode) {
+                XmlDeclMode.IfRequired -> if (config.xmlVersion != XmlVersion.XML10) {
+                    target.startDocument(config.xmlVersion.versionString)
+                }
+
                 XmlDeclMode.Minimal -> {
                     target.startDocument(config.xmlVersion.versionString)
                 }
@@ -1564,7 +1568,7 @@ private object Compat: XmlCompanion<CompatBuilder>() {
             setIndent(4)
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
-            xmlDeclMode = XmlDeclMode.Minimal
+            xmlDeclMode = XmlDeclMode.IfRequired
             policy = compatPolicyBuilder().apply {
                 setDefaults_0_91_0()
             }.build()

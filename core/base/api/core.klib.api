@@ -76,6 +76,10 @@ final enum class nl.adaptivity.xmlutil.core/XmlVersion : kotlin/Enum<nl.adaptivi
 
     final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.core/XmlVersion // nl.adaptivity.xmlutil.core/XmlVersion.valueOf|valueOf#static(kotlin.String){}[0]
     final fun values(): kotlin/Array<nl.adaptivity.xmlutil.core/XmlVersion> // nl.adaptivity.xmlutil.core/XmlVersion.values|values#static(){}[0]
+
+    final object Companion { // nl.adaptivity.xmlutil.core/XmlVersion.Companion|null[0]
+        final fun fromStringOrNull(kotlin/String): nl.adaptivity.xmlutil.core/XmlVersion? // nl.adaptivity.xmlutil.core/XmlVersion.Companion.fromStringOrNull|fromStringOrNull(kotlin.String){}[0]
+    }
 }
 
 final enum class nl.adaptivity.xmlutil.dom2/DOMVersion : kotlin/Enum<nl.adaptivity.xmlutil.dom2/DOMVersion> { // nl.adaptivity.xmlutil.dom2/DOMVersion|null[0]
@@ -119,14 +123,17 @@ final enum class nl.adaptivity.xmlutil.dom2/NodeType : kotlin/Enum<nl.adaptivity
     }
 }
 
-final enum class nl.adaptivity.xmlutil/XmlDeclMode : kotlin/Enum<nl.adaptivity.xmlutil/XmlDeclMode> { // nl.adaptivity.xmlutil/XmlDeclMode|null[0]
+open enum class nl.adaptivity.xmlutil/XmlDeclMode : kotlin/Enum<nl.adaptivity.xmlutil/XmlDeclMode> { // nl.adaptivity.xmlutil/XmlDeclMode|null[0]
     enum entry Auto // nl.adaptivity.xmlutil/XmlDeclMode.Auto|null[0]
     enum entry Charset // nl.adaptivity.xmlutil/XmlDeclMode.Charset|null[0]
+    enum entry IfRequired // nl.adaptivity.xmlutil/XmlDeclMode.IfRequired|null[0]
     enum entry Minimal // nl.adaptivity.xmlutil/XmlDeclMode.Minimal|null[0]
     enum entry None // nl.adaptivity.xmlutil/XmlDeclMode.None|null[0]
 
     final val entries // nl.adaptivity.xmlutil/XmlDeclMode.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil/XmlDeclMode> // nl.adaptivity.xmlutil/XmlDeclMode.entries.<get-entries>|<get-entries>#static(){}[0]
+    final val isMinimal // nl.adaptivity.xmlutil/XmlDeclMode.isMinimal|{}isMinimal[0]
+        final fun <get-isMinimal>(): kotlin/Boolean // nl.adaptivity.xmlutil/XmlDeclMode.isMinimal.<get-isMinimal>|<get-isMinimal>(){}[0]
 
     final fun valueOf(kotlin/String): nl.adaptivity.xmlutil/XmlDeclMode // nl.adaptivity.xmlutil/XmlDeclMode.valueOf|valueOf#static(kotlin.String){}[0]
     final fun values(): kotlin/Array<nl.adaptivity.xmlutil/XmlDeclMode> // nl.adaptivity.xmlutil/XmlDeclMode.values|values#static(){}[0]
@@ -865,8 +872,8 @@ final class nl.adaptivity.xmlutil.core/KtXmlReader : nl.adaptivity.xmlutil/XmlRe
 }
 
 final class nl.adaptivity.xmlutil.core/KtXmlWriter : nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil.core/KtXmlWriter|null[0]
-    constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
-    constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
+    constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 
     final val depth // nl.adaptivity.xmlutil.core/KtXmlWriter.depth|{}depth[0]
         final fun <get-depth>(): kotlin/Int // nl.adaptivity.xmlutil.core/KtXmlWriter.depth.<get-depth>|<get-depth>(){}[0]
@@ -1553,9 +1560,11 @@ final fun (kotlin/CharSequence).nl.adaptivity.xmlutil/toQname(): nl.adaptivity.x
 final fun (kotlin/CharSequence).nl.adaptivity.xmlutil/toQname(nl.adaptivity.xmlutil/Namespace): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil/toQname|toQname@kotlin.CharSequence(nl.adaptivity.xmlutil.Namespace){}[0]
 final fun (kotlin/CharSequence).nl.adaptivity.xmlutil/xmlEncode(): kotlin/String // nl.adaptivity.xmlutil/xmlEncode|xmlEncode@kotlin.CharSequence(){}[0]
 final fun (kotlinx.serialization.descriptors/SerialDescriptor).nl.adaptivity.xmlutil/xml(kotlinx.serialization.descriptors/SerialDescriptor = ..., nl.adaptivity.xmlutil/QName? = ...): nl.adaptivity.xmlutil/XmlSerialDescriptor // nl.adaptivity.xmlutil/xml|xml@kotlinx.serialization.descriptors.SerialDescriptor(kotlinx.serialization.descriptors.SerialDescriptor;nl.adaptivity.xmlutil.QName?){}[0]
-final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newGenericWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ...): nl.adaptivity.xmlutil.core/KtXmlWriter // nl.adaptivity.xmlutil/newGenericWriter|newGenericWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode){}[0]
+final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newGenericWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...): nl.adaptivity.xmlutil.core/KtXmlWriter // nl.adaptivity.xmlutil/newGenericWriter|newGenericWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode){}[0]
+final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode){}[0]
+final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 final fun (nl.adaptivity.xmlutil/NamespaceContext).nl.adaptivity.xmlutil/asQName(kotlin/String): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil/asQName|asQName@nl.adaptivity.xmlutil.NamespaceContext(kotlin.String){}[0]
 final fun (nl.adaptivity.xmlutil/QName).nl.adaptivity.xmlutil/isEquivalent(nl.adaptivity.xmlutil/QName): kotlin/Boolean // nl.adaptivity.xmlutil/isEquivalent|isEquivalent@nl.adaptivity.xmlutil.QName(nl.adaptivity.xmlutil.QName){}[0]
 final fun (nl.adaptivity.xmlutil/QName).nl.adaptivity.xmlutil/toCName(): kotlin/String // nl.adaptivity.xmlutil/toCName|toCName@nl.adaptivity.xmlutil.QName(){}[0]
