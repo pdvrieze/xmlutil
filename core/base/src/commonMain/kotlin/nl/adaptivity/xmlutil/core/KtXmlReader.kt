@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -1026,6 +1026,7 @@ public class KtXmlReader internal constructor(
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
 
+        // XXX (should not be loop)
         while (curPos < innerLoopEnd) {
             when (bufLeft[curPos]) {
                 ' ', '\t', '\n', '\r' -> break // whitespace
@@ -1048,8 +1049,11 @@ public class KtXmlReader internal constructor(
                         if (right > left + 1) pushRange(bufLeft, left, right)
                         right = -1
                         val peekChar = when (curPos + 1) {
-                            bufCount -> '\u0000'
-                            BUF_SIZE -> bufRight[0]
+                            bufCount ->
+                                '\u0000'
+
+                            BUF_SIZE ->
+                                bufRight[0]
                             else -> bufLeft[curPos + 1]
                         }
                         if (peekChar != '\n') {
@@ -1096,6 +1100,7 @@ public class KtXmlReader internal constructor(
             if (curPos == BUF_SIZE) { // swap the buffers
                 srcBufPos = curPos
                 swapInputBuffer()
+                right = -1 //set it to -1 in all cases as at this point we probably parsed nothing
                 curPos = srcBufPos
                 bufCount = srcBufCount
                 innerLoopEnd = minOf(bufCount, BUF_SIZE)
