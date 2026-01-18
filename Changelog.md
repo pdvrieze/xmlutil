@@ -1,5 +1,8 @@
 # 1.0.0-rc2-SNAPSHOT
 Features:
+- Add additional shortcut encodeToStream and decodeFromStream functions
+  that provide direct access to streams (similar to the serialization-io
+  support for sinks/sources).
 - Add support for resolving elements with ID attributes to `XML.XMLInput`.
   This still requires a custom (de)serializer.
 - Add a new XmlDeclMode constant (IfRequired) that will write a minimal

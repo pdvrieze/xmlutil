@@ -33,10 +33,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
-import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
-import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.core.impl.multiplatform.*
 import nl.adaptivity.xmlutil.serialization.XML.Companion.compat
 import nl.adaptivity.xmlutil.serialization.XML.XmlCompanion
 import nl.adaptivity.xmlutil.serialization.XmlConfig.CompatBuilder
@@ -320,6 +317,30 @@ public class XML(
         }
         encoder.encodeSerializableValue(serializer, value)
         target.flush()
+    }
+
+    public inline fun <reified T> encodeToStream(target: Writer, value: T, rootName: QName) {
+        encodeToStream(target, serializer<T>(), value, rootName)
+    }
+
+    public fun <T> encodeToStream(
+        target: Writer,
+        serializer: SerializationStrategy<T>,
+        value: T,
+        rootName: QName
+    ) {
+        val c = config
+        val writer = when {
+            c.defaultToGenericParser -> xmlStreaming.newGenericWriter(
+                target,
+                c.repairNamespaces,
+                c.xmlDeclMode,
+                c.xmlVersion
+            )
+
+            else -> xmlStreaming.newWriter(target, c.repairNamespaces, c.xmlDeclMode, c.xmlVersion)
+        }
+        encodeToWriter(writer, serializer, value, rootName)
     }
 
     private fun <T> collectNamespaces(
@@ -748,6 +769,24 @@ public class XML(
         return decoder.decodeSerializableValue(deserializer)
     }
 
+    public inline fun <reified T> decodeFromStream(source: Reader, rootName: QName): T {
+        return decodeFromStream(serializer<T>(), source, rootName)
+    }
+
+    public fun <T> decodeFromStream(
+        deserializer: DeserializationStrategy<T>,
+        source: Reader,
+        rootName: QName
+    ): T {
+        val c = config
+        val reader = when {
+            c.defaultToGenericParser -> xmlStreaming.newGenericReader(reader = source)
+
+            else -> xmlStreaming.newReader(source)
+        }
+        return decodeFromReader(deserializer, reader, rootName)
+    }
+
     private fun polyInfoForElement(
         elementDescriptor: XmlDescriptor,
         reader: XmlReader,
@@ -1027,6 +1066,19 @@ public class XML(
             instance.encodeToWriter(target, serializer, value, rootName)
         }
 
+        public inline fun <reified T> encodeToStream(target: Writer, value: T, rootName: QName) {
+            instance.encodeToStream(target, value, rootName)
+        }
+
+        public fun <T> encodeToStream(
+            target: Writer,
+            serializer: SerializationStrategy<T>,
+            value: T,
+            rootName: QName
+        ) {
+            instance.encodeToStream(target, serializer, value, rootName)
+        }
+
         /**
          * Parse an object of the type [T] out of the reader
          * @param str The source of the XML events
@@ -1063,6 +1115,7 @@ public class XML(
         public inline fun <reified T : Any> decodeFromReader(reader: XmlReader, rootName: QName? = null): T =
             decodeFromReader(serializer(), reader, rootName)
 
+
         /**
          * Parse an object of the type [T] out of the reader
          * @param deserializer The loader to use (rather than the default)
@@ -1075,6 +1128,19 @@ public class XML(
             reader: XmlReader,
             rootName: QName? = null
         ): T = instance.decodeFromReader(deserializer, reader, rootName)
+
+        public inline fun <reified T> decodeFromStream(source: Reader, rootName: QName): T {
+            return instance.decodeFromStream(source, rootName)
+        }
+
+        public fun <T> decodeFromStream(
+            deserializer: DeserializationStrategy<T>,
+            source: Reader,
+            rootName: QName
+        ): T {
+            return instance.decodeFromStream(deserializer, source, rootName)
+        }
+
     }
 
     public companion object : StringFormat {
