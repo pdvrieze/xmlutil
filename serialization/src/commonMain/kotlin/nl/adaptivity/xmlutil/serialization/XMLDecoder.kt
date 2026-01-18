@@ -1350,6 +1350,7 @@ internal open class XmlDecoderBase internal constructor(
                                 input.pushBackCurrent()
                             }
 
+                            EventType.ENTITY_REF,
                             EventType.CDSECT,
                             EventType.IGNORABLE_WHITESPACE,
                             EventType.TEXT -> currentPolyInfo = polyChildren["", "kotlin.String"]

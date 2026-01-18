@@ -15,6 +15,8 @@ Changes:
   versioned equivalents are also available.
 
 Fixes:
+- Reading unknown entities is now checked in various cases (and no longer read
+  as an empty string)
 - Fix some errors in handling ID attributes (@XmlID annotation).
 - Fix some issues with writing of xml declarations in XML 1.0 mode.
 
