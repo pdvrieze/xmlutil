@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,7 @@ import kotlinx.serialization.decodeFromString
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isXmlWhitespace
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlIgnoreWhitespace
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.test.multiplatform.Target
@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.*
 
 class ElementChildren237 {
-    private val xml get() = XML1_0.pedantic()
+    private val xml get() = XML.v1.pedantic()
 
     @Test
     fun testDeserializedElement() {

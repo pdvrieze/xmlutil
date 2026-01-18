@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,14 +28,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.EmptySerializersModule
 import nl.adaptivity.xml.serialization.PlatformTestBase
 import nl.adaptivity.xml.serialization.pedantic
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 
 @OptIn(ExperimentalSerializationApi::class)
 class ComplexSealedTest : PlatformTestBase<ComplexSealedTest.ComplexSealedHolder>(
     ComplexSealedHolder("a", 1, 1.5f, OptionB1(5, 6, 7)),
     ComplexSealedHolder.serializer(),
     EmptySerializersModule(),
-    XML1_0.pedantic()
+    XML.v1.pedantic()
 ) {
     override val expectedXML: String
         get() = "<ComplexSealedHolder a=\"a\" b=\"1\" c=\"1.5\"><OptionB1 g=\"5\" h=\"6\" i=\"7\"/></ComplexSealedHolder>"

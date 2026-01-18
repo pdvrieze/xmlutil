@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,7 +28,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.*
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 /*
@@ -45,7 +45,7 @@ class Header(
 fun main() {
     val data = Header("foo", "bar", "baz")
 
-    println(XML1_0.encodeToString(data))
+    println(XML.v1.encodeToString(data))
 }
 
 typealias BoxedString = @Serializable(BoxedSerializer::class) String

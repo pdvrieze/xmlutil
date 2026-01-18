@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,6 +24,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
@@ -101,19 +102,21 @@ internal actual object XmlStreaming : IXmlStreaming {
     actual override fun newWriter(dest: Node): DomWriter = DomWriter(dest)
 
     fun newWriter(
-        writer: JavaIoWriter,
+        writer: MPWriter,
         repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersionHint: XmlVersion = XmlVersion.XML10,
     ): XmlWriter {
-        return factory.newWriter(writer, repairNamespaces = repairNamespaces, xmlDeclMode = xmlDeclMode)
+        return factory.newWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
     }
 
     fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean, /*= false*/
         xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
+        xmlVersionHint: XmlVersion = XmlVersion.XML10,
     ): XmlWriter {
-        return factory.newWriter(output, repairNamespaces, xmlDeclMode)
+        return factory.newWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
     }
 
     actual override val genericDomImplementation: DOMImplementation
@@ -168,17 +171,23 @@ internal actual object XmlStreaming : IXmlStreaming {
     }
 
     internal object GenericFactory : XmlStreamingFactory {
-        override fun newWriter(writer: JavaIoWriter, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
-            return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
+        override fun newWriter(
+            writer: JavaIoWriter,
+            repairNamespaces: Boolean,
+            xmlDeclMode: XmlDeclMode,
+            xmlVersionHint: XmlVersion
+        ): XmlWriter {
+            return KtXmlWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
         }
 
         override fun newWriter(
             outputStream: OutputStream,
             encoding: String,
             repairNamespaces: Boolean,
-            xmlDeclMode: XmlDeclMode
+            xmlDeclMode: XmlDeclMode,
+            xmlVersionHint: XmlVersion
         ): XmlWriter {
-            return KtXmlWriter(OutputStreamWriter(outputStream, encoding), repairNamespaces, xmlDeclMode)
+            return KtXmlWriter(OutputStreamWriter(outputStream, encoding), repairNamespaces, xmlDeclMode, xmlVersionHint)
         }
 
         override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader {
@@ -303,8 +312,21 @@ public fun IXmlStreaming.newWriter(
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
-    xmlDeclMode: XmlDeclMode
-): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
+    xmlDeclMode: XmlDeclMode,
+    xmlVersionHint: XmlVersion,
+): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
+
+/**
+ * Create a new [XmlWriter] that appends to the given multi-platform [MPWriter].
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 
 /**
  * Create a new [XmlWriter] that appends to the given multi-platform [MPWriter].
@@ -323,7 +345,8 @@ public actual fun IXmlStreaming.newWriter(
     writer: MPWriter,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode,
-): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+    xmlVersionHint: XmlVersion,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
 /**
  * Create a new [XmlWriter] that appends to the given java specific [java.io.Writer].
@@ -337,9 +360,11 @@ public actual fun IXmlStreaming.newWriter(
  * @return A (potentially platform specific) [XmlWriter]
  */
 @Suppress("DEPRECATION", "UnusedReceiverParameter")
+@JvmOverloads
 public fun IXmlStreaming.newWriter(
     writer: JavaIoWriter,
     repairNamespaces: Boolean = false,
     xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
-): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+    xmlVersionHint: XmlVersion = XmlVersion.XML10,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 

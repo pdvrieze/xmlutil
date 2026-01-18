@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -44,7 +44,7 @@ internal val anyListModule = SerializersModule {
     }
 }
 
-private val parser = XML1_0.recommended(anyListModule)
+private val parser = XML.v1(anyListModule)
 
 interface XmlEntity
 

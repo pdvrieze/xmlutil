@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -375,9 +375,13 @@ public fun XmlReader.allText(): String {
                 // ignore whitespace starting the element.
                 EventType.IGNORABLE_WHITESPACE -> if (length != 0) append(t.text)
 
-                EventType.ENTITY_REF,
                 EventType.TEXT,
                 EventType.CDSECT -> append(t.text)
+
+                EventType.ENTITY_REF -> {
+                    if (! t.isKnownEntity) throw XmlException("Entity reference &${t.localName} not known: ${t.text}")
+                    append(t.text)
+                }
 
                 else -> throw XmlException("Found unexpected child tag with type: $type")
             }//ignore
@@ -424,8 +428,17 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     val _ = t.next(); whiteSpace.append(t.text)
                 }
 
+                EventType.ENTITY_REF -> {
+                    t.next()
+                    if (isNotEmpty()) {
+                        append(whiteSpace)
+                        whiteSpace.clear()
+                    }
+                    if (! t.isKnownEntity) throw XmlException("Entity reference &${t.localName} not known: ${t.text}")
+                    append(t.text)
+                }
+
                 EventType.TEXT,
-                EventType.ENTITY_REF,
                 EventType.CDSECT -> {
                     t.next()
                     if (isNotEmpty()) {
@@ -474,7 +487,18 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
     if (et == EventType.END_ELEMENT) return ""
     val t = this
     return buildString {
-        if (et != null && (et.isTextElement || et == EventType.IGNORABLE_WHITESPACE)) append(text)
+        when (et) {
+            null -> Unit
+
+            EventType.TEXT, EventType.CDSECT, EventType.IGNORABLE_WHITESPACE -> append(text)
+
+            EventType.ENTITY_REF -> {
+                if (! t.isKnownEntity) throw XmlException("Entity reference &${t.localName} not known: ${t.text}")
+                append(text)
+            }
+
+            else -> {}
+        }
 
         var eventType: EventType?
 
@@ -488,9 +512,14 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
                 // ignore whitespace starting the element.
                 EventType.IGNORABLE_WHITESPACE,
                 EventType.TEXT,
-                EventType.ENTITY_REF,
                 EventType.CDSECT -> {
                     val _ = t.next()
+                    append(t.text)
+                }
+
+                EventType.ENTITY_REF -> {
+                    val _ = t.next()
+                    if (! t.isKnownEntity) throw XmlException("Entity reference  &${t.localName} not known: ${t.text}")
                     append(t.text)
                 }
 
@@ -539,6 +568,11 @@ public fun XmlReader.readSimpleElement(): String {
                 EventType.TEXT,
                 EventType.ENTITY_REF,
                 EventType.CDSECT -> append(t.text)
+
+                EventType.ENTITY_REF -> {
+                    if (! t.isKnownEntity) throw XmlException("Entity reference &${t.localName} not known: ${t.text}")
+                    append(t.text)
+                }
 
                 else -> throw XmlException("Expected text content or end tag, found: ${t.eventType}")
             }/* Ignore */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,6 +23,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.toIndentSequence
 import nl.adaptivity.xmlutil.core.impl.toIndentString
@@ -43,7 +44,8 @@ import nl.adaptivity.xmlutil.util.myLookupPrefix
 public class DomWriter internal constructor(
     current: Node?,
     public val isAppend: Boolean = false,
-    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+    xmlVersion: XmlVersion? = null,
     dummy: Boolean = false,
 ) : XmlWriter {
 
@@ -57,8 +59,9 @@ public class DomWriter internal constructor(
     internal constructor(
         current: PlatformNode,
         isAppend: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ) : this(current as? Node ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode, false)
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersion: XmlVersion = XmlVersion.XML10,
+    ) : this(current as? Node ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode, xmlVersion, false)
 
     /**
      * The sequence of events to use for indentation
@@ -81,7 +84,7 @@ public class DomWriter internal constructor(
      * Create a new writer.
      * @param xmlDeclMode Determine whether an XML declaration is written
      */
-    public constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.None) : this(null, xmlDeclMode = xmlDeclMode)
+    public constructor(xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired) : this(null, xmlDeclMode = xmlDeclMode)
 
     /** The document that is used to create nodes */
     @XmlUtilInternal
@@ -365,7 +368,7 @@ public class DomWriter internal constructor(
     /**
      * The requested version of the document. This is set through [startDocument] and `null` if left default.
      */
-    public var requestedVersion: String? = null
+    public var requestedVersion: String? = xmlVersion?.versionString
         private set
 
     /**

@@ -49,19 +49,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:1.0.0-rc1")
+   implementation("io.github.pdvrieze.xmlutil:core:1.0.0-rc2")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.0-rc1")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.0-rc2")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.0-rc1")
+   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.0-rc2")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.0-rc1")
+   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.0-rc2")
 ```
 
 #### Native
@@ -72,7 +72,7 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform (this coordinate should be used by default)
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-rc1")
+   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-rc2")
 ```
 
 ## Serialization help
@@ -100,10 +100,10 @@ used (how lists and polymorphic types are handled), etc.
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
 ### Format
-The entrypoint to the library is the `XML1_0` (for 1.0) format (or `XML` generally). There is a default, but often a child is better. 
+The entrypoint to the library is the `XML.v1` (for 1.0) format (or `XML` generally). There is a default, but often a child is better. 
 Custom formats are created through:
 ```kotlin
-val format = XML1_0.recommended(mySerialModule) {  
+val format = XML.v1.recommended(mySerialModule) {  
     // configuration options
     xmlDeclMode = XmlDeclMode.None
     policy {

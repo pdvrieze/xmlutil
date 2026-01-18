@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -33,10 +33,10 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
-import nl.adaptivity.xmlutil.core.impl.multiplatform.MpJvmDefaultWithCompatibility
-import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
-import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.core.impl.multiplatform.*
+import nl.adaptivity.xmlutil.serialization.XML.Companion.compat
+import nl.adaptivity.xmlutil.serialization.XML.XmlCompanion
+import nl.adaptivity.xmlutil.serialization.XmlConfig.CompatBuilder
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
 import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.structure.*
@@ -99,8 +99,8 @@ public class XML(
     @Deprecated("Update to the named factory functions")
     public constructor(
         serializersModule: SerializersModule = EmptySerializersModule(),
-        configure: XmlConfig.CompatBuilder.() -> Unit = {}
-    ) : this(XmlConfig(XmlConfig.CompatBuilder().apply(configure)), serializersModule)
+        configure: CompatBuilder.() -> Unit = {}
+    ) : this(XmlConfig(CompatBuilder().apply(configure)), serializersModule)
 
     @Suppress("DEPRECATION")
     public fun copy(
@@ -174,8 +174,8 @@ public class XML(
     public fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T, rootName: QName): String {
         val stringWriter = StringWriter()
         val xw = when {
-            config.defaultToGenericParser -> xmlStreaming.newGenericWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
-            else -> xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode)
+            config.defaultToGenericParser -> xmlStreaming.newGenericWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode, config.xmlVersion)
+            else -> xmlStreaming.newWriter(stringWriter, config.repairNamespaces, config.xmlDeclMode, config.xmlVersion)
         }
 
         xw.use { xmlWriter ->
@@ -260,6 +260,10 @@ public class XML(
 
         if (target.depth == 0) {
             when (config.xmlDeclMode) {
+                XmlDeclMode.IfRequired -> if (config.xmlVersion != XmlVersion.XML10) {
+                    target.startDocument(config.xmlVersion.versionString)
+                }
+
                 XmlDeclMode.Minimal -> {
                     target.startDocument(config.xmlVersion.versionString)
                 }
@@ -293,7 +297,7 @@ public class XML(
                 val prefixMap = collectedNamespaces.associate { it.namespaceURI to it.prefix }
 
                 @Suppress("DEPRECATION")
-                val newConfig = XmlConfig(XmlConfig.CompatBuilder(config).apply {
+                val newConfig = XmlConfig(CompatBuilder(config).apply {
                     policy = PrefixWrappingPolicy(policy ?: policyBuilder().build(), prefixMap)
                 })
                 val remappedEncoderBase = XmlEncoderBase(serializersModule, newConfig, target)
@@ -313,6 +317,30 @@ public class XML(
         }
         encoder.encodeSerializableValue(serializer, value)
         target.flush()
+    }
+
+    public inline fun <reified T> encodeToStream(target: Writer, value: T, rootName: QName) {
+        encodeToStream(target, serializer<T>(), value, rootName)
+    }
+
+    public fun <T> encodeToStream(
+        target: Writer,
+        serializer: SerializationStrategy<T>,
+        value: T,
+        rootName: QName
+    ) {
+        val c = config
+        val writer = when {
+            c.defaultToGenericParser -> xmlStreaming.newGenericWriter(
+                target,
+                c.repairNamespaces,
+                c.xmlDeclMode,
+                c.xmlVersion
+            )
+
+            else -> xmlStreaming.newWriter(target, c.repairNamespaces, c.xmlDeclMode, c.xmlVersion)
+        }
+        encodeToWriter(writer, serializer, value, rootName)
     }
 
     private fun <T> collectNamespaces(
@@ -652,7 +680,7 @@ public class XML(
 
         reader.skipPreamble()
 
-        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
+        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader, mutableMapOf())
 
         if (wrapperName != null) {
             reader.require(EventType.START_ELEMENT, wrapperName)
@@ -729,7 +757,7 @@ public class XML(
         // what to parse (before calling readSerializableValue on the value)
         reader.skipPreamble()
 
-        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader)
+        val xmlDecoderBase = XmlDecoderBase(serializersModule, config, reader, mutableMapOf())
         val rootNameInfo = rootNameInfo(unsafeCodecConfig, deserializer.descriptor, rootName, reader.name)
         val rootDescriptor = XmlRootDescriptor(xmlDecoderBase, deserializer.descriptor, rootNameInfo)
 
@@ -739,6 +767,24 @@ public class XML(
 
         val decoder = xmlDecoderBase.XmlDecoder(elementDescriptor, polyInfo, inheritedPreserveWhitespace = DocumentPreserveSpace.DEFAULT)
         return decoder.decodeSerializableValue(deserializer)
+    }
+
+    public inline fun <reified T> decodeFromStream(source: Reader, rootName: QName): T {
+        return decodeFromStream(serializer<T>(), source, rootName)
+    }
+
+    public fun <T> decodeFromStream(
+        deserializer: DeserializationStrategy<T>,
+        source: Reader,
+        rootName: QName
+    ): T {
+        val c = config
+        val reader = when {
+            c.defaultToGenericParser -> xmlStreaming.newGenericReader(reader = source)
+
+            else -> xmlStreaming.newReader(source)
+        }
+        return decodeFromReader(deserializer, reader, rootName)
     }
 
     private fun polyInfoForElement(
@@ -786,21 +832,114 @@ public class XML(
         return XmlRootDescriptor(unsafeCodecConfig, serialDescriptor, nameInfo)
     }
 
-    public abstract class XmlCompanion: StringFormat {
+    public abstract class XmlCompanion<B: XmlConfig.Builder<out XmlSerializationPolicy?>>: StringFormat {
         override val serializersModule: SerializersModule = EmptySerializersModule()
 
         public abstract val instance: XML
 
-        public abstract fun recommended(serializersModule: SerializersModule = EmptySerializersModule()): XML
+        /**
+         * Retrieve a builder for the recommended configuration
+         * @suppress
+         */
+        @XmlUtilInternal
+        public abstract fun recommendedBuilder(): B
 
-        public abstract fun fast(serializersModule: SerializersModule = EmptySerializersModule()): XML
+        /**
+         * Retrieve a builder for the recommended **fast** configuration
+         * @suppress
+         */
+        @XmlUtilInternal
+        public abstract fun fastBuilder(): B
+
+        public operator fun invoke(): XML {
+            return XML(XmlConfig(recommendedBuilder()), serializersModule)
+        }
+
+        public operator fun invoke(serializersModule: SerializersModule): XML {
+            return XML(XmlConfig(recommendedBuilder()), serializersModule)
+        }
+
+        public inline operator fun invoke(
+            serializersModule: SerializersModule,
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.recommendedBuilder().apply(configure)),
+            serializersModule
+        )
+
+        public inline operator fun invoke(
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.recommendedBuilder().apply(configure)),
+            serializersModule
+        )
+
+        @Deprecated("Use invoke operator", ReplaceWith("this(serializersModule)"))
+        public fun recommended(serializersModule: SerializersModule): XML {
+            return this(serializersModule)
+        }
+
+        @Deprecated("Use invoke operator", ReplaceWith("this()"))
+        public open fun recommended(): XML {
+            return this(serializersModule)
+        }
+
+        @Deprecated("Use invoke operator", ReplaceWith("this(configure)"))
+        public inline fun recommended(
+            configure: B.() -> Unit
+        ): XML = invoke(configure)
+
+        @Deprecated("Use invoke operator", ReplaceWith("this(serializersModule, configure)"))
+        public inline fun recommended(
+            serializersModule: SerializersModule,
+            configure: B.() -> Unit
+        ): XML = invoke(serializersModule, configure)
+
+        public inline fun fast(
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.fastBuilder().apply(configure)),
+            serializersModule
+        )
+
+        public inline fun fast(
+            serializersModule: SerializersModule,
+            configure: B.() -> Unit = {}
+        ): XML = XML(
+            XmlConfig(this.fastBuilder().apply(configure)),
+            serializersModule
+        )
+
+        public open fun fast(): XML {
+            return XML(XmlConfig(fastBuilder()), serializersModule)
+        }
+
+        public fun fast(serializersModule: SerializersModule): XML {
+            return XML(XmlConfig(fastBuilder()), serializersModule)
+        }
+
+        /**
+         * Shortcut function that creates a format instance that is compact. Note that this is a shortcut
+         * for calling `recommended { compact() }`, for reconfiguration that should be used.
+         */
+        public open fun compact(
+            serializersModule: SerializersModule = EmptySerializersModule(),
+        ): XML = this(serializersModule) { this.compact() }
 
         @PublishedApi
-        internal fun <P: XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
+        internal fun <P : XmlSerializationPolicy> customBuilder(policy: P): XmlConfig.CustomBuilder<P> {
             return XmlConfig.CustomBuilder(policy = policy)
         }
 
-        public inline fun <P: XmlSerializationPolicy> customPolicy(
+        /**
+         * Create a configuration corresponding to a custom xml serialization policy.
+         *
+         * @param policy The custom policy to use
+         * @param serializersModule The serializers module to use
+         * @param configure Configuration lambda that can be used to configure the XML configuration
+         *   options (that are not part of the policy).
+         */
+        public inline fun <P : XmlSerializationPolicy> customPolicy(
             policy: P,
             serializersModule: SerializersModule = EmptySerializersModule(),
             configure: XmlConfig.CustomBuilder<P>.() -> Unit
@@ -927,6 +1066,19 @@ public class XML(
             instance.encodeToWriter(target, serializer, value, rootName)
         }
 
+        public inline fun <reified T> encodeToStream(target: Writer, value: T, rootName: QName) {
+            instance.encodeToStream(target, value, rootName)
+        }
+
+        public fun <T> encodeToStream(
+            target: Writer,
+            serializer: SerializationStrategy<T>,
+            value: T,
+            rootName: QName
+        ) {
+            instance.encodeToStream(target, serializer, value, rootName)
+        }
+
         /**
          * Parse an object of the type [T] out of the reader
          * @param str The source of the XML events
@@ -963,6 +1115,7 @@ public class XML(
         public inline fun <reified T : Any> decodeFromReader(reader: XmlReader, rootName: QName? = null): T =
             decodeFromReader(serializer(), reader, rootName)
 
+
         /**
          * Parse an object of the type [T] out of the reader
          * @param deserializer The loader to use (rather than the default)
@@ -976,34 +1129,28 @@ public class XML(
             rootName: QName? = null
         ): T = instance.decodeFromReader(deserializer, reader, rootName)
 
+        public inline fun <reified T> decodeFromStream(source: Reader, rootName: QName): T {
+            return instance.decodeFromStream(source, rootName)
+        }
+
+        public fun <T> decodeFromStream(
+            deserializer: DeserializationStrategy<T>,
+            source: Reader,
+            rootName: QName
+        ): T {
+            return instance.decodeFromStream(deserializer, source, rootName)
+        }
+
     }
 
     public companion object : StringFormat {
 
         @Suppress("DEPRECATION")
-        @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
-        public val compat: Compat get() = Compat
+        @Deprecated("Consider using the 1.0 object, but note it has changed defaults", ReplaceWith("XML.v1"))
+        public val compat: XmlCompanion<CompatBuilder> get() = Compat
 
-        @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
-        public object Compat: XmlCompanion() {
-            override val instance: XML = compat { defaultPolicy { } }
-
-            override fun recommended(serializersModule: SerializersModule): XML {
-                return compat(serializersModule) {
-                    setIndent(4)
-                    repairNamespaces = false
-                    xmlVersion = XmlVersion.XML11
-                    xmlDeclMode = XmlDeclMode.Minimal
-                    policy = compatPolicyBuilder().apply {
-                        setDefaults_0_91_0()
-                    }.build()
-                }
-            }
-
-            override fun fast(serializersModule: SerializersModule): XML {
-                return compat(serializersModule) { fast_0_91_1() }
-            }
-        }
+        @Suppress("DEPRECATION")
+        public val v1: XmlCompanion<XmlConfig.DefaultBuilder> get() = XML1
 
         @PublishedApi
         internal fun recommended1_0Builder(): XmlConfig.DefaultBuilder =
@@ -1033,22 +1180,27 @@ public class XML(
         @Deprecated("Replace with compat instance", ReplaceWith("XML.compat.instance"))
         public val defaultInstance: XML get() = Compat.instance
 
-        @Deprecated("Replace with XML1_0", ReplaceWith("XML1_0.instance"))
+        @Suppress("DEPRECATION")
+        @Deprecated("Replace with XML1_0", ReplaceWith("XML.v1.instance"))
         public val defaultInstance_1_0: XML1_0 get() = XML1_0
 
         @Suppress("DEPRECATION")
-        @Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
+        @Deprecated("Consider using the 1.0 object, but note it has changed defaults", ReplaceWith("XML.v1"))
         public fun compat(
             serializersModule: SerializersModule = EmptySerializersModule(),
-            configure: XmlConfig.CompatBuilder.() -> Unit = {}
+            configure: CompatBuilder.() -> Unit = {}
         ): XML {
-            return XML(XmlConfig(XmlConfig.CompatBuilder().apply(configure)), serializersModule)
+            return XML(XmlConfig(CompatBuilder().apply(configure)), serializersModule)
         }
 
+        @Deprecated(
+            "Consider replacing with versioned default that provides a stable serialized format",
+            ReplaceWith("v1.recommended(serializersModule, configure)")
+        )
         public inline fun recommended(
             serializersModule: SerializersModule = EmptySerializersModule(),
             configure: XmlConfig.DefaultBuilder.() -> Unit = {}
-        ): XML = recommended_1_0(serializersModule, configure)
+        ): XML = v1(serializersModule, configure)
 
         @Suppress("DEPRECATION")
         @Deprecated("The format no longer has a default serializers module", ReplaceWith("EmptySerializersModule()"))
@@ -1356,6 +1508,9 @@ public class XML(
         public val input: XmlReader
 
         public fun getNamespaceURI(prefix: String): String? = input.namespaceContext.getNamespaceURI(prefix)
+
+        @ExperimentalXmlUtilApi
+        public fun resolveIdRef(idRef: String): Any?
     }
 
     /**
@@ -1467,56 +1622,143 @@ internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
 @RequiresOptIn("This function will become private in the future", RequiresOptIn.Level.WARNING)
 public annotation class WillBePrivate
 
-/**
- * Shortcut to the default 1.0 instance
- */
-public object XML1_0: XML.XmlCompanion() {
+
+@Suppress("DEPRECATION")
+@Deprecated("Consider using the 1.0 object", ReplaceWith("XML1_0"))
+private object Compat: XmlCompanion<CompatBuilder>() {
+    override val instance: XML = compat { defaultPolicy { } }
+
+    @XmlUtilInternal
+    override fun recommendedBuilder(): CompatBuilder {
+        return CompatBuilder().apply {
+            setIndent(4)
+            repairNamespaces = false
+            xmlVersion = XmlVersion.XML11
+            xmlDeclMode = XmlDeclMode.IfRequired
+            policy = compatPolicyBuilder().apply {
+                setDefaults_0_91_0()
+            }.build()
+        }
+    }
+
+    @XmlUtilInternal
+    override fun fastBuilder(): CompatBuilder {
+        return recommendedBuilder().apply {
+            fast_0_91_1()
+        }
+    }
+}
+
+private object XML1: XmlCompanion<XmlConfig.DefaultBuilder>() {
 
     override val instance: XML = XML.recommended_1_0()
 
-    public val compactInstance: XML = compact()
+    override val serializersModule: SerializersModule = EmptySerializersModule()
 
+    @XmlUtilInternal
+    override fun recommendedBuilder(): XmlConfig.DefaultBuilder =
+        XmlConfig.DefaultBuilder().apply { recommended_1_0_0() }
+
+    @XmlUtilInternal
+    override fun fastBuilder(): XmlConfig.DefaultBuilder =
+        XmlConfig.DefaultBuilder().apply { fast_1_0_0() }
+
+}
+
+
+/**
+ * Shortcut to the default 1.0 instance
+ */
+@Deprecated(
+    "Use the encapsulated context",
+    ReplaceWith("XML.v1", "nl.adaptivity.xmlutil.serialization.XML")
+)
+public object XML1_0: XmlCompanion<XmlConfig.DefaultBuilder>() {
+
+    override val instance: XML = XML.recommended_1_0()
+
+    @Deprecated("Instead of an instance, you can use the compact shorthand",
+        ReplaceWith("XML.v1.compact()", "nl.adaptivity.xmlutil.serialization.XML")
+    )
+    public val compactInstance: XML = XML.v1.compact()
+
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "Incorrect", ReplaceWith("XML.v1", "nl.adaptivity.xmlutil.serialization.XML")
+    )
     public val defaultInstance1_0: XML1_0 get() = XML1_0
 
     override val serializersModule: SerializersModule = EmptySerializersModule()
 
-    public fun compact(serializersModule: SerializersModule = EmptySerializersModule()): XML {
-        return recommended(serializersModule) {
-            setIndent(0)
-            xmlDeclMode = XmlDeclMode.None
-        }
+    @Deprecated(
+        "Use the compact shorthand inside the builder",
+        ReplaceWith("XML.v1(serializersModule) { compact() }",
+            "nl.adaptivity.xmlutil.serialization.XML"
+        )
+    )
+    public override fun compact(serializersModule: SerializersModule): XML {
+        return XML.v1(serializersModule) { compact() }
     }
 
-    override fun recommended(serializersModule: SerializersModule): XML {
-        return recommended(serializersModule) {}
-    }
+    @XmlUtilInternal
+    override fun recommendedBuilder(): XmlConfig.DefaultBuilder =
+        XML.v1.recommendedBuilder()
 
-    @PublishedApi
-    internal fun recommendedBuilder(): XmlConfig.DefaultBuilder =
-        XmlConfig.DefaultBuilder().apply { recommended_1_0_0() }
+    @XmlUtilInternal
+    override fun fastBuilder(): XmlConfig.DefaultBuilder =
+        XML.v1.fastBuilder()
 
+    @Deprecated(
+        "Use in-format version",
+        ReplaceWith("XML.v1()", "nl.adaptivity.xmlutil.serialization.XML")
+    )
+    public override fun recommended(): XML = XML.v1()
+
+    @Deprecated("Use in-format version",
+        ReplaceWith(
+            "XML.v1(configure)",
+            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.recommended"
+        )
+    )
     public inline fun recommended(
-        serializersModule: SerializersModule = EmptySerializersModule(),
-        configure: XmlConfig.DefaultBuilder.() -> Unit = {}
-    ): XML = XML(
-        XmlConfig(recommendedBuilder().apply(configure)),
-        serializersModule
+        dummy: Unit = Unit,
+        configure: XmlConfig.DefaultBuilder.() -> Unit
+    ): XML = XML.v1(configure)
+
+    @Deprecated("Use in-format version",
+        ReplaceWith(
+            "XML.v1.fast()",
+            "nl.adaptivity.xmlutil.serialization.XML"
+        )
     )
+    public override fun fast(
+    ): XML = XML.v1.fast()
 
-    @PublishedApi
-    internal fun fastBuilder(): XmlConfig.DefaultBuilder =
-        XmlConfig.DefaultBuilder().apply { fast_1_0_0() }
-
-    override fun fast(serializersModule: SerializersModule): XML {
-        return fast(serializersModule) { }
-    }
-
+    @Deprecated(
+        "Use in-format version",
+        ReplaceWith(
+            "XML.v1.fast(configure)",
+            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.fast"
+        )
+    )
     public inline fun fast(
-        serializersModule: SerializersModule = EmptySerializersModule(),
-        configure: XmlConfig.DefaultBuilder.() -> Unit = {}
-    ): XML = XML(
-        XmlConfig(fastBuilder().apply(configure)),
-        serializersModule
-    )
+        dummy: Unit = Unit,
+        configure: XmlConfig.DefaultBuilder.() -> Unit
+    ): XML = XML.v1.fast(configure)
 
+    @Deprecated(
+        "Use in-format version",
+        ReplaceWith(
+            "XML.v1.fast(serializersModule, configure)",
+            "nl.adaptivity.xmlutil.serialization.XML", "nl.adaptivity.xmlutil.serialization.fast"
+        )
+    )
+    public inline fun fast(
+        serializersModule: SerializersModule,
+        dummy: Unit = Unit,
+        configure: XmlConfig.DefaultBuilder.() -> Unit = {}
+    ): XML = XML.v1.fast(
+        serializersModule,
+        configure,
+    )
 }

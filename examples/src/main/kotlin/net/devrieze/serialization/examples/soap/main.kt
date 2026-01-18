@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.XmlDeclMode
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import kotlin.reflect.KClass
 
 /**
@@ -43,7 +43,7 @@ fun main() {
             subclass(GeResult::class as KClass<GeResult<GeResultData>>, serializer())
         }
     }
-    val xml = XML1_0.recommended(module) {
+    val xml = XML.v1.recommended(module) {
         xmlDeclMode = XmlDeclMode.Minimal
         setIndent(4)
     }

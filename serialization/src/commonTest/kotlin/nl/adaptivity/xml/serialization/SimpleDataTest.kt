@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -45,6 +45,7 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
 
     @Test
     fun deserialize_with_unused_attributes() {
+        @Suppress("DEPRECATION")
         val e = assertFailsWith<UnknownXmlFieldException> {
             XML.compat.decodeFromString(serializer, unknownValues)
         }
@@ -70,7 +71,7 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
     fun deserialize_with_unused_attributes_and_custom_handler() {
         var ignoredName: QName? = null
         var ignoredKind: InputKind? = null
-        val xml = XML1_0.recommended {
+        val xml = XML.v1 {
             policy {
                 unknownChildHandler = UnknownChildHandler { _, inputKind, _, name, _ ->
                     ignoredName = name

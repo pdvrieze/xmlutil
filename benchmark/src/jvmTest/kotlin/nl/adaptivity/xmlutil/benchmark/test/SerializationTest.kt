@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,7 +29,7 @@ import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.benchmark.Serialization
 import nl.adaptivity.xmlutil.benchmark.util.DummyBlackHole
 import nl.adaptivity.xmlutil.benchmark.util.measure
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -54,7 +54,7 @@ open class SerializationTest : Serialization() {
     @Test
     fun testAttributePositionRegression() {
         val schemaName = "/xsts/ibmData/valid/S3_12/s3_12v03.xsd"
-        val xml = XML1_0.recommended()
+        val xml = XML.v1()
         val schemaText = String(javaClass.getResourceAsStream(schemaName)!!.readAllBytes())
         val schema = xml.decodeFromString<XSSchema>(schemaText)
 

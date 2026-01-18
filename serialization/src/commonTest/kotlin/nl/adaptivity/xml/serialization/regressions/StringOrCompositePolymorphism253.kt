@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -47,26 +47,31 @@ import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.util.CompactFragment
 import kotlin.test.*
 
+@Suppress("RETURN_VALUE_NOT_USED")
 class StringOrCompositePolymorphism253 {
 
-    val xmlElement = XML1_0.pedantic(ExtensionDto.elementModule())
+    val xmlElement = XML.v1.pedantic(ExtensionDto.elementModule()) { }
 
-    val xmlDefaultElement = XML1_0.pedantic(ExtensionDto.elementDefaultModule())
+    val xmlDefaultElement = XML.v1.pedantic(ExtensionDto.elementDefaultModule()) { }
 
-    val xmlDummyElement = XML1_0.pedantic(ExtensionDto.defaultModule())
+    val xmlDummyElement = XML.v1.pedantic(ExtensionDto.defaultModule()) { }
 
-    val xmlXmlDummyElement = XML1_0.pedantic(ExtensionDto.xmlDefaultModule())
+    val xmlXmlDummyElement = XML.v1.pedantic(ExtensionDto.xmlDefaultModule()) { }
 
-    val xmlRecoverConsume = XML1_0.pedantic(ExtensionDto.nodefaultModule()) {
-        policy {
-            unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
-                input.elementContentToFragment() // parse the element and drop it
-                emptyList()
+    val xmlRecoverConsume = // parse the element and drop it
+        XML.v1.pedantic(
+            ExtensionDto.nodefaultModule()
+        ) // parse the element and drop it
+        {
+            policy {
+                unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
+                    val _ = input.elementContentToFragment() // parse the element and drop it
+                    emptyList()
+                }
             }
         }
-    }
 
-    val xmlRecoverBlind = XML1_0.pedantic(ExtensionDto.nodefaultModule()) {
+    val xmlRecoverBlind = XML.v1.pedantic(ExtensionDto.nodefaultModule()) {
         policy {
             unknownChildHandler = UnknownChildHandler { input, _, _, _, _ ->
                 emptyList()
@@ -101,7 +106,7 @@ class StringOrCompositePolymorphism253 {
     @Test
     fun testParseDummyElement() {
         testParse(xmlDummyElement) {
-            val elem = assertIs<Unit>(it.singleOrNull())
+            assertIs<Unit>(it.singleOrNull())
         }
     }
 
@@ -196,7 +201,6 @@ class StringOrCompositePolymorphism253 {
                     decodeSerializableElement(descriptor, i, DummyDeserializer)
                     i = decodeElementIndex(descriptor)
                 }
-                Unit
             }
         }
     }

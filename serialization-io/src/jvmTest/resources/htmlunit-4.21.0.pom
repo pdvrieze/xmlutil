@@ -1,0 +1,1649 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026.
+  ~
+  ~ This file is part of xmlutil.
+  ~
+  ~ This file is licenced to you under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance
+  ~ with the License.  You should have  received a copy of the license
+  ~ with the source distribution. Alternatively, you may obtain a copy
+  ~ of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  ~ implied.  See the License for the specific language governing
+  ~ permissions and limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.htmlunit</groupId>
+    <artifactId>htmlunit</artifactId>
+    <version>4.21.0</version>
+    <packaging>jar</packaging>
+
+    <name>HtmlUnit</name>
+    <description>
+        A headless browser intended for use in testing web-based applications.
+    </description>
+    <organization>
+        <name>Gargoyle Software Inc.</name>
+        <url>http://www.GargoyleSoftware.com/</url>
+    </organization>
+    <url>https://www.htmlunit.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <additionalparam>-Xdoclint:none</additionalparam>
+
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+
+        <htmlunitcsp.version>4.21.0</htmlunitcsp.version>
+        <htmlunitcssparser.version>4.21.0</htmlunitcssparser.version>
+        <htmlunitcorejs.version>4.21.0</htmlunitcorejs.version>
+        <htmlunitneko.version>4.21.0</htmlunitneko.version>
+        <htmlunitwebsocketclient.version>4.21.0</htmlunitwebsocketclient.version>
+        <htmlunitxpath.version>4.21.0</htmlunitxpath.version>
+
+        <httpcomponents.version>4.5.14</httpcomponents.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <commons-io.version>2.21.0</commons-io.version>
+        <commons-logging.version>1.3.5</commons-logging.version>
+        <!--brotli.version>0.1.2</brotli.version-->
+
+        <!-- selenium -->
+        <htmlunitdriver.version>4.39.0</htmlunitdriver.version>
+        <selenium.version>4.39.0</selenium.version>
+        <selenium.devtools.artifactId>selenium-devtools-v143</selenium.devtools.artifactId>
+
+        <!-- test dependencies -->
+        <junit.version>5.14.1</junit.version>
+        <junit-launcher.version>1.14.1</junit-launcher.version>
+        <junit-pioneer.version>2.3.0</junit-pioneer.version>
+        <jetty.version>9.4.58.v20250814</jetty.version>
+        <quercus.version>4.0.66</quercus.version>
+        <log4j.version>2.25.3</log4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <commons-text.version>1.15.0</commons-text.version>
+        <commons-fileupload.version>1.6.0</commons-fileupload.version>
+        <image-comparison.version>4.4.0</image-comparison.version>
+        <imageio-batik.version>3.13.0</imageio-batik.version>
+        <jfreechart.version>1.5.6</jfreechart.version>
+
+        <!-- quality -->
+        <checkstyle.version>12.3.0</checkstyle.version>
+        <spotbugs.version>4.9.8</spotbugs.version>
+        <pmd.version>7.19.0</pmd.version>
+        <archunit.version>1.4.1</archunit.version>
+        <dependencycheck.version>10.0.4</dependencycheck.version>
+
+        <!-- plugins -->
+        <central-publishing-plugin.version>0.9.0</central-publishing-plugin.version>
+        <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
+        <pmd-plugin.version>3.28.0</pmd-plugin.version>
+        <spotbugs-plugin.version>4.9.8.2</spotbugs-plugin.version>
+        <gpg-plugin.version>3.2.8</gpg-plugin.version>
+        <enforcer-plugin.version>3.6.2</enforcer-plugin.version>
+        <changes-plugin.version>2.12.1</changes-plugin.version>
+        <compiler-plugin.version>3.14.1</compiler-plugin.version>
+        <jar-plugin.version>3.5.0</jar-plugin.version>
+        <assembly-plugin.version>3.8.0</assembly-plugin.version>
+        <source-plugin.version>3.4.0</source-plugin.version>
+        <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
+        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <jacoco-plugin.version>0.8.14</jacoco-plugin.version>
+        <cyclonedx-plugin.version>2.9.1</cyclonedx-plugin.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle-plugin.version}</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <suppressionsLocation>checkstyle_suppressions.xml</suppressionsLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs</artifactId>
+                        <version>${spotbugs.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-core</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-java</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-javascript</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-jsp</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <rulesets>
+                        <ruleset>${basedir}/pmd-ruleset.xml</ruleset>
+                    </rulesets>
+                    <failOnViolation>false</failOnViolation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Url>${project.url}</Url>
+                            <Build-Time>${maven.build.timestamp}</Build-Time>
+                        </manifestEntries>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.12.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${assembly-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <attach>false</attach>
+                    <descriptors>
+                        <descriptor>${basedir}/src/assembly/bin-distribution.xml</descriptor>
+                        <descriptor>${basedir}/src/assembly/src-distribution.xml</descriptor>
+                    </descriptors>
+                    <recompressZippedFiles>true</recompressZippedFiles>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc-plugin.version}</version>
+                <configuration>
+                    <quiet>true</quiet>
+                    <show>protected</show>
+                    <doclint>html,reference,syntax</doclint>
+                    <detectLinks>true</detectLinks>
+                    <detectJavaApiLink>true</detectJavaApiLink>
+                    <excludePackageNames>org.htmlunit.platform.util</excludePackageNames>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${gpg-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>${central-publishing-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                </configuration>
+            </plugin>
+            <!--
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${dependencycheck.version}</version>
+                <configuration>
+                    <suppressionFiles>owasp-suppressions.xml</suppressionFiles>
+                    <failBuildOnCVSS>0</failBuildOnCVSS>
+                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    <nvdDatafeedUrl>https://mirror.cveb.in/nvd/json/cve/1.1/nvdcve-1.1-{0}.json.gz</nvdDatafeedUrl>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.6.3</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.8.0</version>
+                                </requireJavaVersion>
+                                <dependencyConvergence />
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>${cyclonedx-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>makeAggregateBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <projectType>library</projectType>
+                    <outputFormat>json</outputFormat>
+                    <!-- strange but it helps -->
+                    <skipNotDeployed>false</skipNotDeployed>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.9</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.htmlunit.*</Export-Package>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Embed-Dependency>*;scope=compile;inline=**</Embed-Dependency>
+                        <Import-Package>*;resolution:=optional</Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <!--
+            <plugin>
+                <groupId>org.simplify4u.plugins</groupId>
+                <artifactId>pgpverify-maven-plugin</artifactId>
+                <version>1.19.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>without-library-and-huge-tests</id>
+            <activation>
+                <property>
+                    <name>withoutLibsHuge</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <excludes>
+                                <exclude>**/libraries/*.java</exclude>
+                                <exclude>**/libraries/**/*.java</exclude>
+                                <exclude>**/huge/*.java</exclude>
+                                <exclude>**/encoding/*.java</exclude>
+                            </excludes>
+                            <argLine>-Xms128m -Xmx1g -Dsun.reflect.noInflation=true</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <excludes>
+                                <exclude>org/htmlunit/cssparser/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-library-tests</id>
+            <activation>
+                <property>
+                    <name>onlyLibs</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/libraries/*.java</include>
+                                <!--
+                                    we have to restrict to one subfolder level;
+                                    using '**' seems to confuse surefile byplacing some gwt classes
+                                    in the path and then failing when trying to instantiate
+                                -->
+                                <include>**/libraries/*/*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/libraries/jquery/JQuery3x3x1Test.java</exclude>
+                            </excludes>
+                            <argLine>-Xms128m -Xmx512m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jquery3-tests</id>
+            <activation>
+                <property>
+                    <name>onlyjquery3</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/libraries/JQuery3x3x1Test.java</include>
+                            </includes>
+                            <argLine>-Xms128m -Xmx512m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-closes</id>
+            <activation>
+                <property>
+                    <name>onlyHugeCloses</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/CtorPrototypeTest.java</include>
+                                <include>**/huge/ElementClosesElementTest.java</include>
+                                <include>**/huge/ElementClosesElement2Test.java</include>
+                            </includes>
+                            <argLine>-Xms256m -Xmx512m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-a-c</id>
+            <activation>
+                <property>
+                    <name>onlyHugeAC</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfATest.java</include>
+                                <include>**/huge/HostParentOfBTest.java</include>
+                                <include>**/huge/HostParentOfCTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-d-g</id>
+            <activation>
+                <property>
+                    <name>onlyHugeDG</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfDTest.java</include>
+                                <include>**/huge/HostParentOfFTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-h-l</id>
+            <activation>
+                <property>
+                    <name>onlyHugeHL</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfHTest.java</include>
+                                <include>**/huge/HostParentOfITest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-m-o</id>
+            <activation>
+                <property>
+                    <name>onlyHugeMO</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfMTest.java</include>
+                                <include>**/huge/HostParentOfNTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-p-r</id>
+            <activation>
+                <property>
+                    <name>onlyHugePR</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfPTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-s</id>
+            <activation>
+                <property>
+                    <name>onlyHugeS</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfSTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-s2</id>
+            <activation>
+                <property>
+                    <name>onlyHugeS2</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfS2Test.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-huge-tests-t-z</id>
+            <activation>
+                <property>
+                    <name>onlyHugeTZ</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/huge/HostParentOfTTest.java</include>
+                                <include>**/huge/HostParentOfWTest.java</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>only-encoding-tests</id>
+            <activation>
+                <property>
+                    <name>onlyEngoding</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <!-- see https://stackoverflow.com/questions/53010200/maven-surefire-could-not-find-forkedbooter-class -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/encoding/**</include>
+                            </includes>
+                            <argLine>-Xms512m -Xmx1024m</argLine>
+                            <systemPropertyVariables>
+                                <htmlunit.maven>maven</htmlunit.maven>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc-plugin.version}</version>
+                <configuration>
+                    <quiet>true</quiet>
+                    <show>protected</show>
+                    <doclint>html,reference,syntax</doclint>
+                    <detectLinks>true</detectLinks>
+                    <detectJavaApiLink>true</detectJavaApiLink>
+                    <excludePackageNames>org.htmlunit.platform.util</excludePackageNames>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.9.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>3.6.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>${changes-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>changes-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <issueLinkTemplatePerSystem>
+                        <features>http://sourceforge.net/p/htmlunit/feature-requests/%ISSUE%</features>
+                        <htmlunitdriver>https://github.com/SeleniumHQ/htmlunit-driver/issues/%ISSUE%</htmlunitdriver>
+                        <stackoverflow>http://stackoverflow.com/questions/%ISSUE%</stackoverflow>
+                    </issueLinkTemplatePerSystem>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jdepend-maven-plugin</artifactId>
+                <version>2.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/HtmlUnit/htmlunit/issues/</url>
+    </issueManagement>
+    <inceptionYear>2002</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/HtmlUnit/htmlunit</connection>
+        <developerConnection>scm:git:https://github.com/HtmlUnit/htmlunit</developerConnection>
+        <url>https://github.com/HtmlUnit/htmlunit</url>
+    </scm>
+    <ciManagement>
+        <system>Jenkins</system>
+        <url>https://jenkins.wetator.org/view/HtmlUnit/</url>
+    </ciManagement>
+    <mailingLists>
+        <mailingList>
+            <name>HtmlUnit Users</name>
+            <subscribe>https://lists.sourceforge.net/lists/listinfo/htmlunit-user</subscribe>
+            <unsubscribe>https://lists.sourceforge.net/lists/listinfo/htmlunit-user</unsubscribe>
+            <archive>https://sourceforge.net/p/htmlunit/mailman/htmlunit-user/</archive>
+            <post>htmlunit-user@lists.sourceforge.net</post>
+            <otherArchives>
+                <otherArchive>http://htmlunit.10904.n7.nabble.com/HtmlUnit-General-f20847.html</otherArchive>
+                <otherArchive>http://htmlunit.markmail.org/</otherArchive>
+                <otherArchive>http://marc.info/?l=htmlunit-user</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>HtmlUnit Developers</name>
+            <subscribe>https://lists.sourceforge.net/lists/listinfo/htmlunit-develop</subscribe>
+            <unsubscribe>https://lists.sourceforge.net/lists/listinfo/htmlunit-develop</unsubscribe>
+            <archive>https://sourceforge.net/p/htmlunit/mailman/htmlunit-develop/</archive>
+            <post>htmlunit-develop@lists.sourceforge.net</post>
+            <otherArchives>
+                <otherArchive>http://htmlunit.10904.n7.nabble.com/HtmlUnit-Dev-f3.html</otherArchive>
+                <otherArchive>http://htmlunit.markmail.org/</otherArchive>
+                <otherArchive>http://marc.info/?l=htmlunit-develop</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+    <developers>
+        <developer>
+            <name>Mike Bowler</name>
+            <id>mbowler</id>
+            <email>mbowler@GargoyleSoftware.com</email>
+            <organization>Gargoyle Software Inc.</organization>
+            <url>http://www.sphericalimprovement.com/blogs/mbowler/</url>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <name>David K. Taylor</name>
+            <id>dktaylor</id>
+        </developer>
+        <developer>
+            <name>Brad Clarke</name>
+            <id>bradclarke</id>
+            <email>bradclarke@users.sourceforge.net</email>
+            <url>http://www.bradclarke.com/</url>
+            <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <name>Marc Guillemot</name>
+            <id>mguillem</id>
+            <email>mguillem@users.sourceforge.net</email>
+            <url>http://mguillem.wordpress.com/</url>
+            <timezone>+1</timezone>
+        </developer>
+        <developer>
+            <name>Chris Erskine</name>
+            <id>cerskine</id>
+            <email>cerskine@users.sourceforge.net</email>
+            <timezone>-7</timezone>
+        </developer>
+        <developer>
+            <name>Daniel Gredler</name>
+            <id>sdanig</id>
+            <email>sdanig@users.sourceforge.net</email>
+            <url>http://daniel.gredler.net/</url>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <name>Ahmed Ashour</name>
+            <id>asashour</id>
+            <email>asashour@users.sourceforge.net</email>
+            <url>http://asashour.blogspot.com/</url>
+            <timezone>+3</timezone>
+        </developer>
+        <developer>
+            <name>Sudhan Moghe</name>
+            <id>sudhan_moghe</id>
+            <email>sudhan_moghe@users.sourceforge.net</email>
+            <timezone>+5.5</timezone>
+        </developer>
+        <developer>
+            <name>Ronald Brill</name>
+            <id>rbri</id>
+            <email>rbri@rbri.de</email>
+            <url>http://www.wetator.org/</url>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Noboru Sinohara</name>
+        </contributor>
+        <contributor>
+            <name>Mike J. Bresnahan</name>
+            <email>gudujarlson@sf.net</email>
+        </contributor>
+        <contributor>
+            <name>Dominique Broeglin</name>
+        </contributor>
+        <contributor>
+            <name>Alex Nikiforoff</name>
+        </contributor>
+        <contributor>
+            <name>Barnaby Court</name>
+            <email>BarnabyCourt@users.sourceforge.net</email>
+        </contributor>
+        <contributor>
+            <name>Andreas Hangler</name>
+        </contributor>
+        <contributor>
+            <name>Jun Chen</name>
+            <email>chen_jun@users.sourceforge.net</email>
+        </contributor>
+        <contributor>
+            <name>Christian Sell</name>
+            <email>cse@dynabean.de</email>
+        </contributor>
+        <contributor>
+            <name>Darrell DeBoer</name>
+        </contributor>
+        <contributor>
+            <name>David D. Kilzer</name>
+        </contributor>
+        <contributor>
+            <name>Ben Curren</name>
+            <email>bcurren@esomnie.com</email>
+        </contributor>
+        <contributor>
+            <name>Mike Williams</name>
+        </contributor>
+        <contributor>
+            <name>Mike Gallaher</name>
+            <email>gallaherm@pragmatics.com</email>
+        </contributor>
+        <contributor>
+            <name>Dierk Koenig</name>
+        </contributor>
+        <contributor>
+            <name>Mike Bresnahan</name>
+        </contributor>
+        <contributor>
+            <name>Sergey Gorelkin</name>
+        </contributor>
+        <contributor>
+            <name>Chris Eldredge</name>
+            <email>chriseldredge@comcast.net</email>
+        </contributor>
+        <contributor>
+            <name>Hans Donner</name>
+        </contributor>
+        <contributor>
+            <name>Michael Ottati</name>
+        </contributor>
+        <contributor>
+            <name>George Murnock</name>
+            <email>george@murnock.com</email>
+        </contributor>
+        <contributor>
+            <name>Kent Tong</name>
+        </contributor>
+        <contributor>
+            <name>Alfred Nathaniel</name>
+        </contributor>
+        <contributor>
+            <name>Bruce Faulkner</name>
+        </contributor>
+        <contributor>
+            <name>Ray Suliteanu</name>
+        </contributor>
+        <contributor>
+            <name>Denis N. Antonioli</name>
+        </contributor>
+        <contributor>
+            <name>Stefan Anzinger</name>
+        </contributor>
+        <contributor>
+            <name>Lothar Märkle</name>
+        </contributor>
+        <contributor>
+            <name>Ian Lovejoy</name>
+        </contributor>
+        <contributor>
+            <name>Paul King</name>
+        </contributor>
+        <contributor>
+            <name>Vikram Shitole</name>
+        </contributor>
+        <contributor>
+            <name>Mark van Leeuwen</name>
+            <url>https://sourceforge.net/users/marlee/</url>
+        </contributor>
+        <contributor>
+            <name>Brad Murray</name>
+        </contributor>
+        <contributor>
+            <name>Julien Henry</name>
+        </contributor>
+        <contributor>
+            <name>Andre Soereng</name>
+        </contributor>
+        <contributor>
+            <name>Karel Kolman</name>
+        </contributor>
+        <contributor>
+            <name>Bruce Chapman</name>
+        </contributor>
+        <contributor>
+            <name>Kristian Muntau</name>
+        </contributor>
+        <contributor>
+            <name>Sam Hough</name>
+        </contributor>
+        <contributor>
+            <name>Deryk Sinotte</name>
+        </contributor>
+        <contributor>
+            <name>Martin Tamme</name>
+        </contributor>
+        <contributor>
+            <name>Philip Graf</name>
+        </contributor>
+        <contributor>
+            <name>Rodney Gitzel</name>
+        </contributor>
+        <contributor>
+            <name>Matt Ryall</name>
+        </contributor>
+        <contributor>
+            <name>Rob Di Marco</name>
+        </contributor>
+        <contributor>
+            <name>Gareth Davis</name>
+        </contributor>
+        <contributor>
+            <name>David Bylsma</name>
+        </contributor>
+        <contributor>
+            <name>Dmitri Zoubkov</name>
+        </contributor>
+        <contributor>
+            <name>Stuart Begg</name>
+        </contributor>
+        <contributor>
+            <name>Ren&#xE9; Schwietzke</name>
+        </contributor>
+        <contributor>
+            <name>Ethan Glasser-Camp</name>
+        </contributor>
+        <contributor>
+            <name>Marco Cova</name>
+        </contributor>
+        <contributor>
+            <name>Mike Dirolf</name>
+            <email>mike@10gen.com</email>
+        </contributor>
+        <contributor>
+            <name>Mirko Friedenhagen</name>
+        </contributor>
+        <contributor>
+            <name>Richard Eggert</name>
+        </contributor>
+        <contributor>
+            <name>Tomasz Kalkosinski</name>
+        </contributor>
+        <contributor>
+            <name>Peter Faller</name>
+        </contributor>
+        <contributor>
+            <name>Benoit Heinrich</name>
+        </contributor>
+        <contributor>
+            <name>Amit Manjhi</name>
+        </contributor>
+        <contributor>
+            <name>Nicolas Belisle</name>
+        </contributor>
+        <contributor>
+            <name>Amit Khanna</name>
+        </contributor>
+        <contributor>
+            <name>Nikolai Avteniev</name>
+        </contributor>
+        <contributor>
+            <name>Kostadin Chikov</name>
+        </contributor>
+        <contributor>
+            <name>Adam Doupe</name>
+        </contributor>
+        <contributor>
+            <name>Daniel Wagner-Hall</name>
+        </contributor>
+        <contributor>
+            <name>James Phillpotts</name>
+        </contributor>
+        <contributor>
+            <name>Benson Margulies</name>
+        </contributor>
+        <contributor>
+            <name>Pieter Herroelen</name>
+        </contributor>
+        <contributor>
+            <name>David Gileadi</name>
+        </contributor>
+        <contributor>
+            <name>Martin Huber</name>
+        </contributor>
+        <contributor>
+            <name>Frank Danek</name>
+        </contributor>
+        <contributor>
+            <name>Andrea Martino</name>
+        </contributor>
+        <contributor>
+            <name>John J Murdoch</name>
+        </contributor>
+        <contributor>
+            <name>Guy Burton</name>
+        </contributor>
+        <contributor>
+            <name>Chuck Dumont</name>
+        </contributor>
+        <contributor>
+            <name>Sebastian Cato</name>
+        </contributor>
+        <contributor>
+            <name>Carsten Steul</name>
+        </contributor>
+        <contributor>
+            <name>Jake Cobb</name>
+        </contributor>
+        <contributor>
+            <name>David Ostrovsky</name>
+        </contributor>
+        <contributor>
+            <name>Matthias Brandt</name>
+        </contributor>
+        <contributor>
+            <name>Jacob Childress</name>
+        </contributor>
+        <contributor>
+            <name>Joerg Werner</name>
+        </contributor>
+        <contributor>
+            <name>Adam Afeltowicz</name>
+        </contributor>
+        <contributor>
+            <name>Madis P&#x00e4;rn</name>
+        </contributor>
+        <contributor>
+            <name>Michael Rimov</name>
+        </contributor>
+        <contributor>
+            <name>Rob Kodey</name>
+        </contributor>
+        <contributor>
+            <name>Leszek Hoppe</name>
+        </contributor>
+        <contributor>
+            <name>Natasha Lazarova</name>
+        </contributor>
+        <contributor>
+            <name>Anton Demydenko</name>
+        </contributor>
+        <contributor>
+            <name>Colin Alworth</name>
+        </contributor>
+        <contributor>
+            <name>Ween Jiann</name>
+        </contributor>
+        <contributor>
+            <name>Atsushi Nakagawa</name>
+        </contributor>
+        <contributor>
+            <name>Hartmut Arlt</name>
+        </contributor>
+        <contributor>
+            <name>Le Stephane</name>
+        </contributor>
+        <contributor>
+            <name>Michael Anstis</name>
+        </contributor>
+        <contributor>
+            <name>Alex Gorbatovsky</name>
+        </contributor>
+        <contributor>
+            <name>Ronny Shapiro</name>
+        </contributor>
+        <contributor>
+            <name>Rural Hunter</name>
+        </contributor>
+        <contributor>
+            <name>Thorsten Wendelmuth</name>
+        </contributor>
+        <contributor>
+            <name>Markus Heiden</name>
+        </contributor>
+        <contributor>
+            <name>Dennis Duysak</name>
+        </contributor>
+        <contributor>
+            <name>Raik Bieniek</name>
+        </contributor>
+        <contributor>
+            <name>Uberto Barbini</name>
+        </contributor>
+        <contributor>
+            <name>cdalexndr</name>
+        </contributor>
+        <contributor>
+            <name>Sergio Moreno</name>
+            <email>sergio.moreno@blueliv.com</email>
+        </contributor>
+        <contributor>
+            <name>Antoni Reus</name>
+        </contributor>
+        <contributor>
+            <name>Harald Albers</name>
+        </contributor>
+        <contributor>
+            <name>Michael Lueck</name>
+        </contributor>
+        <contributor>
+            <name>Ashley Frieze</name>
+        </contributor>
+        <contributor>
+            <name>Bharatwaaj Shankaranarayanan</name>
+        </contributor>
+        <contributor>
+            <name>Lai Quang Duong</name>
+        </contributor>
+        <contributor>
+            <name>Vadzim Miliantsei</name>
+        </contributor>
+        <contributor>
+            <name>Piotr P. Karwasz</name>
+        </contributor>
+        <contributor>
+            <name>Kanoko Yamamoto</name>
+        </contributor>
+        <contributor>
+            <name>Marek Andreansky</name>
+        </contributor>
+        <contributor>
+            <name>Sven Strickroth</name>
+        </contributor>
+        <contributor>
+            <name>Kristof Neirynck</name>
+        </contributor>
+        <contributor>
+            <name>Markus Winter</name>
+        </contributor>
+        <contributor>
+            <name>Christoph Burgmer</name>
+        </contributor>
+        <contributor>
+            <name>Tom Anderson</name>
+            <email>tom.anderson@univ.oxon.org</email>
+        </contributor>
+        <contributor>
+            <name>Knut Johannes Dahle</name>
+            <email>knut.johannes.dahle@gmail.com</email>
+        </contributor>
+        <contributor>
+            <name>Alexei Goussev</name>
+            <email>gousseff@netscape.net</email>
+        </contributor>
+        <contributor>
+            <name>Nick Kralevich</name>
+            <email>nnk@google.com</email>
+        </contributor>
+        <contributor>
+            <name>Marcos Vinicius B. de Souza</name>
+            <email>marvin.java@gmail.com</email>
+        </contributor>
+        <contributor>
+            <name>Jakob Ackermann</name>
+            <email>das7pad@outlook.com</email>
+        </contributor>
+    </contributors>
+    <dependencies>
+        <!-- this includes httpclient as depencency -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpcomponents.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>htmlunit-core-js</artifactId>
+            <version>${htmlunitcorejs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>neko-htmlunit</artifactId>
+            <version>${htmlunitneko.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>htmlunit-cssparser</artifactId>
+            <version>${htmlunitcssparser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>htmlunit-xpath</artifactId>
+            <version>${htmlunitxpath.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>htmlunit-csp</artifactId>
+            <version>${htmlunitcsp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>htmlunit-websocket-client</artifactId>
+            <version>${htmlunitwebsocketclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
+        </dependency>
+        <!--dependency>
+            <groupId>org.brotli</groupId>
+            <artifactId>dec</artifactId>
+            <version>${brotli.version}</version>
+        </dependency-->
+
+        <!-- Test dependencies. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit-launcher.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit-pioneer</groupId>
+            <artifactId>junit-pioneer</artifactId>
+            <version>${junit-pioneer.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- archunit uses slf4j, we have to provide a simple backend -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- for some test cases we use log4j to check the output -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jcl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- make our test for rendering svg images on canvas run -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-batik</artifactId>
+            <version>${imageio-batik.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.xmlgraphics</groupId>
+                    <artifactId>xmlgraphics-commons</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.19</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons-fileupload.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.romankh3</groupId>
+            <artifactId>image-comparison</artifactId>
+            <version>${image-comparison.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>${jfreechart.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Jetty -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>quercus</artifactId>
+            <version>${quercus.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- WebDriver -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>htmlunit3-driver</artifactId>
+            <version>${htmlunitdriver.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.htmlunit</groupId>
+                    <artifactId>htmlunit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-firefox-driver</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-edge-driver</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>${selenium.devtools.artifactId}</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- for snapshots of our dependencies -->
+    <repositories>
+        <repository>
+            <name>Central Portal Snapshots</name>
+            <id>central-portal-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+</project>

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
@@ -23,11 +23,11 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName10
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmName
 
@@ -58,13 +58,16 @@ interface VNCName : VName {
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer : SimpleTypeSerializer<VNCName>("token") {
-        override fun deserialize(decoder: Decoder): VNCName {
+    class Serializer : SimpleTypeSerializer<VNCName>("VNCName") {
+        override fun deserialize(
+            raw: String,
+            input: XmlReader?
+        ): VNCName {
             val version = when {
-                (decoder is XML.XmlInput) && decoder.input.version=="1.0" -> XmlVersion.XML10
+                input?.version == "1.0" -> XmlVersion.XML10
                 else -> XmlVersion.XML11
             }
-            return Inst(WhitespaceValue.COLLAPSE.normalize(VString(decoder.decodeString())).xmlString)
+            return Inst(xmlCollapseWhitespace(raw), version)
         }
     }
 

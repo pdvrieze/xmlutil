@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,7 +29,6 @@ import kotlinx.serialization.json.Json
 import nl.adaptivity.serialutil.CharArrayAsStringSerializer
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -49,7 +48,7 @@ class CharArrayAsStringSerializerTest {
     fun testDeserializeXML() {
         val expected = Container("abcdefg".toCharArray())
         val xml = "<Container>abcdefg</Container>"
-        val actual = XML1_0.decodeFromString<Container>(xml)
+        val actual = XML.v1.decodeFromString<Container>(xml)
         assertEquals(expected, actual)
     }
 

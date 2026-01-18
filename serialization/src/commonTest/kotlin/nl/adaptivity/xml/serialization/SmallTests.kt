@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025.
+ * Copyright (c) 2022-2026.
  *
  * This file is part of xmlutil.
  *
@@ -55,7 +55,7 @@ class SmallTests {
                    |    <comment>$TESTCOMMENT</comment>
                    |</registry>""".trimMargin("|")
 
-            val xml: XML = XML1_0.recommended {
+            val xml: XML = XML.v1 {
                 setIndent(4)
                 xmlDeclMode = XmlDeclMode.Charset
                 xmlVersion = XmlVersion.XML10
@@ -91,7 +91,7 @@ class SmallTests {
     @Test
     fun test1DeserializationErrorMessage() {
         val e = assertFails {
-            XML1_0.decodeFromString<Test1>(Test1.TESTDATA)
+            XML.v1.decodeFromString<Test1>(Test1.TESTDATA)
         }
         assertContains(e.message ?: fail("Missing message"), "candidates: comment (Attribute)")
     }
@@ -109,7 +109,8 @@ class SmallTests {
     fun testDetectDuplicateElements() {
         val xml = """<Container><registry comment="value" /><registry comment="value2" /></Container>"""
         val t = assertFailsWith<XmlSerialException> {
-            val decoded = XML.compat.recommended().decodeFromString<Container>(xml)
+            @Suppress("DEPRECATION")
+            val decoded = XML.compat().decodeFromString<Container>(xml)
             assertEquals(Test1("value"), decoded.inner)
         }
         assertContains(t.message ?: "", "duplicate child", true)

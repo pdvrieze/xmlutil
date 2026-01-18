@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -599,7 +599,7 @@ public fun XmlWriter.writeElementContent(missingNamespaces: MutableMap<String, S
     reader.forEach { type ->
         // We already moved to the next event. Add the namespaces before writing as for a DOM implementation
         // it is too late to do it afterwards.
-        if (reader.eventType == EventType.START_ELEMENT && missingNamespaces != null) {
+        if (type == EventType.START_ELEMENT && missingNamespaces != null) {
             @Suppress("DEPRECATION")
             addUndeclaredNamespaces(reader, missingNamespaces)
         }

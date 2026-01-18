@@ -49,6 +49,9 @@ fun Project.configureDokka(
         moduleVersion.convention(myModuleVersion)
         pluginsConfiguration.named<DokkaHtmlPluginParameters>("html") {
             footerMessage.set("ⓒ2008-${Calendar.getInstance().get(Calendar.YEAR)} – Thanks for using XMLUtil!<img referrerpolicy=\"no-referrer-when-downgrade\" src=\"https://static.scarf.sh/a.png?x-pxid=01e4474b-ae2b-4919-8d89-91e972e1e42e\" />")
+
+            customAssets.from(rootProject.file("iconsource_16_9.svg"))
+            customStyleSheets.from(rootProject.file("src/logo-styles.css"))
         }
 
         dokkaSourceSets.configureEach {

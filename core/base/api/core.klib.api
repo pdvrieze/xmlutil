@@ -1,5 +1,6 @@
 // Klib ABI Dump
-// Targets: [js, linuxX64, wasmJs, wasmWasi]
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -75,6 +76,10 @@ final enum class nl.adaptivity.xmlutil.core/XmlVersion : kotlin/Enum<nl.adaptivi
 
     final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.core/XmlVersion // nl.adaptivity.xmlutil.core/XmlVersion.valueOf|valueOf#static(kotlin.String){}[0]
     final fun values(): kotlin/Array<nl.adaptivity.xmlutil.core/XmlVersion> // nl.adaptivity.xmlutil.core/XmlVersion.values|values#static(){}[0]
+
+    final object Companion { // nl.adaptivity.xmlutil.core/XmlVersion.Companion|null[0]
+        final fun fromStringOrNull(kotlin/String): nl.adaptivity.xmlutil.core/XmlVersion? // nl.adaptivity.xmlutil.core/XmlVersion.Companion.fromStringOrNull|fromStringOrNull(kotlin.String){}[0]
+    }
 }
 
 final enum class nl.adaptivity.xmlutil.dom2/DOMVersion : kotlin/Enum<nl.adaptivity.xmlutil.dom2/DOMVersion> { // nl.adaptivity.xmlutil.dom2/DOMVersion|null[0]
@@ -118,14 +123,17 @@ final enum class nl.adaptivity.xmlutil.dom2/NodeType : kotlin/Enum<nl.adaptivity
     }
 }
 
-final enum class nl.adaptivity.xmlutil/XmlDeclMode : kotlin/Enum<nl.adaptivity.xmlutil/XmlDeclMode> { // nl.adaptivity.xmlutil/XmlDeclMode|null[0]
+open enum class nl.adaptivity.xmlutil/XmlDeclMode : kotlin/Enum<nl.adaptivity.xmlutil/XmlDeclMode> { // nl.adaptivity.xmlutil/XmlDeclMode|null[0]
     enum entry Auto // nl.adaptivity.xmlutil/XmlDeclMode.Auto|null[0]
     enum entry Charset // nl.adaptivity.xmlutil/XmlDeclMode.Charset|null[0]
+    enum entry IfRequired // nl.adaptivity.xmlutil/XmlDeclMode.IfRequired|null[0]
     enum entry Minimal // nl.adaptivity.xmlutil/XmlDeclMode.Minimal|null[0]
     enum entry None // nl.adaptivity.xmlutil/XmlDeclMode.None|null[0]
 
     final val entries // nl.adaptivity.xmlutil/XmlDeclMode.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil/XmlDeclMode> // nl.adaptivity.xmlutil/XmlDeclMode.entries.<get-entries>|<get-entries>#static(){}[0]
+    final val isMinimal // nl.adaptivity.xmlutil/XmlDeclMode.isMinimal|{}isMinimal[0]
+        final fun <get-isMinimal>(): kotlin/Boolean // nl.adaptivity.xmlutil/XmlDeclMode.isMinimal.<get-isMinimal>|<get-isMinimal>(){}[0]
 
     final fun valueOf(kotlin/String): nl.adaptivity.xmlutil/XmlDeclMode // nl.adaptivity.xmlutil/XmlDeclMode.valueOf|valueOf#static(kotlin.String){}[0]
     final fun values(): kotlin/Array<nl.adaptivity.xmlutil/XmlDeclMode> // nl.adaptivity.xmlutil/XmlDeclMode.values|values#static(){}[0]
@@ -144,40 +152,40 @@ abstract interface <#A: out kotlin/Any?> nl.adaptivity.xmlutil/XmlDeserializatio
 }
 
 abstract interface nl.adaptivity.xmlutil.dom/PlatformAttr : nl.adaptivity.xmlutil.dom/PlatformNode { // nl.adaptivity.xmlutil.dom/PlatformAttr|null[0]
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformAttr.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getFirstChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom/PlatformAttr.getFirstChild|getFirstChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getLastChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom/PlatformAttr.getLastChild|getLastChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getLocalName(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformAttr.getLocalName|getLocalName(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getName(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformAttr.getName|getName(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getNamespaceURI(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformAttr.getNamespaceURI|getNamespaceURI(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getOwnerElement(): nl.adaptivity.xmlutil.dom/PlatformElement? // nl.adaptivity.xmlutil.dom/PlatformAttr.getOwnerElement|getOwnerElement(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getPrefix(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformAttr.getPrefix|getPrefix(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getValue(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformAttr.getValue|getValue(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformAttr.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformAttr.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun setValue(kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformAttr.setValue|setValue(kotlin.String){}[0]
 
     // Targets: [js]
@@ -209,40 +217,40 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformAttr : nl.adaptivity.xmluti
 abstract interface nl.adaptivity.xmlutil.dom/PlatformCDATASection : nl.adaptivity.xmlutil.dom/PlatformText // nl.adaptivity.xmlutil.dom/PlatformCDATASection|null[0]
 
 abstract interface nl.adaptivity.xmlutil.dom/PlatformCharacterData : nl.adaptivity.xmlutil.dom/PlatformNode { // nl.adaptivity.xmlutil.dom/PlatformCharacterData|null[0]
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformCharacterData.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun appendData(kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformCharacterData.appendData|appendData(kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun deleteData(kotlin/Int, kotlin/Int) // nl.adaptivity.xmlutil.dom/PlatformCharacterData.deleteData|deleteData(kotlin.Int;kotlin.Int){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getData(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformCharacterData.getData|getData(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getFirstChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom/PlatformCharacterData.getFirstChild|getFirstChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getLastChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom/PlatformCharacterData.getLastChild|getLastChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun insertData(kotlin/Int, kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformCharacterData.insertData|insertData(kotlin.Int;kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformCharacterData.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformCharacterData.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun replaceData(kotlin/Int, kotlin/Int, kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformCharacterData.replaceData|replaceData(kotlin.Int;kotlin.Int;kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun setData(kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformCharacterData.setData|setData(kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun substringData(kotlin/Int, kotlin/Int): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformCharacterData.substringData|substringData(kotlin.Int;kotlin.Int){}[0]
 
     // Targets: [js]
@@ -257,20 +265,20 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformDOMImplementation { // nl.a
     abstract fun createDocument(kotlin/String?, kotlin/String?, nl.adaptivity.xmlutil.dom/PlatformDocumentType?): nl.adaptivity.xmlutil.dom/PlatformDocument // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.createDocument|createDocument(kotlin.String?;kotlin.String?;nl.adaptivity.xmlutil.dom.PlatformDocumentType?){}[0]
     abstract fun createDocumentType(kotlin/String, kotlin/String, kotlin/String): nl.adaptivity.xmlutil.dom/PlatformDocumentType // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.createDocumentType|createDocumentType(kotlin.String;kotlin.String;kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract val supportsWhitespaceAtToplevel // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.supportsWhitespaceAtToplevel|{}supportsWhitespaceAtToplevel[0]
         abstract fun <get-supportsWhitespaceAtToplevel>(): kotlin/Boolean // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.supportsWhitespaceAtToplevel.<get-supportsWhitespaceAtToplevel>|<get-supportsWhitespaceAtToplevel>(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getFeature(kotlin/String, kotlin/String): kotlin/Any? // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.getFeature|getFeature(kotlin.String;kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun hasFeature(kotlin/String, kotlin/String?): kotlin/Boolean // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.hasFeature|hasFeature(kotlin.String;kotlin.String?){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun hasFeature(nl.adaptivity.xmlutil.dom2/SupportedFeatures, nl.adaptivity.xmlutil.dom2/DOMVersion?): kotlin/Boolean // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.hasFeature|hasFeature(nl.adaptivity.xmlutil.dom2.SupportedFeatures;nl.adaptivity.xmlutil.dom2.DOMVersion?){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     open fun createDocument(kotlin/String?, kotlin/String): nl.adaptivity.xmlutil.dom/PlatformDocument // nl.adaptivity.xmlutil.dom/PlatformDOMImplementation.createDocument|createDocument(kotlin.String?;kotlin.String){}[0]
 }
 
@@ -287,26 +295,26 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformDocument : nl.adaptivity.xm
     abstract fun createTextNode(kotlin/String): nl.adaptivity.xmlutil.dom/PlatformText // nl.adaptivity.xmlutil.dom/PlatformDocument.createTextNode|createTextNode(kotlin.String){}[0]
     abstract fun importNode(nl.adaptivity.xmlutil.dom/PlatformNode, kotlin/Boolean): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/PlatformDocument.importNode|importNode(nl.adaptivity.xmlutil.dom.PlatformNode;kotlin.Boolean){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract val characterSet // nl.adaptivity.xmlutil.dom/PlatformDocument.characterSet|{}characterSet[0]
         abstract fun <get-characterSet>(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformDocument.characterSet.<get-characterSet>|<get-characterSet>(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getDoctype(): nl.adaptivity.xmlutil.dom/PlatformDocumentType? // nl.adaptivity.xmlutil.dom/PlatformDocument.getDoctype|getDoctype(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getDocumentElement(): nl.adaptivity.xmlutil.dom/PlatformElement? // nl.adaptivity.xmlutil.dom/PlatformDocument.getDocumentElement|getDocumentElement(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getImplementation(): nl.adaptivity.xmlutil.dom/PlatformDOMImplementation // nl.adaptivity.xmlutil.dom/PlatformDocument.getImplementation|getImplementation(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getInputEncoding(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformDocument.getInputEncoding|getInputEncoding(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     open fun (nl.adaptivity.xmlutil.dom/PlatformDocument).createElementNS(nl.adaptivity.xmlutil/QName): nl.adaptivity.xmlutil.dom/PlatformElement // nl.adaptivity.xmlutil.dom/PlatformDocument.createElementNS|createElementNS@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.QName){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     open fun importNode(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/PlatformDocument.importNode|importNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
@@ -329,28 +337,28 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformDocument : nl.adaptivity.xm
 abstract interface nl.adaptivity.xmlutil.dom/PlatformDocumentFragment : nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/PlatformDocumentFragment|null[0]
 
 abstract interface nl.adaptivity.xmlutil.dom/PlatformDocumentType : nl.adaptivity.xmlutil.dom/PlatformNode { // nl.adaptivity.xmlutil.dom/PlatformDocumentType|null[0]
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformDocumentType.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getFirstChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom/PlatformDocumentType.getFirstChild|getFirstChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getLastChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom/PlatformDocumentType.getLastChild|getLastChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getName(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformDocumentType.getName|getName(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getPublicId(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformDocumentType.getPublicId|getPublicId(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getSystemId(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformDocumentType.getSystemId|getSystemId(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformDocumentType.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom/PlatformDocumentType.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
@@ -383,22 +391,22 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformElement : nl.adaptivity.xml
     abstract fun setAttributeNode(nl.adaptivity.xmlutil.dom/PlatformAttr): nl.adaptivity.xmlutil.dom/PlatformAttr? // nl.adaptivity.xmlutil.dom/PlatformElement.setAttributeNode|setAttributeNode(nl.adaptivity.xmlutil.dom.PlatformAttr){}[0]
     abstract fun setAttributeNodeNS(nl.adaptivity.xmlutil.dom/PlatformAttr): nl.adaptivity.xmlutil.dom/PlatformAttr? // nl.adaptivity.xmlutil.dom/PlatformElement.setAttributeNodeNS|setAttributeNodeNS(nl.adaptivity.xmlutil.dom.PlatformAttr){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getAttributes(): nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap // nl.adaptivity.xmlutil.dom/PlatformElement.getAttributes|getAttributes(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getLocalName(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformElement.getLocalName|getLocalName(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getNamespaceURI(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformElement.getNamespaceURI|getNamespaceURI(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getPrefix(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformElement.getPrefix|getPrefix(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getTagName(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformElement.getTagName|getTagName(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     final object Companion : kotlinx.serialization.internal/SerializerFactory { // nl.adaptivity.xmlutil.dom/PlatformElement.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<nl.adaptivity.xmlutil.dom/PlatformElement> // nl.adaptivity.xmlutil.dom/PlatformElement.Companion.serializer|serializer(){}[0]
         final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // nl.adaptivity.xmlutil.dom/PlatformElement.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
@@ -409,52 +417,52 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformNode { // nl.adaptivity.xml
     abstract fun lookupNamespaceURI(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformNode.lookupNamespaceURI|lookupNamespaceURI(kotlin.String){}[0]
     abstract fun lookupPrefix(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformNode.lookupPrefix|lookupPrefix(kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/PlatformNode.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getChildNodes(): nl.adaptivity.xmlutil.dom/PlatformNodeList // nl.adaptivity.xmlutil.dom/PlatformNode.getChildNodes|getChildNodes(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getFirstChild(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom/PlatformNode.getFirstChild|getFirstChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getLastChild(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom/PlatformNode.getLastChild|getLastChild(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getNextSibling(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom/PlatformNode.getNextSibling|getNextSibling(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getNodeName(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformNode.getNodeName|getNodeName(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getNodetype(): nl.adaptivity.xmlutil.dom2/NodeType // nl.adaptivity.xmlutil.dom/PlatformNode.getNodetype|getNodetype(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getOwnerDocument(): nl.adaptivity.xmlutil.dom/PlatformDocument // nl.adaptivity.xmlutil.dom/PlatformNode.getOwnerDocument|getOwnerDocument(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getParentElement(): nl.adaptivity.xmlutil.dom/PlatformElement? // nl.adaptivity.xmlutil.dom/PlatformNode.getParentElement|getParentElement(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getParentNode(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom/PlatformNode.getParentNode|getParentNode(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getPreviousSibling(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom/PlatformNode.getPreviousSibling|getPreviousSibling(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getTextContent(): kotlin/String? // nl.adaptivity.xmlutil.dom/PlatformNode.getTextContent|getTextContent(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/PlatformNode.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/PlatformNode.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun setTextContent(kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformNode.setTextContent|setTextContent(kotlin.String){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     final object Companion : kotlinx.serialization.internal/SerializerFactory { // nl.adaptivity.xmlutil.dom/PlatformNode.Companion|null[0]
         final const val ATTRIBUTE_NODE // nl.adaptivity.xmlutil.dom/PlatformNode.Companion.ATTRIBUTE_NODE|{}ATTRIBUTE_NODE[0]
             final fun <get-ATTRIBUTE_NODE>(): kotlin/Short // nl.adaptivity.xmlutil.dom/PlatformNode.Companion.ATTRIBUTE_NODE.<get-ATTRIBUTE_NODE>|<get-ATTRIBUTE_NODE>(){}[0]
@@ -541,13 +549,13 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformNode { // nl.adaptivity.xml
 }
 
 abstract interface nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction : nl.adaptivity.xmlutil.dom/PlatformNode { // nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction|null[0]
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getData(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction.getData|getData(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun getTarget(): kotlin/String // nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction.getTarget|getTarget(){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun setData(kotlin/String) // nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction.setData|setData(kotlin.String){}[0]
 
     // Targets: [js]
@@ -583,7 +591,7 @@ abstract interface nl.adaptivity.xmlutil.util/ICompactFragment { // nl.adaptivit
 
 abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmlutil/IXmlStreaming|null[0]
     abstract val genericDomImplementation // nl.adaptivity.xmlutil/IXmlStreaming.genericDomImplementation|{}genericDomImplementation[0]
-        // Targets: [linuxX64, wasmJs, wasmWasi]
+        // Targets: [native, wasmJs, wasmWasi]
         abstract fun <get-genericDomImplementation>(): nl.adaptivity.xmlutil.dom/PlatformDOMImplementation // nl.adaptivity.xmlutil/IXmlStreaming.genericDomImplementation.<get-genericDomImplementation>|<get-genericDomImplementation>(){}[0]
 
         // Targets: [js]
@@ -598,10 +606,10 @@ abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmluti
     abstract fun newWriter(): nl.adaptivity.xmlutil/DomWriter // nl.adaptivity.xmlutil/IXmlStreaming.newWriter|newWriter(){}[0]
     open fun setFactory(nl.adaptivity.xmlutil/XmlStreamingFactory?) // nl.adaptivity.xmlutil/IXmlStreaming.setFactory|setFactory(nl.adaptivity.xmlutil.XmlStreamingFactory?){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun newReader(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil/IXmlStreaming.newReader|newReader(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     abstract fun newWriter(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil/DomWriter // nl.adaptivity.xmlutil/IXmlStreaming.newWriter|newWriter(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
@@ -612,6 +620,7 @@ abstract interface nl.adaptivity.xmlutil/IXmlStreaming { // nl.adaptivity.xmluti
 }
 
 abstract interface nl.adaptivity.xmlutil/IterableNamespaceContext : kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>, nl.adaptivity.xmlutil/NamespaceContext { // nl.adaptivity.xmlutil/IterableNamespaceContext|null[0]
+    abstract fun iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil/Namespace> // nl.adaptivity.xmlutil/IterableNamespaceContext.iterator|iterator(){}[0]
     open fun freeze(): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil/IterableNamespaceContext.freeze|freeze(){}[0]
     open fun plus(nl.adaptivity.xmlutil/IterableNamespaceContext): nl.adaptivity.xmlutil/IterableNamespaceContext // nl.adaptivity.xmlutil/IterableNamespaceContext.plus|plus(nl.adaptivity.xmlutil.IterableNamespaceContext){}[0]
 }
@@ -863,8 +872,8 @@ final class nl.adaptivity.xmlutil.core/KtXmlReader : nl.adaptivity.xmlutil/XmlRe
 }
 
 final class nl.adaptivity.xmlutil.core/KtXmlWriter : nl.adaptivity.xmlutil/XmlWriter { // nl.adaptivity.xmlutil.core/KtXmlWriter|null[0]
-    constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
-    constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode, nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
+    constructor <init>(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...) // nl.adaptivity.xmlutil.core/KtXmlWriter.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 
     final val depth // nl.adaptivity.xmlutil.core/KtXmlWriter.depth|{}depth[0]
         final fun <get-depth>(): kotlin/Int // nl.adaptivity.xmlutil.core/KtXmlWriter.depth.<get-depth>|<get-depth>(){}[0]
@@ -949,22 +958,22 @@ final class nl.adaptivity.xmlutil.util/XMLFragmentStreamReader : nl.adaptivity.x
     final object Companion { // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion|null[0]
         final fun from(nl.adaptivity.xmlutil.util/ICompactFragment): nl.adaptivity.xmlutil.util/XMLFragmentStreamReader // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.from|from(nl.adaptivity.xmlutil.util.ICompactFragment){}[0]
 
-        // Targets: [linuxX64, wasmJs, wasmWasi]
+        // Targets: [native, wasmJs, wasmWasi]
         final const val WRAPPERNAMESPACE // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.WRAPPERNAMESPACE|{}WRAPPERNAMESPACE[0]
             final fun <get-WRAPPERNAMESPACE>(): kotlin/String // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.WRAPPERNAMESPACE.<get-WRAPPERNAMESPACE>|<get-WRAPPERNAMESPACE>(){}[0]
 
-        // Targets: [linuxX64, wasmJs, wasmWasi]
+        // Targets: [native, wasmJs, wasmWasi]
         final const val WRAPPERPPREFIX // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.WRAPPERPPREFIX|{}WRAPPERPPREFIX[0]
             final fun <get-WRAPPERPPREFIX>(): kotlin/String // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.WRAPPERPPREFIX.<get-WRAPPERPPREFIX>|<get-WRAPPERPPREFIX>(){}[0]
 
-        // Targets: [linuxX64, wasmJs, wasmWasi]
+        // Targets: [native, wasmJs, wasmWasi]
         final fun from(nl.adaptivity.xmlutil.core.impl.multiplatform/Reader): nl.adaptivity.xmlutil.util/XMLFragmentStreamReader // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.from|from(nl.adaptivity.xmlutil.core.impl.multiplatform.Reader){}[0]
 
-        // Targets: [linuxX64, wasmJs, wasmWasi]
+        // Targets: [native, wasmJs, wasmWasi]
         final fun from(nl.adaptivity.xmlutil.core.impl.multiplatform/Reader, kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>): nl.adaptivity.xmlutil.util/XMLFragmentStreamReader // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.Companion.from|from(nl.adaptivity.xmlutil.core.impl.multiplatform.Reader;kotlin.collections.Iterable<nl.adaptivity.xmlutil.Namespace>){}[0]
     }
 
-    // Targets: [linuxX64, wasmJs, wasmWasi]
+    // Targets: [native, wasmJs, wasmWasi]
     constructor <init>(nl.adaptivity.xmlutil.core.impl.multiplatform/Reader, kotlin.collections/Iterable<nl.adaptivity.xmlutil/Namespace>) // nl.adaptivity.xmlutil.util/XMLFragmentStreamReader.<init>|<init>(nl.adaptivity.xmlutil.core.impl.multiplatform.Reader;kotlin.collections.Iterable<nl.adaptivity.xmlutil.Namespace>){}[0]
 
     // Targets: [js]
@@ -1551,9 +1560,11 @@ final fun (kotlin/CharSequence).nl.adaptivity.xmlutil/toQname(): nl.adaptivity.x
 final fun (kotlin/CharSequence).nl.adaptivity.xmlutil/toQname(nl.adaptivity.xmlutil/Namespace): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil/toQname|toQname@kotlin.CharSequence(nl.adaptivity.xmlutil.Namespace){}[0]
 final fun (kotlin/CharSequence).nl.adaptivity.xmlutil/xmlEncode(): kotlin/String // nl.adaptivity.xmlutil/xmlEncode|xmlEncode@kotlin.CharSequence(){}[0]
 final fun (kotlinx.serialization.descriptors/SerialDescriptor).nl.adaptivity.xmlutil/xml(kotlinx.serialization.descriptors/SerialDescriptor = ..., nl.adaptivity.xmlutil/QName? = ...): nl.adaptivity.xmlutil/XmlSerialDescriptor // nl.adaptivity.xmlutil/xml|xml@kotlinx.serialization.descriptors.SerialDescriptor(kotlinx.serialization.descriptors.SerialDescriptor;nl.adaptivity.xmlutil.QName?){}[0]
-final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newGenericWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ...): nl.adaptivity.xmlutil.core/KtXmlWriter // nl.adaptivity.xmlutil/newGenericWriter|newGenericWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode){}[0]
+final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newGenericWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...): nl.adaptivity.xmlutil.core/KtXmlWriter // nl.adaptivity.xmlutil/newGenericWriter|newGenericWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode){}[0]
+final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(kotlin.text/Appendable, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(kotlin.text.Appendable;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode){}[0]
+final fun (nl.adaptivity.xmlutil/IXmlStreaming).nl.adaptivity.xmlutil/newWriter(nl.adaptivity.xmlutil.core.impl.multiplatform/Writer, kotlin/Boolean = ..., nl.adaptivity.xmlutil/XmlDeclMode = ..., nl.adaptivity.xmlutil.core/XmlVersion = ...): nl.adaptivity.xmlutil/XmlWriter // nl.adaptivity.xmlutil/newWriter|newWriter@nl.adaptivity.xmlutil.IXmlStreaming(nl.adaptivity.xmlutil.core.impl.multiplatform.Writer;kotlin.Boolean;nl.adaptivity.xmlutil.XmlDeclMode;nl.adaptivity.xmlutil.core.XmlVersion){}[0]
 final fun (nl.adaptivity.xmlutil/NamespaceContext).nl.adaptivity.xmlutil/asQName(kotlin/String): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil/asQName|asQName@nl.adaptivity.xmlutil.NamespaceContext(kotlin.String){}[0]
 final fun (nl.adaptivity.xmlutil/QName).nl.adaptivity.xmlutil/isEquivalent(nl.adaptivity.xmlutil/QName): kotlin/Boolean // nl.adaptivity.xmlutil/isEquivalent|isEquivalent@nl.adaptivity.xmlutil.QName(nl.adaptivity.xmlutil.QName){}[0]
 final fun (nl.adaptivity.xmlutil/QName).nl.adaptivity.xmlutil/toCName(): kotlin/String // nl.adaptivity.xmlutil/toCName|toCName@nl.adaptivity.xmlutil.QName(){}[0]
@@ -1604,7 +1615,7 @@ final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/smartSt
 final inline fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/startTag(kotlin/String?, kotlin/String, kotlin/String? = ..., kotlin/Function1<nl.adaptivity.xmlutil/XmlWriter, kotlin/Unit>) // nl.adaptivity.xmlutil/startTag|startTag@nl.adaptivity.xmlutil.XmlWriter(kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function1<nl.adaptivity.xmlutil.XmlWriter,kotlin.Unit>){}[0]
 final inline fun <#A: kotlin/Any?> (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/writeListIfNotEmpty(kotlin.collections/Iterable<#A>, kotlin/String?, kotlin/String, kotlin/String? = ..., kotlin/Function2<nl.adaptivity.xmlutil/XmlWriter, #A, kotlin/Unit>) // nl.adaptivity.xmlutil/writeListIfNotEmpty|writeListIfNotEmpty@nl.adaptivity.xmlutil.XmlWriter(kotlin.collections.Iterable<0:0>;kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function2<nl.adaptivity.xmlutil.XmlWriter,0:0,kotlin.Unit>){0§<kotlin.Any?>}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 abstract interface nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap : kotlin.collections/Iterable<nl.adaptivity.xmlutil.dom/PlatformAttr> { // nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap|null[0]
     abstract val size // nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap.size|{}size[0]
         abstract fun <get-size>(): kotlin/Int // nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap.size.<get-size>|<get-size>(){}[0]
@@ -1620,7 +1631,7 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap : kotlin.colle
     abstract fun setNamedItemNS(nl.adaptivity.xmlutil.dom/PlatformAttr): nl.adaptivity.xmlutil.dom/PlatformAttr? // nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap.setNamedItemNS|setNamedItemNS(nl.adaptivity.xmlutil.dom.PlatformAttr){}[0]
 }
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 abstract interface nl.adaptivity.xmlutil.dom/PlatformNodeList : kotlin.collections/Iterable<nl.adaptivity.xmlutil.dom/PlatformNode> { // nl.adaptivity.xmlutil.dom/PlatformNodeList|null[0]
     abstract val size // nl.adaptivity.xmlutil.dom/PlatformNodeList.size|{}size[0]
         abstract fun <get-size>(): kotlin/Int // nl.adaptivity.xmlutil.dom/PlatformNodeList.size.<get-size>|<get-size>(){}[0]
@@ -1631,7 +1642,7 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformNodeList : kotlin.collectio
     abstract fun iterator(): kotlin.collections/Iterator<nl.adaptivity.xmlutil.dom/PlatformNode> // nl.adaptivity.xmlutil.dom/PlatformNodeList.iterator|iterator(){}[0]
 }
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final class nl.adaptivity.xmlutil.dom/DOMException : kotlin/Exception { // nl.adaptivity.xmlutil.dom/DOMException|null[0]
     constructor <init>() // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(){}[0]
     constructor <init>(kotlin/String?) // nl.adaptivity.xmlutil.dom/DOMException.<init>|<init>(kotlin.String?){}[0]
@@ -1697,169 +1708,169 @@ final class nl.adaptivity.xmlutil.dom/DOMException : kotlin/Exception { // nl.ad
     }
 }
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/attributes // nl.adaptivity.xmlutil.dom2/attributes|@nl.adaptivity.xmlutil.dom.PlatformElement{}attributes[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformElement).<get-attributes>(): nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap // nl.adaptivity.xmlutil.dom2/attributes.<get-attributes>|<get-attributes>@nl.adaptivity.xmlutil.dom.PlatformElement(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/characterSet // nl.adaptivity.xmlutil.dom2/characterSet|@nl.adaptivity.xmlutil.dom.PlatformDocument{}characterSet[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformDocument).<get-characterSet>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/characterSet.<get-characterSet>|<get-characterSet>@nl.adaptivity.xmlutil.dom.PlatformDocument(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/childNodes // nl.adaptivity.xmlutil.dom2/childNodes|@nl.adaptivity.xmlutil.dom.PlatformNode{}childNodes[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-childNodes>(): nl.adaptivity.xmlutil.dom/PlatformNodeList // nl.adaptivity.xmlutil.dom2/childNodes.<get-childNodes>|<get-childNodes>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/doctype // nl.adaptivity.xmlutil.dom2/doctype|@nl.adaptivity.xmlutil.dom.PlatformDocument{}doctype[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformDocument).<get-doctype>(): nl.adaptivity.xmlutil.dom/PlatformDocumentType? // nl.adaptivity.xmlutil.dom2/doctype.<get-doctype>|<get-doctype>@nl.adaptivity.xmlutil.dom.PlatformDocument(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/documentElement // nl.adaptivity.xmlutil.dom2/documentElement|@nl.adaptivity.xmlutil.dom.PlatformDocument{}documentElement[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformDocument).<get-documentElement>(): nl.adaptivity.xmlutil.dom/PlatformElement? // nl.adaptivity.xmlutil.dom2/documentElement.<get-documentElement>|<get-documentElement>@nl.adaptivity.xmlutil.dom.PlatformDocument(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/firstChild // nl.adaptivity.xmlutil.dom2/firstChild|@nl.adaptivity.xmlutil.dom.PlatformNode{}firstChild[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-firstChild>(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom2/firstChild.<get-firstChild>|<get-firstChild>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/implementation // nl.adaptivity.xmlutil.dom2/implementation|@nl.adaptivity.xmlutil.dom.PlatformDocument{}implementation[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformDocument).<get-implementation>(): nl.adaptivity.xmlutil.dom/PlatformDOMImplementation // nl.adaptivity.xmlutil.dom2/implementation.<get-implementation>|<get-implementation>@nl.adaptivity.xmlutil.dom.PlatformDocument(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/inputEncoding // nl.adaptivity.xmlutil.dom2/inputEncoding|@nl.adaptivity.xmlutil.dom.PlatformDocument{}inputEncoding[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformDocument).<get-inputEncoding>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/inputEncoding.<get-inputEncoding>|<get-inputEncoding>@nl.adaptivity.xmlutil.dom.PlatformDocument(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/lastChild // nl.adaptivity.xmlutil.dom2/lastChild|@nl.adaptivity.xmlutil.dom.PlatformNode{}lastChild[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-lastChild>(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom2/lastChild.<get-lastChild>|<get-lastChild>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/length // nl.adaptivity.xmlutil.dom2/length|@nl.adaptivity.xmlutil.dom.PlatformNodeList{}length[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNodeList).<get-length>(): kotlin/Int // nl.adaptivity.xmlutil.dom2/length.<get-length>|<get-length>@nl.adaptivity.xmlutil.dom.PlatformNodeList(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/localName // nl.adaptivity.xmlutil.dom2/localName|@nl.adaptivity.xmlutil.dom.PlatformAttr{}localName[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<get-localName>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/localName.<get-localName>|<get-localName>@nl.adaptivity.xmlutil.dom.PlatformAttr(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/localName // nl.adaptivity.xmlutil.dom2/localName|@nl.adaptivity.xmlutil.dom.PlatformElement{}localName[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformElement).<get-localName>(): kotlin/String // nl.adaptivity.xmlutil.dom2/localName.<get-localName>|<get-localName>@nl.adaptivity.xmlutil.dom.PlatformElement(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/name // nl.adaptivity.xmlutil.dom2/name|@nl.adaptivity.xmlutil.dom.PlatformAttr{}name[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<get-name>(): kotlin/String // nl.adaptivity.xmlutil.dom2/name.<get-name>|<get-name>@nl.adaptivity.xmlutil.dom.PlatformAttr(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/name // nl.adaptivity.xmlutil.dom2/name|@nl.adaptivity.xmlutil.dom.PlatformDocumentType{}name[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformDocumentType).<get-name>(): kotlin/String // nl.adaptivity.xmlutil.dom2/name.<get-name>|<get-name>@nl.adaptivity.xmlutil.dom.PlatformDocumentType(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/namespaceURI // nl.adaptivity.xmlutil.dom2/namespaceURI|@nl.adaptivity.xmlutil.dom.PlatformAttr{}namespaceURI[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<get-namespaceURI>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/namespaceURI.<get-namespaceURI>|<get-namespaceURI>@nl.adaptivity.xmlutil.dom.PlatformAttr(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/namespaceURI // nl.adaptivity.xmlutil.dom2/namespaceURI|@nl.adaptivity.xmlutil.dom.PlatformElement{}namespaceURI[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformElement).<get-namespaceURI>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/namespaceURI.<get-namespaceURI>|<get-namespaceURI>@nl.adaptivity.xmlutil.dom.PlatformElement(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/nextSibling // nl.adaptivity.xmlutil.dom2/nextSibling|@nl.adaptivity.xmlutil.dom.PlatformNode{}nextSibling[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-nextSibling>(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom2/nextSibling.<get-nextSibling>|<get-nextSibling>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/nodeName // nl.adaptivity.xmlutil.dom2/nodeName|@nl.adaptivity.xmlutil.dom.PlatformNode{}nodeName[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-nodeName>(): kotlin/String // nl.adaptivity.xmlutil.dom2/nodeName.<get-nodeName>|<get-nodeName>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/nodeType // nl.adaptivity.xmlutil.dom2/nodeType|@nl.adaptivity.xmlutil.dom.PlatformNode{}nodeType[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-nodeType>(): kotlin/Short // nl.adaptivity.xmlutil.dom2/nodeType.<get-nodeType>|<get-nodeType>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/ownerDocument // nl.adaptivity.xmlutil.dom2/ownerDocument|@nl.adaptivity.xmlutil.dom.PlatformNode{}ownerDocument[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-ownerDocument>(): nl.adaptivity.xmlutil.dom/PlatformDocument // nl.adaptivity.xmlutil.dom2/ownerDocument.<get-ownerDocument>|<get-ownerDocument>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/ownerElement // nl.adaptivity.xmlutil.dom2/ownerElement|@nl.adaptivity.xmlutil.dom.PlatformAttr{}ownerElement[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<get-ownerElement>(): nl.adaptivity.xmlutil.dom/PlatformElement? // nl.adaptivity.xmlutil.dom2/ownerElement.<get-ownerElement>|<get-ownerElement>@nl.adaptivity.xmlutil.dom.PlatformAttr(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/parentNode // nl.adaptivity.xmlutil.dom2/parentNode|@nl.adaptivity.xmlutil.dom.PlatformNode{}parentNode[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-parentNode>(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom2/parentNode.<get-parentNode>|<get-parentNode>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/prefix // nl.adaptivity.xmlutil.dom2/prefix|@nl.adaptivity.xmlutil.dom.PlatformAttr{}prefix[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<get-prefix>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/prefix.<get-prefix>|<get-prefix>@nl.adaptivity.xmlutil.dom.PlatformAttr(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/prefix // nl.adaptivity.xmlutil.dom2/prefix|@nl.adaptivity.xmlutil.dom.PlatformElement{}prefix[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformElement).<get-prefix>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/prefix.<get-prefix>|<get-prefix>@nl.adaptivity.xmlutil.dom.PlatformElement(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/previousSibling // nl.adaptivity.xmlutil.dom2/previousSibling|@nl.adaptivity.xmlutil.dom.PlatformNode{}previousSibling[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-previousSibling>(): nl.adaptivity.xmlutil.dom/PlatformNode? // nl.adaptivity.xmlutil.dom2/previousSibling.<get-previousSibling>|<get-previousSibling>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/publicId // nl.adaptivity.xmlutil.dom2/publicId|@nl.adaptivity.xmlutil.dom.PlatformDocumentType{}publicId[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformDocumentType).<get-publicId>(): kotlin/String // nl.adaptivity.xmlutil.dom2/publicId.<get-publicId>|<get-publicId>@nl.adaptivity.xmlutil.dom.PlatformDocumentType(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/systemId // nl.adaptivity.xmlutil.dom2/systemId|@nl.adaptivity.xmlutil.dom.PlatformDocumentType{}systemId[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformDocumentType).<get-systemId>(): kotlin/String // nl.adaptivity.xmlutil.dom2/systemId.<get-systemId>|<get-systemId>@nl.adaptivity.xmlutil.dom.PlatformDocumentType(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/tagName // nl.adaptivity.xmlutil.dom2/tagName|@nl.adaptivity.xmlutil.dom.PlatformElement{}tagName[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformElement).<get-tagName>(): kotlin/String // nl.adaptivity.xmlutil.dom2/tagName.<get-tagName>|<get-tagName>@nl.adaptivity.xmlutil.dom.PlatformElement(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/target // nl.adaptivity.xmlutil.dom2/target|@nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction{}target[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction).<get-target>(): kotlin/String // nl.adaptivity.xmlutil.dom2/target.<get-target>|<get-target>@nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final val nl.adaptivity.xmlutil.dom2/textContent // nl.adaptivity.xmlutil.dom2/textContent|@nl.adaptivity.xmlutil.dom.PlatformNode{}textContent[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformNode).<get-textContent>(): kotlin/String? // nl.adaptivity.xmlutil.dom2/textContent.<get-textContent>|<get-textContent>@nl.adaptivity.xmlutil.dom.PlatformNode(){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final var nl.adaptivity.xmlutil.dom2/data // nl.adaptivity.xmlutil.dom2/data|@nl.adaptivity.xmlutil.dom.PlatformCharacterData{}data[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformCharacterData).<get-data>(): kotlin/String // nl.adaptivity.xmlutil.dom2/data.<get-data>|<get-data>@nl.adaptivity.xmlutil.dom.PlatformCharacterData(){}[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformCharacterData).<set-data>(kotlin/String) // nl.adaptivity.xmlutil.dom2/data.<set-data>|<set-data>@nl.adaptivity.xmlutil.dom.PlatformCharacterData(kotlin.String){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final var nl.adaptivity.xmlutil.dom2/data // nl.adaptivity.xmlutil.dom2/data|@nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction{}data[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction).<get-data>(): kotlin/String // nl.adaptivity.xmlutil.dom2/data.<get-data>|<get-data>@nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction(){}[0]
     final inline fun (nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction).<set-data>(kotlin/String) // nl.adaptivity.xmlutil.dom2/data.<set-data>|<set-data>@nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction(kotlin.String){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final var nl.adaptivity.xmlutil.dom2/value // nl.adaptivity.xmlutil.dom2/value|@nl.adaptivity.xmlutil.dom.PlatformAttr{}value[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<get-value>(): kotlin/String // nl.adaptivity.xmlutil.dom2/value.<get-value>|<get-value>@nl.adaptivity.xmlutil.dom.PlatformAttr(){}[0]
     final fun (nl.adaptivity.xmlutil.dom/PlatformAttr).<set-value>(kotlin/String) // nl.adaptivity.xmlutil.dom2/value.<set-value>|<set-value>@nl.adaptivity.xmlutil.dom.PlatformAttr(kotlin.String){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformDOMImplementation).nl.adaptivity.xmlutil.dom2/createDocument(kotlin/String? = ..., kotlin/String? = ..., nl.adaptivity.xmlutil.dom/PlatformDocumentType? = ...): nl.adaptivity.xmlutil.dom/PlatformDocument // nl.adaptivity.xmlutil.dom2/createDocument|createDocument@nl.adaptivity.xmlutil.dom.PlatformDOMImplementation(kotlin.String?;kotlin.String?;nl.adaptivity.xmlutil.dom.PlatformDocumentType?){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom/adoptNode(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom/adoptNode|adoptNode@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom2/createElementNS(nl.adaptivity.xmlutil/QName): nl.adaptivity.xmlutil.dom/PlatformElement // nl.adaptivity.xmlutil.dom2/createElementNS|createElementNS@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.QName){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom2/importNode(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/importNode|importNode@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformDocument).nl.adaptivity.xmlutil.dom2/importNode(nl.adaptivity.xmlutil.dom/PlatformNode, kotlin/Boolean): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/importNode|importNode@nl.adaptivity.xmlutil.dom.PlatformDocument(nl.adaptivity.xmlutil.dom.PlatformNode;kotlin.Boolean){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformNode).nl.adaptivity.xmlutil.dom2/appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/appendChild|appendChild@nl.adaptivity.xmlutil.dom.PlatformNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformNode).nl.adaptivity.xmlutil.dom2/removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/removeChild|removeChild@nl.adaptivity.xmlutil.dom.PlatformNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil.dom/PlatformNode).nl.adaptivity.xmlutil.dom2/replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): nl.adaptivity.xmlutil.dom/PlatformNode // nl.adaptivity.xmlutil.dom2/replaceChild|replaceChild@nl.adaptivity.xmlutil.dom.PlatformNode(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final fun (nl.adaptivity.xmlutil/XmlWriter).nl.adaptivity.xmlutil/serialize(nl.adaptivity.xmlutil.dom/PlatformNode) // nl.adaptivity.xmlutil/serialize|serialize@nl.adaptivity.xmlutil.XmlWriter(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
-// Targets: [linuxX64, wasmJs, wasmWasi]
+// Targets: [native, wasmJs, wasmWasi]
 final inline fun (nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap).nl.adaptivity.xmlutil.dom/get(kotlin/Int): nl.adaptivity.xmlutil.dom/PlatformAttr? // nl.adaptivity.xmlutil.dom/get|get@nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap(kotlin.Int){}[0]
 
 // Targets: [js]

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -32,10 +32,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xml.serialization.pedantic
-import nl.adaptivity.xmlutil.serialization.DefaultFormatCache
-import nl.adaptivity.xmlutil.serialization.OutputKind
-import nl.adaptivity.xmlutil.serialization.XML1_0
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
@@ -48,7 +45,7 @@ class TestCachedDescriptorCache {
 
     @Test
     fun testParameterisedSerializerCache() {
-        val format = XML1_0.pedantic()
+        val format = XML.v1.pedantic()
 
         val serialized1 = format.encodeToString(Outer(Inner1(1, 2)))
         assertXmlEquals("<Outer><Inner1 data1=\"1\" data2=\"2\"/></Outer>", serialized1)
@@ -59,7 +56,7 @@ class TestCachedDescriptorCache {
 
     @Test
     fun testCacheXmlValues() {
-        val format = XML1_0.recommended(listModule) {
+        val format = XML.v1.recommended(listModule) {
             policy {
                 formatCache = DefaultFormatCache() // skip the layering for debugging
             }

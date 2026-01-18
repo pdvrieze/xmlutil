@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,7 @@ import io.github.pdvrieze.xmlutil.testutil.assertXmlEquals
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xml.serialization.pedantic
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlChildrenName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
@@ -34,7 +34,7 @@ import kotlin.test.Test
 /** Regression test where `XmlChildrenName` doesn't handle default parameters correctly. */
 class XmlChildrenNameDefaultNamespace252 {
 
-    val xml get() = XML1_0.pedantic()
+    val xml get() = XML.v1.pedantic()
 
     @Serializable
     @XmlSerialName("container", "mynamespace", "")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
@@ -50,7 +50,7 @@ class CollectingDefaultNamespaceTest : PlatformTestBase<CollectingDefaultNamespa
         )
     ),
     GPXv11.serializer(),
-    baseXmlFormat = XML1_0.recommended {
+    baseXmlFormat = XML.v1 {
         isCollectingNSAttributes = true
         setIndent(4)
     },

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -39,19 +39,20 @@ import nl.adaptivity.xmlutil.core.internal.appendCodepoint
  *
  * @property isRepairNamespaces Should missing namespace attributes be added automatically
  * @property xmlDeclMode Should the xml declaration be emitted automatically?
+ * @property xmlDeclMode If the
  */
 public class KtXmlWriter(
     private val writer: Appendable,
     public val isRepairNamespaces: Boolean = true,
-    public val xmlDeclMode: XmlDeclMode,
-    xmlVersion: XmlVersion = XmlVersion.XML11
+    public val xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+    xmlVersion: XmlVersion = XmlVersion.XML10
 ) : XmlWriter {
 
     public constructor(
         writer: Writer,
         isRepairNamespaces: Boolean = true,
-        xmlDeclMode: XmlDeclMode,
-        xmlVersion: XmlVersion = XmlVersion.XML11
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersion: XmlVersion = XmlVersion.XML10
     ) : this((writer as Appendable), isRepairNamespaces, xmlDeclMode, xmlVersion)
 
     override var indentString: String = ""
@@ -277,9 +278,10 @@ public class KtXmlWriter(
     private fun triggerStartDocument() {
         // Non-before states are not modified
         if (state == WriteState.BeforeDocument) {
-            if (xmlDeclMode != XmlDeclMode.None) {
+            val mode = xmlDeclMode.resolve(xmlVersion)
+            if (mode != XmlDeclMode.None) {
                 // It is only xml 1.1 if it has a version attribute with value 1.1
-                if (xmlVersion == XmlVersion.XML11 || xmlDeclMode != XmlDeclMode.Minimal) {
+                if (xmlVersion == XmlVersion.XML11 || mode != XmlDeclMode.Minimal) {
                     startDocument(xmlVersion.versionString, null, null)
                 } else {
                     startDocument()
@@ -340,7 +342,7 @@ public class KtXmlWriter(
 
         val effectiveEncoding = encoding ?: "UTF-8"
 
-        if (xmlDeclMode != XmlDeclMode.Minimal || encoding != null) {
+        if (!xmlDeclMode.isMinimal || encoding != null) { // only write encoding if specified
             writer.append(" encoding='")
             writeEscapedText(effectiveEncoding, EscapeMode.ATTRCONTENTAPOS)
             writer.append('\'')

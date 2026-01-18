@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,14 +24,14 @@ package io.github.pdvrieze.formats.xmlschema.test
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.xml.xmschematestsuite.*
 import org.w3.xml.xmschematestsuite.override.*
 import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 
-private val xml = XML1_0.recommended()
+private val xml = XML.v1()
 
 fun main() {
     val suiteURL: URL = OTSSuite::class.java.getResource("/xsts/suite.xml")!!

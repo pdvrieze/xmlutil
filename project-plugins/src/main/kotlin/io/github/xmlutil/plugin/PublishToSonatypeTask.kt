@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,16 +24,13 @@ import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URI
+import java.net.URLEncoder
+import java.time.LocalDateTime
 import java.util.*
 
 abstract class PublishToSonatypeTask() : DefaultTask() {
@@ -54,7 +51,30 @@ abstract class PublishToSonatypeTask() : DefaultTask() {
         val encoded = String(Base64.getEncoder().encode("$username:$password".toByteArray()), Charsets.US_ASCII)
 
         val client = HttpClientBuilder.create().build()
-        val post = HttpPost("https://central.sonatype.com/api/v1/publisher/upload")
+        val deploymentType: String
+        val versionName: String
+        val apiBase: String
+
+        when {
+            project.isSnapshot -> {
+                if ("SNAPSHOT" !in project.version.toString()) {
+                    throw IllegalStateException("Attempting to publish a non-snapshot version as a snapshot: ${project.version}")
+                }
+                versionName = "${project.version}-${LocalDateTime.now().format(TIMESTAMP_FORMATTER)}"
+                apiBase = "https://central.sonatype.com/repository/maven-snapshots"
+//                deploymentType = "AUTOMATIC"
+                deploymentType = "USER_MANAGED"
+            }
+
+            else -> {
+                versionName = project.version.toString()
+                deploymentType = "USER_MANAGED"
+                apiBase = "https://central.sonatype.com"
+            }
+        }
+
+        val deploymentName = URLEncoder.encode("XMLUtil deployment $versionName", Charsets.UTF_8)
+        val post = HttpPost("$apiBase/api/v1/publisher/upload?name=$deploymentName&publishingType=$deploymentType")
         post.addHeader("Authorization", "Bearer $encoded")
 
         post.entity = MultipartEntityBuilder.create()

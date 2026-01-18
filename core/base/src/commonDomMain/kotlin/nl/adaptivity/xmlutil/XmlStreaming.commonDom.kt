@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
@@ -63,17 +64,19 @@ internal actual object XmlStreaming : IXmlStreaming {
     fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
+        xmlDeclMode: XmlDeclMode,
+        xmlVersionHint: XmlVersion = XmlVersion.XML10
     ): XmlWriter {
-        return KtXmlWriter(output, repairNamespaces, xmlDeclMode)
+        return KtXmlWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
     }
 
     fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
+        xmlDeclMode: XmlDeclMode,
+        xmlVersionHint: XmlVersion
     ): XmlWriter {
-        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
+        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
     }
 
     actual override val genericDomImplementation: DOMImplementation
@@ -101,8 +104,9 @@ public actual val xmlStreaming: IXmlStreaming get() = XmlStreaming
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
-    xmlDeclMode: XmlDeclMode
-): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
+    xmlDeclMode: XmlDeclMode,
+    xmlVersionHint: XmlVersion,
+): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
 /**
  * Create a new [XmlWriter] that appends to the given [Writer]. This writer
@@ -120,5 +124,6 @@ public actual fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode,
-): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+    xmlVersionHint: XmlVersion,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 

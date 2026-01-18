@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025.
+ * Copyright (c) 2022-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,7 @@ package net.devrieze.serialization.examples.sealedRoot
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 
 /* This is code extended from issue #98 */
@@ -60,7 +60,7 @@ sealed class Base {
 
 fun main() {
 
-    val xml = XML1_0.recommended()
+    val xml = XML.v1()
 
     val carsFoundXml = """
     <cars context="main">

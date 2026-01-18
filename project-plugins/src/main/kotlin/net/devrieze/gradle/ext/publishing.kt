@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -47,8 +47,8 @@ fun Project.doPublish(
 
     configure<PublishingExtension> {
         this.repositories {
-            when {
-                isSnapshot -> maven {
+            if (isSnapshot) {
+                maven {
                     name = "mavenSnapshot"
                     url = uri("https://central.sonatype.com/repository/maven-snapshots/")
                     credentials {
@@ -56,12 +56,11 @@ fun Project.doPublish(
                         password = project.findProperty("ossrh.password") as String?
                     }
                 }
+            }
+            maven {
+                name = "projectLocal"
 
-                else -> maven {
-                    name = "projectLocal"
-
-                    setUrl(project.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
-                }
+                setUrl(rootProject.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
             }
 
         }
@@ -164,7 +163,7 @@ fun Project.doPublish(
         if (isEnabled) {
 
             if (repository?.name == "projectLocal") {
-                val repositoryDir = project.layout.buildDirectory.dir("project-local-repository")
+                val repositoryDir = rootProject.layout.buildDirectory.dir("project-local-repository")
                 if (repositoryDir.isPresent) {
                     repositoryDir.get().asFile.deleteRecursively()
                 }

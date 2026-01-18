@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -113,8 +113,6 @@ public class KtXmlReader internal constructor(
         private set
 
     private var attrData: Array<String?> = arrayOfNulls(16)
-
-    private var attributes: AttributesCollection = AttributesCollection()
 
     override var encoding: String? = encoding
         private set
@@ -242,7 +240,7 @@ public class KtXmlReader internal constructor(
                     val attrOut = attribute(attrOutIdx++)
 
                     if (attrIn != attrOut) {
-                        attributes.copyNotNs(attrIn.index, attrOut.index)
+                        copyAttributeNotNS(attrIn.index, attrOut.index)
                     }
 
                     val attrPrefix = attrIn.prefix
@@ -268,11 +266,11 @@ public class KtXmlReader internal constructor(
             }
 
             if (attrInIdx != attrOutIdx) {
-                attributes.shrink(attrOutIdx)
+                shrinkAttributeBuffer(attrOutIdx)
             }
 
         } else {
-            attributes.shrink(0)
+            shrinkAttributeBuffer(0)
         }
 
         val ns = when {
@@ -819,7 +817,7 @@ public class KtXmlReader internal constructor(
             prefix = readPrefix
             localName = readLocalname!!
         }
-        attributes.clear()
+        clearAttributes()
         while (true) {
             skip()
             when (val c = peek(0)) {
@@ -874,7 +872,7 @@ public class KtXmlReader internal constructor(
                             val fullname = fullname(readPrefix, aLocalName)
                             error("Attr.value missing in $fullname '='. Found: ${peek(0).toChar()}")
 
-                            attributes.addNsUnresolved(readPrefix, aLocalName, fullname)
+                            addUnresolvedAttribute(readPrefix, aLocalName, fullname)
                         } else {
                             read('=')
                             skip()
@@ -894,7 +892,7 @@ public class KtXmlReader internal constructor(
                                 }
                             }
 
-                            attributes.addNsUnresolved(readPrefix, aLocalName, get())
+                            addUnresolvedAttribute(readPrefix, aLocalName, get())
                         }
                     }
 
@@ -1028,12 +1026,9 @@ public class KtXmlReader internal constructor(
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
 
-        while (curPos < innerLoopEnd) {
-            when (bufLeft[curPos]) {
-                ' ', '\t', '\n', '\r' -> break // whitespace
-
-                else -> return pushRegularText(delimiter, resolveEntities = expandEntities)
-            }
+        // shortcircuit text not starting with whitespace
+        if (curPos < innerLoopEnd && !isXmlWhitespace(bufLeft[curPos])) {
+            return pushRegularText(delimiter, resolveEntities = expandEntities)
         }
 
         var left: Int = curPos
@@ -1050,8 +1045,11 @@ public class KtXmlReader internal constructor(
                         if (right > left + 1) pushRange(bufLeft, left, right)
                         right = -1
                         val peekChar = when (curPos + 1) {
-                            bufCount -> '\u0000'
-                            BUF_SIZE -> bufRight[0]
+                            bufCount ->
+                                '\u0000'
+
+                            BUF_SIZE ->
+                                bufRight[0]
                             else -> bufLeft[curPos + 1]
                         }
                         if (peekChar != '\n') {
@@ -1098,6 +1096,7 @@ public class KtXmlReader internal constructor(
             if (curPos == BUF_SIZE) { // swap the buffers
                 srcBufPos = curPos
                 swapInputBuffer()
+                right = -1 //set it to -1 in all cases as at this point we probably parsed nothing
                 curPos = srcBufPos
                 bufCount = srcBufCount
                 innerLoopEnd = minOf(bufCount, BUF_SIZE)
@@ -1992,47 +1991,49 @@ public class KtXmlReader internal constructor(
             elementData[index * 3 + 2] = value
         }
 
+    private fun clearAttributes() {
+        val oldSize = attributeCount
+        if (oldSize > 0) {
+            attrData.fill(null, 0, oldSize * 4)
+        }
+        attributeCount = 0
+    }
+
+    private fun shrinkAttributeBuffer(newSize: Int) {
+        attrData.fill(null, newSize * 4, attributeCount * 4)
+        attributeCount = newSize
+    }
+
+    private fun ensureAttributeBufferCapacity(required: Int) {
+        val requiredSize = required * 4
+        val oldData = attrData
+        if (oldData.size >= requiredSize) return
+
+        attrData = oldData.copyOf(requiredSize + 16)
+    }
+
+    private fun addUnresolvedAttribute(attrPrefix: String?, attrLocalName: String, attrValue: String) {
+        val oldSize = attributeCount
+        val newSize = if (oldSize < 0) 1 else oldSize + 1
+        attributeCount = newSize
+
+        ensureAttributeBufferCapacity(newSize)
+        var i = newSize * 4 - 4
+
+        val d = attrData
+        d[i++] = null
+        d[i++] = attrPrefix
+        d[i++] = attrLocalName
+        d[i] = attrValue
+    }
+
+    private fun copyAttributeNotNS(fromIdx: Int, toIdx: Int) {
+        attrData.copyInto(attrData, toIdx * 4 + 1, fromIdx * 4 + 1, fromIdx * 4 + 4)
+    }
+
+
     private inner class AttributesCollection {
 
-        fun clear() {
-            val oldSize = attributeCount
-            if (oldSize > 0) {
-                attrData.fill(null, 0, oldSize * 4)
-            }
-            attributeCount = 0
-        }
-
-        fun shrink(newSize: Int) {
-            attrData.fill(null, newSize * 4, attributeCount * 4)
-            attributeCount = newSize
-        }
-
-        fun ensureCapacity(required: Int) {
-            val requiredSize = required * 4
-            val oldData = attrData
-            if (oldData.size >= requiredSize) return
-
-            attrData = oldData.copyOf(requiredSize + 16)
-        }
-
-        fun addNsUnresolved(attrPrefix: String?, attrLocalName: String, attrValue: String) {
-            val oldSize = attributeCount
-            val newSize = if (oldSize < 0) 1 else oldSize + 1
-            attributeCount = newSize
-
-            ensureCapacity(newSize)
-            var i = newSize * 4 - 4
-
-            val d = attrData
-            d[i++] = null
-            d[i++] = attrPrefix
-            d[i++] = attrLocalName
-            d[i] = attrValue
-        }
-
-        fun copyNotNs(fromIdx: Int, toIdx: Int) {
-            attrData.copyInto(attrData, toIdx * 4 + 1, fromIdx * 4 + 1, fromIdx * 4 + 4)
-        }
     }
 
     @JvmInline

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,7 +24,7 @@ package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import nl.adaptivity.xmlutil.newGenericReader
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -34,7 +34,7 @@ class TestSchemaReading {
     @Test
     fun testDeserializeDatatypes() {
         val deserialized = javaClass.classLoader.getResourceAsStream("datatypes.xsd")!!.use { inStream ->
-            XML1_0.recommended()
+            XML.v1()
                 .decodeFromReader(XSSchema.serializer(), xmlStreaming.newGenericReader(inStream, "UTF-8"))
         }
         assertNotNull(deserialized)

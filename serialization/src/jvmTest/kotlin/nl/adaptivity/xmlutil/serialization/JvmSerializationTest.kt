@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
@@ -34,9 +34,9 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+@Suppress("CheckTagEmptyBody")
 class JvmSerializationTest {
 
-    @Suppress("DEPRECATION")
     @Test
     fun `deserialize DOM node from xml`() {
         val contentText = "<tag>some text <b>some bold text<i>some bold italic text</i></b></tag>"
@@ -51,7 +51,7 @@ class JvmSerializationTest {
             })
         }
 
-        val deserialized = XML1_0.decodeFromString(Element.serializer(), contentText)
+        val deserialized = XML.v1.decodeFromString(Element.serializer(), contentText)
 
         val expected:String = expectedObj.toXmlString()
 
@@ -68,10 +68,9 @@ class JvmSerializationTest {
     /**
      * An issue from #78
      */
-    @Suppress("DEPRECATION")
     @Test
     fun `update dom node with additional attribute`() {
-        val xml = XML1_0.compact()
+        val xml = XML.v1.compact()
         val rootNode: Element = xml.decodeFromString(Element.serializer(), "<root></root>")
         rootNode.setAttribute("test", "value")
         assertEquals("<root test=\"value\"/>", xml.encodeToString(Element.serializer(), rootNode))
@@ -92,7 +91,7 @@ class JvmSerializationTest {
             })
         }
 
-        val xml = XML1_0.compact()
+        val xml = XML.v1.compact()
 
         val serialized = xml.encodeToString(Element.serializer(), element)
         assertEquals(expected, serialized)

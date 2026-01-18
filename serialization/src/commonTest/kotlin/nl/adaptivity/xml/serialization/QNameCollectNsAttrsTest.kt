@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -38,7 +38,10 @@ import kotlin.test.assertContains
 class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Container>(
     Container(Child1(Child2(QName("urn:foo", "bar", "baz")))),
     Container.serializer(),
-    baseXmlFormat = XML.compat { isCollectingNSAttributes = true },
+    baseXmlFormat = run {
+        @Suppress("DEPRECATION")
+        XML.compat { isCollectingNSAttributes = true }
+    },
     baseJsonFormat = Json { encodeDefaults = false }
 ) {
     override val expectedXML: String =
@@ -53,6 +56,7 @@ class QNameCollectNsAttrsTest : PlatformTestBase<QNameCollectNsAttrsTest.Contain
 
     @Test
     fun testNamespaceDecls() {
+        @Suppress("DEPRECATION")
         val xml = XML.compat { isCollectingNSAttributes = false }
         val serialized = xml.encodeToString(serializer, value)
         assertContains(serialized, "xmlns:prefix5=\"urn:example.org/5\"")

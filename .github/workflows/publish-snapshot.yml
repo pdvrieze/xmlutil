@@ -28,8 +28,10 @@ jobs:
             -   id: cache-gradle-windows
                 name: Set up gradle
                 uses: gradle/actions/setup-gradle@v4
+            -   name: Yarn lock upgrade
+                run: ./gradlew -PexcludeSchema kotlinUpgradeYarnLock
             -   name: Check
-                run: ./gradlew -PexcludeSchema nativeTest --stacktrace
+                run: ./gradlew -PexcludeSchema nativeTest jvmTest jvmCommonTest --stacktrace
                 shell: bash
             -   name: Store reports
                 if: failure()
@@ -39,12 +41,10 @@ jobs:
                     path: |
                         **/build/reports/
                         **/build/test-results/
-            -   name: Assemble
-                run: ./gradlew assemble -PexcludeSchema -Pnative.deploy=all --stacktrace
-            -   name: Javadoc jar
-                run: ./gradlew javadocJar -PexcludeSchema -Pnative.deploy=all --stacktrace
-            -   name: Sources Jar
-                run: ./gradlew kotlinSourcesJar -PexcludeSchema -Pnative.deploy=all --stacktrace
+            -   name: Build
+                run: ./gradlew assemble -PforceSnapshot=true -PexcludeSchema -Pnative.deploy=all
+                shell: bash
             -   name: Upload
-                run: ./gradlew publishAllPublicationsToMavenSnapshotRepository -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+#                run: ./gradlew publishToSonatype -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all --stacktrace
+                run: ./gradlew publishAllPublicationsToMavenSnapshotRepository -PforceSnapshot=true -PexcludeSchema -Possrh.username='${{ secrets.OSSRH_USERNAME }}' -Possrh.password='${{ secrets.OSSRH_PASSWORD }}' -Pnative.deploy=all
                 shell: bash

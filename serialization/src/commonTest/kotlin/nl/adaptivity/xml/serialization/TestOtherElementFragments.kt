@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,15 +18,13 @@
  * permissions and limitations under the License.
  */
 
-// suppression as the code still tests the deprecated compact serializer.
-@file:Suppress("DEPRECATION")
 @file:MustUseReturnValues
 
 package nl.adaptivity.xml.serialization
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.util.CompactFragment
@@ -39,7 +37,7 @@ class TestOtherElementFragments {
     fun testSerializeCompactFragment() {
         val f = Container(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")), "bar")
         val expected = "<Container>${f.children[0].contentString}${f.children[1].contentString}<c>bar</c></Container>"
-        val actual = XML1_0.compact().encodeToString(f)
+        val actual = XML.v1.compact().encodeToString(f)
         assertEquals(expected, actual)
     }
 
@@ -49,7 +47,7 @@ class TestOtherElementFragments {
             Container(listOf(CompactFragment("""<a><b>"hello"</b></a>"""), CompactFragment("<foo>xx</foo>")), "bar")
         val input =
             "<Container>${expected.children[0].contentString}<c>bar</c>${expected.children[1].contentString}</Container>"
-        val actual = XML1_0.decodeFromString<Container>(input)
+        val actual = XML.v1.decodeFromString<Container>(input)
         assertEquals(expected, actual)
     }
 

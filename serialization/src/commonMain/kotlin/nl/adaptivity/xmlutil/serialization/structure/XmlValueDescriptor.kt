@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -100,7 +100,7 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
                 deserializer.deserialize(xmlCodecBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default, ps))
 
             else -> xmlCodecBase.run {
-                val dec = XmlDecoderBase(serializersModule, config, CompactFragment("").getXmlReader())
+                val dec = XmlDecoderBase(serializersModule, config, CompactFragment("").getXmlReader(), mutableMapOf())
                     .StringDecoder(this@XmlValueDescriptor, XmlReader.ExtLocationInfo(0, 0, 0), default, ps)
 
                 deserializer.deserialize(dec)
@@ -123,7 +123,7 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
 
             effectiveOutputKind.let { it == OutputKind.Attribute || it == OutputKind.Text } -> {
                 val xmlDecoderBase =
-                    XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader())
+                    XmlDecoderBase(serializersModule, config, CompactFragment(default).getXmlReader(), mutableMapOf())
                 val dec = xmlDecoderBase.StringDecoder(this, XmlReader.ExtLocationInfo(0, 0, 0), default, ps)
                 deserializer.deserialize(dec)
             }
@@ -133,7 +133,8 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
                     XmlDecoderBase(
                         serializersModule,
                         config,
-                        CompactFragment(default).getXmlReader()
+                        CompactFragment(default).getXmlReader(),
+                        mutableMapOf()
                     ).XmlDecoder(this, inheritedPreserveWhitespace = ps)
                 deserializer.deserialize(defaultDecoder)
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -30,7 +30,6 @@ import nl.adaptivity.xmlutil.benchmark.util.BlackholeWrapperImpl
 import nl.adaptivity.xmlutil.benchmark.util.testXmlSchemaUrls
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
@@ -67,8 +66,8 @@ open class Deserialization {
     fun setup() {
         println("Setup called (fast: $fast)")
         retainedXml = when {
-            fast -> XML1_0.fast()
-            else -> XML1_0.recommended()
+            fast -> XML.v1.fast()
+            else -> XML.v1()
         }
 
     }
@@ -79,10 +78,8 @@ open class Deserialization {
     fun testDeserializeGenericSpeedImpl(bh: BlackholeWrapper) {
         val xml =
             when {
-                fast -> XML1_0.fast()
-                else -> XML1_0.recommended {
-                    policy { throwOnRepeatedElement = true }
-                }
+                fast -> XML.v1.fast()
+                else -> XML.v1 { -> policy { throwOnRepeatedElement = true } }
             }
 
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
@@ -113,10 +110,8 @@ open class Deserialization {
     fun testDeserializeStaxSpeed(bh : BlackholeWrapper) {
         val xml =
             when {
-                fast -> XML1_0.fast()
-                else -> XML1_0.recommended {
-                    policy { throwOnRepeatedElement = true }
-                }
+                fast -> XML.v1.fast()
+                else -> XML.v1 { policy { throwOnRepeatedElement = true } }
             }
 
         xmlStreaming.setFactory(StAXStreamingFactory())

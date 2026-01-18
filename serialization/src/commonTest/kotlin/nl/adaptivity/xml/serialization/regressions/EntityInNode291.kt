@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.createDocument
 import nl.adaptivity.xmlutil.dom2.data
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
@@ -45,7 +45,7 @@ import kotlin.test.assertIs
 class EntityInNode291 {
     val expectedXml = "<Tag>&amp;Content</Tag>"
 
-    val xml = XML1_0.pedantic {
+    val xml = XML.v1.pedantic {
         defaultToGenericParser = true
     }
 

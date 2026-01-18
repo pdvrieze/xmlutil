@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.AppendableWriter
 import nl.adaptivity.xmlutil.core.impl.CharsequenceReader
 import java.io.*
@@ -39,21 +40,24 @@ public actual interface XmlStreamingFactory {
     public fun newWriter(
         writer: Writer,
         repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersionHint: XmlVersion = XmlVersion.XML10
+    ): XmlWriter// = newWriter(writer, repairNamespaces, xmlDeclMode)
 
     public fun newWriter(
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersionHint: XmlVersion = XmlVersion.XML10
     ): XmlWriter
 
     public fun newWriter(
         output: Appendable,
         repairNamespaces: Boolean = false,
-        xmlDeclMode: XmlDeclMode = XmlDeclMode.None
-    ): XmlWriter = newWriter(AppendableWriter(output), repairNamespaces, xmlDeclMode)
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersionHint: XmlVersion = XmlVersion.XML10
+    ): XmlWriter = newWriter(AppendableWriter(output), repairNamespaces, xmlDeclMode, xmlVersionHint)
 
     public fun newReader(reader: Reader): XmlReader = newReader(reader, false)
     public fun newReader(reader: Reader, expandEntities: Boolean): XmlReader

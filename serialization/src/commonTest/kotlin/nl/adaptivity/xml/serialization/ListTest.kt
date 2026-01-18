@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -26,9 +26,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XML1_0
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,7 +52,7 @@ class ListTest : PlatformTestBase<ListTest.SimpleList>(
 
     @Test
     fun testUnwrappedListSerialization1_0() {
-        testUnwrappedListSerialization(XML1_0.recommended { xmlDeclMode = XmlDeclMode.None; setIndent(0) })
+        testUnwrappedListSerialization(XML.v1.compact())
     }
 
     private fun testUnwrappedListSerialization(format: XML) {
@@ -76,7 +74,7 @@ class ListTest : PlatformTestBase<ListTest.SimpleList>(
 
     @Test
     fun testUnwrappedListDeserialization1_0() {
-        testUnwrappedListDeserialization(XML1_0.instance)
+        testUnwrappedListDeserialization(XML.v1.instance)
     }
 
     private fun testUnwrappedListDeserialization(format: XML) {

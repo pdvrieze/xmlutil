@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -49,7 +49,7 @@ public fun XmlSerializable.toReader(): Reader {
  */
 @Throws(XmlException::class)
 public fun XmlSerializable.serialize(writer: Writer) {
-    xmlStreaming.newWriter(writer, repairNamespaces = true, xmlDeclMode = XmlDeclMode.None).use { serialize(it) }
+    xmlStreaming.newWriter(writer, repairNamespaces = true).use { serialize(it) }
 }
 
 public fun XmlSerializable.toString(flags: Int): String {

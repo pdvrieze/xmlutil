@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -37,6 +37,7 @@ import kotlin.test.assertEquals
  */
 class TestSerializeEmptyTextValue290 {
 
+    @Suppress("DEPRECATION")
     val xml = XML.compat {
         recommended {
             pedantic = true

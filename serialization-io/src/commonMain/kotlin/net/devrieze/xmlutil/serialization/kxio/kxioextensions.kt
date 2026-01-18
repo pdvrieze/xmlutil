@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -43,7 +43,7 @@ import nl.adaptivity.xmlutil.xmlStreaming
  * @param value The value to encode to XML
  * @param prefix The prefix to use for the namespace
  */
-public inline fun <reified T> XML.XmlCompanion.encodeToSink(sink: Sink, value: T, prefix: String? = null) {
+public inline fun <reified T> XML.XmlCompanion<*>.encodeToSink(sink: Sink, value: T, prefix: String? = null) {
     return encodeToSink(sink, serializer<T>(), value, prefix)
 }
 
@@ -54,7 +54,7 @@ public inline fun <reified T> XML.XmlCompanion.encodeToSink(sink: Sink, value: T
  * @param value The value to encode to XML
  * @param rootName The name of the root tag to use
  */
-public inline fun <reified T> XML.XmlCompanion.encodeToSink(sink: Sink, value: T, rootName: QName) {
+public inline fun <reified T> XML.XmlCompanion<*>.encodeToSink(sink: Sink, value: T, rootName: QName) {
     return encodeToSink(sink, serializer<T>(), value, rootName)
 }
 
@@ -66,7 +66,7 @@ public inline fun <reified T> XML.XmlCompanion.encodeToSink(sink: Sink, value: T
  * @param value The value to encode to XML
  * @param prefix The prefix to use for the namespace
  */
-public fun <T> XML.XmlCompanion.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, prefix: String? = null) {
+public fun <T> XML.XmlCompanion<*>.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, prefix: String? = null) {
     return instance.encodeToSink(sink, serializer, value, prefix)
 }
 
@@ -78,7 +78,7 @@ public fun <T> XML.XmlCompanion.encodeToSink(sink: Sink, serializer: Serializati
  * @param value The value to encode to XML
  * @param rootName The name of the root tag to use
  */
-public fun <T> XML.XmlCompanion.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, rootName: QName) {
+public fun <T> XML.XmlCompanion<*>.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>, value: T, rootName: QName) {
     return instance.encodeToSink(sink, serializer, value, rootName)
 }
 
@@ -145,7 +145,7 @@ public fun <T> XML.encodeToSink(sink: Sink, serializer: SerializationStrategy<T>
  * @param source An [XmlReader] that contains the XML from which to read the object
  * @param rootName The QName to use for the root tag, if `null` it will be automatically detected.
  */
-public inline fun <reified T> XML.XmlCompanion.decodeFromSource(source: Source, rootName: QName? = null): T =
+public inline fun <reified T> XML.XmlCompanion<*>.decodeFromSource(source: Source, rootName: QName? = null): T =
     instance.decodeFromSource(source, rootName)
 
 /**
@@ -156,7 +156,7 @@ public inline fun <reified T> XML.XmlCompanion.decodeFromSource(source: Source, 
  * @param rootName The QName to use for the root tag, if `null` it will be automatically detected.
  * @param serializer The loader to use to read the object
  */
-public fun <T> XML.XmlCompanion.decodeFromSource(serializer: DeserializationStrategy<T>, source: Source, rootName: QName? = null): T =
+public fun <T> XML.XmlCompanion<*>.decodeFromSource(serializer: DeserializationStrategy<T>, source: Source, rootName: QName? = null): T =
     instance.decodeFromSource(serializer, source, rootName)
 
 /**
@@ -202,7 +202,7 @@ public fun <T> XML.decodeFromSource(serializer: DeserializationStrategy<T>, sour
  * @param wrapperName The name of the wrapping element. Setting this value triggers wrapper mode.
  * @param elementName The name of the element. If null, automatically detected on content.
  */
-public inline fun <reified T> XML.XmlCompanion.decodeToSequenceFromSource(source: Source, wrapperName: QName?, elementName: QName? = null): Sequence<T> =
+public inline fun <reified T> XML.XmlCompanion<*>.decodeToSequenceFromSource(source: Source, wrapperName: QName?, elementName: QName? = null): Sequence<T> =
     instance.decodeToSequenceFromSource(source, wrapperName, elementName)
 
 /**
@@ -226,7 +226,7 @@ public inline fun <reified T> XML.XmlCompanion.decodeToSequenceFromSource(source
  * @param wrapperName The name of the wrapping element. Setting this value triggers wrapper mode.
  * @param elementName The name of the element. If null, automatically detected on content.
  */
-public fun <T> XML.XmlCompanion.decodeToSequenceFromSource(deserializer: DeserializationStrategy<T>, source: Source, wrapperName: QName?, elementName: QName? = null): Sequence<T> =
+public fun <T> XML.XmlCompanion<*>.decodeToSequenceFromSource(deserializer: DeserializationStrategy<T>, source: Source, wrapperName: QName?, elementName: QName? = null): Sequence<T> =
     instance.decodeToSequenceFromSource(deserializer, source, wrapperName, elementName)
 
 /**
@@ -242,7 +242,7 @@ public fun <T> XML.XmlCompanion.decodeToSequenceFromSource(deserializer: Deseria
  * @param source The source used to read from
  * @param elementName The name of the element. If null, automatically detected on content.
  */
-public inline fun <reified T> XML.XmlCompanion.decodeWrappedToSequenceFromSource(source: Source, elementName: QName? = null): Sequence<T> =
+public inline fun <reified T> XML.XmlCompanion<*>.decodeWrappedToSequenceFromSource(source: Source, elementName: QName? = null): Sequence<T> =
     instance.decodeWrappedToSequenceFromSource(source, elementName)
 
 /**
@@ -259,7 +259,7 @@ public inline fun <reified T> XML.XmlCompanion.decodeWrappedToSequenceFromSource
  * @param source The source used to read from
  * @param elementName The name of the element. If null, automatically detected on content.
  */
-public fun <T> XML.XmlCompanion.decodeWrappedToSequenceFromSource(deserializer: DeserializationStrategy<T>, source: Source, elementName: QName?): Sequence<T> =
+public fun <T> XML.XmlCompanion<*>.decodeWrappedToSequenceFromSource(deserializer: DeserializationStrategy<T>, source: Source, elementName: QName?): Sequence<T> =
     instance.decodeWrappedToSequenceFromSource(deserializer, source, elementName)
 
 /**

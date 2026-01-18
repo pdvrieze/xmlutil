@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,7 +29,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import nl.adaptivity.xml.serialization.pedantic
 import nl.adaptivity.xmlutil.XmlDeclMode
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,8 +39,8 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class ContextualAndValue238 {
 
-    val xml
-        get() = XML1_0.pedantic(
+    val xml: XML
+        get() = XML.v1.pedantic(
             serializersModule = SerializersModule {
                 this.contextual(Uuid::class, Uuid.serializer())
             }
@@ -78,4 +78,4 @@ class ContextualAndValue238 {
 }
 
 @OptIn(ExperimentalUuidApi::class)
-object PseudoUuidSerializer: KSerializer<Uuid> by Uuid.serializer()
+object PseudoUuidSerializer : KSerializer<Uuid> by Uuid.serializer()

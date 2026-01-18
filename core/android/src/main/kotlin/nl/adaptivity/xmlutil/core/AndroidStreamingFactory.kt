@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,15 +24,22 @@ import nl.adaptivity.xmlutil.*
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.*
-import javax.xml.transform.Result
-import javax.xml.transform.Source
 
 /**
  * Android version of the streaming factory.
  */
 public class AndroidStreamingFactory : XmlStreamingFactory {
-    override fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter {
-        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
+    @Deprecated("Binary compatibility only", level = DeprecationLevel.HIDDEN)
+    public fun newWriter(writer: Writer, repairNamespaces: Boolean, xmlDeclMode: XmlDeclMode): XmlWriter =
+        newWriter(writer, repairNamespaces, xmlDeclMode, XmlVersion.XML10)
+
+    override fun newWriter(
+        writer: Writer,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode,
+        xmlVersionHint: XmlVersion
+    ): XmlWriter {
+        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
     }
 
     @Throws(XmlException::class)
@@ -40,10 +47,11 @@ public class AndroidStreamingFactory : XmlStreamingFactory {
         outputStream: OutputStream,
         encoding: String,
         repairNamespaces: Boolean,
-        xmlDeclMode: XmlDeclMode
+        xmlDeclMode: XmlDeclMode,
+        xmlVersionHint: XmlVersion,
     ): XmlWriter {
         val writer = OutputStreamWriter(outputStream, encoding)
-        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode)
+        return KtXmlWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
     }
 
     @Throws(XmlException::class)

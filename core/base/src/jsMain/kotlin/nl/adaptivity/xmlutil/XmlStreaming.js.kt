@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.dom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.core.impl.dom.wrap
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
@@ -78,32 +79,35 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     fun newWriter(
         output: Appendable,
-        repairNamespaces: Boolean /*= false*/,
-        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
+        xmlVersionHint: XmlVersion = XmlVersion.XML10,
     ): XmlWriter {
         // fall back to generic reader for contexts without DOM (Node etc.)
-        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(output, repairNamespaces, xmlDeclMode)
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
         return AppendableXmlWriter(output, DomWriter(xmlDeclMode))
     }
 
     fun newGenericWriter(
         output: Appendable,
-        isRepairNamespaces: Boolean /*= false*/,
-        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
+        isRepairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
+        xmlVersion: XmlVersion,
     ): KtXmlWriter {
-        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode)
+        return KtXmlWriter(output, isRepairNamespaces, xmlDeclMode, xmlVersion)
     }
 
     fun newWriter(
         writer: Writer,
-        repairNamespaces: Boolean /*= false*/,
-        xmlDeclMode: XmlDeclMode /*= XmlDeclMode.None*/,
+        repairNamespaces: Boolean,
+        xmlDeclMode: XmlDeclMode, /*= XmlDeclMode.None*/
+        xmlVersionHint: XmlVersion = XmlVersion.XML10,
     ): XmlWriter {
-        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(writer, repairNamespaces, xmlDeclMode)
+        if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
         val document = xmlStreaming.genericDomImplementation.createDocument()
-        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode))
+        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
     }
 
     actual override val genericDomImplementation: DOMImplementation
@@ -158,8 +162,9 @@ public fun IXmlStreaming.newReader(delegate: DomNode): XmlReader = XmlStreaming.
 public actual fun IXmlStreaming.newWriter(
     output: Appendable,
     repairNamespaces: Boolean,
-    xmlDeclMode: XmlDeclMode
-): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode)
+    xmlDeclMode: XmlDeclMode,
+    xmlVersionHint: XmlVersion,
+): XmlWriter = XmlStreaming.newWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
 /**
  * Create a new [XmlWriter] that appends to the given [Writer]. This writer
@@ -177,5 +182,6 @@ public actual fun IXmlStreaming.newWriter(
     writer: Writer,
     repairNamespaces: Boolean,
     xmlDeclMode: XmlDeclMode,
-): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode)
+    xmlVersionHint: XmlVersion,
+): XmlWriter = XmlStreaming.newWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpl
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import nl.adaptivity.xmlutil.newReader
-import nl.adaptivity.xmlutil.serialization.XML1_0
+import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,8 +35,8 @@ import kotlin.test.assertIs
 class SchemaParseTest {
     @Test
     fun parseCompactFragment() {
-        val xml = XML1_0.recommended()
-        val schema = SchemaParseTest::class.java.getResourceAsStream("/xsts/saxonData/VC/vc003.xsd").use {
+        val xml = XML.v1()
+        val schema = SchemaParseTest::class.java.getResourceAsStream("/xsts/saxonData/VC/vc003.xsd")!!.use {
             xml.decodeFromReader<XSSchema>(xmlStreaming.newReader(it))
         }
         val type = assertIs<XSLocalSimpleType>(schema.elements[0].localType)

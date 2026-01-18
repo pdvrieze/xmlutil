@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -280,6 +280,17 @@ private constructor(
             indentString = " ".repeat(count)
         }
 
+
+        /**
+         * Shorthand to set the output to be more compact. This removes indentation, omits
+         * xml declarations, and sets the XML version to 1.0.
+         */
+        public fun compact() {
+            setIndent(0)
+            xmlDeclMode = XmlDeclMode.None
+            xmlVersion = XmlVersion.XML10
+        }
+
     }
 
     @Deprecated("Use the default builder")
@@ -289,6 +300,7 @@ private constructor(
         override var policy: XmlSerializationPolicy? = null
             set(value) {
                 field = value
+                @Suppress("DEPRECATION")
                 if (value is DefaultXmlSerializationPolicy && value.formatCache == FormatCache.Dummy && isCachingEnabled) {
                     isCachingEnabled = false
                 }
@@ -398,6 +410,7 @@ private constructor(
          * Note that this function has no guarantee of stability.
          */
         public inline fun recommended(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit) {
+            @Suppress("DEPRECATION")
             recommended_0_91_0(configurePolicy)
         }
 
@@ -438,7 +451,7 @@ private constructor(
             "Consider updating to a newer recommended configuration",
             ReplaceWith("recommended_0_91_0(configurePolicy)")
         )
-        public inline fun recommended_0_86_3(configurePolicy: DefaultXmlSerializationPolicy.BuilderCompat.() -> Unit) {
+        public inline fun recommended_0_86_3(configurePolicy: BuilderCompat.() -> Unit) {
             setIndent(4)
             policy = compatPolicyBuilder().apply {
                 setDefaults_0_86_3()
@@ -458,7 +471,7 @@ private constructor(
          * Configure the format starting with the recommended configuration as of version 0.87.0. This configuration is stable.
          */
         @Suppress("FunctionName", "DEPRECATION")
-        public inline fun recommended_0_87_0(configurePolicy: DefaultXmlSerializationPolicy.BuilderCompat.() -> Unit) {
+        public inline fun recommended_0_87_0(configurePolicy: BuilderCompat.() -> Unit) {
             setIndent(4)
             repairNamespaces = false
             policy = compatPolicyBuilder().apply {
@@ -481,7 +494,7 @@ private constructor(
          * required for XML 1.1 (otherwise it reverts to 1.0).
          */
         @Suppress("FunctionName")
-        public inline fun recommended_0_90_2(configurePolicy: DefaultXmlSerializationPolicy.BuilderCompat.() -> Unit) {
+        public inline fun recommended_0_90_2(configurePolicy: BuilderCompat.() -> Unit) {
             setIndent(4)
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
@@ -499,6 +512,7 @@ private constructor(
         @Suppress("FunctionName")
         @Deprecated("Use the new 1_0 accessors instead, it is equivalent")
         public fun recommended_0_91_0() {
+            @Suppress("DEPRECATION")
             recommended_0_91_0 { }
         }
 
@@ -509,7 +523,7 @@ private constructor(
          */
         @Suppress("FunctionName")
         @Deprecated("Use the new 1_0 accessors instead, it is equivalent")
-        public inline fun recommended_0_91_0(configurePolicy: DefaultXmlSerializationPolicy.BuilderCompat.() -> Unit) {
+        public inline fun recommended_0_91_0(configurePolicy: BuilderCompat.() -> Unit) {
             setIndent(4)
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
@@ -566,7 +580,7 @@ private constructor(
          * required for XML 1.1 (otherwise it reverts to 1.0).
          */
         @Suppress("FunctionName")
-        public inline fun fast_0_91_1(configurePolicy: DefaultXmlSerializationPolicy.BuilderCompat.() -> Unit = {}) {
+        public inline fun fast_0_91_1(configurePolicy: BuilderCompat.() -> Unit = {}) {
             isAlwaysDecodeXsiNil = false
             isUnchecked = true
             isCollectingNSAttributes = false
@@ -577,7 +591,7 @@ private constructor(
             xmlDeclMode = XmlDeclMode.Minimal
             compatPolicyBuilder().apply {
                 setDefaults_0_91_0()
-                formatCache = try { defaultSharedFormatCache() } catch (_: Error) { FormatCache.Dummy }
+                formatCache = runCatching { defaultSharedFormatCache() }.getOrDefault(FormatCache.Dummy)
                 configurePolicy()
             }
         }
@@ -606,7 +620,7 @@ private constructor(
     }
 
     @XmlConfigDsl
-    public class CustomBuilder<P: XmlSerializationPolicy>: Builder<P> {
+    public class CustomBuilder<P : XmlSerializationPolicy> : Builder<P> {
         @ExperimentalXmlUtilApi
         override var policy: P
 
@@ -639,14 +653,14 @@ private constructor(
     }
 
     @XmlConfigDsl
-    public class DefaultBuilder: Builder<DefaultXmlSerializationPolicy> {
+    public class DefaultBuilder : Builder<DefaultXmlSerializationPolicy> {
 
         @ExperimentalXmlUtilApi
         override var policy: DefaultXmlSerializationPolicy
 
         public constructor(
             repairNamespaces: Boolean = true,
-            xmlDeclMode: XmlDeclMode = XmlDeclMode.None,
+            xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
             indentString: String = "",
             policy: DefaultXmlSerializationPolicy = DefaultXmlSerializationPolicy {},
         ) : super(repairNamespaces, xmlDeclMode, indentString) {
@@ -668,7 +682,7 @@ private constructor(
         internal inline fun fast_1_0_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit = {}) {
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
-            xmlDeclMode = XmlDeclMode.Minimal
+            xmlDeclMode = XmlDeclMode.IfRequired
             isAlwaysDecodeXsiNil = false
             isUnchecked = true
             isCollectingNSAttributes = false
@@ -676,7 +690,7 @@ private constructor(
             indentString = ""
 
             policy {
-                formatCache = try { defaultSharedFormatCache() } catch (_: Error) { FormatCache.Dummy }
+                formatCache = runCatching { defaultSharedFormatCache() }.getOrDefault(FormatCache.Dummy)
                 autoPolymorphic = true
                 pedantic = false
                 typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, "type", XMLConstants.XSI_PREFIX)
@@ -700,7 +714,7 @@ private constructor(
         public inline fun recommended_1_0_0(configurePolicy: DefaultXmlSerializationPolicy.Builder.() -> Unit = {}) {
             repairNamespaces = false
             xmlVersion = XmlVersion.XML11
-            xmlDeclMode = XmlDeclMode.Minimal
+            xmlDeclMode = XmlDeclMode.IfRequired
             setIndent(4)
             policy {
                 autoPolymorphic = true
