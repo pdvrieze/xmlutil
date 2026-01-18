@@ -1026,13 +1026,9 @@ public class KtXmlReader internal constructor(
         var innerLoopEnd = minOf(bufCount, BUF_SIZE)
         var curPos = srcBufPos
 
-        // XXX (should not be loop)
-        while (curPos < innerLoopEnd) {
-            when (bufLeft[curPos]) {
-                ' ', '\t', '\n', '\r' -> break // whitespace
-
-                else -> return pushRegularText(delimiter, resolveEntities = expandEntities)
-            }
+        // shortcircuit text not starting with whitespace
+        if (curPos < innerLoopEnd && !isXmlWhitespace(bufLeft[curPos])) {
+            return pushRegularText(delimiter, resolveEntities = expandEntities)
         }
 
         var left: Int = curPos
