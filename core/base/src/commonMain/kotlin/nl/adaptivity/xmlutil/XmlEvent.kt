@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -343,6 +343,9 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         }
     }
 
+    /**
+     * Simple implementation for the Namespace interface.
+     */
     public class NamespaceImpl public constructor(namespacePrefix: String, namespaceUri: String) : Namespace {
 
         override val prefix: String = namespacePrefix

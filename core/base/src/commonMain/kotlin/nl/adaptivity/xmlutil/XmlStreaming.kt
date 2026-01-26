@@ -29,6 +29,17 @@ import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Node
 import kotlin.jvm.JvmOverloads
 
+/**
+ * Create a new [XmlWriter] that appends to the given [Appendable]. This writer
+ * could be a platform specific writer.
+ *
+ * @param output The appendable to which the XML will be written
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 @Deprecated("Use 4 argument version", level = DeprecationLevel.HIDDEN)
 public fun IXmlStreaming.newWriter(
     output: Appendable,
@@ -53,6 +64,19 @@ public expect fun IXmlStreaming.newWriter(
     xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
     xmlVersionHint: XmlVersion = XmlVersion.XML10,
 ): XmlWriter
+
+/**
+ * Create a new [XmlWriter] that appends to the given [Writer]. This writer
+ * could be a platform specific writer.
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
 
 @Deprecated("Use 4 argument version", level = DeprecationLevel.HIDDEN)
 public fun IXmlStreaming.newWriter(

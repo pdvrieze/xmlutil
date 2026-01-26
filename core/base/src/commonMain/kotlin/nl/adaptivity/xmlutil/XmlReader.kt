@@ -56,16 +56,27 @@ public interface XmlReader : Closeable, Iterator<EventType> {
 
     override operator fun next(): EventType
 
+    /** Retrieve the namespace URI of the current tag */
     public val namespaceURI: String
 
+    /** Retrieve the local name of the current tag */
     public val localName: String
 
+    /** Retrieve the prefix of the current tag */
     public val prefix: String
 
+    /** Retrieve the qualified name of the current tag */
     public val name: QName get() = qname(namespaceURI, localName, prefix)
 
+    /**
+     * Determine whether parsing has started yet. When this is `false` it is invalid to
+     * check the state.
+     */
     public val isStarted: Boolean
 
+    /**
+     * Check the current state for non-`null` values.
+     */
     @Throws(XmlException::class)
     public fun require(type: EventType, namespace: String?, name: String?) {
         when {
@@ -88,35 +99,45 @@ public interface XmlReader : Closeable, Iterator<EventType> {
         }
     }
 
+    /**
+     * Check the current state for non-`null` values.
+     */
     @Throws(XmlException::class)
     public fun require(type: EventType, name: QName?) {
         return require(type, name?.namespaceURI, name?.localPart)
     }
 
+    /** Check that the next element is as required. `null` values are not checked. */
     public fun requireNext(type: EventType, namespace: String?, name: String?) {
         val _ = next()
         require(type, namespace, name)
     }
 
+    /** Check that the next element is as required. `null` values are not checked. */
     public fun requireNext(type: EventType, name: QName?) {
         val _ = next()
         require(type, name)
     }
 
+    /** Check that the next tag element is as required. `null` values are not checked. */
     public fun requireNextTag(type: EventType, namespace: String?, name: String?) {
         val _ = nextTag()
         require(type, namespace, name)
     }
 
+    /** Check that the next tag element is as required. `null` values are not checked. */
     public fun requireNextTag(type: EventType, name: QName?) {
         val _ = nextTag()
         require(type, name)
     }
 
+    /** Determine the current tag depth of the reader */
     public val depth: Int
 
+    /** For an unresolved entity determine whether it is known */
     public val isKnownEntity: Boolean// get() = eventType == EventType.ENTITY_REF && text.isNotEmpty()
 
+    /** Get the text content for textual events. */
     public val text: String
 
     /** Target for processing instructions. */
@@ -125,49 +146,64 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /** Data for processing instructions. */
     public val piData: String
 
+    /** Get the amount of attributes on the current element */
     public val attributeCount: Int
 
+    /** Get the namespace URI for the attribute at the given [index]. */
     public fun getAttributeNamespace(index: Int): String
 
+    /** Get the prefix for the attribute at the given [index]. */
     public fun getAttributePrefix(index: Int): String
 
+    /** Get the local name for the attribute at the given [index]. */
     public fun getAttributeLocalName(index: Int): String
 
+    /** Get the qualified name for the attribute at the given [index]. */
     public fun getAttributeName(index: Int): QName =
         qname(
             getAttributeNamespace(index), getAttributeLocalName(index),
             getAttributePrefix(index)
         )
 
+    /** Get the value of the attribute at the given [index]. */
     public fun getAttributeValue(index: Int): String
 
+    /** Get the type of the current event. */
     public val eventType: EventType
 
+    /** Get the value of the attribute with the given name if it exists. */
     public fun getAttributeValue(nsUri: String?, localName: String): String?
 
+    /** Get the value of the attribute with the given name if it exists. */
     public fun getAttributeValue(name: QName): String? = getAttributeValue(name.namespaceURI.takeIf { it.isNotEmpty() }, name.localPart)
 
+    /** Get a prefix for the given namespace URI, or `null` if there is none. */
     public fun getNamespacePrefix(namespaceUri: String): String?
 
+    /** Get the namespace for the given prefix, if any */
+    public fun getNamespaceURI(prefix: String): String?
+
+    /** Close the reader */
     override fun close()
 
+    /** Determine whether the current state is effective whitespace, for text it will check the text. */
     public fun isWhitespace(): Boolean = eventType === EventType.IGNORABLE_WHITESPACE ||
             (eventType === EventType.TEXT &&
                     isXmlWhitespace(text))
 
+    /** Determine whether the current event is an end tag */
     public fun isEndElement(): Boolean = eventType === EventType.END_ELEMENT
 
     /** Is the currrent element character content */
     public fun isCharacters(): Boolean = eventType === EventType.TEXT
 
-    /** Is the current element a start element */
+    /** Is the current element a start tag */
     public fun isStartElement(): Boolean = eventType === EventType.START_ELEMENT
 
-    public fun getNamespaceURI(prefix: String): String?
-
-
+    /** Retrieve the namespaces declared at the current level. */
     public val namespaceDecls: List<Namespace>
 
+    /** Enhanced location info that allows a reader to provide more detail than just a string */
     public val extLocationInfo: LocationInfo?
 
     /** The current namespace context */
@@ -197,8 +233,10 @@ public interface XmlReader : Closeable, Iterator<EventType> {
      */
     public val version: String?
 
+    /** Base interface for location information */
     public interface LocationInfo
 
+    /** Simple location information that just wraps a String */
     public class StringLocationInfo(private val str: String) : LocationInfo {
         override fun toString(): String = str
 
@@ -219,7 +257,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     }
 
     /**
-     * Extended location info that actually provides column, line, and or file/string offset information
+     * Extended location info that actually provides column, line, and or file/string offset information.
      */
     public class ExtLocationInfo(private val col: Int, private val line: Int, private val offset: Int) : LocationInfo {
         override fun toString(): String = buildString {
@@ -578,7 +616,6 @@ public fun XmlReader.isIgnorable(): Boolean = when (eventType) {
  * @param type The event type to check
  * @param elementname The name to check against  @return `true` if it matches, otherwise `false`
  */
-
 public fun XmlReader.isElement(type: EventType, elementname: QName): Boolean {
     return this.isElement(type, elementname.getNamespaceURI(), elementname.getLocalPart(), elementname.getPrefix())
 }

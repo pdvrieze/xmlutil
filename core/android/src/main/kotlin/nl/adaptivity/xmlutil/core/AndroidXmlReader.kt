@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,8 @@ import java.io.InputStream
 import java.io.Reader
 
 /**
- * And XMLReader implementation that works on Android
+ * And XMLReader implementation that works on with the Android [XmlPullParser]. This implementation
+ * is only recommended when this compatibility is required.
  */
 public class AndroidXmlReader(public val parser: XmlPullParser, public val expandEntities: Boolean) : XmlReader {
     override var isStarted: Boolean = false
@@ -35,14 +36,18 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
 
     public constructor(parser: XmlPullParser): this(parser, false)
 
-    private constructor(expandEntities: Boolean) : this(XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser(), expandEntities)
-
     @JvmOverloads
-    public constructor(reader: Reader, expandEntities: Boolean = false) : this(expandEntities) {
+    public constructor(reader: Reader, expandEntities: Boolean = false) : this(
+        XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser(),
+        expandEntities,
+    ) {
         parser.setInput(reader)
     }
 
-    public constructor(input: InputStream, encoding: String, expandEntities: Boolean = false) : this(expandEntities) {
+    public constructor(input: InputStream, encoding: String, expandEntities: Boolean = false) : this(
+        XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser(),
+        expandEntities
+    ) {
         parser.setInput(input, encoding)
     }
 

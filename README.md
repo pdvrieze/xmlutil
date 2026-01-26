@@ -1,5 +1,5 @@
 # XmlUtil
-[![Build Status](https://dev.azure.com/pdvrieze/xmlutil/_apis/build/status/pdvrieze.xmlutil?branchName=master)](https://dev.azure.com/pdvrieze/xmlutil/_build/latest?definitionId=1&branchName=master)
+![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
 [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg?style=flat)](COPYING)
 - Core:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/core)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/core)
 - Serialization:&nbsp;[![Download](https://img.shields.io/maven-central/v/io.github.pdvrieze.xmlutil/serialization)](https://search.maven.org/artifact/io.github.pdvrieze.xmlutil/serialization)
@@ -8,13 +8,11 @@
 XmlUtil is a set of packages that supports multiplatform XML in Kotlin.
 
 ### Introduction
-* Gradle wrapper validation: ![Validate Gradle Wrapper](https://github.com/pdvrieze/xmlutil/workflows/Validate%20Gradle%20Wrapper/badge.svg)
-
 This project is a cross-platform XML serialization (wrapping) library compatible with kotlinx.serialization. 
 It supports all platforms although native is at beta quality.
 
 Based upon the core xml library, the serialization module supports automatic object
-serialization based upon Kotlin's standard serialization library and plugin. 
+serialization based upon Kotlin's standard serialization library and plugin.
 
 **Help wanted**: Any help with extending this project is welcome. Help is especially needed for the following aspects:
 
@@ -51,19 +49,19 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:1.0.0-rc2-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core:1.0.0-SNAPSHOT")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.0-rc2-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.0-SNAPSHOT")
 ```
 #### **Optional** Android – Uses the android streaming library
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.0-rc2-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.0-SNAPSHOT")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.0-rc2-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.0-SNAPSHOT")
 ```
 
 #### Native
@@ -74,7 +72,7 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform (this coordinate should be used by default)
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-rc2-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.0-SNAPSHOT")
 ```
 
 ## Serialization help
@@ -102,10 +100,10 @@ used (how lists and polymorphic types are handled), etc.
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
 ### Format
-The entrypoint to the library is the `XML1_0` (for 1.0) format (or `XML` generally). There is a default, but often a child is better. 
+The entrypoint to the library is the `XML.v1` (for 1.0) format (or `XML` generally). There is a default, but often a child is better. 
 Custom formats are created through:
 ```kotlin
-val format = XML1_0.recommended(mySerialModule) {  
+val format = XML.v1.recommended(mySerialModule) {  
     // configuration options
     xmlDeclMode = XmlDeclMode.None
     policy {

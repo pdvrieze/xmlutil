@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2020.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.serialutil
@@ -27,22 +27,15 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
+/**
+ * Class that allows for serializing "mixed" content, either text or object. Text content
+ * will be parsed without requiring the text to be polymorphically registered.
+ */
 @Serializable(with = MixedContent.Companion::class)
 sealed class MixedContent<out T> {
+    /** Wrapper for text content */
     @Serializable(with = Text.Companion::class)
     class Text(val data: String) : MixedContent<Nothing>() {
-
-        companion object : KSerializer<Text> {
-            override val descriptor: SerialDescriptor = serialDescriptor<String>()
-
-            override fun deserialize(decoder: Decoder): Text {
-                return Text(decoder.decodeString())
-            }
-
-            override fun serialize(encoder: Encoder, value: Text) {
-                encoder.encodeString(value.data)
-            }
-        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -60,11 +53,26 @@ sealed class MixedContent<out T> {
         override fun toString(): String {
             return "Text('$data')"
         }
+
+        /** @suppress */
+        companion object : KSerializer<Text> {
+            override val descriptor: SerialDescriptor = serialDescriptor<String>()
+
+            override fun deserialize(decoder: Decoder): Text {
+                return Text(decoder.decodeString())
+            }
+
+            override fun serialize(encoder: Encoder, value: Text) {
+                encoder.encodeString(value.data)
+            }
+        }
     }
 
+    /** Wrapper for arbitrary object data */
     @Serializable(Object.Companion::class)
     class Object<T>(@Polymorphic val data: T) : MixedContent<T>() {
 
+        /** @suppress */
         companion object : KSerializer<Object<Any>> {
             private val delegate = PolymorphicSerializer(Any::class)
 
@@ -99,6 +107,7 @@ sealed class MixedContent<out T> {
         }
     }
 
+    /** @suppress */
     // TODO make this serializer actually parameterized by the content type.
     companion object : KSerializer<MixedContent<Any>> {
 

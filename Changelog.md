@@ -1,4 +1,7 @@
-# 1.0.0-rc2-SNAPSHOT
+# 1.0.0-SNAPSHOT
+
+# 1.0.0-rc2
+*(Jan 18, 2026)<br />*
 Features:
 - Add additional shortcut encodeToStream and decodeFromStream functions
   that provide direct access to streams (similar to the serialization-io

@@ -328,6 +328,18 @@ public actual fun IXmlStreaming.newWriter(
  * @return A (potentially platform specific) [XmlWriter]
  */
 
+/**
+ * Create a new [XmlWriter] that appends to the given multi-platform [MPWriter].
+ *
+ * @param writer The writer to which the XML will be written. This writer
+ *   will be closed by the [XmlWriter]
+ * @param repairNamespaces Should the writer ensure that namespace
+ *   declarations are written when needed, even when not explicitly done.
+ * @param xmlDeclMode When not explicitly written, this parameter determines
+ *   whether the XML declaration is written.
+ * @return A (potentially platform specific) [XmlWriter]
+ */
+
 @Suppress("DEPRECATION")
 public actual fun IXmlStreaming.newWriter(
     writer: MPWriter,
