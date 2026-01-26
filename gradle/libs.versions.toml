@@ -9,7 +9,7 @@ jmh-core = "1.37"
 benchmark = "0.4.15"
 junit5-jupiter = "5.14.1"
 kotlin = "2.3.0"
-kotlinx-serialization = "1.10.0-RC"
+kotlinx-serialization = "1.10.0"
 kotlinx-io = "0.8.2"
 kxml2 = "2.3.0"
 woodstox = "7.1.1"
@@ -33,7 +33,7 @@ benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime"
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-io-core = { module="org.jetbrains.kotlinx:kotlinx-io-core", version.ref="kotlinx-io" }
-kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.29.0" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.31.0" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 
 [plugins]
