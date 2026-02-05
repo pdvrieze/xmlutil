@@ -42,7 +42,7 @@ class EntityValue311 {
     fun testParseEntityNoResolve() {
         val xmlReader = xmlStreaming.newGenericReader("<Test>&amp;</Test>", false)
         val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
-        assertEquals("&amp;", test.value)
+        assertEquals("&", test.value)
     }
 
     @Test
@@ -55,8 +55,10 @@ class EntityValue311 {
     @Test
     fun testParseUnknownEntityNoResolve() {
         val xmlReader = xmlStreaming.newGenericReader("<Test>&unknown;</Test>", false)
-        val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
-        assertEquals("&unknown;", test.value)
+        val e = assertFails {
+            val _ = XML.v1.decodeFromReader<ValueTest>(xmlReader)
+        }
+        assertContains(e.message?:"", "unknown")
     }
 
     @Test
@@ -78,7 +80,7 @@ class EntityValue311 {
             false
         )
         val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
-        assertEquals("&internalEntity;", test.value)
+        assertEquals("internalEntity", test.value)
     }
 
     @Test
