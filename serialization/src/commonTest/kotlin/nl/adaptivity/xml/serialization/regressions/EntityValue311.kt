@@ -42,7 +42,7 @@ class EntityValue311 {
     fun testParseEntityNoResolve() {
         val xmlReader = xmlStreaming.newGenericReader("<Test>&amp;</Test>", false)
         val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
-        assertEquals("&", test.value)
+        assertEquals("&amp;", test.value)
     }
 
     @Test
@@ -55,10 +55,8 @@ class EntityValue311 {
     @Test
     fun testParseUnknownEntityNoResolve() {
         val xmlReader = xmlStreaming.newGenericReader("<Test>&unknown;</Test>", false)
-        val e = assertFails {
-            val _ = XML.v1.decodeFromReader<ValueTest>(xmlReader)
-        }
-        assertContains(e.message?:"", "unknown")
+        val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
+        assertEquals("&unknown;", test.value)
     }
 
     @Test
@@ -68,6 +66,32 @@ class EntityValue311 {
             val _ = XML.v1.decodeFromReader<ValueTest>(xmlReader)
         }
         assertContains(e.message ?: "", "unknown")
+    }
+
+    @Test
+    fun testParseKnownEntityNoResolve() {
+        val xmlReader = xmlStreaming.newGenericReader(
+            """
+                <!DOCTYPE Test [ <!ENTITY internalEntity "Hello, world!"> ] >
+                <Test>&internalEntity;</Test>
+            """.trimIndent(),
+            false
+        )
+        val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
+        assertEquals("&internalEntity;", test.value)
+    }
+
+    @Test
+    fun testParseKnownEntityResolve() {
+        val xmlReader = xmlStreaming.newGenericReader(
+            """
+                <!DOCTYPE Test [ <!ENTITY internalEntity "Hello, world!"> ] >
+                <Test>&internalEntity;</Test>
+            """.trimIndent(),
+            true
+        )
+        val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
+        assertEquals("Hello, world!", test.value)
     }
 
     @Serializable
