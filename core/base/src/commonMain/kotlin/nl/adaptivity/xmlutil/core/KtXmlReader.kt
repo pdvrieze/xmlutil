@@ -921,18 +921,18 @@ public class KtXmlReader internal constructor(
      * result: if the setName parameter is set,
      * the name of the entity is stored in "name"
      */
-    private fun pushEntity() {
+    private fun pushEntity(expandEntities: Boolean = this.expandEntities) {
         readAssert('&')
         val first = peek(0)
 
         when {
             first == '#'.code -> pushCharEntity()
             first < 0 -> error(UNEXPECTED_EOF)
-            else -> pushRefEntity()
+            else -> pushRefEntity(expandEntities)
         }
     }
 
-    private fun pushRefEntity() {
+    private fun pushRefEntity(expandEntities: Boolean) {
         unresolvedEntity = false
         val first = read()
         val codeBuilder = StringBuilder(8)
@@ -1265,7 +1265,7 @@ public class KtXmlReader internal constructor(
                     '&' -> when {
                         left == curPos -> { // start with entity
                             srcBufPos = curPos
-                            pushEntity()
+                            pushEntity(expandEntities = true) // always expand attribute values
                             curPos = srcBufPos
                             left = curPos
                         }

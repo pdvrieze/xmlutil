@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -35,9 +35,18 @@ class TestKtXmlReaderExpandEntities : TestCommonReader() {
     }
 
     @Test
-    fun testReadEntityInAttribute() {
+    fun testReadEntityInAttributeExpand() {
+        testReadEntityInAttribute(true)
+    }
+
+    @Test
+    fun testReadEntityInAttributeNoExpand() {
+        testReadEntityInAttribute(false)
+    }
+
+    private fun testReadEntityInAttribute(expandEntities: Boolean) {
         val data = "<tag attr=\"&lt;xx&gt;\"/>"
-        val reader = KtXmlReader(StringReader(data))
+        val reader = KtXmlReader(StringReader(data), expandEntities)
         var e = reader.next()
         if (e == EventType.START_DOCUMENT) e = reader.next()
         assertEquals(EventType.START_ELEMENT, e)
@@ -74,6 +83,28 @@ class TestKtXmlReaderExpandEntities : TestCommonReader() {
             }
         }
         assertEquals( "Unknown entity \"&unknown;\" in entity expanding mode", e.message!!.substringAfter(" - "))
+    }
+
+    @Test
+    fun testReadUnknownEntityInAttributeNoExpand() {
+        testReadUnknownEntityInAttribute(false)
+    }
+
+    @Test
+    fun testReadUnknownEntityInAttributeExpand() {
+        testReadUnknownEntityInAttribute(true)
+    }
+
+    private fun testReadUnknownEntityInAttribute(expandEntities: Boolean) {
+        val xml = """<tag attr="&unknown;"/>"""
+        val e = assertFailsWith<XmlException> {
+            KtXmlReader(StringReader(xml), expandEntities).use { reader ->
+                assertEquals(EventType.START_ELEMENT, reader.nextTag())
+                assertNotEquals("&unknown;", reader.getAttributeValue(0))
+                assertNotEquals("", reader.getAttributeValue(0))
+            }
+        }
+        assertEquals("Unknown entity \"&unknown;\" in entity expanding mode", e.message!!.substringAfter(" - "))
     }
 
     @Test
