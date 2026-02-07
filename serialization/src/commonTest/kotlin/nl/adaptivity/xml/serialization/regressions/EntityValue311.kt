@@ -70,6 +70,32 @@ class EntityValue311 {
         assertContains(e.message ?: "", "unknown")
     }
 
+    @Test
+    fun testParseKnownEntityNoResolve() {
+        val xmlReader = xmlStreaming.newGenericReader(
+            """
+                <!DOCTYPE Test [ <!ENTITY internalEntity "Hello, world!"> ] >
+                <Test>&internalEntity;</Test>
+            """.trimIndent(),
+            false
+        )
+        val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
+        assertEquals("Hello, world!", test.value)
+    }
+
+    @Test
+    fun testParseKnownEntityResolve() {
+        val xmlReader = xmlStreaming.newGenericReader(
+            """
+                <!DOCTYPE Test [ <!ENTITY internalEntity "Hello, world!"> ] >
+                <Test>&internalEntity;</Test>
+            """.trimIndent(),
+            true
+        )
+        val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
+        assertEquals("Hello, world!", test.value)
+    }
+
     @Serializable
     data class ValueTest(@XmlValue val value: String)
 }

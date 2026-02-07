@@ -88,4 +88,32 @@ class TestKtXmlReaderExpandEntities : TestCommonReader() {
 
         assertEquals(EventType.END_ELEMENT, r.next())
     }
+
+    @Test
+    override fun testInternalEntities() {
+        val text = """
+            <!DOCTYPE Test [
+            <!ENTITY helloWorld "Hello, world!">
+            <!ENTITY foo "Foo">
+            <!ENTITY bar "Bar">
+            <!ENTITY baz "Baz">
+            ]>
+            <Test>&helloWorld;</Test>
+        """.trimIndent()
+        val reader = createReader(text)
+
+        var event = reader.next()
+        if (event == EventType.START_DOCUMENT) event = reader.next()
+        assertEquals(EventType.DOCDECL, event)
+        // There should probably be internal entity decl events here, but we only get whitespace...
+        do {
+            event = reader.next()
+        } while (event == EventType.IGNORABLE_WHITESPACE)
+        // Start element event for <Test>
+        reader.next()
+        // Should be the text within the element
+        event = reader.next()
+        assertEquals(EventType.TEXT, event)
+        assertEquals("Hello, world!", reader.text)
+    }
 }
