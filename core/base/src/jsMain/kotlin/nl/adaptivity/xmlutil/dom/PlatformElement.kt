@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+@JsName("Element")
 public actual external interface PlatformElement : PlatformNode {
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?

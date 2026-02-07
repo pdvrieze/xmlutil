@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -30,6 +30,7 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
     "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
 )
+@JsName("Document")
 public actual external interface PlatformDocument : PlatformNode {
     public val implementation: PlatformDOMImplementation
     public val doctype: PlatformDocumentType?
