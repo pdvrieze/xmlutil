@@ -300,6 +300,7 @@ abstract class TestCommonReader {
         event = reader.next()
         assertEquals(EventType.ENTITY_REF, event)
         assertEquals("Hello, world!", reader.text)
+        assertEquals("helloWorld", reader.localName)
     }
 
     protected abstract fun createReader(xml: String): XmlReader
