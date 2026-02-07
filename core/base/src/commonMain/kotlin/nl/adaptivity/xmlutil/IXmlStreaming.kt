@@ -67,7 +67,10 @@ public interface IXmlStreaming {
     /**
      * Create a new XML reader with the given input. This reader is generic.
      * @param input The text to be parsed
-     * @param expandEntities If true, entities are directly expanded (throwing errors if not found)
+     * @param expandEntities Whether entity references should be emitted as distinct events, or
+     * treated as simple text. In both cases, entities are resolved and their value available via
+     * [XmlReader.text]. Accessing `text` for an unknown entity will throw an exception. If
+     * [expandEntities] is false, the name of the entity is available via [XmlReader.localName].
      * @return A platform independent [XmlReader], generally [nl.adaptivity.xmlutil.core.KtXmlReader]
      */
     public fun newGenericReader(input: CharSequence, expandEntities: Boolean = false): XmlReader
@@ -75,7 +78,10 @@ public interface IXmlStreaming {
     /**
      * Create a new XML reader with the given input. This reader is generic.
      * @param reader The reader/stream to use as input
-     * @param expandEntities If true, entities are directly expanded (throwing errors if not found)
+     * @param expandEntities Whether entity references should be emitted as distinct events, or
+     * treated as simple text. In both cases, entities are resolved and their value available via
+     * [XmlReader.text]. Accessing `text` for an unknown entity will throw an exception. If
+     * [expandEntities] is false, the name of the entity is available via [XmlReader.localName].
      * @return A platform independent [XmlReader], generally [nl.adaptivity.xmlutil.core.KtXmlReader]
      */
     public fun newGenericReader(reader: Reader, expandEntities: Boolean = false): XmlReader
