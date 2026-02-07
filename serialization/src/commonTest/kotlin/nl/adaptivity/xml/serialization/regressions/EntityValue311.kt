@@ -80,7 +80,7 @@ class EntityValue311 {
             false
         )
         val test = XML.v1.decodeFromReader<ValueTest>(xmlReader)
-        assertEquals("internalEntity", test.value)
+        assertEquals("Hello, world!", test.value)
     }
 
     @Test
