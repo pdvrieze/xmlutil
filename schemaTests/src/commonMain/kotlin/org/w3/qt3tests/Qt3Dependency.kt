@@ -21,6 +21,7 @@
 package org.w3.qt3tests
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3TypeAttr
 import org.w3.qt3tests.attrGroups.Qt3ValueAttr
@@ -51,11 +52,11 @@ import org.w3.qt3tests.attrGroups.Qt3ValueAttr
  * (such as `lang="jp"` is requested and the processor does not support that language.
  */
 @Serializable
-@XmlSerialName("collation", QT3TNS)
+@XmlSerialName("dependency", QT3TNS)
 class Qt3Dependency(
-    override val type: Qt3DependencyType? = null,
+    @XmlElement(false) override val type: Qt3DependencyType? = null,
     override val value: String? = null,
     val satisfied: Boolean = true,
-): Qt3TestSet.Element, Qt3TypeAttr, Qt3ValueAttr {
+): Qt3TypeAttr, Qt3ValueAttr {
 
 }

@@ -20,23 +20,17 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3Covers30Attr
 import org.w3.qt3tests.attrGroups.Qt3CoversAttr
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
-
-@Serializable
-abstract class Qt3BaseType(
-    @XmlSerialName("id", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
-    val id: VID?
-)
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3TestSet
 
 
 /**
@@ -50,11 +44,25 @@ class Qt3TestSet(
     @XmlElement(false) override val covers: List<VToken>?,
     @SerialName("covers-30")
     @XmlElement(false) override val covers30: List<VNCName>?,
-    val elements: List<Element>,
-    val testCase: List<Qt3TestCase>,
+    val dependencies: List<Qt3Dependency> = emptyList(),
+    val descriptions: List<Qt3Description> = emptyList(),
+    val environments: List<Qt3Environment> = emptyList(),
+    val links: List<Qt3Link> = emptyList(),
+    val testCases: List<Qt3TestCase>,
 ) : Qt3NameAttr, Qt3CoversAttr, Qt3Covers30Attr {
 
-    @Serializable
-    sealed interface Element
+    context(ctx: ResolutionContext)
+    fun resolve(): ResolvedQt3TestSet {
+        return ResolvedQt3TestSet(
+            name,
+            testCases,
+            covers,
+            covers30,
+            descriptions,
+            environments.map { it.resolve() },
+            dependencies,
+            links,
+        )
+    }
 
 }
