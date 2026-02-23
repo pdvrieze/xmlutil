@@ -26,6 +26,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
 
+/**
+ * Asserts that the result must be a sequence of atomic values that is deep-equal
+ * to the supplied sequence under the rules of the deep-equal() function.
+ */
 @Serializable
 @XmlSerialName("assert-deep-eq", QT3TNS)
 class Qt3AssertDeepEq(@XmlValue val assertion: XPathExpression): Qt3AbstractAssertion()
