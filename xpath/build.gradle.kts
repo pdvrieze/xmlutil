@@ -22,8 +22,6 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.envJvm
-import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
@@ -36,20 +34,17 @@ plugins {
     signing
     alias(libs.plugins.dokka)
     idea
+//    alias(libs.plugins.binaryValidator)
 }
 
 base {
-    archivesName = "xmlschema"
-    description = "A simple library for serializing/deserializing xmlschema"
+    archivesName = "xpath"
+    description = "A simple library for processing xpath expressions"
 }
 
 kotlin {
     applyDefaultXmlUtilHierarchyTemplate()
-    jvm {
-        attributes {
-            attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
-        }
-    }
+    jvm()
     js {
         browser()
         nodejs()
@@ -78,15 +73,13 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.core)
-                implementation(projects.xpath)
-                api(projects.serialization)
+                implementation(projects.serialization)
                 implementation(libs.serialization.core)
                 implementation(libs.datetime)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation(projects.schemaTests)
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
                 implementation(libs.serialization.json)
@@ -97,10 +90,11 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(libs.junit.api)
-                implementation(projects.coreJdk)
+                implementation(libs.junit5.api)
+                implementation(projects.core)
+                implementation(projects.schemaTests)
 
-                runtimeOnly(libs.junit.engine)
+                runtimeOnly(libs.junit5.engine)
                 runtimeOnly(libs.woodstox)
             }
         }
@@ -117,12 +111,12 @@ addNativeTargets(includeWasm = false, includeWasi = false)
 //doPublish()
 
 config {
-    dokkaModuleName = "xmlschema"
+    dokkaModuleName = "xpath"
 //    allWarningsAsErrors = false
 }
 
 idea {
     module {
-        name = "xmlutil-xmlschema"
+        name = "xmlutil-xpath"
     }
 }

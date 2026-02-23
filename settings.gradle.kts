@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -64,6 +64,7 @@ include(":xmlserializable")
 include(":testutil")
 include(":examples")
 if (includeSchema) {
+    include(":xpath")
     include(":xmlschema")
     include(":benchmark")
     include(":schemaTests")
