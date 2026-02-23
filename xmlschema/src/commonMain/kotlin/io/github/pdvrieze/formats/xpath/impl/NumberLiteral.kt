@@ -38,5 +38,6 @@ internal class DoubleLiteral(value: Double) : NumberLiteral<Double>(value) {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         builder.append(value)
     }
+
 }
 
