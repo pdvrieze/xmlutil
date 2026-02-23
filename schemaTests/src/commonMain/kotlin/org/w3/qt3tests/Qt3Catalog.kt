@@ -27,6 +27,9 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Catalog
+import org.w3.qt3tests.resolved.ResolvedQt3TestSet
 
 /**
  * Denotes the root element of the catalog document.  The catalog lists all test-sets that are
@@ -45,6 +48,10 @@ data class Qt3Catalog(
     val environments: List<Qt3Environment>,
     val testSets: List<Qt3CatalogTestSet>,
 ) {
+    context(ctx: ResolutionContext)
+    fun resolve(): ResolvedQt3Catalog {
+        return ResolvedQt3Catalog(version, testSuite, environments.map { it.resolve() }, testSets.map { it.resolve() })
+    }
 }
 
 
@@ -57,6 +64,11 @@ class Qt3CatalogTestSet : Qt3BaseType, Qt3NameAttr, Qt3FileAttr {
     constructor(name: String, file: VAnyURI? = null, id: VID? = null) : super(id) {
         this.name = name
         this.file = file
+    }
+
+    context(ctx: ResolutionContext)
+    fun resolve() : ResolvedQt3TestSet {
+        return ResolvedQt3TestSet()
     }
 }
 

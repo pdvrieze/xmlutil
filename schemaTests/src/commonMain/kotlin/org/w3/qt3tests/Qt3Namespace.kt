@@ -21,7 +21,9 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.Namespace
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
 /**
@@ -45,6 +47,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("namespace", QT3TNS)
 class Qt3Namespace(
-    val prefix: String? = null,
-    val uri: VAnyURI? = null,
-): Qt3Environment.Element
+    override val prefix: String,
+    @SerialName("uri") val uri: VAnyURI,
+): Qt3Environment.Element, Namespace {
+    override val namespaceURI: String get() = uri.value
+}

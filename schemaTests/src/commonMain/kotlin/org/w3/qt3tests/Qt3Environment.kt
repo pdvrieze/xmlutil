@@ -25,6 +25,8 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
 import org.w3.qt3tests.attrGroups.Qt3RefAttr
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Environment
 
 /**
  * Denotes an element which defines an assorted list of schemas and sources documents available to test cases.
@@ -46,14 +48,69 @@ import org.w3.qt3tests.attrGroups.Qt3RefAttr
 @XmlSerialName("environment", QT3TNS)
 class Qt3Environment : Qt3BaseType, Qt3TestSet.Element, Qt3NameAttr, Qt3RefAttr {
 
-    override val name: String?
+    override val name: String
     override val ref: String?
-    val elements: List<Element>
+    val schemas: List<Qt3Schema>
+    val sources: List<Qt3Source>
+    val resource: List<Qt3Resource>
+    val params: List<Qt3Param>
+    val contextItems: List<Qt3ContextItem>
+    val decimalFormats: List<Qt3DecimalFormat>
+    val namespaces: List<Qt3Namespace>
+    val functionLibraries: List<Qt3FunctionLibrary>
+    val collections: List<Qt3Collection>
+    val staticBaseUris: List<Qt3StaticBaseUri>
+    val collations: List<Qt3Collation>
 
-    constructor(name: String? = null, ref: String? = null, elements: List<Element> = emptyList(), id: VID? = null) : super(id) {
+    constructor(
+        name: String,
+        id: VID? = null,
+        ref: String? = null,
+        schemas: List<Qt3Schema>,
+        sources: List<Qt3Source>,
+        resource: List<Qt3Resource>,
+        params: List<Qt3Param>,
+        contextItems: List<Qt3ContextItem>,
+        decimalFormats: List<Qt3DecimalFormat>,
+        namespaces: List<Qt3Namespace>,
+        functionLibraries: List<Qt3FunctionLibrary>,
+        collections: List<Qt3Collection>,
+        staticBaseUris: List<Qt3StaticBaseUri>,
+        collations: List<Qt3Collation>
+    ) : super(id) {
         this.name = name
         this.ref = ref
-        this.elements = elements
+        this.schemas = schemas
+        this.sources = sources
+        this.resource = resource
+        this.params = params
+        this.contextItems = contextItems
+        this.decimalFormats = decimalFormats
+        this.namespaces = namespaces
+        this.functionLibraries = functionLibraries
+        this.collections = collections
+        this.staticBaseUris = staticBaseUris
+        this.collations = collations
+    }
+
+    context(ctx: ResolutionContext)
+    fun resolve(): ResolvedQt3Environment = when (ref) {
+        null -> ResolvedQt3Environment(
+            name,
+            schemas,
+            sources.map { it.resolve() },
+            resource,
+            params,
+            contextItems,
+            decimalFormats,
+            namespaces,
+            functionLibraries,
+            collections,
+            staticBaseUris,
+            collations,
+        ).also { ctx.knownEnvironments[name] = it }
+
+        else -> checkNotNull(ctx.knownEnvironments[ref]) { "Unknown environment $ref" }
     }
 
     @Serializable

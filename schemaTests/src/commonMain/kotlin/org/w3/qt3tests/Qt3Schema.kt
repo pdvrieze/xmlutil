@@ -24,6 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Schema
 
 /**
  * An element which provides information about a schema to be used to validate a source document.
@@ -43,4 +45,9 @@ class Qt3Schema : Qt3SchemaType, Qt3Environment.Element {
         xsdVersion: String ="1.0",
         role: String?
     ) : super(id, description, created, modified, uri, file, xsdVersion, role)
+
+    context(ctx: ResolutionContext)
+    fun resolve(): ResolvedQt3Schema {
+        return ResolvedQt3Schema()
+    }
 }
