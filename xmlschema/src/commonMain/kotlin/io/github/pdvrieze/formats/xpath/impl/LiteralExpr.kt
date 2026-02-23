@@ -21,4 +21,17 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal abstract class LiteralExpr<out T : Any>(val value: T) : Expr()
+internal abstract class LiteralExpr<out T : Any>(val value: T) : Expr() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as LiteralExpr<*>
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+}
