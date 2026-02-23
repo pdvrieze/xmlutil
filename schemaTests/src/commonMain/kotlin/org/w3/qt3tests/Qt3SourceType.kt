@@ -39,17 +39,17 @@ abstract class Qt3SourceType: Qt3BaseType, Qt3RoleAttr, Qt3FileAttr, Qt3UriAttr,
     val created: Qt3Created?
     val modified: List<Qt3Modified>
     final override val role: String?
-    final override val file: VAnyURI?
+    final override val file: VAnyURI
     final override val uri: VAnyURI?
     @XmlElement(false) final override val validation: Qt3Validations?
 
     constructor(
+        file: VAnyURI,
         id: VID? = null,
         description: Qt3Description? = null,
         created: Qt3Created? = null,
         modified: List<Qt3Modified> = emptyList(),
         role: String? = null,
-        file: VAnyURI? = null,
         uri: VAnyURI? = null,
         validation: Qt3Validations? = null,
     ) : super(id) {

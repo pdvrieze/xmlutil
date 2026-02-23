@@ -20,10 +20,18 @@
 
 package org.w3.qt3tests.test
 
-import nl.adaptivity.xmlutil.newGenericReader
+import kotlinx.serialization.DeserializationStrategy
+import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.isIgnorable
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.writeCurrent
 import nl.adaptivity.xmlutil.xmlStreaming
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.w3.dom.nthElement
 import org.w3.qt3tests.Qt3Catalog
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Environment
 import kotlin.test.Test
 
 class TestParseCatalog {
@@ -31,10 +39,48 @@ class TestParseCatalog {
     @Test
     fun testParse() {
         val xml = XML.v1{}
-        val catalog = javaClass.getResourceAsStream("/xpath/catalog.xml")!!.use {
-            val xr = xmlStreaming.newGenericReader(it)
-            xml.decodeFromReader<Qt3Catalog>(xr)
+        val resolutionContext = ResolutionContextImpl("/xpath/", xml)
+
+        val catalog = context(resolutionContext) {
+            resolutionContext.parseFile(Qt3Catalog.serializer(), "catalog.xml").resolve()
         }
+
+        assertEquals(13, catalog.environments.size)
+        val atomicDoc = catalog.environments.first { it.name=="atomic" }.sources.single().content
+        assertEquals("duration", atomicDoc.documentElement!!.nthElement(0).localName)
+        assertEquals("gMonthDay", atomicDoc.documentElement!!.nthElement(6).localName)
+
         println(catalog)
+    }
+}
+
+class ResolutionContextImpl(
+    override val base: String,
+    override val xml: XML,
+): ResolutionContext {
+    override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap()
+    override val idMap: MutableMap<String, Any> = HashMap()
+
+    override fun parseDocument(relativePath: String): Document {
+        val out = xmlStreaming.newWriter()
+
+        javaClass.getResourceAsStream("$base$relativePath")!!.use {
+            val xr = KtXmlReader(it, relaxed = true)
+            while (xr.hasNext()) {
+                val _ = xr.next()
+                if (! xr.isIgnorable()) xr.writeCurrent(out)
+            }
+        }
+        return out.target
+    }
+
+    override fun <T> parseFile(
+        deserializer: DeserializationStrategy<T>,
+        relativePath: String
+    ): T {
+        return javaClass.getResourceAsStream("$base$relativePath")!!.use {
+            val xr = KtXmlReader(it, relaxed = true)
+            xml.decodeFromReader(deserializer, xr)
+        }
     }
 }

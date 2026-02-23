@@ -24,6 +24,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Source
 
 /**
  * An element which provides information about a source xml file used as input to test cases.
@@ -48,9 +50,22 @@ class Qt3Source: Qt3SourceType, Qt3Environment.Element {
         created: Qt3Created?,
         modified: List<Qt3Modified>,
         role: String?,
-        file: VAnyURI?,
+        file: VAnyURI,
         uri: VAnyURI?,
         validation: Qt3Validations?
-    ) : super(id, description, created, modified, role, file, uri, validation)
+    ) : super(file, id, description, created, modified, role, uri, validation)
+
+    context(ctx: ResolutionContext)
+    fun resolve(): ResolvedQt3Source {
+        val parsed = ctx.parseDocument(file.value)
+        return ResolvedQt3Source(
+            parsed,
+            role,
+            validation,
+            created,
+            modified,
+            description,
+        ).also { if (id != null) ctx.idMap[id.xmlString] = it }
+    }
 }
 
