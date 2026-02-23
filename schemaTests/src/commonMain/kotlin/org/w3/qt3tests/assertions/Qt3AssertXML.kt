@@ -61,6 +61,6 @@ class Qt3AssertXML(
     @XmlValue val assertion: String,
     override val file: VAnyURI? = null,
     @SerialName("ignore-prefixes")
-    val ignorePrefixes: Boolean
+    val ignorePrefixes: Boolean = false
 ): Qt3AbstractAssertion(), Qt3FileAttr
 
