@@ -20,10 +20,18 @@
 
 package org.w3.qt3tests
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.SerializableQName
+import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import kotlin.jvm.JvmInline
 
 /**
  * The `decimal-format` element allows a decimal format to be defined as part of the static context
@@ -41,27 +49,91 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
  *     
  * Test Catalog006 ensures that the decimal-format element is only used in tests that are pure
  * XPath expressions.
+ *
+ * Note that separators are strings to support full unicode
  */
 @Serializable
 @XmlSerialName("decimal-format", QT3TNS)
 class Qt3DecimalFormat(
     val name: SerializableQName? = null,
     @SerialName("decimal-separator")
-    val decimalSeparator: Char? = null,
+    val decimalSeparator: OneChar? = null,
     @SerialName("grouping-separator")
-    val groupingSeparator: Char? = null,
+    val groupingSeparator: OneChar? = null,
     @SerialName("zero-digit")
-    val zeroDigit: Char? = null,
-    val digit: Char? = null,
+    val zeroDigit: OneChar? = null,
+    val digit: OneChar? = null,
     @SerialName("minus-sign")
-    val minusSign: Char? = null,
-    val percent: Char? = null,
+    val minusSign: OneChar? = null,
+    val percent: OneChar? = null,
     @SerialName("per-mille")
-    val perMille: Char? = null,
+    val perMille: OneChar? = null,
     @SerialName("pattern-separator")
-    val patternSeparator: Char? = null,
+    val patternSeparator: OneChar? = null,
     @SerialName("exponent-separator")
-    val exponentSeparator: Char? = null,
+    val exponentSeparator: OneChar? = null,
     val infinity: String? = null,
     val NaN: String? = null,
-): Qt3Environment.Element
+) : Qt3Environment.Element
+
+@Serializable(OneChar.Companion::class)
+@JvmInline
+value class OneChar(val codePoint: Int): CharSequence {
+    override fun get(index: Int): Char {
+        if (index < 0) throw IndexOutOfBoundsException("Negative index")
+        if (codePoint < 0x10000) {
+            if (index > 0) throw IndexOutOfBoundsException("Only single char codepoints supported")
+            return Char(codePoint)
+        }
+        val down = codePoint - 0x10000
+        return when (index) {
+            0 -> Char((down shr 10) + 0xd800)
+            1 -> Char((down and 0x3ff) + 0xdc00)
+            else -> throw IndexOutOfBoundsException("Only single code points supported")
+        }
+    }
+
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence {
+        return toString().subSequence(startIndex, endIndex)
+    }
+
+    override val length: Int
+        get() = when {
+            codePoint < 0x10000 -> 1
+            else -> 2
+        }
+
+    val isSingleChar: Boolean get() = codePoint <= 0xD800
+
+    constructor(char: Char) : this(char.code)
+
+    override fun toString(): String {
+        return buildString {
+            appendCodepoint(codePoint)
+        }
+    }
+
+    companion object : KSerializer<OneChar> {
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("oneChar", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: OneChar) {
+            encoder.encodeString(value.toString())
+        }
+
+        override fun deserialize(decoder: Decoder): OneChar {
+            val s = decoder.decodeString()
+            if (s.isEmpty()) throw IllegalArgumentException("Empty string, expected one char/codepoint")
+            if (s[0].isHighSurrogate()) {
+                if (s.length != 2 || ! s[1].isLowSurrogate()) throw IllegalArgumentException("Expected single surrogate pair , but found '$s'")
+                val high = s[0].code - 0xd800
+                val low = s[1].code - 0xdc00
+                val cp = 0x10000 + (high shl 10) + (low and 0x3ff)
+                return OneChar(cp)
+            } else if (s.length == 1){
+                return OneChar(s[0])
+            } else {
+                throw IllegalArgumentException("Empty string, expected one char/codepoint")
+            }
+        }
+    }
+}

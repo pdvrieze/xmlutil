@@ -22,6 +22,7 @@ package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.w3.qt3tests.attrGroups.Qt3EncodingAttr
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
@@ -38,6 +39,8 @@ abstract class Qt3ResourceType: Qt3BaseType, Qt3FileAttr, Qt3UriAttr, Qt3MediaTy
     val modified: List<Qt3Modified>
     final override val file: VAnyURI?
     final override val uri: VAnyURI?
+
+    @SerialName("media-type")
     final override val mediaType: String?
     final override val encoding: String?
 

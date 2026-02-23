@@ -75,6 +75,14 @@ class XPathExpression private constructor(
             return XPathExpression(path, parser.parse())
         }
 
+        private val XQUERY_BUILTIN_PREFIX_MAPPINGS = HashMap<String, String>().apply {
+            put("xs", XMLConstants.XSD_NS_URI)
+            put("fn", XMLConstants.XPATH_FUNCTIONS_NAMESPACE)
+            put("map", "${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/map")
+            put("array", "${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/array")
+            put("math", "${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/math")
+            put("err", "http://www.w3.org/2005/xqt-errors")
+        }
 
     }
 
@@ -895,14 +903,12 @@ class XPathExpression private constructor(
         fun lookupNamespace(prefix: String?): String = when {
             prefix.isNullOrEmpty() -> namespaceContext.getNamespaceURI("") ?: ""
             else -> {
-                when(val known = namespaceContext.getNamespaceURI(prefix)) {
-                    null if (prefix=="xs") -> XMLConstants.XSD_NS_URI
-                    null if (prefix=="fn") -> XMLConstants.XPATH_FUNCTIONS_NAMESPACE
-                    null -> throw IllegalArgumentException("Missing namespace for prefix '$prefix'")
-                    else -> known
-                }
+                return namespaceContext.getNamespaceURI(prefix)
+                    ?: XQUERY_BUILTIN_PREFIX_MAPPINGS[prefix]
+                    ?: throw IllegalArgumentException("Missing namespace for prefix '$prefix'")
             }
         }
+
 
     }
 

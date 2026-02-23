@@ -22,6 +22,7 @@ package org.w3.qt3tests
 
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.XmlValue
 
 /**
  * The content of the element is an XQuery expression to be evaluated. This should return a
@@ -33,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
  */
 @Serializable
 @XmlSerialName("query", QT3TNS)
-class Qt3Query {
+class Qt3Query(@XmlValue val xQueryExpression: String) {
 
 }
 
