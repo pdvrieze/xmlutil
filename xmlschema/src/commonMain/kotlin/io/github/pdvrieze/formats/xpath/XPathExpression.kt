@@ -439,6 +439,7 @@ class XPathExpression private constructor(
 
                     ',' -> {
                         if (isSingle) return current
+                        ++i // consume the comma
                         current = when(current) {
                             is SequenceExpr -> current + parseExpr(isSingle = true) // single
                             else -> SequenceExpr(listOf(current, parseExpr(isSingle = true)))

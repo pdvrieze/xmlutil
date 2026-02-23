@@ -30,6 +30,16 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testParseNoParenSequence() {
+        val expr = XPathExpression("\"http://www.w3.org/2005/xpath-functions\", \"http://www.w3.org/XML/1998/namespace\"")
+        val e = assertIs<SequenceExpr>(expr.expr)
+        assertEquals(2, e.elements.size)
+
+        assertEquals(StringLiteral("http://www.w3.org/2005/xpath-functions"), e.elements[0])
+        assertEquals(StringLiteral("http://www.w3.org/XML/1998/namespace"), e.elements[1])
+    }
+
+    @Test
     fun testMissingSelector() {
         val e = assertFailsWith<IllegalArgumentException> { val _ = XPathExpression.Serializer("child::") }
 
