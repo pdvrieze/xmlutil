@@ -866,8 +866,12 @@ class XPathExpression private constructor(
 
         fun lookupNamespace(prefix: String?): String = when {
             prefix.isNullOrEmpty() -> namespaceContext.getNamespaceURI("") ?: ""
-            else -> requireNotNull(namespaceContext.getNamespaceURI(prefix)) {
-                "Missing namespace for prefix '$prefix'"
+            else -> {
+                when(val known = namespaceContext.getNamespaceURI(prefix)) {
+                    null if (prefix=="xs") -> XMLConstants.XSD_NS_URI
+                    null -> throw IllegalArgumentException("Missing namespace for prefix '$prefix'")
+                    else -> known
+                }
             }
         }
 
