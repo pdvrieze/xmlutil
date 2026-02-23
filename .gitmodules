@@ -6,3 +6,6 @@
 [submodule "xsdtests"]
 	path = schemaTests/src/commonMain/resources/xsts
 	url = https://github.com/w3c/xsdtests.git
+[submodule "schemaTests/src/commonMain/resources/xpath"]
+	path = schemaTests/src/commonMain/resources/xpath
+	url = https://github.com/w3c/qt3tests

@@ -51,6 +51,7 @@ include(":xmlserializable")
 include(":testutil")
 include(":examples")
 if (includeSchema) {
+    include(":xpath")
     include(":xmlschema")
     include(":benchmark")
     include(":schemaTests")
