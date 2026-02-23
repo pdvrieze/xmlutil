@@ -897,6 +897,7 @@ class XPathExpression private constructor(
             else -> {
                 when(val known = namespaceContext.getNamespaceURI(prefix)) {
                     null if (prefix=="xs") -> XMLConstants.XSD_NS_URI
+                    null if (prefix=="fn") -> XMLConstants.XPATH_FUNCTIONS_NAMESPACE
                     null -> throw IllegalArgumentException("Missing namespace for prefix '$prefix'")
                     else -> known
                 }
