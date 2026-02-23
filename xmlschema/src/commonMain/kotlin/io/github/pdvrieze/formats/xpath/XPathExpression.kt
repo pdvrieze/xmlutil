@@ -591,13 +591,14 @@ class XPathExpression private constructor(
         }
 
         private fun parseStringLiteral(): StringLiteral {
-            val start = i
             val delim = when (str[i]) {
                 '\'' -> '\''
                 '"' -> '"'
                 else -> throw IllegalArgumentException("@$i> Literal does not start with quote, but with '${str[i]}'")
             }
             ++i
+            val start = i
+
             while (i < str.length && str[i] != delim) {
                 ++i
             }
