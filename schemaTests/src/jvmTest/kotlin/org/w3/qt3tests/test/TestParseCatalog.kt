@@ -86,7 +86,8 @@ class ResolutionContextImpl(
             }
             return out.target
         } catch (e: XmlSerialException) {
-            throw e.withFileName("$base$relativePath")
+            e.setFileLocation("$base$relativePath")
+            throw e
         }
     }
 
@@ -101,7 +102,8 @@ class ResolutionContextImpl(
                 xml.decodeFromReader(deserializer, xr)
             }
         } catch (e: XmlSerialException) {
-            throw e.withFileName("$base$relativePath")
+            e.setFileLocation("$base$relativePath")
+            throw e
         }
     }
 }
