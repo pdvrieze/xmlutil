@@ -597,13 +597,26 @@ class XPathExpression private constructor(
                 else -> throw IllegalArgumentException("@$i> Literal does not start with quote, but with '${str[i]}'")
             }
             ++i
-            val start = i
+            var start = i
 
-            while (i < str.length && str[i] != delim) {
-                ++i
+            val string = StringBuilder()
+
+            while (i < str.length) {
+                when (str[i]) {
+                    delim if (i+1<str.length && str[i+1]==delim) -> {
+                        string.append(str, start, i+1)
+                        i+=2 // skip reading the second delimiter (again)
+                        start = i // Set the start after the second delimiter
+                    }
+                    delim -> break
+                    else -> ++i
+                }
+            }
+            if (i > start) {
+                string.append(str, start, i)
             }
             require(i < str.length) { "@$i> Literal string not closed" }
-            return StringLiteral(str.substring(start, i)).also { ++i } // skip delim
+            return StringLiteral(string.toString()).also { ++i } // skip delim
         }
 
         private fun parseNumber(): NumberLiteral<*> {
