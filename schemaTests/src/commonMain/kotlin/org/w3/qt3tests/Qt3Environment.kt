@@ -46,9 +46,9 @@ import org.w3.qt3tests.resolved.ResolvedQt3Environment
  */
 @Serializable
 @XmlSerialName("environment", QT3TNS)
-class Qt3Environment : Qt3BaseType, Qt3TestSet.Element, Qt3NameAttr, Qt3RefAttr {
+class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
 
-    override val name: String
+    override val name: String?
     override val ref: String?
     val schemas: List<Qt3Schema>
     val sources: List<Qt3Source>
@@ -63,7 +63,7 @@ class Qt3Environment : Qt3BaseType, Qt3TestSet.Element, Qt3NameAttr, Qt3RefAttr 
     val collations: List<Qt3Collation>
 
     constructor(
-        name: String,
+        name: String? = null,
         id: VID? = null,
         ref: String? = null,
         schemas: List<Qt3Schema>,
@@ -96,7 +96,7 @@ class Qt3Environment : Qt3BaseType, Qt3TestSet.Element, Qt3NameAttr, Qt3RefAttr 
     context(ctx: ResolutionContext)
     fun resolve(): ResolvedQt3Environment = when (ref) {
         null -> ResolvedQt3Environment(
-            name,
+            requireNotNull(name) { "Environment must have a name, or be a reference" },
             schemas,
             sources.map { it.resolve() },
             resource,

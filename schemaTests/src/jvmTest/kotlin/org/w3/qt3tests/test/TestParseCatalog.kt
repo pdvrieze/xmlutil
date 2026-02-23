@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.isIgnorable
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.writeCurrent
 import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -57,30 +58,50 @@ class TestParseCatalog {
 class ResolutionContextImpl(
     override val base: String,
     override val xml: XML,
+    override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
+    override val idMap: MutableMap<String, Any> = HashMap(),
 ): ResolutionContext {
-    override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap()
-    override val idMap: MutableMap<String, Any> = HashMap()
+
+    override fun subContext(file: String): ResolutionContext {
+        val i = file.lastIndexOf('/')
+        val newBase = when {
+            i < 0 -> return this
+            else -> "$base${file.substring(0, i + 1)}"
+        }
+        return ResolutionContextImpl(newBase, xml, knownEnvironments, idMap)
+    }
 
     override fun parseDocument(relativePath: String): Document {
         val out = xmlStreaming.newWriter()
 
-        javaClass.getResourceAsStream("$base$relativePath")!!.use {
-            val xr = KtXmlReader(it, relaxed = true)
-            while (xr.hasNext()) {
-                val _ = xr.next()
-                if (! xr.isIgnorable()) xr.writeCurrent(out)
+        try {
+            requireNotNull(javaClass.getResourceAsStream("$base$relativePath")){
+                "Could not find resource $base$relativePath"
+            }.use {
+                val xr = KtXmlReader(it, relaxed = true)
+                while (xr.hasNext()) {
+                    val _ = xr.next()
+                    if (!xr.isIgnorable()) xr.writeCurrent(out)
+                }
             }
+            return out.target
+        } catch (e: XmlSerialException) {
+            throw e.withFileName("$base$relativePath")
         }
-        return out.target
     }
 
     override fun <T> parseFile(
         deserializer: DeserializationStrategy<T>,
         relativePath: String
     ): T {
-        return javaClass.getResourceAsStream("$base$relativePath")!!.use {
-            val xr = KtXmlReader(it, relaxed = true)
-            xml.decodeFromReader(deserializer, xr)
+        try {
+
+            return javaClass.getResourceAsStream("$base$relativePath")!!.use {
+                val xr = KtXmlReader(it, relaxed = true)
+                xml.decodeFromReader(deserializer, xr)
+            }
+        } catch (e: XmlSerialException) {
+            throw e.withFileName("$base$relativePath")
         }
     }
 }

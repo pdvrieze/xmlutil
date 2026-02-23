@@ -20,6 +20,22 @@
 
 package org.w3.qt3tests.resolved
 
-class ResolvedQt3TestSet {
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import org.w3.qt3tests.Qt3Dependency
+import org.w3.qt3tests.Qt3Description
+import org.w3.qt3tests.Qt3Link
+import org.w3.qt3tests.Qt3TestCase
+
+class ResolvedQt3TestSet(
+    val name: String,
+    val testCases: List<Qt3TestCase>,
+    val covers: List<VToken>?,
+    val covers30: List<VNCName>?,
+    val descriptions: List<Qt3Description>,
+    val map: List<ResolvedQt3Environment>,
+    val dependencies: List<Qt3Dependency>,
+    val links: List<Qt3Link>
+) {
 
 }

@@ -20,34 +20,33 @@
 
 package org.w3.qt3tests
 
-import kotlinx.serialization.SerialName
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.w3.qt3tests.attrGroups.Qt3FileAttr
+import org.w3.qt3tests.attrGroups.Qt3NameAttr
 import org.w3.qt3tests.resolved.ResolutionContext
-import org.w3.qt3tests.resolved.ResolvedQt3Catalog
+import org.w3.qt3tests.resolved.ResolvedQt3TestSet
+import org.w3.qt3tests.resolved.subContext
 
-/**
- * Denotes the root element of the catalog document.  The catalog lists all test-sets that are
- * to be run and also contains an environment of assorted schemas and source documents.
- *
- * @property version Identifies the version of the test suite. Should be incremented each time
- * the test suite is released.
- * @property testSuite Identifies this test suite (in case there are several test suites using this format)
- */
 @Serializable
-@XmlSerialName("catalog", QT3TNS)
-data class Qt3Catalog(
-    val version: String,
-    @SerialName("test-suite")
-    val testSuite: String,
-    val environments: List<Qt3Environment>,
-    val testSets: List<Qt3TestSetReference>,
-) {
+@XmlSerialName("test-set", QT3TNS)
+class Qt3TestSetReference : Qt3BaseType, Qt3NameAttr, Qt3FileAttr {
+    override val name: String
+    override val file: VAnyURI
+
+    constructor(name: String, file: VAnyURI, id: VID? = null) : super(id) {
+        this.name = name
+        this.file = file
+    }
+
     context(ctx: ResolutionContext)
-    fun resolve(): ResolvedQt3Catalog {
-        return ResolvedQt3Catalog(version, testSuite, environments.map { it.resolve() }, testSets.map { it.resolve() })
+    fun resolve() : ResolvedQt3TestSet {
+        val testSet = ctx.parseFile(Qt3TestSet.serializer(), file.value)
+        check(name == testSet.name) { "Name mismatch in testSet: $name != ${testSet.name}" }
+        return ctx.subContext(file.value) {
+            testSet.resolve()
+        }
     }
 }
-
-
-const val QT3TNS="http://www.w3.org/2010/09/qt-fots-catalog"

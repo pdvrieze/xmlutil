@@ -32,4 +32,9 @@ interface ResolutionContext {
 
     fun parseDocument(relativePath: String): Document
     fun <T> parseFile(deserializer: DeserializationStrategy<T>, relativePath: String): T
+    fun subContext(file: String): ResolutionContext
+}
+
+inline fun <R> ResolutionContext.subContext(file: String, block: context(ResolutionContext)  () -> R): R {
+    return context(subContext(file)) { block() }
 }

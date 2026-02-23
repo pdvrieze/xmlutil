@@ -20,16 +20,13 @@
 
 package org.w3.qt3tests
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
 
-/**
- * An element which provides descriptive information about the resource described by its parent
- * element.
- */
 @Serializable
-@XmlSerialName("description", QT3TNS)
-class Qt3Description(
-    @XmlValue val value: String
+abstract class Qt3BaseType(
+    @XmlSerialName("id", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
+    val id: VID?
 )
