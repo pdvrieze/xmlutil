@@ -612,11 +612,24 @@ class XPathExpression private constructor(
             require(i < str.length && str[i].isDigit()) { "@$start> '${str.substring(start, i)}' not a number" }
 
             var seenPeriod = false
+            var seenExp = false
             while (i < str.length) {
                 when (str[i]) {
                     '.' -> when {
-                        seenPeriod -> return DoubleLiteral(str.substring(start, i).toDouble())
+                        seenPeriod || seenExp -> return DoubleLiteral(str.substring(start, i).toDouble())
                         else -> seenPeriod = true
+                    }
+
+                    'e', 'E' -> when {
+                        seenExp -> return DoubleLiteral(str.substring(start, i).toDouble())
+                        else -> {
+                            seenExp = true
+                            // skip signs here
+                            if (i+1 <str.length) when (val c = str[i+1]) {
+                                '+' -> ++i
+                                '-' -> ++i
+                            }
+                        }
                     }
 
                     !in '0'..'9' -> break
@@ -624,7 +637,7 @@ class XPathExpression private constructor(
                 ++i
             }
             return when {
-                seenPeriod -> DoubleLiteral(str.substring(start, i).toDouble())
+                seenPeriod || seenExp -> DoubleLiteral(str.substring(start, i).toDouble())
                 else -> IntLiteral(str.substring(start, i).toLong())
             }
         }
