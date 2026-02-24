@@ -279,7 +279,7 @@ class XPathExpression private constructor(
                 }
 
                 else -> throw IllegalArgumentException(
-                    "@$i> Unexpected character '${str[i]}' in expression - '${str.substring(i)}'"
+                    "@$i> Unexpected character '${str[i]}' in expression - '${str.substring(i)}' from '$str'"
                 )
             }
 
@@ -473,7 +473,7 @@ class XPathExpression private constructor(
                 val elements = mutableListOf(expr)
                 do {
                     require(tryCurrent(',')) { "@$i> Invalid character '${str[i]}' in range expression: '${str.substring(i)}'" }
-                    ++i
+                    // tryCurrent will move the parsing position forward
                     skipWhitespace()
                     elements.add(parseExpr(isSingle = true))
                     require(i < str.length) { "@$i> missing closing )" }

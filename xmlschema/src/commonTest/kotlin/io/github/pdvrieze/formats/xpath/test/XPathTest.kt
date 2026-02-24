@@ -40,6 +40,18 @@ class XPathTest {
     }
 
     @Test
+    fun testParseParenSequence() {
+        val expr = XPathExpression("(1,2,3)")
+        val p = assertIs<ParenExpr>(expr.expr)
+        val e = assertIs<SequenceExpr>(p.expr)
+        assertEquals(3, e.elements.size)
+
+        assertEquals(IntLiteral(1), e.elements[0])
+        assertEquals(IntLiteral(2), e.elements[1])
+        assertEquals(IntLiteral(3), e.elements[2])
+    }
+
+    @Test
     fun testMissingSelector() {
         val e = assertFailsWith<IllegalArgumentException> { val _ = XPathExpression.Serializer("child::") }
 
