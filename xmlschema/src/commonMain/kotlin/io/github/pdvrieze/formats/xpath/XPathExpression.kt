@@ -41,8 +41,17 @@ import nl.adaptivity.xmlutil.serialization.XML
 class XPathExpression private constructor(
     override val xmlString: String,
     @XPathInternal
-    internal val expr: Expr
+    internal val expr: Expr,
+    val version: Version,
 ) : VToken {
+
+    enum class Version: Comparable<Version> {
+        V1_0,
+        V2_0,
+        V3_0,
+        V3_1;
+    }
+
 
     companion object Serializer : KSerializer<XPathExpression> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
@@ -69,12 +78,14 @@ class XPathExpression private constructor(
 
         operator fun invoke(
             path: String,
-            namespaceContext: NamespaceContext = SimpleNamespaceContext()
+            namespaceContext: NamespaceContext = SimpleNamespaceContext(),
+            ver: Version = Version.V3_1
         ): XPathExpression {
-            val parser = Parser(xmlTrimWhitespace(path), namespaceContext)
-            return XPathExpression(path, parser.parse())
+            val parser = Parser(xmlTrimWhitespace(path), namespaceContext, ver)
+            return XPathExpression(path, parser.parse(), ver)
         }
 
+        // TODO: Make including this configurable
         private val XQUERY_BUILTIN_PREFIX_MAPPINGS = HashMap<String, String>().apply {
             put("xs", XMLConstants.XSD_NS_URI)
             put("fn", XMLConstants.XPATH_FUNCTIONS_NAMESPACE)
@@ -86,7 +97,11 @@ class XPathExpression private constructor(
 
     }
 
-    private class Parser(private val str: String, private val namespaceContext: NamespaceContext) {
+    private class Parser(
+        private val str: String,
+        private val namespaceContext: NamespaceContext,
+        private val version: Version,
+    ) {
         var i: Int = 0
 
         fun parsePathExpr(): Expr {
@@ -287,6 +302,14 @@ class XPathExpression private constructor(
             while (i < str.length) {
 //            if (i >= str.length) return current
                 when (str[i]) {
+                    '(' if (version >= Version.V3_0) -> {
+                        val params = when (val e = parseSequenceOrParen()) {
+                            is SequenceExpr -> e.elements
+                            is ExprSingle -> listOf(e)
+                        }
+                        current = DynamicFunctionCall(current, params)
+                    }
+
                     '|' -> {
                         ++i
                         current = BinaryExpr.priority(Operator.UNION, current, parseExpr(isSingle))
@@ -450,7 +473,7 @@ class XPathExpression private constructor(
                         ++i // consume the comma
                         current = when(current) {
                             is SequenceExpr -> current + parseExpr(isSingle = true) // single
-                            else -> SequenceExpr(listOf(current, parseExpr(isSingle = true)))
+                            is ExprSingle -> SequenceExpr(listOf(current, parseExpr(isSingle = true) as ExprSingle))
                         }
                     }
 
@@ -466,16 +489,16 @@ class XPathExpression private constructor(
             require(str[i] == '(')
             val c: Expr
             ++i
-            val expr = parseExpr(isSingle = true)
+            val expr = parseExpr(isSingle = true) as ExprSingle
             skipWhitespace()
             require(i < str.length) { "@$i> missing closing )" }
             if (str[i] != ')') {
-                val elements = mutableListOf(expr)
+                val elements: MutableList<ExprSingle> = mutableListOf(expr)
                 do {
                     require(tryCurrent(',')) { "@$i> Invalid character '${str[i]}' in range expression: '${str.substring(i)}'" }
                     // tryCurrent will move the parsing position forward
                     skipWhitespace()
-                    elements.add(parseExpr(isSingle = true))
+                    elements.add(parseExpr(isSingle = true) as ExprSingle)
                     require(i < str.length) { "@$i> missing closing )" }
                 } while (str[i] != ')')
                 c = ParenExpr(SequenceExpr(elements))
@@ -502,11 +525,11 @@ class XPathExpression private constructor(
             skipWhitespace()
 
             //TODO might be regular expression parsing
-            val exprs = mutableListOf<Expr>()
-            exprs.add(parseExpr(isSingle = true))
+            val exprs = mutableListOf<ExprSingle>()
+            exprs.add(parseExpr(isSingle = true) as ExprSingle)
             while (tryCurrent(',')) {
                 skipWhitespace()
-                exprs.add(parseExpr(isSingle = true))
+                exprs.add(parseExpr(isSingle = true) as ExprSingle)
             }
             val source = exprs.singleOrNull() ?: SequenceExpr(exprs)
             skipWhitespace()
@@ -755,7 +778,7 @@ class XPathExpression private constructor(
 
                             else -> {
                                 skipWhitespace()
-                                return FilterExpr(FunctionCall(curName, args), parsePredicates())
+                                return FilterExpr(StaticFunctionCall(curName, args), parsePredicates())
                             }
                         }
 
@@ -791,15 +814,15 @@ class XPathExpression private constructor(
             return IfExpr(testExpr, thenExpr, elseExpr)
         }
 
-        private fun parseArgs(): List<Expr> {
+        private fun parseArgs(): List<ExprSingle> {
             require(tryCurrent('('))
 
             // TODO(use parseExpr(isSingle = false)
-            val args = mutableListOf<Expr>()
+            val args = mutableListOf<ExprSingle>()
             if (!tryCurrent(')')) {
                 while (true) {
                     skipWhitespace()
-                    args.add(parseExpr(isSingle = true))
+                    args.add(parseExpr(isSingle = true) as ExprSingle)
                     require(i < str.length) { "@$i> Missing closing parenthesis" }
                     if (tryCurrent(')')) break
                     require(tryCurrent(',')) { "@$i> parameters should be separated by ',': '${str.substring(i - 1)}" }

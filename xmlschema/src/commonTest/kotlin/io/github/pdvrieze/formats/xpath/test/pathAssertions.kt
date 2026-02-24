@@ -204,7 +204,7 @@ internal fun TestContext.assertFunctionCall(name: String) {
 
 @OptIn(XPathInternal::class)
 internal fun TestContext.assertFunctionCall(name: QName) {
-    val f = assertIs<FunctionCall>(expr)
+    val f = assertIs<StaticFunctionCall>(expr)
     assertEquals(name, f.name)
     assertEquals(0, f.args.size)
 }

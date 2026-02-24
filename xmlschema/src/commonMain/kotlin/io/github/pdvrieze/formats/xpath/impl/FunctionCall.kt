@@ -24,14 +24,29 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class FunctionCall(val name: QName, val args: List<Expr>): ExprSingle() {
+internal sealed class FunctionCall(val args: List<ExprSingle>): ExprSingle() {
+    protected fun StringBuilder.appendParams(output: XmlWriter?) {
+        append('(')
+        for (i in args.indices) {
+            if (i>0) append(", ")
+            args[i].appendToString(this, output)
+        }
+        append(')')
+    }
+}
+
+@XPathInternal
+internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): FunctionCall(args) {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         appendQName(name, builder, output)
-        builder.append('(')
-        for (i in args.indices) {
-            if (i>0) builder.append(", ")
-            args[i].appendToString(builder, output)
-        }
-        builder.append(')')
+        builder.appendParams(output)
+    }
+}
+
+@XPathInternal
+internal class DynamicFunctionCall(val expr: Expr, args: List<ExprSingle>): FunctionCall(args) {
+    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        expr.appendToString(builder, output)
+        builder.appendParams(output)
     }
 }
