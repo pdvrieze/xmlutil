@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @OptIn(XPathInternal::class)
-class RangeExpr(val from: ComparisonExpr, val to: ComparisonExpr) : ExprSingle() {
+class RangeExpr(val from: Expr, val to: Expr) : ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         from.appendToString(builder, output)
         builder.append(" to ")

@@ -30,6 +30,13 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testDynamicFuncCall() {
+        val expr = XPathExpression("\$result(\"output\") instance of document-node()")
+        val e = assertIs<InstanceOfExpr>(expr.expr)
+
+    }
+
+    @Test
     fun testParseNoParenSequence() {
         val expr = XPathExpression("\"http://www.w3.org/\"\"2005/xpath-functions\", \"http://www.w3.org/XML/1998/namespace\"")
         val e = assertIs<SequenceExpr>(expr.expr)
@@ -153,7 +160,7 @@ class XPathTest {
                         assertEquals(1, path.steps.size)
                         val filter = assertIs<FilterExpr>(path.steps[0])
                         assertEquals(0, filter.predicates.size)
-                        val funcCall = assertIs<FunctionCall>(filter.primaryExpr)
+                        val funcCall = assertIs<StaticFunctionCall>(filter.primaryExpr)
                         assertEquals(0, funcCall.args.size)
                         assertQNameEquivalent(QName("last"), funcCall.name)
                     }
