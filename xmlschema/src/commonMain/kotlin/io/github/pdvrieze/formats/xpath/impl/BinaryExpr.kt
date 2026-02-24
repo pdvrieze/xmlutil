@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): Expr() {
+internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         left.appendToString(builder, output)
         builder.append(' ').append(operator.literal).append(' ')

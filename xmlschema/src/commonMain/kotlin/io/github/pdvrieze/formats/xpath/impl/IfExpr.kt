@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.XmlWriter
 
-@OptIn(XPathInternal::class)
-data class IfExpr(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : Expr() {
+@XPathInternal
+data class IfExpr(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         builder.append("if(")
         testExpr.appendToString(builder, output)
@@ -33,3 +33,4 @@ data class IfExpr(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : 
         elseExpr.appendToString(builder, output)
     }
 }
+

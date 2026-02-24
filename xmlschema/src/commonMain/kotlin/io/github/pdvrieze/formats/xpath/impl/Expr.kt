@@ -46,3 +46,6 @@ sealed class Expr {
         builder.append(t.toCName())
     }
 }
+
+@OptIn(XPathInternal::class)
+sealed class ExprSingle(): Expr()

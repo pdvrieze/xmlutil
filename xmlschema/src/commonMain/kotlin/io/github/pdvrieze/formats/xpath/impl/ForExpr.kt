@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,11 +23,26 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class ParenExpr(val expr: Expr): ExprSingle() {
+class ForExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingle() {
+    init {
+        require(bindings.isNotEmpty()) { "Must have at least one binding" }
+    }
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.append('(')
-        expr.appendToString(builder, output)
-        builder.append(')')
+        builder.append("for ")
+        val it = bindings.iterator()
+        it.next().appendToString(builder, output)
+        while (it.hasNext()) {
+            builder.append(", ")
+            it.next().appendToString(builder, output)
+        }
+        builder.append(" return ")
+        returnExp.appendToString(builder, output)
+    }
+
+    class Binding(val varName: String, val collection: ExprSingle) {
+        fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+            builder.append('$').append(varName).append(" in ")
+            collection.appendToString(builder, output)
+        }
     }
 }
-

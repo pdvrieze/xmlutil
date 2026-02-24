@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.XmlWriter
 internal class LocationPath(
     val rooted: Boolean,
     val steps: List<PrimaryOrStep>,
-) : Expr() {
+) : ExprSingle() {
     constructor(step: AxisStep) : this(false, listOf(step))
 
     constructor(rooted: Boolean, step: AxisStep) : this(rooted, listOf(step))

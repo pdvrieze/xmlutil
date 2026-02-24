@@ -28,7 +28,7 @@ class QuantifiedExpr constructor(
     val varName: String,
     val source: Expr,
     val condition: Expr
-) : Expr() {
+) : ExprSingle() {
     enum class Kind(val literal: String) {
         EVERY("every"),
         SOME("some");

@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-class CastExpr(val expr: Expr, val type: QName) : Expr() {
+class CastExpr(val expr: Expr, val type: QName) : ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         expr.appendToString(builder, output)
         builder.append(" cast as ")
