@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class FunctionCall(val name: QName, val args: List<Expr>): Expr() {
+internal class FunctionCall(val name: QName, val args: List<Expr>): ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         appendQName(name, builder, output)
         builder.append('(')

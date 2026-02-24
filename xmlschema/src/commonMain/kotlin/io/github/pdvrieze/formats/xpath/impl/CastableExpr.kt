@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : Expr() {
+class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         expr.appendToString(builder, output)
         builder.append(" castable as ")

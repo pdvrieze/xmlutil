@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.XmlWriter
 
 @OptIn(XPathInternal::class)
 @XPathInternal
-internal class VariableRef(val varName: String): Expr() {
+internal class VariableRef(val varName: String): ExprSingle() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         builder.append('@').append(varName)
     }
