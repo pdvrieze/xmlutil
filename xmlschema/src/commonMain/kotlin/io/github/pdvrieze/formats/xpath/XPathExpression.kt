@@ -104,7 +104,7 @@ class XPathExpression private constructor(
     ) {
         var i: Int = 0
 
-        fun parsePathExpr(): Expr {
+        fun parsePathExprOld(): Expr {
             var current: Expr? = null
 
             skipWhitespace()
@@ -118,7 +118,7 @@ class XPathExpression private constructor(
                     '|' -> current = BinaryExpr(
                         Operator.UNION,
                         requireNotNull(current) { "@$i> Path expressions can not start with |" },
-                        parsePathExpr()
+                        parsePathExprOld()
                     )
 
                     ')' -> {
@@ -127,7 +127,7 @@ class XPathExpression private constructor(
 
                     '(' -> {
                         ++i
-                        current = parseExpr(isSingle = false)
+                        current = parseExpr()
                         while (isXmlWhitespace(str[i]) && (i + 1 < str.length)) {
                             ++i
                         }
@@ -189,6 +189,23 @@ class XPathExpression private constructor(
             while (i < str.length && (str[i] != ':' && isNameChar11(str[i]))) {
                 append(str[i++])
             }
+        }
+
+        private fun parseEQName(): QName {
+            skipWhitespace()
+            if (!tryCurrent("Q{")) {
+                return parseQName()
+            }
+
+            val namespace = buildString {
+                while (i < str.length && str[i] != '}') {
+                    append(str[i++])
+                }
+                require(str[i++] == '}')
+            }.trim()
+
+            val localName = parseNCName()
+            return QName(namespace, localName)
         }
 
         private fun parseQName(): QName {
@@ -257,10 +274,337 @@ class XPathExpression private constructor(
             return VariableRef(parseNCName())
         }
 
-        private fun parseExpr(isSingle: Boolean /*= false*/): Expr {
+        private fun parseExpr(): Expr {
+            val expressions = mutableListOf<ExprSingle>()
+            expressions.add(parseExprSingle())
+            while (tryCurrent(',')) {
+                expressions.add(parseExprSingle())
+            }
+            return expressions.singleOrNull() ?: SequenceExpr(expressions)
+        }
+
+        private fun parseExprSingle(): ExprSingle {
+            skipWhitespace()
+            return when (str[i]) {
+                'f' if(tryCurrentWord("for")) -> parseForExpr()
+                'l' if(tryCurrentWord("let")) -> parseLetExpr()
+                's' if(tryCurrentWord("some")) -> parseQuantifiedExpr(QuantifiedExpr.Kind.SOME)
+                'e' if(tryCurrentWord("every")) -> parseQuantifiedExpr(QuantifiedExpr.Kind.EVERY)
+                'i' if(tryCurrentWord("if")) -> parseIfExpr()
+                else -> parseOrExpr()
+            }
+        }
+
+        private fun parseForExpr(): ForExpr {
+            skipWhitespace()
+            val bindings = mutableListOf<ForExpr.Binding>()
+            do {
+                require(tryCurrent('$'))
+                val varName = parseNCName()
+                skipWhitespace()
+                require(tryCurrentWord("in"))
+                val seqExpr = parseExprSingle()
+                bindings.add(ForExpr.Binding(varName, seqExpr))
+                skipWhitespace()
+            } while (tryCurrent(','))
+
+            require(tryCurrentWord("return"))
+            val returned = parseExprSingle()
+            return ForExpr(bindings, returned)
+        }
+
+        private fun parseLetExpr(): LetExpr {
+            skipWhitespace()
+            val bindings = mutableListOf<LetExpr.Binding>()
+            do {
+                require(tryCurrent('$'))
+                val varName = parseNCName()
+                skipWhitespace()
+                require(tryCurrent(":="))
+                val rValueExpr = parseExprSingle()
+                bindings.add(LetExpr.Binding(varName, rValueExpr))
+                skipWhitespace()
+            } while (tryCurrent(','))
+
+            require(tryCurrentWord("return"))
+            val returned = parseExprSingle()
+            return LetExpr(bindings, returned)
+        }
+
+        private fun parseIfExpr(): IfExpr {
+            skipWhitespace()
+            require(tryCurrent('(')) { "@$i> Missing opening parenthesis in if expression" }
+            skipWhitespace()
+            val condition = parseExpr()
+            skipWhitespace()
+            require(tryCurrent(')')) { "@$i> Missing closing parenthesis in if expression" }
+            skipWhitespace()
+            require(tryCurrentWord("then")) { "@$i> Missing 'then' in if expression" }
+            val thenExpr = parseExprSingle()
+            skipWhitespace()
+            require(tryCurrentWord("else"))
+            return IfExpr(condition, thenExpr, parseExprSingle())
+        }
+
+        private fun parseOrExpr(): ExprSingle {
+            val exprs = mutableListOf<ExprSingle>()
+            exprs.add(parseAndExpr())
+            skipWhitespace()
+            while(tryCurrentWord("or")) {
+                exprs.add(parseAndExpr())
+                skipWhitespace()
+            }
+            return exprs.singleOrNull() ?: OperatorExpr(Operator.OR, exprs)
+        }
+
+        private fun parseAndExpr(): ExprSingle {
+            val exprs = mutableListOf<ExprSingle>()
+            exprs.add(parseComparisonExpr())
+            skipWhitespace()
+            while(tryCurrentWord("and")) {
+                exprs.add(parseComparisonExpr())
+                skipWhitespace()
+            }
+            return exprs.singleOrNull() ?: OperatorExpr(Operator.AND, exprs)
+        }
+
+        private fun parseComparisonExpr(): ExprSingle {
+            val current: ExprSingle = parseStringConcatExpr()
+            skipWhitespace()
+            if (i + 1 > str.length) return current
+            when (str[i]) {
+                '=' -> return BinaryExpr.priority(Operator.EQ, current, parseStringConcatExpr())
+
+                '!' if str[i + 1] == '=' ->
+                    return BinaryExpr.priority(Operator.NEQ, current, parseStringConcatExpr())
+
+                '<' -> return when {
+                    str[i + 1] == '=' -> BinaryExpr.priority(Operator.LE, current, parseStringConcatExpr())
+                    str[i + 1] == '<' -> BinaryExpr.priority(Operator.PRECEDES, current, parseStringConcatExpr())
+                    else -> BinaryExpr.priority(Operator.LT, current, parseStringConcatExpr())
+                }
+
+                '>' -> return when {
+                    str[i + 1] == '=' -> BinaryExpr.priority(Operator.GE, current, parseStringConcatExpr())
+                    str[i + 1] == '>' -> BinaryExpr.priority(Operator.FOLLOWS, current, parseStringConcatExpr())
+                    else -> BinaryExpr.priority(Operator.GT, current, parseStringConcatExpr())
+                }
+
+                'e' if tryCurrentWord("eq") ->
+                    return BinaryExpr.priority(Operator.VAL_EQ, current, parseStringConcatExpr())
+
+                'n' if tryCurrentWord("ne") ->
+                    return BinaryExpr.priority(Operator.VAL_NEQ, current, parseStringConcatExpr())
+
+                'l' -> when {
+                    tryCurrentWord("lt") ->
+                        return BinaryExpr.priority(Operator.VAL_LT, current, parseStringConcatExpr())
+
+                    tryCurrentWord("le") ->
+                        return BinaryExpr.priority(Operator.VAL_LE, current, parseStringConcatExpr())
+                }
+
+                'g' -> when {
+                    tryCurrentWord("gt") ->
+                        return BinaryExpr.priority(Operator.VAL_GT, current, parseStringConcatExpr())
+
+                    tryCurrentWord("ge") ->
+                        return BinaryExpr.priority(Operator.VAL_GE, current, parseStringConcatExpr())
+                }
+
+                'i' if (tryCurrentWord("is")) ->
+                    return BinaryExpr(Operator.IS, current, parseStringConcatExpr())
+            }
+            return current
+        }
+
+        private fun parseStringConcatExpr(): ExprSingle {
+            val concats = mutableListOf<ExprSingle>()
+            concats.add(parseRangeExpr())
+            skipWhitespace()
+            while (tryCurrent("||")) {
+                concats.add(parseRangeExpr())
+                skipWhitespace()
+            }
+            return concats.singleOrNull() ?: OperatorExpr(Operator.CONCAT, concats)
+        }
+
+        private fun parseRangeExpr(): ExprSingle {
+            val e = parseAdditiveExpr()
+            skipWhitespace()
+            return when {
+                tryCurrentWord("to") -> RangeExpr(e, parseAdditiveExpr())
+                else -> e
+            }
+        }
+
+        private fun parseAdditiveExpr(): ExprSingle {
+            var current: ExprSingle = parseMultiplicativeExpr()
+            do {
+                skipWhitespace()
+                current = when (peekCurrent()) {
+                    '+' -> BinaryExpr.priority(Operator.ADD, current, parseMultiplicativeExpr())
+                    '-' -> BinaryExpr.priority(Operator.SUB, current, parseMultiplicativeExpr())
+                    else -> return current
+                }
+
+            } while (i < str.length)
+            return current
+        }
+
+        private fun parseMultiplicativeExpr(): ExprSingle {
+            var current: ExprSingle = parseUnionExpr()
+            do {
+                skipWhitespace()
+                current = when {
+                    tryCurrent('*') -> BinaryExpr.priority(Operator.MUL, current, parseUnionExpr())
+                    tryCurrentWord("div") -> BinaryExpr.priority(Operator.DIV, current, parseUnionExpr())
+                    tryCurrentWord("idiv") -> BinaryExpr.priority(Operator.IDIV, current, parseUnionExpr())
+                    tryCurrentWord("mod") -> BinaryExpr.priority(Operator.MOD, current, parseUnionExpr())
+                    else -> return current
+                }
+
+            } while (i < str.length)
+            return current
+        }
+
+        private fun parseUnionExpr(): ExprSingle {
+            val unions = mutableListOf<ExprSingle>()
+            unions.add(parseIntersectExceptExpr())
+            skipWhitespace()
+            while (tryCurrent('|') || tryCurrentWord("union")) {
+                unions.add(parseIntersectExceptExpr())
+                skipWhitespace()
+            }
+            return unions.singleOrNull() ?: OperatorExpr(Operator.UNION, unions)
+        }
+
+        private fun parseIntersectExceptExpr(): ExprSingle {
+            var current: ExprSingle = parseInstanceofExpr()
+            do {
+                skipWhitespace()
+                current = when {
+                    tryCurrentWord("intersect") ->
+                        BinaryExpr.priority(Operator.INTERSECT, current, parseInstanceofExpr())
+
+                    tryCurrentWord("except") ->
+                        BinaryExpr.priority(Operator.EXCEPT, current, parseInstanceofExpr())
+
+                    else -> return current
+                }
+
+            } while (i < str.length)
+            return current
+        }
+
+        private fun parseInstanceofExpr(): ExprSingle {
+            val e = parseTreatExpr()
+            skipWhitespace()
+            if (tryCurrentWord("instance")) {
+                skipWhitespace()
+                require(tryCurrentWord("of")) { "@$i> Missing 'of' in 'instance of' expression: '${str.substring(i)}'" }
+                return InstanceOfExpr(e, parseSequenceType())
+            }
+            return e
+        }
+
+        private fun parseTreatExpr(): ExprSingle {
+            val e = parseCastableExpr()
+            skipWhitespace()
+            if (tryCurrentWord("treat")) {
+                skipWhitespace()
+                require(tryCurrentWord("as")) { "@$i> Missing 'as' in 'treat as' expression: '${str.substring(i)}'" }
+                return TreatAsExpr(e, parseSequenceType())
+            }
+            return e
+        }
+
+        private fun parseCastableExpr(): ExprSingle {
+            val e = parseCastExpr()
+            skipWhitespace()
+            if (tryCurrentWord("castable")) {
+                skipWhitespace()
+                require(tryCurrentWord("as")) { "@$i> Missing 'as' in 'castable as' expression: '${str.substring(i)}'" }
+                skipWhitespace()
+                val typeName = parseSimpleTypeName()
+                val allowsEmpty = tryCurrent('?')
+                return CastableExpr(e, typeName, allowsEmpty)
+            }
+            return e
+        }
+
+        private fun parseSimpleTypeName(): QName {
+            return parseQName()
+        }
+
+        private fun parseCastExpr(): ExprSingle {
+            val e = parseArrowExpr()
+            skipWhitespace()
+            if (tryCurrentWord("castable")) {
+                skipWhitespace()
+                require(tryCurrentWord("as")) { "@$i> Missing 'as' in 'castable as' expression: '${str.substring(i)}'" }
+                skipWhitespace()
+                val typeName = parseSimpleTypeName()
+                val allowsEmpty = tryCurrent('?')
+                return CastableExpr(e, typeName, allowsEmpty)
+            }
+            return e
+        }
+
+        private fun parseArrowExpr(): ExprSingle {
+            var e = parseUnaryExpr()
             skipWhitespace()
 
-            var current: Expr
+            while (tryCurrent("=>")) {
+                val functionSpecifier = parseArrowFunctionSpecifier()
+                skipWhitespace()
+                val params = when (val e = parseSequenceOrParen().expr) {
+                    is SequenceExpr -> e.elements
+                    is ExprSingle  -> listOf(e)
+                }
+                e = ArrowFunction(e, functionSpecifier, params)
+            }
+            return e
+        }
+
+        private fun parseArrowFunctionSpecifier(): ArrowFunctionSpecifier {
+            skipWhitespace()
+            return when (peekCurrent()) {
+                '$' -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
+                '(' -> ArrowFunctionSpecifier.SeqFunc(parseSequenceOrParen())
+                else -> ArrowFunctionSpecifier.QNameFunc(parseEQName())
+            }
+
+        }
+
+        private fun parseUnaryExpr(): ExprSingle {
+            skipWhitespace()
+            return when (peekCurrent()) {
+                '+' -> UnaryExpr.Plus(parseValueExpr())
+                '-' -> UnaryExpr.Minus(parseValueExpr())
+                else -> parseValueExpr()
+            }
+        }
+
+        private fun parseValueExpr(): ExprSingle {
+            val exprs = mutableListOf<ExprSingle>()
+            exprs.add(parsePathExpr())
+            skipWhitespace()
+            while (tryCurrent('!')) {
+                exprs.add(parsePathExpr())
+                skipWhitespace()
+            }
+            return exprs.singleOrNull() ?: MapExpr(exprs)
+        }
+
+        private fun parsePathExpr(): ExprSingle {
+            return parseExprSingleOld()
+        }
+
+        private fun parseExprSingleOld(): ExprSingle {
+            skipWhitespace()
+
+            var current: ExprSingle
 
             require(i < str.length) { "Empty expression" }
             val c = str[i]
@@ -303,7 +647,7 @@ class XPathExpression private constructor(
 //            if (i >= str.length) return current
                 when (str[i]) {
                     '(' if (version >= Version.V3_0) -> {
-                        val params = when (val e = parseSequenceOrParen()) {
+                        val params = when (val e = parseSequenceOrParen().expr) {
                             is SequenceExpr -> e.elements
                             is ExprSingle -> listOf(e)
                         }
@@ -312,60 +656,60 @@ class XPathExpression private constructor(
 
                     '|' -> {
                         ++i
-                        current = BinaryExpr.priority(Operator.UNION, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.UNION, current, parseExprSingle())
                     }
 
                     '=' -> {
                         ++i
-                        current = BinaryExpr.priority(Operator.EQ, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.EQ, current, parseExprSingle())
                     }
 
                     '!' -> {
                         ++i
-                        current = BinaryExpr.priority(Operator.NEQ, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.NEQ, current, parseExprSingle())
                     }
 
                     '<' -> current = when {
-                        tryCurrent("<=") -> BinaryExpr.priority(Operator.LE, current, parseExpr(isSingle))
+                        tryCurrent("<=") -> BinaryExpr.priority(Operator.LE, current, parseExprSingle())
 
-                        tryCurrent("<<") -> BinaryExpr.priority(Operator.PRECEDES, current, parseExpr(isSingle))
+                        tryCurrent("<<") -> BinaryExpr.priority(Operator.PRECEDES, current, parseExprSingle())
 
                         else -> {
                             ++i
-                            BinaryExpr.priority(Operator.LT, current, parseExpr(isSingle))
+                            BinaryExpr.priority(Operator.LT, current, parseExprSingle())
                         }
                     }
 
                     '>' -> current = when {
-                        tryCurrent(">=") -> BinaryExpr.priority(Operator.GE, current, parseExpr(isSingle))
+                        tryCurrent(">=") -> BinaryExpr.priority(Operator.GE, current, parseExprSingle())
 
-                        tryCurrent(">>") -> BinaryExpr.priority(Operator.FOLLOWS, current, parseExpr(isSingle))
+                        tryCurrent(">>") -> BinaryExpr.priority(Operator.FOLLOWS, current, parseExprSingle())
 
                         else -> {
                             ++i
-                            BinaryExpr.priority(Operator.GT, current, parseExpr(isSingle))
+                            BinaryExpr.priority(Operator.GT, current, parseExprSingle())
                         }
                     }
 
                     '*' -> {
                         ++i
-                        current = BinaryExpr.priority(Operator.MUL, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.MUL, current, parseExprSingle())
                     }
 
                     '+' -> {
                         ++i
-                        current = BinaryExpr.priority(Operator.ADD, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.ADD, current, parseExprSingle())
                     }
 
                     '-' -> {
                         ++i
-                        current = BinaryExpr.priority(Operator.SUB, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.SUB, current, parseExprSingle())
                     }
 
                     'a' -> {
                         if (!tryCurrentWord("and")) return current
 
-                        current = BinaryExpr.priority(Operator.AND, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.AND, current, parseExprSingle())
                     }
 
                     'c' -> {
@@ -394,22 +738,22 @@ class XPathExpression private constructor(
                     'd' -> {
                         if (!tryCurrentWord("div")) return current
 
-                        current = BinaryExpr.priority(Operator.DIV, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.DIV, current, parseExprSingle())
                     }
 
                     'e' -> {
                         if (!tryCurrentWord("eq")) return current
 
-                        current = BinaryExpr.priority(Operator.VAL_EQ, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.VAL_EQ, current, parseExprSingle())
                     }
 
                     'g' -> {
                         when {
                             tryCurrentWord("ge") ->
-                                current = BinaryExpr.priority(Operator.VAL_GE, current, parseExpr(isSingle))
+                                current = BinaryExpr.priority(Operator.VAL_GE, current, parseExprSingle())
 
                             tryCurrentWord("gt") ->
-                                current = BinaryExpr.priority(Operator.VAL_GT, current, parseExpr(isSingle))
+                                current = BinaryExpr.priority(Operator.VAL_GT, current, parseExprSingle())
 
                             else -> return current
                         }
@@ -427,10 +771,10 @@ class XPathExpression private constructor(
                             }
 
                             tryCurrentWord("idiv") ->
-                                current = BinaryExpr.priority(Operator.IDIV, current, parseExpr(isSingle))
+                                current = BinaryExpr.priority(Operator.IDIV, current, parseExprSingle())
 
                             tryCurrent("is") ->
-                                current = BinaryExpr.priority(Operator.IS, current, parseExpr(isSingle))
+                                current = BinaryExpr.priority(Operator.IS, current, parseExprSingle())
 
                             else -> return current
                         }
@@ -439,10 +783,10 @@ class XPathExpression private constructor(
                     'l' -> {
                         when {
                             tryCurrentWord("le") ->
-                                current = BinaryExpr.priority(Operator.VAL_LE, current, parseExpr(isSingle))
+                                current = BinaryExpr.priority(Operator.VAL_LE, current, parseExprSingle())
 
                             tryCurrentWord("lt") ->
-                                current = BinaryExpr.priority(Operator.VAL_LT, current, parseExpr(isSingle))
+                                current = BinaryExpr.priority(Operator.VAL_LT, current, parseExprSingle())
 
                             else -> return current
                         }
@@ -450,31 +794,22 @@ class XPathExpression private constructor(
 
                     'm' -> {
                         if(!tryCurrentWord("mod")) return current
-                        current = BinaryExpr.priority(Operator.MOD, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.MOD, current, parseExprSingle())
                     }
 
                     'n' -> {
                         if (!tryCurrentWord("ne")) return current
-                        current = BinaryExpr.priority(Operator.VAL_NEQ, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.VAL_NEQ, current, parseExprSingle())
                     }
 
                     'o' -> {
                         if (!tryCurrentWord("or")) return current
-                        current = BinaryExpr.priority(Operator.OR, current, parseExpr(isSingle))
+                        current = BinaryExpr.priority(Operator.OR, current, parseExprSingle())
                     }
 
                     't' -> {
                         if (!tryCurrentWord("to")) return current
-                        current = RangeExpr(current, parseExpr(isSingle))
-                    }
-
-                    ',' -> {
-                        if (isSingle) return current
-                        ++i // consume the comma
-                        current = when(current) {
-                            is SequenceExpr -> current + parseExpr(isSingle = true) // single
-                            is ExprSingle -> SequenceExpr(listOf(current, parseExpr(isSingle = true) as ExprSingle))
-                        }
+                        current = RangeExpr(current, parseExprSingle())
                     }
 
                     else -> return current //no expression elements
@@ -485,11 +820,11 @@ class XPathExpression private constructor(
             return current
         }
 
-        private fun parseSequenceOrParen(): Expr {
+        private fun parseSequenceOrParen(): ParenExpr {
             require(str[i] == '(')
-            val c: Expr
+            val c: ParenExpr
             ++i
-            val expr = parseExpr(isSingle = true) as ExprSingle
+            val expr = parseExprSingle()
             skipWhitespace()
             require(i < str.length) { "@$i> missing closing )" }
             if (str[i] != ')') {
@@ -498,7 +833,7 @@ class XPathExpression private constructor(
                     require(tryCurrent(',')) { "@$i> Invalid character '${str[i]}' in range expression: '${str.substring(i)}'" }
                     // tryCurrent will move the parsing position forward
                     skipWhitespace()
-                    elements.add(parseExpr(isSingle = true) as ExprSingle)
+                    elements.add(parseExprSingle())
                     require(i < str.length) { "@$i> missing closing )" }
                 } while (str[i] != ')')
                 c = ParenExpr(SequenceExpr(elements))
@@ -509,7 +844,7 @@ class XPathExpression private constructor(
             return c
         }
 
-        private fun parseQuantifiedExpr(kind: QuantifiedExpr.Kind): Expr {
+        private fun parseQuantifiedExpr(kind: QuantifiedExpr.Kind): ExprSingle {
             val oldStart = i - kind.literal.length
             skipWhitespace()
 
@@ -524,28 +859,31 @@ class XPathExpression private constructor(
             require(tryCurrentWord("in")) { "@$i> Missing 'in' in quantified expression '${str.substring(i)}'" }
             skipWhitespace()
 
+/*
             //TODO might be regular expression parsing
             val exprs = mutableListOf<ExprSingle>()
-            exprs.add(parseExpr(isSingle = true) as ExprSingle)
+            exprs.add(parseExprSingle())
             while (tryCurrent(',')) {
                 skipWhitespace()
-                exprs.add(parseExpr(isSingle = true) as ExprSingle)
+                exprs.add(parseExprSingle())
             }
-            val source = exprs.singleOrNull() ?: SequenceExpr(exprs)
+*/
+            val source = parseExpr()//exprs.singleOrNull() ?: SequenceExpr(exprs)
+
             skipWhitespace()
 
             require(tryCurrentWord("satisfies")) { "@$i> Missing satisfies in quantified expression: ${str.substring(i)}" }
 
             skipWhitespace()
 
-            val condition = parseExpr(isSingle = true)
+            val condition = parseExprSingle()
             skipWhitespace()
 
             return QuantifiedExpr(kind, varName.varName, source, condition)
         }
 
         fun parse(): Expr {
-            val e = parseExpr(false)
+            val e = parseExpr()
             skipWhitespace()
             if (i < str.length) throw IllegalArgumentException("@$i> Trailing content in expression: '${str.substring(i)}'")
             return e
@@ -596,13 +934,13 @@ class XPathExpression private constructor(
                     c == '(' -> {
                         require(steps.isEmpty()) { "Primary expression in invalid point" }
                         ++i
-                        steps.add(FilterExpr(parseExpr(isSingle = false), parsePredicates()))
+                        steps.add(FilterExpr(parseExpr(), parsePredicates()))
                         skipWhitespace()
                         require(tryCurrent(')')) { "@$i> Expression not ended by ')'" }
                     }
 
                     c.isDigit() -> {
-                        steps.add(FilterExpr(parseExpr(isSingle = false), parsePredicates()))
+                        steps.add(FilterExpr(parseExpr(), parsePredicates()))
                     }
 
                     isNameStartChar(c) ||
@@ -801,16 +1139,16 @@ class XPathExpression private constructor(
         private fun parseIfConditionAndConsequences(): IfExpr {
             require(tryCurrent('('))
             skipWhitespace()
-            val testExpr = parseExpr(isSingle = false)
+            val testExpr = parseExpr()
             skipWhitespace()
             require(tryCurrent(')'))
             skipWhitespace()
             require(tryCurrentWord("then"))
             skipWhitespace()
-            val thenExpr = parseExpr(isSingle = true)
+            val thenExpr = parseExprSingle()
             skipWhitespace()
             require(tryCurrentWord("else"))
-            val elseExpr = parseExpr(isSingle = true)
+            val elseExpr = parseExprSingle()
             return IfExpr(testExpr, thenExpr, elseExpr)
         }
 
@@ -821,11 +1159,11 @@ class XPathExpression private constructor(
             val args = mutableListOf<ExprSingle>()
             if (!tryCurrent(')')) {
                 while (true) {
-                    skipWhitespace()
-                    args.add(parseExpr(isSingle = true) as ExprSingle)
+//                    skipWhitespace()
+                    args.add(parseExprSingle())
                     require(i < str.length) { "@$i> Missing closing parenthesis" }
                     if (tryCurrent(')')) break
-                    require(tryCurrent(',')) { "@$i> parameters should be separated by ',': '${str.substring(i - 1)}" }
+                    require(tryCurrent(',')) { "@$i> parameters should be separated by ',': '${str.substring(i - 1)}' in $str" }
                 }
             }
 
@@ -864,7 +1202,7 @@ class XPathExpression private constructor(
             while (tryCurrent('[')) {
 
                 skipWhitespace()
-                add(parseExpr(isSingle = false))
+                add(parseExpr())
                 skipWhitespace()
                 require(tryCurrent(']')) { "@$i> Predicate not closed by ']': '${str.substring(i)}'" }
 

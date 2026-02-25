@@ -54,6 +54,8 @@ interface ItemType {
     fun appendToString(builder: StringBuilder, output: XmlWriter?)
 }
 
+sealed class SingleType
+
 sealed class SequenceType {
     object EmptySequence : SequenceType() {
         override fun appendToString(builder: StringBuilder, output: XmlWriter?) {

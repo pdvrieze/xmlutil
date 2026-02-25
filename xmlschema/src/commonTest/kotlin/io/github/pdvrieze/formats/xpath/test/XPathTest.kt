@@ -37,6 +37,15 @@ class XPathTest {
     }
 
     @Test
+    fun testPathWithDynamicFuncCall() {
+        val expr = XPathExpression("exists(\$result(\"output\")/out)")
+        val e = assertIs<StaticFunctionCall>(expr.expr)
+        val p = assertIs<LocationPath>(e.args.singleOrNull())
+        assertEquals(2, p.steps.size)
+        val fc = assertIs<InstanceOfExpr>(p.steps[1])
+    }
+
+    @Test
     fun testParseNoParenSequence() {
         val expr = XPathExpression("\"http://www.w3.org/\"\"2005/xpath-functions\", \"http://www.w3.org/XML/1998/namespace\"")
         val e = assertIs<SequenceExpr>(expr.expr)
