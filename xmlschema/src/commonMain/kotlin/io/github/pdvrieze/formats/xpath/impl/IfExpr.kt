@@ -32,5 +32,29 @@ data class IfExpr(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : 
         builder.append(" else ")
         elseExpr.appendToString(builder, output)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as IfExpr
+
+        if (testExpr != other.testExpr) return false
+        if (thenExpr != other.thenExpr) return false
+        if (elseExpr != other.elseExpr) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + testExpr.hashCode()
+        result = 31 * result + thenExpr.hashCode()
+        result = 31 * result + elseExpr.hashCode()
+        return result
+    }
+
+
 }
 

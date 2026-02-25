@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class StringLiteral(value: String) : LiteralExpr<String>(value) {
+internal class StringLiteral(override val value: String) : LiteralExpr<String>() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         var hasQuot = false
         var hasApos = false
@@ -53,6 +53,22 @@ internal class StringLiteral(value: String) : LiteralExpr<String>(value) {
             }
         }
         builder.append('"')
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as StringLiteral
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + value.hashCode()
+        return result
     }
 
 

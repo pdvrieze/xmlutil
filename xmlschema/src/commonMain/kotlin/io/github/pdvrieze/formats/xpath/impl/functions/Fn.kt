@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,23 +18,17 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.functions
 
-@XPathInternal
-internal abstract class LiteralExpr<out T : Any> : ExprSingle() {
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 
-    abstract val value: T
+interface Function {
+    val name: QName
+}
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as LiteralExpr<*>
-
-        return value == other.value
-    }
-
-    override fun hashCode(): Int {
-        return value.hashCode()
+object Fn {
+    object Root: Function {
+        override val name: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, "root")
     }
 }

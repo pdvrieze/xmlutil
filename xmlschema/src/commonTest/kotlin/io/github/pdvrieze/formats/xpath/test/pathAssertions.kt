@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.XmlEvent
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @DslMarker
@@ -97,6 +98,22 @@ internal class PathContext(val path: LocationPath) {
         assertEquals(ctx.predicateCount, step.predicates.size, "Expected ${ctx.predicateCount} predicates but found ${step.predicates.size}")
     }
 
+    /**
+     * Assert the expression is rooted. This checks either the standard root step is present, or
+     * the rooted attribute is set, or both.
+     */
+    fun assertRooted() {
+        if (path.rooted) {
+            if (path.steps.firstOrNull() == XPathExpression.STEP_DOC_ROOT) {
+                ++stepCount // skip the first step
+            }
+        } else {
+            assertNotEquals(0, path.steps.size, "Expected at least one root step, but found none")
+            assertEquals(XPathExpression.STEP_DOC_ROOT, getStep())
+        }
+    }
+
+
     inline fun assertStep(axis: Axis, nodeType: NodeType, test: StepContext.() -> Unit) {
         val step = assertIs<AxisStep>(getStep())
         assertEquals(axis, step.axis)
@@ -123,7 +140,6 @@ internal class PathContext(val path: LocationPath) {
     fun assertStep(axis: Axis, localName: String) {
         assertStep(axis, QName(localName))
     }
-
 
     internal var stepCount = 0
         private set

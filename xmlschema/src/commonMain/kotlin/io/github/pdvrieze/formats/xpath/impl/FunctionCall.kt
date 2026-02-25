@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
@@ -33,20 +32,23 @@ internal sealed class FunctionCall(val args: List<ExprSingle>): ExprSingle() {
         }
         append(')')
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as FunctionCall
+
+        return args == other.args
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + args.hashCode()
+        return result
+    }
+
+
 }
 
-@XPathInternal
-internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): FunctionCall(args) {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        appendQName(name, builder, output)
-        builder.appendParams(output)
-    }
-}
-
-@XPathInternal
-internal class DynamicFunctionCall(val expr: Expr, args: List<ExprSingle>): FunctionCall(args) {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        expr.appendToString(builder, output)
-        builder.appendParams(output)
-    }
-}

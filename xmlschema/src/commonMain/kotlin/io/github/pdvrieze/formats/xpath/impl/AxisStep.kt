@@ -54,10 +54,21 @@ internal sealed class PrimaryOrStep {
     override fun toString(): String = buildString {
         appendToString(this, null)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return this::class.hashCode()
+    }
+
 }
 
 @OptIn(XPathInternal::class)
-internal class FilterExpr(val primaryExpr: Expr, val predicates: List<Expr>): PrimaryOrStep() {
+internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         primaryExpr.appendToString(builder, output)
         if (predicates.isNotEmpty()) {
@@ -70,4 +81,26 @@ internal class FilterExpr(val primaryExpr: Expr, val predicates: List<Expr>): Pr
             builder.append(']')
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as FilterExpr
+
+        if (primaryExpr != other.primaryExpr) return false
+        if (predicates != other.predicates) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + primaryExpr.hashCode()
+        result = 31 * result + predicates.hashCode()
+        return result
+    }
+
+
 }

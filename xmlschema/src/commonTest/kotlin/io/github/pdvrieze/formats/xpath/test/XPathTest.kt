@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -192,6 +192,7 @@ class XPathTest {
     fun testSectionInDocChapter() {
         testPath("/doc/chapter[5]/section[2]") {
             assertPath {
+                assertRooted()
                 assertStep("doc")
                 assertStep("chapter") {
                     assertPredicate { assertNumber(5) }
@@ -219,7 +220,7 @@ class XPathTest {
     fun testParaDescendants() {
         testPath("//para") {
             assertPath {
-                assertTrue(path.rooted)
+                assertRooted()
                 assertStepDescendant()
                 assertStep("para")
             }
@@ -232,6 +233,7 @@ class XPathTest {
         assertEquals("//olist/item", expr.xmlString)
         testPath("//olist/item") {
             assertPath {
+                assertRooted()
                 assertStep(Axis.DESCENDANT_OR_SELF, NodeType.NODE)
                 assertStep("olist")
                 assertStep("item")

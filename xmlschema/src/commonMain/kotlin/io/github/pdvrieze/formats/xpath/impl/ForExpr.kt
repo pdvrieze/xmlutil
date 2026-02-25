@@ -27,6 +27,7 @@ class ForExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingl
     init {
         require(bindings.isNotEmpty()) { "Must have at least one binding" }
     }
+
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         builder.append("for ")
         val it = bindings.iterator()
@@ -39,10 +40,53 @@ class ForExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingl
         returnExp.appendToString(builder, output)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as ForExpr
+
+        if (bindings != other.bindings) return false
+        if (returnExp != other.returnExp) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + bindings.hashCode()
+        result = 31 * result + returnExp.hashCode()
+        return result
+    }
+
+
     class Binding(val varName: String, val collection: ExprSingle) {
         fun appendToString(builder: StringBuilder, output: XmlWriter?) {
             builder.append('$').append(varName).append(" in ")
             collection.appendToString(builder, output)
+        }
+
+        override fun toString(): String = buildString {
+            appendToString(this, null)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Binding
+
+            if (varName != other.varName) return false
+            if (collection != other.collection) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = varName.hashCode()
+            result = 31 * result + collection.hashCode()
+            return result
         }
     }
 }

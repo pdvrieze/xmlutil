@@ -29,4 +29,26 @@ class RangeExpr(val from: Expr, val to: Expr) : ExprSingle() {
         builder.append(" to ")
         to.appendToString(builder, output)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as RangeExpr
+
+        if (from != other.from) return false
+        if (to != other.to) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + from.hashCode()
+        result = 31 * result + to.hashCode()
+        return result
+    }
+
+
 }

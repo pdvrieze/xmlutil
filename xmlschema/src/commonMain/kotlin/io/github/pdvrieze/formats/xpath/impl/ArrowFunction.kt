@@ -39,4 +39,28 @@ class ArrowFunction(val expr: ExprSingle, val functionSpecifier: ArrowFunctionSp
         }
         builder.append(')')
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as ArrowFunction
+
+        if (expr != other.expr) return false
+        if (functionSpecifier != other.functionSpecifier) return false
+        if (params != other.params) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + expr.hashCode()
+        result = 31 * result + functionSpecifier.hashCode()
+        result = 31 * result + params.hashCode()
+        return result
+    }
+
+
 }

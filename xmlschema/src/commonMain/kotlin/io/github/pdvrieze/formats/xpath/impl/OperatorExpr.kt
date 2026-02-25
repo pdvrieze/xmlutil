@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,11 +23,18 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class ParenExpr(val expr: Expr): ExprSingle() {
+internal class OperatorExpr(val operator: Operator, val operands: List<ExprSingle>): ExprSingle() {
+    init {
+        require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
+    }
+
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.append('(')
-        expr.appendToString(builder, output)
-        builder.append(')')
+        val it = operands.iterator()
+        it.next().appendToString(builder, output)
+        while (it.hasNext()) {
+            builder.append(' ').append(operator.literal).append(' ')
+            it.next().appendToString(builder, output)
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -35,17 +42,19 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         if (other == null || this::class != other::class) return false
         if (!super.equals(other)) return false
 
-        other as ParenExpr
+        other as OperatorExpr
 
-        return expr == other.expr
+        if (operator != other.operator) return false
+        if (operands != other.operands) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + expr.hashCode()
+        result = 31 * result + operator.hashCode()
+        result = 31 * result + operands.hashCode()
         return result
     }
 
-
 }
-

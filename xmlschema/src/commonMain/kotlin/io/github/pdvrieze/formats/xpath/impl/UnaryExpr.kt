@@ -24,11 +24,30 @@ import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
 sealed class UnaryExpr: ExprSingle() {
+
     class Plus(val expr: ExprSingle): UnaryExpr() {
         override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
             builder.append('+')
             expr.appendToString(builder, output)
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Plus
+
+            return expr == other.expr
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + expr.hashCode()
+            return result
+        }
+
+
     }
 
     class Minus(val expr: ExprSingle): UnaryExpr() {
@@ -36,5 +55,23 @@ sealed class UnaryExpr: ExprSingle() {
             builder.append('-')
             expr.appendToString(builder, output)
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Minus
+
+            return expr == other.expr
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + expr.hashCode()
+            return result
+        }
+
     }
+
 }
