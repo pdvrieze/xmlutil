@@ -40,4 +40,26 @@ internal class LocationPath(
             if (it.hasNext()) builder.append('/')
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as LocationPath
+
+        if (rooted != other.rooted) return false
+        if (steps != other.steps) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + rooted.hashCode()
+        result = 31 * result + steps.hashCode()
+        return result
+    }
+
+
 }

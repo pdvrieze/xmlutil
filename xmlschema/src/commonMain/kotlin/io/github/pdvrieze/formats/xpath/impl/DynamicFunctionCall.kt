@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,11 +23,10 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-internal class ParenExpr(val expr: Expr): ExprSingle() {
+internal class DynamicFunctionCall(val expr: Expr, args: List<ExprSingle>): FunctionCall(args) {
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.append('(')
         expr.appendToString(builder, output)
-        builder.append(')')
+        builder.appendParams(output)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -35,7 +34,7 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         if (other == null || this::class != other::class) return false
         if (!super.equals(other)) return false
 
-        other as ParenExpr
+        other as DynamicFunctionCall
 
         return expr == other.expr
     }
@@ -46,6 +45,4 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         return result
     }
 
-
 }
-

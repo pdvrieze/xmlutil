@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-class QuantifiedExpr constructor(
+class QuantifiedExpr(
     val kind: Kind,
     val varName: String,
     val source: Expr,
@@ -43,4 +43,30 @@ class QuantifiedExpr constructor(
         builder.append(" satisfies ")
         condition.appendToString(builder, output)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as QuantifiedExpr
+
+        if (kind != other.kind) return false
+        if (varName != other.varName) return false
+        if (source != other.source) return false
+        if (condition != other.condition) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + kind.hashCode()
+        result = 31 * result + varName.hashCode()
+        result = 31 * result + source.hashCode()
+        result = 31 * result + condition.hashCode()
+        return result
+    }
+
+
 }

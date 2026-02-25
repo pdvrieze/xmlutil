@@ -32,4 +32,27 @@ class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : 
         appendQName(type, builder, output)
         if (allowsEmpty) builder.append('?')
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as CastableExpr
+
+        if (allowsEmpty != other.allowsEmpty) return false
+        if (expr != other.expr) return false
+        if (type != other.type) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + allowsEmpty.hashCode()
+        result = 31 * result + expr.hashCode()
+        result = 31 * result + type.hashCode()
+        return result
+    }
+
 }

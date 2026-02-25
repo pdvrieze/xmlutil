@@ -30,6 +30,29 @@ internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Exp
         right.appendToString(builder, output)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as BinaryExpr
+
+        if (operator != other.operator) return false
+        if (left != other.left) return false
+        if (right != other.right) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + operator.hashCode()
+        result = 31 * result + left.hashCode()
+        result = 31 * result + right.hashCode()
+        return result
+    }
+
+
     companion object {
         fun priority(op: Operator, left: Expr, right: Expr): BinaryExpr {
             if (left !is BinaryExpr ||
@@ -40,18 +63,3 @@ internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Exp
     }
 }
 
-@XPathInternal
-internal class OperatorExpr(val operator: Operator, val operands: List<ExprSingle>): ExprSingle() {
-    init {
-        require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
-    }
-
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        val it = operands.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(' ').append(operator.literal).append(' ')
-            it.next().appendToString(builder, output)
-        }
-    }
-}

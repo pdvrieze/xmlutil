@@ -151,4 +151,8 @@ internal sealed class NodeTest {
     override fun toString(): String = buildString {
         appendToString(this, null)
     }
+
+    companion object {
+        val node: NodeTypeTest = NodeTest.NodeTypeTest(NodeType.NODE)
+    }
 }

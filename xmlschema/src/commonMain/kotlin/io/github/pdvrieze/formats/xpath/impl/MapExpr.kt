@@ -26,6 +26,7 @@ class MapExpr(val elements: List<ExprSingle>): ExprSingle() {
     init {
         require(elements.isNotEmpty()) { "Must have at least one element" }
     }
+
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         val it = elements.iterator()
         it.next().appendToString(builder, output)
@@ -34,4 +35,22 @@ class MapExpr(val elements: List<ExprSingle>): ExprSingle() {
             it.next().appendToString(builder, output)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as MapExpr
+
+        return elements == other.elements
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + elements.hashCode()
+        return result
+    }
+
+
 }

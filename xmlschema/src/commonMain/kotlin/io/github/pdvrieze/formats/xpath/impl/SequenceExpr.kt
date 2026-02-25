@@ -41,4 +41,19 @@ class SequenceExpr(elements: List<ExprSingle>) : Expr() {
             it.next().appendToString(builder, output)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as SequenceExpr
+
+        return elements == other.elements
+    }
+
+    override fun hashCode(): Int {
+        return elements.hashCode()
+    }
+
+
 }

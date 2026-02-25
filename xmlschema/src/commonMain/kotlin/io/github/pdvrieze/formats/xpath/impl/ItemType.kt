@@ -52,6 +52,10 @@ interface ItemType {
     }
 
     fun appendToString(builder: StringBuilder, output: XmlWriter?)
+
+    companion object {
+        val documentNode: ItemType = AtomicType(QName("document-node"))
+    }
 }
 
 sealed class SingleType

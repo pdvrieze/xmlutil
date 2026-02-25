@@ -30,5 +30,27 @@ class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceType) : ExprSingl
         builder.append(" instance of ")
         sequenceType.appendToString(builder, output)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as InstanceOfExpr
+
+        if (expr != other.expr) return false
+        if (sequenceType != other.sequenceType) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + expr.hashCode()
+        result = 31 * result + sequenceType.hashCode()
+        return result
+    }
+
+
 }
 
