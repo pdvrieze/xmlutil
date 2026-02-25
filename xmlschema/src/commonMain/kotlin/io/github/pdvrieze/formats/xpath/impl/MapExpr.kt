@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,13 +22,16 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.XmlWriter
 
-@XPathInternal
-class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceType) : ExprSingle() {
-
+class MapExpr(val elements: List<ExprSingle>): ExprSingle() {
+    init {
+        require(elements.isNotEmpty()) { "Must have at least one element" }
+    }
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        expr.appendToString(builder, output)
-        builder.append(" instance of ")
-        sequenceType.appendToString(builder, output)
+        val it = elements.iterator()
+        it.next().appendToString(builder, output)
+        while (it.hasNext()) {
+            builder.append(" ! ")
+            it.next().appendToString(builder, output)
+        }
     }
 }
-

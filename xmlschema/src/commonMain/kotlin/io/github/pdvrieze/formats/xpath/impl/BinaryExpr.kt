@@ -31,11 +31,27 @@ internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Exp
     }
 
     companion object {
-        fun priority(op: Operator, left: Expr, right: Expr): Expr {
+        fun priority(op: Operator, left: Expr, right: Expr): BinaryExpr {
             if (left !is BinaryExpr ||
                 op.priority<= left.operator.priority) return BinaryExpr(op, left, right)
 
             return BinaryExpr(left.operator, left.left, BinaryExpr(op, left.right, right))
+        }
+    }
+}
+
+@XPathInternal
+internal class OperatorExpr(val operator: Operator, val operands: List<ExprSingle>): ExprSingle() {
+    init {
+        require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
+    }
+
+    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        val it = operands.iterator()
+        it.next().appendToString(builder, output)
+        while (it.hasNext()) {
+            builder.append(' ').append(operator.literal).append(' ')
+            it.next().appendToString(builder, output)
         }
     }
 }

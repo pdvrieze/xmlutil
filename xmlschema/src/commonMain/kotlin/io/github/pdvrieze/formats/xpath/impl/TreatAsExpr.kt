@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceType) : ExprSingle() {
+class TreatAsExpr(val expr: Expr, val sequenceType: SequenceType) : ExprSingle() {
 
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         expr.appendToString(builder, output)
@@ -31,4 +31,3 @@ class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceType) : ExprSingl
         sequenceType.appendToString(builder, output)
     }
 }
-
