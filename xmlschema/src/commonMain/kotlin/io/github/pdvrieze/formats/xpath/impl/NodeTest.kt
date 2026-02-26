@@ -93,6 +93,26 @@ internal sealed class NodeTest {
         }
     }
 
+    class LocalNameTest(val localName: String) : NameTest() {
+        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+            builder.append("*:").append(localName)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as LocalNameTest
+
+            return localName == other.localName
+        }
+
+        override fun hashCode(): Int {
+            return localName.hashCode()
+        }
+
+    }
+
     class QNameTest(val qName: QName) : NameTest() {
         override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
             if (qName.namespaceURI.isNotEmpty()) {
@@ -115,7 +135,7 @@ internal sealed class NodeTest {
         }
     }
 
-    class NSTest(val namespace: VAnyURI, val prefix: VNCName) : NameTest() {
+    class NSTest(val namespace: VAnyURI, val prefix: VNCName? = null) : NameTest() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is NSTest) return false
@@ -130,13 +150,13 @@ internal sealed class NodeTest {
         }
 
         override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            val pr = when {
-                output == null -> prefix.xmlString
-                else -> {
-                    output.getOrCreatePrefix(namespace.xmlString, prefix.xmlString)
-                }
+            val pr = output?.getOrCreatePrefix(namespace.xmlString, prefix?.xmlString)
+
+            when (pr) {
+                null -> builder.append("Q{").append(namespace.xmlString).append('}')
+                else -> builder.append(pr)
             }
-            builder.append(pr).append(":*")
+            builder.append(":*")
         }
 
     }

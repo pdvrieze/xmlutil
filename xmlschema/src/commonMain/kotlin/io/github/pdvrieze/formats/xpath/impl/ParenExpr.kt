@@ -30,6 +30,11 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         builder.append(')')
     }
 
+    fun toExprList(): List<ExprSingle> = when (expr) {
+        is SequenceExpr -> expr.elements
+        is ExprSingle -> listOf(expr)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
