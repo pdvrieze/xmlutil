@@ -33,6 +33,10 @@ interface ItemType {
     }
 
     class AtomicType(val name: QName): ItemType {
+        init {
+            require(name.localPart.isNotEmpty()) { "Atomic types must have non-empty local name" }
+        }
+
         override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
             if (output == null) {
                 builder.append(name.toCName())

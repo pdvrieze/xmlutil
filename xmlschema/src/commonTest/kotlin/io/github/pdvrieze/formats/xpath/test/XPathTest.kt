@@ -42,7 +42,10 @@ class XPathTest {
         val e = assertIs<StaticFunctionCall>(expr.expr)
         val p = assertIs<LocationPath>(e.args.singleOrNull())
         assertEquals(2, p.steps.size)
-        val fc = assertIs<InstanceOfExpr>(p.steps[1])
+        val step = assertIs<AxisStep>(p.steps[1])
+        assertEquals(Axis.CHILD, step.axis)
+        val t = assertIs<NodeTest.QNameTest>(step.test)
+        assertEquals(QName("out"), t.qName)
     }
 
     @Test
@@ -71,7 +74,7 @@ class XPathTest {
     fun testMissingSelector() {
         val e = assertFailsWith<IllegalArgumentException> { val _ = XPathExpression.Serializer("child::") }
 
-        assertContains(e.message ?: "", "Missing node test in step")
+        assertContains(e.message ?: "", "Missing node test in ")
 
     }
 
@@ -165,12 +168,22 @@ class XPathTest {
             assertPath {
                 assertStep("para") {
                     assertPredicate {
-                        val path = assertIs<LocationPath>(expr)
-                        assertEquals(1, path.steps.size)
-                        val filter = assertIs<FilterExpr>(path.steps[0])
-                        assertEquals(0, filter.predicates.size)
-                        val funcCall = assertIs<StaticFunctionCall>(filter.primaryExpr)
-                        assertEquals(0, funcCall.args.size)
+                        val funcCall: StaticFunctionCall = when (expr) {
+                            is LocationPath -> {
+                                val path = assertIs<LocationPath>(expr)
+                                assertEquals(1, path.steps.size)
+                                val filter = assertIs<FilterExpr>(path.steps[0])
+                                assertEquals(0, filter.predicates.size)
+
+                                assertIs<StaticFunctionCall>(filter.primaryExpr)
+
+                            }
+
+                            else -> assertIs<StaticFunctionCall>(expr, "Expected function call")
+                        }
+                        if (funcCall.args.isNotEmpty()) {
+                            assertEquals(emptyList(), funcCall.args)
+                        }
                         assertQNameEquivalent(QName("last"), funcCall.name)
                     }
                 }

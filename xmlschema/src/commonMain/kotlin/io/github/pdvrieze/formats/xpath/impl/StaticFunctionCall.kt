@@ -25,6 +25,12 @@ import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
 internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): FunctionCall(args) {
+    constructor(name: QName, args: ParenExpr):
+            this(name, when (val e = args.expr) {
+                is SequenceExpr -> e.elements
+                is ExprSingle -> listOf(e)
+            })
+
     constructor(name: QName, vararg args: ExprSingle) :
             this(name, args.asList())
 

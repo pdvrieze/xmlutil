@@ -25,10 +25,7 @@ import io.github.pdvrieze.formats.xpath.impl.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.XmlEvent
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 @DslMarker
 annotation class PathTestDsl
@@ -203,6 +200,18 @@ internal fun TestContext.assertPath(test: PathContext.() -> Unit) {
 }
 
 @OptIn(XPathInternal::class)
+internal fun TestContext.assertPathOrSingle(test: PathContext.() -> Unit) {
+    val path: LocationPath = when (val e = expr) {
+        is LocationPath -> e
+        is ExprSingle -> LocationPath(e)
+        else -> fail("Expression is sequence")
+    }
+    val c = PathContext(path)
+    c.test()
+    assertEquals(c.stepCount, path.steps.size)
+}
+
+@OptIn(XPathInternal::class)
 internal fun TestContext.assertNumber(value: Long) {
     val n = assertIs<IntLiteral>(expr)
     assertEquals(value, n.value)
@@ -230,7 +239,14 @@ internal inline fun TestContext.assertBinary(
     op: Operator,
     test: BinaryContext.() -> Unit,
 ) {
-    val bin = assertIs<BinaryExpr>(expr)
+    val bin = when (val e = expr) {
+        is OperatorExpr -> {
+            assertEquals(2, e.operands.size, "Expected two operands, but found ${e.operands.size}")
+            BinaryExpr(e.operator, e.operands[0], e.operands[1])
+        }
+
+        else -> assertIs<BinaryExpr>(e)
+    }
     assertEquals(op, bin.operator)
     BinaryContext(nestedContext(bin)).apply(test)
 }

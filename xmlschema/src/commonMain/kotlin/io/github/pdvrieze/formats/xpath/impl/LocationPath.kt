@@ -31,6 +31,11 @@ internal class LocationPath(
 
     constructor(rooted: Boolean, step: AxisStep) : this(rooted, listOf(step))
 
+    constructor(single: ExprSingle) : this(
+        false,
+        listOf(FilterExpr(single))
+    )
+
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         if (rooted) builder.append('/')
 
