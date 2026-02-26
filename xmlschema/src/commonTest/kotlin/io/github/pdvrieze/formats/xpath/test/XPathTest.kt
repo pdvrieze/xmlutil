@@ -30,6 +30,14 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testNegative() {
+        testPath("-42") {
+            assertEquals(IntLiteral(-42), expr)
+        }
+    }
+
+
+    @Test
     fun testDynamicFuncCall() {
         val expr = XPathExpression("\$result(\"output\") instance of document-node()")
         val e = assertIs<InstanceOfExpr>(expr.expr)

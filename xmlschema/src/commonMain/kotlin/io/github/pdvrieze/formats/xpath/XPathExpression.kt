@@ -438,9 +438,15 @@ class XPathExpression private constructor(
             var current: ExprSingle = parseMultiplicativeExpr()
             do {
 
-                current = when (peekCurrent()) {
-                    '+' -> BinaryExpr.priority(Operator.ADD, current, parseMultiplicativeExpr())
-                    '-' -> BinaryExpr.priority(Operator.SUB, current, parseMultiplicativeExpr())
+                current = when (peekCurrentToken()) {
+                    '+' -> {
+                        i+=1
+                        BinaryExpr.priority(Operator.ADD, current, parseMultiplicativeExpr())
+                    }
+                    '-' -> {
+                        i+=1
+                        BinaryExpr.priority(Operator.SUB, current, parseMultiplicativeExpr())
+                    }
                     else -> return current
                 }
 
@@ -568,8 +574,14 @@ class XPathExpression private constructor(
 
         private fun parseUnaryExpr(): ExprSingle {
             return when (peekCurrentToken()) {
-                '+' -> UnaryExpr.Plus(parseValueExpr())
-                '-' -> UnaryExpr.Minus(parseValueExpr())
+                '+' -> {
+                    i+=1
+                    UnaryExpr.Plus(parseValueExpr())
+                }
+                '-' -> {
+                    i+=1
+                    UnaryExpr.Minus(parseValueExpr())
+                }
                 else -> parseValueExpr()
             }
         }
@@ -635,8 +647,7 @@ class XPathExpression private constructor(
         }
 
         private fun parseRelativePathExpr(steps: MutableList<PrimaryOrStep>) {
-
-            steps.add(parseStepExpr() ?: return) // no step
+            steps.add(requireNotNull(parseStepExpr()) { "Missing step in path" }) // no step
             while (tryCurrentToken('/')) {
                 when {
                     tryCurrentToken("/") -> steps.apply {
