@@ -751,7 +751,14 @@ class XPathExpression private constructor(
         }
 
         private fun parseSquareArrayConstructor(): ExprSingle {
-            TODO()
+            require(tryCurrentToken('[')) { "@$i> Missing '[' in square array constructor" }
+            val exprs = mutableListOf<ExprSingle>()
+            exprs.add(parseExprSingle())
+            while (tryCurrentToken(',')) {
+                exprs.add(parseExprSingle())
+            }
+            require(tryCurrentToken(']')) { "@$i> Missing ']' in square array constructor" }
+            return SquareArrayConstructor(exprs)
         }
 
         private fun parseUnaryLookup(): ExprSingle {
