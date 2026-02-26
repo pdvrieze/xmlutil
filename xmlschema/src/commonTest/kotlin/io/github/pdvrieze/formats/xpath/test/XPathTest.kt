@@ -297,4 +297,37 @@ class XPathTest {
         }
     }
 
+    @Test
+    fun testEqualsInPredicate() {
+        testPath("./fn:group[@nr=1]") {
+            assertPath {
+                assertStepSelf()
+
+                assertStep<NodeTest.QNameTest> {
+                    assertQNameEquivalent(QName("http://www.w3.org/2005/xpath-functions", "group", "fn"), it.qName)
+
+                    assertPredicate {// @nr = 1
+                        assertBinary(Operator.EQ) {
+                            assertLeft<LocationPath> {
+                                assertPath {
+                                    assertStep(Axis.ATTRIBUTE, "nr")
+                                }
+                            }
+                            assertRight<IntLiteral> {
+                                assertEquals(1, expr.value)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testComplexPath() {
+        testPath("\$result/out/fn:analyze-string-result[1]/fn:match[1]/fn:group[@nr=1] = '/OPDH/'") {
+
+        }
+    }
+
 }

@@ -358,23 +358,34 @@ class XPathExpression private constructor(
             // there must always be a following expression so testing for second operator character is fine
             if (i + 1 > str.length) return current
             when (str[i]) {
-                '=' -> return BinaryExpr.priority(Operator.EQ, current, parseStringConcatExpr())
+                '=' -> {
+                    i+=1
+                    return BinaryExpr.priority(Operator.EQ, current, parseStringConcatExpr())
+                }
 
-                '!' if str[i + 1] == '=' ->
+                '!' if str[i + 1] == '=' -> {
+                    i+=2
                     return BinaryExpr.priority(Operator.NEQ, current, parseStringConcatExpr())
-
-                '<' -> return when {
-                    str[i + 1] == '=' -> BinaryExpr.priority(Operator.LE, current, parseStringConcatExpr())
-                    str[i + 1] == '<' -> BinaryExpr.priority(Operator.PRECEDES, current, parseStringConcatExpr())
-                    else -> BinaryExpr.priority(Operator.LT, current, parseStringConcatExpr())
                 }
 
-                '>' -> return when {
-                    str[i + 1] == '=' -> BinaryExpr.priority(Operator.GE, current, parseStringConcatExpr())
-                    str[i + 1] == '>' -> BinaryExpr.priority(Operator.FOLLOWS, current, parseStringConcatExpr())
-                    else -> BinaryExpr.priority(Operator.GT, current, parseStringConcatExpr())
-                }
+                '<' -> {
+                    i+=1
+                    return when {
+                        tryCurrent('=') -> BinaryExpr.priority(Operator.LE, current, parseStringConcatExpr())
 
+                        tryCurrent('<') -> BinaryExpr.priority(Operator.PRECEDES, current, parseStringConcatExpr())
+
+                        else -> BinaryExpr.priority(Operator.LT, current, parseStringConcatExpr())
+                    }
+                }
+                '>' -> {
+                    i+=1
+                    return when {
+                        tryCurrent('=') -> BinaryExpr.priority(Operator.GE, current, parseStringConcatExpr())
+                        tryCurrent('>') -> BinaryExpr.priority(Operator.FOLLOWS, current, parseStringConcatExpr())
+                        else -> BinaryExpr.priority(Operator.GT, current, parseStringConcatExpr())
+                    }
+                }
                 'e' if tryCurrentWord("eq") ->
                     return BinaryExpr.priority(Operator.VAL_EQ, current, parseStringConcatExpr())
 

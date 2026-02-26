@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:OptIn(XPathInternal::class)
+
 package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
@@ -54,6 +56,12 @@ internal class PathContext(val path: LocationPath) {
     private fun getStep(): PrimaryOrStep {
         assertTrue(stepCount < path.steps.size, "Expected at least $stepCount steps, but found only ${path.steps.size}")
         return path.steps[stepCount++]
+    }
+
+    inline fun <reified E: ExprSingle> assertFilterStep(test: FilterContext<E>.() -> Unit) {
+        val step = assertIs<FilterExpr>(getStep())
+        val context = FilterContext(assertIs<E>(step.primaryExpr), step.predicates)
+        context.test()
     }
 
     fun assertStepSelf() {
@@ -142,13 +150,25 @@ internal class PathContext(val path: LocationPath) {
         private set
 }
 
+@PathTestDsl
+internal class FilterContext<E: ExprSingle>(val primary: E, val predicates: List<Expr>) {
+    var predicatePos = 0
+    private fun getPredicate(): ExprContext<Expr> {
+        assertTrue(predicatePos < predicates.size, "Expected at least $predicatePos steps, but found only ${predicates.size}")
+        return ExprContextImpl(predicates[predicatePos++])
+    }
+
+}
+
 @OptIn(XPathInternal::class)
+@PathTestDsl
 internal class StepContext(val step: AxisStep) {
     private fun getPredicate(): ExprContext<Expr> {
         assertTrue(predicateCount < step.predicates.size, "Expected at least $predicateCount steps, but found only ${step.predicates.size}")
         return ExprContextImpl(step.predicates[predicateCount++])
     }
 
+    @PathTestDsl
     inline fun assertPredicate(test: TestContext.() -> Unit) {
         val pred = getPredicate()
         pred.test()
@@ -168,11 +188,14 @@ internal inline fun ExprContext<LocationPath>.assertPath(rooted: Boolean? = null
 }
 
 @OptIn(XPathInternal::class)
+@PathTestDsl
 internal class BinaryContext(private val expr: ExprContext<BinaryExpr>) {
+    @PathTestDsl
     inline fun <reified T: Expr> assertLeft(test: ExprContext<T>.() -> Unit) {
         expr.nestedContext(assertIs<T>(expr.expr.left)).apply(test)
     }
 
+    @PathTestDsl
     inline fun <reified T: Expr> assertRight(test: ExprContext<T>.() -> Unit) {
         expr.nestedContext(assertIs<T>(expr.expr.right)).apply(test)
     }
