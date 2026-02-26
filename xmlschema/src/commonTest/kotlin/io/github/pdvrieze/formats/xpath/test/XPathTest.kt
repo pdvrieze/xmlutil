@@ -32,7 +32,7 @@ class XPathTest {
     @Test
     fun testNegative() {
         testPath("-42") {
-            assertEquals(IntLiteral(-42), expr)
+            assertEquals(UnaryExpr.Minus(IntLiteral(42)), expr)
         }
     }
 
