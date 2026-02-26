@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.functions.Fn
 import kotlinx.serialization.KSerializer
@@ -114,55 +111,6 @@ class XPathExpression private constructor(
         private val version: Version,
     ) {
         var i: Int = 0
-
-        fun parsePathExprOld(): Expr {
-            var current: Expr? = null
-
-            skipWhitespace()
-            val start = i
-
-            while (i < str.length) {
-                when (val c = str[i]) {
-                    ' ' -> {} // ignore
-                    '$' -> current = parseVariableReference()
-
-                    '|' -> current = BinaryExpr(
-                        Operator.UNION,
-                        requireNotNull(current) { "@$i> Path expressions can not start with |" },
-                        parsePathExprOld()
-                    )
-
-                    ')' -> {
-                        throw IllegalArgumentException("@$i> Unexpected ')' in xpath expression")
-                    }
-
-                    '(' -> {
-                        ++i
-                        current = parseExpr()
-                        while (isXmlWhitespace(str[i]) && (i + 1 < str.length)) {
-                            ++i
-                        }
-                        require(str[i] == ')') { "@$i> Missing closing parenthesis" }
-                    }
-
-                    '.',
-                    '/',
-                    '@' -> current = parseLocationPath()
-
-                    else -> {
-                        if (c.isLetter() && current == null) {
-                            current = parseLocationPath()
-                        } else {
-                            throw IllegalArgumentException("@$i> Unexpected token '$c' in xpath expression")
-                        }
-                    }
-                }
-
-
-                ++i
-            }
-            return requireNotNull(current) { "No path found in expression" }
-        }
 
         private fun skipWhitespace() {
             val l = str.length
@@ -327,16 +275,16 @@ class XPathExpression private constructor(
         private fun parseExprSingle(): ExprSingle {
             skipWhitespace()
             return when (str[i]) {
-                'f' if (tryCurrentWord("for")) -> parseForExpr()
-                'l' if (tryCurrentWord("let")) -> parseLetExpr()
-                's' if (tryCurrentWord("some")) -> parseQuantifiedExpr(QuantifiedExpr.Kind.SOME)
-                'e' if (tryCurrentWord("every")) -> parseQuantifiedExpr(QuantifiedExpr.Kind.EVERY)
-                'i' if (tryCurrentWord("if")) -> parseIfExpr()
+                'f' if (tryCurrentWord("for")) -> parseForExprCont()
+                'l' if (tryCurrentWord("let")) -> parseLetExprCont()
+                's' if (tryCurrentWord("some")) -> parseQuantifiedExprCont(QuantifiedExpr.Kind.SOME)
+                'e' if (tryCurrentWord("every")) -> parseQuantifiedExprCont(QuantifiedExpr.Kind.EVERY)
+                'i' if (tryCurrentWord("if")) -> parseIfExprCont()
                 else -> parseOrExpr()
             }
         }
 
-        private fun parseForExpr(): ForExpr {
+        private fun parseForExprCont(): ForExpr {
             skipWhitespace()
             val bindings = mutableListOf<ForExpr.Binding>()
             do {
@@ -352,7 +300,7 @@ class XPathExpression private constructor(
             return ForExpr(bindings, returned)
         }
 
-        private fun parseLetExpr(): LetExpr {
+        private fun parseLetExprCont(): LetExpr {
             skipWhitespace()
             val bindings = mutableListOf<LetExpr.Binding>()
             do {
@@ -368,7 +316,7 @@ class XPathExpression private constructor(
             return LetExpr(bindings, returned)
         }
 
-        private fun parseIfExpr(): IfExpr {
+        private fun parseIfExprCont(): IfExpr {
             require(tryCurrentToken('(')) { "@$i> Missing opening parenthesis in if expression" }
 
             val condition = parseExpr()
@@ -788,231 +736,6 @@ class XPathExpression private constructor(
             TODO()
         }
 
-        private fun parseExprSingleOld(): ExprSingle {
-            skipWhitespace()
-
-            var current: ExprSingle
-
-            require(i < str.length) { "Empty expression" }
-            val c = str[i]
-            when {
-                c == '/' || c == '@' || c == '.' || c == '*' || c == '$' ->
-                    current = parseLocationPath()
-
-                c == '(' -> current = parseSequenceOrParen()
-
-                c == '\'' || c == '"' -> current = parseStringLiteral()
-
-                c == '-' || c.isDigit() -> current = parseNumber()
-
-                isNameStartChar(c) -> {
-                    when {
-                        tryCurrentWord("every") -> {
-                            skipWhitespace()
-                            current = parseQuantifiedExpr(QuantifiedExpr.Kind.EVERY)
-                        }
-
-                        tryCurrentWord("some") -> {
-                            skipWhitespace()
-                            current = parseQuantifiedExpr(QuantifiedExpr.Kind.SOME)
-                        }
-
-                        else -> {
-                            current = parseLocationPath()
-                        }
-                    }
-
-                }
-
-                else -> throw IllegalArgumentException(
-                    "@$i> Unexpected character '${str[i]}' in expression - '${str.substring(i)}' from '$str'"
-                )
-            }
-
-            skipWhitespace()
-            while (i < str.length) {
-//            if (i >= str.length) return current
-                when (str[i]) {
-                    '(' if (version >= Version.V3_0) -> {
-                        val params = when (val e = parseSequenceOrParen().expr) {
-                            is SequenceExpr -> e.elements
-                            is ExprSingle -> listOf(e)
-                        }
-                        current = DynamicFunctionCall(current, params)
-                    }
-
-                    '|' -> {
-                        ++i
-                        current = BinaryExpr.priority(Operator.UNION, current, parseExprSingle())
-                    }
-
-                    '=' -> {
-                        ++i
-                        current = BinaryExpr.priority(Operator.EQ, current, parseExprSingle())
-                    }
-
-                    '!' -> {
-                        ++i
-                        current = BinaryExpr.priority(Operator.NEQ, current, parseExprSingle())
-                    }
-
-                    '<' -> current = when {
-                        tryCurrent("<=") -> BinaryExpr.priority(Operator.LE, current, parseExprSingle())
-
-                        tryCurrent("<<") -> BinaryExpr.priority(Operator.PRECEDES, current, parseExprSingle())
-
-                        else -> {
-                            ++i
-                            BinaryExpr.priority(Operator.LT, current, parseExprSingle())
-                        }
-                    }
-
-                    '>' -> current = when {
-                        tryCurrent(">=") -> BinaryExpr.priority(Operator.GE, current, parseExprSingle())
-
-                        tryCurrent(">>") -> BinaryExpr.priority(Operator.FOLLOWS, current, parseExprSingle())
-
-                        else -> {
-                            ++i
-                            BinaryExpr.priority(Operator.GT, current, parseExprSingle())
-                        }
-                    }
-
-                    '*' -> {
-                        ++i
-                        current = BinaryExpr.priority(Operator.MUL, current, parseExprSingle())
-                    }
-
-                    '+' -> {
-                        ++i
-                        current = BinaryExpr.priority(Operator.ADD, current, parseExprSingle())
-                    }
-
-                    '-' -> {
-                        ++i
-                        current = BinaryExpr.priority(Operator.SUB, current, parseExprSingle())
-                    }
-
-                    'a' -> {
-                        if (!tryCurrentWord("and")) return current
-
-                        current = BinaryExpr.priority(Operator.AND, current, parseExprSingle())
-                    }
-
-                    'c' -> {
-                        when {
-                            tryCurrentWord("cast") -> {
-                                skipWhitespace()
-                                require(tryCurrentWord("as"))
-                                skipWhitespace()
-                                current = CastExpr(current, parseQName())
-                            }
-
-                            tryCurrentWord("castable") -> {
-                                skipWhitespace()
-                                require(tryCurrentWord("as"))
-                                skipWhitespace()
-                                val typeName = parseQName()
-                                skipWhitespace()
-                                val allowsEmpty = tryCurrent('?')
-                                current = CastableExpr(current, typeName, allowsEmpty)
-                            }
-
-                            else -> return current
-                        }
-                    }
-
-                    'd' -> {
-                        if (!tryCurrentWord("div")) return current
-
-                        current = BinaryExpr.priority(Operator.DIV, current, parseExprSingle())
-                    }
-
-                    'e' -> {
-                        if (!tryCurrentWord("eq")) return current
-
-                        current = BinaryExpr.priority(Operator.VAL_EQ, current, parseExprSingle())
-                    }
-
-                    'g' -> {
-                        when {
-                            tryCurrentWord("ge") ->
-                                current = BinaryExpr.priority(Operator.VAL_GE, current, parseExprSingle())
-
-                            tryCurrentWord("gt") ->
-                                current = BinaryExpr.priority(Operator.VAL_GT, current, parseExprSingle())
-
-                            else -> return current
-                        }
-                    }
-
-                    'i' -> {
-                        when {
-                            tryCurrentWord("instance") -> {
-                                skipWhitespace()
-                                if (!tryCurrentWord("of")) {
-                                    throw IllegalArgumentException(
-                                        "@$i> Missing 'of' in 'instance' expression: '${
-                                            str.substring(
-                                                i
-                                            )
-                                        }'"
-                                    )
-                                }
-                                skipWhitespace()
-                                current = InstanceOfExpr(current, parseSequenceType())
-                            }
-
-                            tryCurrentWord("idiv") ->
-                                current = BinaryExpr.priority(Operator.IDIV, current, parseExprSingle())
-
-                            tryCurrent("is") ->
-                                current = BinaryExpr.priority(Operator.IS, current, parseExprSingle())
-
-                            else -> return current
-                        }
-                    }
-
-                    'l' -> {
-                        when {
-                            tryCurrentWord("le") ->
-                                current = BinaryExpr.priority(Operator.VAL_LE, current, parseExprSingle())
-
-                            tryCurrentWord("lt") ->
-                                current = BinaryExpr.priority(Operator.VAL_LT, current, parseExprSingle())
-
-                            else -> return current
-                        }
-                    }
-
-                    'm' -> {
-                        if (!tryCurrentWord("mod")) return current
-                        current = BinaryExpr.priority(Operator.MOD, current, parseExprSingle())
-                    }
-
-                    'n' -> {
-                        if (!tryCurrentWord("ne")) return current
-                        current = BinaryExpr.priority(Operator.VAL_NEQ, current, parseExprSingle())
-                    }
-
-                    'o' -> {
-                        if (!tryCurrentWord("or")) return current
-                        current = BinaryExpr.priority(Operator.OR, current, parseExprSingle())
-                    }
-
-                    't' -> {
-                        if (!tryCurrentWord("to")) return current
-                        current = RangeExpr(current, parseExprSingle())
-                    }
-
-                    else -> return current //no expression elements
-
-                }
-                skipWhitespace()
-            }
-            return current
-        }
-
         private fun parseSequenceOrParen(): ParenExpr {
             require(str[i] == '(') {
                 "@$i> Expected '(' in sequence expression, found: '${str.substring(0, i)}>${str[i]}<${str.substring(i)}"
@@ -1045,42 +768,27 @@ class XPathExpression private constructor(
             return c
         }
 
-        private fun parseQuantifiedExpr(kind: QuantifiedExpr.Kind): ExprSingle {
+        private fun parseQuantifiedExprCont(kind: QuantifiedExpr.Kind): ExprSingle {
             val oldStart = i - kind.literal.length
-            skipWhitespace()
 
-            // Allow for matching a location part with quantifier name
-            if (!peekCurrent('$')) {
-                i = oldStart; return parseLocationPath()
-            }
+            require(tryCurrent('$')) { "@$i> Missing '$' in quantified expression '${str.substring(i)}'" }
 
-            val varName = parseVariableReference()
-            skipWhitespace()
+            val bindings = mutableListOf<QuantifiedExpr.Binding>()
+            do {
+                val varName = parseVariableReference()
 
-            require(tryCurrentWord("in")) { "@$i> Missing 'in' in quantified expression '${str.substring(i)}'" }
-            skipWhitespace()
+                require(tryCurrentWordToken("in")) { "@$i> Missing 'in' in quantified expression '${str.substring(i)}'" }
 
-            /*
-                        //TODO might be regular expression parsing
-                        val exprs = mutableListOf<ExprSingle>()
-                        exprs.add(parseExprSingle())
-                        while (tryCurrent(',')) {
-                            skipWhitespace()
-                            exprs.add(parseExprSingle())
-                        }
-            */
-            val source = parseExpr()//exprs.singleOrNull() ?: SequenceExpr(exprs)
+                val source = parseExprSingle()//exprs.singleOrNull() ?: SequenceExpr(exprs)
 
-            skipWhitespace()
+                bindings.add(QuantifiedExpr.Binding(varName.varName, source))
+            } while (tryCurrentToken(','))
 
             require(tryCurrentWord("satisfies")) { "@$i> Missing satisfies in quantified expression: ${str.substring(i)}" }
 
-            skipWhitespace()
-
             val condition = parseExprSingle()
-            skipWhitespace()
 
-            return QuantifiedExpr(kind, varName.varName, source, condition)
+            return QuantifiedExpr(kind, bindings, condition)
         }
 
         fun parse(): Expr {
@@ -1349,17 +1057,16 @@ class XPathExpression private constructor(
         }
 
         private fun parseIfConditionAndConsequences(): IfExpr {
-            require(tryCurrent('('))
-            skipWhitespace()
+            require(tryCurrentToken('('))
+
             val testExpr = parseExpr()
-            skipWhitespace()
-            require(tryCurrent(')'))
-            skipWhitespace()
-            require(tryCurrentWord("then"))
-            skipWhitespace()
+            require(tryCurrentToken(')'))
+
+            require(tryCurrentWordToken("then"))
+
             val thenExpr = parseExprSingle()
-            skipWhitespace()
-            require(tryCurrentWord("else"))
+
+            require(tryCurrentWordToken("else"))
             val elseExpr = parseExprSingle()
             return IfExpr(testExpr, thenExpr, elseExpr)
         }
@@ -1437,17 +1144,14 @@ class XPathExpression private constructor(
                     return QNameSpec.EQName(namespace, localPart, null)
                 }
             } else if (tryCurrentToken(':')) { //namespace separator
-                val ns = requireNotNull(namespaceContext.getNamespaceURI(initialWord)) {
-                    "No namespace could be found for prefix '$initialWord'"
-                }
+                val ns = lookupNamespace(initialWord)
                 return when {
                     tryCurrentToken('*') -> QNameSpec.Namespace(ns, prefix = initialWord)
 
                     else -> QNameSpec.EQName(ns, localName = parseNCName(), prefix = initialWord)
                 }
             } else {
-                val ns = namespaceContext.getNamespaceURI("") ?: ""
-                return QNameSpec.EQName(ns, localName = initialWord, prefix = null)
+                return QNameSpec.EQName(lookupNamespace(""), localName = initialWord, prefix = null)
             }
         }
 
@@ -1461,91 +1165,6 @@ class XPathExpression private constructor(
 
             val args = parseArgs()
             return NodeTest.NodeTypeTest(nodeType, args)
-        }
-
-        private fun parseNodeTestXX(preParsedWord: String? = null): NodeTest? {
-            val word = preParsedWord ?: peekCurrentToken()?.let {
-                if (isNameStartChar(it)) parseNCName() else null
-            }
-
-            // Kind test (hardcoded list), or eq name or wildcard
-            if (word != null) {
-                NodeType.maybeValueOf(word)?.let {
-                    val args = parseSequenceOrParen().toExprList()
-                    return NodeTest.NodeTypeTest(it, args)
-                }
-
-                val qName: QName
-
-                if (word == "Q" && peekCurrentToken('{')) {
-                    val endBrace = str.indexOf('}', i + 1)
-                    require(endBrace >= 0) { "@$i> Missing closing brace in Braced URI literal: '${str.substring(i)}'" }
-                    val namespace = str.substring(i + 1, endBrace)
-                    i = endBrace + 1
-
-                    if (tryCurrentToken('*')) {
-                        return NodeTest.NSTest(VAnyURI(namespace))
-                    } else {
-                        val localPart = parseNCName()
-                        qName = QName(namespace, localPart)
-                    }
-                } else if (tryCurrentToken(':')) { //namespace separator
-                    val ns = requireNotNull(namespaceContext.getNamespaceURI(word)) {
-                        "No namespace could be found for prefix '$word'"
-                    }
-                    when {
-                        tryCurrentToken('*') -> {
-
-                            return NodeTest.NSTest(VAnyURI(ns), VNCName(word))
-                        }
-
-                        else -> {
-                            val localPart = parseNCName()
-                            qName = QName(ns, localPart)
-                        }
-                    }
-                } else {
-                    val ns = namespaceContext.getNamespaceURI("") ?: ""
-                    return NodeTest.QNameTest(QName(ns, word, ""))
-                }
-                if (peekCurrentToken()=='(') {
-                    TODO()
-                    // function call
-                    // val args = parseSequenceOrParen().toExprList()
-                    // return FilterExpr(StaticFunctionCall(qName, args), parsePredicates())
-                } else {
-                    return NodeTest.QNameTest(qName)
-                }
-
-            }
-
-            if (!tryCurrent('*')) return null // no node test here
-
-            return when {
-                tryCurrent(':') -> NodeTest.LocalNameTest(parseNCName())
-
-                else -> NodeTest.AnyNameTest
-            }
-        }
-
-        private fun parseNodeTestOld(firstWord: String? = null): NodeTest? {
-            if (firstWord == null && tryCurrent('*')) return NodeTest.AnyNameTest
-
-            if (firstWord == null && (i >= str.length || !isNameStartChar(str[i]))) return null
-
-            val prefixOrLocal = firstWord ?: parseNCName()
-            skipWhitespace()
-            if (tryCurrent(':')) {
-                skipWhitespace()
-                val ns = lookupNamespace(prefixOrLocal)
-                return when {
-                    tryCurrent('*') -> NodeTest.NSTest(ns.toAnyUri(), VNCName(prefixOrLocal))
-                    else -> NodeTest.QNameTest(QName(ns, parseNCName(), prefixOrLocal))
-                }
-            } else {
-                val ns = namespaceContext.getNamespaceURI("") ?: ""
-                return NodeTest.QNameTest(QName(ns, prefixOrLocal))
-            }
         }
 
         private fun parsePostfixExpr(primary: ExprSingle): FilterExpr {

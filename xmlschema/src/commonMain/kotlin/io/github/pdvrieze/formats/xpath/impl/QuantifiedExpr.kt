@@ -25,21 +25,36 @@ import nl.adaptivity.xmlutil.XmlWriter
 @XPathInternal
 class QuantifiedExpr(
     val kind: Kind,
-    val varName: String,
-    val source: Expr,
+    val bindings: List<Binding>,
     val condition: Expr
 ) : ExprSingle() {
+    init {
+        require(bindings.isNotEmpty()) { "Must have at least one binding" }
+    }
+
     enum class Kind(val literal: String) {
         EVERY("every"),
         SOME("some");
     }
 
+    data class Binding(val varName: String, val source: ExprSingle) {
+        fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+            builder.append('$').append(varName).append(" in ")
+            source.appendToString(builder, output)
+        }
+
+        override fun toString(): String = buildString {
+            appendToString(this, null)
+        }
+    }
+
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.append(kind)
-            .append(" \$")
-            .append(varName)
-            .append(" in ")
-        source.appendToString(builder, output)
+        val it = bindings.iterator()
+        it.next().appendToString(builder, output)
+        while (it.hasNext()) {
+            builder.append(", ")
+            it.next().appendToString(builder, output)
+        }
         builder.append(" satisfies ")
         condition.appendToString(builder, output)
     }
@@ -52,8 +67,7 @@ class QuantifiedExpr(
         other as QuantifiedExpr
 
         if (kind != other.kind) return false
-        if (varName != other.varName) return false
-        if (source != other.source) return false
+        if (bindings != other.bindings) return false
         if (condition != other.condition) return false
 
         return true
@@ -62,8 +76,7 @@ class QuantifiedExpr(
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + kind.hashCode()
-        result = 31 * result + varName.hashCode()
-        result = 31 * result + source.hashCode()
+        result = 31 * result + bindings.hashCode()
         result = 31 * result + condition.hashCode()
         return result
     }
