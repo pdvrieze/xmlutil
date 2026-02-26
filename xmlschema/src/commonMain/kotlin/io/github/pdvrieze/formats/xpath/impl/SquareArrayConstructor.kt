@@ -24,17 +24,16 @@ import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
 internal class SquareArrayConstructor(val values: List<ExprSingle>): ExprSingle() {
-    init {
-        require(values.isNotEmpty()) { "Must have at least one value" }
-    }
 
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         builder.append('[')
         val it = values.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(", ")
+        if (it.hasNext()) {
             it.next().appendToString(builder, output)
+            while (it.hasNext()) {
+                builder.append(", ")
+                it.next().appendToString(builder, output)
+            }
         }
         builder.append(']')
     }
