@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 class QuantifiedExpr(
     val kind: Kind,
@@ -38,25 +36,27 @@ class QuantifiedExpr(
     }
 
     data class Binding(val varName: String, val source: ExprSingle) {
-        fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        fun appendToString(builder: Appendable) {
             builder.append('$').append(varName).append(" in ")
-            source.appendToString(builder, output)
+            source.appendToString(builder)
         }
 
         override fun toString(): String = buildString {
-            appendToString(this, null)
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
         }
     }
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        val it = bindings.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(", ")
-            it.next().appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        builder.joinHelper(bindings) {
+            it.appendToString(builder)
         }
+
         builder.append(" satisfies ")
-        condition.appendToString(builder, output)
+        condition.appendToString(builder)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -20,20 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 class LetExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         builder.append("let ")
-        val it = bindings.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(", ")
-            it.next().appendToString(builder, output)
+        builder.joinHelper(bindings) {
+            it.appendToString(builder)
         }
+
         builder.append(" return ")
-        returnExp.appendToString(builder, output)
+        returnExp.appendToString(builder)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -58,13 +55,16 @@ class LetExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingl
 
 
     class Binding(val varName: String, val expr: ExprSingle) {
-        fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        fun appendToString(builder: Appendable) {
             builder.append('$').append(varName).append(" := ")
-            expr.appendToString(builder, output)
+            expr.appendToString(builder)
         }
 
         override fun toString(): String = buildString {
-            appendToString(this, null)
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
         }
 
         override fun equals(other: Any?): Boolean {

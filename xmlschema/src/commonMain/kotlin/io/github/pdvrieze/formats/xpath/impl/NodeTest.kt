@@ -23,25 +23,31 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
 
 @XPathInternal
 internal sealed class NodeTest {
     sealed class NameTest() : NodeTest()
 
     sealed class NameOrLiteral {
-        abstract fun appendToString(builder: StringBuilder)
+        context(c: OutputContext)
+        abstract fun appendToString(builder: Appendable)
+
+        override fun toString(): String = buildString {
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
+        }
 
         class Literal(val literal: String) : NameOrLiteral() {
-            override fun appendToString(builder: StringBuilder) {
-                StringLiteral(literal).appendToString(builder, null)
+            context(c: OutputContext)
+            override fun appendToString(builder: Appendable) {
+                StringLiteral(literal).appendToString(builder)
             }
         }
 
         class NCName(val name: String) : NameOrLiteral() {
-            override fun appendToString(builder: StringBuilder) {
+            context(c: OutputContext)
+            override fun appendToString(builder: Appendable) {
                 builder.append(name)
             }
         }
@@ -63,7 +69,8 @@ internal sealed class NodeTest {
             return literal?.hashCode() ?: 0
         }
 
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("processing-instruction(")
             if (literal != null) {
                 literal.appendToString(builder)
@@ -73,7 +80,8 @@ internal sealed class NodeTest {
     }
 
     class LocalNameTest(val localName: String) : NameTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("*:").append(localName)
         }
 
@@ -93,11 +101,9 @@ internal sealed class NodeTest {
     }
 
     class QNameTest(val qName: QName) : NameTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            if (qName.namespaceURI.isNotEmpty()) {
-                builder.append("Q{").append(qName.namespaceURI).append("}")
-            }
-            builder.append(qName.localPart)
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            builder.appendQName(qName)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -128,8 +134,26 @@ internal sealed class NodeTest {
             return namespace.hashCode()
         }
 
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            val pr = output?.getOrCreatePrefix(namespace.xmlString, prefix?.xmlString)
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            val pr = when (c) {
+                is OutputContext.WriterCtx -> {
+                    c.output.namespaceContext.getPrefixes(namespace.xmlString).let {
+                        when {
+                            ! it.hasNext() -> null
+                            else -> {
+                                val f = it.next()
+                                when {
+                                    prefix == null -> f
+                                    it.asSequence().any { it == prefix.xmlString } -> prefix.xmlString
+                                    else -> f
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> null
+            }
 
             when (pr) {
                 null -> builder.append("Q{").append(namespace.xmlString).append('}')
@@ -141,14 +165,19 @@ internal sealed class NodeTest {
     }
 
     object AnyNameTest : NameTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("*")
         }
     }
 
-    abstract fun appendToString(builder: StringBuilder, output: XmlWriter?)
+    context(c: OutputContext)
+    abstract fun appendToString(builder: Appendable)
+
     override fun toString(): String = buildString {
-        appendToString(this, null)
+        context(OutputContext.EMPTY) {
+            appendToString(this)
+        }
     }
 
     companion object {

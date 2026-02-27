@@ -20,15 +20,14 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 sealed class UnaryExpr: ExprSingle() {
 
     class Plus(val expr: ExprSingle): UnaryExpr() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append('+')
-            expr.appendToString(builder, output)
+            expr.appendToString(builder)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -51,9 +50,10 @@ sealed class UnaryExpr: ExprSingle() {
     }
 
     class Minus(val expr: ExprSingle): UnaryExpr() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append('-')
-            expr.appendToString(builder, output)
+            expr.appendToString(builder)
         }
 
         override fun equals(other: Any?): Boolean {

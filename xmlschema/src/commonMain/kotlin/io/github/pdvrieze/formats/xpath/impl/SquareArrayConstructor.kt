@@ -20,21 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class SquareArrayConstructor(val values: List<ExprSingle>): ExprSingle() {
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         builder.append('[')
-        val it = values.iterator()
-        if (it.hasNext()) {
-            it.next().appendToString(builder, output)
-            while (it.hasNext()) {
-                builder.append(", ")
-                it.next().appendToString(builder, output)
-            }
-        }
+        builder.appendExprs(values)
         builder.append(']')
     }
 }

@@ -21,27 +21,20 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
 
 @XPathInternal
-sealed class ArrowFunctionSpecifier {
-    abstract fun appendToString(builder: StringBuilder, output: XmlWriter?)
+internal sealed class ArrowFunctionSpecifier {
+    context(c: OutputContext)
+    abstract fun appendToString(builder: Appendable)
 
-    class QNameFunc(val qname: QName) : ArrowFunctionSpecifier() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            when (qname.namespaceURI) {
-                "" -> builder.append(qname.localPart)
-                else -> when (val p = output?.getPrefix(qname.namespaceURI)) {
-                    null -> builder.append("Q{").append(qname.namespaceURI).append("}").append(qname.localPart)
-                    else -> builder.append(p).append(':').append(qname.localPart)
-                }
-            }
+    internal class QNameFunc(val qname: QName) : ArrowFunctionSpecifier() {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            builder.appendQName(qname)
         }
     }
 
-    class SeqFunc internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
+    internal class SeqFunc internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
         init {
             require(elements.isNotEmpty()) {"SeqFunc must have at least one element"}
         }
@@ -52,20 +45,17 @@ sealed class ArrowFunctionSpecifier {
             }
         )
 
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append('(')
-            val it = elements.iterator()
-            it.next().appendToString(builder, output)
-            while (it.hasNext()) {
-                builder.append(", ")
-                it.next().appendToString(builder, output)
-            }
+            builder.appendExprs(elements)
             builder.append(')')
         }
     }
 
     class VarRefFunc internal constructor(val varName: String): ArrowFunctionSpecifier() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append('$').append(varName)
         }
     }

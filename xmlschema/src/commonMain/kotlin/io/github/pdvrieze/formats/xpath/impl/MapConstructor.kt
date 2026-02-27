@@ -21,24 +21,20 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NodeTypeTest(val type: NodeType, args: List<Expr> = emptyList()) : NodeTest(), ItemTypeTest {
-    val args: List<Expr> = args.toList()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is NodeTypeTest) return false
-
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return type.hashCode()
+internal class MapConstructor(val entries: List<Entry>): ExprSingle() {
+    init {
+        require(entries.isNotEmpty()) { "A map constructor must have at least one entry" }
     }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
-        builder.append(type.literal).append("()")
+        builder.append("map{")
+        builder.joinHelper(entries) {
+            it.key.appendToString(builder)
+            append(" : ")
+            it.value.appendToString(builder)
+        }
     }
+
+    class Entry(val key: ExprSingle, val value: ExprSingle)
 }

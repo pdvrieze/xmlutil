@@ -20,25 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-@XPathInternal
-internal class NodeTypeTest(val type: NodeType, args: List<Expr> = emptyList()) : NodeTest(), ItemTypeTest {
-    val args: List<Expr> = args.toList()
-
+@OptIn(XPathInternal::class)
+sealed class ExprSingle(): Expr() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is NodeTypeTest) return false
-
-        if (type != other.type) return false
-
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
         return true
     }
 
-    override fun hashCode(): Int {
-        return type.hashCode()
-    }
-
-    context(c: OutputContext)
-    override fun appendToString(builder: Appendable) {
-        builder.append(type.literal).append("()")
-    }
 }

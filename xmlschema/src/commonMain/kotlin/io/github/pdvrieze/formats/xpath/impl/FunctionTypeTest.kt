@@ -20,25 +20,24 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 sealed class FunctionTypeTest: ItemTypeTest {
     object ANY: FunctionTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("function(*)")
         }
     }
 
     class Typed(val returnType: SequenceTypeTest, val paramTypes: List<SequenceTypeTest>): FunctionTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("function(")
-            returnType.appendToString(builder, output)
-            builder.append(")")
-            paramTypes.forEach {
-                builder.append(", ")
-                it.appendToString(builder, output)
+            builder.joinHelper(paramTypes) {
+                it.appendToString(builder)
             }
+            builder.append(") as ")
+            returnType.appendToString(builder)
         }
     }
 }

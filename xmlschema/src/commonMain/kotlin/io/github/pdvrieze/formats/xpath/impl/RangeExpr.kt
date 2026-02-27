@@ -20,14 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @OptIn(XPathInternal::class)
 class RangeExpr(val from: Expr, val to: Expr) : ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        from.appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        from.appendToString(builder)
         builder.append(" to ")
-        to.appendToString(builder, output)
+        to.appendToString(builder)
     }
 
     override fun equals(other: Any?): Boolean {

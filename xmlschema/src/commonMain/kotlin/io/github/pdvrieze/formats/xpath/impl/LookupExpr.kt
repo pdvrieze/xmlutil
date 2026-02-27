@@ -20,40 +20,52 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class LookupExpr(val context: Expr?, val key: KeySpecifier): ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        context?.appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        context?.appendToString(builder)
         builder.append('?')
-        key.appendToString(builder, output)
+        key.appendToString(builder)
     }
 
     sealed class KeySpecifier {
-        abstract fun appendToString(builder: StringBuilder, output: XmlWriter?)
+        context(c: OutputContext)
+        abstract fun appendToString(builder: Appendable)
+        override fun toString(): String = buildString {
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
+        }
     }
 
     class IntegerKey(val value: Int) : KeySpecifier() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            builder.append(value)
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            when (builder) {
+                is StringBuilder -> builder.append(value)
+                else -> builder.append(value.toString())
+            }
         }
     }
 
     class NCNameKey(val value: String) : KeySpecifier() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append(value)
         }
     }
     object AnyKey : KeySpecifier() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append('*')
         }
     }
     class ParenKey(val expr: Expr) : KeySpecifier() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append('(')
-            expr.appendToString(builder, output)
+            expr.appendToString(builder)
             builder.append(')')
         }
     }

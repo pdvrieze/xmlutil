@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class AxisStep(
     val axis: Axis,
@@ -32,75 +30,19 @@ internal class AxisStep(
 
     constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         when (axis) {
             Axis.ATTRIBUTE -> builder.append('@')
             Axis.CHILD -> {}
             else -> builder.append(axis.literal).append("::")
         }
-        test.appendToString(builder, output)
+        test.appendToString(builder)
         for(p in predicates) {
             builder.append('[')
-            p.appendToString(builder, output)
+            p.appendToString(builder)
             builder.append(']')
         }
     }
 }
 
-@XPathInternal
-internal sealed class PrimaryOrStep {
-    abstract fun appendToString(builder: StringBuilder, output: XmlWriter?)
-
-    override fun toString(): String = buildString {
-        appendToString(this, null)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return this::class.hashCode()
-    }
-
-}
-
-@OptIn(XPathInternal::class)
-internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        primaryExpr.appendToString(builder, output)
-        if (predicates.isNotEmpty()) {
-            builder.append('[')
-            val it = predicates.iterator()
-            while (it.hasNext()) {
-                it.next().appendToString(builder, output)
-                if (it.hasNext()) builder.append(", ")
-            }
-            builder.append(']')
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        if (!super.equals(other)) return false
-
-        other as FilterExpr
-
-        if (primaryExpr != other.primaryExpr) return false
-        if (predicates != other.predicates) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + primaryExpr.hashCode()
-        result = 31 * result + predicates.hashCode()
-        return result
-    }
-
-
-}

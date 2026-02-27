@@ -20,57 +20,5 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal abstract class NumberLiteral<out T: Number>() : LiteralExpr<T>()
-
-@XPathInternal
-internal class IntLiteral(override val value: Long) : NumberLiteral<Long>() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.append(value)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        if (!super.equals(other)) return false
-
-        other as IntLiteral
-
-        return value == other.value
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + value.hashCode()
-        return result
-    }
-
-
-}
-
-@XPathInternal
-internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.append(value)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        if (!super.equals(other)) return false
-
-        other as DoubleLiteral
-
-        return value == other.value
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + value.hashCode()
-        return result
-    }
-
-}
-

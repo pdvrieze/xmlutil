@@ -44,6 +44,10 @@ base {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+
     applyDefaultXmlUtilHierarchyTemplate()
     jvm {
         attributes {

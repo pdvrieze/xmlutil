@@ -21,24 +21,30 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NodeTypeTest(val type: NodeType, args: List<Expr> = emptyList()) : NodeTest(), ItemTypeTest {
-    val args: List<Expr> = args.toList()
+internal class IntLiteral(override val value: Long) : NumberLiteral<Long>() {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        when (builder) {
+            is StringBuilder -> builder.append(value)
+            else -> builder.append(value.toString())
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is NodeTypeTest) return false
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
 
-        if (type != other.type) return false
+        other as IntLiteral
 
-        return true
+        return value == other.value
     }
 
     override fun hashCode(): Int {
-        return type.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + value.hashCode()
+        return result
     }
 
-    context(c: OutputContext)
-    override fun appendToString(builder: Appendable) {
-        builder.append(type.literal).append("()")
-    }
+
 }

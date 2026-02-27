@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
 internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): FunctionCall(args) {
@@ -34,9 +33,10 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): Func
     constructor(name: QName, vararg args: ExprSingle) :
             this(name, args.asList())
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.appendQName(name, output)
-        builder.appendParams(output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        builder.appendQName(name)
+        builder.appendParams()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -21,20 +21,21 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
 interface ItemTypeTest {
 
     object ItemTestTest: ItemTypeTest {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append(toString())
         }
 
         override fun toString(): String = "item()"
     }
 
-    fun appendToString(builder: StringBuilder, output: XmlWriter?)
+    context(c: OutputContext)
+    fun appendToString(builder: Appendable)
 
     companion object {
         val documentNode: ItemTypeTest = AtomicOrUnionTypeTest(QName("document-node"))

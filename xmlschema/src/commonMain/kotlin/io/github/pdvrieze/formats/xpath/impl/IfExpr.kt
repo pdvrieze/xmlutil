@@ -20,17 +20,16 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 data class IfExpr(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         builder.append("if(")
-        testExpr.appendToString(builder, output)
+        testExpr.appendToString(builder)
         builder.append(") then ")
-        thenExpr.appendToString(builder, output)
+        thenExpr.appendToString(builder)
         builder.append(" else ")
-        elseExpr.appendToString(builder, output)
+        elseExpr.appendToString(builder)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.toCName
 
@@ -31,8 +30,9 @@ class AtomicOrUnionTypeTest(val name: QName): ItemTypeTest {
         require(name.localPart.isNotEmpty()) { "Atomic types must have non-empty local name" }
     }
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        builder.appendQName(name, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        builder.appendQName(name)
     }
 
     override fun toString(): String = name.toCName()

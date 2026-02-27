@@ -63,7 +63,9 @@ class XPathExpression private constructor(
             if (encoder is XML.XmlOutput) {
                 // TODO ensure prefixes exist encoder.target
                 val str = buildString {
-                    value.expr.appendToString(this, encoder.target)
+                    context(OutputContext(encoder.target)) {
+                        value.expr.appendToString(this)
+                    }
                 }
                 encoder.encodeString(str)
             } else {
@@ -883,6 +885,30 @@ class XPathExpression private constructor(
             val condition = parseExprSingle()
 
             return QuantifiedExpr(kind, bindings, condition)
+        }
+
+        fun parseEnclosedExpr(): EnclosedExpr {
+            require(tryCurrentToken('{'))
+            val contentExpr = when {
+                !peekCurrentToken('}') -> parseExpr()
+                else -> ParenExpr(SequenceExpr(emptyList())) // by default empty sequence
+            }
+            require(tryCurrentToken('}'))
+            return EnclosedExpr(contentExpr)
+        }
+
+        fun parseMapConstructorCont(): ExprSingle {
+            // Expects "map" before
+            require(tryCurrentToken('{'))
+            val entries = mutableListOf<MapConstructor.Entry>()
+            do {
+                val key = parseExprSingle()
+                require(tryCurrentToken(':'))
+                val value = parseExprSingle()
+                entries.add(MapConstructor.Entry(key, value))
+            } while (tryCurrentToken(','))
+            require(tryCurrentToken('}'))
+            return MapConstructor(entries)
         }
 
         fun parse(): Expr {

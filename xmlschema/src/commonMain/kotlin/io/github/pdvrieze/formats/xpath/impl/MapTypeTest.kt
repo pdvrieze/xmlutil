@@ -20,22 +20,22 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 sealed class MapTypeTest: ItemTypeTest {
     object ANY: MapTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("map(*)")
         }
     }
 
     class Typed(val inputType: AtomicOrUnionTypeTest, val outputType: SequenceTypeTest): MapTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("map(")
-            builder.appendQName(inputType, output)
+            builder.appendQName(inputType.name)
             builder.append(", ")
-            outputType.appendToString(builder, output)
+            outputType.appendToString(builder)
             builder.append(")")
         }
     }

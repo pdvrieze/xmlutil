@@ -20,13 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class ParenExpr(val expr: Expr): ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         builder.append('(')
-        expr.appendToString(builder, output)
+        expr.appendToString(builder)
         builder.append(')')
     }
 
@@ -49,6 +48,10 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         var result = super.hashCode()
         result = 31 * result + expr.hashCode()
         return result
+    }
+
+    fun isEmptySequence(): Boolean {
+        return expr is SequenceExpr && expr.isEmpty()
     }
 
 
