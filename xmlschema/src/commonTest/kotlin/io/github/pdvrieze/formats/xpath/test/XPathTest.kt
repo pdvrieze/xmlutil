@@ -44,6 +44,16 @@ class XPathTest {
         }
     }
 
+    @Test
+    fun testArrayWithEmptySequence() {
+        testPath("[()]") {
+            val array = assertIs<ArrayConstructor.Square>(expr)
+            val paren = assertIs<ParenExpr>(array.values.singleOrNull())
+            val seq = assertIs<SequenceExpr>(paren.expr)
+            assertEquals(0, seq.elements.size)
+        }
+    }
+
 
     @Test
     fun testDynamicFuncCall() {
