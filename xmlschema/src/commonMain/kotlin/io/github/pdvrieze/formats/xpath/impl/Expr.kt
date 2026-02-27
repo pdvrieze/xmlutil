@@ -20,11 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.serialization.copy
-import nl.adaptivity.xmlutil.toCName
+import nl.adaptivity.xmlutil.*
 
 @XPathInternal
 sealed class Expr {
@@ -32,18 +28,6 @@ sealed class Expr {
 
     final override fun toString(): String = buildString {
         appendToString(this, null)
-    }
-
-    protected fun appendQName(
-        type: QName,
-        builder: StringBuilder,
-        output: XmlWriter?
-    ) {
-        val t = when (output) {
-            null -> type
-            else -> type.copy(prefix = output.getOrCreatePrefix(type.namespaceURI, type.getPrefix()))
-        }
-        builder.append(t.toCName())
     }
 
     override fun equals(other: Any?): Boolean {
@@ -58,6 +42,38 @@ sealed class Expr {
 
 
 }
+
+@XPathInternal
+internal fun StringBuilder.appendQName(
+    name: QName,
+    output: XmlWriter?
+) {
+    if (output == null) {
+        if (name.namespaceURI.isEmpty()) {
+            append(name.localPart)
+        } else {
+            append("Q{").append(name.namespaceURI).append("}").append(name.localPart)
+        }
+        return
+    } else {
+        val prefixes = output.namespaceContext.getPrefixes(name.namespaceURI)
+        val it = prefixes.iterator()
+        if (!it.hasNext()) {
+            append("Q{").append(name.namespaceURI).append("}").append(name.localPart)
+            return
+        }
+
+        val firstPrefix = it.next()
+        val prefix: String = when {
+            it.asSequence().any { it == name.prefix } -> name.prefix
+            else -> firstPrefix
+        }
+
+        if (! prefix.isEmpty()) append(prefix).append(':')
+        append(name.localPart)
+    }
+}
+
 
 @OptIn(XPathInternal::class)
 sealed class ExprSingle(): Expr() {

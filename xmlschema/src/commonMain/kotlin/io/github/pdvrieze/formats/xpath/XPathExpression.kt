@@ -98,7 +98,7 @@ class XPathExpression private constructor(
         internal val STEP_DOC_ROOT = FilterExpr(
             TreatAsExpr(
                 StaticFunctionCall(Fn.Root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),
-                SequenceType.ItemSequence(ItemType.documentNode, SequenceType.OccurrenceType.ANY)
+                SequenceTypeTest.ItemSequenceTest(ItemTypeTest.documentNode, SequenceTypeTest.OccurrenceType.ANY)
             ),
             emptyList()
         )
@@ -209,53 +209,116 @@ class XPathExpression private constructor(
             }
         }
 
-        private fun parseItemType(): ItemType {
+        private fun parseItemType(): ItemTypeTest {
             skipWhitespace()
-            val localOrPrefix = parseNCName()
-            if (localOrPrefix == "item") {
-                require(tryCurrentToken('('))
+            if (tryCurrentToken('(')) { // ParenthesizedItemType
+                val t = parseItemType()
                 require(tryCurrentToken(')'))
+                return t
+            }
 
-                return ItemType.ItemTest
+            val localOrPrefix = parseNCName()
+            if (tryCurrentToken('(')) {
+                when (localOrPrefix) {
+                    "item" -> {
+                        require(tryCurrentToken(')')) { "The item type specifier has no arguments" }
+                        return ItemTypeTest.ItemTestTest
+                    }
+
+                    "function" -> when {
+                        tryCurrentToken('*') -> {
+                            require(tryCurrentToken(')'))
+                            return FunctionTypeTest.ANY
+                        }
+
+                        else -> {
+                            val params = mutableListOf<SequenceTypeTest>()
+                            while (!tryCurrentToken(')')) {
+                                params.add(parseSequenceType())
+                            }
+                            require(tryCurrentWordToken("as")) { "The function type specifier has no return type" }
+                            val returnType = parseSequenceType()
+                            return FunctionTypeTest.Typed(returnType, params)
+                        }
+                    }
+
+                    "map" -> when {
+                        tryCurrent('*') -> {
+                            require(tryCurrentToken(')'))
+                            return MapTypeTest.ANY
+                        }
+
+                        else -> {
+                            val inType = AtomicOrUnionTypeTest(parseEQName())
+                            require(tryCurrentToken(","))
+                            val outType = parseSequenceType()
+                            require(tryCurrentToken(')')) { "Map specifiers must be closed by ')': ${str.substring(i)}"}
+                            return MapTypeTest.Typed(inType, outType)
+                        }
+                    }
+
+                    "array" -> when {
+                        tryCurrent('*') -> {
+                            require(tryCurrentToken(')'))
+                            return MapTypeTest.ANY
+                        }
+
+                        else -> {
+                            val elemType = parseSequenceType()
+                            require(tryCurrentToken(')')) { "Array specifiers must be closed by ')': ${str.substring(i)}"}
+                            return ArrayTypeTest.Typed(elemType)
+                        }
+                    }
+
+                    else -> { // Handle the different kinds of node type parameter packs better
+                        val nodeType = NodeType.maybeValueOf(localOrPrefix)
+                        if (nodeType != null) {
+                            --i
+                            return NodeTypeTest(nodeType, parseArgs())
+                        }
+                    }
+                }
             }
-            val nodeType = NodeType.maybeValueOf(localOrPrefix)
-            if (nodeType != null) {
-                return NodeTest.NodeTypeTest(nodeType, parseArgs())
+
+
+
+            when (localOrPrefix) {
             }
+
             if (tryCurrentToken(':')) {
                 val localName = parseNCName()
-                return ItemType.AtomicType(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
+                return AtomicOrUnionTypeTest(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
             } else {
-                return ItemType.AtomicType(QName(lookupNamespace(""), localOrPrefix, ""))
+                return AtomicOrUnionTypeTest(QName(lookupNamespace(""), localOrPrefix, ""))
             }
         }
 
-        private fun parseSequenceType(): SequenceType {
+        private fun parseSequenceType(): SequenceTypeTest {
             if (tryCurrentWordToken("empty-sequence")) {
                 require(tryCurrentToken('('))
                 require(tryCurrentToken(')'))
-                return SequenceType.EmptySequence
+                return SequenceTypeTest.EmptySequence
             }
             val itemType = parseItemType()
             val occurrence = when (peekCurrentToken()) {
                 '?' -> {
                     ++i
-                    SequenceType.OccurrenceType.OPTIONAL
+                    SequenceTypeTest.OccurrenceType.OPTIONAL
                 }
 
                 '*' -> {
                     ++i
-                    SequenceType.OccurrenceType.ANY
+                    SequenceTypeTest.OccurrenceType.ANY
                 }
 
                 '+' -> {
                     ++i
-                    SequenceType.OccurrenceType.AT_LEAST_ONE
+                    SequenceTypeTest.OccurrenceType.AT_LEAST_ONE
                 }
 
-                else -> SequenceType.OccurrenceType.SINGLE
+                else -> SequenceTypeTest.OccurrenceType.SINGLE
             }
-            return SequenceType.ItemSequence(itemType, occurrence)
+            return SequenceTypeTest.ItemSequenceTest(itemType, occurrence)
         }
 
         private fun parseVariableReference(): VariableRef {
@@ -651,7 +714,7 @@ class XPathExpression private constructor(
             while (tryCurrentToken('/')) {
                 when {
                     tryCurrentToken("/") -> steps.apply {
-                        add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE)))
+                        add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest(NodeType.ANY_KIND)))
                         add(requireNotNull(parseStepExpr()) { "Missing step after '//' in relative path expression" })
                     }
 
@@ -845,7 +908,7 @@ class XPathExpression private constructor(
                             tryCurrent('.') -> Axis.PARENT
                             else -> Axis.SELF
                         }
-                        steps.add(AxisStep(axis, NodeTest.NodeTypeTest(NodeType.NODE)))
+                        steps.add(AxisStep(axis, NodeTypeTest(NodeType.ANY_KIND)))
                     }
 
                     c == '$' -> {
@@ -863,7 +926,7 @@ class XPathExpression private constructor(
 
                         if (other == '/') { // shortcut
                             if (rooted) ++i
-                            steps.add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE)))
+                            steps.add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest(NodeType.ANY_KIND)))
                         } else {
                             ++i
                             skipWhitespace()
@@ -975,18 +1038,18 @@ class XPathExpression private constructor(
             when {
                 c == '/' -> { // special case for "empty" expression
 //                    ++i
-                    return AxisStep(Axis.DESCENDANT_OR_SELF, NodeTest.NodeTypeTest(NodeType.NODE))
+                    return AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest(NodeType.ANY_KIND))
                 }
 
                 c == '.' && tryCurrent("..") -> {
                     skipWhitespace()
-                    return AxisStep(Axis.PARENT, NodeTest.NodeTypeTest(NodeType.NODE), parsePredicates())
+                    return AxisStep(Axis.PARENT, NodeTypeTest(NodeType.ANY_KIND), parsePredicates())
                 }
 
                 c == '.' -> {
                     ++i
                     skipWhitespace()
-                    return AxisStep(Axis.SELF, NodeTest.NodeTypeTest(NodeType.NODE), parsePredicates())
+                    return AxisStep(Axis.SELF, NodeTypeTest(NodeType.ANY_KIND), parsePredicates())
                 }
 
                 c == '$' -> {
@@ -1062,7 +1125,7 @@ class XPathExpression private constructor(
                             }
 
                             is NodeType -> {
-                                currentTest = NodeTest.NodeTypeTest(nodeType, args)
+                                currentTest = NodeTypeTest(nodeType, args)
                             }
 
                             else -> {
@@ -1195,7 +1258,7 @@ class XPathExpression private constructor(
             }
 
             val args = parseArgs()
-            return NodeTest.NodeTypeTest(nodeType, args)
+            return NodeTypeTest(nodeType, args)
         }
 
         private fun parsePostfixExpr(primary: ExprSingle): FilterExpr {

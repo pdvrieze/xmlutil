@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
-class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceType) : ExprSingle() {
+class InstanceOfExpr(val expr: Expr, val sequenceType: SequenceTypeTest) : ExprSingle() {
 
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
         expr.appendToString(builder, output)

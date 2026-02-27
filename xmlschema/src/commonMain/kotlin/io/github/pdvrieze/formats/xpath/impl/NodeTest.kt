@@ -31,27 +31,6 @@ import nl.adaptivity.xmlutil.namespaceURI
 internal sealed class NodeTest {
     sealed class NameTest() : NodeTest()
 
-    class NodeTypeTest(val type: NodeType, args: List<Expr> = emptyList()) : NodeTest(), ItemType {
-        val args: List<Expr> = args.toList()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is NodeTypeTest) return false
-
-            if (type != other.type) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return type.hashCode()
-        }
-
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            builder.append(type.literal).append("()")
-        }
-    }
-
     sealed class NameOrLiteral {
         abstract fun appendToString(builder: StringBuilder)
 
@@ -173,6 +152,7 @@ internal sealed class NodeTest {
     }
 
     companion object {
-        val node: NodeTypeTest = NodeTest.NodeTypeTest(NodeType.NODE)
+        val node: NodeTypeTest = NodeTypeTest(NodeType.ANY_KIND)
     }
 }
+

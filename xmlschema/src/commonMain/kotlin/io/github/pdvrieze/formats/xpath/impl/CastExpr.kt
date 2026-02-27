@@ -29,7 +29,7 @@ class CastExpr(val expr: Expr, val type: QName) : ExprSingle() {
         expr.appendToString(builder, output)
         builder.append(" cast as ")
 
-        appendQName(type, builder, output)
+        builder.appendQName(type, output)
     }
 
     override fun equals(other: Any?): Boolean {
