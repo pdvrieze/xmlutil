@@ -20,13 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class DynamicFunctionCall(val expr: Expr, args: List<ExprSingle>): FunctionCall(args) {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        expr.appendToString(builder, output)
-        builder.appendParams(output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        expr.appendToString(builder)
+        builder.appendParams()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -21,24 +21,16 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NodeTypeTest(val type: NodeType, args: List<Expr> = emptyList()) : NodeTest(), ItemTypeTest {
-    val args: List<Expr> = args.toList()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is NodeTypeTest) return false
-
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return type.hashCode()
-    }
-
+internal class EnclosedExpr(val contentExpr: Expr): ExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
-        builder.append(type.literal).append("()")
+        builder.append('{')
+        if (contentExpr !is ParenExpr || ! contentExpr.isEmptySequence()) {
+            contentExpr.appendToString(builder)
+        }
+        builder.append('}')
+
     }
+
 }
+

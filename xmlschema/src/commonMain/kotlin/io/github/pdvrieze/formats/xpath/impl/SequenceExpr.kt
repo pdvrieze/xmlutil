@@ -20,26 +20,22 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 class SequenceExpr(elements: List<ExprSingle>) : Expr() {
     constructor(vararg elements: ExprSingle): this(elements.toList())
 
     val elements: List<ExprSingle> = elements.toList()
 
+    fun isEmpty() = elements.isEmpty()
+
     operator fun plus(expr: Expr): SequenceExpr = when (expr) {
         is SequenceExpr -> SequenceExpr(elements + expr.elements)
         is ExprSingle -> SequenceExpr(elements + expr)
     }
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        val it = elements.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(", ")
-            it.next().appendToString(builder, output)
-        }
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        builder.appendExprs(elements)
     }
 
     override fun equals(other: Any?): Boolean {

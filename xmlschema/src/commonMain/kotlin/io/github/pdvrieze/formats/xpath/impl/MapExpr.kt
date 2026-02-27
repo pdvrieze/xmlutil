@@ -20,19 +20,16 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
+@XPathInternal
 class MapExpr(val elements: List<ExprSingle>): ExprSingle() {
     init {
         require(elements.isNotEmpty()) { "Must have at least one element" }
     }
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        val it = elements.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(" ! ")
-            it.next().appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        builder.joinHelper(elements, " ! ") {
+            it.appendToString(builder)
         }
     }
 

@@ -20,11 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class StringLiteral(override val value: String) : LiteralExpr<String>() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         var hasQuot = false
         var hasApos = false
         for (c in value) {

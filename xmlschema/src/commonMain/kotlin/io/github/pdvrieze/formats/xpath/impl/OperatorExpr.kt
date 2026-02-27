@@ -20,20 +20,16 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal class OperatorExpr(val operator: Operator, val operands: List<ExprSingle>): ExprSingle() {
     init {
         require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
     }
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        val it = operands.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(' ').append(operator.literal).append(' ')
-            it.next().appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        builder.joinHelper(operands, " ${operator.literal} ") {
+            it.appendToString(builder)
         }
     }
 

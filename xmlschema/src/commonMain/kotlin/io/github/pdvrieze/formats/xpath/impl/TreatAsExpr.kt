@@ -20,15 +20,14 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 class TreatAsExpr(val expr: Expr, val sequenceType: SequenceTypeTest) : ExprSingle() {
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        expr.appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        expr.appendToString(builder)
         builder.append(" instance of ")
-        sequenceType.appendToString(builder, output)
+        sequenceType.appendToString(builder)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -20,12 +20,11 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @OptIn(XPathInternal::class)
 @XPathInternal
 internal class VariableRef(val varName: String): ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         builder.append('@').append(varName)
     }
 

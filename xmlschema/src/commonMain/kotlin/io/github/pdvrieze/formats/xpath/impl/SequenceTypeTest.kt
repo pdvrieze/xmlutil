@@ -20,19 +20,19 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 sealed class SequenceTypeTest : ItemTypeTest {
     object EmptySequence : SequenceTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("empty-sequence()")
         }
     }
 
     class ItemSequenceTest(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-            itemType.appendToString(builder, output)
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            itemType.appendToString(builder)
             builder.append(occurrence.literal)
         }
     }

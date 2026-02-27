@@ -21,15 +21,15 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlWriter
 
 @XPathInternal
 class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : ExprSingle() {
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        expr.appendToString(builder, output)
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
+        expr.appendToString(builder)
         builder.append(" castable as ")
 
-        builder.appendQName(type, output)
+        builder.appendQName(type)
         if (allowsEmpty) builder.append('?')
     }
 

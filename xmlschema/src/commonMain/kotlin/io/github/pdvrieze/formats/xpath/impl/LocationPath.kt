@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @OptIn(XPathInternal::class)
 internal class LocationPath(
     val rooted: Boolean,
@@ -36,13 +34,12 @@ internal class LocationPath(
         listOf(FilterExpr(single))
     )
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         if (rooted) builder.append('/')
 
-        val it = steps.iterator()
-        while (it.hasNext()) {
-            it.next().appendToString(builder, output)
-            if (it.hasNext()) builder.append('/')
+        builder.joinHelper(steps, "/") {
+            it.appendToString(builder)
         }
     }
 

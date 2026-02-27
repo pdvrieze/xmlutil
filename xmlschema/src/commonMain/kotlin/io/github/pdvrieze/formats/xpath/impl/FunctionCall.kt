@@ -20,16 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 internal sealed class FunctionCall(val args: List<ExprSingle>): ExprSingle() {
-    protected fun StringBuilder.appendParams(output: XmlWriter?) {
+    context(c: OutputContext)
+    protected fun Appendable.appendParams() {
         append('(')
-        for (i in args.indices) {
-            if (i>0) append(", ")
-            args[i].appendToString(this, output)
-        }
+        appendExprs(args)
         append(')')
     }
 
@@ -51,4 +47,3 @@ internal sealed class FunctionCall(val args: List<ExprSingle>): ExprSingle() {
 
 
 }
-

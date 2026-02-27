@@ -20,24 +20,20 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 class ForExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingle() {
     init {
         require(bindings.isNotEmpty()) { "Must have at least one binding" }
     }
 
-    override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+    context(c: OutputContext)
+    override fun appendToString(builder: Appendable) {
         builder.append("for ")
-        val it = bindings.iterator()
-        it.next().appendToString(builder, output)
-        while (it.hasNext()) {
-            builder.append(", ")
-            it.next().appendToString(builder, output)
+        builder.joinHelper(bindings) {
+            it.appendToString(builder)
         }
         builder.append(" return ")
-        returnExp.appendToString(builder, output)
+        returnExp.appendToString(builder)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -62,13 +58,16 @@ class ForExpr(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingl
 
 
     class Binding(val varName: String, val collection: ExprSingle) {
-        fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        fun appendToString(builder: Appendable) {
             builder.append('$').append(varName).append(" in ")
-            collection.appendToString(builder, output)
+            collection.appendToString(builder)
         }
 
         override fun toString(): String = buildString {
-            appendToString(this, null)
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
         }
 
         override fun equals(other: Any?): Boolean {

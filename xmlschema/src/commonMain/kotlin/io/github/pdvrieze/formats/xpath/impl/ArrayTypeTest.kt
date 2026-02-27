@@ -20,20 +20,20 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.XmlWriter
-
 @XPathInternal
 sealed class ArrayTypeTest: ItemTypeTest {
     object ANY: ArrayTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("array(*)")
         }
     }
 
     class Typed(val elemType: SequenceTypeTest): ArrayTypeTest() {
-        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
             builder.append("array(")
-            elemType.appendToString(builder, output)
+            elemType.appendToString(builder)
             builder.append(")")
         }
     }
