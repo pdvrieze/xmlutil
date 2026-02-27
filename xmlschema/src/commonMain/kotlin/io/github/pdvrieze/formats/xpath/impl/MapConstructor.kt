@@ -22,9 +22,6 @@ package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
 internal class MapConstructor(val entries: List<Entry>): ExprSingle() {
-    init {
-        require(entries.isNotEmpty()) { "A map constructor must have at least one entry" }
-    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

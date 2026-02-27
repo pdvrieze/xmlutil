@@ -36,6 +36,14 @@ class XPathTest {
         }
     }
 
+    @Test
+    fun testMapConstructor() {
+        testPath("map{}") {
+            val map = assertIs<MapConstructor>(expr)
+            assertEquals(0, map.entries.size)
+        }
+    }
+
 
     @Test
     fun testDynamicFuncCall() {
