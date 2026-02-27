@@ -870,7 +870,23 @@ class XPathExpression private constructor(
                 }
             }
 
-            TODO()
+            throw IllegalArgumentException("Expected key specifier, found: '${str.substring(i)}'")
+        }
+
+        fun parseMapConstructorCont(): ExprSingle {
+            // Expects "map" before
+            require(tryCurrentToken('{'))
+            val entries = mutableListOf<MapConstructor.Entry>()
+            if (! peekCurrentToken('}')) {
+                do {
+                    val key = parseExprSingle()
+                    require(tryCurrentToken(':'))
+                    val value = parseExprSingle()
+                    entries.add(MapConstructor.Entry(key, value))
+                } while (tryCurrentToken(','))
+            }
+            require(tryCurrentToken('}'))
+            return MapConstructor(entries)
         }
 
         private fun parseSequenceOrParen(): ParenExpr {
@@ -936,20 +952,6 @@ class XPathExpression private constructor(
             }
             require(tryCurrentToken('}'))
             return EnclosedExpr(contentExpr)
-        }
-
-        fun parseMapConstructorCont(): ExprSingle {
-            // Expects "map" before
-            require(tryCurrentToken('{'))
-            val entries = mutableListOf<MapConstructor.Entry>()
-            do {
-                val key = parseExprSingle()
-                require(tryCurrentToken(':'))
-                val value = parseExprSingle()
-                entries.add(MapConstructor.Entry(key, value))
-            } while (tryCurrentToken(','))
-            require(tryCurrentToken('}'))
-            return MapConstructor(entries)
         }
 
         fun parse(): Expr {
