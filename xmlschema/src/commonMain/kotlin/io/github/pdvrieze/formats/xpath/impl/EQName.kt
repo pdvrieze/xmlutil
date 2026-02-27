@@ -34,7 +34,7 @@ internal sealed interface QNameSpec {
         override fun asNodeTest(): NodeTest {
             if (namespace == null && prefix == null) {
                 NodeType.maybeValueOf(localName)?.let {
-                    return NodeTest.NodeTypeTest(it)
+                    return NodeTypeTest(it)
                 }
             }
             return NodeTest.QNameTest(asQName())

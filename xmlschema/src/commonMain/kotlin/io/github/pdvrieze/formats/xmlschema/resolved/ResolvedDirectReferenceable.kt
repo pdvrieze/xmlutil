@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -54,7 +54,10 @@ sealed class ResolvedDirectReferenceable(
                 if (expr.rooted || expr.steps.size==0) return false
                 val firstStep = requireNotNull(expr.steps.first() as? AxisStep) { "XPath doesn't support most expressions" }
                 val stepIndices: IntRange = if (firstStep.axis == Axis.SELF && expr.steps.size>1 &&
-                    (expr.steps[1] as AxisStep).let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTest.NodeTypeTest(NodeType.NODE) }) {
+                    (expr.steps[1] as AxisStep).let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTypeTest(
+                        NodeType.ANY_KIND
+                    )
+                    }) {
                     2 until expr.steps.size
                 } else {
                     expr.steps.indices
@@ -69,7 +72,7 @@ sealed class ResolvedDirectReferenceable(
     }
 
     private fun isXsdSubset(step: AxisStep, canBeAttr: Boolean = false): Boolean = step.predicates.size == 0 && when(step.axis) {
-        Axis.SELF -> step.test == NodeTest.NodeTypeTest(NodeType.NODE)
+        Axis.SELF -> step.test == NodeTypeTest(NodeType.ANY_KIND)
         Axis.ATTRIBUTE -> canBeAttr && step.test is NodeTest.NameTest
         Axis.CHILD -> step.test is NodeTest.NameTest
         else -> false

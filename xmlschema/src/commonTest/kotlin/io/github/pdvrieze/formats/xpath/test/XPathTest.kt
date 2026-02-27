@@ -132,7 +132,7 @@ class XPathTest {
         testPath("text()") {
             assertPath {
                 assertFalse(path.rooted)
-                assertStep<NodeTest.NodeTypeTest> { assertEquals(NodeType.TEXT, it.type) }
+                assertStep<NodeTypeTest> { assertEquals(NodeType.TEXT, it.type) }
             }
         }
     }
@@ -255,7 +255,7 @@ class XPathTest {
         testPath("//olist/item") {
             assertPath {
                 assertRooted()
-                assertStep(Axis.DESCENDANT_OR_SELF, NodeType.NODE)
+                assertStep(Axis.DESCENDANT_OR_SELF, NodeType.ANY_KIND)
                 assertStep("olist")
                 assertStep("item")
             }

@@ -20,22 +20,23 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-enum class NodeType(val literal: String) {
-    DOCUMENT("document-node"),
-    ELEMENT("element"),
-    SCHEMA_ELEMENT("schema-element"),
-    SCHEMA_ATTRIBUTE("schema-attribute"),
-    ATTRIBUTE("attribute"),
-    COMMENT("comment"),
-    TEXT("text"),
-    PROCESSING_INSTRUCTION("processing-instruction"),
-    NAMESPACE_NODE("namespace-node"),
-    ANY_KIND("node"),;
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlWriter
+
+@XPathInternal
+interface ItemTypeTest {
+
+    object ItemTestTest: ItemTypeTest {
+        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+            builder.append(toString())
+        }
+
+        override fun toString(): String = "item()"
+    }
+
+    fun appendToString(builder: StringBuilder, output: XmlWriter?)
 
     companion object {
-        private val lookup = entries.associateBy { it.literal }
-        fun maybeValueOf(name: String): NodeType? {
-            return lookup[name]
-        }
+        val documentNode: ItemTypeTest = AtomicOrUnionTypeTest(QName("document-node"))
     }
 }

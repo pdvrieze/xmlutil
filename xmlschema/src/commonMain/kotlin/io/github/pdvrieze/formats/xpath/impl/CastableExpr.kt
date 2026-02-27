@@ -29,7 +29,7 @@ class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : 
         expr.appendToString(builder, output)
         builder.append(" castable as ")
 
-        appendQName(type, builder, output)
+        builder.appendQName(type, output)
         if (allowsEmpty) builder.append('?')
     }
 

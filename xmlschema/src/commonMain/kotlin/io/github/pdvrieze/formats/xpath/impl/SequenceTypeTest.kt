@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,22 +20,27 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-enum class NodeType(val literal: String) {
-    DOCUMENT("document-node"),
-    ELEMENT("element"),
-    SCHEMA_ELEMENT("schema-element"),
-    SCHEMA_ATTRIBUTE("schema-attribute"),
-    ATTRIBUTE("attribute"),
-    COMMENT("comment"),
-    TEXT("text"),
-    PROCESSING_INSTRUCTION("processing-instruction"),
-    NAMESPACE_NODE("namespace-node"),
-    ANY_KIND("node"),;
+import nl.adaptivity.xmlutil.XmlWriter
 
-    companion object {
-        private val lookup = entries.associateBy { it.literal }
-        fun maybeValueOf(name: String): NodeType? {
-            return lookup[name]
+@XPathInternal
+sealed class SequenceTypeTest : ItemTypeTest {
+    object EmptySequence : SequenceTypeTest() {
+        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+            builder.append("empty-sequence()")
         }
+    }
+
+    class ItemSequenceTest(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceTypeTest() {
+        override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
+            itemType.appendToString(builder, output)
+            builder.append(occurrence.literal)
+        }
+    }
+
+    enum class OccurrenceType(val literal: String) {
+        SINGLE(""),
+        OPTIONAL("?"),
+        ANY("*"),
+        AT_LEAST_ONE("+")
     }
 }

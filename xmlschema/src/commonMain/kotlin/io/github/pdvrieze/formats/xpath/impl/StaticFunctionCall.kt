@@ -35,7 +35,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): Func
             this(name, args.asList())
 
     override fun appendToString(builder: StringBuilder, output: XmlWriter?) {
-        appendQName(name, builder, output)
+        builder.appendQName(name, output)
         builder.appendParams(output)
     }
 
