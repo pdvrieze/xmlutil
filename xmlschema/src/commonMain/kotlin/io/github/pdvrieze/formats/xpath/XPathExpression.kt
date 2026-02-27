@@ -890,39 +890,22 @@ class XPathExpression private constructor(
         }
 
         private fun parseSequenceOrParen(): ParenExpr {
-            require(str[i] == '(') {
+            require(tryCurrentToken('(')) {
                 "@$i> Expected '(' in sequence expression, found: '${str.substring(0, i)}>${str[i]}<${str.substring(i)}"
             }
             val c: ParenExpr
-            ++i
-            val expr = parseExprSingle()
-            skipWhitespace()
-            require(i < str.length) { "@$i> missing closing )" }
-            if (str[i] != ')') {
-                val elements: MutableList<ExprSingle> = mutableListOf(expr)
-                do {
-                    require(tryCurrent(',')) {
-                        "@$i> Invalid character '${str[i]}' in range expression: '${
-                            str.substring(
-                                i
-                            )
-                        }'"
-                    }
-                    // tryCurrent will move the parsing position forward
-                    skipWhitespace()
-                    elements.add(parseExprSingle())
-                    require(i < str.length) { "@$i> missing closing )" }
-                } while (str[i] != ')')
-                c = ParenExpr(SequenceExpr(elements))
-            } else {
-                c = expr as? ParenExpr ?: ParenExpr(expr)
-            }
-            ++i
-            return c
+            if (tryCurrentToken(')')) return ParenExpr(SequenceExpr(emptyList()))
+
+            val elements: MutableList<ExprSingle> = mutableListOf<ExprSingle>()
+            do {
+                elements.add(parseExprSingle())
+            } while (tryCurrentToken(','))
+            require(tryCurrentToken(')')) { "@$i> Expected ')' to finish sequence expression, found: '${str.substring(0, i)}>${str[i]}<${str.substring(i)}" }
+
+            return ParenExpr(SequenceExpr(elements))
         }
 
         private fun parseQuantifiedExprCont(kind: QuantifiedExpr.Kind): ExprSingle {
-            val oldStart = i - kind.literal.length
 
             require(tryCurrent('$')) { "@$i> Missing '$' in quantified expression '${str.substring(i)}'" }
 
