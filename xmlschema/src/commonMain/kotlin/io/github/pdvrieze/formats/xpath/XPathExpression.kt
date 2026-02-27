@@ -99,7 +99,7 @@ class XPathExpression private constructor(
 
         internal val STEP_DOC_ROOT = FilterExpr(
             TreatAsExpr(
-                StaticFunctionCall(Fn.Root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),
+                StaticFunctionCall(Fn.root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),
                 SequenceTypeTest.ItemSequenceTest(ItemTypeTest.documentNode, SequenceTypeTest.OccurrenceType.ANY)
             ),
             emptyList()
@@ -781,7 +781,11 @@ class XPathExpression private constructor(
                 else if isNameStartChar(c) -> {
                     val start = i
                     val ncName = parseNCName()
-                    if (tryCurrentToken("::")) { // found axis
+                    if (ncName == "map" && peekCurrentToken('{')) {
+                        return parsePostfixExpr(parseMapConstructorCont())
+                    } else if (ncName == "array" && peekCurrentToken('{')) {
+                        return parsePostfixExpr(parseCurlyArrayConstructorCont())
+                    } else if (tryCurrentToken("::")) { // found axis
                         val axis = Axis.from(ncName)
                         val nodeTest = requireNotNull(parseNodeTest()) {
                             "@$i> Expected node test after axis name: ${str.substring(start)}"
@@ -825,10 +829,47 @@ class XPathExpression private constructor(
                 }
                 require(tryCurrentToken(']')) { "@$i> Missing ']' in square array constructor" }
             }
-            return SquareArrayConstructor(exprs)
+            return ArrayConstructor.Square(exprs)
+        }
+
+        private fun parseCurlyArrayConstructorCont(): ExprSingle {
+            val expr = parseEnclosedExpr()
+            return ArrayConstructor.Curly(expr.contentExpr)
         }
 
         private fun parseUnaryLookup(): ExprSingle {
+            require(tryCurrentToken('?')) { "@$i> Missing '?' in unary lookup" }
+            when (val c = peekCurrentToken()) {
+                null -> throw IllegalArgumentException("Expected key specifier, found end of expression")
+
+                '*' -> return LookupExpr(null, LookupExpr.AnyKey)
+
+                '(' -> {
+                    ++i
+                    val key: Expr = when {
+                        tryCurrentToken(')') -> SequenceExpr(emptyList())
+                        else -> parseExpr()
+                    }
+                    return LookupExpr(null, LookupExpr.ParenKey(key))
+                }
+
+                in '0'..'9' -> {
+                    var j = i+1
+                    while (str[j] in '0'..'9') { ++j }
+                    val value = str.substring(i, j).toLong()
+                    i = j
+                    return DynamicFunctionCall(
+                        LocationPath(AxisStep(Axis.SELF, NodeTest.node)),
+                        listOf(IntLiteral(value))
+                    )
+                }
+
+                else if isNameStartChar(c) -> {
+                    val name = parseNCName()
+                    return LookupExpr(null, LookupExpr.NCNameKey(name))
+                }
+            }
+
             TODO()
         }
 

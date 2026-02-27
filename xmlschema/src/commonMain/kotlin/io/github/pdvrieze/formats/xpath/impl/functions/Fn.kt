@@ -28,7 +28,17 @@ interface Function {
 }
 
 object Fn {
-    object Root: Function {
+    object root: Function {
         override val name: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, "root")
     }
+    object data: Function {
+        override val name: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, "data")
+    }
+
+    object map {
+        object keys: Function {
+            override val name: QName = QName("${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/map", "keys")
+        }
+    }
+
 }
