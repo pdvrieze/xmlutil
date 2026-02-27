@@ -21,12 +21,27 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class SquareArrayConstructor(val values: List<ExprSingle>): ExprSingle() {
+sealed class ArrayConstructor(): ExprSingle() {
 
-    context(c: OutputContext)
-    override fun appendToString(builder: Appendable) {
-        builder.append('[')
-        builder.appendExprs(values)
-        builder.append(']')
+    @XPathInternal
+    class Square(val values: List<ExprSingle>): ArrayConstructor() {
+
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            builder.append("[ ")
+            builder.appendExprs(values)
+            builder.append(" ]")
+        }
+    }
+
+    @XPathInternal
+    class Curly(val expr: Expr): ArrayConstructor() {
+
+        context(c: OutputContext)
+        override fun appendToString(builder: Appendable) {
+            builder.append("array { ")
+            expr.appendToString(builder)
+            builder.append(" }")
+        }
     }
 }
