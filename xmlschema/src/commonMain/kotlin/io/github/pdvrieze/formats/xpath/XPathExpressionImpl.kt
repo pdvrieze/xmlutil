@@ -123,7 +123,7 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseEQName(initialWord: String): QName {
-            if (initialWord != "Q" || !tryCurrent("'")) {
+            if (initialWord != "Q" || !(isXPath30 && tryCurrent("{"))) {
                 if (tryCurrent(':')) {
                     val localName = parseNCName()
                     return QName(lookupNamespace(initialWord), localName, initialWord)
@@ -145,7 +145,7 @@ internal class XPathExpressionImpl internal constructor(
 
         private fun parseEQName(): QName {
             skipWhitespace()
-            if (!tryCurrent("Q{")) {
+            if (!(isXPath30 && tryCurrent("Q{"))) {
                 return parseQName()
             }
 
@@ -186,9 +186,10 @@ internal class XPathExpressionImpl internal constructor(
                         return ItemTypeTest.ItemTestTest
                     }
 
-                    "function" -> when {
+                    "function" if isXPath30 -> when {
                         tryCurrentToken('*') -> {
                             parseRequire(tryCurrentToken(')'))
+                            @OptIn(XPath3_0::class)
                             return FunctionTypeTest.ANY
                         }
 
@@ -199,6 +200,7 @@ internal class XPathExpressionImpl internal constructor(
                             }
                             parseRequire(tryCurrentWordToken("as"), "The function type specifier has no return type")
                             val returnType = parseSequenceType()
+                            @OptIn(XPath3_0::class)
                             return FunctionTypeTest.Typed(returnType, params)
                         }
                     }
@@ -236,7 +238,7 @@ internal class XPathExpressionImpl internal constructor(
                     }
 
                     else -> { // Handle the different kinds of node type parameter packs better
-                        val nodeType = NodeType.maybeValueOf(localOrPrefix)
+                        val nodeType = NodeType.maybeValueOf(localOrPrefix, version)
                         if (nodeType != null) {
                             --i
                             return NodeTypeTest(nodeType, parseArgs())
@@ -288,19 +290,24 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseExpr(isXQuery: Boolean): Expr {
-            val expressions = mutableListOf<ExprSingle>()
-            expressions.add(parseExprSingle())
-            while (tryCurrentToken(',')) {
+            val e = parseExprSingle()
+            if (!tryCurrentToken(',')) return e
+            val expressions = mutableListOf(e)
+
+            do {
                 expressions.add(parseExprSingle())
-            }
-            return expressions.singleOrNull() ?: SequenceExpr(expressions)
+            } while (tryCurrentToken(','))
+            return SequenceExpr(expressions)
         }
 
         private fun parseExprSingle(): ExprSingle {
             skipWhitespace()
             return when (str[i]) {
                 'f' if (tryCurrentWord("for")) -> parseForExprCont()
-                'l' if (tryCurrentWord("let")) -> parseLetExprCont()
+                'l' if (isXPath30 && tryCurrentWord("let")) -> {
+                    @OptIn(XPath3_0::class)
+                    parseLetExprCont()
+                }
                 's' if (tryCurrentWord("some")) -> parseQuantifiedExprCont(QuantifiedExpr.Kind.SOME)
                 'e' if (tryCurrentWord("every")) -> parseQuantifiedExprCont(QuantifiedExpr.Kind.EVERY)
                 'i' if (tryCurrentWord("if")) -> parseIfExprCont()
@@ -324,6 +331,7 @@ internal class XPathExpressionImpl internal constructor(
             return ForExpr(bindings, returned)
         }
 
+        @XPath3_0
         private fun parseLetExprCont(): LetExpr {
             skipWhitespace()
             val bindings = mutableListOf<LetExpr.Binding>()
@@ -355,24 +363,29 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseOrExpr(): ExprSingle {
-            val exprs = mutableListOf<ExprSingle>()
-            exprs.add(parseAndExpr())
-            while (tryCurrentWordToken("or")) {
-                exprs.add(parseAndExpr())
-            }
+            val e = parseAndExpr()
+            if (!tryCurrentWordToken("or")) return e
+            val exprs = mutableListOf(e)
 
-            return exprs.singleOrNull() ?: OperatorExpr(Operator.OR, exprs)
+            do {
+                exprs.add(parseAndExpr())
+            } while (tryCurrentWordToken("or"))
+
+            return OperatorExpr(Operator.OR, exprs)
         }
 
         private fun parseAndExpr(): ExprSingle {
-            val exprs = mutableListOf<ExprSingle>()
-            exprs.add(parseComparisonExpr())
+            val e = parseComparisonExpr()
 
-            while (tryCurrentWordToken("and")) {
+            if (! tryCurrentWordToken("and")) return e
+
+            val exprs = mutableListOf(e)
+
+            do {
                 exprs.add(parseComparisonExpr())
-            }
+            } while (tryCurrentWordToken("and"))
 
-            return exprs.singleOrNull() ?: OperatorExpr(Operator.AND, exprs)
+            return OperatorExpr(Operator.AND, exprs)
         }
 
         private fun parseComparisonExpr(): ExprSingle {
@@ -439,14 +452,18 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseStringConcatExpr(): ExprSingle {
-            val concats = mutableListOf<ExprSingle>()
-            concats.add(parseRangeExpr())
+            val e = parseRangeExpr()
 
-            while (tryCurrentToken("||")) {
+            if (!isXPath30 || !tryCurrentToken("||")) return e
+
+            val concats = mutableListOf(e)
+
+            do {
                 concats.add(parseRangeExpr())
-            }
+            } while (tryCurrentToken("||"))
 
-            return concats.singleOrNull() ?: OperatorExpr(Operator.CONCAT, concats)
+            @OptIn(XPath3_0::class)
+            return OperatorExpr(Operator.CONCAT, concats)
         }
 
         private fun parseRangeExpr(): ExprSingle {
@@ -611,13 +628,17 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseValueExpr(): ExprSingle {
-            val exprs = mutableListOf<ExprSingle>()
-            exprs.add(parsePathExpr())
+            val e = parsePathExpr()
+            if (!(isXPath30 && tryCurrentToken('!'))) return e
 
-            while (tryCurrentToken('!')) {
+            val exprs = mutableListOf<ExprSingle>(e)
+
+            do {
                 exprs.add(parsePathExpr())
-            }
-            return exprs.singleOrNull() ?: MapExpr(exprs)
+            } while (tryCurrentToken('!'))
+
+            @OptIn(XPath3_0::class)
+            return MapExpr(exprs)
         }
 
         private fun parsePathExpr(): ExprSingle {
@@ -641,8 +662,6 @@ internal class XPathExpressionImpl internal constructor(
                     ++i
                     parseRelativePathExpr(steps)
                 }
-
-    //                        ')' -> return LocationPath(true, emptyList())
 
                 // ALl non-letters that are step starts
                 /* Axis steps:
@@ -748,25 +767,43 @@ internal class XPathExpressionImpl internal constructor(
                     } else if (isXPath31 && ncName == "array" && peekCurrentToken('{')) {
                         @OptIn(XPath3_1::class)
                         return parsePostfixExpr(parseCurlyArrayConstructorCont())
+                    } else if (isXPath30 && ncName == "switch") {
+                        parseError("`switch` is reserved in XPath 3.0 (for XQuery)")
+                    } else if (isXPath30 && ncName == "typeswitch") {
+                        parseError("`typeswitch` is reserved in XPath 3.0 (for XQuery)")
+                    } else if (isXPath30 && ncName == "function" && peekCurrentToken('(')) {
+                        @OptIn(XPath3_0::class)
+                        return parsePostfixExpr(parseInlineFunctionCont())
                     } else if (tryCurrentToken("::")) { // found axis
                         val axis = Axis.from(ncName)
                         val nodeTest = parseNodeTest()
                         return AxisStep(axis, nodeTest, parsePredicates())
                     } else {
                         val name = parseEQNameOrWildcard(ncName)
-                        if (name is QNameSpec.EQName && peekCurrentToken('(')) { // This is a postFix function expression
-                            when (val nt = maybeParseNodeTypeTest(name)) {
-                                null -> {
-                                    val funcCall = StaticFunctionCall(name.asQName(), parseArgs())
+                        if (name !is QNameSpec.EQName || !isXPath30) { // function calls are only supported by 3+
+                            return AxisStep(Axis.CHILD, name.asNodeTest(version), parsePredicates())
+                        } else {
+                            when (peekCurrentToken()) {
+                                '(' -> when (val nt = maybeParseNodeTypeTest(name)) {
+                                    null -> {
+                                        val funcCall = StaticFunctionCall(name.asQName(), parseArgs())
 
-                                    return parsePostfixExpr(funcCall)
+                                        return parsePostfixExpr(funcCall)
+                                    }
+
+                                    else -> return AxisStep(Axis.CHILD, nt, parsePredicates())
                                 }
 
-                                else -> return AxisStep(Axis.CHILD, nt, parsePredicates())
-                            }
+                                '#' -> {
+                                    i+=1
+                                    val idx = parseUInt()
+                                    @OptIn(XPath3_0::class)
+                                    val expr = FunctionItem.NamedRef(name.asQName(), idx)
+                                    return parsePostfixExpr(expr)
+                                }
 
-                        } else {
-                            return AxisStep(Axis.CHILD, name.asNodeTest(), parsePredicates())
+                                else -> return AxisStep(Axis.CHILD, name.asNodeTest(version), parsePredicates())
+                            }
                         }
                     }
                 }
@@ -816,11 +853,13 @@ internal class XPathExpressionImpl internal constructor(
                     return LookupExpr(null, LookupExpr.ParenKey(key))
                 }
 
-                in '0'..'9' -> {
+                in '0'..'9' if isXPath30 -> {
                     var j = i+1
                     while (str[j] in '0'..'9') { ++j }
                     val value = str.substring(i, j).toLong()
                     i = j
+
+                    @OptIn(XPath3_0::class)
                     return DynamicFunctionCall(
                         LocationPath(AxisStep(Axis.SELF, NodeTest.node)),
                         listOf(IntLiteral(value))
@@ -888,6 +927,27 @@ internal class XPathExpressionImpl internal constructor(
             val condition = parseExprSingle()
 
             return QuantifiedExpr(kind, bindings, condition)
+        }
+
+        @XPath3_0
+        private fun parseInlineFunctionCont(): FunctionItem.Inline {
+            assertPrevious("function")
+            parseRequire(tryCurrentToken('('), "Expected function parameters start")
+            val params: List<FunctionItem.Inline.Param>
+            if (! tryCurrentToken(')')) {
+                params = mutableListOf()
+                do {
+                    val name = parseEQName()
+                    val type = if (tryCurrentWordToken("as")) parseEQName() else null
+                    params.add(FunctionItem.Inline.Param(name, type))
+                } while (tryCurrentToken(','))
+            } else {
+                params = emptyList()
+            }
+            val returnType = if (tryCurrentWordToken("as")) parseEQName() else null
+            val body = parseEnclosedExpr()
+            @OptIn(XPath3_0::class)
+            return FunctionItem.Inline(params, returnType, body.contentExpr)
         }
 
         private fun parseEnclosedExpr(): EnclosedExpr {
@@ -998,21 +1058,30 @@ internal class XPathExpressionImpl internal constructor(
 
         private fun parseNodeTest(): NodeTest {
             val name = parseRequireNotNull(parseEQNameOrWildcard(), "Missing node test in expression")
-            return maybeParseNodeTypeTest(name) ?: name.asNodeTest()
+            return maybeParseNodeTypeTest(name) ?: name.asNodeTest(version)
         }
 
         private fun maybeParseNodeTest(): NodeTest? {
-            return parseEQNameOrWildcard()?.let { maybeParseNodeTypeTest(it) ?: it.asNodeTest() }
+            return parseEQNameOrWildcard()?.let { maybeParseNodeTypeTest(it) ?: it.asNodeTest(version) }
+        }
+
+        private fun parseUInt(): Int {
+            require(peekCurrentToken() in '0'..'9') { "Expected integer start number" }
+            var j = i+1
+            while (j < str.length && str[j].isDigit()) ++j
+            return str.substring(i, j).toInt().also { i = j }
         }
 
         @OptIn(ExperimentalContracts::class)
         private fun parseEQNameOrWildcard(): QNameSpec? {
-            val word = when (val c=peekCurrentToken() ?: return null) {
+            val word = when (val c = peekCurrentToken() ?: return null) {
                 '*' -> {
                     ++i
                     "*"
                 }
+
                 else if isNameStartChar(c) -> parseNCName()
+
                 else -> return null
             }
             return parseEQNameOrWildcard(word)
@@ -1028,7 +1097,8 @@ internal class XPathExpressionImpl internal constructor(
                 }
             }
 
-            if (initialWord == "Q" && peekCurrentToken('{')) {
+            /* EQName wildcards only allowed in 3.0+ */
+            if (isXPath30 && initialWord == "Q" && peekCurrentToken('{')) {
                 val endBrace = str.indexOf('}', i + 1)
                 parseRequire(endBrace >= 0, "Missing closing brace in Braced URI literal")
                 val namespace = str.substring(i + 1, endBrace)
@@ -1055,8 +1125,10 @@ internal class XPathExpressionImpl internal constructor(
         private fun maybeParseNodeTypeTest(name: QNameSpec): NodeTest? {
             val nodeType = when (name) {
                 is QNameSpec.WildCard -> return name.asNodeTest()
-                is QNameSpec.EQName if(name.prefix.isNullOrEmpty() && name.namespace.isNullOrEmpty()) ->
-                    NodeType.maybeValueOf(name.localName) ?: return null
+
+                is QNameSpec.EQName if (name.prefix.isNullOrEmpty() && name.namespace.isNullOrEmpty()) ->
+                    NodeType.maybeValueOf(name.localName, version) ?: return null
+
                 else -> return null
             }
 
@@ -1066,12 +1138,13 @@ internal class XPathExpressionImpl internal constructor(
 
         private fun parsePostfixExpr(primary: ExprSingle): FilterExpr {
             var current = FilterExpr(primary)
-            while(true) {
-                when (val c = peekCurrentToken()) {
+            while (true) {
+                when (peekCurrentToken()) {
                     '[' -> {
                         current = FilterExpr(primary, current.predicates + parsePredicates())
                     }
-                    '(' -> {
+
+                    '(' if isXPath30 -> {
                         val newPrimary: ExprSingle = when {
                             current.predicates.isEmpty() -> current.primaryExpr
                             else -> LocationPath(false, listOf(current))
@@ -1080,8 +1153,10 @@ internal class XPathExpressionImpl internal constructor(
                             is ExprSingle -> listOf(s)
                             is SequenceExpr -> s.elements
                         }
+                        @OptIn(XPath3_0::class)
                         current = FilterExpr(DynamicFunctionCall(newPrimary, args))
                     }
+
                     '?' -> {
                         ++i
                         val newPrimary: ExprSingle = when {
@@ -1095,6 +1170,7 @@ internal class XPathExpressionImpl internal constructor(
                                 val newExpr = LookupExpr(newPrimary, LookupExpr.ParenKey(expr.expr))
                                 current = FilterExpr(newExpr)
                             }
+
                             '*' -> {
                                 ++i
                                 val newExpr = LookupExpr(newPrimary, LookupExpr.AnyKey)
@@ -1102,10 +1178,7 @@ internal class XPathExpressionImpl internal constructor(
                             }
 
                             in '0'..'9' -> {
-                                var j = i+1
-                                while (j < str.length && str[j].isDigit()) ++j
-                                val newExpr = LookupExpr(newPrimary, LookupExpr.IntegerKey(str.substring(i, j).toInt()))
-                                i = j
+                                val newExpr = LookupExpr(newPrimary, LookupExpr.IntegerKey(parseUInt()))
                                 current = FilterExpr(newExpr)
                             }
 
@@ -1308,3 +1381,9 @@ internal annotation class XPath3_0
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3.1+ check")
 internal annotation class XPath3_1
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XQuery check")
+internal annotation class XQuery
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XQuery 3.1+ check")
+internal annotation class XQuery3_1

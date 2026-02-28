@@ -57,3 +57,4 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): Func
 
 
 }
+
