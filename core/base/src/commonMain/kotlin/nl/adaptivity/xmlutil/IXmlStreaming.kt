@@ -84,6 +84,8 @@ public interface IXmlStreaming {
      * treated as simple text. In both cases, entities are resolved and their value available via
      * [XmlReader.text]. Accessing `text` for an unknown entity will throw an exception. If
      * [expandEntities] is false, the name of the entity is available via [XmlReader.localName].
+     * Note that entities in attributes are always emitted as distinct events, regardless of
+     * [expandEntities].
      * @return A platform independent [XmlReader], generally [nl.adaptivity.xmlutil.core.KtXmlReader]
      */
     public fun newGenericReader(input: CharSequence, expandEntities: Boolean = false): XmlReader =
@@ -96,6 +98,8 @@ public interface IXmlStreaming {
      * treated as simple text. In both cases, entities are resolved and their value available via
      * [XmlReader.text]. Accessing `text` for an unknown entity will throw an exception. If
      * [expandEntities] is false, the name of the entity is available via [XmlReader.localName].
+     * Note that entities in attributes are always emitted as distinct events, regardless of
+     * [expandEntities].
      * @return A platform independent [XmlReader], generally [nl.adaptivity.xmlutil.core.KtXmlReader]
      */
     public fun newGenericReader(reader: Reader, expandEntities: Boolean = false): XmlReader
