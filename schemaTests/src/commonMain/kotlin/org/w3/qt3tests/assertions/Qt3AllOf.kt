@@ -23,6 +23,8 @@ package org.w3.qt3tests.assertions
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AllOf
 
 /**
  * Denotes an element which provides a list of assertions that must be all satisfied,
@@ -30,4 +32,9 @@ import org.w3.qt3tests.QT3TNS
  */
 @Serializable
 @XmlSerialName("all-of", QT3TNS)
-class Qt3AllOf(val assertions: List<Qt3AbstractAssertion>): Qt3AbstractAssertion()
+class Qt3AllOf(val assertions: List<Qt3AbstractAssertion>): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AllOf {
+        return ResolvedQt3AllOf(assertions.map { it.resolve() })
+    }
+}

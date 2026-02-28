@@ -23,8 +23,15 @@ package org.w3.qt3tests.assertions
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertTrue
 
 @Serializable
 @XmlSerialName("assert-true", QT3TNS)
-class Qt3AssertTrue(): Qt3AbstractAssertion()
+class Qt3AssertTrue(): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertTrue {
+        return ResolvedQt3AssertTrue()
+    }
+}
 

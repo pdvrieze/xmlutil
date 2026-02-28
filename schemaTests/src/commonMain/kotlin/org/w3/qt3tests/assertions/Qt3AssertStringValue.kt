@@ -25,11 +25,18 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertStringValue
 
 @Serializable
 @XmlSerialName("assert-string-value", QT3TNS)
 class Qt3AssertStringValue(
     @XmlValue val expected: String,
     @SerialName("normalize-space") val normalizeSpace: Boolean = false
-): Qt3AbstractAssertion()
+): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertStringValue {
+        return ResolvedQt3AssertStringValue(expected, normalizeSpace)
+    }
+}
 

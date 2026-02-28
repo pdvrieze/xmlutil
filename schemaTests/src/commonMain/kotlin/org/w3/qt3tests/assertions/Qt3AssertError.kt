@@ -24,9 +24,16 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.QT3TNS
 import org.w3.qt3tests.attrGroups.Qt3CodeAttr
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertError
 
 @Serializable
 @XmlSerialName("error", QT3TNS)
 class Qt3AssertError(
     override val code: String? = null
-): Qt3AbstractAssertion(), Qt3CodeAttr
+): Qt3AbstractAssertion(), Qt3CodeAttr {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertError {
+        return ResolvedQt3AssertError(code)
+    }
+}

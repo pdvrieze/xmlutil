@@ -23,8 +23,15 @@ package org.w3.qt3tests.assertions
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertEmpty
 
 @Serializable
 @XmlSerialName("assert-empty", QT3TNS)
-class Qt3AssertEmpty(): Qt3AbstractAssertion()
+class Qt3AssertEmpty(): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertEmpty {
+        return ResolvedQt3AssertEmpty()
+    }
+}
 

@@ -53,6 +53,17 @@ class TestParseCatalog {
 
         println(catalog)
     }
+
+    @Test
+    fun testParseApply() {
+        val xml = XML.v1{}
+        val resolutionContext = ResolutionContextImpl("/xpath/fn/", xml)
+
+        val testSet = context(resolutionContext) {
+            resolutionContext.parseFile(org.w3.qt3tests.Qt3TestSet.serializer(), "apply.xml")
+        }
+        println(testSet)
+    }
 }
 
 class ResolutionContextImpl(
@@ -68,7 +79,8 @@ class ResolutionContextImpl(
             i < 0 -> return this
             else -> "$base${file.substring(0, i + 1)}"
         }
-        return ResolutionContextImpl(newBase, xml, knownEnvironments, idMap)
+        // copy the maps to make names hierarchical (not ordered global across files)
+        return ResolutionContextImpl(newBase, xml, HashMap(knownEnvironments), HashMap(idMap))
     }
 
     override fun parseDocument(relativePath: String): Document {
@@ -95,6 +107,7 @@ class ResolutionContextImpl(
         deserializer: DeserializationStrategy<T>,
         relativePath: String
     ): T {
+        System.getLogger("testing").log(System.Logger.Level.INFO, "Parsing $relativePath")
         try {
 
             return javaClass.getResourceAsStream("$base$relativePath")!!.use {

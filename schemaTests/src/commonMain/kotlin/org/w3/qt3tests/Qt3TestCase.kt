@@ -29,6 +29,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3Covers30Attr
 import org.w3.qt3tests.attrGroups.Qt3CoversAttr
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
+import org.w3.qt3tests.context.AssertionResolutionContextImpl
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Environment
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 /**
  * Denotes an element that contains a test that must be run in a named environment, also contains
@@ -53,5 +57,31 @@ class Qt3TestCase(
     override val covers30: List<VNCName>? = emptyList(),
 ): Qt3NameAttr, Qt3CoversAttr, Qt3Covers30Attr {
 
+    context(ctx: ResolutionContext)
+    fun resolve(): ResolvedQt3TestCase {
+
+        val env: ResolvedQt3Environment? = when {
+            environment != null -> when {
+                environment.ref != null -> ctx.knownEnvironments[environment.ref]
+                else -> environment.resolve()
+            }
+            else -> null
+        }
+        context(AssertionResolutionContextImpl(ctx, env)) {
+            return ResolvedQt3TestCase(
+                description,
+                created,
+                modified,
+                environment,
+                modules,
+                dependencies,
+                test?.resolve(),
+                result?.resolve(),
+                name,
+                covers,
+                covers30,
+            )
+        }
+    }
 }
 

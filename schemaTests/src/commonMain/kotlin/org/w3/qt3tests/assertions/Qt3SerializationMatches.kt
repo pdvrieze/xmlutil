@@ -26,6 +26,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3Assertion
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3SerializationMatches
 
 @Serializable
 @XmlSerialName("serialization-matches", QT3TNS)
@@ -33,5 +36,10 @@ class Qt3SerializationMatches(
     @XmlValue val assertion: String,
     override val file: VAnyURI? = null,
     val flags: String? = null,
-): Qt3AbstractAssertion(), Qt3FileAttr
+): Qt3AbstractAssertion(), Qt3FileAttr {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3Assertion {
+        return ResolvedQt3SerializationMatches(assertion, file, flags)
+    }
+}
 

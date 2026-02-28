@@ -21,12 +21,17 @@
 package org.w3.qt3tests.assertions
 
 import kotlinx.serialization.Serializable
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3Assertion
 
 /**
  * Abstract superclass for the various kinds of assertion.
  */
 @Serializable
 sealed class Qt3AbstractAssertion {
+
+    context(ctx: AssertionResolutionContext)
+    abstract fun resolve(): ResolvedQt3Assertion
 
 }
 

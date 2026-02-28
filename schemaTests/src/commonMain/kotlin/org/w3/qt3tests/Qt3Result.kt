@@ -23,6 +23,8 @@ package org.w3.qt3tests
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.assertions.Qt3AbstractAssertion
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Result
 
 /**
  * Denotes an element which provides an &lt;assert&gt; or &gt;error&lt; element pertaining the
@@ -33,4 +35,10 @@ import org.w3.qt3tests.assertions.Qt3AbstractAssertion
 @XmlSerialName("result", QT3TNS)
 class Qt3Result(
     val assertions: List<Qt3AbstractAssertion>
-)
+) {
+    context(ctx: AssertionResolutionContext)
+    fun resolve(): ResolvedQt3Result {
+        return ResolvedQt3Result(assertions.map { it.resolve() })
+    }
+
+}
