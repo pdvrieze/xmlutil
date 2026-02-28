@@ -1307,13 +1307,17 @@ internal class XPathExpressionImpl internal constructor(
 
         fun assertPrevious(expected: String) {
             ifAssertions {
-                when {
-                    i - expected.length < 0 ->
-                        parseError("Parse continuation not preceded by '$expected' due to length issue")
+                // first skip any trailing whitespace
+                var end = i - 1
+                // TODO also skip comments
+                while (end >= 0 && isXmlWhitespace(str[end])) --end
+                end += 1
 
-                    str.substring(i - expected.length, i) != expected ->
-                        parseError("Parse continuation not preceded by '$expected'")
-                }
+                val start = end - expected.length
+                if (start < 0) parseError("Parse continuation not preceded by '$expected' due to length issue")
+
+
+                if (str.substring(start, end) != expected) parseError("Parse continuation not preceded by '$expected', found: '${str.substring(start, end)}'")
             }
         }
 
