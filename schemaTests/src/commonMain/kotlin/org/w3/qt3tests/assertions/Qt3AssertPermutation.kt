@@ -25,8 +25,15 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertPermutation
 
 @Serializable
 @XmlSerialName("assert-permutation", QT3TNS)
-class Qt3AssertPermutation(@XmlValue val assertion: XPathExpression): Qt3AbstractAssertion()
+class Qt3AssertPermutation(@XmlValue val assertion: String): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertPermutation {
+        return ResolvedQt3AssertPermutation(XPathExpression(assertion, ctx.namespaceContext, ctx.version))
+    }
+}
 

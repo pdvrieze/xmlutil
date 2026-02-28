@@ -25,6 +25,8 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertEq
 
 /**
  * The assert element contains an XPath expression (usually a simple string or numeric literal)
@@ -36,5 +38,10 @@ import org.w3.qt3tests.QT3TNS
  */
 @Serializable
 @XmlSerialName("assert-eq", QT3TNS)
-class Qt3AssertEq(@XmlValue val assertion: XPathExpression): Qt3AbstractAssertion()
+class Qt3AssertEq(@XmlValue val assertion: String): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertEq {
+        return ResolvedQt3AssertEq(XPathExpression(assertion, ctx.namespaceContext, ctx.version))
+    }
+}
 

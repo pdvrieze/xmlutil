@@ -27,6 +27,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertXML
 
 /**
  * Asserts the result of the query by providing a serialization of the expression
@@ -62,5 +64,10 @@ class Qt3AssertXML(
     override val file: VAnyURI? = null,
     @SerialName("ignore-prefixes")
     val ignorePrefixes: Boolean = false
-): Qt3AbstractAssertion(), Qt3FileAttr
+): Qt3AbstractAssertion(), Qt3FileAttr {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertXML {
+        return ResolvedQt3AssertXML(assertion, file, ignorePrefixes)
+    }
+}
 

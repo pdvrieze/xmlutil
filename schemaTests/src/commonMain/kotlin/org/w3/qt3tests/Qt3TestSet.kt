@@ -53,13 +53,15 @@ class Qt3TestSet(
 
     context(ctx: ResolutionContext)
     fun resolve(): ResolvedQt3TestSet {
+        val environments = environments.map { it.resolve() }
+        // this will also register the environments
         return ResolvedQt3TestSet(
             name,
-            testCases,
+            testCases.map { it.resolve() },
             covers,
             covers30,
             descriptions,
-            environments.map { it.resolve() },
+            environments,
             dependencies,
             links,
         )

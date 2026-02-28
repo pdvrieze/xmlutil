@@ -24,8 +24,15 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertType
 
 @Serializable
 @XmlSerialName("assert-type", QT3TNS)
-class Qt3AssertType(@XmlValue val type: String): Qt3AbstractAssertion()
+class Qt3AssertType(@XmlValue val type: String): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertType {
+        return ResolvedQt3AssertType(type)
+    }
+}
 

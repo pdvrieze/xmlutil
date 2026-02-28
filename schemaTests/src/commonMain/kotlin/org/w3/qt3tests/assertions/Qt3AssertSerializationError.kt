@@ -25,6 +25,8 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
 import org.w3.qt3tests.attrGroups.Qt3CodeAttr
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertSerializationError
 
 /**
  * Asserts that the query can be executed without error, but serializing the result
@@ -37,4 +39,9 @@ import org.w3.qt3tests.attrGroups.Qt3CodeAttr
 class Qt3AssertSerializationError(
     @XmlValue val assertion: String,
     override val code: String? = null,
-): Qt3AbstractAssertion(), Qt3CodeAttr
+): Qt3AbstractAssertion(), Qt3CodeAttr {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertSerializationError {
+        return ResolvedQt3AssertSerializationError(assertion, code)
+    }
+}

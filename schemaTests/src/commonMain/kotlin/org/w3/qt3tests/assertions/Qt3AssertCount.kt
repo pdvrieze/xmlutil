@@ -24,8 +24,15 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.context.AssertionResolutionContext
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertCount
 
 @Serializable
 @XmlSerialName("assert-count", QT3TNS)
-class Qt3AssertCount(@XmlValue val assertion: Int): Qt3AbstractAssertion()
+class Qt3AssertCount(@XmlValue val assertion: Int): Qt3AbstractAssertion() {
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(): ResolvedQt3AssertCount {
+        return ResolvedQt3AssertCount(assertion)
+    }
+}
 

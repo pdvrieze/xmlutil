@@ -21,8 +21,10 @@
 package org.w3.qt3tests.resolved
 
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerializationException
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
+import org.w3.qt3tests.FileContextException
 
 interface ResolutionContext {
     val base: String
@@ -36,5 +38,15 @@ interface ResolutionContext {
 }
 
 inline fun <R> ResolutionContext.subContext(file: String, block: context(ResolutionContext)  () -> R): R {
-    return context(subContext(file)) { block() }
+    return context(subContext(file)) {
+        try {
+            block()
+        } catch (e: Exception) {
+            when (e) {
+                is SerializationException -> throw e
+                is FileContextException -> throw e
+                else -> throw FileContextException(e.message, file, e)
+            }
+        }
+    }
 }

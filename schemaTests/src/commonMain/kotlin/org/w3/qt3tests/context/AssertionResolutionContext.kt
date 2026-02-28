@@ -18,23 +18,12 @@
  * permissions and limitations under the License.
  */
 
-package org.w3.qt3tests.resolved
+package org.w3.qt3tests.context
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
-import org.w3.qt3tests.Qt3Dependency
-import org.w3.qt3tests.Qt3Description
-import org.w3.qt3tests.Qt3Link
+import io.github.pdvrieze.formats.xpath.XPathExpression
+import nl.adaptivity.xmlutil.NamespaceContext
 
-class ResolvedQt3TestSet(
-    val name: String,
-    val testCases: List<ResolvedQt3TestCase>,
-    val covers: List<VToken>?,
-    val covers30: List<VNCName>?,
-    val descriptions: List<Qt3Description>,
-    val map: List<ResolvedQt3Environment>,
-    val dependencies: List<Qt3Dependency>,
-    val links: List<Qt3Link>
-) {
-
+interface AssertionResolutionContext {
+    val namespaceContext: NamespaceContext
+    val version: XPathExpression.Version get() = XPathExpression.Version.V3_1
 }
