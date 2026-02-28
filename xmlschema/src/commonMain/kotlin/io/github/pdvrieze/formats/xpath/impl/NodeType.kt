@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 enum class NodeType(val literal: String) {
     DOCUMENT("document-node"),
     ELEMENT("element"),
@@ -29,13 +31,18 @@ enum class NodeType(val literal: String) {
     COMMENT("comment"),
     TEXT("text"),
     PROCESSING_INSTRUCTION("processing-instruction"),
-    NAMESPACE_NODE("namespace-node"),
+    NAMESPACE_NODE("namespace-node") {
+        override val minVersion: XPathVersion get() = XPathVersion.XPath3_0
+    },
     ANY_KIND("node"),;
+
+    open val minVersion: XPathVersion get() = XPathVersion.XPath1_0
 
     companion object {
         private val lookup = entries.associateBy { it.literal }
-        fun maybeValueOf(name: String): NodeType? {
-            return lookup[name]
+
+        fun maybeValueOf(name: String, version: XPathVersion): NodeType? {
+            return lookup[name]?.takeIf { it.minVersion <= version }
         }
     }
 }

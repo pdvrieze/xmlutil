@@ -20,30 +20,32 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.XPath3_1
+import io.github.pdvrieze.formats.xpath.XPath3_0
+import nl.adaptivity.xmlutil.QName
 
-@XPathInternal
-sealed class ArrayConstructor(): ExprSingle() {
+sealed class FunctionItem: ExprSingle() {
 
-    @XPathInternal
-    class Square @XPath3_1 constructor(val values: List<ExprSingle>): ArrayConstructor() {
-
+    class NamedRef @XPath3_0 constructor(val name: QName, val index: Int) : FunctionItem() {
         context(c: OutputContext)
+        @XPathInternal
         override fun appendToString(builder: Appendable) {
-            builder.append("[ ")
-            builder.appendExprs(values)
-            builder.append(" ]")
+            builder.appendQName(name).append('#').append(index.toString())
         }
     }
 
-    @XPathInternal
-    class Curly @XPath3_1 constructor(val expr: Expr): ArrayConstructor() {
-
+    class Inline @XPath3_0 constructor(val params: List<Param>, val returnType: QName?, body: Expr) : FunctionItem() {
         context(c: OutputContext)
+        @XPathInternal
         override fun appendToString(builder: Appendable) {
-            builder.append("array { ")
-            expr.appendToString(builder)
-            builder.append(" }")
+            builder.append("function(")
+            builder.joinHelper(params) { (n, t) ->
+                builder.appendQName(n)
+                if (t != null) builder.append(" as ").appendQName(t)
+            }
+            builder.append(')')
+            if (returnType != null) builder.append(" as ").appendQName(returnType)
         }
+
+        data class Param(val name: QName, val type: QName?)
     }
 }

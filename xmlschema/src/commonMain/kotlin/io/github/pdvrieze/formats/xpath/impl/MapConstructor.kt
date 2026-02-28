@@ -23,8 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPath3_1
 
 @XPathInternal
-@XPath3_1
-internal class MapConstructor(val entries: List<Entry>): ExprSingle() {
+internal class MapConstructor @XPath3_1 constructor(val entries: List<Entry>): ExprSingle() {
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

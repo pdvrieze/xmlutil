@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPath3_0
+
 enum class Operator(val literal: String, val priority: Int) {
 
     OR("or", 1),
@@ -48,7 +50,7 @@ enum class Operator(val literal: String, val priority: Int) {
     PRECEDES("<<", 1),
     FOLLOWS(">>", 1),
     IS("is", 1),
-    CONCAT("||", 7)
+    @XPath3_0 CONCAT("||", 7)
     ;
 
 }

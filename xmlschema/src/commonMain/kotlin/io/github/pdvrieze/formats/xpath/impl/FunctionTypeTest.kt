@@ -20,7 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPath3_0
+
 @XPathInternal
+@XPath3_0
 sealed class FunctionTypeTest: ItemTypeTest {
     object ANY: FunctionTypeTest() {
         context(c: OutputContext)

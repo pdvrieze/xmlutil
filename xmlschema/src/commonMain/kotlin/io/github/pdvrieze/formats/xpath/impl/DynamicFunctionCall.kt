@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPath3_0
+
 @XPathInternal
-internal class DynamicFunctionCall(val expr: Expr, args: List<ExprSingle>): FunctionCall(args) {
+internal class DynamicFunctionCall @XPath3_0 constructor(val expr: Expr, args: List<ExprSingle>): FunctionCall(args) {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)

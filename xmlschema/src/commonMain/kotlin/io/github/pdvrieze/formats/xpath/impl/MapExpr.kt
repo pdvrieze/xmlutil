@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPath3_0
+
 @XPathInternal
-class MapExpr(val elements: List<ExprSingle>): ExprSingle() {
+class MapExpr @XPath3_0 constructor(val elements: List<ExprSingle>): ExprSingle() {
     init {
         require(elements.isNotEmpty()) { "Must have at least one element" }
     }

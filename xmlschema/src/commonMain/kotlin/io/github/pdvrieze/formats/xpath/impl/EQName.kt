@@ -22,18 +22,19 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 internal sealed interface QNameSpec {
 
-    fun asNodeTest(): NodeTest
+    fun asNodeTest(version: XPathVersion): NodeTest
 
 
     class EQName(val namespace: String?, val localName: String, val prefix: String?) : QNameSpec {
-        override fun asNodeTest(): NodeTest {
+        override fun asNodeTest(version: XPathVersion): NodeTest {
             if (namespace == null && prefix == null) {
-                NodeType.maybeValueOf(localName)?.let {
+                NodeType.maybeValueOf(localName, version)?.let {
                     return NodeTypeTest(it)
                 }
             }
@@ -45,7 +46,10 @@ internal sealed interface QNameSpec {
         }
     }
 
-    sealed interface WildCard : QNameSpec
+    sealed interface WildCard : QNameSpec {
+        override fun asNodeTest(version: XPathVersion): NodeTest = asNodeTest()
+        fun asNodeTest(): NodeTest
+    }
 
     object Any : WildCard {
         override fun asNodeTest(): NodeTest = NodeTest.AnyNameTest
