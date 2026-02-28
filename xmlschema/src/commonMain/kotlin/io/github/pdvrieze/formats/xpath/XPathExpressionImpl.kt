@@ -695,7 +695,7 @@ internal class XPathExpressionImpl internal constructor(
                     val axis = Axis.ATTRIBUTE
                     ++i
 
-                    val nodeTest = parseRequireNotNull(parseNodeTest(), "Missing node test in attribute shorthand")
+                    val nodeTest = parseNodeTest()
                     val predicates = parsePredicates()
                     return AxisStep(axis, nodeTest, predicates)
                 }
@@ -736,10 +736,7 @@ internal class XPathExpressionImpl internal constructor(
                         return parsePostfixExpr(parseCurlyArrayConstructorCont())
                     } else if (tryCurrentToken("::")) { // found axis
                         val axis = Axis.from(ncName)
-                        val nodeTest = parseRequireNotNull(parseNodeTest()) {
-                            "Expected node test after axis name: ${str.substring(start)}"
-                        }
-
+                        val nodeTest = parseNodeTest()
                         return AxisStep(axis, nodeTest, parsePredicates())
                     } else {
                         val name = parseEQNameOrWildcard(ncName)
@@ -894,76 +891,6 @@ internal class XPathExpressionImpl internal constructor(
             return e
         }
 
-        private fun parseLocationPath(): LocationPath {
-            val start = i
-            var rooted = false
-            val steps = mutableListOf<PrimaryOrStep>()
-            skipWhitespace()
-            while (i < str.length) {
-                val c = str[i]
-                when {
-//                    c == ' ' -> ++i // ignore
-
-                    c == '.' -> { // TODO can use step parsing
-                        ++i
-                        val axis = when {
-                            tryCurrent('.') -> Axis.PARENT
-                            else -> Axis.SELF
-                        }
-                        steps.add(AxisStep(axis, NodeTypeTest(NodeType.ANY_KIND)))
-                    }
-
-                    c == '$' -> {
-                        steps.add(parseStep())
-                    }
-
-                    c == '/' -> {
-                        val other: Char?
-                        if (start == i) {
-                            rooted = true
-                            other = if (i + 1 < str.length) str[i + 1] else null
-                        } else {
-                            other = str[i - 1]
-                        }
-
-                        if (other == '/') { // shortcut
-                            if (rooted) ++i
-                            steps.add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest(NodeType.ANY_KIND)))
-                        } else {
-                            ++i
-                            skipWhitespace()
-                            steps.add(parseStep())
-                        }
-                    }
-
-                    c == '(' -> {
-                        parseRequire(steps.isEmpty(), "Primary expression in invalid point")
-                        ++i
-                        steps.add(FilterExpr(parseExprSingle(), parsePredicates()))
-                        skipWhitespace()
-                        parseRequire(tryCurrent(')')) { "Expression not ended by ')'" }
-                    }
-
-                    c.isDigit() -> {
-                        steps.add(FilterExpr(parseExprSingle(), parsePredicates()))
-                    }
-
-                    isNameStartChar(c) ||
-                            c == '*' ||
-                            c == '@' -> { //attribute
-                        steps.add(parseStep())
-                    }
-
-                    else -> break
-                }
-                skipWhitespace()
-                if (!tryCurrent('/')) break
-
-                skipWhitespace()
-            }
-            return LocationPath(rooted, steps)
-        }
-
         private fun parseStringLiteral(): StringLiteral {
             val delim = when (str[i]) {
                 '\'' -> '\''
@@ -1032,177 +959,28 @@ internal class XPathExpressionImpl internal constructor(
             }
         }
 
-        private fun parseStep(): PrimaryOrStep {
-            skipWhitespace()
-            parseRequire(i < str.length, "Empty expression")
-
-            val c = str[i]
-            when {
-                c == '/' -> { // special case for "empty" expression
-//                    ++i
-                    return AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest(NodeType.ANY_KIND))
-                }
-
-                c == '.' && tryCurrent("..") -> {
-                    skipWhitespace()
-                    return AxisStep(Axis.PARENT, NodeTypeTest(NodeType.ANY_KIND), parsePredicates())
-                }
-
-                c == '.' -> {
-                    ++i
-                    skipWhitespace()
-                    return AxisStep(Axis.SELF, NodeTypeTest(NodeType.ANY_KIND), parsePredicates())
-                }
-
-                c == '$' -> {
-                    val varRef = parseVariableReference()
-                    skipWhitespace()
-                    return FilterExpr(varRef, parsePredicates())
-                }
-
-                c == '@' -> { //attribute
-                    return parseAttribute()
-                }
-
-                c == '*' -> {
-                    ++i
-                    skipWhitespace()
-                    return AxisStep(Axis.CHILD, NodeTest.AnyNameTest, parsePredicates())
-                }
-
-                c == '(' -> {
-                    val parenExpr = parseSequenceOrParen()
-                    return parsePostfixExpr(parenExpr)
-                }
-
-                isNameStartChar(c) -> {
-                    val word = parseNCName()
-
-//                    val curName: QName
-                    val axis: Axis
-                    val nodeTest: NodeTest
-
-                    skipWhitespace()
-                    if (tryCurrent("::")) {
-                        axis = Axis.from(word)
-                        skipWhitespace()
-                        nodeTest =
-                            parseRequireNotNull(parseNodeTest(), "Missing node test in step")
-                    } else if (peekCurrent('(') && word == "if") {
-                        return FilterExpr(parseIfConditionAndConsequences(), emptyList())
-                    } else {
-                        val eqName = parseEQNameOrWildcard(word)
-                        val maybeNoteTypeTest = maybeParseNodeTypeTest(eqName)
-                        axis = Axis.CHILD
-                        if (maybeNoteTypeTest != null) {
-                            nodeTest = maybeNoteTypeTest
-                        } else if (eqName is QNameSpec.EQName && tryCurrentToken('(')){
-                            val funcCall = StaticFunctionCall(eqName.asQName(), parseArgs())
-                            return parsePostfixExpr(funcCall)
-                        } else {
-                            nodeTest = eqName.asNodeTest()
-                        }
-
-                    }
-
-                    val currentTest: NodeTest
-                    if (nodeTest is NodeTest.QNameTest && peekCurrent('(')) {
-                        val curName = nodeTest.qName
-                        val args = parseArgs()
-
-                        val nodeType =
-                            if (curName.namespaceURI.isEmpty()) NodeType.maybeValueOf(curName.localPart) else null
-                        when (nodeType) {
-                            NodeType.PROCESSING_INSTRUCTION -> {
-                                if (args.isEmpty()) {
-                                    currentTest = NodeTest.ProcessingInstructionTest()
-                                } else if (args.size == 1) {
-                                    currentTest = when (val arg = args.first()) {
-                                        is LiteralExpr<*> ->
-                                            NodeTest.ProcessingInstructionTest(NodeTest.NameOrLiteral.Literal(arg.value as String))
-
-                                        else -> parseError("Unexpected arguments to processing instruction test")
-                                    }
-                                } else parseError("Unexpected arguments to processing instruction test")
-                            }
-
-                            is NodeType -> {
-                                currentTest = NodeTypeTest(nodeType, args)
-                            }
-
-                            else -> {
-                                skipWhitespace()
-                                return FilterExpr(StaticFunctionCall(curName, args), parsePredicates())
-                            }
-                        }
-
-                    } else {
-                        currentTest = nodeTest
-                    }
-                    skipWhitespace()
-
-                    return AxisStep(axis, currentTest, parsePredicates())
-                }
-
-                else -> { // finish the step, but don't throw an exception
-                    TODO("Not valid")
-//                    break;
-//                        throw IllegalArgumentException("Unexpected token '${c}' in '$str'")
-                }
-            }
-        }
-
-        private fun parseIfConditionAndConsequences(): IfExpr {
+        private fun parseArgs(): List<ExprSingle> {
             parseRequire(tryCurrentToken('('))
 
-            val testExpr = parseExpr()
-            parseRequire(tryCurrentToken(')'))
+            if (tryCurrentToken(')')) return emptyList()
 
-            parseRequire(tryCurrentWordToken("then"))
-
-            val thenExpr = parseExprSingle()
-
-            parseRequire(tryCurrentWordToken("else"))
-            val elseExpr = parseExprSingle()
-            return IfExpr(testExpr, thenExpr, elseExpr)
-        }
-
-        private fun parseArgs(): List<ExprSingle> {
-            parseRequire(tryCurrent('('))
-
-            // TODO(use parseExpr(isSingle = false)
             val args = mutableListOf<ExprSingle>()
-            if (!tryCurrentToken(')')) {
-                while (true) {
-//                    skipWhitespace()
-                    args.add(parseExprSingle())
-                    parseRequire(i < str.length, "Missing closing parenthesis")
-                    if (tryCurrentToken(')')) break
-                    parseRequire(tryCurrentToken(','), "parameters should be separated by ','")
-                }
-            }
-
+            do {
+                args.add(parseExprSingle())
+            } while (tryCurrentToken(','))
+            parseRequire(tryCurrentToken(')'), "Missing closing parenthesis in parameters")
             return args
-        }
 
-        private fun parseAttribute(): AxisStep {
-            check(tryCurrent('@'))
-            skipWhitespace()
-            val test: NodeTest =
-                parseRequireNotNull(parseNodeTest(), "Missing node test for attribute")
-            return AxisStep(Axis.ATTRIBUTE, test, parsePredicates())
         }
 
         private fun parseNodeTest(): NodeTest {
             val name = parseRequireNotNull(parseEQNameOrWildcard(), "Missing node test in expression")
-            return name.asNodeTest()
+            return maybeParseNodeTypeTest(name) ?: name.asNodeTest()
         }
 
         private fun maybeParseNodeTest(): NodeTest? {
-            return parseEQNameOrWildcard()?.asNodeTest()
+            return parseEQNameOrWildcard()?.let { maybeParseNodeTypeTest(it) ?: it.asNodeTest() }
         }
-
-
 
         @OptIn(ExperimentalContracts::class)
         private fun parseEQNameOrWildcard(): QNameSpec? {

@@ -23,6 +23,7 @@
 package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XPathExpressionImpl
 import io.github.pdvrieze.formats.xpath.impl.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
@@ -109,12 +110,12 @@ internal class PathContext(val path: LocationPath) {
      */
     fun assertRooted() {
         if (path.rooted) {
-            if (path.steps.firstOrNull() == XPathExpression.STEP_DOC_ROOT) {
+            if (path.steps.firstOrNull() == XPathExpressionImpl.STEP_DOC_ROOT) {
                 ++stepCount // skip the first step
             }
         } else {
             assertNotEquals(0, path.steps.size, "Expected at least one root step, but found none")
-            assertEquals(XPathExpression.STEP_DOC_ROOT, getStep())
+            assertEquals(XPathExpressionImpl.STEP_DOC_ROOT, getStep())
         }
     }
 

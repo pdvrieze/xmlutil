@@ -86,7 +86,7 @@ interface XPathExpression: XQueryExpression {
             path: String,
             namespaceContext: NamespaceContext = SimpleNamespaceContext(),
             ver: XPathVersion = XPathVersion.XPath3_1,
-            posInfo: XmlReader.LocationInfo?,
+            posInfo: XmlReader.LocationInfo? = null,
         ): XPathExpression {
             val parser = XPathExpressionImpl.Parser(xmlTrimWhitespace(path), namespaceContext, ver, posInfo)
             return XPathExpressionImpl(path, parser.parse(), ver)

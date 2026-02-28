@@ -30,6 +30,13 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testParseNodeArgs() {
+        testPath("\$result/*[1][self::a][not(child::node())]") {
+
+        }
+    }
+
+    @Test
     fun testNegative() {
         testPath("-42") {
             assertEquals(UnaryExpr.Minus(IntLiteral(42)), expr)
