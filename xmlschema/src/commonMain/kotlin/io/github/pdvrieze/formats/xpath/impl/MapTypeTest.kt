@@ -20,7 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPath3_1
+
 @XPathInternal
+@XPath3_1
 sealed class MapTypeTest: ItemTypeTest {
     object ANY: MapTypeTest() {
         context(c: OutputContext)

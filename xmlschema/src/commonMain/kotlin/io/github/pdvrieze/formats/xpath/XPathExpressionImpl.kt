@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.functions.Fn
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import kotlin.contracts.ExperimentalContracts
@@ -67,6 +68,10 @@ internal class XPathExpressionImpl internal constructor(
     ) {
         var i: Int = 0
 
+        val isXPath2 get() = version >= XPathVersion.XPath2_0
+        val isXPath30 get() = version >= XPathVersion.XPath3_0
+        val isXPath31 get() = version >= XPathVersion.XPath3_1
+
         private fun skipWhitespace() {
             val l = str.length
             while (i < l) {
@@ -92,12 +97,13 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseCommentCont() {
+            assertPrevious("(:")
             val start = i - 2
             while (i < str.length) {
                 val c = str[i]
-                when {
-                    c == ':' && tryCurrent(":)") -> return
-                    c == '(' && peekCurrent("(:") -> parseComment()
+                when (c) {
+                    ':' if tryCurrent(":)") -> return
+                    '(' if peekCurrent("(:") -> parseComment()
                     else -> ++i
                 }
             }
@@ -197,9 +203,10 @@ internal class XPathExpressionImpl internal constructor(
                         }
                     }
 
-                    "map" -> when {
+                    "map" if isXPath31 -> when {
                         tryCurrent('*') -> {
                             parseRequire(tryCurrentToken(')'))
+                            @OptIn(XPath3_1::class)
                             return MapTypeTest.ANY
                         }
 
@@ -208,19 +215,22 @@ internal class XPathExpressionImpl internal constructor(
                             parseRequire(tryCurrentToken(","))
                             val outType = parseSequenceType()
                             parseRequire(tryCurrentToken(')')) { "Map specifiers must be closed by ')'"}
+                            @OptIn(XPath3_1::class)
                             return MapTypeTest.Typed(inType, outType)
                         }
                     }
 
-                    "array" -> when {
+                    "array" if isXPath31 -> when {
                         tryCurrent('*') -> {
                             parseRequire(tryCurrentToken(')'))
+                            @OptIn(XPath3_1::class)
                             return MapTypeTest.ANY
                         }
 
                         else -> {
                             val elemType = parseSequenceType()
                             parseRequire(tryCurrentToken(')')) { "Array specifiers must be closed by ')'"}
+                            @OptIn(XPath3_1::class)
                             return ArrayTypeTest.Typed(elemType)
                         }
                     }
@@ -277,7 +287,7 @@ internal class XPathExpressionImpl internal constructor(
             return VariableRef(parseNCName())
         }
 
-        private fun parseExpr(): Expr {
+        private fun parseExpr(isXQuery: Boolean): Expr {
             val expressions = mutableListOf<ExprSingle>()
             expressions.add(parseExprSingle())
             while (tryCurrentToken(',')) {
@@ -333,7 +343,7 @@ internal class XPathExpressionImpl internal constructor(
         private fun parseIfExprCont(): IfExpr {
             parseRequire(tryCurrentToken('('), "Missing opening parenthesis in if expression")
 
-            val condition = parseExpr()
+            val condition = parseExpr(false)
 
             parseRequire(tryCurrentToken(')')) { "Missing closing parenthesis in if expression" }
             parseRequire(tryCurrentWordToken("then"), "Missing 'then' in if expression")
@@ -723,16 +733,20 @@ internal class XPathExpressionImpl internal constructor(
 
                 '\'', '"' -> return FilterExpr(parseStringLiteral())
 
-                '[' -> return parsePostfixExpr(parseSquareArrayConstructor())
+                '[' if isXPath31 -> {
+                    @OptIn(XPath3_1::class)
+                    return parsePostfixExpr(parseSquareArrayConstructor())
+                }
 
                 '?' -> return parsePostfixExpr(parseUnaryLookup())
 
                 else if isNameStartChar(c) -> {
-                    val start = i
                     val ncName = parseNCName()
-                    if (ncName == "map" && peekCurrentToken('{')) {
+                    if (isXPath31 && ncName == "map" && peekCurrentToken('{')) {
+                        @OptIn(XPath3_1::class)
                         return parsePostfixExpr(parseMapConstructorCont())
-                    } else if (ncName == "array" && peekCurrentToken('{')) {
+                    } else if (isXPath31 && ncName == "array" && peekCurrentToken('{')) {
+                        @OptIn(XPath3_1::class)
                         return parsePostfixExpr(parseCurlyArrayConstructorCont())
                     } else if (tryCurrentToken("::")) { // found axis
                         val axis = Axis.from(ncName)
@@ -765,6 +779,7 @@ internal class XPathExpressionImpl internal constructor(
             }
         }
 
+        @XPath3_1
         private fun parseSquareArrayConstructor(): ExprSingle {
             parseRequire(tryCurrentToken('['), "Missing '[' in square array constructor")
             val exprs = mutableListOf<ExprSingle>()
@@ -778,7 +793,9 @@ internal class XPathExpressionImpl internal constructor(
             return ArrayConstructor.Square(exprs)
         }
 
+        @XPath3_1
         private fun parseCurlyArrayConstructorCont(): ExprSingle {
+            assertPrevious("array")
             val expr = parseEnclosedExpr()
             return ArrayConstructor.Curly(expr.contentExpr)
         }
@@ -794,7 +811,7 @@ internal class XPathExpressionImpl internal constructor(
                     ++i
                     val key: Expr = when {
                         tryCurrentToken(')') -> SequenceExpr(emptyList())
-                        else -> parseExpr()
+                        else -> parseExpr(false)
                     }
                     return LookupExpr(null, LookupExpr.ParenKey(key))
                 }
@@ -819,7 +836,9 @@ internal class XPathExpressionImpl internal constructor(
             throw IllegalArgumentException("Expected key specifier")
         }
 
-        fun parseMapConstructorCont(): ExprSingle {
+        @XPath3_1
+        private fun parseMapConstructorCont(): ExprSingle {
+            assertPrevious("map")
             // Expects "map" before
             parseRequire(tryCurrentToken('{'))
             val entries = mutableListOf<MapConstructor.Entry>()
@@ -849,6 +868,7 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun parseQuantifiedExprCont(kind: QuantifiedExpr.Kind): ExprSingle {
+            assertPrevious(kind.literal)
 
             parseRequire(peekCurrentToken('$'), "Missing '$' in quantified expression ")
 
@@ -870,19 +890,22 @@ internal class XPathExpressionImpl internal constructor(
             return QuantifiedExpr(kind, bindings, condition)
         }
 
-        fun parseEnclosedExpr(): EnclosedExpr {
+        private fun parseEnclosedExpr(): EnclosedExpr {
             parseRequire(tryCurrentToken('{'))
             val contentExpr = when {
-                !peekCurrentToken('}') -> parseExpr()
+                !peekCurrentToken('}') -> parseExpr(false)
+
+                version < XPathVersion.XPath3_1 -> parseError("Before 3.1 function bodies may not be empty")
+
                 else -> ParenExpr(SequenceExpr(emptyList())) // by default empty sequence
             }
             parseRequire(tryCurrentToken('}'))
             return EnclosedExpr(contentExpr)
         }
 
-        fun parse(): Expr {
+        fun parseXPathExpr(): Expr {
             val e = try { 
-                parseExpr() 
+                parseExpr(false)
             } catch (e: NumberFormatException) {
                 parseError(e)
             }
@@ -1105,8 +1128,7 @@ internal class XPathExpressionImpl internal constructor(
 
         private fun parsePredicates(): List<Expr> = buildList {
             while (tryCurrentToken('[')) {
-                val start = i - 1
-                add(parseExpr())
+                add(parseExpr(false))
                 parseRequire(tryCurrentToken(']'), "Predicate not closed by ']'")
             }
         }
@@ -1142,7 +1164,6 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         private fun tryCurrentToken(char: Char): Boolean {
-            val s = i
             skipWhitespace()
             when {
                 i < str.length && str[i] == char -> {
@@ -1179,19 +1200,7 @@ internal class XPathExpressionImpl internal constructor(
 
         private fun tryCurrentToken(check: String): Boolean {
             skipWhitespace()
-            val end = i + check.length
-            if ((end - 1) >= str.length) return false
-            if (str.substring(i, end) == check) {
-                i = end
-                return true
-            }
-            return false
-        }
-
-        private fun peekCurrentWord(check: String): Boolean {
-            if (!peekCurrent(check)) return false
-            val j = i + check.length
-            return j >= str.length || !isNameChar11(str[j])
+            return tryCurrent(check)
         }
 
         private fun tryCurrentWord(check: String): Boolean {
@@ -1223,6 +1232,18 @@ internal class XPathExpressionImpl internal constructor(
             }
         }
 
+        fun assertPrevious(expected: String) {
+            ifAssertions {
+                when {
+                    i - expected.length < 0 ->
+                        parseError("Parse continuation not preceded by '$expected' due to length issue")
+
+                    str.substring(i - expected.length, i) != expected ->
+                        parseError("Parse continuation not preceded by '$expected'")
+                }
+            }
+        }
+
         fun <T> parseRequireNotNull(value: T?, message: String): T {
             return value ?: parseError(message)
         }
@@ -1232,17 +1253,17 @@ internal class XPathExpressionImpl internal constructor(
         }
 
         fun parseRequire(condition: Boolean, message: String = "Unexpected token") {
-            parseRequire(condition, { message })
+            parseRequire(condition) { message }
         }
 
         inline fun parseRequire(condition: Boolean, message: () -> String) {
-            if (! condition) {
+            if (!condition) {
                 parseError("Invalid expression", message())
             }
         }
 
         fun parseError(cause: Throwable, startIdx: Int = i): Nothing =
-            parseError(null, cause.message?:"<unknown error>", cause, startIdx)
+            parseError(null, cause.message ?: "<unknown error>", cause, startIdx)
 
         fun parseError(message: String, startIdx: Int = i): Nothing {
             parseError(null, message, startIdx = startIdx)
@@ -1253,7 +1274,7 @@ internal class XPathExpressionImpl internal constructor(
             val msg = buildString {
                 msgPrefix?.let {
                     append(msgPrefix)
-                    if (posInfo !=null && msgPrefix.lastOrNull()!=' ') append(' ')
+                    if (posInfo != null && msgPrefix.lastOrNull() != ' ') append(' ')
                 }
                 if (posInfo != null) append(" at $posInfo")
                 append(": ").appendLine(message)
@@ -1278,3 +1299,12 @@ internal class XPathExpressionImpl internal constructor(
     }
 
 }
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 2+ check")
+internal annotation class XPath2
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3+ check")
+internal annotation class XPath3_0
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3.1+ check")
+internal annotation class XPath3_1
