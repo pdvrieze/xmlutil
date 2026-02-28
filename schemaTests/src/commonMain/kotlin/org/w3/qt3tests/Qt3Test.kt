@@ -21,7 +21,6 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xpath.XPathExpression
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -40,14 +39,10 @@ import org.w3.qt3tests.resolved.ResolvedQt3Test
 @XmlSerialName("test", QT3TNS)
 class Qt3Test(
     val file: VAnyURI? = null,
-    @XmlValue val value: String
+    @XmlValue val value: UnresolvedXQueryExpr
 ) {
     context(ctx: AssertionResolutionContext)
     fun resolve(): ResolvedQt3Test {
-        val expr = when {
-            value.isEmpty() -> null
-            else -> runCatching { XPathExpression(value, ctx.namespaceContext, ctx.version) }.getOrNull()
-        }
-        return ResolvedQt3Test(file, expr)
+        return ResolvedQt3Test(file, value.resolve().getOrThrow())
     }
 }

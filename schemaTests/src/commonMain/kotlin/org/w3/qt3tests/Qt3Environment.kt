@@ -78,6 +78,10 @@ class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
         staticBaseUris: List<Qt3StaticBaseUri>,
         collations: List<Qt3Collation>
     ) : super(id) {
+        require(ref!=null || name!=null) {
+            "Environment must have a name, or be a reference"
+        }
+
         this.name = name
         this.ref = ref
         this.schemas = schemas
@@ -96,7 +100,7 @@ class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
     context(ctx: ResolutionContext)
     fun resolve(): ResolvedQt3Environment = when (ref) {
         null -> ResolvedQt3Environment(
-            requireNotNull(name) { "Environment must have a name, or be a reference" },
+            name, // note that anonymous environments are allowed
             schemas,
             sources.map { it.resolve() },
             resource,
@@ -108,7 +112,7 @@ class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
             collections,
             staticBaseUris,
             collations,
-        ).also { ctx.knownEnvironments[name] = it }
+        ).also { if (name != null) ctx.knownEnvironments[name] = it }
 
         else -> checkNotNull(ctx.knownEnvironments[ref]) { "Unknown environment $ref" }
     }

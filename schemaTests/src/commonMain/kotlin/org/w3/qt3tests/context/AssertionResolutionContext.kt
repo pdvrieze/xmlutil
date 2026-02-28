@@ -20,10 +20,10 @@
 
 package org.w3.qt3tests.context
 
-import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import nl.adaptivity.xmlutil.NamespaceContext
 
 interface AssertionResolutionContext {
     val namespaceContext: NamespaceContext
-    val version: XPathExpression.Version get() = XPathExpression.Version.V3_1
+    val version: XPathVersion get() = XPathVersion.XPath3_1
 }
