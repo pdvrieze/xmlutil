@@ -20,11 +20,11 @@
 
 package org.w3.qt3tests.assertions
 
-import io.github.pdvrieze.formats.xpath.XPathExpression
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
 import org.w3.qt3tests.QT3TNS
+import org.w3.qt3tests.UnresolvedXPathExpr
 import org.w3.qt3tests.context.AssertionResolutionContext
 import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertDeepEq
 
@@ -34,10 +34,10 @@ import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertDeepEq
  */
 @Serializable
 @XmlSerialName("assert-deep-eq", QT3TNS)
-class Qt3AssertDeepEq(@XmlValue val assertion: String): Qt3AbstractAssertion() {
+class Qt3AssertDeepEq(@XmlValue val assertion: UnresolvedXPathExpr): Qt3AbstractAssertion() {
     context(ctx: AssertionResolutionContext)
     override fun resolve(): ResolvedQt3AssertDeepEq {
-        return ResolvedQt3AssertDeepEq(XPathExpression(assertion, ctx.namespaceContext))
+        return ResolvedQt3AssertDeepEq(assertion.resolve().getOrThrow())
     }
 }
 

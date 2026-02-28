@@ -33,9 +33,9 @@ class AssertionResolutionContextImpl(private val orig: ResolutionContext, val en
 
     override val xml: XML get() = orig.xml
 
-    override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = when (environment) {
+    override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = when (val n = environment?.name) {
         null -> mutableMapOf()
-        else -> mutableMapOf(environment.name to environment)
+        else -> mutableMapOf(n to environment)
     }
 
     override val idMap: MutableMap<String, Any> = mutableMapOf()

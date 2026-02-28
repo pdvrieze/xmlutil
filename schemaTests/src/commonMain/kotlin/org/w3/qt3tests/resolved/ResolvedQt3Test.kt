@@ -21,8 +21,8 @@
 package org.w3.qt3tests.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XQueryExpression
 
-class ResolvedQt3Test(val file: VAnyURI?, val expr: XPathExpression?) {
+class ResolvedQt3Test(val file: VAnyURI?, val expr: XQueryExpression) {
 
 }

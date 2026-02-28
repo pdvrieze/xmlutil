@@ -23,7 +23,7 @@ package org.w3.qt3tests.resolved
 import org.w3.qt3tests.*
 
 class ResolvedQt3Environment(
-    val name: String,
+    val name: String?,
     val schemas: List<Qt3Schema>,
     val sources: List<ResolvedQt3Source>,
     val resource: List<Qt3Resource>,
@@ -36,5 +36,7 @@ class ResolvedQt3Environment(
     val staticBaseUris: List<Qt3StaticBaseUri>,
     val collations: List<Qt3Collation>
 ) {
-
+    init {
+        require(name == null || name.isNotBlank()) { "Names can not be blank" }
+    }
 }
