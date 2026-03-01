@@ -35,8 +35,12 @@ import org.w3.qt3tests.context.AssertionResolutionContext
 
 @Serializable(UnresolvedXPathExpr.Companion::class)
 interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
+    @Deprecated("Use resolve() instead", ReplaceWith("resolve()"))
     context(ctx: AssertionResolutionContext)
-    override fun resolve(): Result<XPathExpression>
+    override fun resolve(isXpath: Boolean): Result<XPathExpression> = resolve()
+
+    context(ctx: AssertionResolutionContext)
+    fun resolve(): Result<XPathExpression>
 
     companion object: KSerializer<UnresolvedXPathExpr> {
         override val descriptor: SerialDescriptor =
@@ -58,6 +62,9 @@ interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
 }
 
 class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo?): UnresolvedXQueryExprImpl(expr, locationInfo), UnresolvedXPathExpr {
+    @Deprecated("Use resolve() instead", ReplaceWith("resolve()"))
+    context(ctx: AssertionResolutionContext)
+    override fun resolve(isXpath: Boolean): Result<XPathExpression> = resolve()
 
     context(ctx: AssertionResolutionContext)
     override fun resolve(): Result<XPathExpression> {

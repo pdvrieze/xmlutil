@@ -20,6 +20,7 @@
 
 package org.w3.qt3tests
 
+import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
 import kotlinx.serialization.KSerializer
@@ -40,7 +41,7 @@ interface UnresolvedXQueryExpr {
     val locationInfo: XmlReader.LocationInfo?
 
     context(ctx: AssertionResolutionContext)
-    fun resolve(): Result<XQueryExpression>
+    fun resolve(isXpath: Boolean): Result<XQueryExpression>
 
 
     companion object: KSerializer<UnresolvedXQueryExpr> {
@@ -68,11 +69,19 @@ open class UnresolvedXQueryExprImpl(
 ) : UnresolvedXQueryExpr {
 
     context(ctx: AssertionResolutionContext)
-    override fun resolve(): Result<XQueryExpression> {
-        return Result.success(object: XQueryExpression {
-            override val xmlString: String get() = expr
-            override val version: XPathVersion get() = XPathVersion.XPath3_1
-        })
+    override fun resolve(isXpath: Boolean): Result<XQueryExpression> {
+        return when {
+            isXpath -> runCatching {
+                XPathExpression(expr, ctx.namespaceContext, ctx.version, locationInfo)
+            }
+
+            else -> Result.success(object: XQueryExpression {
+                override val xmlString: String get() = expr
+                override val version: XPathVersion get() = XPathVersion.XPath3_1
+            })
+        }
+
+
     }
 
 }

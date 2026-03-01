@@ -68,6 +68,7 @@ class Qt3TestCase(
             else -> null
         }
         context(AssertionResolutionContextImpl(ctx, env)) {
+            val isXpath = env != null && env.namespaces.isNotEmpty()
             return ResolvedQt3TestCase(
                 description,
                 created,
@@ -75,7 +76,7 @@ class Qt3TestCase(
                 environment,
                 modules,
                 dependencies,
-                test?.resolve(),
+                test?.resolve(isXpath = false),
                 result?.resolve(),
                 name,
                 covers,
