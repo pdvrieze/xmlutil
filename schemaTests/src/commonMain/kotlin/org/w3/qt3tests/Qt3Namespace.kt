@@ -51,4 +51,34 @@ class Qt3Namespace(
     @SerialName("uri") val uri: VAnyURI,
 ): Qt3Environment.Element, Namespace {
     override val namespaceURI: String get() = uri.value
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as Qt3Namespace
+
+        if (prefix != other.prefix) return false
+        if (uri != other.uri) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = prefix.hashCode()
+        result = 31 * result + uri.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return buildString {
+            append("Qt3Namespace(prefix='")
+            append(prefix)
+            append("', uri=")
+            append(uri)
+            append(')')
+        }
+    }
+
+
 }
