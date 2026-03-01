@@ -52,6 +52,7 @@ include(":testutil")
 include(":examples")
 if (includeSchema) {
     include(":xpath")
+    include(":schemaTypes")
     include(":xmlschema")
     include(":benchmark")
     include(":schemaTests")

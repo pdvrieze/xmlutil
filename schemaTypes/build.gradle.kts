@@ -73,7 +73,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.core)
-                implementation(projects.schemaTypes)
                 implementation(projects.serialization)
                 implementation(libs.serialization.core)
                 implementation(libs.datetime)
