@@ -23,9 +23,9 @@ package io.github.pdvrieze.xml.schematypes.types
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-object UntypedType: IComplexType {
+object UntypedType: ComplexType {
     override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "untyped", "xs")
-    override val baseType: AnyType get() = IComplexType.Instance
+    override val baseType: AnyType get() = ComplexType.Instance
 
     val Instance: UntypedType get() = this
 }
