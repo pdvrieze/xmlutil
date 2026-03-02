@@ -24,7 +24,6 @@ import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.values.XSDate
-import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
@@ -81,7 +80,7 @@ value class XSDateImpl(val dateVal: ULong) : XSDate {
                         year,
                         month,
                         day,
-                        XSDateTime.timezoneFragValue(
+                        XSDateTimeImpl.timezoneFragValue(
                             normalized.substring(monthIdx + 6)
                         )
                     )

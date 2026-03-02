@@ -25,11 +25,9 @@ import io.github.pdvrieze.xml.schematypes.values.instances.XSEntityImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-import kotlin.jvm.JvmInline
 
-@JvmInline
 @Serializable(with = XSEntity.Companion::class)
-interface XSEntity: XSNCName {
+interface XSEntity : XSNCName {
 
     companion object : SimpleTypeSerializer<XSEntity>("xs.ENTITY") {
         operator fun invoke(value: String) = XSEntityImpl(value)

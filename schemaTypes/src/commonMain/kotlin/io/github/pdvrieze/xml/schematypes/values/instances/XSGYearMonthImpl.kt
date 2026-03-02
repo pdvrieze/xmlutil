@@ -26,8 +26,10 @@ import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.values.XSGYearMonth
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
+import kotlin.jvm.JvmInline
 
 @XmlUtilInternal
+@JvmInline
 value class XSGYearMonthImpl(val monthYear: ULong) : XSGYearMonth {
 
     init {

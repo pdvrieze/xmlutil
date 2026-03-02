@@ -22,7 +22,6 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
-import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import io.github.pdvrieze.xml.schematypes.values.XSGYear
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -58,7 +57,7 @@ value class XSGYearImpl(val yearVal: UInt) : XSGYear {
             val s = xmlCollapseWhitespace(str)
             val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it >= 0) it + 1 else s.length }
             val year = s.substring(0, yearEnd).toInt()
-            val tzOffset = XSDateTime.Companion.timezoneFragValue(s.substring(yearEnd))
+            val tzOffset = XSDateTimeImpl.timezoneFragValue(s.substring(yearEnd))
             return XSGYearImpl(year, tzOffset)
         }
     }

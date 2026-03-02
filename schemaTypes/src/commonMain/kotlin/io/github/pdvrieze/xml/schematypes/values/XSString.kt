@@ -21,7 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.primitive.isNCName
+import io.github.pdvrieze.xml.schematypes.isNCName
 import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixString
 import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixStringList
 import io.github.pdvrieze.xml.schematypes.values.instances.XSStringImpl

@@ -18,36 +18,14 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes
+package io.github.pdvrieze.xml.schematypes.types
 
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.toCName
 
-object AnyTypeInst: IAnyType {
-    override val name: QName get() = T_ANY
-    val baseType: IAnyType get() = this
-
-    override fun toString(): String = name.toCName()
+interface IComplexType: AnyType {
+    object Instance: IComplexType, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "complexType", "xs")
+        override val baseType: AnyType get() = AnyType.Instance
+    }
 }
-
-
-interface IAnyType {
-    val name: QName get() = AnyTypeInst.name
-}
-
-sealed interface ISimpleType : IAnyType {
-    interface Atomic : ISimpleType
-    interface List : ISimpleType
-    interface Union : ISimpleType
-}
-
-interface IComplexType: IAnyType
-
-interface IUntypedType: IComplexType {
-    override val name: QName get() = T_UNTYPED
-
-}
-
-internal val T_UNTYPED = QName(XMLConstants.XSD_NS_URI, "untyped", "xs")
-internal val T_ANY = QName(XMLConstants.XSD_NS_URI, "any", "xs")

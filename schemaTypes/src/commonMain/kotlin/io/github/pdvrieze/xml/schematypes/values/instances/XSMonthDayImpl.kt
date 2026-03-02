@@ -23,7 +23,6 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
-import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import io.github.pdvrieze.xml.schematypes.values.XSGMonthDay
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -81,7 +80,7 @@ value class XSMonthDayImpl(val monthdayVal: UInt) : XSGMonthDay {
                 }
 
                 else -> {
-                    val tz = XSDateTime.Companion.timezoneFragValue(normalized.substring(tzIndex))
+                    val tz = XSDateTimeImpl.timezoneFragValue(normalized.substring(tzIndex))
                     val (month, day) = normalized.substring(2, tzIndex).split('-').map { it.toUInt() }
                     XSMonthDayImpl(month, day, tz)
                 }

@@ -21,7 +21,6 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.values.instances.XSByteImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSShortImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -35,7 +34,7 @@ interface XSShort : XSInt {
     override val longValue: Long get() = shortValue.toLong()
 
     companion object : SimpleTypeSerializer<XSShort>("XSShort") {
-        operator fun invoke(value: Byte): XSShort = XSByteImpl(value)
+        operator fun invoke(value: Short): XSShort = XSShortImpl(value)
 
         override fun deserialize(raw: String, input: XmlReader?): XSShort {
             return XSShortImpl(raw.toShort())

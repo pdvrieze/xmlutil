@@ -21,8 +21,8 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.primitive.isXmlName
-import io.github.pdvrieze.xml.schematypes.primitive.isXmlName10
+import io.github.pdvrieze.xml.schematypes.isXmlName
+import io.github.pdvrieze.xml.schematypes.isXmlName10
 import io.github.pdvrieze.xml.schematypes.values.instances.XSNameImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi

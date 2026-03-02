@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.primitive.isNCName
-import io.github.pdvrieze.xml.schematypes.primitive.isNCName10
+import io.github.pdvrieze.xml.schematypes.isNCName
+import io.github.pdvrieze.xml.schematypes.isNCName10
 import io.github.pdvrieze.xml.schematypes.values.XSNCName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.XmlVersion

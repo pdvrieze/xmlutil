@@ -21,7 +21,6 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.values.instances.XSByteImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSIntImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -35,7 +34,7 @@ interface XSInt : XSLong {
     override fun toInt(): Int = intValue
 
     companion object : SimpleTypeSerializer<XSInt>("xsd.int") {
-        operator fun invoke(value: Byte): XSInt = XSByteImpl(value)
+        operator fun invoke(value: Int): XSInt = XSIntImpl(value)
 
         override fun deserialize(raw: String, input: XmlReader?): XSInt {
             return XSIntImpl(raw.toInt())

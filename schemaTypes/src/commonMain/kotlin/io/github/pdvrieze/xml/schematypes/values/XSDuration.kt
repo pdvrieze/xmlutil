@@ -29,6 +29,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSDuration.Companion::class)
 interface XSDuration : XSAtomic {
+    // TODO implement DayTimeDuration and YearMonthDuration
+
     val months: Long
     val seconds: Double
 

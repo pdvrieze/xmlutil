@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.primitive
+package io.github.pdvrieze.xml.schematypes
 
 import nl.adaptivity.xmlutil.core.internal.isNameChar10
 import nl.adaptivity.xmlutil.core.internal.isNameCodepoint
