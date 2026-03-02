@@ -18,8 +18,6 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.builtins
-
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+package io.github.pdvrieze.xml.schematypes.types
 
 interface PrimitiveDatatype : AnyAtomicType
