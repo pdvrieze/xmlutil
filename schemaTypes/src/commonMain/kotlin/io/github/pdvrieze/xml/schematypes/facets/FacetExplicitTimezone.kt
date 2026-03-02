@@ -20,52 +20,44 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-@Serializable
-@XmlSerialName("explicitTimezone", XSD_NS_URI, XSD_PREFIX)
-class FacetExplicitTimezone : FacetBase.Fixed {
+interface FacetExplicitTimezone : ConstrainingFacet {
+    val isOptional: Boolean
+    val isProhibited: Boolean
+    val isRequired: Boolean
 
-    @Serializable
-    @XmlElement(false)
-    override val value: Value
-
-    constructor(
-        value: Value,
-        fixed: Boolean? = null,
-        id: VID? = null,
-        annotation: XSAnnotation? = null,
-        otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
-    ) : super(fixed, id, annotation, otherAttrs) {
-        this.value = value
-    }
-
-    @Serializable
-    enum class Value {
+    private enum class Impl : FacetExplicitTimezone {
         @SerialName("optional")
-        OPTIONAL,
+        OPTIONAL {
+            override val isOptional: Boolean get() = true
+        },
 
         @SerialName("required")
-        REQUIRED,
+        REQUIRED {
+            override val isRequired: Boolean get() = true
+        },
 
         @SerialName("prohibited")
-        PROHIBITED
+        PROHIBITED {
+            override val isProhibited: Boolean get() = true
+        };
+
+        override val isOptional: Boolean get() = false
+        override val isProhibited: Boolean get() = false
+        override val isRequired: Boolean get() = false
     }
 
     override val name: XSQName get() = NAME
 
     companion object {
         val NAME: XSQName = XSQName(XSD_NS_URI, "explicitTimezone", XSD_PREFIX)
+        val OPTIONAL: FacetExplicitTimezone = Impl.OPTIONAL
+        val REQUIRED: FacetExplicitTimezone = Impl.REQUIRED
+        val PROHIBITED: FacetExplicitTimezone = Impl.PROHIBITED
     }
 
 

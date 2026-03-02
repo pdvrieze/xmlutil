@@ -23,7 +23,6 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
-import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 import io.github.pdvrieze.xml.schematypes.values.XSTime
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedInt
@@ -96,7 +95,7 @@ value class XSTimeImpl private constructor(val msecVal: ULong) : XSTime {
 
             return when {
                 secEnd < representation.length -> {
-                    val tz = XSDateTime.Companion.timezoneFragValue(representation.substring(secEnd))
+                    val tz = XSDateTimeImpl.timezoneFragValue(representation.substring(secEnd))
                     XSTimeImpl(hours, minutes, millis, tz)
                 }
 

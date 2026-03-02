@@ -20,10 +20,9 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.VQName
+import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.QName
 
 /**
  * Special string type that captures a namespace
@@ -34,19 +33,11 @@ class XSPrefixStringList(val elems: List<XSString>) :
     override val xmlString: String
         get() = elems.joinToString(" ")
 
-    fun toQNames(): List<QName> = elems.mapNotNull {
+    fun toQNames(): List<XSQName> = elems.mapNotNull {
         when {
             it is XSPrefixString -> it.toQName()
             it.isEmpty() -> null
-            else -> QName(it.xmlString.toString())
-        }
-    }
-
-    fun toVQNames(): List<VQName> = elems.mapNotNull {
-        when {
-            it is XSPrefixString -> it.toVQName()
-            it.isEmpty() -> null
-            else -> VQName(it.xmlString.toString())
+            else -> XSQName(it.xmlString.toString())
         }
     }
 

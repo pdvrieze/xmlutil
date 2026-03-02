@@ -87,7 +87,7 @@ interface IXSDateTime: XSAtomic {
             minute?.toInt() ?: 0,
             second?.toDouble()?.toInt() ?: 0
         )
-        val zoneOffset = timezoneOffset?.let { UtcOffset(seconds = it * 60) } ?: UtcOffset.Companion.ZERO
+        val zoneOffset = timezoneOffset?.let { UtcOffset(seconds = it * 60) } ?: UtcOffset.ZERO
         return dateTime.toInstant(zoneOffset)
     }
 

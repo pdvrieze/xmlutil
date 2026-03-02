@@ -21,7 +21,6 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.values.instances.XSByteImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSLongImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -35,7 +34,7 @@ interface XSLong : XSInteger {
     override fun toLong(): Long = longValue
 
     companion object : SimpleTypeSerializer<XSLong>("XSLong") {
-        operator fun invoke(value: Byte): XSLong = XSByteImpl(value)
+        operator fun invoke(value: Long): XSLong = XSLongImpl(value)
 
         override fun deserialize(raw: String, input: XmlReader?): XSLong {
             return XSLongImpl(raw.toLong())

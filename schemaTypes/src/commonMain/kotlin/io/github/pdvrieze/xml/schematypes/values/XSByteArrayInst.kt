@@ -30,6 +30,8 @@ import kotlin.io.encoding.Base64
 @Serializable(XSByteArray.Companion::class)
 @ExperimentalXmlUtilApi
 interface XSByteArray : XSAtomic, List<Byte> {
+    // TODO split between base64 and hex
+
     val value: ByteArray
 
     companion object : SimpleTypeSerializer<XSByteArray>("xsd.byteArray") {

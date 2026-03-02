@@ -20,11 +20,13 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.primitive.isNCName
+import io.github.pdvrieze.xml.schematypes.isNCName
 import io.github.pdvrieze.xml.schematypes.values.XSEntity
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import kotlin.jvm.JvmInline
 
 @XmlUtilInternal
+@JvmInline
 value class XSEntityImpl(override val xmlString: String) : XSEntity {
 
     init {

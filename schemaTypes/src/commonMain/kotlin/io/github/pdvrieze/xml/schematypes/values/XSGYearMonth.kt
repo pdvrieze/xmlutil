@@ -25,9 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.instances.XSGYearMonthImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
-import kotlin.jvm.JvmInline
 
-@JvmInline
 @ExperimentalXmlUtilApi
 @Serializable(XSGYearMonth.Companion::class)
 interface XSGYearMonth : IXSDateTime {

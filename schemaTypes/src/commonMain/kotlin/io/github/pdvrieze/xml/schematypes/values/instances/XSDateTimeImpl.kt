@@ -20,10 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.primitive.DecimalType
 import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import io.github.pdvrieze.xml.schematypes.values.XSDecimal
-import io.github.pdvrieze.xml.schematypes.values.XSString
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
@@ -95,7 +93,7 @@ open class XSDateTimeImpl(
             val secEnd = ((tIndex + 7)..<s.length).firstOrNull {
                 s[it] != '.' && s[it] !in '0'..'9'
             }
-            val seconds = DecimalType.value(XSString(s.substring(tIndex + 7, secEnd ?: s.length)))
+            val seconds = XSDecimal(s.substring(tIndex + 7, secEnd ?: s.length))
 
             return when (secEnd) {
                 null -> XSDateTimeImpl(

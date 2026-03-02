@@ -20,9 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.VQName
+import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSString
-import nl.adaptivity.xmlutil.QName
 
 /**
  * Special string type that captures a namespace
@@ -34,10 +33,7 @@ class XSPrefixString(val namespace: String, val prefix: String, val localname: S
             else -> "$prefix:$localname"
         }
 
-    fun toQName(): QName = QName(namespace, localname, prefix)
-
-    fun toVQName(): VQName =
-        VQName(namespace, localname, prefix)
+    fun toQName(): XSQName = XSQName(namespace, localname, prefix)
 
     override fun toString(): String = xmlString
 
