@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.builtins
+package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*

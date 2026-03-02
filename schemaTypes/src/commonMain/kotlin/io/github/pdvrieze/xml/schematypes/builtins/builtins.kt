@@ -18,12 +18,8 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.builtins
+package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
-import io.github.pdvrieze.xml.schematypes.types.AnyType
-import io.github.pdvrieze.xml.schematypes.types.BuiltinType
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 fun builtinType(localName: String, targetNamespace: String): BuiltinType? {

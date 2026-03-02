@@ -18,11 +18,10 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.builtins
+package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.types.BuiltinAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XSID
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
