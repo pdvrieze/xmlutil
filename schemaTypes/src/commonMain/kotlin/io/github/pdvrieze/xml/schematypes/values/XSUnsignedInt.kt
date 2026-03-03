@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.UnsignedIntType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSUnsignedIntImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -28,6 +29,9 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @Serializable(XSUnsignedInt.Companion::class)
 interface XSUnsignedInt : XSUnsignedLong {
+
+    override val type: UnsignedIntType<*> get() = UnsignedIntType.Instance
+
     val uIntValue: UInt
     override val uLongValue: ULong
         get() = uIntValue.toULong()

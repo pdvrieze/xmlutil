@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedInt
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedIntType : BuiltinAtomicType<XSUnsignedInt> {
-    override val baseType: UnsignedLongType get() = UnsignedLongType.Instance
+interface UnsignedIntType<out T : XSUnsignedInt> : UnsignedLongType<T> {
+    override val baseType: UnsignedLongType<*> get() = UnsignedLongType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedIntType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "unsignedInt", "xs")
+    object Instance: UnsignedIntType<XSUnsignedInt>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "unsignedInt", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

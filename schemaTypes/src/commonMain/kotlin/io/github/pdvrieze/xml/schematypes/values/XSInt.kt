@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.IntType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSIntImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -29,6 +30,9 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 @Serializable(XSInt.Companion::class)
 @XmlUtilInternal
 interface XSInt : XSLong {
+
+    override val type: IntType<*> get() = IntType.Instance
+
     val intValue: Int
     override val longValue: Long get() = intValue.toLong()
     override fun toInt(): Int = intValue

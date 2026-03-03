@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.XSBigDecimal
 import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 
 internal class XSDecimalStringImpl(override val xmlString: String) : XSBigDecimal {

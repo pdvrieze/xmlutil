@@ -30,7 +30,7 @@ import kotlin.jvm.JvmInline
 
 @XmlUtilInternal
 @JvmInline
-value class XSMonthDayImpl(val monthdayVal: UInt) : XSGMonthDay {
+value class XSGMonthDayImpl(val monthdayVal: UInt) : XSGMonthDay {
     constructor(month: UInt, day: UInt) : this(
         day.toIBits(5) or
                 month.toIBits(4, 5)
@@ -69,20 +69,20 @@ value class XSMonthDayImpl(val monthdayVal: UInt) : XSGMonthDay {
     override fun toString(): String = xmlString
 
     companion object {
-        operator fun invoke(str: String) : XSMonthDayImpl {
+        operator fun invoke(str: String) : XSGMonthDayImpl {
             val normalized = xmlCollapseWhitespace(str)
             require(normalized.startsWith("--"))
             val tzIndex = normalized.indexOf('Z', 2)
             return when {
                 tzIndex < 0 -> {
                     val (month, day) = normalized.substring(2).split('-').map { it.toUInt() }
-                    XSMonthDayImpl(month, day)
+                    XSGMonthDayImpl(month, day)
                 }
 
                 else -> {
                     val tz = XSDateTimeImpl.timezoneFragValue(normalized.substring(tzIndex))
                     val (month, day) = normalized.substring(2, tzIndex).split('-').map { it.toUInt() }
-                    XSMonthDayImpl(month, day, tz)
+                    XSGMonthDayImpl(month, day, tz)
                 }
             }
         }

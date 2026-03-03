@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSToken
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface TokenType : BuiltinPrimitiveDatatype<XSToken> {
-    override val baseType: NormalizedStringType get() = NormalizedStringType.Instance
+interface TokenType<out T : XSToken> : NormalizedStringType<T> {
+    override val baseType: NormalizedStringType<*> get() = NormalizedStringType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: TokenType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "token", "xs")
+    object Instance : TokenType<XSToken>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "token", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

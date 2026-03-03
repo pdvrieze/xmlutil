@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.ListHelper
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.impl.rawStringToCollapsedSequence
+import io.github.pdvrieze.xml.schematypes.types.EntitiesType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSEntitiesImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSEntityImpl
 import kotlinx.serialization.Serializable
@@ -32,6 +33,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSEntities.Companion::class)
 interface XSEntities: XSAnySimple, ListHelper<XSEntity> {
+    override val type: EntitiesType<*, *> get() = EntitiesType.Instance
+
     companion object : SimpleTypeSerializer<XSEntities>("xs.ENTITIES") {
         override fun deserialize(
             raw: String,

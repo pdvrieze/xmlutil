@@ -22,30 +22,31 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XSNMToken
 import io.github.pdvrieze.xml.schematypes.values.XSNMTokens
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NMTokensType : AnySimpleType.ListT<NMTokenType>, BuiltinSimpleType<XSNMTokens> {
+interface NMTokensType<out T : XSNMTokens, out E: XSNMToken> : AnySimpleListType<T, E> {
 
-    override val baseType: AnySimpleType.ListT<NMTokenType> get() = Instance.baseType
-    override val itemType: NMTokenType get() = NMTokenType.Instance
+    override val baseType: AnySimpleListType<*, *> get() = Instance.baseType
+    override val itemType: NMTokenType<E>
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : NMTokensType {
-        override val baseType: AnySimpleType.ListT<NMTokenType> =
-            AnySimpleType.ListT(itemType)
+    object Instance : NMTokensType<XSNMTokens, XSNMToken>, BuiltinType {
+        override val baseType: AnySimpleListType<*, *> = AnySimpleListType(itemType)
+        override val itemType: NMTokenType<XSNMToken> get() = NMTokenType.Instance
 
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "NMTOKENS", "xs")
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "NMTOKENS", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

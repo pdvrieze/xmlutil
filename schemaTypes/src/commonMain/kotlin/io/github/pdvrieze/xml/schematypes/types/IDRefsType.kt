@@ -22,30 +22,33 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XSIDRef
 import io.github.pdvrieze.xml.schematypes.values.XSIDRefs
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface IDRefsType : AnySimpleType.ListT<IDRefType>, BuiltinSimpleType<XSIDRefs> {
+interface IDRefsType<out T : XSIDRefs, out E: XSIDRef> : AnySimpleListType<T, E> {
 
-    override val baseType: AnySimpleType.ListT<EntityType> get() = Instance.baseType
-    override val itemType: IDRefType get() = IDRefType.Instance
+    override val baseType: AnySimpleListType<*, *> get() = Instance.baseType
+    override val itemType: IDRefType<E>
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : EntitiesType {
-        override val baseType: AnySimpleType.ListT<EntityType> =
-            AnySimpleType.ListT(itemType)
+    object Instance : IDRefsType<XSIDRefs, XSIDRef>, BuiltinType {
+        override val baseType: AnySimpleListType<*, *> =
+            AnySimpleListType(itemType)
 
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "IDREFS", "xs")
+        override val itemType: IDRefType<XSIDRef> get() = IDRefType.Instance
+
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "IDREFS", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

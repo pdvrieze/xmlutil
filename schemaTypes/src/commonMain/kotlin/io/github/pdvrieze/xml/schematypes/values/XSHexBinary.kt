@@ -20,27 +20,24 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.impl.ListHelper
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.impl.rawStringToCollapsedSequence
-import io.github.pdvrieze.xml.schematypes.types.IDRefsType
-import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefImpl
-import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefsImpl
+import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSHexBinaryImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
-@Serializable(XSIDRefs.Companion::class)
-interface XSIDRefs: XSAnySimple, ListHelper<XSIDRef> {
-    override val type: IDRefsType<*, *> get() = IDRefsType.Instance
+@Serializable(XSHexBinary.Companion::class)
+interface XSHexBinary : XSByteArray {
+    override val type: HexBinaryType<*> get() = HexBinaryType.Instance
 
-    companion object : SimpleTypeSerializer<XSIDRefs>("xs.IDS") {
-        override fun deserialize(raw: String, input: XmlReader?): XSIDRefs {
-            val members = raw.rawStringToCollapsedSequence()
-                .map { XSIDRefImpl(it) }
-                .toList()
-            return XSIDRefsImpl(members)
+    companion object : SimpleTypeSerializer<XSHexBinary>("xsd.hexBinary") {
+
+        override fun deserialize(raw: String, input: XmlReader?): XSHexBinary {
+            return XSHexBinaryImpl(raw.hexToByteArray())
         }
+
     }
+
 }

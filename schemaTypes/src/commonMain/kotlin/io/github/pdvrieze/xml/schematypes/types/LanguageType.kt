@@ -22,25 +22,25 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XSLanguage
 import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.instances.XSLanguageImpl
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface LanguageType : BuiltinPrimitiveDatatype<XSLanguageImpl> {
-    override val baseType: TokenType get() = TokenType.Instance
+interface LanguageType<out T : XSLanguage> : TokenType<T> {
+    override val baseType: TokenType<*> get() = TokenType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : LanguageType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "language", "xs")
+    object Instance : LanguageType<XSLanguage>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "language", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

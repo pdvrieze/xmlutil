@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSDateTimeImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -31,6 +32,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Serializable(XSDateTime.Companion::class)
 interface XSDateTime : IXSDateTime {
+    override val type: DateTimeType<*> get() = DateTimeType.Instance
 
     companion object: SimpleTypeSerializer<XSDateTime>("xsd.dateTime") {
 

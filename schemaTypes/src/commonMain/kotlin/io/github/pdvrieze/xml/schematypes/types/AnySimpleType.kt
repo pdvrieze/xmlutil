@@ -20,67 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.XmlUtilInternal
 
-sealed interface AnySimpleType : AnyType {
-    interface ListT<E: AtomicOrUnion> : AnySimpleType {
+sealed interface AnySimpleType<out T : XSAnySimple> : AnyType {
 
-        val itemType: E
-
-        @XmlUtilInternal
-        class Instance<E: AtomicOrUnion>(
-            override val name: XSQName?,
-            override val itemType: E,
-            constrainingFacets: List<ConstrainingFacet> = emptyList(),
-        ) : ListT<E> {
-
-            constructor(elementType: E): this(null, elementType)
-
-            override val ordered: FacetOrdered get() = FacetOrdered.FALSE
-            override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
-            override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
-            override val numeric: FacetNumeric get() = FacetNumeric.FALSE
-
-            override val constrainingFacets: List<ConstrainingFacet> = buildList {
-                for (facet in constrainingFacets) {
-                    when (facet) {
-                        is FacetLength,
-                        is FacetMinLength,
-                        is FacetMaxLength,
-                        is FacetEnumeration,
-                        is FacetPattern,
-                        is FacetAssertion -> add(facet)
-
-                        is FacetWhiteSpace if (facet.value != WhitespaceValue.COLLAPSE ||
-                                facet.fixed != false) -> Unit // ignore
-
-                        else -> throw IllegalArgumentException("Unsupported facet: $facet")
-                    }
-                }
-
-                add(FacetWhiteSpace(WhitespaceValue.COLLAPSE, true))
-            }
-
-            override val baseType: AnySimpleType get() = AnySimpleType.Instance
-        }
-
-        companion object {
-            operator fun <E : AtomicOrUnion> invoke(itemType: E, facets: List<ConstrainingFacet> = emptyList()): ListT<E> {
-                return Instance(null, itemType, facets)
-            }
-        }
-    }
-
-    interface Union : AtomicOrUnion {
-
-    }
-
-    interface AtomicOrUnion: AnySimpleType
+    interface AtomicOrUnion<out T : XSAnySimple> : AnySimpleType<T>
 
     val ordered: FacetOrdered
     val bounded: FacetBounded
@@ -89,16 +36,17 @@ sealed interface AnySimpleType : AnyType {
 
     val constrainingFacets: List<ConstrainingFacet>
 
-    val facets: List<Facet> get() = buildList {
-        add(ordered)
-        add(bounded)
-        add(cardinality)
-        add(numeric)
-        addAll(constrainingFacets)
-    }
-    
-    object Instance: AnySimpleType, BuiltinAtomicType<XSAnySimple> {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "anySimpleType", "xs")
+    val facets: List<Facet>
+        get() = buildList {
+            add(ordered)
+            add(bounded)
+            add(cardinality)
+            add(numeric)
+            addAll(constrainingFacets)
+        }
+
+    object Instance : AnySimpleType<XSAnySimple>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "anySimpleType", "xs")
         override val baseType: AnyType get() = AnyType.Instance
 
         override val ordered: FacetOrdered get() = FacetOrdered.FALSE

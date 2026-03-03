@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,24 +20,24 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.impl.ListHelper
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.impl.rawStringToCollapsedSequence
-import io.github.pdvrieze.xml.schematypes.values.instances.XSNMTokenImpl
-import io.github.pdvrieze.xml.schematypes.values.instances.XSNMTokensImpl
+import io.github.pdvrieze.xml.schematypes.types.EntityType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSEntityImpl
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
-@ExperimentalXmlUtilApi
-@Serializable(XSNMTokens.Companion::class)
-interface XSNMTokens : XSAnySimple, ListHelper<XSNMToken> {
-    companion object : SimpleTypeSerializer<XSNMTokens>("xs.IDS") {
-        override fun deserialize(raw: String, input: XmlReader?): XSNMTokens {
-            val members = raw.rawStringToCollapsedSequence()
-                .map { XSNMTokenImpl(it) }
-                .toList()
-            return XSNMTokensImpl(members)
+@Serializable(with = XSEntity.Companion::class)
+interface XSEntity : XSNCName {
+    override val type: EntityType<*> get() = EntityType.Instance
+
+    companion object : SimpleTypeSerializer<XSEntity>("xs.ENTITY") {
+        operator fun invoke(value: String) = XSEntityImpl(value)
+
+        override fun deserialize(raw: String, input: XmlReader?): XSEntity {
+            return XSEntityImpl(xmlCollapseWhitespace(raw))
         }
     }
+
 }
+

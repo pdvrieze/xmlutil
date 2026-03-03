@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSFloatImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -30,6 +31,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSFloat.Companion::class)
 interface XSFloat: XSAtomic {
     val value: Float
+
+    override val type: FloatType<*> get() = FloatType.Instance
 
     companion object : SimpleTypeSerializer<XSFloat>("xsd.float") {
         operator fun invoke(value: Float): XSFloat = XSFloatImpl(value)

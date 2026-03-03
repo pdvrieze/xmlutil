@@ -26,21 +26,20 @@ import io.github.pdvrieze.xml.schematypes.values.XSDouble
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DoubleType : BuiltinPrimitiveDatatype<XSDouble> {
-    override val baseType: AnyAtomicType get() = AnyAtomicType.Instance
+interface DoubleType<out T: XSDouble> : PrimitiveDatatype<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: DoubleType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "double", "xs")
+    object Instance: DoubleType<XSDouble>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "double", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)

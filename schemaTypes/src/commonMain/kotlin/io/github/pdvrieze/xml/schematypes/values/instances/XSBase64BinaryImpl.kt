@@ -18,17 +18,25 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.types
+package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import nl.adaptivity.xmlutil.XMLConstants
+import io.github.pdvrieze.xml.schematypes.impl.ListHelper
+import io.github.pdvrieze.xml.schematypes.values.XSBase64Binary
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.jvm.JvmInline
 
-interface UntypedType: ComplexType {
-    override val baseType: AnyType get() = ComplexType.Instance
-    override val name: XSQName? get() = Instance.name
+@JvmInline
+@XmlUtilInternal
+@OptIn(ExperimentalEncodingApi::class)
+value class XSBase64BinaryImpl(override val value: ByteArray) : XSBase64Binary, ListHelper<Byte> {
+    override val xmlString: String get() = Base64.encode(value)
 
-    object Instance: UntypedType, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "untyped", "xs")
+    override fun get(index: Int): Byte = value[index]
 
-    }
+    override val size: Int get() = value.size
+
+    override fun toString(): String = xmlString
 }
+

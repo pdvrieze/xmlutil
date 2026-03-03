@@ -22,6 +22,6 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 
-interface BuiltinType: AnyType {
+interface BuiltinType : AnyType {
     override val name: XSQName
 }

@@ -20,13 +20,11 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.XSDuration
+import io.github.pdvrieze.xml.schematypes.values.XSDayTimeDuration
 
-class XSDurationImpl(override val months: Long, val millis: Long) : XSDuration {
-    operator fun compareTo(other: XSDurationImpl): Int = when (val m = months.compareTo(other.months)) {
-        0 -> millis.compareTo(other.millis)
-        else -> m
-    }
+class XSDayTimeDurationImpl(val millis: Long) : XSDayTimeDuration {
+
+    operator fun compareTo(other: XSDurationImpl): Int = millis.compareTo(other.millis)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -62,18 +60,10 @@ class XSDurationImpl(override val months: Long, val millis: Long) : XSDuration {
                 aMillis = millis.toULong()
             }
             append('P')
-            val y = aMonths / 12u
-            val mo = aMonths % 12u
             val d = aMillis / (24u * 3600_000u)
             val h = (aMillis / 3600_000u) % 24u
             val mi = (aMillis / 60_000u) % 60u
             val ms = aMillis % 60_000u
-            if (y != 0uL) {
-                append(y).append('Y')
-            }
-            if (mo != 0uL) {
-                append(mo).append('M')
-            }
             if (d != 0uL) {
                 append(d).append('D')
             }
@@ -96,7 +86,7 @@ class XSDurationImpl(override val months: Long, val millis: Long) : XSDuration {
         }
 
     companion object {
-        operator fun invoke(representation: String): XSDurationImpl {
+        operator fun invoke(representation: String): XSDayTimeDurationImpl {
             require(representation.length >= 3) // some value is needed with suffix
             var i = 0
             val sign = when {
@@ -109,16 +99,14 @@ class XSDurationImpl(override val months: Long, val millis: Long) : XSDuration {
 
             /** stages:
              *  0 -- nothing set
-             *  1 -- year set
-             *  2 -- month set
+             *  1 -- year set -- ignored
+             *  2 -- month set -- ignored
              *  3 -- days set
              *  4 -- hours set
              *  5 -- minutes set
              *  6 -- seconds set
              */
             var stage = 0
-            var years = 0u
-            var months = 0u
             var days = 0u
             var hours = 0u
             var minutes = 0u
@@ -132,17 +120,9 @@ class XSDurationImpl(override val months: Long, val millis: Long) : XSDuration {
                     ++end
                 }
                 when (representation[end]) {
-                    'Y' -> {
-                        require(stage < 1) { "Year must be the first fragment in a duration" }
-                        years = representation.substring(i, end).toUInt()
-                        stage = 1
-                    }
+                    'Y' -> throw IllegalArgumentException("DayTimeDuration does not support years: $representation")
 
-                    'M' -> {
-                        require(stage < 2) { "Month must be the first fragment in a duration" }
-                        months = representation.substring(i, end).toUInt()
-                        stage = 2
-                    }
+                    'M' -> throw IllegalArgumentException("DayTimeDuration does not support months: $representation")
 
                     'D' -> {
                         require(stage < 3) { "Day must be the first fragment in a duration" }
@@ -190,11 +170,9 @@ class XSDurationImpl(override val months: Long, val millis: Long) : XSDuration {
             }
             require(i>=representation.length)
 
-            val realMonths = (years * 12uL + months).toLong() * sign
             val realMillis = ((((days * 24uL) + hours) * 60uL + minutes) * 60000uL + milliSeconds).toLong() * sign
 
-            return XSDurationImpl(realMonths, realMillis)
+            return XSDayTimeDurationImpl(realMillis)
         }
     }
 }
-

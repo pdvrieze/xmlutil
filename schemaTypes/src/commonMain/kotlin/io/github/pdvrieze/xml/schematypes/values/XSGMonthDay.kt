@@ -21,13 +21,17 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.values.instances.XSMonthDayImpl
+import io.github.pdvrieze.xml.schematypes.types.GMonthDayType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSGMonthDayImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
 @Serializable(XSGMonthDay.Companion::class)
 interface XSGMonthDay: IXSDateTime {
+
+    override val type: GMonthDayType<*> get() = GMonthDayType.Instance
+
     override val day: UInt
     override val month: UInt
 
@@ -37,16 +41,16 @@ interface XSGMonthDay: IXSDateTime {
     override val second: Nothing? get() = null
 
     companion object: SimpleTypeSerializer<XSGMonthDay>("xsd.gMonthDay") {
-        operator fun invoke(str: String): XSGMonthDay = XSMonthDayImpl(str)
+        operator fun invoke(str: String): XSGMonthDay = XSGMonthDayImpl(str)
 
         operator fun invoke(month: UInt, day: UInt): XSGMonthDay =
-            XSMonthDayImpl(month, day)
+            XSGMonthDayImpl(month, day)
 
         operator fun invoke(month: UInt, day: UInt, timezoneOffset: Int?): XSGMonthDay =
-            XSMonthDayImpl(month, day, timezoneOffset)
+            XSGMonthDayImpl(month, day, timezoneOffset)
 
         override fun deserialize(raw: String, input: nl.adaptivity.xmlutil.XmlReader?): XSGMonthDay {
-            return XSMonthDayImpl(raw.toUInt())
+            return XSGMonthDayImpl(raw.toUInt())
         }
     }
 }

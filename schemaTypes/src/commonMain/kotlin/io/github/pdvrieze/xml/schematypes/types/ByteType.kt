@@ -26,21 +26,19 @@ import io.github.pdvrieze.xml.schematypes.values.XSByte
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface ByteType : BuiltinAtomicType<XSByte> {
-    override val baseType: ShortType get() = ShortType.Instance
-
+interface ByteType<out T : XSByte> : PrimitiveDatatype<T>, ShortType<T> {
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: ByteType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "byte", "xs")
+    object Instance: ByteType<XSByte>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "byte", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

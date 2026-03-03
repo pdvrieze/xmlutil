@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,24 +20,10 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.types.NMTokenType
-import io.github.pdvrieze.xml.schematypes.values.instances.XSNMTokenImpl
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.XmlReader
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleListType
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
-@ExperimentalXmlUtilApi
-@Serializable(XSNMToken.Companion::class)
-interface XSNMToken : XSToken {
-
-    override val type: NMTokenType<*> get() = NMTokenType.Instance
-
-    companion object : SimpleTypeSerializer<XSNMToken>("xsd.NMTOKEN") {
-        override fun deserialize(raw: String, input: XmlReader?): XSNMToken {
-            return XSNMTokenImpl(raw)
-        }
-    }
-
+interface XSAnySimpleList<E: XSAnySimple> : XSAnySimple {
+    override val type: AnySimpleListType<XSAnySimpleList<E>, E>
+    val itemType: AnySimpleType<E> get() = type.itemType
 }
-

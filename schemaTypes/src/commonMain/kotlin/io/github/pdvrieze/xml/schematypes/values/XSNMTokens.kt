@@ -23,24 +23,25 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.ListHelper
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.impl.rawStringToCollapsedSequence
-import io.github.pdvrieze.xml.schematypes.types.IDRefsType
-import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefImpl
-import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefsImpl
+import io.github.pdvrieze.xml.schematypes.types.NMTokensType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSNMTokenImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.XSNMTokensImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
-@Serializable(XSIDRefs.Companion::class)
-interface XSIDRefs: XSAnySimple, ListHelper<XSIDRef> {
-    override val type: IDRefsType<*, *> get() = IDRefsType.Instance
+@Serializable(XSNMTokens.Companion::class)
+interface XSNMTokens : XSAnySimple, ListHelper<XSNMToken> {
 
-    companion object : SimpleTypeSerializer<XSIDRefs>("xs.IDS") {
-        override fun deserialize(raw: String, input: XmlReader?): XSIDRefs {
+    override val type: NMTokensType<*, *> get() = NMTokensType.Instance
+
+    companion object : SimpleTypeSerializer<XSNMTokens>("xs.IDS") {
+        override fun deserialize(raw: String, input: XmlReader?): XSNMTokens {
             val members = raw.rawStringToCollapsedSequence()
-                .map { XSIDRefImpl(it) }
+                .map { XSNMTokenImpl(it) }
                 .toList()
-            return XSIDRefsImpl(members)
+            return XSNMTokensImpl(members)
         }
     }
 }

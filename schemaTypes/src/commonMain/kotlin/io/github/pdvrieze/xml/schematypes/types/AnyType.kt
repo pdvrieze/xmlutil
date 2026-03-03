@@ -22,7 +22,6 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.toCName
 
 interface AnyType {
     val name: XSQName?
@@ -33,6 +32,6 @@ interface AnyType {
         override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "any", "xs")
         override val baseType: AnyType get() = this
 
-        override fun toString(): String = name.toCName()
+        override fun toString(): String = "xs:any"
     }
 }

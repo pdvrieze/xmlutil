@@ -20,27 +20,33 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.impl.ListHelper
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.impl.rawStringToCollapsedSequence
-import io.github.pdvrieze.xml.schematypes.types.IDRefsType
-import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefImpl
-import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefsImpl
+import io.github.pdvrieze.xml.schematypes.types.YearMonthDurationType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSYearMonthDurationImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
-@Serializable(XSIDRefs.Companion::class)
-interface XSIDRefs: XSAnySimple, ListHelper<XSIDRef> {
-    override val type: IDRefsType<*, *> get() = IDRefsType.Instance
+@Serializable(XSYearMonthDuration.Companion::class)
+interface XSYearMonthDuration : XSDuration {
 
-    companion object : SimpleTypeSerializer<XSIDRefs>("xs.IDS") {
-        override fun deserialize(raw: String, input: XmlReader?): XSIDRefs {
-            val members = raw.rawStringToCollapsedSequence()
-                .map { XSIDRefImpl(it) }
-                .toList()
-            return XSIDRefsImpl(members)
+    override val type: YearMonthDurationType<*> get() = YearMonthDurationType.Instance
+
+    override val seconds: Double get() = 0.0
+
+    companion object : SimpleTypeSerializer<XSYearMonthDuration>("xsd.dateTimeDuration") {
+
+        operator fun invoke(str: String): XSYearMonthDuration {
+            return XSYearMonthDurationImpl.Companion(str)
+        }
+
+        operator fun invoke(months: Long): XSYearMonthDuration {
+            return XSYearMonthDurationImpl(months)
+        }
+
+        override fun deserialize(raw: String, input: XmlReader?): XSYearMonthDuration {
+            return invoke(raw)
         }
     }
 }

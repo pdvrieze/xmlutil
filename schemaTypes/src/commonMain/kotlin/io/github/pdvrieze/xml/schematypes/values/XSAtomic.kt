@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
 interface XSAtomic : XSAnySimple {
+    override val type: AnyAtomicType<XSAtomic>
 }

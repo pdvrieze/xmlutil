@@ -21,14 +21,17 @@
 package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XSAtomic
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface AnyAtomicType : AnySimpleType.AtomicOrUnion {
-    object Instance: AnyAtomicType, BuiltinAtomicType<XSAtomic> {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "anyAtomicType", "xs")
-        override val baseType: AnySimpleType get() = AnySimpleType.Instance
+interface AnyAtomicType<out T : XSAnySimple> : AnySimpleType.AtomicOrUnion<T> {
+    override val baseType: AnySimpleType<*>
+
+    object Instance : AnyAtomicType<XSAtomic>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "anyAtomicType", "xs")
+        override val baseType: AnySimpleType<XSAnySimple> get() = AnySimpleType.Instance
 
         override val ordered: FacetOrdered get() = FacetOrdered.FALSE
         override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED

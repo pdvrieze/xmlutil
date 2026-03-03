@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSIDRef
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface IDRefType : BuiltinAtomicType<XSIDRef> {
-    override val baseType: NCNameType get() = NCNameType.Instance
+interface IDRefType<out T : XSIDRef> : NCNameType<T> {
+    override val baseType: NCNameType<*> get() = NCNameType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: IDRefType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "IDREF", "xs")
+    object Instance: IDRefType<XSIDRef>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "IDREF", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

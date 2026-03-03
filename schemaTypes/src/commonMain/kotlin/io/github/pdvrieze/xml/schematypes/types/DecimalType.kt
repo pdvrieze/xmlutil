@@ -26,21 +26,20 @@ import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DecimalType : BuiltinPrimitiveDatatype<XSDecimal> {
-    override val baseType: AnyAtomicType get() = AnyAtomicType.Instance
+interface DecimalType<out T: XSDecimal> : PrimitiveDatatype<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: DecimalType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "decimal", "xs")
+    object Instance: DecimalType<XSDecimal>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "decimal", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.IDRefType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSIDRefImpl
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
@@ -30,6 +31,8 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(XSIDRef.Companion::class)
 interface XSIDRef : XSNCName {
+
+    override val type: IDRefType<*> get() = IDRefType.Instance
 
     companion object : SimpleTypeSerializer<XSIDRef>("xs.IDREF") {
         override fun deserialize(decoder: Decoder): XSIDRef {
