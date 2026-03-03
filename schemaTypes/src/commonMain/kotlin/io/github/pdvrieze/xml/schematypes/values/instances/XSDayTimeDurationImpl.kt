@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.values.XSDayTimeDuration
 
 class XSDayTimeDurationImpl(val millis: Long) : XSDayTimeDuration {
@@ -84,6 +85,9 @@ class XSDayTimeDurationImpl(val millis: Long) : XSDayTimeDuration {
                 append("0D") // no days as zero value
             }
         }
+
+    // TODO implement DayTimeDuration and YearMonthDuration
+    override val schemaType: DayTimeDurationType<XSDayTimeDuration> get() = DayTimeDurationType.Instance
 
     companion object {
         operator fun invoke(representation: String): XSDayTimeDurationImpl {

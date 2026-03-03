@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 @Serializable(XSIDRef.Companion::class)
 interface XSIDRef : XSNCName {
 
-    override val type: IDRefType<*> get() = IDRefType.Instance
+    override val schemaType: IDRefType<XSIDRef>
 
     companion object : SimpleTypeSerializer<XSIDRef>("xs.IDREF") {
         override fun deserialize(decoder: Decoder): XSIDRef {

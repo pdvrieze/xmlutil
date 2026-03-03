@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.StringType
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSString
 
@@ -32,6 +33,7 @@ class XSPrefixString(val namespace: String, val prefix: String, val localname: S
             prefix.isEmpty() -> localname
             else -> "$prefix:$localname"
         }
+    override val schemaType: StringType<*> get() = StringType.Instance
 
     fun toQName(): XSQName = XSQName(namespace, localname, prefix)
 

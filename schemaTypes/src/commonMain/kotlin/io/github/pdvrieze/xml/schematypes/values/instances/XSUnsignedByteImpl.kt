@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.UnsignedByteType
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedByte
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 internal class XSUnsignedByteImpl(override val uByteValue: UByte) : XSUnsignedByte {
     override val xmlString: String get() = uByteValue.toString()
+    override val schemaType: UnsignedByteType<*> get() = UnsignedByteType.Instance
 
     override fun toString(): String {
         return "${uByteValue}u"

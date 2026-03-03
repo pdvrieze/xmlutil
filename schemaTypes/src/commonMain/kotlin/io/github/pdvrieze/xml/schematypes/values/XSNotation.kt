@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.*
 @Serializable(XSNotation.Companion::class)
 interface XSNotation: XSAtomic {
 
-    override val type: NotationType<*> get() = NotationType.Instance
+    override val schemaType: NotationType<XSNotation>
 
     /**
      * Retrieve the prefix for this QName.
@@ -125,6 +125,8 @@ class XSNotationImpl(
     localPart: String,
     prefix: String = "",
 ) : QName(namespaceUri, localPart, prefix), XSNotation {
+
+    override val schemaType: NotationType<*> get() = NotationType.Instance
 
     constructor(localPart: String) : this("", localPart)
 }

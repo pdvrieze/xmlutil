@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.isNCName
+import io.github.pdvrieze.xml.schematypes.types.IDType
 import io.github.pdvrieze.xml.schematypes.values.XSID
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,8 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 @JvmInline
 value class XSIDImpl(override val xmlString: String) : XSID {
+
+    override val schemaType: IDType<*> get() = IDType.Instance
 
     init {
         require(xmlString.isNCName()) { "ID must be a valid NCName" }

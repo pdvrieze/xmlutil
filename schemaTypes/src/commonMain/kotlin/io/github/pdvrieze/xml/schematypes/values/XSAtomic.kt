@@ -25,5 +25,5 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
 interface XSAtomic : XSAnySimple {
-    override val type: AnyAtomicType<XSAtomic>
+    override val schemaType: AnyAtomicType<XSAtomic>
 }

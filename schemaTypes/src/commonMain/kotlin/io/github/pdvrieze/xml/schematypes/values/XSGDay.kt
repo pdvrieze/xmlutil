@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 @Serializable(XSGDay.Companion::class)
 interface XSGDay : IXSDateTime {
 
-    override val type: GDayType<*> get() = GDayType.Instance
+    override val schemaType: GDayType<XSGDay>
 
     override val day: UInt
 

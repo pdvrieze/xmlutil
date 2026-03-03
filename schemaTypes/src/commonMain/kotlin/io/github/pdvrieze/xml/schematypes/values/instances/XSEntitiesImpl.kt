@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.EntitiesType
 import io.github.pdvrieze.xml.schematypes.values.XSEntities
 import io.github.pdvrieze.xml.schematypes.values.XSEntity
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -34,5 +35,6 @@ class XSEntitiesImpl(val members: List<XSEntity>) : XSEntities {
     }
 
     override val size: Int get() = members.size
+    override val schemaType: EntitiesType<*, *> get() = EntitiesType.Instance
 }
 

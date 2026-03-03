@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 @ExperimentalXmlUtilApi
 @Serializable(XSAnyURI.Companion::class)
 interface XSAnyURI : XSAtomic, CharSequence {
-    override val type: AnyURIType<*> get() = AnyURIType.Instance
+    override val schemaType: AnyURIType<XSAnyURI>
 
     val value: String get() = xmlString.toString()
 

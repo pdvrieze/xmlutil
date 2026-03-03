@@ -22,12 +22,12 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSAtomic
+import io.github.pdvrieze.xml.schematypes.values.XSByteArray
 import io.github.pdvrieze.xml.schematypes.values.XSHexBinary
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface HexBinaryType<out T : XSAtomic> : PrimitiveDatatype<T> {
+interface HexBinaryType<out T : XSByteArray> : PrimitiveDatatype<T> {
 
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE

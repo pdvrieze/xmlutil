@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -61,6 +62,7 @@ open class XSDateTimeImpl(
         else ->
             "${yearFrag()}-${monthFrag()}-${dayFrag()}T${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
     }
+    override val schemaType: DateTimeType<XSDateTime> get() = DateTimeType.Instance
 
     companion object {
         internal fun timezoneFragValue(tz: String): Int? {

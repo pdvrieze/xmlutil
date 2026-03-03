@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @Serializable(XSNonNegativeInteger.Companion::class)
 interface XSNonNegativeInteger : XSInteger {
 
-    override val type: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
+    override val schemaType: NonNegativeIntegerType<XSNonNegativeInteger>
 
     fun toULong(): ULong
     fun toUInt(): UInt

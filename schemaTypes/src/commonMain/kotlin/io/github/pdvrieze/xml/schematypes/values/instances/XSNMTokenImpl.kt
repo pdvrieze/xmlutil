@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.NMTokenType
 import io.github.pdvrieze.xml.schematypes.values.XSNMToken
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,5 +29,6 @@ import kotlin.jvm.JvmInline
 @JvmInline
 value class XSNMTokenImpl internal constructor(override val xmlString: String) : XSNMToken {
 
+    override val schemaType: NMTokenType<*> get() = NMTokenType.Instance
     override fun toString(): String = xmlString
 }

@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.*
 @Serializable(XSString.Companion::class)
 interface XSString : XSAtomic, CharSequence {
 
-    override val type: StringType<*> get() = StringType.Instance
+    override val schemaType: StringType<XSString>
 
     override val length: Int get() = xmlString.length
 

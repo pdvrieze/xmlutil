@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSIDRefs.Companion::class)
 interface XSIDRefs: XSAnySimple, ListHelper<XSIDRef> {
-    override val type: IDRefsType<*, *> get() = IDRefsType.Instance
+    override val schemaType: IDRefsType<XSIDRefs, XSIDRef>
 
     companion object : SimpleTypeSerializer<XSIDRefs>("xs.IDS") {
         override fun deserialize(raw: String, input: XmlReader?): XSIDRefs {

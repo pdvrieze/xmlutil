@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.types.GYearMonthType
 import io.github.pdvrieze.xml.schematypes.values.XSGYearMonth
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -59,6 +60,7 @@ value class XSGYearMonthImpl(val monthYear: ULong) : XSGYearMonth {
     }
 
     override val xmlString: String get() = "${yearFrag()}-${monthFrag()}${timeZoneFrag()}"
+    override val schemaType: GYearMonthType<*> get() = GYearMonthType.Instance
 
     override fun toString(): String = xmlString
 

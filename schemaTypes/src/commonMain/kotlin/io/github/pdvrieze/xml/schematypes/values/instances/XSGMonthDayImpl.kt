@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.types.GMonthDayType
 import io.github.pdvrieze.xml.schematypes.values.XSGMonthDay
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -65,6 +66,7 @@ value class XSGMonthDayImpl(val monthdayVal: UInt) : XSGMonthDay {
     }
 
     override val xmlString: String get() = "--${monthFrag()}-${dayFrag()}"
+    override val schemaType: GMonthDayType<*> get() = GMonthDayType.Instance
 
     override fun toString(): String = xmlString
 

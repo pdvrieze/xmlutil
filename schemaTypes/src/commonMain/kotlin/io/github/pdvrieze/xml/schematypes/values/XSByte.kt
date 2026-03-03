@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSByte.Companion::class)
 @ExperimentalXmlUtilApi
 interface XSByte : XSShort {
-    override val type: ByteType<*> get() = ByteType.Instance
+    override val schemaType: ByteType<XSByte>
 
     val byteValue: Byte
     override val shortValue: Short get() = byteValue.toShort()

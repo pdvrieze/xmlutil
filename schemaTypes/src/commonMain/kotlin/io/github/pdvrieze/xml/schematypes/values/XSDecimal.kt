@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @ExperimentalXmlUtilApi
 @Serializable(XSDecimal.Companion::class)
 interface XSDecimal : XSAtomic {
-    override val type: DecimalType<*> get() = DecimalType.Instance
+    override val schemaType: DecimalType<XSDecimal>
 
     fun toLong(): Long
     fun toInt(): Int

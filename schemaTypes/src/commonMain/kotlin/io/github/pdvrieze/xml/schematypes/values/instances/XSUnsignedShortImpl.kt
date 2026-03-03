@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.UnsignedShortType
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedShort
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 internal class XSUnsignedShortImpl(override val uShortValue: UShort) : XSUnsignedShort {
     override val xmlString: String get() = uIntValue.toString()
+    override val schemaType: UnsignedShortType<*> get() = UnsignedShortType.Instance
 
     override fun toString(): String {
         return "${uShortValue}u"

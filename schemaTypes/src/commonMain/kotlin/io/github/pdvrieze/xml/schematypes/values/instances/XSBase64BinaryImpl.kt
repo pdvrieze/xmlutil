@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.ListHelper
+import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.XSBase64Binary
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.io.encoding.Base64
@@ -34,6 +35,8 @@ value class XSBase64BinaryImpl(override val value: ByteArray) : XSBase64Binary, 
     override val xmlString: String get() = Base64.encode(value)
 
     override fun get(index: Int): Byte = value[index]
+
+    override val schemaType: Base64BinaryType<XSBase64Binary> get() = Base64BinaryType.Instance
 
     override val size: Int get() = value.size
 

@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 @XmlUtilInternal
 interface XSShort : XSInt {
 
-    override val type: ShortType<*> get() = ShortType.Instance
+    override val schemaType: ShortType<XSShort>
 
     val shortValue: Short
     override val intValue: Int get() = shortValue.toInt()

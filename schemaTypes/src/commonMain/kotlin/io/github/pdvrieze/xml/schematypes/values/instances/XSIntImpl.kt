@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.IntType
 import io.github.pdvrieze.xml.schematypes.values.XSInt
 import io.github.pdvrieze.xml.schematypes.values.XSInteger
 import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
 
 internal class XSIntImpl(override val intValue: Int) : XSInt {
     override val xmlString: String get() = intValue.toString()
+    override val schemaType: IntType<*> get() = IntType.Instance
 
     override fun toString(): String = xmlString
 

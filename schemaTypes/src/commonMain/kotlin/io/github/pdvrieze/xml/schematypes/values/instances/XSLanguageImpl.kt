@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.LanguageType
 import io.github.pdvrieze.xml.schematypes.values.XSLanguage
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,8 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 value class XSLanguageImpl internal constructor(override val xmlString: String) :
     XSLanguage {
+
+    override val schemaType: LanguageType<*> get() = LanguageType.Instance
 
     init {
         // required pattern: "[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"

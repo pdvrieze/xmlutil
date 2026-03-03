@@ -20,10 +20,12 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.values.XSBoolean
 
 interface FacetBounded : FundamentalFacet, XSBoolean {
     val isBounded: Boolean
+    override val schemaType: BooleanType<*> get() = BooleanType.Instance
 
     private enum class Bounded(override val xmlString: String): FacetBounded {
         FALSE("false") {

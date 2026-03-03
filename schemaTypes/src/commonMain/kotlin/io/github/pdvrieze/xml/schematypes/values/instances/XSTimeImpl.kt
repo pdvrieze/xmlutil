@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.types.TimeType
 import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 import io.github.pdvrieze.xml.schematypes.values.XSTime
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedInt
@@ -78,6 +79,7 @@ value class XSTimeImpl private constructor(val msecVal: ULong) : XSTime {
         }
 
     override val xmlString: String get() = "${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
+    override val schemaType: TimeType<*> get() = TimeType.Instance
 
     override fun toString(): String = xmlString
 

@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
+import io.github.pdvrieze.xml.schematypes.types.GYearType
 import io.github.pdvrieze.xml.schematypes.values.XSGYear
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -51,6 +52,7 @@ value class XSGYearImpl(val yearVal: UInt) : XSGYear {
 
 
     override val xmlString: String get() = "${yearFrag()}${timeZoneFrag()}"
+    override val schemaType: GYearType<*> get() = GYearType.Instance
 
     companion object {
         operator fun invoke(str: String): XSGYearImpl {

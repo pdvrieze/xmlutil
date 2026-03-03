@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(with = XSEntity.Companion::class)
 interface XSEntity : XSNCName {
-    override val type: EntityType<*> get() = EntityType.Instance
+    override val schemaType: EntityType<XSEntity>
 
     companion object : SimpleTypeSerializer<XSEntity>("xs.ENTITY") {
         operator fun invoke(value: String) = XSEntityImpl(value)

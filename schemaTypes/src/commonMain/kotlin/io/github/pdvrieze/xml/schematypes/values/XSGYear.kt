@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 @ExperimentalXmlUtilApi
 interface XSGYear : IXSDateTime {
 
-    override val type: GYearType<*> get() = GYearType.Instance
+    override val schemaType: GYearType<XSGYear>
 
     override val year: Int
 

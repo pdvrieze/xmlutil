@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @Serializable(XSBoolean.Companion::class)
 @ExperimentalXmlUtilApi
 interface XSBoolean : XSAtomic {
-    override val type: BooleanType<*> get() = BooleanType.Instance
+    override val schemaType: BooleanType<XSBoolean>
     val value: Boolean
 
     companion object : KSerializer<XSBoolean> {

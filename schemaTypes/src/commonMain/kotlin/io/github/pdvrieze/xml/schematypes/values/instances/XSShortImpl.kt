@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.ShortType
 import io.github.pdvrieze.xml.schematypes.values.XSInteger
 import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XSShort
 
 internal class XSShortImpl(override val shortValue: Short) : XSShort {
     override val xmlString: String get() = intValue.toString()
+    override val schemaType: ShortType<*> get() = ShortType.Instance
 
     override fun toString(): String = xmlString
 

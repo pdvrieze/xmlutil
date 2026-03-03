@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 @XmlUtilInternal
 interface XSLong : XSInteger {
 
-    override val type: LongType<*> get() = LongType.Instance
+    override val schemaType: LongType<XSLong>
 
     val longValue: Long
 

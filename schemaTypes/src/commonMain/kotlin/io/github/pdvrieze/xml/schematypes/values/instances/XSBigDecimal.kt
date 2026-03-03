@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.DecimalType
 import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 interface XSBigDecimal : Comparable<XSDecimal>, XSDecimal {
     val isInteger: Boolean get() = '.' !in xmlString
+    override val schemaType: DecimalType<*> get() = DecimalType.Instance
 
     override fun toVDecimal(): XSBigDecimal = this
 

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.XSDouble
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,7 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 value class XSDoubleImpl(override val value: Double): XSDouble {
     override val xmlString: String get() = value.toString()
+    override val schemaType: DoubleType<*> get() = DoubleType.Instance
 
     override fun toString(): String = xmlString
 }

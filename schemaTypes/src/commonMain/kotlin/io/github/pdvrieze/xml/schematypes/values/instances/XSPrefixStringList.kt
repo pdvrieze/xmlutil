@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.StringType
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -32,6 +33,7 @@ class XSPrefixStringList(val elems: List<XSString>) :
     XSString {
     override val xmlString: String
         get() = elems.joinToString(" ")
+    override val schemaType: StringType<*> get() = StringType.Instance
 
     fun toQNames(): List<XSQName> = elems.mapNotNull {
         when {

@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSLanguage.Companion::class)
 interface XSLanguage: XSToken {
 
-    override val type: LanguageType<*> get() = LanguageType.Instance
+    override val schemaType: LanguageType<XSLanguage>
 
     companion object : SimpleTypeSerializer<XSLanguage>("xs.language") {
 

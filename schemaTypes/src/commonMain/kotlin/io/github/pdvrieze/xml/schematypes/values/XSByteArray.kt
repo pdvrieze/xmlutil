@@ -20,11 +20,12 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
 interface XSByteArray : XSAtomic, List<Byte> {
-    // TODO split between base64 and hex
+    override val schemaType: AnyAtomicType<XSByteArray>
 
     val value: ByteArray
 

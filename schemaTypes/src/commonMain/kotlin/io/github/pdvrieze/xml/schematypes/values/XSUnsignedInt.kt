@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @Serializable(XSUnsignedInt.Companion::class)
 interface XSUnsignedInt : XSUnsignedLong {
 
-    override val type: UnsignedIntType<*> get() = UnsignedIntType.Instance
+    override val schemaType: UnsignedIntType<XSUnsignedInt>
 
     val uIntValue: UInt
     override val uLongValue: ULong

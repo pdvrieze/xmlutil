@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSID.Companion::class)
 interface XSID : XSNCName {
 
-    override val type: IDType<*> get() = IDType.Instance
+    override val schemaType: IDType<XSID>
 
     companion object : SimpleTypeSerializer<XSID>("ID") {
         override fun deserialize(raw: String, input: XmlReader?): XSID {

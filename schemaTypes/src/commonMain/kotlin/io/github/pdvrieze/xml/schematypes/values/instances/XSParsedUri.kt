@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.values.XSAnyURI
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -114,6 +115,8 @@ class XSParsedUri(str: String) : XSAnyURI {
         }
 
     override val length: Int get() = xmlString.length
+
+    override val schemaType: AnyURIType<*> get() = AnyURIType.Instance
 
     override fun get(index: Int): Char = xmlString.get(index)
 
