@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.TokenType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSTokenImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -29,6 +30,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(XSToken.Companion::class)
 interface XSToken : XSNormalizedString {
+    override val type: TokenType<*> get() = TokenType.Instance
 
     @OptIn(XmlUtilInternal::class)
     companion object : SimpleTypeSerializer<XSToken>("xsd.token") {

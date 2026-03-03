@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,21 +21,27 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.values.instances.XSEntityImpl
+import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSBase64BinaryImpl
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
+import kotlin.io.encoding.Base64
 
-@Serializable(with = XSEntity.Companion::class)
-interface XSEntity : XSNCName {
+@ExperimentalXmlUtilApi
+@Serializable(XSBase64Binary.Companion::class)
+interface XSBase64Binary : XSByteArray {
+    override val type: Base64BinaryType<*> get() = Base64BinaryType.Instance
 
-    companion object : SimpleTypeSerializer<XSEntity>("xs.ENTITY") {
-        operator fun invoke(value: String) = XSEntityImpl(value)
+    companion object : SimpleTypeSerializer<XSBase64Binary>("xsd.base64Binary") {
 
-        override fun deserialize(raw: String, input: XmlReader?): XSEntity {
-            return XSEntityImpl(xmlCollapseWhitespace(raw))
+        override fun deserialize(
+            raw: String,
+            input: XmlReader?
+        ): XSBase64Binary {
+            return XSBase64BinaryImpl(Base64.Default.decode(raw))
         }
+
     }
 
 }
-

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.DurationType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSDurationImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -30,6 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSDuration.Companion::class)
 interface XSDuration : XSAtomic {
     // TODO implement DayTimeDuration and YearMonthDuration
+    override val type: DurationType<XSDuration> get() = DurationType.Instance
 
     val months: Long
     val seconds: Double
@@ -49,5 +51,3 @@ interface XSDuration : XSAtomic {
         }
     }
 }
-
-

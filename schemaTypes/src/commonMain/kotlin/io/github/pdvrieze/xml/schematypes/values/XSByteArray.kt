@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,13 +20,13 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
-@XmlUtilInternal
-interface XSBigDecimal : Comparable<XSDecimal>, XSDecimal {
-    val isInteger: Boolean get() = '.' !in xmlString
+@ExperimentalXmlUtilApi
+interface XSByteArray : XSAtomic, List<Byte> {
+    // TODO split between base64 and hex
 
-    override fun toVDecimal(): XSBigDecimal = this
+    val value: ByteArray
 
-    operator fun compareTo(other: XSBigDecimal): Int
 }
+

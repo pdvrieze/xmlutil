@@ -18,8 +18,24 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.types
+package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
+import io.github.pdvrieze.xml.schematypes.impl.ListHelper
+import io.github.pdvrieze.xml.schematypes.values.XSHexBinary
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.jvm.JvmInline
 
-interface BuiltinAtomicType<out T: XSAnySimple> : AnyAtomicType, BuiltinSimpleType<T>
+@JvmInline
+@XmlUtilInternal
+@OptIn(ExperimentalEncodingApi::class)
+value class XSHexBinaryImpl(override val value: ByteArray) : XSHexBinary, ListHelper<Byte> {
+    override val xmlString: String get() = Base64.Default.encode(value)
+
+    override fun get(index: Int): Byte = value[index]
+
+    override val size: Int get() = value.size
+
+    override fun toString(): String = xmlString
+}

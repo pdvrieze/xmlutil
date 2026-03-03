@@ -22,26 +22,26 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSByteArray
+import io.github.pdvrieze.xml.schematypes.values.XSAtomic
+import io.github.pdvrieze.xml.schematypes.values.XSHexBinary
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface HexBinaryType : BuiltinPrimitiveDatatype<XSByteArray> {
+interface HexBinaryType<out T : XSAtomic> : PrimitiveDatatype<T> {
 
-    override val baseType: AnyAtomicType get() = AnyAtomicType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: HexBinaryType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "hexBinary", "xs")
+    object Instance: HexBinaryType<XSHexBinary>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "hexBinary", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

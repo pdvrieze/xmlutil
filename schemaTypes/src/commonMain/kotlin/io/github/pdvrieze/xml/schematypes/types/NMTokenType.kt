@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSNMToken
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NMTokenType : BuiltinAtomicType<XSNMToken> {
-    override val baseType: TokenType get() = TokenType.Instance
+interface NMTokenType<out T : XSNMToken> : TokenType<T> {
+    override val baseType: TokenType<*> get() = TokenType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: NMTokenType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "NMTOKEN", "xs")
+    object Instance: NMTokenType<XSNMToken>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "NMTOKEN", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

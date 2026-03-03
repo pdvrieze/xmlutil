@@ -20,22 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.impl.ListHelper
-import io.github.pdvrieze.xml.schematypes.values.XSByteArray
+import io.github.pdvrieze.xml.schematypes.values.XSDecimal
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.jvm.JvmInline
 
-@JvmInline
 @XmlUtilInternal
-@OptIn(ExperimentalEncodingApi::class)
-value class XSByteArrayImpl(override val value: ByteArray) : XSByteArray, ListHelper<Byte> {
-    override val xmlString: String get() = Base64.encode(value)
+interface XSBigDecimal : Comparable<XSDecimal>, XSDecimal {
+    val isInteger: Boolean get() = '.' !in xmlString
 
-    override fun get(index: Int): Byte = value[index]
+    override fun toVDecimal(): XSBigDecimal = this
 
-    override val size: Int get() = value.size
-
-    override fun toString(): String = xmlString
+    operator fun compareTo(other: XSBigDecimal): Int
 }

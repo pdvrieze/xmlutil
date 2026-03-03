@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedLong
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedLongType : BuiltinAtomicType<XSUnsignedLong> {
-    override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType.Instance
+interface UnsignedLongType<out T : XSUnsignedLong> : NonNegativeIntegerType<XSUnsignedLong> {
+    override val baseType: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedLongType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "unsignedLong", "xs")
+    object Instance: UnsignedLongType<XSUnsignedLong>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "unsignedLong", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

@@ -22,25 +22,25 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSDuration
 import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XSYearMonthDuration
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface YearMonthDurationType : AnyAtomicType, BuiltinAtomicType<XSDuration> {
-    override val baseType: DurationType get() = DurationType.Instance
+interface YearMonthDurationType<out T : XSYearMonthDuration> : DurationType<T> {
+    override val baseType: DurationType<*> get() = DurationType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: YearMonthDurationType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "yearMonthDuration", "xs")
+    object Instance: YearMonthDurationType<XSYearMonthDuration>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "yearMonthDuration", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.GYearType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSGYearImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -28,6 +29,9 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 @Serializable(with = XSGYear.Companion::class)
 @ExperimentalXmlUtilApi
 interface XSGYear : IXSDateTime {
+
+    override val type: GYearType<*> get() = GYearType.Instance
+
     override val year: Int
 
     override val day: Nothing? get() = null

@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSQName
 import io.github.pdvrieze.xml.schematypes.values.XSShort
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface ShortType : BuiltinAtomicType<XSShort> {
-    override val baseType: IntType get() = IntType.Instance
+interface ShortType<out T : XSShort> : IntType<T> {
+    override val baseType: IntType<*> get() = IntType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : ShortType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "short", "xs")
+    object Instance : ShortType<XSShort>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "short", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

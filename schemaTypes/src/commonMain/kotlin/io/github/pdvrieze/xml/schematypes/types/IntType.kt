@@ -26,27 +26,27 @@ import io.github.pdvrieze.xml.schematypes.values.XSInt
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface IntType : BuiltinAtomicType<XSInt> {
-    override val baseType: LongType get() = LongType.Instance
+interface IntType<out T : XSInt> : LongType<T> {
+    override val baseType: LongType<*> get() = LongType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: IntType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "int", "xs")
+    object Instance : IntType<XSInt>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "int", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-                // pass null as this has an initialization loop. The value is pre-normalized.
+            // pass null as this has an initialization loop. The value is pre-normalized.
             FacetMaxInclusive.Companion(XSInt.Companion(Int.MAX_VALUE)),
             FacetMinInclusive.Companion(XSInt.Companion(Int.MIN_VALUE)),
         )

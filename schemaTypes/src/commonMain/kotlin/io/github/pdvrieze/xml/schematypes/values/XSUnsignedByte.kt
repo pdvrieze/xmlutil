@@ -21,15 +21,19 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.UnsignedByteType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSUnsignedByteImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @Serializable(XSUnsignedByte.Companion::class)
-interface XSUnsignedByte : XSUnsignedInt {
+interface XSUnsignedByte : XSUnsignedShort {
+
+    override val type: UnsignedByteType<*> get() = UnsignedByteType.Instance
+
     val uByteValue: UByte
-    val uShortValue: UShort get() = uByteValue.toUShort()
+    override val uShortValue: UShort get() = uByteValue.toUShort()
     override val uIntValue: UInt get() = uByteValue.toUInt()
     override val uLongValue: ULong get() = uByteValue.toULong()
 

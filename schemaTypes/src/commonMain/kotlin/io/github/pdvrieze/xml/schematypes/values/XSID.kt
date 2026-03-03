@@ -21,12 +21,16 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.IDType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSIDImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 
 @Serializable(XSID.Companion::class)
 interface XSID : XSNCName {
+
+    override val type: IDType<*> get() = IDType.Instance
+
     companion object : SimpleTypeSerializer<XSID>("ID") {
         override fun deserialize(raw: String, input: XmlReader?): XSID {
             return invoke(raw)

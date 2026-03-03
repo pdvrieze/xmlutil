@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSDoubleImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -29,6 +30,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSDouble.Companion::class)
 interface XSDouble: XSAtomic {
+    override val type: DoubleType<*> get() = DoubleType.Instance
+
     val value: Double
 
     companion object : SimpleTypeSerializer<XSDouble>("xsd.double") {

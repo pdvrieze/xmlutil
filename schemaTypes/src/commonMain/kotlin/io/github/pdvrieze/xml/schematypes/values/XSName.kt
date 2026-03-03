@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.isXmlName
 import io.github.pdvrieze.xml.schematypes.isXmlName10
+import io.github.pdvrieze.xml.schematypes.types.NameType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSNameImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -31,6 +32,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSName.Companion::class)
 interface XSName : XSToken {
+
+    override val type: NameType<*> get() = NameType.Instance
 
     companion object : SimpleTypeSerializer<XSName>("VName") {
         override fun deserialize(raw: String, input: XmlReader?): XSName {

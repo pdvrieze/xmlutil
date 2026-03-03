@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,29 +21,32 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.values.instances.XSByteArrayImpl
+import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSDayTimeDurationImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
-import kotlin.io.encoding.Base64
 
-@Serializable(XSByteArray.Companion::class)
 @ExperimentalXmlUtilApi
-interface XSByteArray : XSAtomic, List<Byte> {
-    // TODO split between base64 and hex
+@Serializable(XSDayTimeDuration.Companion::class)
+interface XSDayTimeDuration : XSDuration {
+    // TODO implement DayTimeDuration and YearMonthDuration
+    override val type: DayTimeDurationType<*> get() = DayTimeDurationType.Instance
 
-    val value: ByteArray
+    override val months: Long get() = 0L
 
-    companion object : SimpleTypeSerializer<XSByteArray>("xsd.byteArray") {
+    companion object : SimpleTypeSerializer<XSDayTimeDuration>("xsd.dayTimeDuration") {
 
-        override fun deserialize(
-            raw: String,
-            input: XmlReader?
-        ): XSByteArray {
-            return XSByteArrayImpl(Base64.Default.decode(raw))
+        operator fun invoke(str: String): XSDayTimeDuration {
+            return XSDayTimeDurationImpl.Companion(str)
         }
 
+        operator fun invoke(millis: Long): XSDayTimeDuration {
+            return XSDayTimeDurationImpl(millis)
+        }
+
+        override fun deserialize(raw: String, input: XmlReader?): XSDayTimeDuration {
+            return invoke(raw)
+        }
     }
-
 }
-

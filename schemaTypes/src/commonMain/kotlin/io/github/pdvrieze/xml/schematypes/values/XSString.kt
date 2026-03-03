@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.isNCName
+import io.github.pdvrieze.xml.schematypes.types.StringType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixString
 import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixStringList
 import io.github.pdvrieze.xml.schematypes.values.instances.XSStringImpl
@@ -31,6 +32,9 @@ import nl.adaptivity.xmlutil.*
 @ExperimentalXmlUtilApi
 @Serializable(XSString.Companion::class)
 interface XSString : XSAtomic, CharSequence {
+
+    override val type: StringType<*> get() = StringType.Instance
+
     override val length: Int get() = xmlString.length
 
     override fun get(index: Int): Char = xmlString[index]

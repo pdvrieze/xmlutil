@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.NCNameType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSNCNameImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.*
@@ -30,6 +31,8 @@ import kotlin.jvm.JvmName
 @ExperimentalXmlUtilApi
 @Serializable(XSNCName.Companion::class)
 interface XSNCName : XSName {
+
+    override val type: NCNameType<*> get() = NCNameType.Instance
 
     fun toQname(targetNamespace: XSAnyURI?): QName {
         return QName(targetNamespace?.value ?: "", xmlString.toString())

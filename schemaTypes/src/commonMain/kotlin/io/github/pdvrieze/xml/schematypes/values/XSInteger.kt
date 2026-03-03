@@ -21,6 +21,8 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.IntegerType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSBigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XSDecimalStringImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSIntImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSLongImpl
@@ -31,6 +33,9 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSInteger.Companion::class)
 interface XSInteger : XSDecimal {
+
+    override val type: IntegerType<*> get() = IntegerType.Instance
+
     override fun toLong(): Long
     override fun toInt(): Int
 

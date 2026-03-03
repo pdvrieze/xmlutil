@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.NormalizedStringType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSNormalizedStringImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -30,6 +31,9 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSNormalizedString.Companion::class)
 interface XSNormalizedString : XSString {
+
+    override val type: NormalizedStringType<*> get() = NormalizedStringType.Instance
+
     companion object : SimpleTypeSerializer<XSNormalizedString>("xsd.normalizedString") {
         operator fun invoke(string: String): XSNormalizedString {
             return XSNormalizedStringImpl(WhitespaceValue.REPLACE.normalize(XSString(string)).xmlString.toString())

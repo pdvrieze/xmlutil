@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.LanguageType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSLanguageImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -29,6 +30,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSLanguage.Companion::class)
 interface XSLanguage: XSToken {
+
+    override val type: LanguageType<*> get() = LanguageType.Instance
 
     companion object : SimpleTypeSerializer<XSLanguage>("xs.language") {
 

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.ByteType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSByteImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -29,6 +30,8 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSByte.Companion::class)
 @ExperimentalXmlUtilApi
 interface XSByte : XSShort {
+    override val type: ByteType<*> get() = ByteType.Instance
+
     val byteValue: Byte
     override val shortValue: Short get() = byteValue.toShort()
     override val intValue: Int get() = shortValue.toInt()

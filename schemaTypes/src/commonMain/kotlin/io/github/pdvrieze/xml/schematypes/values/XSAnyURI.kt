@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSParsedUri
 import io.github.pdvrieze.xml.schematypes.values.instances.XSRelaxedUri
 import kotlinx.serialization.Serializable
@@ -31,6 +32,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 @ExperimentalXmlUtilApi
 @Serializable(XSAnyURI.Companion::class)
 interface XSAnyURI : XSAtomic, CharSequence {
+    override val type: AnyURIType<*> get() = AnyURIType.Instance
 
     val value: String get() = xmlString.toString()
 

@@ -22,4 +22,4 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
 
-interface BuiltinSimpleType<out T : XSAnySimple> : AnySimpleType, BuiltinType
+interface XXXBuiltinSimpleType<out T : XSAnySimple> : AnySimpleType<T>, BuiltinType

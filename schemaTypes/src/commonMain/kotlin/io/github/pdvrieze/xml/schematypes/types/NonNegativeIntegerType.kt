@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NonNegativeIntegerType : BuiltinAtomicType<XSNonNegativeInteger> {
-    override val baseType: IntegerType get() = IntegerType.Instance
+interface NonNegativeIntegerType<out T : XSNonNegativeInteger> : IntegerType<T> {
+    override val baseType: IntegerType<*> get() = IntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: NonNegativeIntegerType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "nonNegativeInteger", "xs")
+    object Instance: NonNegativeIntegerType<XSNonNegativeInteger>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "nonNegativeInteger", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

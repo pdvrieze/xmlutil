@@ -26,21 +26,19 @@ import io.github.pdvrieze.xml.schematypes.values.XSBoolean
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface BooleanType : BuiltinPrimitiveDatatype<XSBoolean> {
-    override val baseType: AnyAtomicType get() = AnyAtomicType.Instance
-
+interface BooleanType<out T : XSBoolean> : PrimitiveDatatype<T> {
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: BooleanType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "boolean", "xs")
+    object Instance: BooleanType<XSBoolean>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "boolean", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, false)

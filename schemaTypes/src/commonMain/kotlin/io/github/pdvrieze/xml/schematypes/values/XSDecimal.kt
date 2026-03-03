@@ -21,6 +21,8 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.DecimalType
+import io.github.pdvrieze.xml.schematypes.values.instances.XSBigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XSDecimalStringImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSIntImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XSLongImpl
@@ -32,6 +34,8 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @ExperimentalXmlUtilApi
 @Serializable(XSDecimal.Companion::class)
 interface XSDecimal : XSAtomic {
+    override val type: DecimalType<*> get() = DecimalType.Instance
+
     fun toLong(): Long
     fun toInt(): Int
     fun toDouble(): Double = xmlString.toString().toDouble()

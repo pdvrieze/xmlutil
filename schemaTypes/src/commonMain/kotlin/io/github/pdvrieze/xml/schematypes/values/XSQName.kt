@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.types.QNameType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
@@ -33,32 +34,46 @@ import nl.adaptivity.xmlutil.*
 
 // This implementation inherits QName to keep it easy.
 @Serializable(XSQName.Companion::class)
-class XSQName(
-    namespaceUri: String,
-    localPart: String,
-    prefix: String = "",
-) : QName(namespaceUri, localPart, prefix), XSAtomic {
+interface XSQName: XSAtomic {
 
-    constructor(localPart: String) : this("", localPart)
+    override val type: QNameType<*> get() = QNameType.Instance
+
+    /**
+     * Retrieve the prefix for this QName.
+     */
+    public fun getPrefix(): String
+
+    /**
+     * Retrieve the local part of this QName.
+     */
+    public fun getLocalPart(): String
+
+    /**
+     * Retrieve the namespace URI for this QName.
+     */
+    public fun getNamespaceURI(): String
 
     override val xmlString: CharSequence
         get() {
             return when {
-                namespaceURI.isEmpty() -> {
+                getNamespaceURI().isEmpty() -> {
                     when {
-                        prefix.isEmpty() -> this@XSQName.localPart
-                        else -> "$prefix:${this@XSQName.localPart}"
+                        getPrefix().isEmpty() -> getLocalPart()
+                        else -> "${getPrefix()}:${getLocalPart()}"
                     }
                 }
 
-                prefix.isEmpty() -> "Q{$namespaceURI}${this@XSQName.localPart}"
-                else -> {
-                    "$namespaceURI:${this@XSQName.localPart}"
-                }
+                getPrefix().isEmpty() -> "Q{${getNamespaceURI()}}${getLocalPart()}"
+
+                else -> "${getNamespaceURI()}:${getLocalPart()}"
             }
         }
 
     companion object: XmlSerializer<XSQName> {
+        operator fun invoke(namespaceUri: String, localPart: String, prefix: String = ""): XSQName =
+            XSQNameImpl(namespaceUri, localPart, prefix)
+
+        operator fun invoke(localPart: String): XSQName = XSQNameImpl(localPart)
 
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("xsd.QName") {
             element("namespaceUri", String.serializer().descriptor, isOptional = true)
@@ -68,13 +83,14 @@ class XSQName(
 
         @OptIn(ExperimentalSerializationApi::class)
         override fun serialize(encoder: Encoder, value: XSQName) {
-            QNameSerializer.serialize(encoder, value)
+            val qName = (value as? QName) ?: QName(value.getNamespaceURI(), value.getLocalPart(), value.getPrefix())
+            QNameSerializer.serialize(encoder, qName)
         }
 
         @OptIn(ExperimentalSerializationApi::class)
         override fun deserialize(decoder: Decoder): XSQName {
             val qName = QNameSerializer.deserialize(decoder)
-            return XSQName(qName.namespaceURI, qName.localPart, qName.prefix)
+            return XSQNameImpl(qName.namespaceURI, qName.localPart, qName.prefix)
         }
 
         override fun serializeXML(
@@ -83,7 +99,8 @@ class XSQName(
             value: XSQName,
             isValueChild: Boolean
         ) {
-            QNameSerializer.serializeXML(encoder, output, value, isValueChild)
+            val qName = (value as? QName) ?: QName(value.getNamespaceURI(), value.getLocalPart(), value.getPrefix())
+            QNameSerializer.serializeXML(encoder, output, qName, isValueChild)
         }
 
         override fun deserializeXML(
@@ -92,8 +109,22 @@ class XSQName(
             previousValue: XSQName?,
             isValueChild: Boolean
         ): XSQName {
-            val qName = QNameSerializer.deserializeXML(decoder, input, previousValue, isValueChild)
-            return XSQName(qName.namespaceURI, qName.localPart, qName.prefix)
+            val previousQName = previousValue?.let {
+                it as? QName
+                    ?: QName(it.getNamespaceURI(), it.getLocalPart(), it.getPrefix())
+            }
+
+            val qName = QNameSerializer.deserializeXML(decoder, input, previousQName, isValueChild)
+            return XSQNameImpl(qName.namespaceURI, qName.localPart, qName.prefix)
         }
     }
+
+}
+
+class XSQNameImpl(
+    namespaceUri: String,
+    localPart: String,
+    prefix: String = "",
+) : QName(namespaceUri, localPart, prefix), XSQName {
+    constructor(localPart: String) : this("", localPart)
 }

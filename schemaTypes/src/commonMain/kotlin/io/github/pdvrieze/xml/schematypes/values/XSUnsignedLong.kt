@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSUnsignedLongImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -30,6 +31,9 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @ExperimentalXmlUtilApi
 @Serializable(XSUnsignedLong.Companion::class)
 interface XSUnsignedLong : XSNonNegativeInteger {
+
+    override val type: UnsignedLongType<*> get() = UnsignedLongType.Instance
+
     val uLongValue: ULong
 
     override fun toLong(): Long = uLongValue.toLong()

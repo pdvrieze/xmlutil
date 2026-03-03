@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.GDayType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSGDayImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -28,6 +29,9 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 @XmlUtilInternal
 @Serializable(XSGDay.Companion::class)
 interface XSGDay : IXSDateTime {
+
+    override val type: GDayType<*> get() = GDayType.Instance
+
     override val day: UInt
 
     override val year: Nothing? get() = null

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSNonNegativeIntegerStringImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -29,6 +30,9 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @Serializable(XSNonNegativeInteger.Companion::class)
 interface XSNonNegativeInteger : XSInteger {
+
+    override val type: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
+
     fun toULong(): ULong
     fun toUInt(): UInt
 

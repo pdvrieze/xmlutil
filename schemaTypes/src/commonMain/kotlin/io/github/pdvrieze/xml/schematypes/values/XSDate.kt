@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.DateType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSDateImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -29,6 +30,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSDate.Companion::class)
 interface XSDate : IXSDateTime {
+    override val type: DateType<*> get() = DateType.Instance
 
     override val hour: Nothing? get() = null
     override val minute: Nothing? get() = null

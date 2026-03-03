@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.GMonthType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSGMonthImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -29,6 +30,9 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSGMonth.Companion::class)
 interface XSGMonth: IXSDateTime {
+
+    override val type: GMonthType<*> get() = GMonthType.Instance
+
     override val month: UInt
 
     override val year: Nothing? get() = null

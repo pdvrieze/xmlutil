@@ -26,21 +26,21 @@ import io.github.pdvrieze.xml.schematypes.values.XSDateTime
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DateTimeStampType : BuiltinAtomicType<XSDateTime>, AnyAtomicType {
-    override val baseType: DateTimeType get() = DateTimeType.Instance
+interface DateTimeStampType<out T : XSDateTime> : DateTimeType<T> {
+    override val baseType: DateTimeType<*> get() = DateTimeType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName get() = Instance.name
+    override val name: XSQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: DateTimeStampType {
-        override val name: XSQName get() = XSQName(XMLConstants.XSD_NS_URI, "dateTimeStamp", "xs")
+    object Instance: DateTimeStampType<XSDateTime>, BuiltinType {
+        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "dateTimeStamp", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

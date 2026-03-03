@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSBooleanImpl
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -34,7 +35,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @Serializable(XSBoolean.Companion::class)
 @ExperimentalXmlUtilApi
 interface XSBoolean : XSAtomic {
-
+    override val type: BooleanType<*> get() = BooleanType.Instance
     val value: Boolean
 
     companion object : KSerializer<XSBoolean> {

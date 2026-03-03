@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixString
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -33,7 +34,10 @@ interface XSAnySimple {
     // inherits any
     val xmlString: CharSequence
 
+    val type: AnySimpleType<XSAnySimple>
+
     private class Inst(val value: String) : XSAnySimple {
+        override val type: AnySimpleType<XSAnySimple> get() = AnySimpleType.Instance
         override val xmlString: String get() = value
 
         override fun toString(): String = xmlString
