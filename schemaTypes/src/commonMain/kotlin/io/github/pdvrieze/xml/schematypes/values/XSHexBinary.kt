@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSHexBinary.Companion::class)
 interface XSHexBinary : XSByteArray {
-    override val type: HexBinaryType<*> get() = HexBinaryType.Instance
+    override val schemaType: HexBinaryType<XSHexBinary>
 
     companion object : SimpleTypeSerializer<XSHexBinary>("xsd.hexBinary") {
 

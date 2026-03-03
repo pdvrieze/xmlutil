@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSTime.Companion::class)
 interface XSTime : IXSDateTime {
 
-    override val type: TimeType<*> get() = TimeType.Instance
+    override val schemaType: TimeType<XSTime>
 
     override val hour: UInt
     override val minute: UInt

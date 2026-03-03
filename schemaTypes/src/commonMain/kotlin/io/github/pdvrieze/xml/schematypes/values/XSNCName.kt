@@ -32,7 +32,7 @@ import kotlin.jvm.JvmName
 @Serializable(XSNCName.Companion::class)
 interface XSNCName : XSName {
 
-    override val type: NCNameType<*> get() = NCNameType.Instance
+    override val schemaType: NCNameType<XSNCName>
 
     fun toQname(targetNamespace: XSAnyURI?): QName {
         return QName(targetNamespace?.value ?: "", xmlString.toString())

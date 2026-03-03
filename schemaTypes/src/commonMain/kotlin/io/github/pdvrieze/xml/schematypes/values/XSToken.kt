@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(XSToken.Companion::class)
 interface XSToken : XSNormalizedString {
-    override val type: TokenType<*> get() = TokenType.Instance
+    override val schemaType: TokenType<XSToken>
 
     @OptIn(XmlUtilInternal::class)
     companion object : SimpleTypeSerializer<XSToken>("xsd.token") {

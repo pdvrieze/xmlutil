@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.types.GMonthType
 import io.github.pdvrieze.xml.schematypes.values.XSGMonth
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -54,6 +55,7 @@ value class XSGMonthImpl private constructor(val monthVal: UInt) : XSGMonth {
 
 
     override val xmlString: String get() = "--${monthFrag()}${timeZoneFrag()}"
+    override val schemaType: GMonthType<*> get() = GMonthType.Instance
 
     override fun toString(): String = xmlString
 

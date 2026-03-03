@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.ByteType
 import io.github.pdvrieze.xml.schematypes.values.XSByte
 import io.github.pdvrieze.xml.schematypes.values.XSInteger
 import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
 
 internal class XSByteImpl(override val byteValue: Byte) : XSByte {
     override val xmlString: String get() = intValue.toString()
+    override val schemaType: ByteType<XSByte> get() = ByteType.Instance
 
     override fun toString(): String = xmlString
 

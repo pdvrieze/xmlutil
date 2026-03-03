@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.YearMonthDurationType
 import io.github.pdvrieze.xml.schematypes.values.XSYearMonthDuration
 
 class XSYearMonthDurationImpl(override val months: Long) : XSYearMonthDuration {
@@ -62,6 +63,7 @@ class XSYearMonthDurationImpl(override val months: Long) : XSYearMonthDuration {
                 append(mo).append('M')
             }
         }
+    override val schemaType: YearMonthDurationType<*> get() = YearMonthDurationType.Instance
 
     companion object {
         operator fun invoke(representation: String): XSYearMonthDurationImpl {

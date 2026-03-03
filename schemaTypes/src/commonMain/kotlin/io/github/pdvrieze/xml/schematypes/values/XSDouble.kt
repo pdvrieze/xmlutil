@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSDouble.Companion::class)
 interface XSDouble: XSAtomic {
-    override val type: DoubleType<*> get() = DoubleType.Instance
+    override val schemaType: DoubleType<XSDouble>
 
     val value: Double
 

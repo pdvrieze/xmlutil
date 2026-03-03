@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.values.XSBoolean
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -30,6 +31,7 @@ value class XSBooleanImpl(override val value: Boolean): XSBoolean {
     operator fun not(): XSBooleanImpl = XSBooleanImpl(!value)
 
     override val xmlString: String get() = value.toString()
+    override val schemaType: BooleanType<XSBoolean> get() = BooleanType.Instance
 
     override fun toString(): String = xmlString
 }

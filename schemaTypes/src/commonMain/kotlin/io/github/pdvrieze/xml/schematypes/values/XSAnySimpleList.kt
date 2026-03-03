@@ -24,6 +24,6 @@ import io.github.pdvrieze.xml.schematypes.types.AnySimpleListType
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
 interface XSAnySimpleList<E: XSAnySimple> : XSAnySimple {
-    override val type: AnySimpleListType<XSAnySimpleList<E>, E>
-    val itemType: AnySimpleType<E> get() = type.itemType
+    override val schemaType: AnySimpleListType<XSAnySimpleList<E>, E>
+    val itemType: AnySimpleType<E> get() = schemaType.itemType
 }

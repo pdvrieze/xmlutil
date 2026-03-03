@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSNMToken.Companion::class)
 interface XSNMToken : XSToken {
 
-    override val type: NMTokenType<*> get() = NMTokenType.Instance
+    override val schemaType: NMTokenType<XSNMToken>
 
     companion object : SimpleTypeSerializer<XSNMToken>("xsd.NMTOKEN") {
         override fun deserialize(raw: String, input: XmlReader?): XSNMToken {

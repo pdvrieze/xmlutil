@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.values.XSAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -44,6 +45,8 @@ class XSRelaxedUri(override val xmlString: String) : XSAnyURI {
 
 
     override val length: Int get() = xmlString.length
+
+    override val schemaType: AnyURIType<*> get() = AnyURIType.Instance
 
     override fun get(index: Int): Char = xmlString.get(index)
 

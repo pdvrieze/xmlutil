@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSYearMonthDuration.Companion::class)
 interface XSYearMonthDuration : XSDuration {
 
-    override val type: YearMonthDurationType<*> get() = YearMonthDurationType.Instance
+    override val schemaType: YearMonthDurationType<XSYearMonthDuration>
 
     override val seconds: Double get() = 0.0
 

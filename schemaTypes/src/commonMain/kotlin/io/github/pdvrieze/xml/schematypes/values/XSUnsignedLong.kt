@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @Serializable(XSUnsignedLong.Companion::class)
 interface XSUnsignedLong : XSNonNegativeInteger {
 
-    override val type: UnsignedLongType<*> get() = UnsignedLongType.Instance
+    override val schemaType: UnsignedLongType<XSUnsignedLong>
 
     val uLongValue: ULong
 

@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSDayTimeDuration.Companion::class)
 interface XSDayTimeDuration : XSDuration {
     // TODO implement DayTimeDuration and YearMonthDuration
-    override val type: DayTimeDurationType<*> get() = DayTimeDurationType.Instance
+    override val schemaType: DayTimeDurationType<XSDayTimeDuration>
 
     override val months: Long get() = 0L
 

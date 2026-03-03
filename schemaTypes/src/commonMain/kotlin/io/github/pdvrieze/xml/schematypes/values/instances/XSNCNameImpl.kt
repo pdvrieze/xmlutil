@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.isNCName
 import io.github.pdvrieze.xml.schematypes.isNCName10
+import io.github.pdvrieze.xml.schematypes.types.NCNameType
 import io.github.pdvrieze.xml.schematypes.values.XSNCName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.XmlVersion
@@ -30,6 +31,8 @@ import kotlin.jvm.JvmInline
 @JvmInline
 @XmlUtilInternal
 value class XSNCNameImpl private constructor(override val xmlString: String) : XSNCName {
+
+    override val schemaType: NCNameType<*> get() = NCNameType.Instance
 
     init {
         // This can not go through NCNameType as VNCName is used in AtomicDatatype

@@ -34,10 +34,10 @@ interface XSAnySimple {
     // inherits any
     val xmlString: CharSequence
 
-    val type: AnySimpleType<XSAnySimple>
+    val schemaType: AnySimpleType<XSAnySimple>
 
     private class Inst(val value: String) : XSAnySimple {
-        override val type: AnySimpleType<XSAnySimple> get() = AnySimpleType.Instance
+        override val schemaType: AnySimpleType<XSAnySimple> get() = AnySimpleType.Instance
         override val xmlString: String get() = value
 
         override fun toString(): String = xmlString

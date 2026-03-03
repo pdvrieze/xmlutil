@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.isNCName
+import io.github.pdvrieze.xml.schematypes.types.EntityType
 import io.github.pdvrieze.xml.schematypes.values.XSEntity
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,8 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 @JvmInline
 value class XSEntityImpl(override val xmlString: String) : XSEntity {
+
+    override val schemaType: EntityType<*> get() = EntityType.Instance
 
     init {
         require(xmlString.isNCName()) { "'$xmlString' is not a valid entity as it does not match the NCName requirement" }

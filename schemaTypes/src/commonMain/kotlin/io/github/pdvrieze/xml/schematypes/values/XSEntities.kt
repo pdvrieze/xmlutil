@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSEntities.Companion::class)
 interface XSEntities: XSAnySimple, ListHelper<XSEntity> {
-    override val type: EntitiesType<*, *> get() = EntitiesType.Instance
+    override val schemaType: EntitiesType<XSEntities, XSEntity>
 
     companion object : SimpleTypeSerializer<XSEntities>("xs.ENTITIES") {
         override fun deserialize(

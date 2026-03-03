@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XSDate.Companion::class)
 interface XSDate : IXSDateTime {
-    override val type: DateType<*> get() = DateType.Instance
+    override val schemaType: DateType<XSDate>
 
     override val hour: Nothing? get() = null
     override val minute: Nothing? get() = null

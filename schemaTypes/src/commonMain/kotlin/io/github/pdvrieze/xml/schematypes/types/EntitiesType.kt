@@ -27,7 +27,7 @@ import io.github.pdvrieze.xml.schematypes.values.XSEntity
 import io.github.pdvrieze.xml.schematypes.values.XSQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface EntitiesType<out T : XSEntities, E: XSEntity> : AnySimpleListType<T, E> {
+interface EntitiesType<out T : XSEntities, out E: XSEntity> : AnySimpleListType<T, E> {
     override val baseType: AnySimpleListType<*, *> get() = Instance.baseType
     override val itemType: EntityType<E>
 

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.IDRefsType
 import io.github.pdvrieze.xml.schematypes.values.XSIDRef
 import io.github.pdvrieze.xml.schematypes.values.XSIDRefs
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -34,4 +35,5 @@ class XSIDRefsImpl(val members: List<XSIDRef>) : XSIDRefs {
     }
 
     override val size: Int get() = members.size
+    override val schemaType: IDRefsType<*, *> get() = IDRefsType.Instance
 }

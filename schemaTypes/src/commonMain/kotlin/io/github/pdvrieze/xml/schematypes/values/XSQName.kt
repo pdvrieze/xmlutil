@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.*
 @Serializable(XSQName.Companion::class)
 interface XSQName: XSAtomic {
 
-    override val type: QNameType<*> get() = QNameType.Instance
+    override val schemaType: QNameType<XSQName>
 
     /**
      * Retrieve the prefix for this QName.
@@ -126,5 +126,7 @@ class XSQNameImpl(
     localPart: String,
     prefix: String = "",
 ) : QName(namespaceUri, localPart, prefix), XSQName {
+    override val schemaType: QNameType<*> get() = QNameType.Instance
+
     constructor(localPart: String) : this("", localPart)
 }

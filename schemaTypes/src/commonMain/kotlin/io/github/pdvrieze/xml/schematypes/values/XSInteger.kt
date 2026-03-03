@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSInteger.Companion::class)
 interface XSInteger : XSDecimal {
 
-    override val type: IntegerType<*> get() = IntegerType.Instance
+    override val schemaType: IntegerType<XSInteger>
 
     override fun toLong(): Long
     override fun toInt(): Int

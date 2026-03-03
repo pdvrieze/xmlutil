@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.isNCName
+import io.github.pdvrieze.xml.schematypes.types.IDRefType
 import io.github.pdvrieze.xml.schematypes.values.XSIDRef
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,8 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 @JvmInline
 value class XSIDRefImpl(override val xmlString: String) : XSIDRef {
+
+    override val schemaType: IDRefType<*> get() = IDRefType.Instance
 
     init {
         require(xmlString.isNCName()) { "Invalid NCName: $xmlString" }

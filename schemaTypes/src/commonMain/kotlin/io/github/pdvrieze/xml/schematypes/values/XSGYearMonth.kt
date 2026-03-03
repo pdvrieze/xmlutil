@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSGYearMonth.Companion::class)
 interface XSGYearMonth : IXSDateTime {
 
-    override val type: GYearMonthType<*> get() = GYearMonthType.Instance
+    override val schemaType: GYearMonthType<XSGYearMonth>
 
     override val month: UInt
     override val year: Int

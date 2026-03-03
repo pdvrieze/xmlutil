@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.NormalizedStringType
 import io.github.pdvrieze.xml.schematypes.values.XSNormalizedString
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 internal class XSNormalizedStringImpl(override val xmlString: String): XSNormalizedString {
 
+    override val schemaType: NormalizedStringType<*> get() = NormalizedStringType.Instance
     override fun toString(): String = xmlString
 
 }

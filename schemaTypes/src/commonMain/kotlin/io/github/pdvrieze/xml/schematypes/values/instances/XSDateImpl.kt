@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.types.DateType
 import io.github.pdvrieze.xml.schematypes.values.XSDate
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -62,6 +63,7 @@ value class XSDateImpl(val dateVal: ULong) : XSDate {
         get() = "${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${
             day.toString().padStart(2, '0')
         }"
+    override val schemaType: DateType<XSDate> get() = DateType.Instance
 
     override fun toString(): String = xmlString
 

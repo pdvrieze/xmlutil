@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.NameType
 import io.github.pdvrieze.xml.schematypes.values.XSName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -27,5 +28,6 @@ import kotlin.jvm.JvmInline
 @JvmInline
 @XmlUtilInternal
 value class XSNameImpl(override val xmlString: String) : XSName {
+    override val schemaType: NameType<*> get() = NameType.Instance
     override fun toString(): String = xmlString
 }

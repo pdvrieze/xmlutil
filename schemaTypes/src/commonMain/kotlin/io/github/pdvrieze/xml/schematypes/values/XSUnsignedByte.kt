@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @Serializable(XSUnsignedByte.Companion::class)
 interface XSUnsignedByte : XSUnsignedShort {
 
-    override val type: UnsignedByteType<*> get() = UnsignedByteType.Instance
+    override val schemaType: UnsignedByteType<XSUnsignedByte>
 
     val uByteValue: UByte
     override val uShortValue: UShort get() = uByteValue.toUShort()

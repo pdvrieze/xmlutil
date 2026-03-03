@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.XmlReader
 interface XSFloat: XSAtomic {
     val value: Float
 
-    override val type: FloatType<*> get() = FloatType.Instance
+    override val schemaType: FloatType<XSFloat>
 
     companion object : SimpleTypeSerializer<XSFloat>("xsd.float") {
         operator fun invoke(value: Float): XSFloat = XSFloatImpl(value)

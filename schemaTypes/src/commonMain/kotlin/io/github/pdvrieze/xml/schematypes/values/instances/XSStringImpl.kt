@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.StringType
 import io.github.pdvrieze.xml.schematypes.values.XSString
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,7 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 @JvmInline
 public value class XSStringImpl(override val xmlString: String) : XSString {
+    override val schemaType: StringType<*> get() = StringType.Instance
     override fun toString(): String {
         return xmlString
     }

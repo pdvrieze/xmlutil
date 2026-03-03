@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
+import io.github.pdvrieze.xml.schematypes.types.TokenType
 import io.github.pdvrieze.xml.schematypes.values.XSToken
 
 interface FacetOrdered : FundamentalFacet, XSToken {
     val isPartial: Boolean
     val isTotal: Boolean
     val isFalse: Boolean
+    override val schemaType: TokenType<*> get() = TokenType.Instance
 
     private enum class Ordered(override val xmlString: String): FacetOrdered {
         FALSE("false") {

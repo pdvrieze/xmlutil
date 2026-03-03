@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.LongType
 import io.github.pdvrieze.xml.schematypes.values.XSInteger
 import io.github.pdvrieze.xml.schematypes.values.XSLong
 import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
@@ -30,6 +31,7 @@ internal value class XSLongImpl(override val longValue: Long) : XSLong {
     override fun toInt(): Int = longValue.toInt()
 
     override val xmlString: String get() = longValue.toString()
+    override val schemaType: LongType<*> get() = LongType.Instance
 
     override fun toString(): String = xmlString
 

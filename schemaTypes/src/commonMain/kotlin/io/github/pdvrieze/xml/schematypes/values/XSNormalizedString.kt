@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSNormalizedString.Companion::class)
 interface XSNormalizedString : XSString {
 
-    override val type: NormalizedStringType<*> get() = NormalizedStringType.Instance
+    override val schemaType: NormalizedStringType<XSNormalizedString>
 
     companion object : SimpleTypeSerializer<XSNormalizedString>("xsd.normalizedString") {
         operator fun invoke(string: String): XSNormalizedString {

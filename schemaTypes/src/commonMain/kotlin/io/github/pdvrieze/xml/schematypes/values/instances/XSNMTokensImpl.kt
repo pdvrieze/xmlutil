@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.NMTokensType
 import io.github.pdvrieze.xml.schematypes.values.XSNMToken
 import io.github.pdvrieze.xml.schematypes.values.XSNMTokens
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -34,4 +35,5 @@ class XSNMTokensImpl(val members: List<XSNMToken>) : XSNMTokens {
     }
 
     override val size: Int get() = members.size
+    override val schemaType: NMTokensType<*, *> get() = NMTokensType.Instance
 }

@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 @Serializable(XSGMonthDay.Companion::class)
 interface XSGMonthDay: IXSDateTime {
 
-    override val type: GMonthDayType<*> get() = GMonthDayType.Instance
+    override val schemaType: GMonthDayType<XSGMonthDay>
 
     override val day: UInt
     override val month: UInt

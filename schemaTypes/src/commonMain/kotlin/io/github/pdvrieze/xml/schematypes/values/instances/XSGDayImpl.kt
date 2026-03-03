@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.types.GDayType
 import io.github.pdvrieze.xml.schematypes.values.XSGDay
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import kotlin.jvm.JvmInline
@@ -52,6 +53,7 @@ value class XSGDayImpl(val dayVal: UInt) : XSGDay {
         }
 
     override val xmlString: String get() = "---${dayFrag()}${timeZoneFrag()}"
+    override val schemaType: GDayType<*> get() = GDayType.Instance
 
     override fun toString(): String = xmlString
 

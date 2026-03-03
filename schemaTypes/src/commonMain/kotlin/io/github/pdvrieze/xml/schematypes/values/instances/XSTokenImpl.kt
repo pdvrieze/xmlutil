@@ -20,10 +20,12 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.TokenType
 import io.github.pdvrieze.xml.schematypes.values.XSToken
 import kotlin.jvm.JvmInline
 
 @JvmInline
 public value class XSTokenImpl(override val xmlString: String) : XSToken {
+    override val schemaType: TokenType<*> get() = TokenType.Instance
     override fun toString(): String = xmlString
 }

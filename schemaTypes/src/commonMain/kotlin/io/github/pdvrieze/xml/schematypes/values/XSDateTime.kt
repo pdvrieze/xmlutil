@@ -32,7 +32,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Serializable(XSDateTime.Companion::class)
 interface XSDateTime : IXSDateTime {
-    override val type: DateTimeType<*> get() = DateTimeType.Instance
+    override val schemaType: DateTimeType<XSDateTime>
 
     companion object: SimpleTypeSerializer<XSDateTime>("xsd.dateTime") {
 

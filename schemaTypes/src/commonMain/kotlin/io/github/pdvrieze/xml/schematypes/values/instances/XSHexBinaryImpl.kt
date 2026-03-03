@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.ListHelper
+import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
 import io.github.pdvrieze.xml.schematypes.values.XSHexBinary
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.io.encoding.Base64
@@ -36,6 +37,7 @@ value class XSHexBinaryImpl(override val value: ByteArray) : XSHexBinary, ListHe
     override fun get(index: Int): Byte = value[index]
 
     override val size: Int get() = value.size
+    override val schemaType: HexBinaryType<XSHexBinary> get() = HexBinaryType.Instance
 
     override fun toString(): String = xmlString
 }

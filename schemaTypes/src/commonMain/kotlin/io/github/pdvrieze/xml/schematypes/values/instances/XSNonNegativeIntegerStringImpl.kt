@@ -20,12 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
 import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XSUnsignedLong
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 internal class XSNonNegativeIntegerStringImpl(override val xmlString: String) : XSNonNegativeInteger {
+    override val schemaType: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
     override fun toLong(): Long = xmlString.toLong()
 
     override fun toInt(): Int = xmlString.toInt()

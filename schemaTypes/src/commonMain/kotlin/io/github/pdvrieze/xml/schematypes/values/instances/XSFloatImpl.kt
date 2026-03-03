@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.values.XSFloat
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
@@ -28,6 +29,7 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 value class XSFloatImpl(override val value: Float): XSFloat {
     override val xmlString: String get() = value.toString()
+    override val schemaType: FloatType<*> get() = FloatType.Instance
 
     override fun toString(): String = xmlString
 }

@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XSName.Companion::class)
 interface XSName : XSToken {
 
-    override val type: NameType<*> get() = NameType.Instance
+    override val schemaType: NameType<XSName>
 
     companion object : SimpleTypeSerializer<XSName>("VName") {
         override fun deserialize(raw: String, input: XmlReader?): XSName {

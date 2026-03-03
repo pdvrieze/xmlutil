@@ -31,7 +31,7 @@ import kotlin.io.encoding.Base64
 @ExperimentalXmlUtilApi
 @Serializable(XSBase64Binary.Companion::class)
 interface XSBase64Binary : XSByteArray {
-    override val type: Base64BinaryType<*> get() = Base64BinaryType.Instance
+    override val schemaType: Base64BinaryType<XSBase64Binary>
 
     companion object : SimpleTypeSerializer<XSBase64Binary>("xsd.base64Binary") {
 
