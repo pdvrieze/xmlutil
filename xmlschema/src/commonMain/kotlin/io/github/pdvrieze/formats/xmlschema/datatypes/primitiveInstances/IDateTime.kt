@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.DecimalType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResDecimalType
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
@@ -98,7 +98,7 @@ interface IDateTime : VAnyAtomicType {
         fun dayFragValue(da: String): UInt = da.toUInt()
         fun hourFragValue(hr: String): UInt = hr.toUInt()
         fun minuteFragValue(mi: String): UInt = mi.toUInt()
-        fun secondFragValue(se: String): VDecimal = DecimalType.value(VString(se))
+        fun secondFragValue(se: String): VDecimal = ResDecimalType.value(VString(se))
         fun timezoneFragValue(tz: String): Int? {
             if (tz.isEmpty()) return null
             if (tz == "Z") return 0 // handle Z case differently

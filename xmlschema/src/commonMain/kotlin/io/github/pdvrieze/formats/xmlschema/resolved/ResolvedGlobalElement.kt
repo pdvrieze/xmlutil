@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
@@ -31,6 +31,7 @@ import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl.SUBSTITUTION
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
 class ResolvedGlobalElement private constructor(
@@ -48,7 +49,7 @@ class ResolvedGlobalElement private constructor(
 
     internal val substitutionGroups: List<QName>? = elemPart.elem.substitutionGroup
 
-    override val mdlQName: QName =
+    override val mdlQName: XsdQName =
         elemPart.elem.name.toQname(schema.targetNamespace) // does not take elementFormDefault into account
 
     override val mdlSubstitutionGroupExclusions: Set<VDerivationControl.T_BlockSetValues> =
@@ -64,7 +65,7 @@ class ResolvedGlobalElement private constructor(
     internal constructor(elemPart: SchemaElement<XSGlobalElement>, schema: ResolvedSchemaLike) :
             this(elemPart, elemPart.effectiveSchema(schema), elemPart.schemaLocation)
 
-    private fun fullSubstitutionGroup(collector: MutableMap<QName, ResolvedGlobalElement>) {
+    private fun fullSubstitutionGroup(collector: MutableMap<XsdQName, ResolvedGlobalElement>) {
         val old = collector.put(mdlQName, this)
         if (old == null) {
             for(m in mdlSubstitutionGroupMembers) {
@@ -74,7 +75,7 @@ class ResolvedGlobalElement private constructor(
     }
 
     fun fullSubstitutionGroup(version: SchemaVersion): List<ResolvedGlobalElement> {
-        val map = mutableMapOf<QName, ResolvedGlobalElement>()
+        val map = mutableMapOf<XsdQName, ResolvedGlobalElement>()
         fullSubstitutionGroup(map)
         return when(version) {
             //abstract members are not part of the substitution group (in 1.0)
@@ -106,7 +107,7 @@ class ResolvedGlobalElement private constructor(
                 substGroupMember.model.mdlTypeDefinition.map { derivType ->
                     val derivMethod = when (derivType) {
                         is ResolvedComplexType -> derivType.model.mdlDerivationMethod
-                        is ResolvedSimpleType -> when (derivType.mdlVariety) {
+                        is ResolvedSimpleType<*> -> when (derivType.mdlVariety) {
                             ResolvedSimpleType.Variety.ATOMIC -> VDerivationControl.RESTRICTION
                             ResolvedSimpleType.Variety.LIST -> VDerivationControl.LIST
                             ResolvedSimpleType.Variety.UNION -> VDerivationControl.UNION
@@ -135,7 +136,7 @@ class ResolvedGlobalElement private constructor(
             .getOrDefault(false)
     }
 
-    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>, checkHelper: CheckHelper) {
+    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<XsdQName>, checkHelper: CheckHelper) {
         for (substitutionGroupHead in model.mdlSubstitutionGroupAffiliations) {
             substitutionGroupHead.map { h ->
                 require(h.mdlQName !in seenElements) {
@@ -148,7 +149,7 @@ class ResolvedGlobalElement private constructor(
 
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean,
+        isSiblingName: (XsdQName) -> Boolean,
         checkHelper: CheckHelper
     ): FlattenedParticle {
         // this factory handles substitution groups
@@ -194,7 +195,7 @@ class ResolvedGlobalElement private constructor(
         val mdlSubstitutionGroupMembers: List<ResolvedGlobalElement> by lazy {
             // Has to be lazy due to initialization loop
 
-            val thisName: QName = context.mdlQName
+            val thisName: XsdQName = context.mdlQName
 
             when {
                 SUBSTITUTION in (elemPart.elem.block ?: emptySet()) -> emptyList()
@@ -230,7 +231,7 @@ class ResolvedGlobalElement private constructor(
 
                 // Then the type of the first member of the substitution group (or AnyType in other cases)
                 else -> when (val sgFirstName = elemPart.elem.substitutionGroup?.firstOrNull()) {
-                    null -> Result.success(AnyType)
+                    null -> Result.success(ResAnyType)
                     else -> when (val e = schema.maybeElement(sgFirstName)) {
                         null -> Result.failure(NoSuchElementException("No element with name $sgFirstName found"))
                         else -> e.model.mdlTypeDefinition

@@ -1,31 +1,32 @@
 /*
- * Copyright (c) 2023. 
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.localPart
@@ -49,26 +50,26 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     }
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? {
-        if (typeName.namespaceURI == XSD_NS_URI && typeName.localPart == "anyType") return AnyType
+        if (typeName.namespaceURI == XSD_NS_URI && typeName.localPart == "anyType") return ResAnyType
         return maybeSimpleType(typeName)
     }
 
     private val simpleTypes: List<ResolvedGlobalSimpleType>
         get() = listOf(
-            AnySimpleType, AnyAtomicType, AnyURIType, Base64BinaryType, BooleanType,
-            DateType, DateTimeType, DateTimeStampType, DecimalType, IntegerType, LongType,
-            IntType, ShortType, ByteType, NonNegativeIntegerType, PositiveIntegerType,
-            UnsignedLongType, UnsignedIntType, UnsignedShortType, UnsignedByteType,
-            NonPositiveIntegerType, NegativeIntegerType, DoubleType, DurationType,
-            DayTimeDurationType, YearMonthDurationType, FloatType, GDayType, GMonthType,
-            GMonthDayType, GYearType, GYearMonthType, HexBinaryType, NotationType, QNameType,
-            StringType, NormalizedStringType, TokenType, LanguageType, NameType, NCNameType,
-            EntityType, IDType, IDRefType, NMTokenType, TimeType, EntitiesType, IDRefsType,
-            NMTokensType
+            ResAnySimpleType, ResAnyAtomicType, ResAnyURIType, ResBase64BinaryType, ResBooleanType,
+            ResDateType, ResDateTimeType, ResDateTimeStampType, ResDecimalType, ResIntegerType, ResLongType,
+            ResIntType, ResShortType, ResByteType, ResNonNegativeIntegerType, ResPositiveIntegerType,
+            ResUnsignedLongType, ResUnsignedIntType, ResUnsignedShortType, ResUnsignedByteType,
+            ResNonPositiveIntegerType, ResNegativeIntegerType, ResDoubleType, ResDurationType,
+            ResDayTimeDurationType, ResYearMonthDurationType, ResFloatType, ResGDayType, ResGMonthType,
+            ResGMonthDayType, ResGYearType, ResGYearMonthType, ResHexBinaryType, ResNotationType, ResQNameType,
+            ResStringType, ResNormalizedStringType, ResTokenType, ResLanguageType, ResNameType, ResNCNameType,
+            ResEntityType, ResIDType, ResIDRefType, ResNMTokenType, ResTimeType, ResEntitiesType, ResIDRefsType,
+            ResNMTokensType
         )
 
     private val typeMap: Map<String, ResolvedGlobalSimpleType> by lazy {
-        simpleTypes.associateBy { it.mdlQName.localPart }
+        simpleTypes.associateBy { it.mdlQName.getLocalPart() }
     }
 
     override val blockDefault: Set<Nothing>
@@ -91,7 +92,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
 
     override fun maybeNotation(notationName: QName): Nothing? = null
 
-    override fun substitutionGroupMembers(headName: QName): Set<Nothing> = emptySet()
+    override fun substitutionGroupMembers(headName: XsdQName): Set<Nothing> = emptySet()
 
     override fun getElements(): Set<ResolvedGlobalElement> = emptySet()
 
@@ -101,7 +102,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
         }
 
         override fun maybeType(typeName: String): ResolvedGlobalType? {
-            if (typeName == "anyType") return AnyType
+            if (typeName == "anyType") return ResAnyType
             return maybeSimpleType(typeName)
         }
 

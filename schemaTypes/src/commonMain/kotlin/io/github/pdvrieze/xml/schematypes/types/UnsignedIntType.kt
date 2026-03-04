@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.XSUnsignedInt
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedIntType<out T : XSUnsignedInt> : UnsignedLongType<T> {
+interface UnsignedIntType<out T : XsdUnsignedInt> : UnsignedLongType<T> {
     override val baseType: UnsignedLongType<*> get() = UnsignedLongType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,20 +34,20 @@ interface UnsignedIntType<out T : XSUnsignedInt> : UnsignedLongType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedIntType<XSUnsignedInt>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "unsignedInt", "xs")
+    object Instance: UnsignedIntType<XsdUnsignedInt>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "unsignedInt", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XSUnsignedInt.Companion(UInt.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSUnsignedInt.Companion(0u)),
+            FacetMaxInclusive.Companion(XsdUnsignedInt.Companion(UInt.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdUnsignedInt.Companion(0u)),
         )
     }
 

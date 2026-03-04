@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -24,13 +24,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.namespaceURI
 
 abstract class ResolvedSchemaLike {
     abstract val version: SchemaVersion
-    abstract val defaultAttributes: QName?
+    abstract val defaultAttributes: XsdQName?
     abstract val targetNamespace: VAnyURI?
 
     abstract val blockDefault: Set<VDerivationControl.T_BlockSetValues>
@@ -42,14 +43,20 @@ abstract class ResolvedSchemaLike {
     abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType?
 
     abstract fun maybeType(typeName: QName): ResolvedGlobalType?
+    fun maybeType(typeName: XsdQName): ResolvedGlobalType? = maybeType(typeName.toQName())
 
     abstract fun maybeAttributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup?
 
     abstract fun maybeGroup(groupName: QName): ResolvedGlobalGroup?
 
     abstract fun maybeElement(elementName: QName): ResolvedGlobalElement?
+    fun maybeElement(elementName: XsdQName): ResolvedGlobalElement? =
+        maybeElement(elementName.toQName())
 
     abstract fun maybeAttribute(attributeName: QName): ResolvedGlobalAttribute?
+    fun maybeAttribute(attributeName: XsdQName): ResolvedGlobalAttribute? =
+        maybeAttribute(attributeName.toQName())
+
 
     abstract fun maybeIdentityConstraint(constraintName: QName): ResolvedIdentityConstraint?
 
@@ -63,6 +70,9 @@ abstract class ResolvedSchemaLike {
         else -> maybeSimpleType(typeName)
     } ?: throw NoSuchElementException("No simple type with name $typeName found")
 
+    fun simpleType(typeName: XsdQName): ResolvedGlobalSimpleType =
+        simpleType(typeName.toQName())
+
     fun type(typeName: QName): ResolvedGlobalType = when (typeName.namespaceURI) {
         targetNamespace?.value -> when (typeName.namespaceURI) {
             XSD_NS_URI -> maybeType(typeName) ?: BuiltinSchemaXmlschema.maybeType(typeName)
@@ -73,16 +83,26 @@ abstract class ResolvedSchemaLike {
         else -> maybeType(typeName)
     } ?: throw NoSuchElementException("No type with name '$typeName' found")
 
+    fun type(typeName: XsdQName): ResolvedGlobalType = type(typeName.toQName())
+
     fun attributeGroup(attributeGroupName: QName): ResolvedGlobalAttributeGroup {
         return maybeAttributeGroup(attributeGroupName)
             ?: throw NoSuchElementException("No attribute group with name $attributeGroupName found")
     }
+
+    fun attributeGroup(attributeGroupName: XsdQName): ResolvedGlobalAttributeGroup =
+        attributeGroup(attributeGroupName.toQName())
 
     fun modelGroup(groupName: QName): ResolvedGlobalGroup {
         return maybeGroup(groupName)
             ?: throw NoSuchElementException("No group with name $groupName found")
     }
 
+    fun modelGroup(groupName: XsdQName): ResolvedGlobalGroup = modelGroup(groupName.toQName())
+
+    fun element(elementName: XsdQName): ResolvedGlobalElement {
+        return element(elementName.toQName())
+    }
     fun element(elementName: QName): ResolvedGlobalElement {
         return maybeElement(elementName)
             ?: throw NoSuchElementException("No element with name $elementName found")
@@ -95,9 +115,21 @@ abstract class ResolvedSchemaLike {
             ?: throw NoSuchElementException("No attribute with name $attributeName found")
     }
 
+    fun attribute(attributeName: XsdQName): ResolvedGlobalAttribute {
+        return attribute(attributeName.toQName())
+    }
+
     fun identityConstraint(constraintName: QName): ResolvedIdentityConstraint {
         return maybeIdentityConstraint(constraintName)
             ?: throw NoSuchElementException("No identity constraint with name $constraintName exists")
+    }
+
+    fun identityConstraint(constraintName: XsdQName): ResolvedIdentityConstraint {
+        return identityConstraint(constraintName.toQName())
+    }
+
+    fun notation(notationName: XsdQName): ResolvedNotation {
+        return notation(notationName.toQName())
     }
 
     fun notation(notationName: QName): ResolvedNotation {
@@ -105,7 +137,7 @@ abstract class ResolvedSchemaLike {
             ?: throw NoSuchElementException("No notation with name $notationName exists")
     }
 
-    abstract fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement>
+    abstract fun substitutionGroupMembers(headName: XsdQName): Set<ResolvedGlobalElement>
 
     /**
      * True if this schema or any of it's imported schemas actually has the local namespace

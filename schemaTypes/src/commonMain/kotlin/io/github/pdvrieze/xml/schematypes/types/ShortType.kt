@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.XSShort
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdShort
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface ShortType<out T : XSShort> : IntType<T> {
+interface ShortType<out T : XsdShort> : IntType<T> {
     override val baseType: IntType<*> get() = IntType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,21 +34,21 @@ interface ShortType<out T : XSShort> : IntType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : ShortType<XSShort>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "short", "xs")
+    object Instance : ShortType<XsdShort>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "short", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
                 // pass null as this has an initialization loop. The value is pre-normalized.
-            FacetMaxInclusive.Companion(XSShort.Companion(Short.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSShort.Companion(Short.MIN_VALUE)),
+            FacetMaxInclusive.Companion(XsdShort.Companion(Short.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdShort.Companion(Short.MIN_VALUE)),
         )
     }
 

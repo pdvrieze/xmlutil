@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 interface BuiltinType : AnyType {
-    override val name: XSQName
+    override val name: XsdQName
 }

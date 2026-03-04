@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.LanguageType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResLanguageType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import kotlin.jvm.JvmInline
@@ -31,12 +31,12 @@ import kotlin.jvm.JvmInline
 value class VLanguage private constructor(override val xmlString: String) : VToken {
 
     init {
-        LanguageType.mdlFacets.validateValue(this)
+        ResLanguageType.mdlFacets.validateValue(this)
     }
 
     override fun toString(): String = xmlString
 
-    class Serializer : SimpleTypeSerializer<VLanguage>("VLanguage") {
+    class Serializer : SimpleVTypeSerializer<VLanguage>("VLanguage") {
         override fun deserialize(
             raw: String,
             input: XmlReader?
@@ -47,8 +47,8 @@ value class VLanguage private constructor(override val xmlString: String) : VTok
 
     companion object {
         operator fun invoke(rawId: String): VLanguage {
-            val r = IDType.mdlFacets.validateRepresentationOnly(
-                LanguageType,
+            val r = ResIDType.mdlFacets.validateRepresentationOnly(
+                ResLanguageType,
                 VString(rawId)
             )
             return VLanguage(r.xmlString)

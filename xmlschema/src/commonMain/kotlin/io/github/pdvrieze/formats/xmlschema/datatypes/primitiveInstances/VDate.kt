@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.DateType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResDateType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -83,7 +83,7 @@ value class VDate(val dateVal: ULong) : IDateTime {
         }
 
         override fun deserialize(decoder: Decoder): VDate {
-            return DateType.value(VString(decoder.decodeString()))
+            return ResDateType.value(VString(decoder.decodeString()))
         }
     }
 }

@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.XSUnsignedLong
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedLongType<out T : XSUnsignedLong> : NonNegativeIntegerType<XSUnsignedLong> {
+interface UnsignedLongType<out T : XsdUnsignedLong> : NonNegativeIntegerType<XsdUnsignedLong> {
     override val baseType: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,20 +34,20 @@ interface UnsignedLongType<out T : XSUnsignedLong> : NonNegativeIntegerType<XSUn
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedLongType<XSUnsignedLong>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "unsignedLong", "xs")
+    object Instance: UnsignedLongType<XsdUnsignedLong>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "unsignedLong", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XSUnsignedLong.Companion(ULong.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSUnsignedLong.Companion(0uL)),
+            FacetMaxInclusive.Companion(XsdUnsignedLong.Companion(ULong.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdUnsignedLong.Companion(0uL)),
         )
     }
 }

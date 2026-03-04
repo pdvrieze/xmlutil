@@ -30,7 +30,7 @@ import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(VParsedURI.Serializer::class)
-class VParsedURI(str: String) : VAnyURI() {
+class VParsedURI(str: String) : VAnyURIXX() {
     constructor(charSequence: CharSequence) : this(charSequence.toString())
 
     private val scheme: String?

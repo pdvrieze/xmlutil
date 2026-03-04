@@ -29,12 +29,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhi
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.*
-import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
-import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet.Order
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.facets.FacetCardinality
+import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
+import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
+import io.github.pdvrieze.xml.schematypes.types.TokenType
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
-import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -42,93 +44,91 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 fun builtinType(localName: String, targetNamespace: String): ResolvedBuiltinType? {
     if (targetNamespace != XSD_NS_URI) return null
     return when (localName) {
-        "anyType" -> AnyType
-        "anySimpleType" -> AnySimpleType
-        "anyAtomicType" -> AnyAtomicType
-        "anyURI" -> AnyURIType
-        "base64Binary" -> Base64BinaryType
-        "boolean" -> BooleanType
-        "date" -> DateType
-        "dateTime" -> DateTimeType
-        "dateTimeStamp" -> DateTimeStampType
-        "decimal" -> DecimalType
-        "integer" -> IntegerType
-        "long" -> LongType
-        "int" -> IntType
-        "short" -> ShortType
-        "byte" -> ByteType
-        "nonNegativeInteger" -> NonNegativeIntegerType
-        "positiveInteger" -> PositiveIntegerType
-        "unsignedLong" -> UnsignedLongType
-        "unsignedInt" -> UnsignedIntType
-        "unsignedShort" -> UnsignedShortType
-        "unsignedByte" -> UnsignedByteType
-        "nonPositiveInteger" -> NonPositiveIntegerType
-        "negativeInteger" -> NegativeIntegerType
-        "double" -> DoubleType
-        "duration" -> DurationType
-        "dayTimeDuration" -> DayTimeDurationType
-        "yearMonthDuration" -> YearMonthDurationType
-        "float" -> FloatType
-        "gDay" -> GDayType
-        "gMonth" -> GMonthType
-        "gMonthDay" -> GMonthDayType
-        "gYear" -> GYearType
-        "gYearMonth" -> GYearMonthType
-        "hexBinary" -> HexBinaryType
-        "NOTATION" -> NotationType
-        "QName" -> QNameType
-        "string" -> StringType
-        "normalizedString" -> NormalizedStringType
-        "token" -> TokenType
-        "language" -> LanguageType
-        "Name" -> NameType
-        "NCName" -> NCNameType
-        "ENTITY" -> EntityType
-        "ID" -> IDType
-        "IDREF" -> IDRefType
-        "NMTOKEN" -> NMTokenType
-        "time" -> TimeType
-        "ENTITIES" -> EntitiesType
-        "IDREFS" -> IDRefsType
-        "NMTOKENS" -> NMTokensType
+        "anyType" -> ResAnyType
+        "anySimpleType" -> ResAnySimpleType
+        "anyAtomicType" -> ResAnyAtomicType
+        "anyURI" -> ResAnyURIType
+        "base64Binary" -> ResBase64BinaryType
+        "boolean" -> ResBooleanType
+        "date" -> ResDateType
+        "dateTime" -> ResDateTimeType
+        "dateTimeStamp" -> ResDateTimeStampType
+        "decimal" -> ResDecimalType
+        "integer" -> ResIntegerType
+        "long" -> ResLongType
+        "int" -> ResIntType
+        "short" -> ResShortType
+        "byte" -> ResByteType
+        "nonNegativeInteger" -> ResNonNegativeIntegerType
+        "positiveInteger" -> ResPositiveIntegerType
+        "unsignedLong" -> ResUnsignedLongType
+        "unsignedInt" -> ResUnsignedIntType
+        "unsignedShort" -> ResUnsignedShortType
+        "unsignedByte" -> ResUnsignedByteType
+        "nonPositiveInteger" -> ResNonPositiveIntegerType
+        "negativeInteger" -> ResNegativeIntegerType
+        "double" -> ResDoubleType
+        "duration" -> ResDurationType
+        "dayTimeDuration" -> ResDayTimeDurationType
+        "yearMonthDuration" -> ResYearMonthDurationType
+        "float" -> ResFloatType
+        "gDay" -> ResGDayType
+        "gMonth" -> ResGMonthType
+        "gMonthDay" -> ResGMonthDayType
+        "gYear" -> ResGYearType
+        "gYearMonth" -> ResGYearMonthType
+        "hexBinary" -> ResHexBinaryType
+        "NOTATION" -> ResNotationType
+        "QName" -> ResQNameType
+        "string" -> ResStringType
+        "normalizedString" -> ResNormalizedStringType
+        "token" -> ResTokenType
+        "language" -> ResLanguageType
+        "Name" -> ResNameType
+        "NCName" -> ResNCNameType
+        "ENTITY" -> ResEntityType
+        "ID" -> ResIDType
+        "IDREF" -> ResIDRefType
+        "NMTOKEN" -> ResNMTokenType
+        "time" -> ResTimeType
+        "ENTITIES" -> ResEntitiesType
+        "IDREFS" -> ResIDRefsType
+        "NMTOKENS" -> ResNMTokensType
+        "precisionDecimal" -> ResPrecisionDecimalType
         else -> null
     }
 }
 
-sealed interface IStringType : ResolvedBuiltinSimpleType {
+sealed interface ResIStringType<T: XsdString> : ResolvedBuiltinSimpleType<T> {
     override fun value(representation: VString): VString
 }
 
-sealed interface IDecimalType : ResolvedBuiltinSimpleType {
+sealed interface ResIDecimalType<T: XsdDecimal> : ResolvedBuiltinSimpleType<T> {
     override fun value(representation: VString): VDecimal
 }
 
-sealed class AtomicDatatype(name: String, targetNamespace: String) :
-    Datatype(name, targetNamespace, BuiltinSchemaXmlschema),
-    ResolvedBuiltinSimpleType, ResolvedSimpleType.Model {
+sealed class ResAtomicDatatype<out T: XsdAtomic>(name: String, targetNamespace: String) :
+    ResolvedBuiltinSimpleType<T>, ResolvedSimpleType.Model {
 
-    override val model: AtomicDatatype get() = this
+    override val model: ResAtomicDatatype<T> get() = this
 
-    abstract override val mdlBaseTypeDefinition: ResolvedBuiltinType
+    abstract override val baseType: ResolvedBuiltinType
     abstract override val mdlFacets: FacetList
     abstract override val mdlFundamentalFacets: FundamentalFacets
     override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.ATOMIC
-    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype<*>? get() = null
+    override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<T>? get() = null
 
-    final override val mdlItemTypeDefinition: ResolvedSimpleType? get() = null
-    final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType> get() = emptyList()
+    final override val mdlItemTypeDefinition: ResolvedSimpleType<*>? get() = null
+    final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>> get() = emptyList()
 
     final override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
 
-    override fun toString(): String = "Builtin:${mdlQName.localPart}"
+    override fun toString(): String = "Builtin:${mdlQName.getLocalPart()}"
 
 }
 
-typealias AnyPrimitiveDatatype = PrimitiveDatatype<*>
-
-sealed class PrimitiveDatatype<out T : VAnySimpleType>(name: String, targetNamespace: String) :
-    AtomicDatatype(name, targetNamespace) {
+sealed class ResPrimitiveDatatype<out T: XsdAtomic>(name: String, targetNamespace: String) :
+    ResAtomicDatatype<T>(name, targetNamespace) {
     final override val isSpecial: Boolean get() = false
 
     final override fun value(representation: VString): T {
@@ -142,80 +142,21 @@ sealed class PrimitiveDatatype<out T : VAnySimpleType>(name: String, targetNames
 
     protected abstract fun valueFromNormalized(normalized: VString): T
 
-    abstract fun value(maybeValue: VAnySimpleType): VAnySimpleType
+    abstract fun value(maybeValue: XsdAnySimple): XsdAnySimple
 
-    abstract override val baseType: ResolvedBuiltinSimpleType
+    abstract override val baseType: ResolvedBuiltinSimpleType<*>
+
     override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(baseType, schema = BuiltinSchemaXmlschema)
-
-    final override val mdlBaseTypeDefinition: ResolvedBuiltinType get() = baseType
-    override val mdlPrimitiveTypeDefinition: PrimitiveDatatype<T>? get() = this
-}
-
-object AnyAtomicType : AtomicDatatype("anyAtomicType", XSD_NS_URI) {
-    override val isSpecial: Boolean get() = true
-    override val baseType: AnySimpleType get() = AnySimpleType
-    override val simpleDerivation: ResolvedSimpleRestrictionBase =
-        SimpleBuiltinRestriction(AnySimpleType, schema = BuiltinSchemaXmlschema)
-
-    override val mdlBaseTypeDefinition: AnySimpleType get() = baseType
-
-    override val mdlFacets: FacetList get() = FacetList.EMPTY
-
-    override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
-        bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
-        numeric = false,
-    )
-
-    override fun validateValue(value: Any, version: SchemaVersion) {
-        error("Atomic is not directly usable")
-    }
-
-    override fun validate(representation: VString, version: SchemaVersion) {
-        error("Atomic is not directly usable")
-    }
-}
-
-object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
-    override val mdlFacets: FacetList = FacetList(
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
-    )
-
-    override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
-        bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
-        numeric = false,
-    )
-
-    override fun valueFromNormalized(normalized: VString): VAnyURI = normalized.toString().toAnyUri()
-
-    override fun value(maybeValue: VAnySimpleType): VAnyURI {
-        return maybeValue as? VAnyURI ?: value(VString(maybeValue.xmlString))
-    }
-
-    override fun validateValue(value: Any, version: SchemaVersion) {
-        when (version) {
-            SchemaVersion.V1_0 if (value is VParsedURI) -> {}
-            SchemaVersion.V1_0 if (value is VAnyURI) -> {
-                val _ = VParsedURI(value)
-            }
-
-            else -> check(value is VAnyURI)
-        }
-        mdlFacets.validateValue(value)
-    }
-
-    override fun validate(representation: VString, version: SchemaVersion) {
-        mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
-    }
+        get() = ResSimpleBuiltinRestriction(baseType, schema = BuiltinSchemaXmlschema)
+    
+    override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<T> get() = this
 }
 
 @OptIn(ExperimentalEncodingApi::class)
-object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XSD_NS_URI) {
+object ResBase64BinaryType :
+    ResPrimitiveDatatype<XsdBase64Binary>("base64Binary", XSD_NS_URI),
+    ResolvedBuiltinSimpleType<XsdBase64Binary>,
+    Base64BinaryType<XsdBase64Binary> {
     fun length(representation: String): Int {
         // TODO don't actually decode just for length.
         return Base64.decode(representation).size
@@ -223,16 +164,16 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XSD_NS_U
 
     val regex = XRegex("((([A-Za-z0-9+/] ?){4})*(([A-Za-z0-9+/] ?){3}[A-Za-z0-9+/]|([A-Za-z0-9+/] ?){2}[AEIMQUYcgkosw048] ?=|[A-Za-z0-9+/] ?[AQgw] ?= ?=))?", SchemaVersion.V1_0)
 
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -241,7 +182,7 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XSD_NS_U
         return VByteArray(Base64.decode(normalized))
     }
 
-    override fun value(maybeValue: VAnySimpleType): VByteArray {
+    override fun value(maybeValue: XsdAnySimple): VByteArray {
         return maybeValue as? VByteArray ?: value(VString(maybeValue.xmlString))
     }
 
@@ -254,17 +195,17 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XSD_NS_U
     }
 }
 
-object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResBooleanType : ResPrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = false,
     )
 
@@ -274,7 +215,7 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
         else -> error("$normalized is not a boolean")
     }
 
-    override fun value(maybeValue: VAnySimpleType): VBoolean {
+    override fun value(maybeValue: XsdAnySimple): VBoolean {
         return maybeValue as? VBoolean ?: value(VString(maybeValue.xmlString))
     }
 
@@ -287,10 +228,10 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
     }
 }
 
-interface FiniteDateType : ResolvedBuiltinSimpleType
+interface ResFiniteDateType : ResolvedBuiltinSimpleType
 
-object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResDateType : ResPrimitiveDatatype<VDate>("date", XSD_NS_URI), ResFiniteDateType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -300,9 +241,9 @@ object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -323,7 +264,7 @@ object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDate {
+    override fun value(maybeValue: XsdAnySimple): VDate {
         return maybeValue as? VDate ?: value(VString(maybeValue.xmlString))
     }
 
@@ -336,8 +277,8 @@ object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
     }
 }
 
-object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResDateTimeType : ResPrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -347,9 +288,9 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -366,7 +307,7 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
         val secEnd = ((tIndex + 7)..<s.length).firstOrNull {
             s[it] != '.' && s[it] !in '0'..'9'
         }
-        val seconds = DecimalType.value(VString(s.substring(tIndex + 7, secEnd ?: s.length)))
+        val seconds = ResDecimalType.value(VString(s.substring(tIndex + 7, secEnd ?: s.length)))
         return when (secEnd) {
             null -> VDateTime(year, month.toUInt(), day.toUInt(), hour, minutes, seconds)
             else -> {
@@ -376,7 +317,7 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDateTime {
+    override fun value(maybeValue: XsdAnySimple): VDateTime {
         return maybeValue as? VDateTime ?: value(VString(maybeValue.xmlString))
     }
 
@@ -385,8 +326,8 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
     }
 }
 
-object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XSD_NS_URI) {
-    override val baseType: DateTimeType get() = DateTimeType
+object ResDateTimeStampType : ResPrimitiveDatatype<VDateTime>("dateTimeStamp", XSD_NS_URI) {
+    override val baseType: ResDateTimeType get() = ResDateTimeType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -396,19 +337,19 @@ object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XSD_NS_
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
     override fun valueFromNormalized(normalized: VString): VDateTime {
-        return DateTimeType.value(normalized).also {
+        return ResDateTimeType.value(normalized).also {
             requireNotNull(it.timezoneOffset) { "DateTimestamps must have a timestamp" }
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDateTime {
+    override fun value(maybeValue: XsdAnySimple): VDateTime {
         return (maybeValue as? VDateTime)?.also {
             requireNotNull(it.timezoneOffset) { "DateTimestamps must have a timestamp" }
         } ?: value(VString(maybeValue.xmlString))
@@ -419,17 +360,17 @@ object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XSD_NS_
     }
 }
 
-object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XSD_NS_URI), IDecimalType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResDecimalType : ResPrimitiveDatatype<VDecimal>("decimal", XSD_NS_URI), ResIDecimalType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
@@ -446,7 +387,7 @@ object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XSD_NS_URI), IDecima
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDecimal {
+    override fun value(maybeValue: XsdAnySimple): VDecimal {
         return maybeValue as? VDecimal ?: value(VString(maybeValue.xmlString))
     }
 
@@ -460,10 +401,10 @@ object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XSD_NS_URI), IDecima
 
 }
 
-sealed interface IIntegerType : IDecimalType
+sealed interface ResIIntegerType : ResIDecimalType
 
-object IntegerType : PrimitiveDatatype<VInteger>("integer", XSD_NS_URI), IIntegerType {
-    override val baseType: DecimalType get() = DecimalType
+object ResIntegerType : ResPrimitiveDatatype<VInteger>("integer", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResDecimalType get() = ResDecimalType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -472,9 +413,9 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XSD_NS_URI), IIntege
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
@@ -482,7 +423,7 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XSD_NS_URI), IIntege
         return VInteger(normalized.toLong())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VInteger {
+    override fun value(maybeValue: XsdAnySimple): VInteger {
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -496,8 +437,8 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XSD_NS_URI), IIntege
     }
 }
 
-object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType {
-    override val baseType: IntegerType get() = IntegerType
+object ResLongType : ResPrimitiveDatatype<VInteger>("long", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResIntegerType get() = ResIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -509,9 +450,9 @@ object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType 
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -519,7 +460,7 @@ object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType 
         return VInteger(normalized.toLong())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VInteger {
+    override fun value(maybeValue: XsdAnySimple): VInteger {
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -532,8 +473,8 @@ object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType 
     }
 }
 
-object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
-    override val baseType: LongType get() = LongType
+object ResIntType : ResPrimitiveDatatype<VInteger>("int", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResLongType get() = ResLongType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -544,9 +485,9 @@ object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -554,7 +495,7 @@ object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
         return VInteger(WhitespaceValue.COLLAPSE.normalize(normalized).toLong())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VInteger {
+    override fun value(maybeValue: XsdAnySimple): VInteger {
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -568,8 +509,8 @@ object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
 
 }
 
-object ShortType : PrimitiveDatatype<VInteger>("short", XSD_NS_URI), IIntegerType {
-    override val baseType: IntType get() = IntType
+object ResShortType : ResPrimitiveDatatype<VInteger>("short", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResIntType get() = ResIntType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -580,9 +521,9 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XSD_NS_URI), IIntegerTyp
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -590,7 +531,7 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XSD_NS_URI), IIntegerTyp
         return VInteger(normalized.toInt())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VInteger {
+    override fun value(maybeValue: XsdAnySimple): VInteger {
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -605,8 +546,8 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XSD_NS_URI), IIntegerTyp
 
 }
 
-object ByteType : PrimitiveDatatype<VInteger>("byte", XSD_NS_URI), IIntegerType {
-    override val baseType: ShortType get() = ShortType
+object ResByteType : ResPrimitiveDatatype<VInteger>("byte", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResShortType get() = ResShortType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -617,9 +558,9 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XSD_NS_URI), IIntegerType 
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -627,7 +568,7 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XSD_NS_URI), IIntegerType 
         return VInteger(normalized.toInt())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VInteger {
+    override fun value(maybeValue: XsdAnySimple): VInteger {
         return maybeValue as? VInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -643,8 +584,8 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XSD_NS_URI), IIntegerType 
     override fun toString(): String = "Builtin:Byte"
 }
 
-object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegativeInteger", XSD_NS_URI), IIntegerType {
-    override val baseType: IntegerType get() = IntegerType
+object ResNonNegativeIntegerType : ResPrimitiveDatatype<VNonNegativeInteger>("nonNegativeInteger", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResIntegerType get() = ResIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -654,9 +595,9 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
@@ -664,7 +605,7 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
         return VNonNegativeInteger(normalized)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VNonNegativeInteger {
+    override fun value(maybeValue: XsdAnySimple): VNonNegativeInteger {
         return maybeValue as? VNonNegativeInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -678,8 +619,8 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
 
 }
 
-object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInteger", XSD_NS_URI), IIntegerType {
-    override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
+object ResPositiveIntegerType : ResPrimitiveDatatype<VNonNegativeInteger>("positiveInteger", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResNonNegativeIntegerType get() = ResNonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -689,9 +630,9 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
@@ -699,7 +640,7 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
         return VNonNegativeInteger(normalized)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VNonNegativeInteger {
+    override fun value(maybeValue: XsdAnySimple): VNonNegativeInteger {
         return maybeValue as? VNonNegativeInteger ?: value(VString(maybeValue.xmlString))
     }
 
@@ -713,8 +654,8 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
 
 }
 
-object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_NS_URI), IIntegerType {
-    override val baseType: NonNegativeIntegerType get() = NonNegativeIntegerType
+object ResUnsignedLongType : ResPrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResNonNegativeIntegerType get() = ResNonNegativeIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -725,9 +666,9 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_N
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -735,7 +676,7 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_N
         return VUnsignedLong(normalized.toULong())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VUnsignedLong {
+    override fun value(maybeValue: XsdAnySimple): VUnsignedLong {
         return maybeValue as? VUnsignedLong ?: value(VString(maybeValue.xmlString))
     }
 
@@ -749,8 +690,8 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_N
 
 }
 
-object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_URI), IIntegerType {
-    override val baseType: UnsignedLongType get() = UnsignedLongType
+object ResUnsignedIntType : ResPrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResUnsignedLongType get() = ResUnsignedLongType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -761,9 +702,9 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_U
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -771,7 +712,7 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_U
         return VUnsignedInt(normalized.toUInt())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VUnsignedInt {
+    override fun value(maybeValue: XsdAnySimple): VUnsignedInt {
         return maybeValue as? VUnsignedInt ?: value(VString(maybeValue.xmlString))
     }
 
@@ -785,8 +726,8 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_U
 
 }
 
-object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_NS_URI), IIntegerType {
-    override val baseType: UnsignedIntType get() = UnsignedIntType
+object ResUnsignedShortType : ResPrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResUnsignedIntType get() = ResUnsignedIntType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -797,9 +738,9 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -807,7 +748,7 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_
         return VUnsignedInt(normalized.toUInt())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VUnsignedInt {
+    override fun value(maybeValue: XsdAnySimple): VUnsignedInt {
         return maybeValue as? VUnsignedInt ?: value(VString(maybeValue.xmlString))
     }
 
@@ -821,8 +762,8 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_
 
 }
 
-object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS_URI), IIntegerType {
-    override val baseType: UnsignedShortType get() = UnsignedShortType
+object ResUnsignedByteType : ResPrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResUnsignedShortType get() = ResUnsignedShortType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -837,9 +778,9 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -847,7 +788,7 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS
         return VUnsignedInt(normalized.toUInt())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VUnsignedInt {
+    override fun value(maybeValue: XsdAnySimple): VUnsignedInt {
         return maybeValue as? VUnsignedInt ?: value(VString(maybeValue.xmlString))
     }
 
@@ -861,8 +802,8 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS
 
 }
 
-object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger", XSD_NS_URI), IIntegerType {
-    override val baseType: IntegerType get() = IntegerType
+object ResNonPositiveIntegerType : ResPrimitiveDatatype<VDecimal>("nonPositiveInteger", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResIntegerType get() = ResIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -872,9 +813,9 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
@@ -887,7 +828,7 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDecimal {
+    override fun value(maybeValue: XsdAnySimple): VDecimal {
         return maybeValue as? VDecimal ?: value(VString(maybeValue.xmlString))
     }
 
@@ -901,8 +842,8 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
 
 }
 
-object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XSD_NS_URI), IIntegerType {
-    override val baseType: NonPositiveIntegerType get() = NonPositiveIntegerType
+object ResNegativeIntegerType : ResPrimitiveDatatype<VDecimal>("negativeInteger", XSD_NS_URI), ResIIntegerType {
+    override val baseType: ResNonPositiveIntegerType get() = ResNonPositiveIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -912,9 +853,9 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XSD_
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
@@ -927,7 +868,7 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XSD_
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDecimal {
+    override fun value(maybeValue: XsdAnySimple): VDecimal {
         return maybeValue as? VDecimal ?: value(VString(maybeValue.xmlString))
     }
 
@@ -942,17 +883,17 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XSD_
 
 }
 
-object DoubleType : PrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResDoubleType : ResPrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -960,7 +901,7 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
         return VDouble(normalized.toDouble())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDouble {
+    override fun value(maybeValue: XsdAnySimple): VDouble {
         return maybeValue as? VDouble ?: value(VString(maybeValue.xmlString))
     }
 
@@ -974,17 +915,17 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
 
 }
 
-object DurationType : PrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResDurationType : ResPrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -992,7 +933,7 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
         return VDuration(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDuration {
+    override fun value(maybeValue: XsdAnySimple): VDuration {
         return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1001,8 +942,8 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
     }
 }
 
-object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD_NS_URI) {
-    override val baseType: DurationType get() = DurationType
+object ResDayTimeDurationType : ResPrimitiveDatatype<VDuration>("dayTimeDuration", XSD_NS_URI) {
+    override val baseType: ResDurationType get() = ResDurationType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1010,9 +951,9 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1020,7 +961,7 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD
         return VDuration(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDuration {
+    override fun value(maybeValue: XsdAnySimple): VDuration {
         return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1036,8 +977,8 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD
     }
 }
 
-object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration", XSD_NS_URI) {
-    override val baseType: DurationType get() = DurationType
+object ResYearMonthDurationType : ResPrimitiveDatatype<VDuration>("yearMonthDuration", XSD_NS_URI) {
+    override val baseType: ResDurationType get() = ResDurationType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1045,9 +986,9 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1055,7 +996,7 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
         return VDuration(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VDuration {
+    override fun value(maybeValue: XsdAnySimple): VDuration {
         return maybeValue as? VDuration ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1070,17 +1011,17 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
     }
 }
 
-object FloatType : PrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResFloatType : ResPrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = true,
-        cardinality = Cardinality.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
@@ -1088,7 +1029,7 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
         return VFloat(normalized.toFloat())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VFloat {
+    override fun value(maybeValue: XsdAnySimple): VFloat {
         return maybeValue as? VFloat ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1102,8 +1043,8 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
 
 }
 
-object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResGDayType : ResPrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), ResFiniteDateType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1113,9 +1054,9 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1129,7 +1070,7 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VGDay {
+    override fun value(maybeValue: XsdAnySimple): VGDay {
         return maybeValue as? VGDay ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1142,8 +1083,8 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
     }
 }
 
-object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDateType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResGMonthType : ResPrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), ResFiniteDateType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1153,9 +1094,9 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDate
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1174,7 +1115,7 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDate
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VGMonth {
+    override fun value(maybeValue: XsdAnySimple): VGMonth {
         return maybeValue as? VGMonth ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1187,8 +1128,8 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDate
     }
 }
 
-object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), FiniteDateType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResGMonthDayType : ResPrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), ResFiniteDateType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1198,9 +1139,9 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1222,7 +1163,7 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
         }
     }
 
-    override fun value(maybeValue: VAnySimpleType): VGMonthDay {
+    override fun value(maybeValue: XsdAnySimple): VGMonthDay {
         return maybeValue as? VGMonthDay ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1235,8 +1176,8 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
     }
 }
 
-object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResGYearType : ResPrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), ResFiniteDateType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1246,9 +1187,9 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateTyp
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1260,7 +1201,7 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateTyp
         return VGYear(year, tzOffset)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VGYear {
+    override fun value(maybeValue: XsdAnySimple): VGYear {
         return maybeValue as? VGYear ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1273,8 +1214,8 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateTyp
     }
 }
 
-object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI), FiniteDateType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResGYearMonthType : ResPrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI), ResFiniteDateType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1284,9 +1225,9 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1295,7 +1236,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
         return VGYearMonth(year, month.toUInt())
     }
 
-    override fun value(maybeValue: VAnySimpleType): VGYearMonth {
+    override fun value(maybeValue: XsdAnySimple): VGYearMonth {
         return maybeValue as? VGYearMonth ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1309,7 +1250,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
 
 }
 
-object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XSD_NS_URI) {
+object ResHexBinaryType : ResPrimitiveDatatype<VByteArray>("hexBinary", XSD_NS_URI) {
     fun length(representation: String): Int {
         var acc = 0
         for (c in representation) {
@@ -1324,16 +1265,16 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XSD_NS_URI) {
         return acc
     }
 
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1343,7 +1284,7 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XSD_NS_URI) {
         return VByteArray(b)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VByteArray {
+    override fun value(maybeValue: XsdAnySimple): VByteArray {
         return maybeValue as? VByteArray ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1356,17 +1297,17 @@ object HexBinaryType : PrimitiveDatatype<VByteArray>("hexBinary", XSD_NS_URI) {
     }
 }
 
-object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResNotationType : ResPrimitiveDatatype<VNotation>("NOTATION", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1374,7 +1315,7 @@ object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XSD_NS_URI) {
         return VNotation(normalized)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VNotation {
+    override fun value(maybeValue: XsdAnySimple): VNotation {
         return maybeValue as? VNotation ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1387,17 +1328,17 @@ object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XSD_NS_URI) {
     }
 }
 
-object QNameType : PrimitiveDatatype<VQName>("QName", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResQNameType : ResPrimitiveDatatype<VQName>("QName", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1405,7 +1346,7 @@ object QNameType : PrimitiveDatatype<VQName>("QName", XSD_NS_URI) {
         return (normalized as? VPrefixString)?.toVQName() ?: VQName(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VQName {
+    override fun value(maybeValue: XsdAnySimple): VQName {
         return maybeValue as? VQName ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1422,10 +1363,10 @@ object QNameType : PrimitiveDatatype<VQName>("QName", XSD_NS_URI) {
     }
 }
 
-object StringType : PrimitiveDatatype<VString>("string", XSD_NS_URI), IStringType {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResStringType : ResPrimitiveDatatype<VString>("string", XSD_NS_URI), ResIStringType {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
     override val simpleDerivation: ResolvedSimpleRestrictionBase
-        get() = SimpleBuiltinRestriction(
+        get() = ResSimpleBuiltinRestriction(
             baseType,
             BuiltinSchemaXmlschema,
             listOf(XSWhiteSpace(WhitespaceValue.PRESERVE, fixed = false))
@@ -1436,9 +1377,9 @@ object StringType : PrimitiveDatatype<VString>("string", XSD_NS_URI), IStringTyp
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1446,7 +1387,7 @@ object StringType : PrimitiveDatatype<VString>("string", XSD_NS_URI), IStringTyp
         return normalized
     }
 
-    override fun value(maybeValue: VAnySimpleType): VString {
+    override fun value(maybeValue: XsdAnySimple): VString {
         return maybeValue as? VString ?: VString(maybeValue.xmlString)
     }
 
@@ -1457,17 +1398,17 @@ object StringType : PrimitiveDatatype<VString>("string", XSD_NS_URI), IStringTyp
     override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
-object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedString", XSD_NS_URI), IStringType {
-    override val baseType: StringType get() = StringType
+object ResNormalizedStringType : ResPrimitiveDatatype<VNormalizedString>("normalizedString", XSD_NS_URI), ResIStringType {
+    override val baseType: ResStringType get() = ResStringType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.REPLACE)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1475,7 +1416,7 @@ object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedSt
         return normalized as? VNormalizedString ?: VNormalizedString(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VNormalizedString {
+    override fun value(maybeValue: XsdAnySimple): VNormalizedString {
         return maybeValue as? VNormalizedString ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1488,17 +1429,17 @@ object NormalizedStringType : PrimitiveDatatype<VNormalizedString>("normalizedSt
     }
 }
 
-object TokenType : PrimitiveDatatype<VToken>("token", XSD_NS_URI), IStringType {
-    override val baseType: NormalizedStringType get() = NormalizedStringType
+object ResTokenType : ResPrimitiveDatatype<XsdToken>("token", XSD_NS_URI), ResIStringType, TokenType<XsdToken> {
+    override val baseType: ResNormalizedStringType get() = ResNormalizedStringType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1506,7 +1447,7 @@ object TokenType : PrimitiveDatatype<VToken>("token", XSD_NS_URI), IStringType {
         return normalized as? VToken ?: VToken(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VToken {
+    override fun value(maybeValue: XsdAnySimple): VToken {
         return maybeValue as? VToken ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1519,8 +1460,8 @@ object TokenType : PrimitiveDatatype<VToken>("token", XSD_NS_URI), IStringType {
     }
 }
 
-object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStringType {
-    override val baseType: TokenType get() = TokenType
+object ResLanguageType : ResPrimitiveDatatype<VLanguage>("language", XSD_NS_URI), ResIStringType {
+    override val baseType: ResTokenType get() = ResTokenType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1528,9 +1469,9 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStr
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1538,7 +1479,7 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStr
         return VLanguage(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VLanguage {
+    override fun value(maybeValue: XsdAnySimple): VLanguage {
         return maybeValue as? VLanguage ?: VLanguage(maybeValue.xmlString)
     }
 
@@ -1551,8 +1492,8 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStr
     }
 }
 
-object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
-    override val baseType: TokenType get() = TokenType
+object ResNameType : ResPrimitiveDatatype<VName>("Name", XSD_NS_URI), ResIStringType {
+    override val baseType: ResTokenType get() = ResTokenType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1560,9 +1501,9 @@ object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1570,7 +1511,7 @@ object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
         return normalized as? VName ?: VName(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VName {
+    override fun value(maybeValue: XsdAnySimple): VName {
         return maybeValue as? VName ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1583,8 +1524,8 @@ object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
     }
 }
 
-object NCNameType : PrimitiveDatatype<VNCName>("NCName", XSD_NS_URI), IStringType {
-    override val baseType: NameType get() = NameType
+object ResNCNameType : ResPrimitiveDatatype<XsdNCName>("NCName", XSD_NS_URI), ResIStringType {
+    override val baseType: ResNameType get() = ResNameType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1595,22 +1536,22 @@ object NCNameType : PrimitiveDatatype<VNCName>("NCName", XSD_NS_URI), IStringTyp
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
-    override fun valueFromNormalized(normalized: VString): VNCName {
-        return normalized as? VNCName ?: VNCName(normalized.xmlString)
+    override fun valueFromNormalized(normalized: VString): XsdNCName {
+        return normalized as? XsdNCName ?: XsdNCName(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VNCName {
-        return maybeValue as? VNCName ?: value(VString(maybeValue.xmlString))
+    override fun value(maybeValue: XsdAnySimple): XsdNCName {
+        return maybeValue as? XsdNCName ?: value(VString(maybeValue.xmlString))
     }
 
     override fun validateValue(value: Any, version: SchemaVersion) {
-        check(value is VNCName)
+        check(value is XsdNCName)
         mdlFacets.validate(mdlPrimitiveTypeDefinition, value)
     }
 
@@ -1620,8 +1561,8 @@ object NCNameType : PrimitiveDatatype<VNCName>("NCName", XSD_NS_URI), IStringTyp
 
 }
 
-object EntityType : PrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), IStringType {
-    override val baseType: NCNameType get() = NCNameType
+object ResEntityType : ResPrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), ResIStringType {
+    override val baseType: ResNCNameType get() = ResNCNameType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1632,9 +1573,9 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), IStringTyp
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1642,7 +1583,7 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), IStringTyp
         return normalized
     }
 
-    override fun value(maybeValue: VAnySimpleType): VString {
+    override fun value(maybeValue: XsdAnySimple): VString {
         return maybeValue as? VString ?: VString(maybeValue.xmlString)
     }
 
@@ -1651,8 +1592,8 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), IStringTyp
     }
 }
 
-object IDType : PrimitiveDatatype<VID>("ID", XSD_NS_URI), IStringType {
-    override val baseType: NCNameType get() = NCNameType
+object ResIDType : ResPrimitiveDatatype<XsdID>("ID", XSD_NS_URI), ResIStringType {
+    override val baseType: ResNCNameType get() = ResNCNameType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1663,9 +1604,9 @@ object IDType : PrimitiveDatatype<VID>("ID", XSD_NS_URI), IStringType {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1673,7 +1614,7 @@ object IDType : PrimitiveDatatype<VID>("ID", XSD_NS_URI), IStringType {
         return normalized as? VID ?: VID(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VID {
+    override fun value(maybeValue: XsdAnySimple): VID {
         return maybeValue as? VID ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1687,8 +1628,8 @@ object IDType : PrimitiveDatatype<VID>("ID", XSD_NS_URI), IStringType {
     }
 }
 
-object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
-    override val baseType: NCNameType get() = NCNameType
+object ResIDRefType : ResPrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), ResIStringType {
+    override val baseType: ResNCNameType get() = ResNCNameType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1699,9 +1640,9 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1709,7 +1650,7 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
         return normalized as? VIDRef ?: VIDRef(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VIDRef {
+    override fun value(maybeValue: XsdAnySimple): VIDRef {
         return maybeValue as? VIDRef ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1723,8 +1664,8 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
     }
 }
 
-object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IStringType {
-    override val baseType: TokenType get() = TokenType
+object ResNMTokenType : ResPrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), ResIStringType {
+    override val baseType: ResTokenType get() = ResTokenType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE)),
@@ -1732,9 +1673,9 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IString
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1742,7 +1683,7 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IString
         return normalized as? VNMToken ?: VNMToken(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VNMToken {
+    override fun value(maybeValue: XsdAnySimple): VNMToken {
         return maybeValue as? VNMToken ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1755,8 +1696,8 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IString
     }
 }
 
-object TimeType : PrimitiveDatatype<VTime>("time", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResTimeType : ResPrimitiveDatatype<VTime>("time", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
@@ -1766,9 +1707,9 @@ object TimeType : PrimitiveDatatype<VTime>("time", XSD_NS_URI) {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
@@ -1776,7 +1717,7 @@ object TimeType : PrimitiveDatatype<VTime>("time", XSD_NS_URI) {
         return VTime(normalized.xmlString)
     }
 
-    override fun value(maybeValue: VAnySimpleType): VTime {
+    override fun value(maybeValue: XsdAnySimple): VTime {
         return maybeValue as? VTime ?: value(VString(maybeValue.xmlString))
     }
 
@@ -1785,62 +1726,62 @@ object TimeType : PrimitiveDatatype<VTime>("time", XSD_NS_URI) {
     }
 }
 
-object EntitiesType :
-    ConstructedListDatatype(
+object ResEntitiesType :
+    AbstractConstructedListDatatype(
         "ENTITIES",
         XSD_NS_URI,
-        EntityType,
+        ResEntityType,
         BuiltinSchemaXmlschema,
     ) {
-    override val mdlItemTypeDefinition: ResolvedSimpleType
-        get() = EntityType
+    override val mdlItemTypeDefinition: ResolvedSimpleType<*>
+        get() = ResEntityType
 
     override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
-object IDRefsType : ConstructedListDatatype(
+object ResIDRefsType : AbstractConstructedListDatatype(
     "IDREFS",
     XSD_NS_URI,
-    EntityType,
+    ResEntityType,
     BuiltinSchemaXmlschema
 ) {
-    override val mdlItemTypeDefinition: ResolvedSimpleType
-        get() = IDRefType
+    override val mdlItemTypeDefinition: ResolvedSimpleType<*>
+        get() = ResIDRefType
 
     override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
-object NMTokensType : ConstructedListDatatype(
+object ResNMTokensType : AbstractConstructedListDatatype(
     "NMTOKENS",
     XSD_NS_URI,
-    EntityType,
+    ResEntityType,
     BuiltinSchemaXmlschema
 ) {
-    override val mdlItemTypeDefinition: ResolvedSimpleType
-        get() = NMTokenType
+    override val mdlItemTypeDefinition: ResolvedSimpleType<*>
+        get() = ResNMTokenType
 
     override fun validate(representation: VString, version: SchemaVersion) {}
 }
 
-object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecimal", XSD_NS_URI) {
-    override val baseType: AnyAtomicType get() = AnyAtomicType
+object ResPrecisionDecimalType : ResPrimitiveDatatype<XsdAnySimple>("precisionDecimal", XSD_NS_URI) {
+    override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = Order.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = Cardinality.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
-    override fun valueFromNormalized(normalized: VString): VAnySimpleType {
+    override fun valueFromNormalized(normalized: VString): XsdAnySimple {
         TODO("NOT IMPLEMENTED")
     }
 
-    override fun value(maybeValue: VAnySimpleType): VAnySimpleType {
+    override fun value(maybeValue: XsdAnySimple): XsdAnySimple {
         TODO("not implemented")
     }
 

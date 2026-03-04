@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,9 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.QNameSerializer
+import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -34,19 +34,19 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSSimpleContentExtension : XSSimpleContentDerivation {
 
     constructor(
-        base: QName,
+        base: XsdQName,
         id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,
         asserts: List<XSAssert> = emptyList(),
         annotation: XSAnnotation? = null,
-        otherAttrs: Map<QName, String> = emptyMap()
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs) {
         this.base = base
     }
 
-    override val base: @Serializable(QNameSerializer::class) QName
+    override val base: XsdQName
 
     /**
      * Mark the derivation as extension

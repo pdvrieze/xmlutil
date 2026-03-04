@@ -20,16 +20,19 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
-@Serializable(VAnySimpleType.Serializer::class)
-interface VAnySimpleType {
+typealias VAnySimpleType = XsdAnySimple
+
+@Serializable(VAnySimpleTypeX.Serializer::class)
+interface VAnySimpleTypeX {
     // inherits any
     val xmlString: String
 
-    private class Inst(val value: String) : VAnySimpleType {
+    private class Inst(val value: String) : VAnySimpleTypeX {
         override val xmlString: String get() = value
 
         override fun toString(): String = xmlString
@@ -51,8 +54,8 @@ interface VAnySimpleType {
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer : SimpleTypeSerializer<VAnySimpleType>("anySimpleType") {
-        override fun deserialize(raw:String, input: XmlReader?): VAnySimpleType {
+    class Serializer : SimpleVTypeSerializer<VAnySimpleTypeX>("anySimpleType") {
+        override fun deserialize(raw:String, input: XmlReader?): VAnySimpleTypeX {
             val cpos = raw.indexOf(':')
 
             if (cpos > 0 && raw.indexOf(':', cpos + 1) < 0 && input != null) {

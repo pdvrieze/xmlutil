@@ -20,7 +20,6 @@
 
 package org.w3.qt3tests.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import kotlinx.serialization.SerialName
 
 interface Qt3Covers30Attr {
@@ -33,6 +32,6 @@ interface Qt3Covers30Attr {
      * in a different XML document, specifically the identifiers of changes appearing in the `changes.xml` file.
      */
     @SerialName("covers-30")
-    val covers30: List<VNCName>?
+    val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>?
 }
 

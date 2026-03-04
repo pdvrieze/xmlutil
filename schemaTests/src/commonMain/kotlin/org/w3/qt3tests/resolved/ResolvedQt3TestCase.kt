@@ -20,7 +20,6 @@
 
 package org.w3.qt3tests.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import org.w3.qt3tests.*
 
@@ -35,7 +34,7 @@ class ResolvedQt3TestCase(
     val result: ResolvedQt3Result? = null,
     val name: String? = null,
     val covers: List<VToken>? = emptyList(),
-    val covers30: List<VNCName>? = emptyList(),
+    val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>? = emptyList(),
 ) {
 
 }

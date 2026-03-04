@@ -20,16 +20,16 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnyType {
-    val name: XSQName?
+    val name: XsdQName?
     val baseType: AnyType
 
 
     object Instance: BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "any", "xs")
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "any", "xs")
         override val baseType: AnyType get() = this
 
         override fun toString(): String = "xs:any"

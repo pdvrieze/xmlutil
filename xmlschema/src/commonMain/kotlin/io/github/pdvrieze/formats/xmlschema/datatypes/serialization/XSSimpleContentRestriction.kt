@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,8 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
@@ -39,7 +39,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
     constructor(
         simpleType: XSLocalSimpleType? = null,
         facets: List<XSFacet> = emptyList(),
-        base: QName? = null,
+        base: XsdQName? = null,
         id: VID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -47,7 +47,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         asserts: List<XSAssert> = emptyList(),
         annotation: XSAnnotation? = null,
         otherContents: List<CompactFragment> = emptyList(),
-        otherAttrs: Map<QName, String> = emptyMap()
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, attributes, attributeGroups, anyAttribute, asserts, annotation, otherAttrs) {
         this.base = base
         this.simpleType = simpleType
@@ -55,7 +55,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         this.otherContents = otherContents
     }
 
-    override val base: SerializableQName?
+    override val base: XsdQName?
 
     @XmlBefore("facets")
     override val simpleType: XSLocalSimpleType?

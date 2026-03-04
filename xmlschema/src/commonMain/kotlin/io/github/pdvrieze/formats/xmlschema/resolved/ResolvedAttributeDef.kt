@@ -1,27 +1,27 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.XMLConstants
@@ -45,7 +45,7 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute) : ResolvedAttribute(ra
         checkHelper.checkType(mdlTypeDefinition)
         mdlValueConstraint?.let {
             if (checkHelper.version == SchemaVersion.V1_0) {
-                require(mdlTypeDefinition.mdlPrimitiveTypeDefinition != IDType) { "In version 1.0 ID (derived) type attributes may not have value constraints" }
+                require(mdlTypeDefinition.mdlPrimitiveTypeDefinition != ResIDType) { "In version 1.0 ID (derived) type attributes may not have value constraints" }
             }
             mdlTypeDefinition.validate(it.value, checkHelper.version)
         }
@@ -57,14 +57,14 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute) : ResolvedAttribute(ra
     abstract class Model(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) :
         ResolvedAttribute.Model(rawPart) {
 
-        final override val mdlTypeDefinition: ResolvedSimpleType
+        final override val mdlTypeDefinition: ResolvedSimpleType<*>
 
         init {
             this.mdlTypeDefinition = rawPart.simpleType?.let {
                 require(rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
                 ResolvedLocalSimpleType(it, schema, typeContext)
             } ?: rawPart.type?.let { schema.simpleType(it) }
-                    ?: AnySimpleType
+                    ?: ResAnySimpleType
         }
 
     }

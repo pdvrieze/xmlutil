@@ -22,29 +22,29 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimpleList
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimpleList
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
-interface AnySimpleListType<out T: XSAnySimple, out E: XSAnySimple> : AnySimpleType<T> {
+interface AnySimpleListType<out T: XsdAnySimple, out E: XsdAnySimple> : AnySimpleType<T> {
     override val baseType: AnySimpleType<*>
 
     val itemType: AnySimpleType<E>
 
     @XmlUtilInternal
-    class Instance<out T: XSAnySimple, out E: XSAnySimple>(
-        override val name: XSQName?,
+    class Instance<out T: XsdAnySimple, out E: XsdAnySimple>(
+        override val name: XsdQName?,
         override val itemType: AnySimpleType<E>,
         constrainingFacets: List<ConstrainingFacet> = emptyList(),
     ) : AnySimpleListType<T, E> {
 
         constructor(elementType: AnySimpleType<E>): this(null, elementType)
 
-        override val ordered: FacetOrdered get() = FacetOrdered.Companion.FALSE
-        override val bounded: FacetBounded get() = FacetBounded.Companion.UNBOUNDED
-        override val cardinality: FacetCardinality get() = FacetCardinality.Companion.COUNTABLY_INFINITE
-        override val numeric: FacetNumeric get() = FacetNumeric.Companion.FALSE
+        override val ordered: FacetOrdered get() = FacetOrdered.FALSE
+        override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
+        override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
+        override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
         override val constrainingFacets: List<ConstrainingFacet> = buildList {
             for (facet in constrainingFacets) {
@@ -66,14 +66,14 @@ interface AnySimpleListType<out T: XSAnySimple, out E: XSAnySimple> : AnySimpleT
             add(FacetWhiteSpace(WhitespaceValue.COLLAPSE, true))
         }
 
-        override val baseType: AnySimpleType<XSAnySimple> get() = AnySimpleType.Instance
+        override val baseType: AnySimpleType<XsdAnySimple> get() = AnySimpleType.Instance
     }
 
     companion object {
-        operator fun <E : XSAnySimple> invoke(
+        operator fun <E : XsdAnySimple> invoke(
             itemType: AnySimpleType<E>,
             facets: List<ConstrainingFacet> = emptyList()
-        ): AnySimpleListType<XSAnySimpleList<E>, E> {
+        ): AnySimpleListType<XsdAnySimpleList<E>, E> {
 
             return Instance(null, itemType, facets)
         }

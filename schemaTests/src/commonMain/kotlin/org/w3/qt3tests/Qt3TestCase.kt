@@ -20,7 +20,6 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -54,7 +53,7 @@ class Qt3TestCase(
     override val covers: List<VToken>? = emptyList(),
     @XmlElement(false)
     @SerialName("covers-30")
-    override val covers30: List<VNCName>? = emptyList(),
+    override val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>? = emptyList(),
 ): Qt3NameAttr, Qt3CoversAttr, Qt3Covers30Attr {
 
     context(ctx: ResolutionContext)

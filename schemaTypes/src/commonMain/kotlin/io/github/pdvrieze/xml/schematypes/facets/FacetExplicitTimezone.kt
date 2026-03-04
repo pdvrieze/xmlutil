@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.SerialName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
@@ -51,10 +51,10 @@ interface FacetExplicitTimezone : ConstrainingFacet {
         override val isRequired: Boolean get() = false
     }
 
-    override val name: XSQName get() = NAME
+    override val facetName: XsdQName get() = NAME
 
     companion object {
-        val NAME: XSQName = XSQName(XSD_NS_URI, "explicitTimezone", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "explicitTimezone", XSD_PREFIX)
         val OPTIONAL: FacetExplicitTimezone = Impl.OPTIONAL
         val REQUIRED: FacetExplicitTimezone = Impl.REQUIRED
         val PROHIBITED: FacetExplicitTimezone = Impl.PROHIBITED

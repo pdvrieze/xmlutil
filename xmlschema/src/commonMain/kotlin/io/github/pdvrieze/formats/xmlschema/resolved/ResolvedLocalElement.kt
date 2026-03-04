@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
@@ -30,7 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedLocalElement private constructor(
     parent: VElementScope.Member,
@@ -53,14 +53,14 @@ class ResolvedLocalElement private constructor(
             check(parent is ResolvedComplexType) { "3.3.3(4.3.1) - Attribute with non-matchin namespace must have complex type ancestor"}
             check(parent.mdlContentType is ResolvedComplexType.ElementContentType)
             check(parent.model.mdlDerivationMethod == VDerivationControl.RESTRICTION)
-            check(parent.mdlBaseTypeDefinition != AnyType) { "3.3.3(4.3.2) - Restriction isn't anytype" }
+            check(parent.baseType != ResAnyType) { "3.3.3(4.3.2) - Restriction isn't anytype" }
         }
 
     }
 
     override val model: Model by lazy { Model(elemPart, schema, this) }
 
-    override val mdlQName: QName
+    override val mdlQName: XsdQName
 
     init {
         mdlQName = invariantNotNull(elemPart.elem.name).toQname(
@@ -94,7 +94,7 @@ class ResolvedLocalElement private constructor(
         elemPart.elem.maxOccurs ?: VAllNNI.ONE,
     )
 
-    override fun isSiblingName(name: QName): Boolean {
+    override fun isSiblingName(name: XsdQName): Boolean {
         return super<ResolvedElement>.isSiblingName(name)
     }
 
@@ -156,7 +156,7 @@ class ResolvedLocalElement private constructor(
             mdlTypeDefinition = when {
                 localType.elem != null -> Result.success(ResolvedLocalType(localType.cast<XSLocalType>(), schema, context))
                 elemPart.elem.type != null -> runCatching { schema.type(elemPart.elem.type) }
-                else -> Result.success(AnyType)
+                else -> Result.success(ResAnyType)
             }
         }
 

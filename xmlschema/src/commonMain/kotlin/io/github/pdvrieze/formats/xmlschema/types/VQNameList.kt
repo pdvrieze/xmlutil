@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.types
@@ -24,6 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.parseQName
 import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.localPart
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.prefix
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -31,12 +35,13 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.serialization.XML
 
 abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : List<E> by values {
 
-    fun contains(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+    fun contains(name: XsdQName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
         return values.any { it.matches(name, isSiblingName, schema) }
     }
 
@@ -45,24 +50,24 @@ abstract class VQNameListBase<E : VQNameListBase.IElem>(val values: List<E>) : L
     abstract fun check(version: SchemaVersion)
 
     interface IElem {
-        fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean
+        fun matches(name: XsdQName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean
     }
     sealed interface AttrElem : IElem
     sealed class Elem : IElem
     object DEFINED : Elem(), AttrElem {
-        override fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun matches(name: XsdQName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
             return schema.maybeAttribute(name) != null || schema.maybeElement(name) != null
         }
     }
 
     object DEFINEDSIBLING : Elem() {
-        override fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+        override fun matches(name: XsdQName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
             return isSiblingName(name)
         }
     }
 
-    class Name(val qName: QName) : Elem(), AttrElem {
-        override fun matches(name: QName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+    class Name(val qName: XsdQName) : Elem(), AttrElem {
+        override fun matches(name: XsdQName, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
             return qName.isEquivalent(name)
         }
     }
@@ -112,7 +117,7 @@ class VQNameList(values: List<Elem>) : VQNameListBase<VQNameListBase.Elem>(value
                     DEFINEDSIBLING -> "##definedSibling"
                     is Name -> when (e) {
                         null -> "{${it.qName.namespaceURI}}${it.qName.prefix}:${it.qName.localPart}"
-                        else -> e.ensureNamespace(it.qName)
+                        else -> e.ensureNamespace(it.qName.toQName())
                             .let { q -> if (q.prefix == "") q.localPart else "${q.prefix}:${q.localPart}" }
                     }
                 }

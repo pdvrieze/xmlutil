@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NonNegativeIntegerType<out T : XSNonNegativeInteger> : IntegerType<T> {
+interface NonNegativeIntegerType<out T : XsdNonNegativeInteger> : IntegerType<T> {
     override val baseType: IntegerType<*> get() = IntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,19 +34,19 @@ interface NonNegativeIntegerType<out T : XSNonNegativeInteger> : IntegerType<T> 
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: NonNegativeIntegerType<XSNonNegativeInteger>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "nonNegativeInteger", "xs")
+    object Instance: NonNegativeIntegerType<XsdNonNegativeInteger>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "nonNegativeInteger", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMinInclusive.Companion(XSNonNegativeInteger.Companion(0)),
+            FacetMinInclusive.Companion(XsdNonNegativeInteger.Companion(0)),
         )
     }
 

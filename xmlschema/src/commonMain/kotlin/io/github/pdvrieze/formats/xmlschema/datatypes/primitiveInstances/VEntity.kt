@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.EntityType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResEntityType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -28,15 +28,15 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable(with = VEntity.Serializer::class)
-value class VEntity(override val xmlString: String) : VNCName {
+value class VEntity(override val xmlString: String) : VNCNameXX {
 
     init {
-        EntityType.mdlFacets.validate(EntityType, this)
+        ResEntityType.mdlFacets.validate(ResEntityType, this)
     }
 
     override fun toString(): String = xmlString
 
-    class Serializer : SimpleTypeSerializer<VEntity>("VEntity") {
+    class Serializer : SimpleVTypeSerializer<VEntity>("VEntity") {
         override fun deserialize(
             raw: String,
             input: XmlReader?

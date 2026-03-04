@@ -25,13 +25,14 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedGlobalSimpleTypeImpl internal constructor(
     rawPart: XSGlobalSimpleType,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedGlobalSimpleType {
+) : ResolvedGlobalSimpleType<XsdAnySimple> {
 
     internal constructor(
         rawPart: SchemaAssociatedElement<XSGlobalSimpleType>,
@@ -42,7 +43,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
         check(rawPart.name.isNotEmpty()) { "Empty names are forbidden" }
     }
 
-    override val mdlQName: QName = rawPart.name.toQname(schema.targetNamespace)
+    override val mdlQName: XsdQName = rawPart.name.toQname(schema.targetNamespace)
 
     override val mdlFinal: Set<VDerivationControl.Type> = rawPart.final ?: schema.finalDefault
 

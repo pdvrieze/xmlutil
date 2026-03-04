@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 interface ResolvedTerm : ResolvedAnnotated {
     fun checkTerm(checkHelper: CheckHelper) {
@@ -63,9 +63,9 @@ interface ResolvedTerm : ResolvedAnnotated {
         return collector
     }
 
-    fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle
+    fun flatten(range: AllNNIRange, isSiblingName: (XsdQName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle
 
-    fun isSiblingName(name: QName): Boolean {
+    fun isSiblingName(name: XsdQName): Boolean {
         return visit(IsSiblingNameVisitor(name))
     }
 

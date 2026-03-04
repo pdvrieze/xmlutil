@@ -20,27 +20,29 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.FiniteDateType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NotationType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResFiniteDateType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNotationType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.types.CardinalityFacet.Cardinality
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
-import io.github.pdvrieze.formats.xmlschema.types.OrderedFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdNotation
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
-import nl.adaptivity.xmlutil.isEquivalent
-import nl.adaptivity.xmlutil.qname
 
-sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
+sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleType<T>, VSimpleTypeScope.Member {
 
     override val mdlScope: VSimpleTypeScope
 
@@ -48,19 +50,25 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
     override val model: Model
 
-    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
+    override val baseType: ResolvedType get() = model.mdlBaseTypeDefinition
 
     val mdlFacets: FacetList get() = model.mdlFacets
 
     val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
 
+    override val ordered: FacetOrdered get() = mdlFundamentalFacets.ordered
+    override val bounded: FacetBounded get() = mdlFundamentalFacets.bounded
+    override val cardinality: FacetCardinality get() = mdlFundamentalFacets.cardinality
+    override val numeric: FacetNumeric get() = mdlFundamentalFacets.numeric
+    override val constrainingFacets: List<ConstrainingFacet> get() = model.mdlFacets.toList()
+
     val mdlVariety: Variety get() = model.mdlVariety
 
-    val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype? get() = model.mdlPrimitiveTypeDefinition
+    val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<*>? get() = model.mdlPrimitiveTypeDefinition
 
-    val mdlItemTypeDefinition: ResolvedSimpleType? get() = model.mdlItemTypeDefinition
+    val mdlItemTypeDefinition: ResolvedSimpleType<*>? get() = model.mdlItemTypeDefinition
 
-    val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+    val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>>
         get() = model.mdlMemberTypeDefinitions
 
     override val mdlFinal: Set<VDerivationControl.Type>
@@ -71,12 +79,14 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         checkAnnotated(checkHelper.version)
         simpleDerivation.checkDerivation(checkHelper)
 
-        if (mdlPrimitiveTypeDefinition == NotationType) {
+        if (mdlPrimitiveTypeDefinition == ResNotationType) {
             for (enum in mdlFacets.enumeration) {
-                val name = when (val v = enum.value) {
-                    is VNotation -> v.value
-                    is VPrefixString -> v.toQName()
-                    is VString -> QName(v.xmlString)
+                val name: XsdQName = when (val v = enum.value) {
+                    is VNotation -> XsdQName(v.value)
+                    is XsdNotation -> XsdQName(v)
+                    is VPrefixString -> XsdQName(v.toQName())
+                    is XsdPrefixString -> v.toQName()
+                    is VString -> XsdQName(v.xmlString)
                     else -> error("Value $v is not supported as notation")
                 }
                 // TODO (have notations resolved
@@ -85,9 +95,9 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         }
 
         if (mdlVariety == Variety.LIST) {
-            val baseTypeDef = mdlBaseTypeDefinition
-            require(baseTypeDef is ResolvedSimpleType) { "Only AnySimpleType can inherit from (complex) AnyType" }
-            if (baseTypeDef != AnySimpleType) {
+            val baseTypeDef = baseType
+            require(baseTypeDef is ResolvedSimpleType<*>) { "Only AnySimpleType can inherit from (complex) AnyType" }
+            if (baseTypeDef != ResAnySimpleType) {
                 check(baseTypeDef.mdlVariety == Variety.LIST)
                 check(VDerivationControl.RESTRICTION !in baseTypeDef.mdlFinal)
             }
@@ -147,11 +157,11 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         if (this === base) return true // 3.16.6.3(1)
 
         if (VDerivationControl.RESTRICTION in base.mdlFinal) return false //3.16.6.3(2.1a)
-        if (VDerivationControl.RESTRICTION in mdlBaseTypeDefinition.mdlFinal) return false //3.16.6.3(2.1.b)
-        if (mdlBaseTypeDefinition == base) return true //3.16.6.3(2.2.1)
-        if (mdlBaseTypeDefinition != AnyType && mdlBaseTypeDefinition.isValidlyDerivedFrom(base, asRestriction)) return true //3.16.6.3(2.2.2)
-        if (mdlVariety != Variety.ATOMIC && base == AnySimpleType) return true //2.2.3
-        if (base is ResolvedSimpleType && base.mdlVariety == Variety.UNION) { //2.2.4.1
+        if (VDerivationControl.RESTRICTION in baseType.mdlFinal) return false //3.16.6.3(2.1.b)
+        if (baseType == base) return true //3.16.6.3(2.2.1)
+        if (baseType != ResAnyType && baseType.isValidlyDerivedFrom(base, asRestriction)) return true //3.16.6.3(2.2.2)
+        if (mdlVariety != Variety.ATOMIC && base == ResAnySimpleType) return true //2.2.3
+        if (base is ResolvedSimpleType<*> && base.mdlVariety == Variety.UNION) { //2.2.4.1
             // Facets should be unassignable in union -- 2.2.4.3
             val members = base.transitiveUnionMembership() //2.2.4.2
             return members.any { m ->
@@ -162,7 +172,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
     }
 
     @IgnorableReturnValue
-    fun transitiveUnionMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
+    fun transitiveUnionMembership(collector: MutableSet<ResolvedSimpleType<*>> = mutableSetOf()): Set<ResolvedSimpleType<*>> {
         if (mdlVariety != Variety.UNION) return collector
 
         when (val d = simpleDerivation) {
@@ -179,12 +189,12 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 throw IllegalStateException("list derivations should never have union variety")
 
             is ResolvedSimpleRestrictionBase ->
-                (d.baseType as? ResolvedSimpleType)?.transitiveUnionMembership(collector)
+                (d.baseType as? ResolvedSimpleType<*>)?.transitiveUnionMembership(collector)
         }
         return collector
     }
 
-    fun value(representation: VString): Any? {
+    fun value(representation: XsdString): Any? {
         val normalized = mdlFacets.whiteSpace?.value?.normalize(representation) ?: representation
         return when (mdlVariety) {
             Variety.ATOMIC -> {
@@ -229,31 +239,31 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
     }
 
     interface Model : ResolvedAnnotated.IModel {
-        val mdlItemTypeDefinition: ResolvedSimpleType?
-        val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        val mdlItemTypeDefinition: ResolvedSimpleType<*>?
+        val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>>
         val mdlBaseTypeDefinition: ResolvedType
         val mdlFacets: FacetList
         val mdlFundamentalFacets: FundamentalFacets
         val mdlVariety: Variety
-        val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
+        val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<*>?
     }
 
     sealed class ModelBase(
         rawPart: XSISimpleType,
         protected val schema: ResolvedSchemaLike,
-        context: ResolvedSimpleType
+        context: ResolvedSimpleType<*>
     ) : ResolvedAnnotated.Model(rawPart), Model {
 
-        final override val mdlBaseTypeDefinition: ResolvedSimpleType
-        final override val mdlItemTypeDefinition: ResolvedSimpleType?
-        final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+        final override val mdlBaseTypeDefinition: ResolvedSimpleType<*>
+        final override val mdlItemTypeDefinition: ResolvedSimpleType<*>?
+        final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>>
         final override val mdlVariety: Variety
-        final override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
+        final override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<*>?
 
         init {
 
             val typeName =
-                (rawPart as? XSGlobalSimpleType)?.let { qname(schema.targetNamespace?.value, it.name.xmlString) }
+                (rawPart as? XSGlobalSimpleType)?.let { XsdQName(schema.targetNamespace?.value ?: "", it.name.xmlString) }
 
             val simpleDerivation = rawPart.simpleDerivation
 
@@ -266,14 +276,14 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                     schema.nestedType(typeName) as ResolvedGlobalSimpleType
                 }
 
-                simpleDerivation !is XSSimpleRestriction -> AnySimpleType
+                simpleDerivation !is XSSimpleRestriction -> ResAnySimpleType
 
                 rawPart is XSGlobalSimpleType &&
                         typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
                     throw IllegalArgumentException("Only redefines can have 'self-referencing types' in $typeName")
                 }
 
-                simpleDerivation.base?.isEquivalent(AnySimpleType.mdlQName) == true -> AnySimpleType
+                simpleDerivation.base?.isEquivalent(ResAnySimpleType.mdlQName) == true -> ResAnySimpleType
 
                 else -> {
                     simpleDerivation.base?.let {
@@ -289,7 +299,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 is XSSimpleList -> Variety.LIST
                 is XSSimpleRestriction -> recurseBaseType(mdlBaseTypeDefinition) {
                     when {
-                        it is AnySimpleType -> {
+                        it is ResAnySimpleType -> {
                             require(schema.targetNamespace?.value == XSD_NS_URI) {
                                 "Direct inheritance of AnySimpleType is only allowed in the XMLSchema namespace"
                             }
@@ -306,7 +316,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
             mdlItemTypeDefinition = when (mdlVariety) {
                 Variety.LIST -> when {
-                    mdlBaseTypeDefinition != AnySimpleType -> {
+                    mdlBaseTypeDefinition != ResAnySimpleType -> {
                         require(simpleDerivation !is XSSimpleList || (simpleDerivation.simpleType == null && simpleDerivation.itemTypeName == null)) {
                             "Lists by base type should have item types"
                         }
@@ -340,7 +350,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                     it.mdlMemberTypeDefinitions
                 }
 
-                mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map {
+                mdlBaseTypeDefinition == ResAnySimpleType -> simpleDerivation.memberTypes?.map {
                     schema.simpleType(it)
                 } ?: simpleDerivation.simpleTypes.map {
                     ResolvedLocalSimpleType(it, schema, context)
@@ -354,7 +364,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
             mdlPrimitiveTypeDefinition = when (mdlVariety) {
                 Variety.ATOMIC -> when (val b = mdlBaseTypeDefinition) {
-                    is AnyPrimitiveDatatype -> b
+                    is ResPrimitiveDatatype<*> -> b
                     else -> recurseBaseType(mdlBaseTypeDefinition) { it.mdlPrimitiveTypeDefinition }
                         ?: run { null }
                 }
@@ -397,14 +407,14 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
             is XSSimpleList -> {
                 val cardinalty = when {
-                    mdlItemTypeDefinition!!.mdlFundamentalFacets.cardinality == Cardinality.FINITE &&
-                            mdlFacets.minLength != null && mdlFacets.maxLength != null -> Cardinality.FINITE
+                    mdlItemTypeDefinition!!.mdlFundamentalFacets.cardinality.isFinite &&
+                            mdlFacets.minLength != null && mdlFacets.maxLength != null -> FacetCardinality.FINITE
 
-                    else -> Cardinality.COUNTABLY_INFINITE
+                    else -> FacetCardinality.COUNTABLY_INFINITE
                 }
 
                 FundamentalFacets(
-                    ordered = OrderedFacet.Order.FALSE,
+                    ordered = FacetOrdered.FALSE,
                     bounded = false,
                     cardinality = cardinalty,
                     numeric = false
@@ -415,17 +425,17 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 val ordered = mdlBaseTypeDefinition.mdlFundamentalFacets.ordered
                 val bounded = mdlFacets.minConstraint != null || mdlFacets.maxConstraint != null
                 val cardinality = when {
-                    mdlBaseTypeDefinition.mdlFundamentalFacets.cardinality == Cardinality.FINITE -> Cardinality.FINITE
-                    mdlFacets.maxLength != null || mdlFacets.totalDigits != null -> Cardinality.FINITE
+                    mdlBaseTypeDefinition.mdlFundamentalFacets.cardinality == FacetCardinality.FINITE -> FacetCardinality.FINITE
+                    mdlFacets.maxLength != null || mdlFacets.totalDigits != null -> FacetCardinality.FINITE
                     mdlFacets.minConstraint != null &&
                             mdlFacets.maxConstraint != null &&
-                            (mdlFacets.fractionDigits != null || mdlPrimitiveTypeDefinition is FiniteDateType) ->
-                        Cardinality.FINITE
+                            (mdlFacets.fractionDigits != null || mdlPrimitiveTypeDefinition is ResFiniteDateType) ->
+                        FacetCardinality.FINITE
 
-                    else -> Cardinality.COUNTABLY_INFINITE
+                    else -> FacetCardinality.COUNTABLY_INFINITE
                 }
 
-                val numeric = mdlBaseTypeDefinition.mdlFundamentalFacets.numeric
+                val numeric = mdlBaseTypeDefinition.mdlFundamentalFacets.isNumeric
 
                 FundamentalFacets(ordered, bounded, cardinality, numeric)
             }
@@ -439,20 +449,21 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                         it.mdlVariety == Variety.ATOMIC && it.mdlFundamentalFacets.ordered == firstOrdered
                     } && firstOrdered != null -> firstOrdered
 
-                    mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.ordered == OrderedFacet.Order.FALSE } ->
-                        OrderedFacet.Order.FALSE
+                    mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.ordered == FacetOrdered.FALSE } ->
+                        FacetOrdered.FALSE
 
-                    else -> OrderedFacet.Order.PARTIAL
+                    else -> FacetOrdered.PARTIAL
                 }
 
-                val isBounded = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.bounded }
+                val isBounded = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.isBounded }
                 val isInfinite =
-                    mdlMemberTypeDefinitions.any { it.mdlFundamentalFacets.cardinality == Cardinality.COUNTABLY_INFINITE }
+                    mdlMemberTypeDefinitions.any { it.mdlFundamentalFacets.cardinality.isCountablyInfinite }
+
                 FundamentalFacets(
                     ordered = ordered,
                     bounded = isBounded,
-                    cardinality = if (isInfinite) Cardinality.COUNTABLY_INFINITE else Cardinality.FINITE,
-                    numeric = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.numeric }
+                    cardinality = if (isInfinite) FacetCardinality.COUNTABLY_INFINITE else FacetCardinality.FINITE,
+                    numeric = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.isNumeric }
                 )
             }
         }
@@ -460,15 +471,15 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         protected companion object {
 
             fun <R> recurseBaseType(
-                startType: ResolvedSimpleType,
-                valueFun: (ResolvedSimpleType) -> R
+                startType: ResolvedSimpleType<*>,
+                valueFun: (ResolvedSimpleType<*>) -> R
             ): R = when {
                 startType is ResolvedBuiltinType -> valueFun(startType)
                 startType.simpleDerivation is ResolvedUnionDerivation -> valueFun(startType)
                 startType.simpleDerivation is ResolvedListDerivationBase -> valueFun(startType)
-                else -> when (val base = startType.mdlBaseTypeDefinition) {
-                    AnySimpleType -> valueFun(AnySimpleType)
-                    is ResolvedSimpleType -> recurseBaseType(base, valueFun)
+                else -> when (val base = startType.baseType) {
+                    ResAnySimpleType -> valueFun(ResAnySimpleType)
+                    is ResolvedSimpleType<*> -> recurseBaseType(base, valueFun)
                     else -> error("Recursing non-simple base type ($base) of simple: $startType")
                 }
             }

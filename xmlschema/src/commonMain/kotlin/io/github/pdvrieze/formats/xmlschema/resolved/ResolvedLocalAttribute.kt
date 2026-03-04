@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,8 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
@@ -29,7 +28,8 @@ import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 
 class ResolvedLocalAttribute private constructor(
     parent: VAttributeScope.Member,
@@ -38,7 +38,7 @@ class ResolvedLocalAttribute private constructor(
     unresolvedSchema: ResolvedSchemaLike
 ) : ResolvedAttributeDef(elem, elem.effectiveSchema(unresolvedSchema)), IResolvedAttributeUse {
 
-    override val mdlQName: QName
+    override val mdlQName: XsdQName
 
     init {
         val rawPart = elem.elem
@@ -54,7 +54,7 @@ class ResolvedLocalAttribute private constructor(
             check(parent.model.mdlDerivationMethod == VDerivationControl.RESTRICTION)
             val contentType = parent.mdlContentType
             check(contentType is ResolvedComplexType.ElementContentType) { "content type not elementContent, but ${contentType::class}" }
-            check(parent.mdlBaseTypeDefinition != AnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
+            check(parent.baseType != ResAnyType) { "3.2.3(6.3.2) - Restriction isn't anytype" }
         }
 
         mdlQName = invariantNotNull(rawPart.name).toQname(

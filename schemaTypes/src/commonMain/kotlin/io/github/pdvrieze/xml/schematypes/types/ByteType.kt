@@ -22,31 +22,31 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSByte
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdByte
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface ByteType<out T : XSByte> : PrimitiveDatatype<T>, ShortType<T> {
+interface ByteType<out T : XsdByte> : PrimitiveDatatype<T>, ShortType<T> {
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: ByteType<XSByte>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "byte", "xs")
+    object Instance: ByteType<XsdByte>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "byte", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
                 // pass null as this has an initialization loop. The value is pre-normalized.
-            FacetMaxInclusive.Companion(XSByte.Companion(Byte.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSByte.Companion(Byte.MIN_VALUE)),
+            FacetMaxInclusive.Companion(XsdByte.Companion(Byte.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdByte.Companion(Byte.MIN_VALUE)),
         )
     }
 }

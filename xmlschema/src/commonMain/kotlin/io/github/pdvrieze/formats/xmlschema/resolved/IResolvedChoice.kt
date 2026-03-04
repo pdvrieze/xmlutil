@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Composit
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 interface IResolvedChoice : ResolvedModelGroup {
 
@@ -38,10 +38,10 @@ interface IResolvedChoice : ResolvedModelGroup {
 
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean,
+        isSiblingName: (XsdQName) -> Boolean,
         checkHelper: CheckHelper
     ): FlattenedParticle {
-        val seenNames = mutableSetOf<QName>()
+        val seenNames = mutableSetOf<XsdQName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
 
         val particles = mutableListOf<FlattenedParticle>()

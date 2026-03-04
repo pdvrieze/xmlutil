@@ -26,8 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
@@ -67,11 +66,11 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             else -> AllNNIRange(VAllNNI.Value(mdlMinOccurs), mdlMaxOccurs)
         }
 
-    fun collectElementNames(collector: MutableList<QName>) {
+    fun collectElementNames(collector: MutableList<XsdQName>) {
         visitTerm(ElementNameCollector(collector))
     }
 
-    fun isSiblingName(name: QName): Boolean {
+    fun isSiblingName(name: XsdQName): Boolean {
         return visitTerm(IsSiblingNameVisitor(name))
     }
 
@@ -102,7 +101,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         return flatten(::isSiblingName, checkHelper)
     }
 
-    fun flatten(isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
+    fun flatten(isSiblingName: (XsdQName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
         return when (mdlMaxOccurs) {
             VAllNNI.ZERO -> FlattenedGroup.EMPTY
             else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName, checkHelper)
@@ -137,7 +136,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     }
 }
 
-class ElementNameCollector(private val collector: MutableList<QName>) : ResolvedTerm.ElementVisitor() {
+class ElementNameCollector(private val collector: MutableList<XsdQName>) : ResolvedTerm.ElementVisitor() {
     override fun visitElement(element: ResolvedElement) {
         collector.add(element.mdlQName)
     }
@@ -145,7 +144,7 @@ class ElementNameCollector(private val collector: MutableList<QName>) : Resolved
     override fun visitAny(any: ResolvedAny): Unit = Unit
 }
 
-class IsSiblingNameVisitor(private val name: QName) : ResolvedTerm.Visitor<Boolean>() {
+class IsSiblingNameVisitor(private val name: XsdQName) : ResolvedTerm.Visitor<Boolean>() {
     override fun visitModelGroup(group: ResolvedModelGroup): Boolean {
         return group.mdlParticles.any { it.visitTerm(this) }
     }

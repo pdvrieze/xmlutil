@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.impl
 
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -33,14 +33,14 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.serialization.XML
 
 @XmlUtilInternal
-abstract class SimpleTypeSerializer<T: XSAnySimple>(typeName: String): KSerializer<T> {
+abstract class SimpleTypeSerializer<T: XsdAnySimple>(typeName: String): KSerializer<T> {
     @OptIn(InternalSerializationApi::class)
     final override val descriptor: SerialDescriptor = /*InlinePrimitiveDescriptor(
         if ('.' in typeName) typeName else "$PKG_NAME.$typeName", String.serializer()
     )*/PrimitiveSerialDescriptor(if ('.' in typeName) typeName else "$PKG_NAME.$typeName", PrimitiveKind.STRING)
 
     final override fun serialize(encoder: Encoder, value: T) {
-        encoder/*.encodeInline(descriptor)*/.encodeString(value.xmlString.toString())
+        encoder/*.encodeInline(descriptor)*/.encodeString(value.xmlString)
     }
 
     override fun deserialize(decoder: Decoder): T {

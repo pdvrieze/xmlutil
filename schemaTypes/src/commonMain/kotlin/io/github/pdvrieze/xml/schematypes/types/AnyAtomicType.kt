@@ -21,17 +21,17 @@
 package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XSAtomic
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface AnyAtomicType<out T : XSAnySimple> : AnySimpleType.AtomicOrUnion<T> {
+interface AnyAtomicType<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T> {
     override val baseType: AnySimpleType<*>
 
-    object Instance : AnyAtomicType<XSAtomic>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "anyAtomicType", "xs")
-        override val baseType: AnySimpleType<XSAnySimple> get() = AnySimpleType.Instance
+    object Instance : AnyAtomicType<XsdAtomic>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "anyAtomicType", "xs")
+        override val baseType: AnySimpleType<XsdAnySimple> get() = AnySimpleType.Instance
 
         override val ordered: FacetOrdered get() = FacetOrdered.FALSE
         override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED

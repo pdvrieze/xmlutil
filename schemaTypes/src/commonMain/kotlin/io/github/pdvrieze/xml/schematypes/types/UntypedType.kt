@@ -20,15 +20,15 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface UntypedType: ComplexType {
     override val baseType: AnyType get() = ComplexType.Instance
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     object Instance: UntypedType, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "untyped", "xs")
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "untyped", "xs")
 
     }
 }

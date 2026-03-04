@@ -1,26 +1,26 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
@@ -29,12 +29,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPat
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedUnionDerivation(
     rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
-    context: ResolvedSimpleType,
+    context: ResolvedSimpleType<*>,
 ) : ResolvedSimpleType.Derivation() {
 
     private val _model: Model by lazy {
@@ -42,9 +42,9 @@ class ResolvedUnionDerivation(
     }
     override val model: ResolvedAnnotated.IModel get() = _model
 
-    override val baseType: ResolvedSimpleType get() = AnySimpleType
+    override val baseType: ResolvedSimpleType<*> get() = ResAnySimpleType
 
-    val memberTypes: List<ResolvedSimpleType> get() = _model.memberTypes.map { (it as? UnionMemberWrapper)?.base ?: it }
+    val memberTypes: List<ResolvedSimpleType<*>> get() = _model.memberTypes.map { (it as? UnionMemberWrapper)?.base ?: it }
 
     override fun checkDerivation(checkHelper: CheckHelper) {
         require(_model.memberTypes.isNotEmpty()) { "Union without elements" }
@@ -61,9 +61,9 @@ class ResolvedUnionDerivation(
     private class Model(
         rawPart: XSSimpleUnion,
         schema: ResolvedSchemaLike,
-        context: ResolvedSimpleType
+        context: ResolvedSimpleType<*>
     ) : ResolvedAnnotated.Model(rawPart) {
-        val memberTypes: List<ResolvedSimpleType>
+        val memberTypes: List<ResolvedSimpleType<*>>
 
         init {
             val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it.filterUnionFacets(), schema, context) }
@@ -101,8 +101,8 @@ private fun ResolvedGlobalSimpleType.unionMemberWrapper(): ResolvedGlobalSimpleT
 
 private class UnionMemberWrapper(val base: ResolvedGlobalSimpleType) : ResolvedGlobalSimpleType {
     override val mdlFacets: FacetList = FacetList(enumeration = base.mdlFacets.enumeration, patterns = base.mdlFacets.patterns)
-
-    override val mdlQName: QName get() = base.mdlQName
+    override val name: XsdQName get() = mdlQName
+    override val mdlQName: XsdQName get() = base.mdlQName
 
     override val model: ResolvedSimpleType.Model get() = base.model
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = base.simpleDerivation

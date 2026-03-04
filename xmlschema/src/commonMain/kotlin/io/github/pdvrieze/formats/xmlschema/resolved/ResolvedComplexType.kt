@@ -20,12 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyAtomicType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyAtomicType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Companion.STRICT_ALL_IN_EXTENSION
@@ -33,6 +33,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.DummyCheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
@@ -47,14 +48,14 @@ sealed class ResolvedComplexType(
 
     // TODO use better way to determine this
     //name (provided in ResolvedGlobalType) for globals
-    override val mdlBaseTypeDefinition: ResolvedType get() = model.mdlBaseTypeDefinition
+    override val baseType: ResolvedType get() = model.mdlBaseTypeDefinition
     override val mdlFinal: Set<VDerivationControl.Complex> get() = model.mdlFinal
 
     abstract override val mdlScope: VComplexTypeScope
 
     // abstract only in global types
     // TODO transform to map[QName,IResolvedAttributeUse]
-    val mdlAttributeUses: Map<QName, IResolvedAttributeUse> get() = model.mdlAttributeUses
+    val mdlAttributeUses: Map<XsdQName, IResolvedAttributeUse> get() = model.mdlAttributeUses
     val mdlAttributeWildcard: ResolvedAnyAttribute? get() = model.mdlAttributeWildcard
     val mdlContentType: ResolvedContentType get() = model.mdlContentType
     val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex> get() = model.mdlProhibitedSubstitutions
@@ -98,13 +99,13 @@ sealed class ResolvedComplexType(
         if (asRestriction && model.mdlDerivationMethod != VDerivationControl.RESTRICTION) return false
         if (base.mdlFinal.contains(model.mdlDerivationMethod)) return false
 
-        val btd = mdlBaseTypeDefinition
+        val btd = baseType
         // check derivation method is not in blocking
         if (btd == base) return true
-        if (btd == AnyType) return false // 2.3.1
+        if (btd == ResAnyType) return false // 2.3.1
         return when (btd) {
             is ResolvedComplexType -> btd.isValidlyDerivedFrom(base, asRestriction)
-            is ResolvedSimpleType -> btd.isValidlyDerivedFrom(base, asRestriction)
+            is ResolvedSimpleType<*> -> btd.isValidlyDerivedFrom(base, asRestriction)
             else -> error("Should be unreachable")
         }
     }
@@ -120,7 +121,7 @@ sealed class ResolvedComplexType(
 
         if (model.mdlDerivationMethod == VDerivationControl.EXTENSION) {
 
-            when (mdlBaseTypeDefinition) {
+            when (baseType) {
                 is ResolvedComplexType -> checkExtensionOfComplex(checkHelper)
 
                 else -> {} // extension of simple type
@@ -131,7 +132,7 @@ sealed class ResolvedComplexType(
     }
 
     private fun checkRestriction(checkHelper: CheckHelper) {
-        val b = mdlBaseTypeDefinition
+        val b = baseType
 
         require(VDerivationControl.RESTRICTION !in b.mdlFinal) { "Type ${(b as ResolvedGlobalComplexType).mdlQName} is final for restriction" }
 
@@ -139,7 +140,7 @@ sealed class ResolvedComplexType(
         //            check (b is ResolvedComplexType) { "Restriction must be based on a complex type" }
         val baseContentType = (b as? ResolvedComplexType)?.mdlContentType
         when {
-            b == AnyType -> {} // Derivation is fine
+            b == ResAnyType -> {} // Derivation is fine
 
             contentType is ResolvedSimpleContentType -> {
                 when (baseContentType) {
@@ -196,7 +197,7 @@ sealed class ResolvedComplexType(
                     null -> {
                         val attrWildcard =
                             requireNotNull(b.mdlAttributeWildcard) { "No matching attribute or wildcard found for $dName" }
-                        val context = { n: QName -> n in dAttrs }
+                        val context = { n: XsdQName -> n in dAttrs }
                         require(
                             attrWildcard.matches(dName, context, schema)
                         ) { "Attribute wildcard does not match $dName" }
@@ -223,7 +224,7 @@ sealed class ResolvedComplexType(
     }
 
     private fun checkExtensionOfComplex(checkHelper: CheckHelper) {
-        val baseType = mdlBaseTypeDefinition as ResolvedComplexType
+        val baseType = baseType as ResolvedComplexType
         require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
         for ((baseName, baseUse) in baseType.mdlAttributeUses) {
             val derived =
@@ -258,7 +259,7 @@ sealed class ResolvedComplexType(
             is ResolvedSimpleContentType ->
                 when (val ct = derivedCType) {
                     is EmptyContentType -> {
-                        require(baseType is ResolvedSimpleType || schema.version == SchemaVersion.V1_0) {
+                        require(baseType is ResolvedSimpleType<*> || schema.version == SchemaVersion.V1_0) {
                             "From version 1.1 complexContent can not inherit simpleContent"
                         }
                         require(baseCType.mdlSimpleTypeDefinition.value(VString("")) != null) {
@@ -342,12 +343,12 @@ sealed class ResolvedComplexType(
         val mdlAttributeWildcard: ResolvedAnyAttribute?
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
-        val mdlAttributeUses: Map<QName, IResolvedAttributeUse>
+        val mdlAttributeUses: Map<XsdQName, IResolvedAttributeUse>
         val hasLocalNsInContext: Boolean
     }
 
     internal class AttributeModel(
-        val attributeUses: Map<QName, IResolvedAttributeUse>,
+        val attributeUses: Map<XsdQName, IResolvedAttributeUse>,
         val attributeWildcard: ResolvedAnyAttribute?
     ) {
 //        val attributeWildcard: ResolvedAnyAttribute? get() = null
@@ -359,7 +360,7 @@ sealed class ResolvedComplexType(
         schema: ResolvedSchemaLike
     ) : ResolvedAnnotated.Model(elem.elem), Model {
 
-        final override val mdlAttributeUses: Map<QName, IResolvedAttributeUse>
+        final override val mdlAttributeUses: Map<XsdQName, IResolvedAttributeUse>
             get() = attrModel.attributeUses
 
         final override val mdlAttributeWildcard: ResolvedAnyAttribute?
@@ -412,7 +413,7 @@ sealed class ResolvedComplexType(
                     } else {
                         require(schema !is RedefineSchema) { "When redefining a complex type the base type must be the original" }
 
-                        val seenTypes = mutableSetOf<QName>()
+                        val seenTypes = mutableSetOf<XsdQName>()
                         seenTypes.add(base)
                         val baseType = schema.type(base)
 
@@ -428,7 +429,7 @@ sealed class ResolvedComplexType(
 
                     derivation = content
                     check(derivation.base == null) { " Shorthand has no base" }
-                    baseTypeDefinition = AnyType
+                    baseTypeDefinition = ResAnyType
                 }
 
                 else -> error("Should be unreachable (sealed type)")
@@ -489,7 +490,7 @@ sealed class ResolvedComplexType(
                         derivation is XSComplexType.Shorthand -> // restriction (or shorthand)
                     typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
-                baseTypeDefinition is ResolvedSimpleType -> // simple type 4.2.1
+                baseTypeDefinition is ResolvedSimpleType<*> -> // simple type 4.2.1
                     typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
                 baseTypeDefinition.mdlContentType.mdlVariety.let { // simple content 4.2.1
@@ -499,7 +500,7 @@ sealed class ResolvedComplexType(
                 effectiveContent == null -> baseTypeDefinition.mdlContentType
                 else -> { // extension
                     val baseParticle = (baseTypeDefinition.mdlContentType as ElementContentType).mdlParticle
-                    if (STRICT_ALL_IN_EXTENSION && baseTypeDefinition != AnyType) {
+                    if (STRICT_ALL_IN_EXTENSION && baseTypeDefinition != ResAnyType) {
                         require(baseParticle.mdlTerm is IResolvedAll || term !is XSAll) {
                             "Somehow all in extension is not allowed (its fails various test suite tests - but should be valid on the spec)"
                         }
@@ -591,7 +592,7 @@ sealed class ResolvedComplexType(
         ResolvedSimpleContentType {
 
         final override val mdlBaseTypeDefinition: ResolvedType =
-            elem.elem.content.derivation.base?.let { schema.type(it) } ?: AnyType
+            elem.elem.content.derivation.base?.let { schema.type(it) } ?: ResAnyType
 
         override val mdlDerivationMethod: VDerivationControl.Complex = when (elem.elem.content.derivation) {
             is XSSimpleContentRestriction -> VDerivationControl.RESTRICTION
@@ -602,7 +603,7 @@ sealed class ResolvedComplexType(
 
         // mdlVariety is inherited from ResolvedSimpleContentType
 
-        final override val mdlSimpleTypeDefinition: ResolvedSimpleType
+        final override val mdlSimpleTypeDefinition: ResolvedSimpleType<*>
 
         init {
             val rawPart = elem.elem
@@ -623,7 +624,7 @@ sealed class ResolvedComplexType(
                         val ct = baseType.mdlContentType
                         if (ct is ResolvedSimpleContentType) {
                             val simpleBase = ct.mdlSimpleTypeDefinition
-                            if (simpleBase === AnySimpleType || simpleBase === AnyAtomicType) {
+                            if (simpleBase === ResAnySimpleType || simpleBase === ResAnyAtomicType) {
                                 require(schema.version == SchemaVersion.V1_0) {
                                     "Complex type with simple content may not be a restriction of special types"
                                 }
@@ -648,13 +649,13 @@ sealed class ResolvedComplexType(
                 // 3.4.2.2 (mapping complex type with simple content)
                 complexBaseContentType is ResolvedSimpleContentType &&
                         derivation is XSSimpleContentRestriction -> { // 1
-                    val b: ResolvedSimpleType =
+                    val b: ResolvedSimpleType<*> =
                         derivation.simpleType?.let { ResolvedLocalSimpleType(it, schema, context) } //1.1
                             ?: complexBaseContentType.mdlSimpleTypeDefinition // 1.2
 
                     val newVariety = when {
                         schema.version != SchemaVersion.V1_0 -> b.mdlVariety.notNil()
-                        b == AnySimpleType -> ResolvedSimpleType.Variety.NIL
+                        b == ResAnySimpleType -> ResolvedSimpleType.Variety.NIL
                         else -> b.mdlVariety.notNil()
                     }
 
@@ -690,10 +691,10 @@ sealed class ResolvedComplexType(
                         derivation is XSSimpleContentExtension -> // 3
                     mdlSimpleTypeDefinition = requireNotNull(complexBaseContentType.mdlSimpleTypeDefinition)
 
-                baseType is ResolvedSimpleType && //4
+                baseType is ResolvedSimpleType<*> && //4
                         derivation is XSSimpleContentExtension -> mdlSimpleTypeDefinition = baseType
 
-                else -> mdlSimpleTypeDefinition = AnySimpleType
+                else -> mdlSimpleTypeDefinition = ResAnySimpleType
             }
 
         }
@@ -730,7 +731,7 @@ sealed class ResolvedComplexType(
         /** Implementation of 3.4.6.4 */
         fun restricts(
             baseCT: ResolvedContentType,
-            isSiblingName: (QName) -> Boolean,
+            isSiblingName: (XsdQName) -> Boolean,
             checkHelper: CheckHelper
         ): Boolean {
             if (baseCT !is ElementContentType) return false
@@ -747,7 +748,7 @@ sealed class ResolvedComplexType(
         /** Implementation of 3.9.6.2 */
         fun extends(
             baseCT: ElementContentType,
-            isSiblingName: (QName) -> Boolean,
+            isSiblingName: (XsdQName) -> Boolean,
             checkHelper: CheckHelper
         ): Boolean {
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
@@ -793,7 +794,7 @@ sealed class ResolvedComplexType(
                 return target
             }
 
-            val elements = mutableMapOf<QName, ResolvedElement>()
+            val elements = mutableMapOf<XsdQName, ResolvedElement>()
             mdlParticle.checkParticle(checkHelper)
 
             // Checks v1.1 3.8.6.3 ElementDeclarations Consistent
@@ -818,7 +819,7 @@ sealed class ResolvedComplexType(
 
     class MixedContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        isSiblingName: (QName) -> Boolean,
+        isSiblingName: (XsdQName) -> Boolean,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.Mixed, ElementContentType {
@@ -830,7 +831,7 @@ sealed class ResolvedComplexType(
 
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        isSiblingName: (QName) -> Boolean,
+        isSiblingName: (XsdQName) -> Boolean,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.ElementOnly, ElementContentType {
@@ -847,14 +848,14 @@ sealed class ResolvedComplexType(
 
         val mdlContentType: ResolvedSimpleContentType
 
-        override val mdlSimpleTypeDefinition: ResolvedSimpleType
+        override val mdlSimpleTypeDefinition: ResolvedSimpleType<*>
 
         val mdlBaseTypeDefinition: ResolvedType
         val mdlContext: VComplexTypeScope.Member
         val mdlAbstract: Boolean
         val mdlProhibitedSubstitutions: Set<VDerivationControl.Complex>
         val mdlFinal: Set<VDerivationControl.Complex>
-        val mdlAttributeUses: Map<QName, IResolvedAttributeUse>
+        val mdlAttributeUses: Map<XsdQName, IResolvedAttributeUse>
         val mdlDerivationMethod: VDerivationControl.Complex
 
     }
@@ -864,11 +865,11 @@ sealed class ResolvedComplexType(
         effectiveContent: ResolvedParticle<ResolvedModelGroup>?,
         schema: ResolvedSchemaLike,
         openContent: ResolvedOpenContent?,
-        attributeNames: Collection<QName>
+        attributeNames: Collection<XsdQName>
     ): ResolvedContentType {
         if (effectiveContent == null) return EmptyContentType
 
-        val context = buildList<QName> {
+        val context = buildList<XsdQName> {
             addAll(attributeNames)
             effectiveContent.collectElementNames(this)
         }
@@ -898,11 +899,11 @@ sealed class ResolvedComplexType(
 
             elem.elem.content.derivation.anyAttribute?.let { wildcards.add(ResolvedAnyAttribute(it, schema)) }
 
-            val prohibitedAttrNames = mutableSetOf<QName>()
+            val prohibitedAttrNames = mutableSetOf<XsdQName>()
 
-            val baseType = ownerType.mdlBaseTypeDefinition as? ResolvedComplexType
+            val baseType = ownerType.baseType as? ResolvedComplexType
 
-            val attributes = buildMap<QName, IResolvedAttributeUse> {
+            val attributes = buildMap<XsdQName, IResolvedAttributeUse> {
                 // Defined attributes
                 for (attr in rawPart.content.derivation.attributes) {
                     val resolvedAttribute = ResolvedLocalAttribute(ownerType, elem.wrap(attr), schema, schema.attributeFormDefault)
@@ -980,12 +981,12 @@ sealed class ResolvedComplexType(
                 // this is legal in 1.1
                 var idAttrName: QName? = null
                 for (use in attributes.values) {
-                    if (use !is ResolvedProhibitedAttribute && use.mdlAttributeDeclaration.mdlTypeDefinition == IDType) {
+                    if (use !is ResolvedProhibitedAttribute && use.mdlAttributeDeclaration.mdlTypeDefinition == ResIDType) {
                         require(idAttrName == null) { "Multiple attributes with id type: ${idAttrName} and ${use.mdlAttributeDeclaration.mdlQName}" }
                         require(use.mdlValueConstraint !is ValueConstraint.Fixed) {
                             "Fixed id attributes are not allowed in 1.0"
                         }
-                        idAttrName = use.mdlQName
+                        idAttrName = use.mdlQName.toQName()
                     }
                 }
             }
@@ -1016,7 +1017,7 @@ sealed class ResolvedComplexType(
                         completeWildcard == null -> baseWildcard
                         else -> ResolvedAnyAttribute(
                             mdlNamespaceConstraint = baseWildcard.mdlNamespaceConstraint.union(completeWildcard.mdlNamespaceConstraint,
-                                { n:QName -> n in attributeUses }, schema),
+                                { n:XsdQName -> n in attributeUses }, schema),
                             mdlProcessContents = completeWildcard.mdlProcessContents,
                             model = completeWildcard.model
                         )

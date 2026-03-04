@@ -20,19 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedGroup.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.localPart
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
 import kotlin.jvm.JvmStatic
 
-internal typealias ContextT = (QName) -> Boolean
+internal typealias ContextT = (XsdQName) -> Boolean
 
 sealed class FlattenedGroup(
     range: AllNNIRange,
@@ -46,7 +45,7 @@ sealed class FlattenedGroup(
 
         override fun restricts(
             reference: FlattenedParticle,
-            isSiblingName: (QName) -> Boolean,
+            isSiblingName: (XsdQName) -> Boolean,
             checkHelper: CheckHelper
         ): Boolean {
             return reference.isEmptiable
@@ -476,7 +475,7 @@ sealed class FlattenedGroup(
 
         override fun extendsSequence(
             base: Sequence,
-            isSiblingName: (QName) -> Boolean,
+            isSiblingName: (XsdQName) -> Boolean,
             schema: ResolvedSchemaLike
         ): Boolean {
             // 3.9.6.2
@@ -752,10 +751,10 @@ sealed class FlattenedGroup(
         // TODO move to IResolvedSequence
         internal fun checkSequence(
             particles: List<FlattenedParticle>,
-            isSiblingName: (QName) -> Boolean,
+            isSiblingName: (XsdQName) -> Boolean,
             checkHelper: CheckHelper
         ) {
-            var lastOptionals: MutableList<QName> = mutableListOf()
+            var lastOptionals: MutableList<XsdQName> = mutableListOf()
             var lastAnys: MutableList<ResolvedAny> = mutableListOf()
             for (p in particles) {
                 for (startTerm in p.startingTerms()) {
@@ -848,13 +847,13 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
     open fun restricts(
         reference: FlattenedParticle,
-        isSiblingName: (QName) -> Boolean,
+        isSiblingName: (XsdQName) -> Boolean,
         checkHelper: CheckHelper,
     ): Boolean {
         return reference.isRestrictedBy(this, isSiblingName, checkHelper)
     }
 
-    open fun extends(base: FlattenedParticle, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): Boolean {
+    open fun extends(base: FlattenedParticle, isSiblingName: (XsdQName) -> Boolean, schema: ResolvedSchemaLike): Boolean {
         return base.isExtendedBy(this, isSiblingName, schema)
     }
 
@@ -873,7 +872,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
     open fun extendsChoice(base: Choice, context: ContextT, schema: ResolvedSchemaLike): Boolean = false
 
-    open fun extendsSequence(base: Sequence, isSiblingName: (QName) -> Boolean, schema: ResolvedSchemaLike): Boolean =
+    open fun extendsSequence(base: Sequence, isSiblingName: (XsdQName) -> Boolean, schema: ResolvedSchemaLike): Boolean =
         false
 
     open fun restrictsElement(base: Element, context: ContextT, checkHelper: CheckHelper): Boolean = false
@@ -1209,7 +1208,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
 
             // NSSubset 3, (exception for the ur-wildcard is needed - although a shortcut may apply by just always
             // restricting AnyType)
-            return base.term === AnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
+            return base.term === ResAnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
         }
 
         override fun restrictsAll(base: All, isSiblingName: ContextT, checkHelper: CheckHelper): Boolean {
@@ -1271,7 +1270,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                     checkHelper.version
                 )
             ) return null
-            if (reference.term !== AnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) return null
+            if (reference.term !== ResAnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) return null
             return reference - range
         }
 
@@ -1377,7 +1376,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return particles.size - other.particles.size
         }
 
-        private operator fun QName.compareTo(other: QName): Int {
+        private operator fun XsdQName.compareTo(other: XsdQName): Int {
             return when (val l = localPart.compareTo(other.localPart)) {
                 0 -> namespaceURI.compareTo(other.namespaceURI)
                 else -> l

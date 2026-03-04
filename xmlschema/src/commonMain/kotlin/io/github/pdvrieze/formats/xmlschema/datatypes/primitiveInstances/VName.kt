@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NameType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNameType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isXmlName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -38,7 +38,7 @@ interface VName : VToken {
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer : SimpleTypeSerializer<VName>("VName") {
+    class Serializer : SimpleVTypeSerializer<VName>("VName") {
         override fun deserialize(
             raw: String,
             input: XmlReader?
@@ -51,7 +51,7 @@ interface VName : VToken {
     companion object {
 
         operator fun invoke(value: String): VName {
-            val validated = NameType.mdlFacets.validateRepresentationOnly(NameType, VString(value))
+            val validated = ResNameType.mdlFacets.validateRepresentationOnly(ResNameType, VString(value))
             return Inst(validated.xmlString)
         }
 

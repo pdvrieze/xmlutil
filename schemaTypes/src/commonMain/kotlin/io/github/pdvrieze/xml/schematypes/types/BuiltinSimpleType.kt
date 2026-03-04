@@ -20,6 +20,6 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 
-interface XXXBuiltinSimpleType<out T : XSAnySimple> : AnySimpleType<T>, BuiltinType
+interface XXXBuiltinSimpleType<out T : XsdAnySimple> : AnySimpleType<T>, BuiltinType

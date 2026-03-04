@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 sealed interface Facet {
-    val name: XSQName
+    val facetName: XsdQName
 }
 
 sealed interface FundamentalFacet : Facet {

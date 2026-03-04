@@ -1,32 +1,32 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdNCName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
@@ -39,11 +39,11 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSLocalAttribute : XSAttribute {
 
     @XmlBefore("type")
-    override val name: VNCName?
+    override val name: XsdNCName?
 
     @XmlElement(false)
     val form: VFormChoice?
-    var ref: SerializableQName? = null
+    var ref: XsdQName? = null
         private set
 
     @XmlElement(false)
@@ -53,19 +53,19 @@ class XSLocalAttribute : XSAttribute {
 
 
     constructor(
-        name: VNCName? = null,
+        name: XsdNCName? = null,
         form: VFormChoice? = null,
-        ref: QName? = null,
+        ref: XsdQName? = null,
         use: XSAttrUse? = null,
         default: VString? = null,
         fixed: VString? = null,
-        type: QName? = null,
+        type: XsdQName? = null,
         targetNamespace: VAnyURI? = null,
         inheritable: Boolean? = null,
         simpleType: XSLocalSimpleType? = null,
         id: VID? = null,
         annotation: XSAnnotation? = null,
-        otherAttrs: Map<QName, String> = emptyMap()
+        otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(default, fixed, type, inheritable, simpleType, id, annotation, otherAttrs) {
         this.name = name
         this.form = form

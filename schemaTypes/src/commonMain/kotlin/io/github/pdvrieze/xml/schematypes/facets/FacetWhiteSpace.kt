@@ -21,20 +21,22 @@
 package io.github.pdvrieze.xml.schematypes.facets
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
-class FacetWhiteSpace(
-    val value: WhitespaceValue,
-    override val fixed: Boolean? = null,
-) : ConstrainingFacet.Fixed {
+interface FacetWhiteSpace : ConstrainingFacet.Fixed {
+    val value: WhitespaceValue
+    override val facetName: XsdQName get() = NAME
 
-    override val name: XSQName get() = NAME
+    class FacetWhiteSpaceImpl(
+        override val value: WhitespaceValue,
+        override val fixed: Boolean? = null,
+    ) : FacetWhiteSpace
+
 
     companion object {
-        val NAME: XSQName = XSQName(XSD_NS_URI, "whiteSpace", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "whiteSpace", XSD_PREFIX)
     }
-
 }
 
