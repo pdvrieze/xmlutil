@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.values.XSAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
-interface PrimitiveDatatype<out T : XSAtomic> : AnyAtomicType<T> {
+interface PrimitiveDatatype<out T : XsdAtomic> : AnyAtomicType<T> {
     override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
 }

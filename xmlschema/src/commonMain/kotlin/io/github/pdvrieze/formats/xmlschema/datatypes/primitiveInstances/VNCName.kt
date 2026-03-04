@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName10
+import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
@@ -31,8 +32,11 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmName
 
-@Serializable(VNCName.Serializer::class)
-interface VNCName : VName {
+typealias VNCName = XsdNCName
+fun VNCName(str: String): XsdNCName = XsdNCName(str)
+
+@Serializable(VNCNameXX.Serializer::class)
+interface VNCNameXX : VName {
 
     fun toQname(targetNamespace: VAnyURI?): QName {
         return QName(targetNamespace?.value ?: "", xmlString)
@@ -40,10 +44,10 @@ interface VNCName : VName {
 
 
     @JvmInline
-    private value class Inst private constructor(override val xmlString: String) : VNCName {
+    private value class Inst private constructor(override val xmlString: String) : VNCNameXX {
 
         init {
-            // This can not go through NCNameType as VNCName is used in AtomicDatatype
+            // This can not go through NCNameType as VNCNameXX is used in AtomicDatatype
             require(xmlString.isNCName()) { "'$xmlString' is not an NCName" }
         }
 
@@ -58,11 +62,11 @@ interface VNCName : VName {
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer : SimpleTypeSerializer<VNCName>("VNCName") {
+    class Serializer : SimpleVTypeSerializer<VNCNameXX>("VNCNameXX") {
         override fun deserialize(
             raw: String,
             input: XmlReader?
-        ): VNCName {
+        ): VNCNameXX {
             val version = when {
                 input?.version == "1.0" -> XmlVersion.XML10
                 else -> XmlVersion.XML11
@@ -72,8 +76,8 @@ interface VNCName : VName {
     }
 
     companion object {
-        operator fun invoke(value: String): VNCName = Inst(value)
+        operator fun invoke(value: String): VNCNameXX = Inst(value)
         @JvmName("invokeNullable")
-        operator fun invoke(value: String?): VNCName? = value?.let { Inst(it) }
+        operator fun invoke(value: String?): VNCNameXX? = value?.let { Inst(it) }
     }
 }

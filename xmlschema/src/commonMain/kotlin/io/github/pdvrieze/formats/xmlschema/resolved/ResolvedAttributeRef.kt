@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttri
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedAttributeRef(
     parent: VAttributeScope.Member,
@@ -54,7 +54,7 @@ class ResolvedAttributeRef(
     override val mdlAttributeDeclaration: ResolvedAttributeDef
         get() = model.mdlAttributeDeclaration
 
-    override val mdlQName: QName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
+    override val mdlQName: XsdQName = rawPart.ref?.let { schema.attribute(it).mdlQName } ?: run {
         val ns = rawPart.targetNamespace ?: when {
             (rawPart.form ?: schema.attributeFormDefault) == VFormChoice.QUALIFIED ->
                 schema.targetNamespace
@@ -91,7 +91,7 @@ class ResolvedAttributeRef(
             }
         }
 
-        override val mdlTypeDefinition: ResolvedSimpleType get() = mdlAttributeDeclaration.mdlTypeDefinition
+        override val mdlTypeDefinition: ResolvedSimpleType<*> get() = mdlAttributeDeclaration.mdlTypeDefinition
     }
 
 }

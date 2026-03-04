@@ -30,7 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 interface IResolvedChoice : ResolvedModelGroup {
 
@@ -47,12 +47,12 @@ interface IResolvedChoice : ResolvedModelGroup {
         range: AllNNIRange,
         siblingContext: SiblingContextProvider
     ): FlattenedParticle {
-        val seenNames = mutableSetOf<QName>()
+        val seenNames = mutableSetOf<XsdQName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
 
         val particles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName)
+            val f = p.flatten(siblingContext)
 
             when {
                 f is FlattenedChoice && f.range.isSimple -> particles.addAll(f.particles)

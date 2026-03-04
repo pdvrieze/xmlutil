@@ -20,22 +20,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable(VID.Serializer::class)
-value class VID private constructor(override val xmlString: String) : VNCName {
+value class VID private constructor(override val xmlString: String) : VNCNameXX {
 
     init {
-        IDType.mdlFacets.validateValue(this)
+        ResIDType.mdlFacets.validateValue(this)
     }
 
     override fun toString(): String = xmlString
 
-    class Serializer : SimpleTypeSerializer<VID>("ID") {
+    class Serializer : SimpleVTypeSerializer<VID>("ID") {
         override fun deserialize(
             raw: String,
             input: XmlReader?
@@ -47,8 +47,8 @@ value class VID private constructor(override val xmlString: String) : VNCName {
     companion object {
 
         operator fun invoke(rawId: String): VID {
-            val r = IDType.mdlFacets.validateRepresentationOnly(
-                IDType,
+            val r = ResIDType.mdlFacets.validateRepresentationOnly(
+                ResIDType,
                 VString(rawId)
             )
             return VID(r.xmlString)

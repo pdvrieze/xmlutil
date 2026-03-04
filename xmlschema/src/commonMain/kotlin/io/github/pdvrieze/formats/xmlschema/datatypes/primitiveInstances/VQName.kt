@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyURIType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NCNameType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyURIType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNCNameType
 import nl.adaptivity.xmlutil.QName
 
 class VQName(namespaceUri: String, localName: String, prefix: String) : VAnySimpleType {
@@ -35,15 +35,15 @@ class VQName(namespaceUri: String, localName: String, prefix: String) : VAnySimp
 
     val namespaceUri: String = when {
         namespaceUri.isEmpty() -> ""
-        else -> AnyURIType.mdlFacets.validateRepresentationOnly(NCNameType, VString(namespaceUri)).xmlString
+        else -> ResAnyURIType.mdlFacets.validateRepresentationOnly(ResNCNameType, VString(namespaceUri)).xmlString
     }
 
     val localName: String =
-        NCNameType.mdlFacets.validateRepresentationOnly(NCNameType, VString(localName)).xmlString
+        ResNCNameType.mdlFacets.validateRepresentationOnly(ResNCNameType, VString(localName)).xmlString
 
     val prefix: String = when {
         prefix.isEmpty() -> ""
-        else -> NCNameType.mdlFacets.validateRepresentationOnly(NCNameType, VString(prefix)).xmlString
+        else -> ResNCNameType.mdlFacets.validateRepresentationOnly(ResNCNameType, VString(prefix)).xmlString
     }
 
     override val xmlString: String

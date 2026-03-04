@@ -20,8 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.flattened
 
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
 fun interface SiblingContextProvider {
-    fun isSibling(particleName: QName): Boolean
+    fun isSibling(particleName: XsdQName): Boolean
 }

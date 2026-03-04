@@ -25,8 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSelector
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.SerializableQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedDirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedNamedIdentityConstraint(rawPart, schema, owner), ResolvedKeyRef {
@@ -39,9 +38,9 @@ class ResolvedDirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner:
         requireNotNull(rawPart.refer)
     }
 
-    override val refer: SerializableQName = invariantNotNull(rawPart.refer)
+    override val refer: XsdQName = invariantNotNull(rawPart.refer)
 
-    override val mdlQName: QName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
+    override val mdlQName: XsdQName = requireNotNull(rawPart.name).toQname(schema.targetNamespace)
 
     override val selector: XSSelector = requireNotNull(rawPart.selector)
 

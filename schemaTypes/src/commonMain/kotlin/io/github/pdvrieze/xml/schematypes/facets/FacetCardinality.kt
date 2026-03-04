@@ -20,9 +20,13 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import nl.adaptivity.xmlutil.XMLConstants
+
 interface FacetCardinality : FundamentalFacet {
     val isFinite: Boolean
     val isCountablyInfinite: Boolean get() = !isFinite
+    override val facetName: XsdQName get() = name
 
     private enum class Cardinality(override val isFinite: Boolean): FacetCardinality {
         FINITE(true), COUNTABLY_INFINITE(false);
@@ -31,8 +35,9 @@ interface FacetCardinality : FundamentalFacet {
     companion object {
         val FINITE: FacetCardinality get() = Cardinality.FINITE
         val COUNTABLY_INFINITE: FacetCardinality get() = Cardinality.COUNTABLY_INFINITE
-
         operator fun invoke(isFinite: Boolean): FacetCardinality =
             if(isFinite) Cardinality.FINITE else Cardinality.COUNTABLY_INFINITE
+
+        val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "cardinality", XMLConstants.XSD_PREFIX)
     }
 }

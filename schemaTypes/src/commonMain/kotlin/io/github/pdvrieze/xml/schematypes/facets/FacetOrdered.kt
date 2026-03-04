@@ -20,16 +20,17 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.types.TokenType
-import io.github.pdvrieze.xml.schematypes.values.XSToken
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import nl.adaptivity.xmlutil.XMLConstants
 
-interface FacetOrdered : FundamentalFacet, XSToken {
+interface FacetOrdered : FundamentalFacet {
     val isPartial: Boolean
     val isTotal: Boolean
     val isFalse: Boolean
-    override val schemaType: TokenType<*> get() = TokenType.Instance
 
-    private enum class Ordered(override val xmlString: String): FacetOrdered {
+    override val facetName: XsdQName get() = name
+
+    private enum class Ordered(val xmlString: String): FacetOrdered {
         FALSE("false") {
             override val isFalse: Boolean get() = true
         },
@@ -49,6 +50,8 @@ interface FacetOrdered : FundamentalFacet, XSToken {
         val FALSE: FacetOrdered get() = Ordered.FALSE
         val PARTIAL: FacetOrdered get() = Ordered.PARTIAL
         val TOTAL: FacetOrdered get() = Ordered.TOTAL
+
+        val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "ordered", XMLConstants.XSD_PREFIX)
 
         operator fun invoke(xmlString: String): FacetOrdered =
             Ordered.entries.single { it.xmlString == xmlString }

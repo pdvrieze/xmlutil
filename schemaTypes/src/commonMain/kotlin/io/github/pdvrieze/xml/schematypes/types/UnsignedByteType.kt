@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.XSUnsignedByte
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedByte
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedByteType<out T : XSUnsignedByte> : UnsignedShortType<T> {
+interface UnsignedByteType<out T : XsdUnsignedByte> : UnsignedShortType<T> {
     override val baseType: UnsignedShortType<*> get() = UnsignedShortType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,20 +34,20 @@ interface UnsignedByteType<out T : XSUnsignedByte> : UnsignedShortType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedByteType<XSUnsignedByte>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "unsignedByte", "xs")
+    object Instance: UnsignedByteType<XsdUnsignedByte>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "unsignedByte", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XSUnsignedByte.Companion(UByte.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSUnsignedByte.Companion(0u)),
+            FacetMaxInclusive.Companion(XsdUnsignedByte.Companion(UByte.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdUnsignedByte.Companion(0u)),
         )
     }
 }

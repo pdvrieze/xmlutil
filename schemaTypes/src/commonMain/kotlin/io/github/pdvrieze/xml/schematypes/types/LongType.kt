@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSLong
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface LongType<out T : XSLong> : IntegerType<T> {
+interface LongType<out T : XsdLong> : IntegerType<T> {
     override val baseType: IntegerType<*> get() = IntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,21 +34,21 @@ interface LongType<out T : XSLong> : IntegerType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : LongType<XSLong>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "long", "xs")
+    object Instance : LongType<XsdLong>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "long", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
             // pass null as this has an initialization loop. The value is pre-normalized.
-            FacetMaxInclusive.Companion(XSLong.Companion(Long.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSLong.Companion(Long.MIN_VALUE)),
+            FacetMaxInclusive.Companion(XsdLong.Companion(Long.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdLong.Companion(Long.MIN_VALUE)),
         )
     }
 }

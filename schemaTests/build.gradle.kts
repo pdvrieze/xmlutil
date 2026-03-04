@@ -76,6 +76,8 @@ kotlin {
             dependencies {
                 api(projects.core)
                 api(projects.xmlschema)
+                api(projects.schemaTypes)
+                api(projects.xpath)
                 api(projects.serialization)
                 api(kotlin("test"))
                 implementation(projects.testutil)

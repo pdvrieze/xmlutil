@@ -20,18 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.namespaceURI
 
 sealed interface ResolvedIdentityConstraint : ResolvedAnnotated {
     val selector: XSSelector
 
-    val mdlQName: QName?
+    val mdlQName: XsdQName?
 
     /**
      * At least 1 if selector is present

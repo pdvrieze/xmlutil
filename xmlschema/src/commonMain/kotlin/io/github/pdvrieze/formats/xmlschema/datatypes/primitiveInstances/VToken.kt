@@ -37,7 +37,7 @@ interface VToken : VNormalizedString {
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer : SimpleTypeSerializer<VToken>("token") {
+    class Serializer : SimpleVTypeSerializer<VToken>("token") {
         override fun deserialize(
             raw: String,
             input: XmlReader?

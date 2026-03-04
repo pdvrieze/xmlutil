@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -25,9 +25,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
@@ -66,11 +66,11 @@ class XSComplexContent(
         final override val anyAttribute: XSAnyAttribute?
         @XmlBefore("term")
         final override val openContent: XSOpenContent?
-        final override val base: SerializableQName?
+        final override val base: XsdQName?
         abstract val derivationMethod: VDerivationControl.Complex
 
         constructor(
-            base: QName?,
+            base: XsdQName?,
             term: XSIDerivationParticle?,
             attributes: List<XSLocalAttribute>,
             attributeGroups: List<XSAttributeGroupRef>,
@@ -109,7 +109,7 @@ class XSComplexContent(
         constructor(
             simpleType: XSLocalSimpleType? = null,
             otherContents: List<CompactFragment> = emptyList(),
-            base: QName,
+            base: XsdQName,
             term: XSIDerivationParticle? = null,
             attributes: List<XSLocalAttribute> = emptyList(),
             attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -118,7 +118,7 @@ class XSComplexContent(
             openContent: XSOpenContent? = null,
             id: VID? = null,
             annotation: XSAnnotation? = null,
-            otherAttrs: Map<QName, String> = emptyMap()
+            otherAttrs: Map<SerializableQName, String> = emptyMap()
         ) : super(
             base,
             term,
@@ -145,7 +145,7 @@ class XSComplexContent(
     @Serializable
     class XSExtension : XSComplexDerivationBase {
         constructor(
-            base: QName,
+            base: XsdQName,
             term: XSIDerivationParticle? = null,
             attributes: List<XSLocalAttribute> = emptyList(),
             attributeGroups: List<XSAttributeGroupRef> = emptyList(),
@@ -154,7 +154,7 @@ class XSComplexContent(
             openContent: XSOpenContent? = null,
             id: VID? = null,
             annotation: XSAnnotation? = null,
-            otherAttrs: Map<QName, String> = emptyMap()
+            otherAttrs: Map<SerializableQName, String> = emptyMap()
         ) : super(
             base, term, attributes, attributeGroups, asserts, anyAttribute, openContent, id, annotation, otherAttrs
         )

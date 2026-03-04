@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.xml.schematypes
 
-import io.github.pdvrieze.xml.schematypes.values.XSString
-import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixString
-import io.github.pdvrieze.xml.schematypes.values.instances.XSPrefixStringList
+import io.github.pdvrieze.xml.schematypes.values.XsdString
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixStringList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -32,7 +32,7 @@ enum class WhitespaceValue {
     @SerialName("preserve")
     PRESERVE {
         @Deprecated("Preserve normalization is meaningless", ReplaceWith("representation"))
-        override fun normalize(representation: XSString): XSString = representation
+        override fun normalize(representation: XsdString): XsdString = representation
         override fun canOverride(oldValue: WhitespaceValue): Boolean = (oldValue == PRESERVE)
     },
 
@@ -48,17 +48,17 @@ enum class WhitespaceValue {
             })
         }
 
-        override fun normalize(representation: XSString): XSString = when(representation) {
-            is XSPrefixStringList -> XSPrefixStringList(
+        override fun normalize(representation: XsdString): XsdString = when(representation) {
+            is XsdPrefixStringList -> XsdPrefixStringList(
                 representation.elems.map { normalize(it) })
 
-            is XSPrefixString -> XSPrefixString(
+            is XsdPrefixString -> XsdPrefixString(
                 namespace = replace(representation.namespace),
                 prefix = replace(representation.prefix),
                 localname = replace(representation.localname),
             )
 
-            else -> XSString.Companion(
+            else -> XsdString.Companion(
                 replace(
                     representation.xmlString
                 )
@@ -70,22 +70,22 @@ enum class WhitespaceValue {
 
     @SerialName("collapse")
     COLLAPSE {
-        override fun normalize(representation: XSString): XSString = when (representation) {
-            is XSPrefixStringList -> XSPrefixStringList(
+        override fun normalize(representation: XsdString): XsdString = when (representation) {
+            is XsdPrefixStringList -> XsdPrefixStringList(
                 representation.elems.asSequence()
-                    .filter { it is XSPrefixString || it.isNotEmpty() }
+                    .filter { it is XsdPrefixString || it.isNotEmpty() }
                     .map { normalize(it) }
                     .toList()
             )
 
-            is XSPrefixString -> XSPrefixString(
+            is XsdPrefixString -> XsdPrefixString(
                 namespace = xmlCollapseWhitespace(representation.namespace),
                 prefix = xmlCollapseWhitespace(representation.prefix),
                 localname = xmlCollapseWhitespace(representation.localname),
             )
 
-            else -> XSString.Companion(
-                xmlCollapseWhitespace(representation.xmlString.toString())
+            else -> XsdString.Companion(
+                xmlCollapseWhitespace(representation.xmlString)
             )
         }
 
@@ -93,7 +93,7 @@ enum class WhitespaceValue {
 
     };
 
-    abstract fun normalize(representation: XSString): XSString
+    abstract fun normalize(representation: XsdString): XsdString
 
     abstract fun canOverride(oldValue: WhitespaceValue): Boolean
 

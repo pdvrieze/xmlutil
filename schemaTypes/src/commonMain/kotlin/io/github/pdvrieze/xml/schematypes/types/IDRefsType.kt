@@ -22,12 +22,12 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSIDRef
-import io.github.pdvrieze.xml.schematypes.values.XSIDRefs
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdIDRef
+import io.github.pdvrieze.xml.schematypes.values.XsdIDRefs
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface IDRefsType<out T : XSIDRefs, out E: XSIDRef> : AnySimpleListType<T, E> {
+interface IDRefsType<out T : XsdIDRefs, out E: XsdIDRef> : AnySimpleListType<T, E> {
 
     override val baseType: AnySimpleListType<*, *> get() = Instance.baseType
     override val itemType: IDRefType<E>
@@ -37,18 +37,18 @@ interface IDRefsType<out T : XSIDRefs, out E: XSIDRef> : AnySimpleListType<T, E>
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : IDRefsType<XSIDRefs, XSIDRef>, BuiltinType {
+    object Instance : IDRefsType<XsdIDRefs, XsdIDRef>, BuiltinType {
         override val baseType: AnySimpleListType<*, *> =
             AnySimpleListType(itemType)
 
-        override val itemType: IDRefType<XSIDRef> get() = IDRefType.Instance
+        override val itemType: IDRefType<XsdIDRef> get() = IDRefType.Instance
 
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "IDREFS", "xs")
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "IDREFS", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyAtomicType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyAtomicType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
@@ -84,7 +84,7 @@ abstract class ResolvedSimpleRestrictionBase(
         override val otherContents: List<CompactFragment>
 
         internal constructor(
-            baseType: ResolvedType = AnySimpleType,
+            baseType: ResolvedType = ResAnySimpleType,
             facets: FacetList = FacetList.EMPTY,
             otherContents: List<CompactFragment> = emptyList(),
             id: VID? = null,
@@ -100,7 +100,7 @@ abstract class ResolvedSimpleRestrictionBase(
         constructor(
             rawPart: XSSimpleRestriction,
             schema: ResolvedSchemaLike,
-            baseType: ResolvedSimpleType,
+            baseType: ResolvedSimpleType<*>,
             annotations: List<ResolvedAnnotation> = listOfNotNull(rawPart.annotation.models())
         ) : super(rawPart, annotations) {
             this.baseType = baseType
@@ -108,7 +108,7 @@ abstract class ResolvedSimpleRestrictionBase(
             this.facets = FacetList.safe(rawPart.facets, schema, baseType)
 
             if (schema.version == SchemaVersion.V1_1) {
-                require(baseType != AnySimpleType && baseType != AnyAtomicType) {
+                require(baseType != ResAnySimpleType && baseType != ResAnyAtomicType) {
                     "2.4.2.1) Restrictions may only inherit from non-special types"
                 }
             }
@@ -119,7 +119,7 @@ abstract class ResolvedSimpleRestrictionBase(
             rawPart: XSSimpleRestriction,
             schema: ResolvedSchemaLike,
             annotations: List<ResolvedAnnotation> = listOfNotNull(rawPart.annotation.models()),
-            context: ResolvedSimpleType,
+            context: ResolvedSimpleType<*>,
         ) : this(
             rawPart,
             schema,

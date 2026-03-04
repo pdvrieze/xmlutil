@@ -25,7 +25,6 @@ import nl.adaptivity.xmlutil.isXmlWhitespace
 fun String.rawStringToCollapsedSequence(): Sequence<String> {
     val original = this
     return sequence {
-        var last = ' ' // Start with space, to trim start of symbol
         var newStart = 0
         var i = 0
         val l = original.length

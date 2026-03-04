@@ -22,9 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.types.BuiltinType
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinType : ResolvedGlobalType {
+interface ResolvedBuiltinType : ResolvedGlobalType, BuiltinType {
+    @Deprecated("Use name instead")
+    override val mdlQName: XsdQName get() = name
+
     context(checkHelper: CheckHelper)
     override fun checkType() = Unit
     val isSpecial: Boolean

@@ -56,7 +56,7 @@ interface VString : VAnyAtomicType, CharSequence {
     }
 
     @OptIn(XmlUtilInternal::class)
-    class Serializer : SimpleTypeSerializer<VString>("VString") {
+    class Serializer : SimpleVTypeSerializer<VString>("VString") {
 
         override fun deserialize(
             raw: String,
@@ -121,6 +121,7 @@ interface VString : VAnyAtomicType, CharSequence {
 
     companion object {
         operator fun invoke(value: String): VString = Inst(value)
+        operator fun invoke(value: CharSequence): VString = Inst(value.toString())
     }
 }
 

@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedSequence internal constructor(
     parent: VElementScope.Member,
@@ -44,7 +44,7 @@ class ResolvedSequence internal constructor(
     context(checkHelper: CheckHelper)
     override fun checkTerm() {
         super<IResolvedSequence>.checkTerm()
-        val existing = mutableMapOf<QName, ResolvedElement>()
+        val existing = mutableMapOf<XsdQName, ResolvedElement>()
         val terms = mdlParticles.asSequence()
             .filterIsInstance<IResolvedElementUse>()
             .filter { it !is ResolvedProhibitedElement }

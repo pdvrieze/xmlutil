@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedGroupRef(
     rawPart: XSGroupRef,
@@ -39,7 +39,7 @@ class ResolvedGroupRef(
         require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
     }
 
-    val mdlRef: QName = rawPart.ref
+    val mdlRef: XsdQName = rawPart.ref
 
     override val model: Model by lazy { Model(rawPart, schema) }
 

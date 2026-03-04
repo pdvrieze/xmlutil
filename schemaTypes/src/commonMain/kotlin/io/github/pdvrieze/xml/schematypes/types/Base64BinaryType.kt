@@ -22,27 +22,26 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSBase64Binary
-import io.github.pdvrieze.xml.schematypes.values.XSByteArray
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdBase64Binary
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @OptIn(ExperimentalEncodingApi::class)
-interface Base64BinaryType<out T : XSByteArray> : PrimitiveDatatype<T> {
+interface Base64BinaryType<out T : XsdBase64Binary> : PrimitiveDatatype<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : Base64BinaryType<XSBase64Binary>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "base64Binary", "xs")
+    object Instance : Base64BinaryType<XsdBase64Binary>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "base64Binary", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

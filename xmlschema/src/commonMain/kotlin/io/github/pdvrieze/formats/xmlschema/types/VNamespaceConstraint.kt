@@ -22,11 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.types
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
+import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 
 data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     val mdlVariety: Variety,
@@ -63,7 +65,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         else -> elem !in disallowedNames
     }
 
-    fun matches(name: QName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
+    fun matches(name: XsdQName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean = when (mdlVariety) {
         Variety.ANY -> !disallowedNames.contains(name, context, schema)
 
         Variety.ENUMERATION -> name.namespaceURI.toAnyUri() in namespaces &&
@@ -431,7 +433,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         }
     }
 
-    fun reduceStrict(availableNames: List<QName>, isSiblingName: SiblingContextProvider, schema: ResolvedSchemaLike): VNamespaceConstraint<E> {
+    fun reduceStrict(availableNames: List<XsdQName>, isSiblingName: SiblingContextProvider, schema: ResolvedSchemaLike): VNamespaceConstraint<E> {
 
         val newNames = when (mdlVariety) {
             Variety.ANY -> availableNames.asSequence()

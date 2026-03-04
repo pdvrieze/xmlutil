@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroup
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedGlobalAttributeGroup internal constructor(
     element: SchemaElement<XSAttributeGroup>,
@@ -41,7 +41,7 @@ class ResolvedGlobalAttributeGroup internal constructor(
         )
     }
 
-    override val mdlQName: QName = element.elem.name.toQname(unresolvedSchema.targetNamespace)
+    override val mdlQName: XsdQName = element.elem.name.toQname(unresolvedSchema.targetNamespace)
 
     val attributes: List<IResolvedAttributeUse> get() = model.attributes
 
@@ -90,7 +90,7 @@ class ResolvedGlobalAttributeGroup internal constructor(
     }
 
     fun getAttributeUses(): Collection<IResolvedAttributeUse> {
-        val uses = mutableMapOf<QName, IResolvedAttributeUse>()
+        val uses = mutableMapOf<XsdQName, IResolvedAttributeUse>()
         val seenGroups = mutableSetOf(this)
         val groups = ArrayDeque<ResolvedGlobalAttributeGroup>()
         groups.add(this)
@@ -102,7 +102,7 @@ class ResolvedGlobalAttributeGroup internal constructor(
                 }
                 uses.put(a.mdlQName, a)
             }
-            val seenGroupNames = mutableSetOf<QName>()
+            val seenGroupNames = mutableSetOf<XsdQName>()
             for (g in group.attributeGroups) {
                 require(seenGroupNames.add(g.ref)) {
                     "Duplicate nested attribute group name ${g.ref} in attribute group $mdlQName"

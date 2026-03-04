@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import nl.adaptivity.xmlutil.XMLConstants
@@ -46,7 +46,7 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute) : ResolvedAttribute(ra
         checkHelper.checkType(mdlTypeDefinition)
         mdlValueConstraint?.let {
             if (checkHelper.version == SchemaVersion.V1_0) {
-                require(mdlTypeDefinition.mdlPrimitiveTypeDefinition != IDType) { "In version 1.0 ID (derived) type attributes may not have value constraints" }
+                require(mdlTypeDefinition.mdlPrimitiveTypeDefinition != ResIDType) { "In version 1.0 ID (derived) type attributes may not have value constraints" }
             }
             mdlTypeDefinition.validate(it.value, checkHelper.version)
         }
@@ -58,14 +58,14 @@ abstract class ResolvedAttributeDef(rawPart: XSAttribute) : ResolvedAttribute(ra
     abstract class Model(rawPart: XSAttribute, schema: ResolvedSchemaLike, typeContext: VSimpleTypeScope.Member) :
         ResolvedAttribute.Model(rawPart) {
 
-        final override val mdlTypeDefinition: ResolvedSimpleType
+        final override val mdlTypeDefinition: ResolvedSimpleType<*>
 
         init {
             this.mdlTypeDefinition = rawPart.simpleType?.let {
                 require(rawPart.type == null) { "3.2.3(4) both simpletype and type attribute present" }
                 ResolvedLocalSimpleType(it, schema, typeContext)
             } ?: rawPart.type?.let { schema.simpleType(it) }
-                    ?: AnySimpleType
+                    ?: ResAnySimpleType
         }
 
     }

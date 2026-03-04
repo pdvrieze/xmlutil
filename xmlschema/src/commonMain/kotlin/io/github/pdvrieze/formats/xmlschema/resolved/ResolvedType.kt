@@ -23,9 +23,10 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 
-sealed interface ResolvedType : ResolvedAnnotated {
-    val mdlBaseTypeDefinition: ResolvedType
+sealed interface ResolvedType : AnyType, ResolvedAnnotated {
+    override val baseType: ResolvedType
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
 

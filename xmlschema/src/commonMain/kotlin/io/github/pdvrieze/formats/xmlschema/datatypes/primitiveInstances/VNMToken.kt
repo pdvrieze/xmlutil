@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.NMTokenType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNMTokenType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import kotlin.jvm.JvmInline
@@ -31,7 +31,7 @@ value class VNMToken private constructor(override val xmlString: String) : VToke
 
     override fun toString(): String = xmlString
 
-    class Serializer : SimpleTypeSerializer<VNMToken>("NMTOKEN") {
+    class Serializer : SimpleVTypeSerializer<VNMToken>("NMTOKEN") {
         override fun deserialize(
             raw: String,
             input: XmlReader?
@@ -43,7 +43,7 @@ value class VNMToken private constructor(override val xmlString: String) : VToke
     companion object {
         operator fun invoke(raw: String): VNMToken {
             return VNMToken(
-                NMTokenType.mdlFacets.validateRepresentationOnly(NMTokenType, VString(raw)).xmlString
+                ResNMTokenType.mdlFacets.validateRepresentationOnly(ResNMTokenType, VString(raw)).xmlString
             )
         }
     }

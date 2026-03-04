@@ -30,7 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 class ResolvedSimpleRestriction(
     rawPart: XSSimpleRestriction,
     schema: ResolvedSchemaLike,
-    context: ResolvedSimpleType
+    context: ResolvedSimpleType<*>
 ) : ResolvedSimpleRestrictionBase(rawPart) {
 
     override val model: IModel by lazy {

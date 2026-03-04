@@ -1,47 +1,49 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.PrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMaxExclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.facets.FacetMaxExclusive
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 class ResolvedMaxExclusive(
     rawPart: XSMaxExclusive,
-    override val value: VAnySimpleType
-) : ResolvedMaxBoundFacet(rawPart) {
+    override val value: XsdAnySimple
+) : ResolvedMaxBoundFacet(rawPart), FacetMaxExclusive {
     override val isInclusive: Boolean get() = false
+    override val fixed: Boolean? = rawPart.fixed
 
-    override fun validate(type: AnyPrimitiveDatatype, decimal: VDecimal, version: SchemaVersion) {
+    override fun validate(type: ResPrimitiveDatatype<*>, decimal: VDecimal, version: SchemaVersion) {
         type.validateValue(value, version)
         val v = (type.value(value) as VDecimal)
         check(decimal < v)
     }
 
-    override fun validate(value: VAnySimpleType) = when (this.value) {
+    override fun validate(value: XsdAnySimple) = when (this.value) {
         is VDecimal -> {
             check(value is VDecimal)
             check(value < this.value)
@@ -69,11 +71,11 @@ class ResolvedMaxExclusive(
     override fun toString(): String = "-$value)"
 
     companion object {
-        operator fun invoke(rawPart: XSMaxExclusive, primitiveDatatype: PrimitiveDatatype<VAnySimpleType>): ResolvedMaxExclusive {
-            return ResolvedMaxExclusive(rawPart, primitiveDatatype.mdlPrimitiveTypeDefinition!!.value(rawPart.value))
+        operator fun invoke(rawPart: XSMaxExclusive, primitiveDatatype: ResPrimitiveDatatype<XsdAtomic>): ResolvedMaxExclusive {
+            return ResolvedMaxExclusive(rawPart, primitiveDatatype.mdlPrimitiveTypeDefinition.value(rawPart.value))
         }
 
-        internal fun createUnverified(value: VAnySimpleType): ResolvedMaxExclusive {
+        internal fun createUnverified(value: XsdAnySimple): ResolvedMaxExclusive {
             return ResolvedMaxExclusive(XSMaxExclusive(VString(value.xmlString)), value)
         }
     }

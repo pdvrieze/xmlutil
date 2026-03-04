@@ -79,7 +79,7 @@ class SimpleResolver private constructor(internal val xml: XML, private val base
         }
     }
 
-    override val baseUri: VAnyURI
+    override val baseUri: XsdAnyURI
         get() = when (baseLocation) {
             is Reference.Local -> "local:${baseLocation.resource.path}"
             is Reference.Remote -> baseLocation.uri.toASCIIString()
@@ -135,7 +135,7 @@ class SimpleResolver private constructor(internal val xml: XML, private val base
     }
 
     override fun resolve(relativeUri: VAnyURI): VAnyURI {
-        return URI(baseUri.value).resolve2(relativeUri.toString()).toASCIIString().toAnyUri()
+        return URI(baseUri.value).resolve2(relativeUri.xmlString.toString()).toASCIIString().toAnyUri()
     }
 
     internal sealed class Reference {
@@ -177,6 +177,8 @@ internal fun URI.resolve2(other: URI): URI = when {
 }
 
 internal fun URI.resolve2(other: String): URI = resolve2(URI.create(other))
+
+internal fun URI.resolve2(other: CharSequence): URI = resolve2(URI.create(other.toString()))
 
 internal fun Resource.resolve2(other: String): Resource = resolve(other)
 

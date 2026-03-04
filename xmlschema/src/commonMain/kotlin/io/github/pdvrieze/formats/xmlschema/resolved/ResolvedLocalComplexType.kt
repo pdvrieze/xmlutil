@@ -30,7 +30,6 @@ class ResolvedLocalComplexType internal constructor(
     context: VComplexTypeScope.Member,
 ) : ResolvedComplexType(schema), ResolvedLocalType,
     VSimpleTypeScope.Member {
-
     override val mdlScope: VComplexTypeScope.Local = VComplexTypeScope.Local(context)
     override val mdlContext: VComplexTypeScope.Member get() = mdlScope.parent
 

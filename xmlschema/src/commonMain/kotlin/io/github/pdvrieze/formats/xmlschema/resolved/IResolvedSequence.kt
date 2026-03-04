@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedSequence
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 interface IResolvedSequence : ResolvedModelGroup {
 
@@ -45,7 +46,7 @@ interface IResolvedSequence : ResolvedModelGroup {
     ): FlattenedParticle {
 
         val particles = mdlParticles.flatMap {
-            val f = it.flatten(::isSiblingName)
+            val f = it.flatten(siblingContext)
             when {
                 f is FlattenedSequence && f.range.isSimple -> f.particles
                 f.maxOccurs == VAllNNI.ZERO -> emptyList()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -31,11 +31,11 @@ import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.QNameSerializer
-import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
@@ -51,7 +51,7 @@ class XSSchema : XSOpenAttrsBase {
     @Serializable(BlockSetSerializer::class)
     val blockDefault: Set<VDerivationControl.T_BlockSetValues>?
 
-    val defaultAttributes: SerializableQName?
+    val defaultAttributes: XsdQName?
     val xpathDefaultNamespace: VXPathDefaultNamespace?
     @XmlElement(false)
     val elementFormDefault: VFormChoice?
@@ -89,7 +89,7 @@ class XSSchema : XSOpenAttrsBase {
     constructor(
         attributeFormDefault: VFormChoice? = null,
         blockDefault: Set<VDerivationControl.T_BlockSetValues>? = null,
-        defaultAttributes: SerializableQName? = null,
+        defaultAttributes: XsdQName? = null,
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         elementFormDefault: VFormChoice? = null,
         finalDefault: Set<VDerivationControl.Type>? = null,

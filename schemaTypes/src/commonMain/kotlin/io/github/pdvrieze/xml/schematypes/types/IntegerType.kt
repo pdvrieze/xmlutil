@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSInteger
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface IntegerType<out T: XSInteger> : DecimalType<T> {
+interface IntegerType<out T: XsdInteger> : DecimalType<T> {
     override val baseType: DecimalType<*> get() = DecimalType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,13 +34,13 @@ interface IntegerType<out T: XSInteger> : DecimalType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: IntegerType<XSInteger>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "integer", "xs")
+    object Instance: IntegerType<XsdInteger>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "integer", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

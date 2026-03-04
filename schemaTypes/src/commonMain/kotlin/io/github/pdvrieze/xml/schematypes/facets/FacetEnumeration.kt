@@ -20,27 +20,24 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
 interface FacetEnumeration : ConstrainingFacet {
 
-    val values: List<XSAnySimple>
+    val value: XsdAnySimple
 
-    override val name: XSQName get() = NAME
+    override val facetName: XsdQName get() = NAME
 
-    private class Impl(override val values: List<XSAnySimple>): FacetEnumeration
+    private class Impl(override val value: XsdAnySimple): FacetEnumeration
 
     companion object {
-        operator fun invoke(vararg values: XSAnySimple): FacetEnumeration =
-            Impl(values.toList())
+        operator fun invoke(value: XsdAnySimple): FacetEnumeration =
+            Impl(value)
 
-        operator fun invoke(values: Iterable<XSAnySimple>): FacetEnumeration =
-            Impl(values.toList())
-
-        val NAME: XSQName = XSQName(XSD_NS_URI, "enumeration", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "enumeration", XSD_PREFIX)
     }
 
 }

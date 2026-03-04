@@ -26,8 +26,8 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.isEquivalent
 
 class ResolvedGlobalGroup internal constructor(
     elemPart: SchemaElement<XSGroup>,
@@ -41,7 +41,7 @@ class ResolvedGlobalGroup internal constructor(
     internal constructor(element: SchemaElement<XSGroup>, schema: ResolvedSchemaLike) :
             this(element, element.effectiveSchema(schema), element.schemaLocation)
 
-    override val mdlQName: QName = elemPart.elem.name.toQname(schema.targetNamespace)
+    override val mdlQName: XsdQName = elemPart.elem.name.toQname(schema.targetNamespace)
 
     val mdlModelGroup: ResolvedModelGroup = run {
         val content = elemPart.wrap { content }
@@ -112,7 +112,7 @@ class ResolvedGlobalGroup internal constructor(
         override fun checkTerm() {
             val redefined = model.redefineBase
             if (redefined != null) {
-                val names = mutableSetOf<QName>()
+                val names = mutableSetOf<XsdQName>()
                 val selfRefs = visit(object : ResolvedTerm.Visitor<List<ResolvedGroupRef>>() {
                     override fun visitElement(element: ResolvedElement): List<ResolvedGroupRef> {
                         names.add(element.mdlQName)

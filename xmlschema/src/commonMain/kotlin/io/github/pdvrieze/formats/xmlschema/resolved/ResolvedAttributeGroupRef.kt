@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttributeGroupRef
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedAttributeGroupRef(
     rawPart: XSAttributeGroupRef,
@@ -31,7 +31,7 @@ class ResolvedAttributeGroupRef(
 
     override val model: Model by lazy { Model(rawPart, schema) }
 
-    val ref: QName = rawPart.ref
+    val ref: XsdQName = rawPart.ref
 
     val resolvedGroup: ResolvedGlobalAttributeGroup
         get() = model.resolvedGroup

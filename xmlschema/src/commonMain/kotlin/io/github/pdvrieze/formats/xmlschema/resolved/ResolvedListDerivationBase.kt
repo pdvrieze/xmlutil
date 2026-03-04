@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
@@ -30,9 +30,9 @@ import nl.adaptivity.xmlutil.QName
 abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
     abstract override val model: IModel
 
-    final override val baseType: ResolvedSimpleType get() = AnySimpleType
+    final override val baseType: ResolvedSimpleType<*> get() = ResAnySimpleType
 
-    val itemType: ResolvedSimpleType get() = model.itemType
+    val itemType: ResolvedSimpleType<*> get() = model.itemType
 
     context(checkHelper: CheckHelper)
     override fun checkDerivation() {
@@ -47,17 +47,17 @@ abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
     }
 
     interface IModel : ResolvedAnnotated.IModel {
-        val itemType: ResolvedSimpleType
+        val itemType: ResolvedSimpleType<*>
     }
 
     protected class Model : ResolvedAnnotated.Model, IModel {
 
-        override val itemType: ResolvedSimpleType
+        override val itemType: ResolvedSimpleType<*>
 
         constructor(
             rawPart: XSSimpleList?,
             schema: ResolvedSchemaLike,
-            context: ResolvedSimpleType,
+            context: ResolvedSimpleType<*>,
         ) : super(rawPart) {
             val itemTypeName = rawPart?.itemTypeName
             itemType = when {
@@ -76,7 +76,7 @@ abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
          * Only for use internally
          */
         internal constructor(
-            itemType: ResolvedSimpleType,
+            itemType: ResolvedSimpleType<*>,
             id: VID? = null,
             annotations: List<ResolvedAnnotation> = emptyList(),
             otherAttrs: Map<QName, String> = emptyMap(),

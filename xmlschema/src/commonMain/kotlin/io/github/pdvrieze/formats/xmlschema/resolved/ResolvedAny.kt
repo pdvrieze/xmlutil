@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.*
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
@@ -64,7 +64,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         this.mdlMaxOccurs = mdlMaxOccurs
     }
 
-    override fun isSiblingName(name: QName): Boolean {
+    override fun isSiblingName(name: XsdQName): Boolean {
         return super<ResolvedBasicTerm>.isSiblingName(name)
     }
 
@@ -112,7 +112,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         return leftConstraint.intersects(rightConstraint)
     }
 
-    fun matches(name: QName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean {
+    fun matches(name: XsdQName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
 

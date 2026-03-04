@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
@@ -29,12 +29,12 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPat
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedUnionDerivation(
     rawPart: XSSimpleUnion,
     schema: ResolvedSchemaLike,
-    context: ResolvedSimpleType,
+    context: ResolvedSimpleType<*>,
 ) : ResolvedSimpleType.Derivation() {
 
     private val _model: Model by lazy {
@@ -42,9 +42,9 @@ class ResolvedUnionDerivation(
     }
     override val model: ResolvedAnnotated.IModel get() = _model
 
-    override val baseType: ResolvedSimpleType get() = AnySimpleType
+    override val baseType: ResolvedSimpleType<*> get() = ResAnySimpleType
 
-    val memberTypes: List<ResolvedSimpleType> get() = _model.memberTypes.map { (it as? UnionMemberWrapper)?.base ?: it }
+    val memberTypes: List<ResolvedSimpleType<*>> get() = _model.memberTypes.map { (it as? UnionMemberWrapper)?.base ?: it }
 
     context(checkHelper: CheckHelper)
     override fun checkDerivation() {
@@ -62,9 +62,9 @@ class ResolvedUnionDerivation(
     private class Model(
         rawPart: XSSimpleUnion,
         schema: ResolvedSchemaLike,
-        context: ResolvedSimpleType
+        context: ResolvedSimpleType<*>
     ) : ResolvedAnnotated.Model(rawPart) {
-        val memberTypes: List<ResolvedSimpleType>
+        val memberTypes: List<ResolvedSimpleType<*>>
 
         init {
             val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it.filterUnionFacets(), schema, context) }
@@ -102,8 +102,8 @@ private fun ResolvedGlobalSimpleType.unionMemberWrapper(): ResolvedGlobalSimpleT
 
 private class UnionMemberWrapper(val base: ResolvedGlobalSimpleType) : ResolvedGlobalSimpleType {
     override val mdlFacets: FacetList = FacetList(enumeration = base.mdlFacets.enumeration, patterns = base.mdlFacets.patterns)
-
-    override val mdlQName: QName get() = base.mdlQName
+    override val name: XsdQName get() = mdlQName
+    override val mdlQName: XsdQName get() = base.mdlQName
 
     override val model: ResolvedSimpleType.Model get() = base.model
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = base.simpleDerivation

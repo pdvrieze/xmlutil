@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.checking
 
 import io.github.pdvrieze.formats.xmlschema.resolved.*
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.SerializableQName
 
 internal class CheckHelperImpl(schema: ResolvedSchemaLike, override  val isLax: Boolean) : CheckHelper(schema) {
     private val checkedTypes: MutableSet<ResolvedType> = HashSet()
@@ -109,7 +109,7 @@ internal class CheckHelperImpl(schema: ResolvedSchemaLike, override  val isLax: 
         checkGroup(schema.modelGroup(name))
     }
 
-    override fun checkNotation(name: SerializableQName) {
+    override fun checkNotation(name: XsdQName) {
         val notation = schema.notation(name)
         if (checkedNotations.add(notation)) {
             notation.check()

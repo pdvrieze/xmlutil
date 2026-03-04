@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
@@ -29,9 +29,9 @@ class FacetMaxLength(
     override val fixed: Boolean? = null,
 ) : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
 
-    override val name: XSQName get() = NAME
+    override val facetName: XsdQName get() = NAME
 
     companion object {
-        val NAME: XSQName = XSQName(XSD_NS_URI, "maxLength", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "maxLength", XSD_PREFIX)
     }
 }

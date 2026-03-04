@@ -21,7 +21,6 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNCName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -34,6 +33,6 @@ import org.w3.qt3tests.attrGroups.Qt3TypeAttr
 class Qt3Link(
     @XmlElement(false) override val type: Qt3DependencyType? = null,
     override val document: VAnyURI? = null,
-    val idref: VNCName? = null,
+    val idref: io.github.pdvrieze.xml.schematypes.values.XsdNCName? = null,
     @SerialName("section-number") val sectionNumber: String? = null
 ) : Qt3TypeAttr, Qt3DocumentAttr

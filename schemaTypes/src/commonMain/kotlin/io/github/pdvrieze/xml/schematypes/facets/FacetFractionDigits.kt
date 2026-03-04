@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
@@ -28,12 +28,12 @@ interface FacetFractionDigits : ConstrainingFacet.Numeric, ConstrainingFacet.Fix
 
     private class Impl(override val value: ULong, override val fixed: Boolean? = null) : FacetFractionDigits
 
-    override val name: XSQName get() = NAME
+    override val facetName: XsdQName get() = NAME
 
     companion object {
         operator fun invoke(value: ULong, fixed: Boolean? = null): FacetFractionDigits = Impl(value, fixed)
 
-        val NAME: XSQName = XSQName(XSD_NS_URI, "fractionDigits", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "fractionDigits", XSD_PREFIX)
     }
 
 }

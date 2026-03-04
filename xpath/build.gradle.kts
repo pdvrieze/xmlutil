@@ -70,7 +70,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(projects.core)
                 implementation(projects.schemaTypes)
@@ -79,7 +79,7 @@ kotlin {
                 implementation(libs.datetime)
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
@@ -88,14 +88,14 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
+                implementation(libs.junit.api)
                 implementation(projects.core)
                 implementation(projects.schemaTests)
 
-                runtimeOnly(libs.junit5.engine)
+                runtimeOnly(libs.junit.engine)
                 runtimeOnly(libs.woodstox)
             }
         }

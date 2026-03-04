@@ -29,7 +29,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedProhibitedElement(
     rawPart: XSLocalElement,
@@ -37,7 +37,7 @@ class ResolvedProhibitedElement(
 ) : IResolvedElementUse {
     override val model: ResolvedAnnotated.IModel by lazy { ResolvedAnnotated.Model(rawPart) }
 
-    override val mdlQName: QName = when (val n = rawPart.name) {
+    override val mdlQName: XsdQName = when (val n = rawPart.name) {
         null -> requireNotNull(rawPart.ref)
         else -> n.toQname(
             rawPart.targetNamespace ?: when (rawPart.form ?: schema.elementFormDefault) {

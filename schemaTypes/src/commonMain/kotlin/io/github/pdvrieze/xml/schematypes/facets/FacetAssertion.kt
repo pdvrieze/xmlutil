@@ -20,24 +20,25 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.XSString
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
 interface FacetAssertion : ConstrainingFacet {
-    val test: XSString
-    val xpathDefaultNamespace: XSString?
+    val test: XsdString
+    val xpathDefaultNamespace: XsdAtomic?
 
     private class Impl(
-        override val test: XSString,
-        override val xpathDefaultNamespace: XSString?
+        override val test: XsdString,
+        override val xpathDefaultNamespace: XsdString?
     ) : FacetAssertion
 
-    override val name: XSQName get() = NAME
+    override val facetName: XsdQName get() = NAME
 
     companion object {
-        val NAME: XSQName = XSQName(XSD_NS_URI, "assertion", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "assertion", XSD_PREFIX)
     }
 
 }

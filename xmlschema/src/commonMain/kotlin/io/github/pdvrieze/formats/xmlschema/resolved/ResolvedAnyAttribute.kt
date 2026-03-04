@@ -22,8 +22,11 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
-import io.github.pdvrieze.formats.xmlschema.types.*
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.formats.xmlschema.types.VAttrQNameList
+import io.github.pdvrieze.formats.xmlschema.types.VNamespaceConstraint
+import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
     override val mdlNotQName: VAttrQNameList get() = mdlNamespaceConstraint.disallowedNames as VAttrQNameList
@@ -48,7 +51,7 @@ class ResolvedAnyAttribute : ResolvedWildcardBase<VQNameListBase.AttrElem> {
         rawPart.processContents ?: VProcessContents.STRICT
     )
 
-    fun matches(name: QName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean {
+    fun matches(name: XsdQName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
 

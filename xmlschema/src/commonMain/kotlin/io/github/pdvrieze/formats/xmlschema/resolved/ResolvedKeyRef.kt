@@ -22,13 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 sealed interface ResolvedKeyRef : ResolvedIdentityConstraint {
     context(checkHelper: CheckHelper)
     override fun checkConstraint()
 
-    val refer: QName?
+    val refer: XsdQName?
 
     val mdlReferencedKey: ResolvedReferenceableConstraint
 

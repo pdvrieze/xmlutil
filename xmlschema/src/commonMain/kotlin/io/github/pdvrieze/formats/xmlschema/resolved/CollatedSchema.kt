@@ -22,14 +22,18 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.*
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 
 internal open class NamespaceHolder(val namespace: String, var loading: Boolean)
 
@@ -111,6 +115,9 @@ internal class SchemaData(
         return tryFindElement(elementName)
             ?: throw IllegalArgumentException("No element with name $elementName found in schema")
     }
+
+    fun findType(typeName: XsdQName): SchemaElement<XSGlobalType>? =
+        findType(typeName.toQName())
 
     fun findType(typeName: QName): SchemaElement<XSGlobalType>? {
         when {
@@ -220,7 +227,7 @@ internal class SchemaData(
             else -> inheritanceChain
         }
 
-        val refs: List<QName>
+        val refs: List<XsdQName>
         val locals: List<XSLocalType>
         when (val st = startType.elem) {
             is XSISimpleType -> {
@@ -271,13 +278,13 @@ internal class SchemaData(
 
             else -> throw AssertionError("Unreachable")
         }
-        val finalRefs = refs.asSequence()
-            .filter { it.namespaceURI != XSD_NS_URI && it.namespaceURI != XSI_NS_URI }
+        val finalRefs: Set<XsdQName> = refs.asSequence()
+            .filter { it.getNamespaceURI() != XSD_NS_URI && it.getNamespaceURI() != XSI_NS_URI }
             .let {
                 when {
                     rawSchema.targetNamespace.isNullOrEmpty() && schema.namespace.isNotEmpty() ->
                         it.map { n ->
-                            if (n.namespaceURI.isEmpty()) QName(schema.namespace, n.localPart) else n
+                            if (n.getNamespaceURI().isEmpty()) XsdQName(schema.namespace, n.getLocalPart()) else n
                         }
 
                     else -> it
@@ -616,7 +623,7 @@ internal class SchemaData(
                         require(redefinedTypeNames.add(name)) { "Redefine redefines the same type multiple times" }
                         val baseType = requireNotNull(b.types[name]) { "Redefine must actually redefine type" }
                         // TODO add check for base type
-                        val typeName = QName(targetNamespace ?: "", name)
+                        val typeName = XsdQName(targetNamespace ?: "", name)
                         b.types[name] =
                             SchemaElement.Redefined(st, sourceSchema, redefineData, schemaLocations.first(), typeName, Redefinable.TYPE)
                     }
@@ -627,7 +634,7 @@ internal class SchemaData(
                         require(redefinedGroups.add(name)) { "Redefine redefines the same group multiple times" }
                         val oldGroup = requireNotNull(b.groups[name]) { "Redefine must actually redefine group" }
                         // TODO add checks if needed
-                        val groupName = QName(targetNamespace ?: "", name)
+                        val groupName = XsdQName(targetNamespace ?: "", name)
                         b.groups[name] =
                             SchemaElement.Redefined(g, sourceSchema, redefineData, schemaLocations.first(), groupName, Redefinable.GROUP)
                     }
@@ -639,7 +646,7 @@ internal class SchemaData(
                         val oldGroup =
                             requireNotNull(b.attributeGroups[name]) { "Redefine must actually redefine attribute group" }
                         // TODO add checks if needed
-                        val agName = QName(targetNamespace ?: "", name)
+                        val agName = XsdQName(targetNamespace ?: "", name)
 
                         b.attributeGroups[name] = SchemaElement.Redefined(
                             ag, sourceSchema, redefineData, schemaLocations.first(),
@@ -768,7 +775,7 @@ class OwnerWrapper internal constructor(
 
     override val elementFormDefault: VFormChoice get() = owner.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
-    override val defaultAttributes: QName? get() = base.defaultAttributes
+    override val defaultAttributes: XsdQName? get() = base.defaultAttributes
 
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = base.blockDefault
 
@@ -776,6 +783,9 @@ class OwnerWrapper internal constructor(
 
     override val defaultOpenContent: XSDefaultOpenContent? get() = base.defaultOpenContent
 
+
+    private inline fun <R> checkImport(name: XsdQName, action: () -> R): R =
+        checkImport(name.toQName(), action)
     private inline fun <R> checkImport(name: QName, action: () -> R): R = when (name.namespaceURI) {
         XSD_NS_URI,
         XSI_NS_URI,
@@ -816,7 +826,7 @@ class OwnerWrapper internal constructor(
         return base.getElements()
     }
 
-    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> = checkImport(headName) {
+    override fun substitutionGroupMembers(headName: XsdQName): Set<ResolvedGlobalElement> = checkImport(headName) {
         base.substitutionGroupMembers(headName)
     }
 }
@@ -844,7 +854,7 @@ class ChameleonWrapper internal constructor(
         get() = base.finalDefault
     override val defaultOpenContent: XSDefaultOpenContent?
         get() = base.defaultOpenContent
-    override val defaultAttributes: QName? get() = base.defaultAttributes
+    override val defaultAttributes: XsdQName? get() = base.defaultAttributes
 
     private fun QName.extend(): QName {
         return when {
@@ -885,7 +895,7 @@ class ChameleonWrapper internal constructor(
         return base.maybeNotation(notationName)
     }
 
-    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
+    override fun substitutionGroupMembers(headName: XsdQName): Set<ResolvedGlobalElement> {
         return base.substitutionGroupMembers(headName)
     }
 
@@ -904,12 +914,12 @@ class ChameleonWrapper internal constructor(
 internal class RedefineSchema(
     val referenceSchema: ResolvedSchemaLike,
     val originSchemaData: SchemaData,
-    internal val elementName: QName,
+    internal val elementName: XsdQName,
     internal val elementKind: Redefinable,
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> = emptySet(),
     override val finalDefault: Set<VDerivationControl.Type> = emptySet(),
     override val defaultOpenContent: XSDefaultOpenContent? = null,
-    override val defaultAttributes: QName? = null,
+    override val defaultAttributes: XsdQName? = null,
 ) : ResolvedSchemaLike() {
 
     override val version: SchemaVersion get() = referenceSchema.version
@@ -961,7 +971,11 @@ internal class RedefineSchema(
         // unwrap the nesting here, so RedefineSchema is an indicator of direct redefine
         return ResolvedGlobalComplexType(t, t.effectiveSchema(referenceSchema))
     }
+    fun nestedComplexType(typeName: XsdQName): ResolvedGlobalComplexType {
+        return nestedComplexType(typeName.toQName())
+    }
 
+    fun nestedType(typeName: XsdQName): ResolvedGlobalType = nestedType(typeName.toQName())
     fun nestedType(typeName: QName): ResolvedGlobalType {
         require(originalNS == typeName.namespaceURI)
 
@@ -985,6 +999,9 @@ internal class RedefineSchema(
         return ResolvedGlobalAttributeGroup(ag, ag.effectiveSchema(referenceSchema))
     }
 
+    fun nestedAttributeGroup(typeName: XsdQName): ResolvedGlobalAttributeGroup =
+        nestedAttributeGroup(typeName.toQName())
+
     fun nestedGroup(typeName: QName): ResolvedGlobalGroup {
         require(originalNS == typeName.namespaceURI) { }
         val localName = typeName.localPart
@@ -992,6 +1009,7 @@ internal class RedefineSchema(
 
         return ResolvedGlobalGroup(g, g.effectiveSchema(referenceSchema))
     }
+    fun nestedGroup(typeName: XsdQName): ResolvedGlobalGroup = nestedGroup(typeName.toQName())
 
     fun nestedElement(typeName: QName): ResolvedGlobalElement {
         require(originalNS == typeName.namespaceURI) { }
@@ -1049,7 +1067,7 @@ internal class RedefineSchema(
         return referenceSchema.getElements()
     }
 
-    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> {
+    override fun substitutionGroupMembers(headName: XsdQName): Set<ResolvedGlobalElement> {
         return referenceSchema.substitutionGroupMembers(headName)
     }
 
@@ -1175,11 +1193,11 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         rawSchema: XSSchema,
         val overriddenSchema: SchemaData,
         schemaLocation: String,
-        val elementName: QName,
+        val elementName: XsdQName,
         val elementKind: Redefinable,
     ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
         override val targetNamespace: String
-            get() = elementName.namespaceURI
+            get() = elementName.getNamespaceURI()
 
         override val builtin: Boolean get() = false
 

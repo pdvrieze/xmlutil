@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class SyntheticChoice(
     override val mdlMinOccurs: VNonNegativeInteger,
@@ -45,7 +45,7 @@ class SyntheticChoice(
         return super<ResolvedParticle>.flatten()
     }
 
-    override fun isSiblingName(name: QName): Boolean {
+    override fun isSiblingName(name: XsdQName): Boolean {
         return super<IResolvedChoice>.isSiblingName(name)
     }
 }

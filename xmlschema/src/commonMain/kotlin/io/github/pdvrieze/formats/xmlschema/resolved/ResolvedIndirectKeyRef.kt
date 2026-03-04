@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSKeyRef
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owner: ResolvedElement) :
     ResolvedIndirectIdentityConstraint<ResolvedDirectKeyRef>(rawPart, schema, owner), ResolvedKeyRef {
@@ -41,7 +41,7 @@ class ResolvedIndirectKeyRef(rawPart: XSKeyRef, schema: ResolvedSchemaLike, owne
         }
     }
 
-    override val mdlQName: QName? = rawPart.name?.toQname(schema.targetNamespace)
+    override val mdlQName: XsdQName? = rawPart.name?.toQname(schema.targetNamespace)
 
     override val refer: Nothing? get() = null
 

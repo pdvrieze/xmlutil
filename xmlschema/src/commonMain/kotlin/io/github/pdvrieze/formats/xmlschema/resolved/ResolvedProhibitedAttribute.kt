@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedProhibitedAttribute(
     rawPart: XSLocalAttribute,
@@ -47,7 +47,7 @@ class ResolvedProhibitedAttribute(
 
     override val mdlValueConstraint: ValueConstraint? get() = null
 
-    override val mdlQName: QName by lazy {
+    override val mdlQName: XsdQName by lazy {
         rawPart.ref ?: run {
 
             val targetNS = rawPart.targetNamespace ?: when (schema.attributeFormDefault) {

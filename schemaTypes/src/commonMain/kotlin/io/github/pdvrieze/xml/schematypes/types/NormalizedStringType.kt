@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSNormalizedString
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdNormalizedString
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NormalizedStringType<out T : XSNormalizedString> : StringType<T> {
+interface NormalizedStringType<out T : XsdNormalizedString> : StringType<T> {
     override val baseType: StringType<*> get() = StringType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
@@ -34,13 +34,13 @@ interface NormalizedStringType<out T : XSNormalizedString> : StringType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: NormalizedStringType<XSNormalizedString>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "normalizedString", "xs")
+    object Instance: NormalizedStringType<XsdNormalizedString>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "normalizedString", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.REPLACE, true),

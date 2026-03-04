@@ -20,14 +20,24 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.AnyPrimitiveDatatype
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinType, ResolvedSimpleType.Model {
+interface ResolvedBultinAtomicType<out T: XsdAtomic>: ResolvedBuiltinSimpleType<T>, AnyAtomicType<T> {
+    override val baseType: ResolvedSimpleType<*>
+}
+
+interface ResolvedBuiltinSimpleType<out T : XsdAnySimple> : ResolvedGlobalSimpleType, ResolvedBuiltinType,
+    ResolvedSimpleType.Model, AnySimpleType<T> {
+    override val mdlBaseTypeDefinition: ResolvedType get() = baseType
 
     override val id: Nothing? get() = null
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
@@ -38,17 +48,20 @@ interface ResolvedBuiltinSimpleType : ResolvedGlobalSimpleType, ResolvedBuiltinT
 
     override val mdlFacets: FacetList
 
-    override val mdlFundamentalFacets: FundamentalFacets
+    override val mdlFundamentalFacets: FundamentalFacets get() {
+        return FundamentalFacets(ordered, bounded, cardinality, numeric)
+    }
 
     override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
 
     override val mdlVariety: ResolvedSimpleType.Variety
         get() = ResolvedSimpleType.Variety.ATOMIC
-    override val mdlBaseTypeDefinition: ResolvedType
-    override val mdlItemTypeDefinition: ResolvedSimpleType?
-    override val mdlMemberTypeDefinitions: List<ResolvedSimpleType>
+    override val baseType: ResolvedType
+    override val mdlItemTypeDefinition: ResolvedSimpleType<*>?
+    override val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>>
 
-    override val mdlPrimitiveTypeDefinition: AnyPrimitiveDatatype?
+    override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<*>?
+
     context(checkHelper: CheckHelper)
     override fun checkType() = Unit
 

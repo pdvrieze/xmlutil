@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSQName
-import io.github.pdvrieze.xml.schematypes.values.XSUnsignedShort
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedShort
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedShortType<out T : XSUnsignedShort> : UnsignedIntType<T> {
+interface UnsignedShortType<out T : XsdUnsignedShort> : UnsignedIntType<T> {
     override val baseType: UnsignedIntType<*> get() = UnsignedIntType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -34,20 +34,20 @@ interface UnsignedShortType<out T : XSUnsignedShort> : UnsignedIntType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedShortType<XSUnsignedShort>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "unsignedShort", "xs")
+    object Instance: UnsignedShortType<XsdUnsignedShort>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "unsignedShort", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XSUnsignedShort.Companion(UShort.MAX_VALUE)),
-            FacetMinInclusive.Companion(XSUnsignedShort.Companion(0u)),
+            FacetMaxInclusive.Companion(XsdUnsignedShort.Companion(UShort.MAX_VALUE)),
+            FacetMinInclusive.Companion(XsdUnsignedShort.Companion(0u)),
         )
     }
 

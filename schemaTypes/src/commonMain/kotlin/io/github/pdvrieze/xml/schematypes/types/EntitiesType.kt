@@ -22,12 +22,12 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSEntities
-import io.github.pdvrieze.xml.schematypes.values.XSEntity
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdEntities
+import io.github.pdvrieze.xml.schematypes.values.XsdEntity
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface EntitiesType<out T : XSEntities, out E: XSEntity> : AnySimpleListType<T, E> {
+interface EntitiesType<out T : XsdEntities, out E: XsdEntity> : AnySimpleListType<T, E> {
     override val baseType: AnySimpleListType<*, *> get() = Instance.baseType
     override val itemType: EntityType<E>
 
@@ -39,15 +39,15 @@ interface EntitiesType<out T : XSEntities, out E: XSEntity> : AnySimpleListType<
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
-    object Instance : EntitiesType<XSEntities, XSEntity>, BuiltinType {
+    object Instance : EntitiesType<XsdEntities, XsdEntity>, BuiltinType {
         override val baseType: AnySimpleListType<*, *> =
             AnySimpleListType(itemType)
 
-        override val itemType: EntityType<XSEntity> get() = EntityType.Instance
+        override val itemType: EntityType<XsdEntity> get() = EntityType.Instance
 
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "ENTITIES", "xs")
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "ENTITIES", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

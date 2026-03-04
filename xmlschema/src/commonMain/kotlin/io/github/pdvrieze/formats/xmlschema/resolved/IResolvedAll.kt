@@ -31,7 +31,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 interface IResolvedAll : ResolvedModelGroup {
 
@@ -45,7 +45,7 @@ interface IResolvedAll : ResolvedModelGroup {
         for (particle in mdlParticles) {
             if (particle is ResolvedAny) {
                 for (seen in seenWildcards) {
-                    require(!seen.intersects(particle, ::isSiblingName, checkHelper.schema)) {
+                    require(!seen.intersects(particle, isSiblingName, checkHelper.schema)) {
                         "Intersecting wildcards in all group: $particle and $seen"
                     }
                 }
@@ -76,10 +76,10 @@ interface IResolvedAll : ResolvedModelGroup {
     context(checkHelper: CheckHelper)
     override fun flatten(range: AllNNIRange, siblingContext: SiblingContextProvider): FlattenedParticle {
         val particles = mutableListOf<FlattenedParticle>()
-        val seenNames = mutableSetOf<QName>()
+        val seenNames = mutableSetOf<XsdQName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName)
+            val f = p.flatten(siblingContext)
             if (f.maxOccurs == VAllNNI.ZERO) continue // skip it
             particles.add(f)
             for(startElem in f.startingTerms()) {

@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDRefType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDRefType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import nl.adaptivity.xmlutil.XmlReader
@@ -30,15 +30,15 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 @Serializable(VIDRef.Serializer::class)
-value class VIDRef(override val xmlString: String) : VNCName {
+value class VIDRef(override val xmlString: String) : VNCNameXX {
 
     init {
-        IDRefType.mdlFacets.validateValue(this)
+        ResIDRefType.mdlFacets.validateValue(this)
     }
 
     override fun toString(): String = xmlString
 
-    class Serializer : SimpleTypeSerializer<VIDRef>("IDREF") {
+    class Serializer : SimpleVTypeSerializer<VIDRef>("IDREF") {
         override fun deserialize(decoder: Decoder): VIDRef {
             val r = super.deserialize(decoder)
             if (decoder is XML.XmlInput) {

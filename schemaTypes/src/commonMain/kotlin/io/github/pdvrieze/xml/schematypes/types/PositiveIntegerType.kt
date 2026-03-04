@@ -22,12 +22,12 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSNonNegativeInteger
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
 // TODO support actual positive integer instance
-interface PositiveIntegerType<out T : XSNonNegativeInteger> : NonNegativeIntegerType<T> {
+interface PositiveIntegerType<out T : XsdNonNegativeInteger> : NonNegativeIntegerType<T> {
     override val baseType: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
@@ -35,19 +35,19 @@ interface PositiveIntegerType<out T : XSNonNegativeInteger> : NonNegativeInteger
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: PositiveIntegerType<XSNonNegativeInteger>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "positiveInteger", "xs")
+    object Instance: PositiveIntegerType<XsdNonNegativeInteger>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "positiveInteger", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetFractionDigits(0u),
             FacetPattern("+?[0-9]+"),
-            FacetMinInclusive(XSNonNegativeInteger(1)),
+            FacetMinInclusive(XsdNonNegativeInteger(1)),
         )
     }
 

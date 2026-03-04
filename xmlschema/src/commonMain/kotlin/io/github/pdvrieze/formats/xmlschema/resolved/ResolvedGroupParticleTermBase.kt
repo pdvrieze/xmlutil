@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
@@ -51,7 +52,7 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
         return super<ResolvedGroupParticle>.flatten()
     }
 
-    override fun isSiblingName(name: QName): Boolean {
+    override fun isSiblingName(name: XsdQName): Boolean {
         return super<ResolvedGroupParticle>.isSiblingName(name)
     }
 

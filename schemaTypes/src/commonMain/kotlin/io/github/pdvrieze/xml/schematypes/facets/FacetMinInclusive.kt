@@ -20,26 +20,26 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.values.XSAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
 interface FacetMinInclusive : ConstrainingFacet.Fixed {
 
-    val value: XSAnySimple
+    val value: XsdAnySimple
 
-    override val name: XSQName get() = NAME
+    override val facetName: XsdQName get() = NAME
 
     private class Impl(
-        override val value: XSAnySimple,
+        override val value: XsdAnySimple,
         override val fixed: Boolean?
     ): FacetMinInclusive
 
     companion object {
-        operator fun invoke(value: XSAnySimple, fixed: Boolean? = null): FacetMinInclusive = Impl(value, fixed)
+        operator fun invoke(value: XsdAnySimple, fixed: Boolean? = null): FacetMinInclusive = Impl(value, fixed)
 
-        val NAME: XSQName = XSQName(XSD_NS_URI, "minInclusive", XSD_PREFIX)
+        val NAME: XsdQName = XsdQName(XSD_NS_URI, "minInclusive", XSD_PREFIX)
     }
 
 }

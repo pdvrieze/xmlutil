@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedElement
@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
@@ -54,7 +55,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
 
     abstract override val model: Model
 
-    abstract val mdlQName: QName
+    abstract val mdlQName: XsdQName
 
     // target namespace just in the qName
 
@@ -97,9 +98,9 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
             if (svc !is ValueConstraint.Fixed) return false
 
             val t = model.mdlTypeDefinition.map {
-                it as? ResolvedSimpleType ?: return false
+                it as? ResolvedSimpleType<*> ?: return false
             }.onFailure { if (!isLax) throw it }
-                .getOrElse { AnySimpleType }
+                .getOrElse { ResAnySimpleType }
 
             val bVal = t.value(bvc.value)
             val sVal = t.value(svc.value)
@@ -146,7 +147,7 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
                 mdlValueConstraint?.let {
                     td.validate(it.value, checkHelper.version)
                     if (checkHelper.version == SchemaVersion.V1_0) {
-                        check((td as? ResolvedSimpleType)?.mdlPrimitiveTypeDefinition != IDType) {
+                        check((td as? ResolvedSimpleType<*>)?.mdlPrimitiveTypeDefinition != ResIDType) {
                             "ID types can not have fixed values"
                         }
                     }

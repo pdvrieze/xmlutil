@@ -20,8 +20,13 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import nl.adaptivity.xmlutil.XMLConstants
+
 interface FacetNumeric : FundamentalFacet {
     val isNumeric: Boolean
+    override val facetName: XsdQName
+        get() = name
 
     private enum class Numeric(override val isNumeric: Boolean): FacetNumeric {
         TRUE(true), FALSE(false);
@@ -33,5 +38,8 @@ interface FacetNumeric : FundamentalFacet {
 
         operator fun invoke(isNumeric: Boolean): FacetNumeric =
             if(isNumeric) Numeric.TRUE else Numeric.FALSE
+
+        val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "numeric", XMLConstants.XSD_PREFIX)
+
     }
 }

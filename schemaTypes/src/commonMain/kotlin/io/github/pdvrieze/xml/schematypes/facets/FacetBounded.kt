@@ -20,29 +20,29 @@
 
 package io.github.pdvrieze.xml.schematypes.facets
 
-import io.github.pdvrieze.xml.schematypes.types.BooleanType
-import io.github.pdvrieze.xml.schematypes.values.XSBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import nl.adaptivity.xmlutil.XMLConstants
 
-interface FacetBounded : FundamentalFacet, XSBoolean {
+interface FacetBounded : FundamentalFacet {
     val isBounded: Boolean
-    override val schemaType: BooleanType<*> get() = BooleanType.Instance
 
-    private enum class Bounded(override val xmlString: String): FacetBounded {
-        FALSE("false") {
-            override val value: Boolean get() = false
-        },
-        TRUE("true") {
-            override val value: Boolean get() = true
-        };
+    override val facetName: XsdQName get() = name
 
-        override val isBounded: Boolean get() = value
+    private enum class Bounded(val xmlString: String): FacetBounded {
+        FALSE("false"),
+        TRUE("true");
+
+        override val isBounded: Boolean get() = this == TRUE
     }
 
     companion object {
         val BOUNDED: FacetBounded get() = Bounded.TRUE
         val UNBOUNDED: FacetBounded get() = Bounded.FALSE
 
-        operator fun invoke(value: XSBoolean): FacetBounded =
+        val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "bounded", XMLConstants.XSD_PREFIX)
+
+        operator fun invoke(value: XsdBoolean): FacetBounded =
             if (value.value) Bounded.TRUE else Bounded.FALSE
 
         operator fun invoke(value: Boolean): FacetBounded =

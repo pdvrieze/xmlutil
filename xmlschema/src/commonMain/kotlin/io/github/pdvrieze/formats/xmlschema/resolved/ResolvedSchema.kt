@@ -23,12 +23,15 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.localPart
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
@@ -93,7 +96,7 @@ class ResolvedSchema(
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues>
         get() = rawPart.blockDefault ?: emptySet()
 
-    override val defaultAttributes: QName? = rawPart.defaultAttributes
+    override val defaultAttributes: XsdQName? = rawPart.defaultAttributes
 
     val xPathDefaultNamespace: VXPathDefaultNamespace
         get() = rawPart.xpathDefaultNamespace ?: VXPathDefaultNamespace.LOCAL
@@ -116,10 +119,16 @@ class ResolvedSchema(
 
     val lang: VLanguage? get() = rawPart.lang
 
+    private inline fun <R> withQName(name: XsdQName, action: SchemaElementResolver.(String) -> R): R {
+        val data = nestedData[name.getNamespaceURI()]
+            ?: throw NoSuchElementException("The namespace '${name.getNamespaceURI()}' is not available when resolving $name")
+        return data.action(name.getLocalPart())
+    }
+
     private inline fun <R> withQName(name: QName, action: SchemaElementResolver.(String) -> R): R {
-        val data = nestedData[name.namespaceURI]
-            ?: throw NoSuchElementException("The namespace '${name.namespaceURI}' is not available when resolving $name")
-        return data.action(name.localPart)
+        val data = nestedData[name.getNamespaceURI()]
+            ?: throw NoSuchElementException("The namespace '${name.getNamespaceURI()}' is not available when resolving $name")
+        return data.action(name.getLocalPart())
     }
 
     override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = withQName(typeName) {
@@ -156,7 +165,7 @@ class ResolvedSchema(
         maybeNotation(it)
     }
 
-    override fun substitutionGroupMembers(headName: QName): Set<ResolvedGlobalElement> = withQName(headName) {
+    override fun substitutionGroupMembers(headName: XsdQName): Set<ResolvedGlobalElement> = withQName(headName) {
         substitutionGroupMembers(it)
     }
 

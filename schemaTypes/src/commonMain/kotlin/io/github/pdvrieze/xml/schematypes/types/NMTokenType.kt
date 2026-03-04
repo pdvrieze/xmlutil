@@ -22,11 +22,11 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XSNMToken
-import io.github.pdvrieze.xml.schematypes.values.XSQName
+import io.github.pdvrieze.xml.schematypes.values.XsdNMToken
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NMTokenType<out T : XSNMToken> : TokenType<T> {
+interface NMTokenType<out T : XsdNMToken> : TokenType<T> {
     override val baseType: TokenType<*> get() = TokenType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
@@ -34,13 +34,13 @@ interface NMTokenType<out T : XSNMToken> : TokenType<T> {
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
-    override val name: XSQName? get() = Instance.name
+    override val name: XsdQName? get() = Instance.name
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: NMTokenType<XSNMToken>, BuiltinType {
-        override val name: XSQName = XSQName(XMLConstants.XSD_NS_URI, "NMTOKEN", "xs")
+    object Instance: NMTokenType<XsdNMToken>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "NMTOKEN", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

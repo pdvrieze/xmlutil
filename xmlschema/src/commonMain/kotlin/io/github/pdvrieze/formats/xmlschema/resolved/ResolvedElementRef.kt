@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalEleme
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedElementRef constructor(
     rawPart: XSLocalElement,
@@ -35,7 +35,7 @@ class ResolvedElementRef constructor(
 ) : IResolvedElementUse {
     override val model: Model by lazy { Model(rawPart, schema) }
 
-    override val mdlQName: QName get() = mdlTerm.mdlQName
+    override val mdlQName: XsdQName get() = mdlTerm.mdlQName
     override val mdlTerm: ResolvedGlobalElement get() = model.term
 
 

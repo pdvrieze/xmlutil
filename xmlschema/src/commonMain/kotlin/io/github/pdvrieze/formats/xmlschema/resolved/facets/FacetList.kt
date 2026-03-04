@@ -20,8 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExplicitTimezone
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
@@ -30,6 +31,10 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType.Variety
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdFloat
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 class FacetList(
     val assertions: List<ResolvedAssertionFacet> = emptyList(),
@@ -168,7 +173,7 @@ class FacetList(
 
     }
 
-    fun check(simpleType: ResolvedSimpleType, version: SchemaVersion) {
+    fun check(simpleType: ResolvedSimpleType<*>, version: SchemaVersion) {
         val primitiveType = simpleType.mdlPrimitiveTypeDefinition
         if (primitiveType != null) {
             for (p in patterns) {
@@ -188,7 +193,7 @@ class FacetList(
         }
 
         when (primitiveType) {
-            is IStringType -> {
+            is ResIStringType<*> -> {
 
                 check(minConstraint == null) { "Strings can not have numeric facets" }
                 check(maxConstraint == null) { "Strings can not have numeric facets" }
@@ -196,7 +201,7 @@ class FacetList(
                 check(fractionDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is IDecimalType -> {
+            is ResIDecimalType<*> -> {
                 if (minConstraint != null && maxConstraint != null) {
                     minConstraint.validate(maxConstraint.value)
                     maxConstraint.validate(minConstraint.value)
@@ -211,10 +216,10 @@ class FacetList(
                         check(fractionDigits.value <= totalDigits.value) { "Fraction digits must be less or equal to total digits" }
                     }
                 }
-                check(primitiveType == DecimalType || fractionDigits == null || fractionDigits.value.toInt() == 0) { "Only decimal type primitives can have fraction digits (${fractionDigits?.value} - ${primitiveType} instances can not)" }
+                check(primitiveType == ResDecimalType || fractionDigits == null || fractionDigits.value.toInt() == 0) { "Only decimal type primitives can have fraction digits (${fractionDigits?.value} - ${primitiveType} instances can not)" }
             }
 
-            is DoubleType -> {
+            is ResDoubleType -> {
                 val minC = minConstraint?.let {
                     primitiveType.value(VString(it.value.xmlString)).also {
                         primitiveType.validateValue(it, version)
@@ -232,7 +237,7 @@ class FacetList(
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is FloatType -> {
+            is ResFloatType -> {
                 val minC = minConstraint?.let {
                     primitiveType.value(VString(it.value.xmlString)).also {
                         primitiveType.validateValue(it, version)
@@ -250,7 +255,7 @@ class FacetList(
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is DurationType -> {
+            is ResDurationType -> {
                 val minDuration = minConstraint?.let { primitiveType.value(it.value) }
                 val maxDuration = maxConstraint?.let { primitiveType.value(it.value) }
                 if (minDuration != null && maxDuration != null) {
@@ -258,14 +263,14 @@ class FacetList(
                 }
             }
 
-            is DateType,
-            is TimeType,
-            is GYearType,
-            is GYearMonthType,
-            is GMonthDayType,
-            is GDayType,
-            is GMonthType,
-            is DateTimeType -> {
+            is ResDateType,
+            is ResTimeType,
+            is ResGYearType,
+            is ResGYearMonthType,
+            is ResGMonthDayType,
+            is ResGDayType,
+            is ResGMonthType,
+            is ResDateTimeType -> {
                 val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IDateTime?
                 if (minDateTime != null && maxDateTime != null) {
@@ -278,7 +283,7 @@ class FacetList(
 
     }
 
-    fun validate(primitiveType: AnyPrimitiveDatatype?, representation: VString) {
+    fun validate(primitiveType: ResPrimitiveDatatype<*>?, representation: VString) {
         val normalized = validateRepresentationOnly(primitiveType, representation)
 
 
@@ -288,7 +293,7 @@ class FacetList(
     }
 
     internal fun validateRepresentationOnly(
-        primitiveType: AnyPrimitiveDatatype?,
+        primitiveType: ResPrimitiveDatatype<*>?,
         representation: VString
     ): VString {
         val normalized = whiteSpace?.value?.normalize(representation) ?: representation
@@ -300,7 +305,7 @@ class FacetList(
 
         when (primitiveType) {
 
-            is IDecimalType -> totalDigits?.let {
+            is ResIDecimalType<*> -> totalDigits?.let {
                 val actualLength = when {
                     '.' in normalized -> normalized.length - 1 - normalized.leadingZeros() - normalized.trailingZeros()
                     else -> normalized.length - normalized.leadingZeros()
@@ -310,8 +315,8 @@ class FacetList(
                 }
             }
 
-            is FloatType,
-            is DoubleType -> {
+            is ResFloatType,
+            is ResDoubleType -> {
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
                 fractionDigits?.let { check(normalizedStr.substringAfterLast('.', "").length <= it.value.toInt()) }
             }
@@ -344,23 +349,23 @@ class FacetList(
                 }
             }
 
-            is VString -> {
+            is XsdString -> {
                 minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) { "Value |$actualValue| < ${minLength.value}" } }
                 maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) { "Value |$actualValue| > ${maxLength.value}" } }
             }
 
-            is VDecimal -> {
+            is XsdDecimal -> {
                 minConstraint?.validate(actualValue)
                 maxConstraint?.validate(actualValue)
             }
 
-            is VDouble -> {
+            is XsdDouble -> {
                 minConstraint?.validate(actualValue)
                 maxConstraint?.validate(actualValue)
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is VFloat -> {
+            is XsdFloat -> {
                 minConstraint?.validate(actualValue)
                 maxConstraint?.validate(actualValue)
                 check(totalDigits == null) { "totalDigits only applies to decimal types" }
@@ -371,7 +376,22 @@ class FacetList(
 
     }
 
-    internal fun checkList(type: ResolvedSimpleType, version: SchemaVersion) {
+    fun toList(): List<ResolvedFacet> = buildList {
+        addAll(assertions)
+        minConstraint?.let { add(it) }
+        maxConstraint?.let { add(it) }
+        addAll(enumeration)
+        explicitTimezone?.let { add(it) }
+        fractionDigits?.let { add(it) }
+        minLength?.let { add(it as ResolvedFacet) }
+        maxLength?.let { add(it as ResolvedFacet) }
+        addAll(patterns)
+        totalDigits?.let { add(it) }
+        whiteSpace?.let { add(it) }
+        addAll(otherFacets)
+    }
+
+    internal fun checkList(type: ResolvedSimpleType<*>, version: SchemaVersion) {
         if (version == SchemaVersion.V1_0) check(assertions.isEmpty())
         check(explicitTimezone == null) { "lists don't have a timezone facet" }
         check(fractionDigits == null) { "lists don't have a fractionDigits facet" }
@@ -393,16 +413,16 @@ class FacetList(
         operator fun invoke(
             rawFacets: Iterable<XSFacet>,
             schemaLike: ResolvedSchemaLike,
-            baseType: ResolvedSimpleType,
+            baseType: ResolvedSimpleType<*>,
             relaxedLength: Boolean
         ): FacetList =
             FacetList(rawFacets.map { ResolvedFacet(it, schemaLike, baseType) }, relaxedLength, schemaLike.version)
 
-        fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType): FacetList {
-            val relaxedLength = baseType is IDRefsType || baseType is NMTokensType
+        fun safe(facets: List<XSFacet>, schema: ResolvedSchemaLike, baseType: ResolvedSimpleType<*>): FacetList {
+            val relaxedLength = baseType is ResIDRefsType || baseType is ResNMTokensType
             return when {
                 // String has no restrictions
-                baseType == AnySimpleType -> FacetList(facets, schema, baseType, relaxedLength)
+                baseType == ResAnySimpleType -> FacetList(facets, schema, baseType, relaxedLength)
 
                 // Use token as strings have collapsed strings
                 baseType.mdlVariety == Variety.LIST -> FacetList(facets, schema, baseType, relaxedLength)
