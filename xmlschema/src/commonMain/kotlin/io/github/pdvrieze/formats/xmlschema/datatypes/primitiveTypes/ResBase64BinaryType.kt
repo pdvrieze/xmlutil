@@ -44,7 +44,7 @@ object ResBase64BinaryType : ResPrimitiveDatatype<XsdBase64Binary>,
 
     fun length(representation: String): Int {
         // TODO don't actually decode just for length.
-        return Base64.Default.decode(representation).size
+        return Base64.decode(representation).size
     }
 
     val regex = XRegex(

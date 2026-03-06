@@ -32,7 +32,6 @@ import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.*
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 abstract class AbstractDatatype(
@@ -88,8 +87,8 @@ abstract class AbstractConstructedListDatatype<out T: XsdAnySimple, out E: XsdAn
         checkHelper.checkType(baseType)
     }
 
-    override val itemTypeName: QName?
-        get() = itemType.name?.toQName()
+    override val itemTypeName: XsdQName?
+        get() = itemType.name
 
     override val simpleType: Nothing? get() = null
 

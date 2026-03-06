@@ -22,11 +22,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschemaTests.Resource
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader
@@ -135,7 +134,7 @@ class SimpleResolver private constructor(internal val xml: XML, private val base
         return SimpleResolver(xml, baseLocation.resolve(schemaLocation.value))
     }
 
-    override fun resolve(relativeUri: XsdAnyURI): VAnyURI {
+    override fun resolve(relativeUri: XsdAnyURI): XsdAnyURI {
         return URI(baseUri.value).resolve2(relativeUri.xmlString.toString()).toASCIIString().toAnyUri()
     }
 

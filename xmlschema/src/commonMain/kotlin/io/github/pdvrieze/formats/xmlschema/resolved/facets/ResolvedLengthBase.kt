@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.xml.schematypes.facets.ConstrainingFacet
+import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
 
 sealed class ResolvedLengthBase(rawPart: XSFacet) : ResolvedFacet(rawPart), ConstrainingFacet.Fixed {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
@@ -53,7 +54,7 @@ sealed class ResolvedLengthBase(rawPart: XSFacet) : ResolvedFacet(rawPart), Cons
                     is ResAnyURIType,
                     is ResStringType -> checkLength(representation.length, representation)
 
-                    is ResHexBinaryType -> checkLength(ResHexBinaryType.length(representation), "hex value")
+                    is ResHexBinaryType -> checkLength(HexBinaryType.length(representation), "hex value")
                     is ResBase64BinaryType -> checkLength(ResBase64BinaryType.length(representation), "base64 value")
                     is ResQNameType,
                     is ResNotationType -> Unit

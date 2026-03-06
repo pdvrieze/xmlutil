@@ -23,20 +23,20 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResSimpleBuiltinRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinSimpleType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinAtomicType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleRestrictionBase
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-object ResAnyAtomicType : ResAtomicDatatype<XsdAtomic>,
-    AnyAtomicType<XsdAtomic>,
-    ResolvedBuiltinSimpleType<XsdAtomic> {
+object ResAnyAtomicType : ResolvedBuiltinAtomicType<XsdAtomic>,
+    AnyAtomicType<XsdAtomic> {
     override val isSpecial: Boolean get() = true
     override val baseType: ResAnySimpleType get() = ResAnySimpleType
 
@@ -58,6 +58,14 @@ object ResAnyAtomicType : ResAtomicDatatype<XsdAtomic>,
         cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
+
+    override fun value(maybeValue: XsdAnySimple): XsdAnySimple {
+        return maybeValue as? XsdAtomic ?: XsdString(maybeValue.xmlString)
+    }
+
+    override fun valueFromNormalized(normalized: XsdString): XsdAtomic {
+        TODO("not implemented")
+    }
 
     override fun validateValue(value: Any, version: SchemaVersion) {
         error("Atomic is not directly usable")
