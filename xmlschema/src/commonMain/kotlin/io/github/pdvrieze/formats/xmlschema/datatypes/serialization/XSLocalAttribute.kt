@@ -20,12 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -49,7 +45,7 @@ class XSLocalAttribute : XSAttribute {
     @XmlElement(false)
     val use: XSAttrUse?
 
-    val targetNamespace: VAnyURI?
+    val targetNamespace: XsdAnyURI?
 
 
     constructor(
@@ -57,13 +53,13 @@ class XSLocalAttribute : XSAttribute {
         form: VFormChoice? = null,
         ref: XsdQName? = null,
         use: XSAttrUse? = null,
-        default: VString? = null,
-        fixed: VString? = null,
+        default: XsdString? = null,
+        fixed: XsdString? = null,
         type: XsdQName? = null,
-        targetNamespace: VAnyURI? = null,
+        targetNamespace: XsdAnyURI? = null,
         inheritable: Boolean? = null,
         simpleType: XSLocalSimpleType? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(default, fixed, type, inheritable, simpleType, id, annotation, otherAttrs) {

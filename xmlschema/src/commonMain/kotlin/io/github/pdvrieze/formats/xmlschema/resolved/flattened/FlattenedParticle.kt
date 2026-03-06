@@ -20,17 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.flattened
 
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAny
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedElement
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedGlobalElement
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.localPart
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
 import kotlin.jvm.JvmStatic
 
 sealed class FlattenedParticle(val range: AllNNIRange) {
@@ -212,7 +208,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
             return particles.size - other.particles.size
         }
 
-        private operator fun QName.compareTo(other: QName): Int {
+        private operator fun XsdQName.compareTo(other: XsdQName): Int {
             return when (val l = localPart.compareTo(other.localPart)) {
                 0 -> namespaceURI.compareTo(other.namespaceURI)
                 else -> l

@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
@@ -29,6 +28,8 @@ import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.formats.xmlschema.types.compareTo
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedProhibitedElement(
@@ -48,11 +49,11 @@ class ResolvedProhibitedElement(
     }
 
     init {
-        invariant(rawPart.minOccurs == VNonNegativeInteger.ZERO)
-        invariant(rawPart.maxOccurs == VNonNegativeInteger.ZERO)
-        if (rawPart.targetNamespace!=null) {
+        invariant(rawPart.minOccurs == XsdNonNegativeInteger.ZERO)
+        invariant(rawPart.maxOccurs == XsdNonNegativeInteger.ZERO)
+        if (rawPart.targetNamespace != null) {
             requireNotNull(rawPart.name) { "3.3.3(4.1) - If an element specifies a target namespace it must have a name" }
-            require(rawPart.form==null) { "3.3.3(4.2) - If an element specifies a target namespace it may nothave a form" }
+            require(rawPart.form == null) { "3.3.3(4.2) - If an element specifies a target namespace it may nothave a form" }
         } else {
             require(rawPart.name != null || rawPart.ref != null)
         }
@@ -67,7 +68,7 @@ class ResolvedProhibitedElement(
         // no term
     }
 
-    override val mdlMinOccurs: VNonNegativeInteger get() = VNonNegativeInteger.ZERO
+    override val mdlMinOccurs: XsdNonNegativeInteger get() = XsdNonNegativeInteger.ZERO
 
     override val mdlMaxOccurs: VAllNNI get() = VAllNNI.ZERO
 

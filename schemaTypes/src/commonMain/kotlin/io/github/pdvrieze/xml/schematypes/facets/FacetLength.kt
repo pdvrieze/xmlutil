@@ -24,13 +24,23 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
-open class FacetLength(
-    override val value: ULong,
-    override val fixed: Boolean? = null,
-) : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
+interface FacetLength : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
     override val facetName: XsdQName get() = NAME
+
+    private class Impl(
+        override val value: ULong,
+        override val fixed: Boolean? = null,
+    ): FacetLength
 
     companion object {
         val NAME: XsdQName = XsdQName(XSD_NS_URI, "length", XSD_PREFIX)
+
+        operator fun invoke(
+            value: ULong,
+            fixed: Boolean? = null,
+        ): FacetLength = Impl(
+            value,
+            fixed,
+        )
     }
 }

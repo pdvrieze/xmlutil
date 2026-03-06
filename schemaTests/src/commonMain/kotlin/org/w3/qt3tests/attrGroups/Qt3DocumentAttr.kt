@@ -20,13 +20,13 @@
 
 package org.w3.qt3tests.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
 interface Qt3DocumentAttr {
     /**
      * document (as an attribute name) denotes an attribute which provides a URI to be used
      * as reference to specification.
      */
-    val document: VAnyURI?
+    val document: XsdAnyURI?
 }
 

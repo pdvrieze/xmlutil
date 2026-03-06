@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -38,7 +38,7 @@ import org.w3.qt3tests.resolved.ResolvedQt3Test
 @Serializable
 @XmlSerialName("test", QT3TNS)
 class Qt3Test(
-    val file: VAnyURI? = null,
+    val file: XsdAnyURI? = null,
     @XmlValue val value: UnresolvedXQueryExpr
 ) {
     context(ctx: AssertionResolutionContext)

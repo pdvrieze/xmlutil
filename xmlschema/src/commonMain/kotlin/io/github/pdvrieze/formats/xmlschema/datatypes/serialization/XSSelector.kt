@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -41,7 +41,7 @@ class XSSelector : XSAnnotatedBase {
     constructor(
         xpath: XPathExpression,
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {

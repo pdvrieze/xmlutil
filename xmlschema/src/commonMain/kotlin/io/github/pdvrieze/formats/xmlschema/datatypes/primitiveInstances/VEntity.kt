@@ -20,12 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResEntityType
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-import kotlin.jvm.JvmInline
-
+/*
 @JvmInline
 @Serializable(with = VEntity.Serializer::class)
 value class VEntity(override val xmlString: String) : VNCNameXX {
@@ -46,3 +41,4 @@ value class VEntity(override val xmlString: String) : VNCNameXX {
     }
 
 }
+*/

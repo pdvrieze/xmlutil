@@ -20,12 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -46,7 +46,7 @@ class XSAssertionFacet : XSFacet.NotFixed, XSIAssertCommon {
     constructor(
         test: XPathExpression,
         xPathDefaultNamespace: VXPathDefaultNamespace? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {

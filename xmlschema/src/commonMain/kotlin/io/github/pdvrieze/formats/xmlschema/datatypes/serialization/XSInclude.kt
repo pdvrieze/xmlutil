@@ -22,8 +22,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -35,11 +35,11 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("include", XSD_NS_URI, XSD_PREFIX)
 class XSInclude : XSAnnotatedBase {
-    val schemaLocation: VAnyURI
+    val schemaLocation: XsdAnyURI
 
     constructor(
-        schemaLocation: VAnyURI,
-        id: VID? = null,
+        schemaLocation: XsdAnyURI,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {

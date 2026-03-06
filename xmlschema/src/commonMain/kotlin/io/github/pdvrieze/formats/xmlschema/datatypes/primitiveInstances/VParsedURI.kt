@@ -20,15 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-
+/*
 @Serializable(VParsedURI.Serializer::class)
 class VParsedURI(str: String) : VAnyURIXX() {
     constructor(charSequence: CharSequence) : this(charSequence.toString())
@@ -292,7 +284,9 @@ class VParsedURI(str: String) : VAnyURIXX() {
 
     }
 }
+*/
 
+/*
 internal fun <T : CharSequence> T.checkValidUriChars(): T = also {
     for (c in it) {
         c.checkValidUriChar()
@@ -309,3 +303,4 @@ private fun Char.checkValidUriChar(pos: Int = 0): Unit {
         '@'.code -> if (pos != POS_AUTHORITY) error("@ outside of authority")
     }
 }
+*/

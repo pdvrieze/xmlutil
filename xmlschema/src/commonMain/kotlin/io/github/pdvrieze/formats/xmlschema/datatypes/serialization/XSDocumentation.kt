@@ -22,8 +22,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -38,17 +38,17 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @Serializable
 @XmlSerialName("documentation", XSD_NS_URI, XSD_PREFIX)
 class XSDocumentation : XSOpenAttrsBase {
-    val source: VAnyURI?
+    val source: XsdAnyURI?
 
     @XmlSerialName("lang", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
-    val lang: VLanguage?
+    val lang: XsdLanguage?
 
     @XmlValue(true)
     var content: CompactFragment
 
     constructor(
-        source: VAnyURI? = null,
-        lang: VLanguage? = null,
+        source: XsdAnyURI? = null,
+        lang: XsdLanguage? = null,
         content: CompactFragment = CompactFragment(""),
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(otherAttrs) {

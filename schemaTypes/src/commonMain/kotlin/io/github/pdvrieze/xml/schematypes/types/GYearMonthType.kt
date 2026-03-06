@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdGYearMonth
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface GYearMonthType<out T : XsdGYearMonth> : PrimitiveDatatype<T> {
+interface GYearMonthType<out T : XsdGYearMonth> : AnyAtomicType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -38,7 +38,7 @@ interface GYearMonthType<out T : XsdGYearMonth> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: GYearMonthType<XsdGYearMonth>, BuiltinType {
+    object Instance: GYearMonthType<XsdGYearMonth>, PrimitiveDatatype<XsdGYearMonth>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gYearMonth", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

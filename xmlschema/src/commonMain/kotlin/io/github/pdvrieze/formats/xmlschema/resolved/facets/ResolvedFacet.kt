@@ -20,10 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDouble
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDuration
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VFloat
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
@@ -31,7 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.xml.schematypes.facets.ConstrainingFacet
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.*
 
 sealed class ResolvedFacet(rawPart: XSFacet) :
     ResolvedAnnotated, ConstrainingFacet {
@@ -41,15 +37,15 @@ sealed class ResolvedFacet(rawPart: XSFacet) :
 
     open fun checkFacetValid(type: ResolvedSimpleType<*>, version: SchemaVersion) {}
 
-    open fun validate(type: ResPrimitiveDatatype<*>, decimal: VDecimal, version: SchemaVersion) {}
+    open fun validate(type: ResPrimitiveDatatype<*>, decimal: XsdDecimal, version: SchemaVersion) {}
 
     open fun validate(value: XsdAnySimple) {}
 
-    open fun validate(float: VFloat) {}
+    open fun validate(float: XsdFloat) {}
 
-    open fun validate(double: VDouble) {}
+    open fun validate(double: XsdDouble) {}
 
-    open fun validate(duration: VDuration) {}
+    open fun validate(duration: XsdDuration) {}
 
     companion object {
         operator fun invoke(

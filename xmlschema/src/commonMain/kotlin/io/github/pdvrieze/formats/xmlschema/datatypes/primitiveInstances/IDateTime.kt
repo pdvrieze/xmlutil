@@ -20,36 +20,44 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResDecimalType
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.toInstant
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
-
+/*
 @OptIn(ExperimentalTime::class)
-interface IDateTime : VAnyAtomicType {
-    /** any integer */
+interface IDateTime : XsdAtomic {
+    */
+/** any integer *//*
+
     val year: Int?
 
-    /** 1..12 */
+    */
+/** 1..12 *//*
+
     val month: UInt?
 
-    /** 1..31 or further restricted on month */
+    */
+/** 1..31 or further restricted on month *//*
+
     val day: UInt?
 
-    /** 0..23 */
+    */
+/** 0..23 *//*
+
     val hour: UInt?
 
-    /** 0..59 */
+    */
+/** 0..59 *//*
+
     val minute: UInt?
 
-    /** A decimal [0.0, 60.0> */
+    */
+/** A decimal [0.0, 60.0> *//*
+
     val second: VDecimal?
 
-    /**
+    */
+/**
      * Minutes offset from UTC
-     */
+     *//*
+
     val timezoneOffset: Int?
 
     fun yearFrag(): String = year?.let{ // it must pad to at least 4 digits
@@ -117,7 +125,9 @@ interface IDateTime : VAnyAtomicType {
         }
     }
 }
+*/
 
+/*
 internal fun Int.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
 
 internal fun Int.toLBits(bitCount: Int): ULong {
@@ -187,3 +197,4 @@ internal fun ULong.longFromBits(bitCount: Int): Long {
         else -> (this and mask).toLong()
     }
 }
+*/

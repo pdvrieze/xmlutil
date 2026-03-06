@@ -22,9 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.QName
@@ -34,14 +34,14 @@ import nl.adaptivity.xmlutil.namespaceURI
 
 object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override val version: SchemaVersion get() = SchemaVersion.V1_1
-    override val targetNamespace: VAnyURI = XSD_NS_URI.toAnyUri()
+    override val targetNamespace: XsdAnyURI = XSD_NS_URI.toAnyUri()
     override val defaultOpenContent: Nothing? get() = null
     override val defaultAttributes: Nothing? get() = null
 
     override val attributeFormDefault: VFormChoice get() = VFormChoice.UNQUALIFIED
     override val elementFormDefault: VFormChoice get() = VFormChoice.QUALIFIED
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? {
         require(typeName.namespaceURI == XSD_NS_URI) {
             "The type must be in the xmlschema namespace for the builtin schema"
         }
@@ -54,7 +54,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
         return maybeSimpleType(typeName)
     }
 
-    private val simpleTypes: List<ResolvedGlobalSimpleType>
+    private val simpleTypes: List<ResolvedGlobalSimpleType<*>>
         get() = listOf(
             ResAnySimpleType, ResAnyAtomicType, ResAnyURIType, ResBase64BinaryType, ResBooleanType,
             ResDateType, ResDateTimeType, ResDateTimeStampType, ResDecimalType, ResIntegerType, ResLongType,
@@ -68,7 +68,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
             ResNMTokensType
         )
 
-    private val typeMap: Map<String, ResolvedGlobalSimpleType> by lazy {
+    private val typeMap: Map<String, ResolvedGlobalSimpleType<*>> by lazy {
         simpleTypes.associateBy { it.mdlQName.getLocalPart() }
     }
 
@@ -97,7 +97,7 @@ object BuiltinSchemaXmlschema : ResolvedSchemaLike() {
     override fun getElements(): Set<ResolvedGlobalElement> = emptySet()
 
     internal val resolver = object : ResolvedSchema.SchemaElementResolver {
-        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType<*>? {
             return typeMap[typeName]
         }
 

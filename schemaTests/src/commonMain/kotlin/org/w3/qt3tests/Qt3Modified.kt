@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDate
+import io.github.pdvrieze.xml.schematypes.values.XsdDate
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3ByAttr
@@ -34,7 +34,7 @@ import org.w3.qt3tests.attrGroups.Qt3OnAttr
 @XmlSerialName("modified", QT3TNS)
 class Qt3Modified(
     override val by: String? = null,
-    override val on: VDate? = null,
+    override val on: XsdDate? = null,
     override val change: String? = null,
 ) : Qt3ByAttr, Qt3OnAttr, Qt3ChangeAttr {
 

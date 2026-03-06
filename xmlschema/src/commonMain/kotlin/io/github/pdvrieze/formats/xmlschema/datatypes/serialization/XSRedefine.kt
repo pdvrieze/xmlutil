@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -37,9 +37,9 @@ class XSRedefine : XSOpenAttrsBase {
     val complexTypes: List<XSGlobalComplexType>
     val groups: List<XSGroup>
     val attributeGroups: List<XSAttributeGroup>
-    val schemaLocation: VAnyURI
+    val schemaLocation: XsdAnyURI
     @XmlId
-    final val id: VID?
+    final val id: XsdID?
 
     @XmlBefore("*")
     val annotations: List<XSAnnotation>
@@ -49,8 +49,8 @@ class XSRedefine : XSOpenAttrsBase {
         complexTypes: List<XSGlobalComplexType> = emptyList(),
         groups: List<XSGroup> = emptyList(),
         attributeGroups: List<XSAttributeGroup> = emptyList(),
-        schemaLocation: VAnyURI,
-        id: VID? = null,
+        schemaLocation: XsdAnyURI,
+        id: XsdID? = null,
         annotation: XSAnnotation?,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(otherAttrs) {
@@ -68,8 +68,8 @@ class XSRedefine : XSOpenAttrsBase {
         complexTypes: List<XSGlobalComplexType> = emptyList(),
         groups: List<XSGroup> = emptyList(),
         attributeGroups: List<XSAttributeGroup> = emptyList(),
-        schemaLocation: VAnyURI,
-        id: VID? = null,
+        schemaLocation: XsdAnyURI,
+        id: XsdID? = null,
         annotations: List<XSAnnotation> = emptyList(),
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(otherAttrs) {

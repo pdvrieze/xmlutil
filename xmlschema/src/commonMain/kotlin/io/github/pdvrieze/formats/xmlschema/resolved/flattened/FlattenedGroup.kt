@@ -25,7 +25,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 sealed class FlattenedGroup(
     range: AllNNIRange,
@@ -108,7 +108,7 @@ sealed class FlattenedGroup(
         internal fun checkSequence(
             particles: List<FlattenedParticle>
         ) {
-            var lastOptionals: MutableList<QName> = mutableListOf()
+            var lastOptionals: MutableList<XsdQName> = mutableListOf()
             var lastAnys: MutableList<ResolvedAny> = mutableListOf()
             for (p in particles) {
                 for (startTerm in p.startingTerms()) {

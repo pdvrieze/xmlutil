@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<ResolvedElement> {
@@ -35,8 +35,8 @@ sealed interface IResolvedElementUse : ResolvedAnnotated, ResolvedParticle<Resol
             elemPart: SchemaElement<XSLocalElement>,
             schema: ResolvedSchemaLike,
         ): IResolvedElementUse = when {
-            elemPart.elem.minOccurs == VNonNegativeInteger.ZERO &&
-                    elemPart.elem.maxOccurs == VNonNegativeInteger.ZERO ->
+            elemPart.elem.minOccurs == XsdNonNegativeInteger.ZERO &&
+                    elemPart.elem.maxOccurs == XsdNonNegativeInteger.ZERO ->
                 ResolvedProhibitedElement(elemPart.elem, schema)
 
             elemPart.elem.ref == null -> ResolvedLocalElement(parent, elemPart, schema)

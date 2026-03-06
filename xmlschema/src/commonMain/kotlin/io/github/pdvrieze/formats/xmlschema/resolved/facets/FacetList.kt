@@ -21,8 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSExplicitTimezone
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
@@ -31,16 +29,13 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType.Variety
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdFloat
-import io.github.pdvrieze.xml.schematypes.values.XsdString
+import io.github.pdvrieze.xml.schematypes.values.*
 
 class FacetList(
     val assertions: List<ResolvedAssertionFacet> = emptyList(),
     val minConstraint: ResolvedMinBoundFacet? = null,
     val maxConstraint: ResolvedMaxBoundFacet? = null,
-    val enumeration: List<ResolvedEnumeration<Any>> = emptyList(),
+    val enumeration: List<ResolvedEnumeration<XsdAnySimple>> = emptyList(),
     val explicitTimezone: ResolvedExplicitTimezone? = null,
     val fractionDigits: ResolvedFractionDigits? = null,
     val minLength: IResolvedMinLength? = null,
@@ -74,7 +69,7 @@ class FacetList(
     fun overlay(newList: FacetList): FacetList {
         val otherFacets = mutableListOf<ResolvedFacet>().apply { addAll(otherFacets) }
         val assertions = mutableListOf<ResolvedAssertionFacet>().apply { addAll(assertions) }
-        val enumeration = mutableListOf<ResolvedEnumeration<Any>>().apply { addAll(enumeration) }
+        val enumeration = mutableListOf<ResolvedEnumeration<XsdAnySimple>>().apply { addAll(enumeration) }
         val patterns = mutableListOf<ResolvedPattern>().apply { addAll(patterns) }
         otherFacets.addAll(newList.otherFacets)
         assertions.addAll(newList.assertions)
@@ -201,7 +196,7 @@ class FacetList(
                 check(fractionDigits == null) { "totalDigits only applies to decimal types" }
             }
 
-            is ResIDecimalType<*> -> {
+            is IResolvedDecimalType<*> -> {
                 if (minConstraint != null && maxConstraint != null) {
                     minConstraint.validate(maxConstraint.value)
                     maxConstraint.validate(minConstraint.value)
@@ -221,12 +216,12 @@ class FacetList(
 
             is ResDoubleType -> {
                 val minC = minConstraint?.let {
-                    primitiveType.value(VString(it.value.xmlString)).also {
+                    primitiveType.value(XsdString(it.value.xmlString)).also {
                         primitiveType.validateValue(it, version)
                     }
                 }
                 val maxC = maxConstraint?.let {
-                    primitiveType.value(VString(it.value.xmlString)).also {
+                    primitiveType.value(XsdString(it.value.xmlString)).also {
                         primitiveType.validateValue(it, version)
                     }
                 }
@@ -239,12 +234,12 @@ class FacetList(
 
             is ResFloatType -> {
                 val minC = minConstraint?.let {
-                    primitiveType.value(VString(it.value.xmlString)).also {
+                    primitiveType.value(XsdString(it.value.xmlString)).also {
                         primitiveType.validateValue(it, version)
                     }
                 }
                 val maxC = maxConstraint?.let {
-                    primitiveType.value(VString(it.value.xmlString)).also {
+                    primitiveType.value(XsdString(it.value.xmlString)).also {
                         primitiveType.validateValue(it, version)
                     }
                 }
@@ -271,8 +266,8 @@ class FacetList(
             is ResGDayType,
             is ResGMonthType,
             is ResDateTimeType -> {
-                val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IDateTime?
-                val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IDateTime?
+                val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IXsdDateTime?
+                val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IXsdDateTime?
                 if (minDateTime != null && maxDateTime != null) {
                     check(minDateTime <= maxDateTime) { "DateTime values not in range" }
                 }
@@ -283,7 +278,7 @@ class FacetList(
 
     }
 
-    fun validate(primitiveType: ResPrimitiveDatatype<*>?, representation: VString) {
+    fun validate(primitiveType: ResAtomicDatatype<*>?, representation: XsdString) {
         val normalized = validateRepresentationOnly(primitiveType, representation)
 
 
@@ -293,9 +288,9 @@ class FacetList(
     }
 
     internal fun validateRepresentationOnly(
-        primitiveType: ResPrimitiveDatatype<*>?,
-        representation: VString
-    ): VString {
+        primitiveType: ResAtomicDatatype<*>?,
+        representation: XsdString
+    ): XsdString {
         val normalized = whiteSpace?.value?.normalize(representation) ?: representation
         val normalizedStr = normalized.toString()
 
@@ -305,7 +300,7 @@ class FacetList(
 
         when (primitiveType) {
 
-            is ResIDecimalType<*> -> totalDigits?.let {
+            is IResolvedDecimalType<*> -> totalDigits?.let {
                 val actualLength = when {
                     '.' in normalized -> normalized.length - 1 - normalized.leadingZeros() - normalized.trailingZeros()
                     else -> normalized.length - normalized.leadingZeros()
@@ -444,7 +439,7 @@ class FacetList(
         ): FacetList {
             val otherFacets: MutableList<ResolvedFacet> = mutableListOf()
             val assertions: MutableList<ResolvedAssertionFacet> = mutableListOf()
-            val enumeration: MutableList<ResolvedEnumeration<Any>> = mutableListOf()
+            val enumeration: MutableList<ResolvedEnumeration<XsdAnySimple>> = mutableListOf()
             var minConstraint: ResolvedMinBoundFacet? = null
             var maxConstraint: ResolvedMaxBoundFacet? = null
             var explicitTimezone: ResolvedExplicitTimezone? = null

@@ -35,6 +35,8 @@ interface XsdBase64Binary : XsdByteArray {
 
     companion object : SimpleTypeSerializer<XsdBase64Binary>("xsd.base64Binary") {
 
+        public operator fun invoke(value: ByteArray): XsdBase64Binary = XsdBase64BinaryImpl(value)
+
         override fun deserialize(
             raw: String,
             input: XmlReader?

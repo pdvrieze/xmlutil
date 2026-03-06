@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface UnsignedLongType<out T : XsdUnsignedLong> : NonNegativeIntegerType<XsdUnsignedLong> {
+interface UnsignedLongType<out T : XsdUnsignedLong> : NonNegativeIntegerType<T> {
     override val baseType: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL

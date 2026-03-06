@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3UriAttr
@@ -40,5 +40,5 @@ class Qt3Collection(
     val sources: List<Qt3Source>,
     val resources: List<Qt3Resource>,
     val queries: List<Qt3Query>,
-    override val uri: VAnyURI? = null,
+    override val uri: XsdAnyURI? = null,
 ): Qt3Environment.Element, Qt3UriAttr

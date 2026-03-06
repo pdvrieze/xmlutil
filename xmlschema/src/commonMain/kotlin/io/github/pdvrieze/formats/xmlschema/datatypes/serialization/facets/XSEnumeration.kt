@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -36,7 +36,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSEnumeration : XSFacet.NotFixed {
     constructor(
         value: XsdString,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {

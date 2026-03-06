@@ -20,18 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
-import io.github.pdvrieze.xml.schematypes.values.localPart
-import io.github.pdvrieze.xml.schematypes.values.namespaceURI
-import io.github.pdvrieze.xml.schematypes.values.toAnyUri
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.core.impl.multiplatform.computeIfAbsent
@@ -107,9 +101,9 @@ class ResolvedSchema(
     override val finalDefault: Set<VDerivationControl.Type>
         get() = rawPart.finalDefault ?: emptySet()
 
-    val id: VID? get() = rawPart.id
+    val id: XsdID? get() = rawPart.id
 
-    override val targetNamespace: VAnyURI get() = rawPart.targetNamespace ?: "".toAnyUri()
+    override val targetNamespace: XsdAnyURI get() = rawPart.targetNamespace ?: "".toAnyUri()
 
     override fun hasLocalTargetNamespace(): Boolean {
         return nestedData.containsKey("")
@@ -117,7 +111,7 @@ class ResolvedSchema(
 
     override val version: SchemaVersion = rawPart.version?.run { SchemaVersion.fromXml(xmlString) } ?: defaultVersion
 
-    val lang: VLanguage? get() = rawPart.lang
+    val lang: XsdLanguage? get() = rawPart.lang
 
     private inline fun <R> withQName(name: XsdQName, action: SchemaElementResolver.(String) -> R): R {
         val data = nestedData[name.getNamespaceURI()]
@@ -131,7 +125,7 @@ class ResolvedSchema(
         return data.action(name.getLocalPart())
     }
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = withQName(typeName) {
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? = withQName(typeName) {
         maybeSimpleType(it)
     }
 
@@ -218,41 +212,41 @@ class ResolvedSchema(
     }
 
     interface Resolver {
-        val baseUri: VAnyURI
+        val baseUri: XsdAnyURI
 
-        fun readSchema(schemaLocation: VAnyURI): XSSchema
+        fun readSchema(schemaLocation: XsdAnyURI): XSSchema
 
-        fun tryReadSchema(schemaLocation: VAnyURI): XSSchema?
+        fun tryReadSchema(schemaLocation: XsdAnyURI): XSSchema?
 
         /**
          * Create a delegate resolver for the schema
          */
-        fun delegate(schemaLocation: VAnyURI): Resolver
+        fun delegate(schemaLocation: XsdAnyURI): Resolver
 
-        fun resolve(relativeUri: VAnyURI): VAnyURI
+        fun resolve(relativeUri: XsdAnyURI): XsdAnyURI
     }
 
     internal object DummyResolver : Resolver {
-        override val baseUri: VAnyURI = "".toAnyUri()
+        override val baseUri: XsdAnyURI = "".toAnyUri()
 
-        override fun readSchema(schemaLocation: VAnyURI): XSSchema {
+        override fun readSchema(schemaLocation: XsdAnyURI): XSSchema {
             throw UnsupportedOperationException("Dummy resolver")
         }
 
-        override fun tryReadSchema(schemaLocation: VAnyURI): XSSchema? {
+        override fun tryReadSchema(schemaLocation: XsdAnyURI): XSSchema? {
             throw UnsupportedOperationException("Dummy resolver")
         }
 
-        override fun delegate(schemaLocation: VAnyURI): Resolver = this
+        override fun delegate(schemaLocation: XsdAnyURI): Resolver = this
 
-        override fun resolve(relativeUri: VAnyURI): VAnyURI {
+        override fun resolve(relativeUri: XsdAnyURI): XsdAnyURI {
             return relativeUri
         }
     }
 
     internal interface SchemaElementResolver {
 
-        fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType?
+        fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType<*>?
 
         fun maybeType(typeName: String): ResolvedGlobalType?
 
@@ -274,9 +268,9 @@ class ResolvedSchema(
 
     private inner class NestedData : SchemaElementResolver {
 
-        val targetNamespace: VAnyURI
+        val targetNamespace: XsdAnyURI
 
-        constructor(targetNamespace: VAnyURI, source: SchemaData) {
+        constructor(targetNamespace: XsdAnyURI, source: SchemaData) {
             this.targetNamespace = targetNamespace
 
             require(targetNamespace.value == source.namespace) {
@@ -315,7 +309,7 @@ class ResolvedSchema(
             imports = source.importedNamespaces.associateWith { ns ->
                 object : SchemaElementResolver {
                     val delegate by lazy { nestedData[ns] }
-                    override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? =
+                    override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType<*>? =
                         delegate?.maybeSimpleType(typeName)
 
                     override fun maybeType(typeName: String): ResolvedGlobalType? =
@@ -344,7 +338,7 @@ class ResolvedSchema(
         }
 
         private constructor(
-            targetNamespace: VAnyURI,
+            targetNamespace: XsdAnyURI,
             elements: Map<String, ResolvedGlobalElement>,
             attributes: Map<String, ResolvedGlobalAttribute>,
             types: Map<String, ResolvedGlobalType>,
@@ -402,9 +396,9 @@ class ResolvedSchema(
             map
         }
 
-        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType<*>? {
             return types[typeName]?.let {
-                checkNotNull(it as? ResolvedGlobalSimpleType) { "The type $typeName resolves to a complex type, not a simple one" }
+                checkNotNull(it as? ResolvedGlobalSimpleType<*>) { "The type $typeName resolves to a complex type, not a simple one" }
             }
         }
 

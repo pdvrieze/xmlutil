@@ -1,30 +1,30 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -41,13 +41,13 @@ sealed class XSFacet : XSI_Annotated {
     abstract val fixed: Boolean?
 
     @XmlId
-    final override val id: VID?
+    final override val id: XsdID?
     @XmlBefore("*")
     final override val annotation: XSAnnotation?
     @XmlOtherAttributes
     final override val otherAttrs: Map<SerializableQName, String>
 
-    constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) {
+    constructor(id: XsdID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) {
         this.id = id
         this.annotation = annotation
         this.otherAttrs = otherAttrs
@@ -55,7 +55,7 @@ sealed class XSFacet : XSI_Annotated {
 
     @Serializable
     sealed class NotFixed : XSFacet {
-        constructor(id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs)
+        constructor(id: XsdID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs)
 
         final override val fixed: Nothing? get() = null
     }
@@ -63,11 +63,11 @@ sealed class XSFacet : XSI_Annotated {
     @Serializable
     sealed class Fixed : XSFacet {
         @SerialName("fixed")
-        private val _fixed: VBoolean?
+        private val _fixed: XsdBoolean?
         final override val fixed: Boolean? get() = _fixed?.value
 
-        constructor(fixed: Boolean?, id: VID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs) {
-            this._fixed = fixed?.let(::VBoolean)
+        constructor(fixed: Boolean?, id: XsdID?, annotation: XSAnnotation?, otherAttrs: Map<SerializableQName, String>) : super(id, annotation, otherAttrs) {
+            this._fixed = fixed?.let { XsdBoolean(it)}
         }
     }
 
@@ -78,7 +78,7 @@ sealed class XSFacet : XSI_Annotated {
         constructor(
             value: ULong,
             fixed: Boolean?,
-            id: VID?,
+            id: XsdID?,
             annotation: XSAnnotation?,
             otherAttrs: Map<SerializableQName, String>
         ) : super(fixed, id, annotation, otherAttrs) {

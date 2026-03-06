@@ -20,13 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNameType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isXmlName
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.jvm.JvmInline
-
+/*
 @Serializable(VName.Serializer::class)
 interface VName : VToken {
 
@@ -58,3 +52,4 @@ interface VName : VToken {
     }
 
 }
+*/

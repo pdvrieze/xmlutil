@@ -33,6 +33,7 @@ interface XsdYearMonthDuration : XsdDuration {
 
     override val schemaType: YearMonthDurationType<XsdYearMonthDuration>
 
+    override val millis: Long get() = 0L
     override val seconds: Double get() = 0.0
 
     companion object : SimpleTypeSerializer<XsdYearMonthDuration>("xsd.dateTimeDuration") {

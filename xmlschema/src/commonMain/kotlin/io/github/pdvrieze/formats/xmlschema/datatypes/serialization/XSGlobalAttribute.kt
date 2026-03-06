@@ -22,10 +22,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -44,12 +44,12 @@ class XSGlobalAttribute : XSAttribute {
 
     constructor(
         name: XsdNCName,
-        default: VString? = null,
-        fixed: VString? = null,
+        default: XsdString? = null,
+        fixed: XsdString? = null,
         type: XsdQName? = null,
         inheritable: Boolean? = null,
         simpleType: XSLocalSimpleType? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(default, fixed, type, inheritable, simpleType, id, annotation, otherAttrs) {

@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdHexBinary
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface HexBinaryType<out T : XsdHexBinary> : PrimitiveDatatype<T> {
+interface HexBinaryType<out T : XsdHexBinary> : AnyAtomicType<T> {
 
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
@@ -39,7 +39,7 @@ interface HexBinaryType<out T : XsdHexBinary> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: HexBinaryType<XsdHexBinary>, BuiltinType {
+    object Instance: HexBinaryType<XsdHexBinary>, PrimitiveDatatype<XsdHexBinary>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "hexBinary", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

@@ -20,11 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlReader
-import kotlin.jvm.JvmInline
-
+/*
 @JvmInline
 @Serializable(VID.Serializer::class)
 value class VID private constructor(override val xmlString: String) : VNCNameXX {
@@ -57,5 +53,6 @@ value class VID private constructor(override val xmlString: String) : VNCNameXX 
     }
 
 }
+*/
 
 

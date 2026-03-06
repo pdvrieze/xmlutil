@@ -20,13 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyURIType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResBooleanType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResQNameType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
@@ -74,7 +74,7 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
     }
 
     internal val resolver: ResolvedSchema.SchemaElementResolver = object : ResolvedSchema.SchemaElementResolver {
-        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType<*>? {
             return maybeSimpleType(QName(XMLConstants.XSI_NS_URI, typeName))
         }
 
@@ -108,7 +108,7 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
     }
 
 
-    override val targetNamespace: VAnyURI get() = XMLConstants.XSI_NS_URI.toAnyUri()
+    override val targetNamespace: XsdAnyURI get() = XMLConstants.XSI_NS_URI.toAnyUri()
 
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = delegate.blockDefault
 
@@ -116,7 +116,7 @@ object BuiltinSchemaXmlInstance : ResolvedSchemaLike() {
 
     override val defaultOpenContent: XSDefaultOpenContent? get() = delegate.defaultOpenContent
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = delegate.maybeSimpleType(typeName)
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? = delegate.maybeSimpleType(typeName)
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? = delegate.maybeType(typeName)
 

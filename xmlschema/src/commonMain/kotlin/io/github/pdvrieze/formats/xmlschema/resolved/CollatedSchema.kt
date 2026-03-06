@@ -21,10 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.QName
@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.prefix
 
 internal open class NamespaceHolder(val namespace: String, var loading: Boolean)
 
-internal class RecursiveRedefine(val schemaLocation: VAnyURI, namespace: String) : NamespaceHolder(namespace, false)
+internal class RecursiveRedefine(val schemaLocation: XsdAnyURI, namespace: String) : NamespaceHolder(namespace, false)
 
 internal class SchemaData(
     namespace: String,
@@ -49,7 +49,7 @@ internal class SchemaData(
     val groups: Map<String, SchemaElement<XSGroup>>,
     val attributeGroups: Map<String, SchemaElement<XSAttributeGroup>>,
     val notations: Map<String, XSNotation>,
-    val includedNamespaceToUris: Map<String, List<VAnyURI>>,
+    val includedNamespaceToUris: Map<String, List<XsdAnyURI>>,
     val knownNested: Map<String, NamespaceHolder>,
     val importedNamespaces: Set<String>,
 ) : NamespaceHolder(namespace, false) {
@@ -349,7 +349,7 @@ internal class SchemaData(
         val groups: MutableMap<String, SchemaElement<XSGroup>> = mutableMapOf()
         val attributeGroups: MutableMap<String, SchemaElement<XSAttributeGroup>> = mutableMapOf()
         val notations: MutableMap<String, XSNotation> = mutableMapOf()
-        val includedNamespaceToUris: MutableMap<String, MutableList<VAnyURI>> = mutableMapOf()
+        val includedNamespaceToUris: MutableMap<String, MutableList<XsdAnyURI>> = mutableMapOf()
         val newProcessed: MutableMap<String, NamespaceHolder> = processed
         val importedNamespaces: MutableSet<String> = mutableSetOf()
         val schemaLocations: MutableSet<String> = mutableSetOf(rootLocation)
@@ -661,7 +661,7 @@ internal class SchemaData(
                     null -> {
                         require(!targetNamespace.isNullOrEmpty()) { "4.2.6.2 1.1) Import with empty namespace inside a schema without target namespace" }
 
-                        VAnyURI("")
+                        XsdAnyURI("")
                     }
 
                     else -> {
@@ -674,7 +674,7 @@ internal class SchemaData(
                 val il = import.schemaLocation
                 if (il == null) {
                     b.includedNamespaceToUris.computeIfAbsent(importNS.value, { mutableListOf() }).let {
-                        if (VAnyURI.EMPTY !in it) it.add(VAnyURI.EMPTY) // Don't duplicate "missing" uris
+                        if (XsdAnyURI.EMPTY !in it) it.add(XsdAnyURI.EMPTY) // Don't duplicate "missing" uris
                     }
                     b.importedNamespaces.add(importNS.value)
                 } else {
@@ -769,7 +769,7 @@ class OwnerWrapper internal constructor(
     override val version: SchemaVersion
         get() = owner.version?.let { SchemaVersion.fromXml(it.xmlString) } ?: base.version
 
-    override val targetNamespace: VAnyURI? get() = owner.targetNamespace
+    override val targetNamespace: XsdAnyURI? get() = owner.targetNamespace
 
     override val attributeFormDefault: VFormChoice get() = owner.attributeFormDefault ?: VFormChoice.UNQUALIFIED
 
@@ -796,7 +796,7 @@ class OwnerWrapper internal constructor(
     }
 
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = checkImport(typeName) {
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? = checkImport(typeName) {
         base.maybeSimpleType(typeName)
     }
 
@@ -833,7 +833,7 @@ class OwnerWrapper internal constructor(
 
 class ChameleonWrapper internal constructor(
     val base: ResolvedSchemaLike,
-    val chameleonNamespace: VAnyURI?
+    val chameleonNamespace: XsdAnyURI?
 ) : ResolvedSchemaLike() {
 
     override val attributeFormDefault: VFormChoice get() = base.attributeFormDefault
@@ -841,7 +841,7 @@ class ChameleonWrapper internal constructor(
 
     override val version: SchemaVersion get() = base.version
 
-    override val targetNamespace: VAnyURI?
+    override val targetNamespace: XsdAnyURI?
         get() = chameleonNamespace
 
     override fun hasLocalTargetNamespace(): Boolean {
@@ -863,7 +863,7 @@ class ChameleonWrapper internal constructor(
         }
     }
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? {
         return base.maybeSimpleType(typeName.extend())
     }
 
@@ -924,7 +924,7 @@ internal class RedefineSchema(
 
     override val version: SchemaVersion get() = referenceSchema.version
 
-    override val targetNamespace: VAnyURI? get() = originSchemaData.namespace.takeIf { it.isNotEmpty() }
+    override val targetNamespace: XsdAnyURI? get() = originSchemaData.namespace.takeIf { it.isNotEmpty() }
         ?.toAnyUri()
         ?: referenceSchema.targetNamespace
 
@@ -939,7 +939,7 @@ internal class RedefineSchema(
     override val elementFormDefault: VFormChoice
         get() = originSchemaData.elementFormDefault ?: VFormChoice.UNQUALIFIED
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? {
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? {
         if (elementKind == Redefinable.TYPE && elementName == typeName) {
             return nestedSimpleType(typeName)
         }
@@ -955,7 +955,7 @@ internal class RedefineSchema(
         return referenceSchema.maybeType(typeName)
     }
 
-    fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType {
+    fun nestedSimpleType(typeName: QName): ResolvedGlobalSimpleType<*> {
         require(originalNS == typeName.namespaceURI)
         val t = originSchemaData.findType(typeName)
         if (t != null && t.elem is XSGlobalSimpleType) {

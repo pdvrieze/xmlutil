@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDefaultOpenContent
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.namespaceURI
 abstract class ResolvedSchemaLike {
     abstract val version: SchemaVersion
     abstract val defaultAttributes: XsdQName?
-    abstract val targetNamespace: VAnyURI?
+    abstract val targetNamespace: XsdAnyURI?
 
     abstract val blockDefault: Set<VDerivationControl.T_BlockSetValues>
     abstract val finalDefault: Set<VDerivationControl.Type>
@@ -40,7 +40,7 @@ abstract class ResolvedSchemaLike {
     abstract val attributeFormDefault: VFormChoice
     abstract val elementFormDefault: VFormChoice
 
-    abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType?
+    abstract fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>?
 
     abstract fun maybeType(typeName: QName): ResolvedGlobalType?
     fun maybeType(typeName: XsdQName): ResolvedGlobalType? = maybeType(typeName.toQName())
@@ -62,7 +62,7 @@ abstract class ResolvedSchemaLike {
 
     abstract fun maybeNotation(notationName: QName): ResolvedNotation?
 
-    fun simpleType(typeName: QName): ResolvedGlobalSimpleType = when (typeName.namespaceURI) {
+    fun simpleType(typeName: QName): ResolvedGlobalSimpleType<*> = when (typeName.namespaceURI) {
         XSD_NS_URI -> maybeSimpleType(typeName)
             ?: BuiltinSchemaXmlschema.maybeSimpleType(typeName)
 
@@ -70,7 +70,7 @@ abstract class ResolvedSchemaLike {
         else -> maybeSimpleType(typeName)
     } ?: throw NoSuchElementException("No simple type with name $typeName found")
 
-    fun simpleType(typeName: XsdQName): ResolvedGlobalSimpleType =
+    fun simpleType(typeName: XsdQName): ResolvedGlobalSimpleType<*> =
         simpleType(typeName.toQName())
 
     fun type(typeName: QName): ResolvedGlobalType = when (typeName.namespaceURI) {

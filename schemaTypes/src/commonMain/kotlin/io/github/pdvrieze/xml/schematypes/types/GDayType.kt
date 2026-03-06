@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdGDay
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface GDayType<out T : XsdGDay> : PrimitiveDatatype<T> {
+interface GDayType<out T : XsdGDay> : AnyAtomicType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -38,7 +38,7 @@ interface GDayType<out T : XsdGDay> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : GDayType<XsdGDay>, BuiltinType {
+    object Instance : GDayType<XsdGDay>, PrimitiveDatatype<XsdGDay>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gDay", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

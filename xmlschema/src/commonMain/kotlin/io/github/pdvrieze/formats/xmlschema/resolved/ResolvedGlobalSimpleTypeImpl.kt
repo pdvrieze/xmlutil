@@ -32,7 +32,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     rawPart: XSGlobalSimpleType,
     schema: ResolvedSchemaLike,
     val location: String = "",
-) : ResolvedGlobalSimpleType<XsdAnySimple> {
+) : ResolvedGlobalSimpleType<XsdAnySimple>, ExternalSimpleType {
 
     internal constructor(
         rawPart: SchemaAssociatedElement<XSGlobalSimpleType>,
@@ -44,6 +44,7 @@ class ResolvedGlobalSimpleTypeImpl internal constructor(
     }
 
     override val mdlQName: XsdQName = rawPart.name.toQname(schema.targetNamespace)
+    override val name: XsdQName get() = mdlQName
 
     override val mdlFinal: Set<VDerivationControl.Type> = rawPart.final ?: schema.finalDefault
 

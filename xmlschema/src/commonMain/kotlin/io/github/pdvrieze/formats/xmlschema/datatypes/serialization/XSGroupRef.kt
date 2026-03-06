@@ -20,10 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.compareTo
+import io.github.pdvrieze.xml.schematypes.values.XsdID
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -41,9 +42,9 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("group", XSD_NS_URI, XSD_PREFIX)
 class XSGroupRef(
     @XmlId
-    override val id: VID?,
+    override val id: XsdID?,
     val ref: XsdQName,
-    override val minOccurs: VNonNegativeInteger? = null,
+    override val minOccurs: XsdNonNegativeInteger? = null,
     override val maxOccurs: VAllNNI? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
@@ -51,7 +52,9 @@ class XSGroupRef(
     override val otherAttrs: Map<SerializableQName, String>
 ) : XSComplexContent.XSIDerivationParticle, XSI_AllParticle, XSI_Annotated {
     init {
-        require((minOccurs ?: VNonNegativeInteger.ONE) <= (maxOccurs ?: VAllNNI.ONE)) { "Invalid bounds: ! (${minOccurs}<=$maxOccurs)" }
+        require(
+            (minOccurs ?: XsdNonNegativeInteger.ONE) <= (maxOccurs ?: VAllNNI.ONE)
+        ) { "Invalid bounds: ! (${minOccurs}<=$maxOccurs)" }
     }
 
     override fun hasLocalNsInContext(schema: ResolvedSchemaLike): Boolean {

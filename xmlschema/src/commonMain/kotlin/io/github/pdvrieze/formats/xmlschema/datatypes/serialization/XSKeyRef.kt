@@ -22,7 +22,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Serializable
@@ -46,7 +46,7 @@ class XSKeyRef : XSIdentityConstraint {
         refer: XsdQName? = null,
         selector: XSSelector,
         fields: List<XSField> = emptyList(),
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String>
     ) : super(selector, fields, id, annotation, otherAttrs) {

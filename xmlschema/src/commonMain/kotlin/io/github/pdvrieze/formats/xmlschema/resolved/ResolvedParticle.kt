@@ -20,22 +20,21 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
-import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
-import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 
 
 interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     val range: AllNNIRange get() = AllNNIRange(mdlMinOccurs, mdlMaxOccurs)
-    val mdlMinOccurs: VNonNegativeInteger
+    val mdlMinOccurs: XsdNonNegativeInteger
     val mdlMaxOccurs: VAllNNI
     val mdlTerm: T
 
@@ -43,7 +42,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         get() = when (val t = mdlTerm) {
             is IResolvedAll,
             is IResolvedSequence -> {
-                var min: VNonNegativeInteger = VUnsignedLong.ZERO
+                var min: XsdNonNegativeInteger = XsdUnsignedLong.ZERO
                 var max: VAllNNI = VAllNNI.Value(0u)
                 for (particle in (t as ResolvedModelGroup).mdlParticles) {
                     val r = particle.effectiveTotalRange
@@ -54,7 +53,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             }
 
             is IResolvedChoice -> {
-                var minMin: VNonNegativeInteger = VUnsignedLong(ULong.MAX_VALUE)
+                var minMin: XsdNonNegativeInteger = XsdUnsignedLong(ULong.MAX_VALUE)
                 var maxMax: VAllNNI = VAllNNI.Value(0u)
                 for (particle in t.mdlParticles) {
                     val r = particle.effectiveTotalRange

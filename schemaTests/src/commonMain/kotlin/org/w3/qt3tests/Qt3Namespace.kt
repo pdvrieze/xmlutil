@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.Namespace
@@ -48,7 +48,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("namespace", QT3TNS)
 class Qt3Namespace(
     override val prefix: String,
-    @SerialName("uri") val uri: VAnyURI,
+    @SerialName("uri") val uri: XsdAnyURI,
 ): Qt3Environment.Element, Namespace {
     override val namespaceURI: String get() = uri.value
 

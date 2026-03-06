@@ -22,9 +22,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -43,7 +43,7 @@ class XSAssert : XSAnnotatedBase, XSIAssertCommon {
     constructor(
         test: XPathExpression,
         xPathDefaultNamespace: VXPathDefaultNamespace? = null,
-        id: VID?,
+        id: XsdID?,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {

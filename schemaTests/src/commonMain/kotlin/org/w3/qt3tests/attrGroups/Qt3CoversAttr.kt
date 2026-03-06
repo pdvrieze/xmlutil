@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import io.github.pdvrieze.xml.schematypes.values.XsdToken
 
 interface Qt3CoversAttr {
     /**
@@ -31,6 +31,6 @@ interface Qt3CoversAttr {
      * list of change identifiers; however it is not actually an `xs:IDREFS` value, because the identifiers are
      * in a different XML document, specifically the identifiers of changes appearing in the `changes.xml` file.
      */
-    val covers: List<VToken>?
+    val covers: List<XsdToken>?
 }
 

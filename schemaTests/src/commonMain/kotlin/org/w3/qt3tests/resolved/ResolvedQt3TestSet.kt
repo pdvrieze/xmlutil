@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import io.github.pdvrieze.xml.schematypes.values.XsdToken
 import org.w3.qt3tests.Qt3Dependency
 import org.w3.qt3tests.Qt3Description
 import org.w3.qt3tests.Qt3Link
@@ -28,7 +28,7 @@ import org.w3.qt3tests.Qt3Link
 class ResolvedQt3TestSet(
     val name: String,
     val testCases: List<ResolvedQt3TestCase>,
-    val covers: List<VToken>?,
+    val covers: List<XsdToken>?,
     val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>?,
     val descriptions: List<Qt3Description>,
     val map: List<ResolvedQt3Environment>,

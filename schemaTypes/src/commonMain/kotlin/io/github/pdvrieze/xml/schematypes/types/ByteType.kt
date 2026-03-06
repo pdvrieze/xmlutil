@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdByte
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface ByteType<out T : XsdByte> : PrimitiveDatatype<T>, ShortType<T> {
+interface ByteType<out T : XsdByte> : ShortType<T> {
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE

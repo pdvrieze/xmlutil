@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResSimpleBuiltinRestriction
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleRestrictionBase
@@ -33,9 +32,9 @@ import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
-import nl.adaptivity.xmlutil.XMLConstants
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-object ResAnyAtomicType : ResAtomicDatatype<XsdAtomic>("anyAtomicType", XMLConstants.XSD_NS_URI),
+object ResAnyAtomicType : ResAtomicDatatype<XsdAtomic>,
     AnyAtomicType<XsdAtomic>,
     ResolvedBuiltinSimpleType<XsdAtomic> {
     override val isSpecial: Boolean get() = true
@@ -64,7 +63,7 @@ object ResAnyAtomicType : ResAtomicDatatype<XsdAtomic>("anyAtomicType", XMLConst
         error("Atomic is not directly usable")
     }
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         error("Atomic is not directly usable")
     }
 }

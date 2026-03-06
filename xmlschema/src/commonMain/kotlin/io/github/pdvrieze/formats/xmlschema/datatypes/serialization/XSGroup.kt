@@ -22,7 +22,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -40,7 +40,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSGroup(
     val name: XsdNCName,
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     val content: XSGroupElement,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
@@ -60,7 +60,7 @@ class XSGroup(
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
         @XmlId
-        override val id: VID? = null,
+        override val id: XsdID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : XSGroupElement()
@@ -72,7 +72,7 @@ class XSGroup(
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
         @XmlId
-        override val id: VID? = null,
+        override val id: XsdID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : XSGroupElement()
@@ -84,7 +84,7 @@ class XSGroup(
         @XmlBefore("*")
         override val annotation: XSAnnotation? = null,
         @XmlId
-        override val id: VID? = null,
+        override val id: XsdID? = null,
         @XmlOtherAttributes
         override val otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : XSGroupElement()

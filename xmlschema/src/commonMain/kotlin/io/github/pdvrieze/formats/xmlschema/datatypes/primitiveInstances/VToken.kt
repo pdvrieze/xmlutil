@@ -20,12 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-import kotlin.jvm.JvmInline
-
+/*
 @Serializable(VToken.Serializer::class)
 interface VToken : VNormalizedString {
 
@@ -51,3 +46,4 @@ interface VToken : VNormalizedString {
     }
 
 }
+*/

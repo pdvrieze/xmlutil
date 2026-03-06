@@ -20,23 +20,22 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBultinAtomicType<out T: XsdAtomic>: ResolvedBuiltinSimpleType<T>, AnyAtomicType<T> {
-    override val baseType: ResolvedSimpleType<*>
+interface ResolvedBuiltinAtomicType<out T : XsdAtomic> : ResolvedBuiltinSimpleType<T>, ResAtomicDatatype<T> {
+    override val baseType: ResolvedBuiltinSimpleType<*>
 }
 
-interface ResolvedBuiltinSimpleType<out T : XsdAnySimple> : ResolvedGlobalSimpleType, ResolvedBuiltinType,
-    ResolvedSimpleType.Model, AnySimpleType<T> {
+interface ResolvedBuiltinSimpleType<out T : XsdAnySimple> : ResolvedGlobalSimpleType<T>, ResolvedBuiltinType,
+    ResolvedSimpleType.Model {
     override val mdlBaseTypeDefinition: ResolvedType get() = baseType
 
     override val id: Nothing? get() = null
@@ -48,9 +47,10 @@ interface ResolvedBuiltinSimpleType<out T : XsdAnySimple> : ResolvedGlobalSimple
 
     override val mdlFacets: FacetList
 
-    override val mdlFundamentalFacets: FundamentalFacets get() {
-        return FundamentalFacets(ordered, bounded, cardinality, numeric)
-    }
+    override val mdlFundamentalFacets: FundamentalFacets
+        get() {
+            return FundamentalFacets(ordered, bounded, cardinality, numeric)
+        }
 
     override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
 

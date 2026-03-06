@@ -20,16 +20,16 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttrUse
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalAttribute
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-sealed class ValueConstraint(val value: VString) {
+sealed class ValueConstraint(val value: XsdString) {
     abstract fun isValidRestrictionOf(type: ResolvedSimpleType<*>, base: ValueConstraint): Boolean
 
-    class Default(value: VString) : ValueConstraint(value) {
+    class Default(value: XsdString) : ValueConstraint(value) {
         override fun toString(): String = "DEFAULT(${value})"
 
         override fun isValidRestrictionOf(type: ResolvedSimpleType<*>, base: ValueConstraint): Boolean = when (base) {
@@ -38,7 +38,7 @@ sealed class ValueConstraint(val value: VString) {
         }
     }
 
-    class Fixed(value: VString) : ValueConstraint(value) {
+    class Fixed(value: XsdString) : ValueConstraint(value) {
         override fun toString(): String = "FIXED(${value})"
 
         override fun isValidRestrictionOf(type: ResolvedSimpleType<*>, base: ValueConstraint): Boolean = when (base) {

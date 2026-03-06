@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import nl.adaptivity.xmlutil.QName
 
@@ -63,7 +63,7 @@ internal sealed interface QNameSpec {
 
     class Namespace(val namespace: String, val prefix: String? = null) : WildCard {
         override fun asNodeTest(): NodeTest {
-            return NodeTest.NSTest(VAnyURI(namespace), prefix?.let { XsdNCName(it) })
+            return NodeTest.NSTest(XsdAnyURI(namespace), prefix?.let { XsdNCName(it) })
         }
     }
 }

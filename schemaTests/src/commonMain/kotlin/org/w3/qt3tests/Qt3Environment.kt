@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
@@ -64,7 +64,7 @@ class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
 
     constructor(
         name: String? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         ref: String? = null,
         schemas: List<Qt3Schema>,
         sources: List<Qt3Source>,

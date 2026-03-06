@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
 interface Qt3FileAttr {
     /**
@@ -30,5 +30,5 @@ interface Qt3FileAttr {
      * The URI will always be relative to the base URI of the XML document in which
      * the attribute appears.
      */
-    val file: VAnyURI?
+    val file: XsdAnyURI?
 }

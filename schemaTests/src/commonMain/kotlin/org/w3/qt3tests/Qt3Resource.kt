@@ -20,8 +20,8 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -47,12 +47,12 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("resource", QT3TNS)
 class Qt3Resource: Qt3ResourceType, Qt3Environment.Element {
     constructor(
-        id: VID? = null,
+        id: XsdID? = null,
         description: Qt3Description? = null,
         created: Qt3Created? = null,
         modified: List<Qt3Modified> = emptyList(),
-        file: VAnyURI? = null,
-        uri: VAnyURI? = null,
+        file: XsdAnyURI? = null,
+        uri: XsdAnyURI? = null,
         mediaType: String? = null,
         encoding: String? = null,
     ) : super(id, description, created, modified, file, uri, mediaType, encoding)

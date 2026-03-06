@@ -20,8 +20,8 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
@@ -39,18 +39,18 @@ abstract class Qt3SourceType: Qt3BaseType, Qt3RoleAttr, Qt3FileAttr, Qt3UriAttr,
     val created: Qt3Created?
     val modified: List<Qt3Modified>
     final override val role: String?
-    final override val file: VAnyURI
-    final override val uri: VAnyURI?
+    final override val file: XsdAnyURI
+    final override val uri: XsdAnyURI?
     @XmlElement(false) final override val validation: Qt3Validations?
 
     constructor(
-        file: VAnyURI,
-        id: VID? = null,
+        file: XsdAnyURI,
+        id: XsdID? = null,
         description: Qt3Description? = null,
         created: Qt3Created? = null,
         modified: List<Qt3Modified> = emptyList(),
         role: String? = null,
-        uri: VAnyURI? = null,
+        uri: XsdAnyURI? = null,
         validation: Qt3Validations? = null,
     ) : super(id) {
         this.description = description

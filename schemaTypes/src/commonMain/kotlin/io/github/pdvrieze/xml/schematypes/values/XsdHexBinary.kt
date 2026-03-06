@@ -34,6 +34,14 @@ interface XsdHexBinary : XsdByteArray {
 
     companion object : SimpleTypeSerializer<XsdHexBinary>("xsd.hexBinary") {
 
+        operator fun invoke(string: String): XsdHexBinary {
+            return XsdHexBinaryImpl(string)
+        }
+
+        operator fun invoke(bytes: ByteArray): XsdHexBinary {
+            return XsdHexBinaryImpl(bytes)
+        }
+
         override fun deserialize(raw: String, input: XmlReader?): XsdHexBinary {
             return XsdHexBinaryImpl(raw.hexToByteArray())
         }

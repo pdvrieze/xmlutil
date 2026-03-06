@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -34,10 +34,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("import", XSD_NS_URI, XSD_PREFIX)
 class XSImport(
-    val namespace: VAnyURI? = null,
-    val schemaLocation: VAnyURI? = null,
+    val namespace: XsdAnyURI? = null,
+    val schemaLocation: XsdAnyURI? = null,
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes

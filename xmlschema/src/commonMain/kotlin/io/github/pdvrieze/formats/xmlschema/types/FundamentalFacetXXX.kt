@@ -94,7 +94,7 @@ class FundamentalFacets(
 
     override val size: Int get() = 4
 
-    val isBounded: Boolean get() = bounded.value
+    val isBounded: Boolean get() = bounded.isBounded
     val isNumeric: Boolean get() = numeric.isNumeric
 
     override fun get(index: Int): FundamentalFacet = when (index) {
@@ -107,7 +107,7 @@ class FundamentalFacets(
 
     override fun indexOf(element: FundamentalFacet): Int = when (element) {
         is FacetOrdered -> if (! element.isFalse) 0 else -1
-        is FacetBounded -> if (element.value == isBounded) 1 else -1
+        is FacetBounded -> if (element.isBounded == isBounded) 1 else -1
         is FacetCardinality -> if (element.isFinite) 2 else -1
         is FacetNumeric -> if (element.isNumeric) 3 else -1
     }

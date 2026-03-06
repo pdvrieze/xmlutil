@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
@@ -28,6 +27,7 @@ import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 object ResAnySimpleType : ResolvedBuiltinSimpleType<XsdAnySimple>,
     AnySimpleType<XsdAnySimple> {
@@ -67,9 +67,9 @@ object ResAnySimpleType : ResolvedBuiltinSimpleType<XsdAnySimple>,
         // Valid for any value
     }
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         // any representation is valid
     }
 
-    override fun value(representation: VString): Any = representation
+    override fun value(representation: XsdString): Any = representation
 }

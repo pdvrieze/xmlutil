@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface StringType<out T : XsdString> : PrimitiveDatatype<T> {
+interface StringType<out T : XsdString> : AnyAtomicType<T> {
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.COUNTABLY_INFINITE
@@ -37,7 +37,7 @@ interface StringType<out T : XsdString> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : StringType<XsdString>, BuiltinType {
+    object Instance : StringType<XsdString>, PrimitiveDatatype<XsdString>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "string", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

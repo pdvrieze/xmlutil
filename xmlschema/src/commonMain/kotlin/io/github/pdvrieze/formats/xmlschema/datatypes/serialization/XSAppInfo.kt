@@ -22,7 +22,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -41,10 +41,10 @@ class XSAppInfo : XSOpenAttrsBase {
     val content: CompactFragment
 
     @XmlElement(false)
-    val source: VAnyURI?
+    val source: XsdAnyURI?
 
     constructor(
-        source: VAnyURI? = null,
+        source: XsdAnyURI? = null,
         content: CompactFragment = CompactFragment(""),
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(otherAttrs) {

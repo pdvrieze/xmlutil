@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -40,7 +40,7 @@ class XSSimpleContentRestriction: XSSimpleContentDerivation, SimpleRestrictionMo
         simpleType: XSLocalSimpleType? = null,
         facets: List<XSFacet> = emptyList(),
         base: XsdQName? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         attributes: List<XSLocalAttribute> = emptyList(),
         attributeGroups: List<XSAttributeGroupRef> = emptyList(),
         anyAttribute: XSAnyAttribute? = null,

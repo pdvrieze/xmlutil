@@ -20,28 +20,28 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
 import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<ResolvedAny>, ResolvedBasicTerm {
 
-    override val mdlMinOccurs: VNonNegativeInteger
+    override val mdlMinOccurs: XsdNonNegativeInteger
     override val mdlMaxOccurs: VAllNNI
     override val mdlNotQName: VQNameList get() = mdlNamespaceConstraint.disallowedNames as VQNameList
 
     constructor(
         mdlNamespaceConstraint: VNamespaceConstraint<VQNameListBase.Elem>,
         mdlProcessContents: VProcessContents,
-        mdlMinOccurs: VNonNegativeInteger = VNonNegativeInteger.ONE,
+        mdlMinOccurs: XsdNonNegativeInteger = XsdNonNegativeInteger.ONE,
         mdlMaxOccurs: VAllNNI = VAllNNI.ONE,
     ) : super(mdlNamespaceConstraint, mdlProcessContents) {
-        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+        require(mdlMinOccurs <= mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         this.mdlMinOccurs = mdlMinOccurs
         this.mdlMaxOccurs = mdlMaxOccurs
     }
@@ -49,7 +49,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     constructor(
         rawPart: XSAny,
         schema: ResolvedSchemaLike,
-        mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+        mdlMinOccurs: XsdNonNegativeInteger = rawPart.minOccurs ?: XsdNonNegativeInteger.ONE,
         mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE
     ) : super(
         rawPart,
@@ -59,7 +59,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         if (schema.version == SchemaVersion.V1_0) {
             require(rawPart.notQName == null) { "NotQName is not allowed in v1.0 documents" }
         }
-        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+        require(mdlMinOccurs.compareTo(mdlMaxOccurs) <= 0) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         this.mdlMinOccurs = mdlMinOccurs
         this.mdlMaxOccurs = mdlMaxOccurs
     }
@@ -121,7 +121,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
             append("any(")
             append(mdlNamespaceConstraint)
             append(")")
-            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+            if (mdlMinOccurs != XsdNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
         }
     }
 

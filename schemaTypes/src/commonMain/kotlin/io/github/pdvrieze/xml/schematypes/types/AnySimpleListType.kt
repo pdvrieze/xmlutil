@@ -33,7 +33,7 @@ interface AnySimpleListType<out T: XsdAnySimple, out E: XsdAnySimple> : AnySimpl
     val itemType: AnySimpleType<E>
 
     @XmlUtilInternal
-    class Instance<out T: XsdAnySimple, out E: XsdAnySimple>(
+    open class Instance<out T: XsdAnySimple, out E: XsdAnySimple>(
         override val name: XsdQName?,
         override val itemType: AnySimpleType<E>,
         constrainingFacets: List<ConstrainingFacet> = emptyList(),
@@ -66,7 +66,7 @@ interface AnySimpleListType<out T: XsdAnySimple, out E: XsdAnySimple> : AnySimpl
             add(FacetWhiteSpace(WhitespaceValue.COLLAPSE, true))
         }
 
-        override val baseType: AnySimpleType<XsdAnySimple> get() = AnySimpleType.Instance
+        override val baseType: AnySimpleType<*> get() = AnySimpleType.Instance
     }
 
     companion object {

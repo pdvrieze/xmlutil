@@ -21,16 +21,11 @@
 @file:UseSerializers(QNameSerializer::class)
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -49,27 +44,27 @@ class XSLocalElement : XSElement, XSI_AllParticle {
     @XmlElement(false)
     val form: VFormChoice?
 
-    override val minOccurs: VNonNegativeInteger?
+    override val minOccurs: XsdNonNegativeInteger?
 
     override val maxOccurs: VAllNNI?
 
     @XmlElement(false)
     val ref: XsdQName?
 
-    val targetNamespace: VAnyURI?
+    val targetNamespace: XsdAnyURI?
 
     constructor(
         block: Set<VDerivationControl.T_BlockSetValues>? = null,
-        default: VString? = null,
-        fixed: VString? = null,
+        default: XsdString? = null,
+        fixed: XsdString? = null,
         form: VFormChoice? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         maxOccurs: VAllNNI? = null,
-        minOccurs: VNonNegativeInteger? = null,
+        minOccurs: XsdNonNegativeInteger? = null,
         name: XsdNCName? = null,
         nillable: Boolean? = null,
         ref: XsdQName? = null,
-        targetNamespace: VAnyURI? = null,
+        targetNamespace: XsdAnyURI? = null,
         type: XsdQName? = null,
         annotation: XSAnnotation? = null,
         localType: XSLocalType? = null,

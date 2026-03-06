@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -48,7 +48,7 @@ sealed class XSGlobalComplexType(
     val block: Set<VDerivationControl.Complex>?,
     override val defaultAttributesApply: Boolean?,
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     override val annotation: XSAnnotation? = null,
 
     @XmlOtherAttributes
@@ -62,8 +62,8 @@ sealed class XSGlobalComplexType(
     @XmlSerialName("complexType", XSD_NS_URI, XSD_PREFIX)
     class SerialDelegate(
         val name: XsdNCName,
-        val mixed: VBoolean? = null,
-        val abstract: VBoolean? = null,
+        val mixed: XsdBoolean? = null,
+        val abstract: XsdBoolean? = null,
         @XmlElement(false)
         @Serializable(ComplexDerivationSerializer::class)
         val final: Set<@Contextual VDerivationControl.Complex>? = null,
@@ -87,7 +87,7 @@ sealed class XSGlobalComplexType(
         val openContent: XSOpenContent? = null,
         val defaultAttributesApply: Boolean? = null,
         @XmlId
-        val id: VID? = null,
+        val id: XsdID? = null,
         @XmlBefore("*")
         val annotation: XSAnnotation? = null,
         @XmlOtherAttributes

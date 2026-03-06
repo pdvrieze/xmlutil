@@ -20,9 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.functions.Fn
+import io.github.pdvrieze.xml.schematypes.types.TokenType
+import io.github.pdvrieze.xml.schematypes.values.XsdToken
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
@@ -34,7 +35,9 @@ internal class XPathExpressionImpl internal constructor(
     override val xmlString: String,
     override val expr: Expr,
     override val version: XPathVersion,
-) : VToken, XPathExpression {
+) : XsdToken, XPathExpression {
+
+    override val schemaType: TokenType<XsdToken> get() = TokenType.Instance
 
     companion object {
 

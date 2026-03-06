@@ -23,7 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.DurationType
 import io.github.pdvrieze.xml.schematypes.values.XsdDuration
 
-class XsdDurationImpl(override val months: Long, val millis: Long) : XsdDuration {
+class XsdDurationImpl(override val months: Long, override val millis: Long) : XsdDuration {
     operator fun compareTo(other: XsdDurationImpl): Int = when (val m = months.compareTo(other.months)) {
         0 -> millis.compareTo(other.millis)
         else -> m
@@ -46,9 +46,6 @@ class XsdDurationImpl(override val months: Long, val millis: Long) : XsdDuration
         result = 31 * result + millis.hashCode()
         return result
     }
-
-    override val seconds: Double
-        get() = millis.toDouble() / 1000.0
 
     override val xmlString: String
         get() = buildString {

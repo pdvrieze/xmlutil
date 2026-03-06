@@ -152,7 +152,7 @@ class FlattenedElement internal constructor(
             }
         } else { // consider further options
             when {
-                match.minOccurs * reference.minOccurs > minOccurs -> RemovalResult((match * reference.range)?.minus(range))
+                (match.minOccurs * reference.minOccurs).compareTo(minOccurs) > 0 -> RemovalResult((match * reference.range)?.minus(range))
                 match.range.contains(range) -> RemovalResult(reference - AllNNIRange.SINGLERANGE)
                 match.range.isSimple -> RemovalResult(reference - range)
                 else -> match.removePrefix(this@FlattenedElement)

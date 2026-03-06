@@ -23,9 +23,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.rangeTo
+import io.github.pdvrieze.xml.schematypes.values.XsdID
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -42,9 +43,9 @@ class XSSequence : XSExplicitGroup, XSI_NestedParticle {
 
     constructor(
         particles: List<XSI_NestedParticle> = emptyList(),
-        minOccurs: VNonNegativeInteger? = null,
+        minOccurs: XsdNonNegativeInteger? = null,
         maxOccurs: VAllNNI? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(minOccurs, id, annotation, otherAttrs) {

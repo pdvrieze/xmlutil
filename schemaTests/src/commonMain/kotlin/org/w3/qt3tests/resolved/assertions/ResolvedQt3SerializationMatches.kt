@@ -20,11 +20,11 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
 class ResolvedQt3SerializationMatches(
     val assertion: String,
-    val file: VAnyURI?,
+    val file: XsdAnyURI?,
     val flags: String?
 ) : ResolvedQt3Assertion(){
 

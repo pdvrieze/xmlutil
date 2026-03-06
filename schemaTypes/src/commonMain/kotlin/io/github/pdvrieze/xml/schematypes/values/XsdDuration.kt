@@ -34,7 +34,13 @@ interface XsdDuration : XsdAtomic {
     override val schemaType: DurationType<XsdDuration>
 
     val months: Long
-    val seconds: Double
+    val millis: Long
+    val seconds: Double get() = millis.toDouble() / 1000.0
+
+    operator fun compareTo(other: XsdDuration): Int = when(val m = months.compareTo(other.months)) {
+        0 -> seconds.compareTo(other.seconds)
+        else -> m
+    }
 
     companion object : SimpleTypeSerializer<XsdDuration>("xsd.duration") {
 

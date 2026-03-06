@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSNotation
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdToken
 
 class ResolvedNotation(
     rawPart: XSNotation,
@@ -44,8 +44,8 @@ class ResolvedNotation(
 
     override val mdlQName: XsdQName = rawPart.name.toQname(schema.targetNamespace)
 
-    val public: VToken? = rawPart.public
-    val system: VAnyURI? = rawPart.system
+    val public: XsdToken? = rawPart.public
+    val system: XsdAnyURI? = rawPart.system
 
     internal constructor(rawPart: SchemaAssociatedElement<XSNotation>, schema: ResolvedSchemaLike) :
             this(rawPart.element, schema, rawPart.schemaLocation)

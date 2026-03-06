@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -28,5 +28,5 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 abstract class Qt3BaseType(
     @XmlSerialName("id", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
-    val id: VID?
+    val id: XsdID?
 )

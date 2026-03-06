@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.flattened
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.AnyType
+import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAny
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
@@ -63,7 +63,7 @@ class FlattenedWildcard(range: AllNNIRange, override val term: ResolvedAny) : Fl
 
         // NSSubset 3, (exception for the ur-wildcard is needed - although a shortcut may apply by just always
         // restricting AnyType)
-        return base.term === AnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
+        return base.term === ResAnyType.urWildcard || term.mdlProcessContents >= base.term.mdlProcessContents
     }
 
     context(checkHelper: CheckHelper, siblingContext: SiblingContextProvider)
@@ -122,7 +122,7 @@ class FlattenedWildcard(range: AllNNIRange, override val term: ResolvedAny) : Fl
                 checkHelper.version
             )
         ) return RemovalResult.NoMatch
-        if (reference.term !== AnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) {
+        if (reference.term !== ResAnyType.urWildcard && term.mdlProcessContents < reference.term.mdlProcessContents) {
             return RemovalResult.NoMatch
         }
         return RemovalResult(reference - range)

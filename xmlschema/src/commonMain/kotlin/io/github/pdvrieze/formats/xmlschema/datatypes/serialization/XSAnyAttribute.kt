@@ -22,11 +22,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VAttrQNameList
 import io.github.pdvrieze.formats.xmlschema.types.VNamespaceList
 import io.github.pdvrieze.formats.xmlschema.types.VNotNamespaceList
 import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import nl.adaptivity.xmlutil.QNameSerializer
@@ -50,7 +50,7 @@ class XSAnyAttribute : XSAnyBase {
         namespace: VNamespaceList? = null,
         notNamespace: VNotNamespaceList? = null,
         processContents: VProcessContents? = VProcessContents.STRICT,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(namespace, notNamespace, id, annotation, otherAttrs) {
