@@ -20,9 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -36,7 +36,7 @@ class XSGlobalComplexTypeComplex(
     block: Set<VDerivationControl.Complex>?,
     defaultAttributesApply: Boolean?,
     override val content: XSComplexContent,
-    id: VID? = null,
+    id: XsdID? = null,
     annotation: XSAnnotation? = null,
     otherAttrs: Map<@Serializable(QNameSerializer::class) QName, String>
 ) : XSGlobalComplexType(
@@ -53,8 +53,8 @@ class XSGlobalComplexTypeComplex(
     override fun toSerialDelegate(): SerialDelegate {
         return SerialDelegate(
             name = name,
-            mixed = mixed?.let(::VBoolean),
-            abstract = abstract?.let(::VBoolean),
+            mixed = mixed?.let { XsdBoolean(it) },
+            abstract = abstract?.let { XsdBoolean(it) },
             final = final,
             block = block,
             complexContent = content,

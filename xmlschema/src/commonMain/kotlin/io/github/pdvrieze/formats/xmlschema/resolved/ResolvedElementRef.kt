@@ -20,17 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.compareTo
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedElementRef constructor(
     rawPart: XSLocalElement,
     schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMinOccurs: XsdNonNegativeInteger = rawPart.minOccurs ?: XsdNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : IResolvedElementUse {
     override val model: Model by lazy { Model(rawPart, schema) }
@@ -42,7 +43,7 @@ class ResolvedElementRef constructor(
     init {
         invariantNotNull(rawPart.ref) { "Element references must have a ref property" }
 
-        require(mdlMinOccurs<=mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
+        require(mdlMinOccurs <= mdlMaxOccurs) { "Invalid bounds: ! (${mdlMinOccurs}<=$mdlMaxOccurs)" }
         require(rawPart.name == null) { "3.3.3(2.1) - A local element declaration must have exactly one of name or ref specified" }
         require(rawPart.block == null) { "3.3.3(2.2) - References may not specify block" }
         require(rawPart.default == null) { "3.3.3(2.2) - References may not specify default" }
@@ -69,12 +70,12 @@ class ResolvedElementRef constructor(
         return buildString {
             append("localElemRef(r=")
             append(mdlQName)
-            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+            if (mdlMinOccurs != XsdNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
             append(")")
         }
     }
 
-    class Model: ResolvedAnnotated.Model {
+    class Model : ResolvedAnnotated.Model {
 
         val term: ResolvedGlobalElement
 

@@ -20,35 +20,28 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBultinAtomicType
-import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedType
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinAtomicType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.FacetCardinality
 import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.AnyURIType
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
-import io.github.pdvrieze.xml.schematypes.values.toAnyUri
-import nl.adaptivity.xmlutil.XMLConstants
+import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdParsedUri
 
 object ResAnyURIType :
-    ResPrimitiveDatatype<XsdAnyURI>("anyURI", XMLConstants.XSD_NS_URI),
-    ResolvedBultinAtomicType<XsdAnyURI>,
+    ResPrimitiveDatatype<XsdAnyURI>,
+    ResolvedBuiltinAtomicType<XsdAnyURI>,
     AnyURIType<XsdAnyURI> {
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true))
     )
     override val name: XsdQName get() = AnyURIType.Instance.name
-
-    override val mdlBaseTypeDefinition: ResolvedType
-        get() = TODO("not implemented")
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = FacetOrdered.FALSE,
@@ -57,25 +50,25 @@ object ResAnyURIType :
         numeric = false,
     )
 
-    override fun valueFromNormalized(normalized: VString): XsdAnyURI = normalized.toString().toAnyUri()
+    override fun valueFromNormalized(normalized: XsdString): XsdAnyURI = normalized.toString().toAnyUri()
 
     override fun value(maybeValue: XsdAnySimple): XsdAnyURI {
-        return maybeValue as? XsdAnyURI ?: value(VString.Companion(maybeValue.xmlString))
+        return maybeValue as? XsdAnyURI ?: value((maybeValue as? XsdString) ?: XsdString(maybeValue.xmlString))
     }
 
     override fun validateValue(value: Any, version: SchemaVersion) {
         when (version) {
-            SchemaVersion.V1_0 if (value is VParsedURI) -> {}
+            SchemaVersion.V1_0 if (value is XsdParsedUri) -> {}
             SchemaVersion.V1_0 if (value is XsdAnyURI) -> {
-                val _ = VParsedURI(value)
+                val _ = XsdParsedUri(value)
             }
 
-            else -> check(value is VAnyURI)
+            else -> check(value is XsdAnyURI)
         }
         mdlFacets.validateValue(value)
     }
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 }

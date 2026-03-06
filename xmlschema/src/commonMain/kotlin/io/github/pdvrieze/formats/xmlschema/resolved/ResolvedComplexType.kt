@@ -22,8 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyAtomicType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
@@ -33,7 +31,9 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.DummyCheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.QName
 
 sealed class ResolvedComplexType(
@@ -67,7 +67,7 @@ sealed class ResolvedComplexType(
         return model.hasLocalNsInContext
     }
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         when (val ct = mdlContentType) {
             is ResolvedSimpleContentType -> ct.mdlSimpleTypeDefinition.let { st ->
                 st.mdlFacets.validate(
@@ -262,7 +262,7 @@ sealed class ResolvedComplexType(
                         require(baseType is ResolvedSimpleType<*> || schema.version == SchemaVersion.V1_0) {
                             "From version 1.1 complexContent can not inherit simpleContent"
                         }
-                        require(baseCType.mdlSimpleTypeDefinition.value(VString("")) != null) {
+                        require(baseCType.mdlSimpleTypeDefinition.value(XsdString("")) != null) {
                             "The empty string must be a valid value"
                         }
                         // fine for now
@@ -454,10 +454,10 @@ sealed class ResolvedComplexType(
             val explicitContent: ResolvedGroupParticle<ResolvedModelGroup>? = when {
                 (term == null) ||
                         ((term is XSAll && !term.hasChildren()) || (term is XSSequence && !term.hasChildren())) ||
-                        (term is XSChoice && term.minOccurs == VNonNegativeInteger.ZERO && !term.hasChildren()) -> null
+                        (term is XSChoice && term.minOccurs == XsdNonNegativeInteger.ZERO && !term.hasChildren()) -> null
 
                 term.maxOccurs == VAllNNI.ZERO -> {
-                    require(term.minOccurs == VNonNegativeInteger.ZERO) {
+                    require(term.minOccurs == XsdNonNegativeInteger.ZERO) {
                         "Invalid range: ! ${term.minOccurs ?: "1"} <= ${term.maxOccurs ?: "1"}"
                     }
                     require(schema.version != SchemaVersion.V1_0 || term !is XSAll) { "Schema 1.0 does not allow empty all group" }
@@ -472,7 +472,7 @@ sealed class ResolvedComplexType(
                 !effectiveMixed -> null
                 else -> ResolvedSequence(
                     typeContext,
-                    elemPart.wrap(XSSequence(minOccurs = VNonNegativeInteger(1), maxOccurs = VAllNNI(1))),
+                    elemPart.wrap(XSSequence(minOccurs = XsdNonNegativeInteger(1), maxOccurs = VAllNNI(1))),
                     schema
                 )
             }
@@ -526,7 +526,7 @@ sealed class ResolvedComplexType(
                                 (listOf(baseParticle) + listOfNotNull(effectiveContent))
 
                             SyntheticSequence(
-                                mdlMinOccurs = VNonNegativeInteger(1),
+                                mdlMinOccurs = XsdNonNegativeInteger(1),
                                 mdlMaxOccurs = VAllNNI(1),
                                 mdlParticles = p
                             )
@@ -551,7 +551,7 @@ sealed class ResolvedComplexType(
                 val particle: ResolvedParticle<ResolvedModelGroup> =
                     (explicitContentType as? ElementContentType)?.mdlParticle
                         ?: SyntheticSequence(
-                            mdlMinOccurs = VNonNegativeInteger.ONE,
+                            mdlMinOccurs = XsdNonNegativeInteger.ONE,
                             mdlMaxOccurs = VAllNNI.ONE,
                             mdlParticles = emptyList()
                         )

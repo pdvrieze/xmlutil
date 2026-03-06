@@ -20,14 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIAssertCommon
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.*
 import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants
 
@@ -55,7 +55,7 @@ object ResAnyType : ResolvedGlobalComplexType(
         VProcessContents.LAX
     )
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
 //        error("anyType cannot be directly implemented")
     }
 
@@ -70,7 +70,7 @@ object ResAnyType : ResolvedGlobalComplexType(
         override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
         override val mdlContentType: MixedContentType = MixedContentType(
             SyntheticSequence(
-                VNonNegativeInteger.Companion.ZERO, VAllNNI.UNBOUNDED,
+                XsdNonNegativeInteger.Companion.ZERO, VAllNNI.UNBOUNDED,
                 listOf(urWildcard)
             ),
             { false },

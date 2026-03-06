@@ -20,11 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
-import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -36,30 +32,30 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("attribute", XSD_NS_URI, XSD_PREFIX)
 sealed class XSAttribute : XSAnnotatedBase {
 
-    val default: VString?
-    val fixed: VString?
+    val default: XsdString?
+    val fixed: XsdString?
     val type: XsdQName?
 
     @SerialName("inheritable")
-    private val _inheritable: VBoolean?
+    private val _inheritable: XsdBoolean?
     val inheritable: Boolean? get() = _inheritable?.value
     val simpleType: XSLocalSimpleType?
     abstract val name: XsdNCName?
 
     constructor(
-        default: VString? = null,
-        fixed: VString? = null,
+        default: XsdString? = null,
+        fixed: XsdString? = null,
         type: XsdQName? = null,
         inheritable: Boolean? = null,
         simpleType: XSLocalSimpleType? = null,
-        id: VID? = null,
+        id: XsdID? = null,
         annotation: XSAnnotation? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(id, annotation, otherAttrs) {
         this.default = default
         this.fixed = fixed
         this.type = type
-        this._inheritable = inheritable?.let(::VBoolean)
+        this._inheritable = inheritable?.let(XsdBoolean.Companion::invoke)
         this.simpleType = simpleType
     }
 

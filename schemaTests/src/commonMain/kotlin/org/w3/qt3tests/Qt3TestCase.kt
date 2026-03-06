@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
+import io.github.pdvrieze.xml.schematypes.values.XsdToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -50,7 +50,7 @@ class Qt3TestCase(
     val result: Qt3Result? = null,
     override val name: String? = null,
     @XmlElement(false)
-    override val covers: List<VToken>? = emptyList(),
+    override val covers: List<XsdToken>? = emptyList(),
     @XmlElement(false)
     @SerialName("covers-30")
     override val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>? = emptyList(),

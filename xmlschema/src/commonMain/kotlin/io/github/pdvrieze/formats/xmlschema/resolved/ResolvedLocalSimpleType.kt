@@ -25,30 +25,16 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleUnion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.xml.schematypes.facets.FacetBounded
-import io.github.pdvrieze.xml.schematypes.facets.FacetCardinality
-import io.github.pdvrieze.xml.schematypes.facets.FacetNumeric
-import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 
 class ResolvedLocalSimpleType(
     rawPart: XSLocalSimpleType,
     schema: ResolvedSchemaLike,
     context: VSimpleTypeScope.Member,
-) : ResolvedLocalType, ResolvedSimpleType<XsdAnySimple> {
+) : ResolvedLocalType, ExternalSimpleType {
 
     override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
     override val mdlContext: VTypeScope.MemberBase get() = mdlScope.parent
     override val mdlFinal: Set<VDerivationControl.Type> = schema.finalDefault
-
-    override val ordered: FacetOrdered
-        get() = mdlFundamentalFacets.ordered
-    override val bounded: FacetBounded
-        get() = mdlFundamentalFacets.isBounded
-    override val cardinality: FacetCardinality
-        get() = mdlFundamentalFacets.cardinality
-    override val numeric: FacetNumeric
-        get() = mdlFundamentalFacets.isNumeric
 
     override val simpleDerivation: ResolvedSimpleType.Derivation = when (val raw = rawPart.simpleDerivation) {
         is XSSimpleUnion -> ResolvedUnionDerivation(raw, schema, this)

@@ -20,12 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
@@ -38,14 +34,14 @@ import nl.adaptivity.xmlutil.serialization.XmlOtherAttributes
 sealed class XSElement : XSI_Annotated {
     @Serializable(BlockSetSerializer::class)
     val block: Set<VDerivationControl.T_BlockSetValues>?
-    val default: VString?
-    val fixed: VString?
+    val default: XsdString?
+    val fixed: XsdString?
     @XmlId
-    final override val id: VID?
+    final override val id: XsdID?
     abstract val name: XsdNCName?
 
     @SerialName("nillable")
-    private val _nillable: VBoolean?
+    private val _nillable: XsdBoolean?
     val nillable: Boolean? get() = _nillable?.value
 
     @XmlElement(false)
@@ -68,9 +64,9 @@ sealed class XSElement : XSI_Annotated {
     // alternative
     constructor(
         block: Set<VDerivationControl.T_BlockSetValues>?,
-        default: VString?,
-        fixed: VString?,
-        id: VID?,
+        default: XsdString?,
+        fixed: XsdString?,
+        id: XsdID?,
         name: XsdNCName?,
         nillable: Boolean?,
         type: XsdQName?,
@@ -84,7 +80,7 @@ sealed class XSElement : XSI_Annotated {
         this.default = default
         this.fixed = fixed
         this.id = id
-        this._nillable = nillable?.let(::VBoolean)
+        this._nillable = nillable?.let { XsdBoolean(it) }
         this.type = type
         this.annotation = annotation
         this.localType = localType

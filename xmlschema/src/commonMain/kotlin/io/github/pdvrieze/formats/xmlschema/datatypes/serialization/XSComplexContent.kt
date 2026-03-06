@@ -20,11 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdID
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -41,9 +41,9 @@ import nl.adaptivity.xmlutil.util.CompactFragment
 @Serializable
 class XSComplexContent(
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     @SerialName("mixed")
-    private val _mixed: VBoolean? = null,
+    private val _mixed: XsdBoolean? = null,
     @XmlOtherAttributes
     override val otherAttrs: Map<SerializableQName, String> = emptyMap(),
     @XmlBefore("*")
@@ -77,7 +77,7 @@ class XSComplexContent(
             asserts: List<XSAssert>,
             anyAttribute: XSAnyAttribute?,
             openContent: XSOpenContent?,
-            id: VID?,
+            id: XsdID?,
             annotation: XSAnnotation?,
             otherAttrs: Map<SerializableQName, String>
         ) : super(id, annotation, otherAttrs) {
@@ -94,7 +94,7 @@ class XSComplexContent(
     @Serializable
     sealed interface XSIDerivationParticle {
         /** Optional, default 1 */
-        val minOccurs: VNonNegativeInteger?
+        val minOccurs: XsdNonNegativeInteger?
 
         /** Optional, default 1 */
         val maxOccurs: VAllNNI?
@@ -116,7 +116,7 @@ class XSComplexContent(
             asserts: List<XSAssert> = emptyList(),
             anyAttribute: XSAnyAttribute? = null,
             openContent: XSOpenContent? = null,
-            id: VID? = null,
+            id: XsdID? = null,
             annotation: XSAnnotation? = null,
             otherAttrs: Map<SerializableQName, String> = emptyMap()
         ) : super(
@@ -152,7 +152,7 @@ class XSComplexContent(
             asserts: List<XSAssert> = emptyList(),
             anyAttribute: XSAnyAttribute? = null,
             openContent: XSOpenContent? = null,
-            id: VID? = null,
+            id: XsdID? = null,
             annotation: XSAnnotation? = null,
             otherAttrs: Map<SerializableQName, String> = emptyMap()
         ) : super(

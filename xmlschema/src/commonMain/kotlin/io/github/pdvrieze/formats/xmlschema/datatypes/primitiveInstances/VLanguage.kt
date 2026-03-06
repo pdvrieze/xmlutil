@@ -20,12 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResLanguageType
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.XmlReader
-import kotlin.jvm.JvmInline
-
+/*
 @JvmInline
 @Serializable(VLanguage.Serializer::class)
 value class VLanguage private constructor(override val xmlString: String) : VToken {
@@ -56,3 +51,4 @@ value class VLanguage private constructor(override val xmlString: String) : VTok
 
     }
 }
+*/

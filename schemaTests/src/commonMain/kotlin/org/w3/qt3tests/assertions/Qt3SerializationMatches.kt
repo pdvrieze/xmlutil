@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.assertions
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
@@ -34,7 +34,7 @@ import org.w3.qt3tests.resolved.assertions.ResolvedQt3SerializationMatches
 @XmlSerialName("serialization-matches", QT3TNS)
 class Qt3SerializationMatches(
     @XmlValue val assertion: String,
-    override val file: VAnyURI? = null,
+    override val file: XsdAnyURI? = null,
     val flags: String? = null,
 ): Qt3AbstractAssertion(), Qt3FileAttr {
     context(ctx: AssertionResolutionContext)

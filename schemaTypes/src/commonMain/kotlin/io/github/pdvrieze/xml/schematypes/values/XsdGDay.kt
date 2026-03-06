@@ -41,6 +41,8 @@ interface XsdGDay : IXsdDateTime {
     override val second: Nothing? get() = null
 
     companion object: SimpleTypeSerializer<XsdGDay>("xsd.gDay") {
+        operator fun invoke(raw: String): XsdGDay = XsdGDayImpl(raw.toInt())
+
         override fun deserialize(raw: String, input: nl.adaptivity.xmlutil.XmlReader?): XsdGDay {
             return XsdGDayImpl(raw.toInt())
         }

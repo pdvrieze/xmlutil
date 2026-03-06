@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -47,7 +47,7 @@ class VNotNamespaceList(private val values: List<Elem>) : List<VNotNamespaceList
 
     object TARGETNAMESPACE : Elem()
     object LOCAL : Elem()
-    class Uri(val value: VAnyURI) : Elem()
+    class Uri(val value: XsdAnyURI) : Elem()
 
     object Serializer : KSerializer<VNotNamespaceList> {
         override val descriptor: SerialDescriptor =

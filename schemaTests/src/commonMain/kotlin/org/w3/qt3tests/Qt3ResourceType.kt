@@ -20,8 +20,8 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.w3.qt3tests.attrGroups.Qt3EncodingAttr
@@ -37,20 +37,20 @@ abstract class Qt3ResourceType: Qt3BaseType, Qt3FileAttr, Qt3UriAttr, Qt3MediaTy
     val description: Qt3Description?
     val created: Qt3Created?
     val modified: List<Qt3Modified>
-    final override val file: VAnyURI?
-    final override val uri: VAnyURI?
+    final override val file: XsdAnyURI?
+    final override val uri: XsdAnyURI?
 
     @SerialName("media-type")
     final override val mediaType: String?
     final override val encoding: String?
 
     constructor(
-        id: VID? = null,
+        id: XsdID? = null,
         description: Qt3Description? = null,
         created: Qt3Created? = null,
         modified: List<Qt3Modified> = emptyList(),
-        file: VAnyURI? = null,
-        uri: VAnyURI? = null,
+        file: XsdAnyURI? = null,
+        uri: XsdAnyURI? = null,
         mediaType: String? = null,
         encoding: String? = null,
     ) : super(id) {

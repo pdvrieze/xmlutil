@@ -20,15 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-
+/*
 @Serializable(VRelaxedURI.Serializer::class)
 class VRelaxedURI(override val xmlString: String) : VAnyURIXX() {
     constructor(charSequence: CharSequence) : this(charSequence.toString())
@@ -63,3 +55,4 @@ class VRelaxedURI(override val xmlString: String) : VAnyURIXX() {
         }
     }
 }
+*/

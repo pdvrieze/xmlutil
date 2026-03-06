@@ -20,11 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSequence
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedSequence internal constructor(
@@ -35,7 +35,7 @@ class ResolvedSequence internal constructor(
     parent,
     elemPart,
     schema,
-    elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+    elemPart.elem.minOccurs ?: XsdNonNegativeInteger.ONE,
     elemPart.elem.maxOccurs ?: VAllNNI.ONE
 ), IResolvedSequence {
 
@@ -67,7 +67,7 @@ class ResolvedSequence internal constructor(
     override fun toString(): String {
         return buildString {
             append("ResolvedSequence(")
-            if (mdlMinOccurs != VNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
+            if (mdlMinOccurs != XsdNonNegativeInteger.ONE) append("minOccurs=$mdlMinOccurs, ")
             if (mdlMaxOccurs != VAllNNI.ONE) append("maxOccurs=$mdlMaxOccurs, ")
             append(mdlParticles)
             append(")")

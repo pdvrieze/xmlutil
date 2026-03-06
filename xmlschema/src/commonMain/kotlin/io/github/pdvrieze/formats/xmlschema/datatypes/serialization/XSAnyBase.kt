@@ -20,11 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VNamespaceList
 import io.github.pdvrieze.formats.xmlschema.types.VNotNamespaceList
 import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
 import io.github.pdvrieze.formats.xmlschema.types.VQNameListBase
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlElement
@@ -47,7 +47,7 @@ abstract class XSAnyBase : XSAnnotatedBase {
     constructor(
         namespace: VNamespaceList? = null,
         notNamespace: VNotNamespaceList? = null,
-        id: VID?,
+        id: XsdID?,
         annotation: XSAnnotation?,
         otherAttrs: Map<SerializableQName, String>
     ) : super(id, annotation, otherAttrs) {

@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3UriAttr
@@ -38,5 +38,5 @@ import org.w3.qt3tests.attrGroups.Qt3UriAttr
 @Serializable
 @XmlSerialName("static-base-uri", QT3TNS)
 class Qt3StaticBaseUri(
-    override val uri: VAnyURI? = null
+    override val uri: XsdAnyURI? = null
 ): Qt3Environment.Element, Qt3UriAttr

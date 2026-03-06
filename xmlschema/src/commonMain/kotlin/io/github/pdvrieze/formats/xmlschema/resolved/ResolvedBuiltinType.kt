@@ -22,13 +22,14 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.xml.schematypes.types.BuiltinType
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
-interface ResolvedBuiltinType : ResolvedGlobalType, BuiltinType {
+// look at replacing AnyType with BuiltinType
+interface ResolvedBuiltinType : ResolvedGlobalType, AnyType {
     @Deprecated("Use name instead")
-    override val mdlQName: XsdQName get() = name
+    override val mdlQName: XsdQName get() = name!!
 
     override fun checkType(checkHelper: CheckHelper) = Unit
     val isSpecial: Boolean

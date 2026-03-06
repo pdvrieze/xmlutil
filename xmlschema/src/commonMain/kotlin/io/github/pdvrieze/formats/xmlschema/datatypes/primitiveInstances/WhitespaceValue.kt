@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
+import io.github.pdvrieze.xml.schematypes.values.XsdString
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixStringList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -28,8 +31,8 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 enum class WhitespaceValueCompat {
     @SerialName("preserve")
     PRESERVE {
-        override fun normalize(representation: VString): VString = representation
-        override fun canOverride(oldValue: WhitespaceValue): Boolean = (oldValue == PRESERVE)
+        override fun normalize(representation: XsdString): XsdString = representation
+        override fun canOverride(oldValue: WhitespaceValueCompat): Boolean = (oldValue == PRESERVE)
     },
 
     @SerialName("replace")
@@ -44,42 +47,43 @@ enum class WhitespaceValueCompat {
             })
         }
 
-        override fun normalize(representation: VString): VString = when(representation) {
-            is VPrefixStringList -> VPrefixStringList(representation.elems.map { normalize(it) })
-            is VPrefixString -> VPrefixString(
+        override fun normalize(representation: XsdString): XsdString = when(representation) {
+            is XsdPrefixStringList -> XsdPrefixStringList(representation.elems.map { normalize(it) })
+            is XsdPrefixString -> XsdPrefixString(
                 namespace = replace(representation.namespace),
                 prefix = replace(representation.prefix),
                 localname = replace(representation.localname),
             )
 
-            else -> VString(replace(representation.xmlString))
+            else -> XsdString(replace(representation.xmlString))
         }
 
-        override fun canOverride(oldValue: WhitespaceValue): Boolean = (oldValue != COLLAPSE)
+        override fun canOverride(oldValue: WhitespaceValueCompat): Boolean = (oldValue != COLLAPSE)
     },
 
     @SerialName("collapse")
     COLLAPSE {
-        override fun normalize(representation: VString): VString = when (representation) {
-            is VPrefixStringList -> VPrefixStringList(representation.elems.asSequence()
-                .filter { it is VPrefixString || it.isNotEmpty() }
-                .map { normalize(it) }
-                .toList()
+        override fun normalize(representation: XsdString): XsdString = when (representation) {
+            is XsdPrefixStringList -> XsdPrefixStringList(
+                representation.elems.asSequence()
+                    .filter { it is XsdPrefixString || it.isNotEmpty() }
+                    .map { normalize(it) }
+                    .toList()
             )
-            is VPrefixString -> VPrefixString(
+            is XsdPrefixString -> XsdPrefixString(
                 namespace = xmlCollapseWhitespace(representation.namespace),
                 prefix = xmlCollapseWhitespace(representation.prefix),
                 localname = xmlCollapseWhitespace(representation.localname),
             )
-            else -> VString(xmlCollapseWhitespace(representation.xmlString))
+            else -> XsdString(xmlCollapseWhitespace(representation.xmlString))
         }
 
-        override fun canOverride(oldValue: WhitespaceValue): Boolean = true
+        override fun canOverride(oldValue: WhitespaceValueCompat): Boolean = true
 
     };
 
-    abstract fun normalize(representation: VString): VString
+    abstract fun normalize(representation: XsdString): XsdString
 
-    abstract fun canOverride(oldValue: WhitespaceValue): Boolean
+    abstract fun canOverride(oldValue: WhitespaceValueCompat): Boolean
 
 }

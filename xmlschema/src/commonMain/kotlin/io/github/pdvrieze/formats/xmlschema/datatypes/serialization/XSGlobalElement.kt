@@ -22,12 +22,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
-import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -47,7 +43,7 @@ class XSGlobalElement : XSElement {
     override val name: XsdNCName
 
     @SerialName("abstract")
-    private val _abstract: VBoolean?
+    private val _abstract: XsdBoolean?
     val abstract: Boolean? get() = _abstract?.value
 
     @XmlElement(false) @Serializable(ComplexDerivationSerializer::class)
@@ -58,9 +54,9 @@ class XSGlobalElement : XSElement {
 
     constructor(
         block: Set<VDerivationControl.T_BlockSetValues>? = null,
-        default: VString? = null,
-        fixed: VString? = null,
-        id: VID? = null,
+        default: XsdString? = null,
+        fixed: XsdString? = null,
+        id: XsdID? = null,
         name: XsdNCName,
         nillable: Boolean? = null,
         type: XsdQName? = null,
@@ -74,7 +70,7 @@ class XSGlobalElement : XSElement {
         otherAttrs: Map<SerializableQName, String> = emptyMap(),
     ) : super(block, default, fixed, id, name, nillable, type, annotation, localType, identityConstraints, alternatives, otherAttrs) {
         this.name = name
-        this._abstract = abstract?.let(::VBoolean)
+        this._abstract = abstract?.let { XsdBoolean(it) }
         this.substitutionGroup = substitutionGroup
         this.final = final
     }

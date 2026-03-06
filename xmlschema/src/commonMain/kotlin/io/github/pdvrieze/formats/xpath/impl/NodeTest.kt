@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import nl.adaptivity.xmlutil.QName
 
@@ -120,7 +120,7 @@ internal sealed class NodeTest {
         }
     }
 
-    class NSTest(val namespace: VAnyURI, val prefix: XsdNCName? = null) : NameTest() {
+    class NSTest(val namespace: XsdAnyURI, val prefix: XsdNCName? = null) : NameTest() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is NSTest) return false

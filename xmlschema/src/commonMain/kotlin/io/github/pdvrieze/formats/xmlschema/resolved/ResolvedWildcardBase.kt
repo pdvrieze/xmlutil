@@ -20,12 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyAttribute
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnyBase
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSI_Annotated
 import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import kotlin.jvm.JvmStatic
 
@@ -109,13 +109,13 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
             return VNamespaceConstraint(variety, nsSet, disallowedNames)
         }
 
-        private fun XSAnyBase.toConstraintHelper(schema: ResolvedSchemaLike): Pair<VNamespaceConstraint.Variety, Set<VAnyURI>> {
+        private fun XSAnyBase.toConstraintHelper(schema: ResolvedSchemaLike): Pair<VNamespaceConstraint.Variety, Set<XsdAnyURI>> {
             val ns = namespace
             val notNs = notNamespace
 
             require(ns == null || notNs == null) { "A wildcard cannot specify both presence and absence ofa a namespace" }
             val variety: VNamespaceConstraint.Variety
-            val namespaces: Set<VAnyURI>
+            val namespaces: Set<XsdAnyURI>
             when (ns) {
                 VNamespaceList.ANY -> {
                     variety = VNamespaceConstraint.Variety.ANY
@@ -130,7 +130,7 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
 
                         // in version 1.0 it doesn't include the "absent" namespace, but in 1.1 it does
                         if (schema.version != SchemaVersion.V1_0 || schema.targetNamespace == null) {
-                            add(VAnyURI.EMPTY)
+                            add(XsdAnyURI.EMPTY)
                         }
                         schema.targetNamespace?.let { add(it) }
                     }
@@ -159,13 +159,13 @@ abstract class ResolvedWildcardBase<E : VQNameListBase.IElem> internal construct
             return p
         }
 
-        private fun VNamespaceList.Elem.toUri(schemaLike: ResolvedSchemaLike): VAnyURI = when (this) {
+        private fun VNamespaceList.Elem.toUri(schemaLike: ResolvedSchemaLike): XsdAnyURI = when (this) {
             VNamespaceList.LOCAL -> "".toAnyUri()
             VNamespaceList.TARGETNAMESPACE -> schemaLike.targetNamespace ?: "".toAnyUri()
             is VNamespaceList.Uri -> value
         }
 
-        private fun VNotNamespaceList.Elem.toUri(schemaLike: ResolvedSchemaLike): VAnyURI? = when (this) {
+        private fun VNotNamespaceList.Elem.toUri(schemaLike: ResolvedSchemaLike): XsdAnyURI? = when (this) {
             VNotNamespaceList.LOCAL -> "".toAnyUri()
             VNotNamespaceList.TARGETNAMESPACE -> schemaLike.targetNamespace ?: "".toAnyUri()
             is VNotNamespaceList.Uri -> value

@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
@@ -30,13 +29,15 @@ import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
+import io.github.pdvrieze.formats.xmlschema.types.compareTo
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedLocalElement private constructor(
     parent: VElementScope.Member,
     elemPart: SchemaElement<XSLocalElement>,
     schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger,
+    override val mdlMinOccurs: XsdNonNegativeInteger,
     override val mdlMaxOccurs: VAllNNI,
 ) : ResolvedElement(elemPart.elem, schema),
     IResolvedElementUse {
@@ -90,7 +91,7 @@ class ResolvedLocalElement private constructor(
         parent,
         elemPart,
         schema,
-        elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+        elemPart.elem.minOccurs ?: XsdNonNegativeInteger.ONE,
         elemPart.elem.maxOccurs ?: VAllNNI.ONE,
     )
 
@@ -106,7 +107,7 @@ class ResolvedLocalElement private constructor(
         return buildString {
             append("localElement(")
             append(mdlQName)
-            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+            if (mdlMinOccurs != XsdNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
             append(", type=${this@ResolvedLocalElement.model.mdlTypeDefinition.getOrDefault("<missing type>")}")
             append(")")
         }

@@ -26,11 +26,12 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.xml.schematypes.facets.FacetPattern
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 class ResolvedPattern(rawPart: XSPattern, version: SchemaVersion) : ResolvedFacet(rawPart), FacetPattern {
     override val model: Model by lazy { Model(rawPart, version) }
 
-    val value: String = rawPart.value
+    override val value: XsdString = XsdString(rawPart.value)
 
     val regex: XRegex get() = model.regex
 

@@ -20,12 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.QName
 
 class SyntheticSimpleType(
@@ -37,7 +38,7 @@ class SyntheticSimpleType(
     override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<*>?,
     override val mdlItemTypeDefinition: ResolvedSimpleType<*>?,
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>>,
-) : ResolvedSimpleType<*>, ResolvedSimpleType.Model {
+) : ResolvedSimpleType<XsdAnySimple>, ResolvedSimpleType.Model, ExternalSimpleType {
     override val model: ResolvedSimpleType.Model get() = this
 
     override val name: XsdQName? get() = null
@@ -45,13 +46,13 @@ class SyntheticSimpleType(
 
     override val otherAttrs: Map<QName, Nothing> get() = emptyMap()
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
-    override val id: VID? get() = null
+    override val id: XsdID? get() = null
     override val mdlFinal: Set<Nothing> get() = emptySet()
     override val simpleDerivation: Nothing get() = error("Not supported")
 
     override val mdlScope: VSimpleTypeScope.Local = VSimpleTypeScope.Local(context)
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         mdlFacets.validate(mdlPrimitiveTypeDefinition, representation)
     }
 

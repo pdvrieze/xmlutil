@@ -20,31 +20,25 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalSimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFacet
-import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinLength
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.resolved.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
-import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedMinLength
-import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
-import io.github.pdvrieze.formats.xmlschema.types.*
+import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.*
-import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 abstract class AbstractDatatype(
     name: XsdNCName,
     schema: ResolvedSchemaLike,
-    targetNamespace: VAnyURI? = schema.targetNamespace,
+    targetNamespace: XsdAnyURI? = schema.targetNamespace,
 ) : ResolvedBuiltinSimpleType<XsdAnySimple> {
     final override val mdlQName: XsdQName = name.toQname(targetNamespace)
 
@@ -61,79 +55,24 @@ abstract class AbstractDatatype(
 
 class DataFunction
 
-/**
- * Space separated for primitives. If the itemType is a Union the members of that union must be atomic.
- *
- * Can be derived using:
- * - length
- * - maxLength
- * - minLength
- * - enumeration
- * - pattern
- * - whiteSpace
- * - assertions
- */
-sealed class ResListDatatype(
-    name: String,
-    targetNamespace: String,
-    val itemType: ResolvedSimpleType<*>,
-    schema: ResolvedSchemaLike,
-) : ResolvedBuiltinSimpleType<XsdAnySimpleList<XsdAnySimple>>,
-    ResolvedSimpleType.Model {
-    override val isSpecial: Boolean get() = false
-
-    final override val baseType: ResAnySimpleType get() = ResAnySimpleType
-
-    val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
-
-    override fun checkType(checkHelper: CheckHelper) {
-    }
-
-    override val model: ResListDatatype
-        get() = this
-
-    final override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.LIST
-
-    final override val annotations: List<ResolvedAnnotation> get() = emptyList()
-    final override val mdlFacets: FacetList = FacetList(
-        minLength = ResolvedMinLength(XSMinLength(1u)),
-        whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE))
-    )
-    final override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.FALSE,
-        bounded = false,
-        cardinality = FacetCardinality.COUNTABLY_INFINITE,
-        numeric = false
-    )
-    final override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<*>?
-        get() = ResAnySimpleType.mdlPrimitiveTypeDefinition
-
-    abstract override val mdlItemTypeDefinition: ResolvedSimpleType<*>
-
-    final override val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>>
-        get() = emptyList()
-
-    final override val mdlFinal: Set<VDerivationControl.Type> get() = emptySet()
-    abstract val itemTypeName: SerializableQName?
-    abstract val simpleType: XSLocalSimpleType?
-}
-
-abstract class AbstractConstructedListDatatype : ResListDatatype {
+abstract class AbstractConstructedListDatatype<out T: XsdAnySimple, out E: XsdAnySimple> : ResListDatatype<T, E> {
+    @Suppress("UNCHECKED_CAST")
     constructor(
         name: String,
         targetNamespace: String,
-        itemType: ResAtomicDatatype<XsdAtomic>, // TODO should be atomic or union
+        itemType: ResAtomicDatatype<*>, // TODO should be atomic or union
         schemaLike: ResolvedSchemaLike,
-    ) : super(name, targetNamespace, itemType, schemaLike) {
+    ) {
         simpleDerivation = BuiltinListDerivation(itemType)
     }
 
+    @Suppress("UNCHECKED_CAST")
     constructor(
         name: String,
         targetNamespace: String,
         itemType: AbstractUnionDatatype,
         schema: ResolvedSchemaLike,
-    ) : super(name, targetNamespace, itemType, schema) {
+    ) {
         if (itemType.members.any { it !is ResAtomicDatatype<*> }) {
             throw IllegalArgumentException("Union item types of a list must only have atomic members")
         }
@@ -166,8 +105,8 @@ abstract class AbstractConstructedListDatatype : ResListDatatype {
  * - assertions
  */
 sealed class AbstractUnionDatatype(name: String, targetNamespace: String, schema: ResolvedSchemaLike) :
-    AbstractDatatype(name, targetNamespace, schema) {
-    val members: List<ResolvedSimpleType<*>> get() = TODO()
+    AbstractDatatype(name, targetNamespace, schema), ResolvedSimpleType<XsdAnySimple> {
+    abstract val members: List<ResolvedSimpleType<*>>
 }
 
 object ResErrorType : ResolvedBuiltinSimpleType<XsdAnySimple> {
@@ -203,7 +142,7 @@ object ResErrorType : ResolvedBuiltinSimpleType<XsdAnySimple> {
     override val model: ResErrorType get() = this
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         TODO("not implemented")
     }
 

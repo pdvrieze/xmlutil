@@ -20,12 +20,12 @@
 
 package org.w3.qt3tests.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDate
+import io.github.pdvrieze.xml.schematypes.values.XsdDate
 
 interface Qt3OnAttr {
     /**
      * The date of an event such as the creation or modification of a test-case.
      */
-    val on: VDate?
+    val on: XsdDate?
 }
 

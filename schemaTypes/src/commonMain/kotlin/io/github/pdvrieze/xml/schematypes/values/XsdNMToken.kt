@@ -34,8 +34,10 @@ interface XsdNMToken : XsdToken {
     override val schemaType: NMTokenType<XsdNMToken>
 
     companion object : SimpleTypeSerializer<XsdNMToken>("xsd.NMTOKEN") {
+        operator fun invoke(raw: String): XsdNMToken = XsdNMTokenImpl(raw)
+
         override fun deserialize(raw: String, input: XmlReader?): XsdNMToken {
-            return XsdNMTokenImpl(raw)
+            return invoke(raw)
         }
     }
 

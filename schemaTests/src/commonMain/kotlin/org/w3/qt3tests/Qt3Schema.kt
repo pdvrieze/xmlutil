@@ -20,8 +20,8 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.resolved.ResolutionContext
@@ -36,12 +36,12 @@ import org.w3.qt3tests.resolved.ResolvedQt3Schema
 @XmlSerialName("schema", QT3TNS)
 class Qt3Schema : Qt3SchemaType, Qt3Environment.Element {
     constructor(
-        id: VID?,
+        id: XsdID?,
         description: Qt3Description?,
         created: Qt3Created?,
         modified: List<Qt3Modified>,
-        uri: VAnyURI?,
-        file: VAnyURI?,
+        uri: XsdAnyURI?,
+        file: XsdAnyURI?,
         xsdVersion: String ="1.0",
         role: String?
     ) : super(id, description, created, modified, uri, file, xsdVersion, role)

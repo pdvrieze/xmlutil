@@ -24,7 +24,6 @@ import io.github.pdvrieze.xml.schematypes.types.YearMonthDurationType
 import io.github.pdvrieze.xml.schematypes.values.XsdYearMonthDuration
 
 class XsdYearMonthDurationImpl(override val months: Long) : XsdYearMonthDuration {
-    val millis: Long get() = 0L
 
     operator fun compareTo(other: XsdDurationImpl): Int = months.compareTo(other.months)
 

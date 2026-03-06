@@ -20,8 +20,8 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
@@ -34,9 +34,9 @@ import org.w3.qt3tests.resolved.subContext
 @XmlSerialName("test-set", QT3TNS)
 class Qt3TestSetReference : Qt3BaseType, Qt3NameAttr, Qt3FileAttr {
     override val name: String
-    override val file: VAnyURI
+    override val file: XsdAnyURI
 
-    constructor(name: String, file: VAnyURI, id: VID? = null) : super(id) {
+    constructor(name: String, file: XsdAnyURI, id: XsdID? = null) : super(id) {
         this.name = name
         this.file = file
     }

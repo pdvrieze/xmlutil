@@ -20,11 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyURIType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNCNameType
-import nl.adaptivity.xmlutil.QName
-
-class VQName(namespaceUri: String, localName: String, prefix: String) : VAnySimpleType {
+/*
+class VQName(namespaceUri: String, localName: String, prefix: String) : XsdAnySimple {
     constructor(localName: String) : this("", localName, "")
 
 //    init {
@@ -79,3 +76,4 @@ class VQName(namespaceUri: String, localName: String, prefix: String) : VAnySimp
     }
 
 }
+*/

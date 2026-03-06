@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -45,7 +45,7 @@ class XSGlobalSimpleType(
     @Serializable(TypeDerivationControlSerializer::class)
     val final: Set<@Contextual VDerivationControl.Type>? = null,
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
 

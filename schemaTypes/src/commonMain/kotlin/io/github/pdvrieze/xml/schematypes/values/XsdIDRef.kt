@@ -35,6 +35,10 @@ interface XsdIDRef : XsdNCName {
     override val schemaType: IDRefType<XsdIDRef>
 
     companion object : SimpleTypeSerializer<XsdIDRef>("xs.IDREF") {
+        operator fun invoke(rawId: String): XsdIDRef {
+            return XsdIDRefImpl(rawId)
+        }
+
         override fun deserialize(decoder: Decoder): XsdIDRef {
             val r = super.deserialize(decoder)
             if (decoder is XML.XmlInput) {
@@ -47,7 +51,7 @@ interface XsdIDRef : XsdNCName {
             raw: String,
             input: XmlReader?
         ): XsdIDRef {
-            return XsdIDRefImpl(xmlCollapseWhitespace(raw))
+            return invoke(xmlCollapseWhitespace(raw))
         }
     }
 

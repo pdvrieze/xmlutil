@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
 import io.github.pdvrieze.formats.xmlschema.datatypes.impl.SingleLinkedList
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElement
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
@@ -31,6 +30,7 @@ import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl.SUBSTITUTION
 import io.github.pdvrieze.formats.xmlschema.types.toDerivationSet
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
@@ -187,7 +187,7 @@ class ResolvedGlobalElement private constructor(
     class Model internal constructor(elemPart: SchemaElement<XSGlobalElement>, schema: ResolvedSchemaLike, context: ResolvedGlobalElement) :
         ResolvedElement.Model(elemPart.elem, schema, context) {
 
-        val mdlTargetNamespace: VAnyURI? = schema.targetNamespace
+        val mdlTargetNamespace: XsdAnyURI? = schema.targetNamespace
 
         val mdlSubstitutionGroupAffiliations: List<Result<ResolvedGlobalElement>> =
             elemPart.elem.substitutionGroup?.map { kotlin.runCatching { schema.element(it) } } ?: emptyList()

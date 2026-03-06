@@ -20,18 +20,18 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyURIType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAnnotation
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAppInfo
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSDocumentation
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 
 class ResolvedAnnotation(rawPart: XSAnnotation) {
-    val id: VID? = rawPart.id
+    val id: XsdID? = rawPart.id
 
     val mdlOtherAttrs: Map<QName, String> = rawPart.otherAttrs
     val mdlApplicationInformation: List<XSAppInfo> = rawPart.appInfos

@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSchema
 import io.github.pdvrieze.formats.xmlschemaTests.Resource
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader
@@ -85,7 +86,7 @@ class SimpleResolver private constructor(internal val xml: XML, private val base
             is Reference.Remote -> baseLocation.uri.toASCIIString()
         }.toAnyUri()
 
-    override fun readSchema(schemaLocation: VAnyURI): XSSchema {
+    override fun readSchema(schemaLocation: XsdAnyURI): XSSchema {
         val schemaUri = URI(schemaLocation.value)
         if (!isNetworkResolvingAllowed &&
             schemaUri.isAbsolute && (
@@ -106,7 +107,7 @@ class SimpleResolver private constructor(internal val xml: XML, private val base
         }
     }
 
-    override fun tryReadSchema(schemaLocation: VAnyURI): XSSchema? {
+    override fun tryReadSchema(schemaLocation: XsdAnyURI): XSSchema? {
         val schemaUri = URI(schemaLocation.value)
         if (!isNetworkResolvingAllowed &&
             schemaUri.isAbsolute &&
@@ -130,11 +131,11 @@ class SimpleResolver private constructor(internal val xml: XML, private val base
         }
     }
 
-    override fun delegate(schemaLocation: VAnyURI): ResolvedSchema.Resolver {
+    override fun delegate(schemaLocation: XsdAnyURI): ResolvedSchema.Resolver {
         return SimpleResolver(xml, baseLocation.resolve(schemaLocation.value))
     }
 
-    override fun resolve(relativeUri: VAnyURI): VAnyURI {
+    override fun resolve(relativeUri: XsdAnyURI): VAnyURI {
         return URI(baseUri.value).resolve2(relativeUri.xmlString.toString()).toASCIIString().toAnyUri()
     }
 

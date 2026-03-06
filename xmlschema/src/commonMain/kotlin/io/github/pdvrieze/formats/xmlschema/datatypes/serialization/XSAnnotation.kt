@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -43,12 +43,12 @@ class XSAnnotation : XSOpenAttrsBase {
     val appInfos: List<XSAppInfo>
 
     @XmlId
-    val id: VID?
+    val id: XsdID?
 
     constructor(
         documentationElements: List<XSDocumentation> = emptyList(),
         appInfos: List<XSAppInfo> = emptyList(),
-        id: VID? = null,
+        id: XsdID? = null,
         otherAttrs: Map<SerializableQName, String> = emptyMap()
     ) : super(otherAttrs) {
         this.documentationElements = documentationElements

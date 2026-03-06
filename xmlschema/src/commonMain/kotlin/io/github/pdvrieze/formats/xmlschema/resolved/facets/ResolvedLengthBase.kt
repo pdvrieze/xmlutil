@@ -25,9 +25,11 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSFac
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedAnnotated
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.facets.ConstrainingFacet
 
-sealed class ResolvedLengthBase(rawPart: XSFacet) : ResolvedFacet(rawPart) {
+sealed class ResolvedLengthBase(rawPart: XSFacet) : ResolvedFacet(rawPart), ConstrainingFacet.Fixed {
     override val model by lazy { ResolvedAnnotated.Model(rawPart) }
+    override val fixed: Boolean? = rawPart.fixed
 
     abstract val value: ULong
 

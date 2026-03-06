@@ -32,6 +32,9 @@ import kotlin.jvm.JvmInline
 @XmlUtilInternal
 @OptIn(ExperimentalEncodingApi::class)
 value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, ListHelper<Byte> {
+
+    constructor(hexString: String) : this(hexString.toByteArray())
+
     override val xmlString: String get() = Base64.encode(value)
 
     override fun get(index: Int): Byte = value[index]
@@ -40,4 +43,44 @@ value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, List
     override val schemaType: HexBinaryType<XsdHexBinary> get() = HexBinaryType.Instance
 
     override fun toString(): String = xmlString
+
+    companion object {
+        private fun normalize(representation: String): CharSequence {
+            var i = 0
+            var result: StringBuilder? = null
+            while (i < representation.length) {
+                when (representation[i]) {
+                    ' ', '\t', '\n', '\r' -> {
+                        result = StringBuilder(representation.length).also {
+                            it.append(representation, 0, i)
+                        }
+                        break
+                    }
+
+                    in '0'..'9',
+                    in 'A'..'F',
+                    in 'a'..'b' -> i+=1
+
+
+                    else -> error("Unexpected character ${representation[i]} in hex binary value")
+                }
+            }
+            if (i == representation.length) return representation
+
+            result!!
+
+            for (j in i until representation.length) {
+                result.append(representation[j])
+            }
+
+            return representation
+        }
+
+        private fun String.toByteArray(): ByteArray {
+            val normalized = normalize(this)
+            val l =  normalized.length / 2
+            return ByteArray(l) { normalized.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+
+        }
+    }
 }

@@ -91,7 +91,7 @@ interface IXsdDateTime: XsdAtomic {
         return dateTime.toInstant(zoneOffset)
     }
 
-    operator fun compareTo(other: XsdDateTime): Int {
+    operator fun compareTo(other: IXsdDateTime): Int {
         return instant().compareTo(other.instant())
     }
 

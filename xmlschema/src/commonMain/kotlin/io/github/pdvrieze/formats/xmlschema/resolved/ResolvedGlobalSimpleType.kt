@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalSimpleType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 
-interface ResolvedGlobalSimpleType<T: XsdAnySimple> : ResolvedGlobalType, ResolvedSimpleType<T> {
+interface ResolvedGlobalSimpleType<out T: XsdAnySimple> : ResolvedGlobalType, ResolvedSimpleType<T> {
 
     override val mdlScope: VSimpleTypeScope.Global get() = VSimpleTypeScope.Global
 
@@ -45,7 +45,7 @@ interface ResolvedGlobalSimpleType<T: XsdAnySimple> : ResolvedGlobalType, Resolv
         internal operator fun invoke(
             element: SchemaElement<XSGlobalSimpleType>,
             schema: ResolvedSchemaLike
-        ): ResolvedGlobalSimpleType {
+        ): ResolvedGlobalSimpleType<XsdAnySimple> {
             return ResolvedGlobalSimpleTypeImpl(element.elem, element.effectiveSchema(schema))
         }
     }

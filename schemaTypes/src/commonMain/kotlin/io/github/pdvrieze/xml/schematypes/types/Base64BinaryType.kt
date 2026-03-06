@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.XMLConstants
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @OptIn(ExperimentalEncodingApi::class)
-interface Base64BinaryType<out T : XsdBase64Binary> : PrimitiveDatatype<T> {
+interface Base64BinaryType<out T : XsdBase64Binary> : AnyAtomicType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -40,7 +40,7 @@ interface Base64BinaryType<out T : XsdBase64Binary> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : Base64BinaryType<XsdBase64Binary>, BuiltinType {
+    object Instance : Base64BinaryType<XsdBase64Binary>, PrimitiveDatatype<XsdBase64Binary>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "base64Binary", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

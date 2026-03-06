@@ -36,6 +36,11 @@ interface XsdNonNegativeInteger : XsdInteger {
     fun toULong(): ULong
     fun toUInt(): UInt
 
+    fun coerceAtMost(maxMax: XsdNonNegativeInteger): XsdNonNegativeInteger = when {
+        this < maxMax -> this
+        else -> maxMax
+    }
+
     operator fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger
     operator fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger
 

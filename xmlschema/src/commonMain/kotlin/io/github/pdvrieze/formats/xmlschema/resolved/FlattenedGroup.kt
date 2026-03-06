@@ -1074,7 +1074,7 @@ sealed class FlattenedParticle(val range: AllNNIRange) {
                 }
             } else { // consider further options
                 when {
-                    match.minOccurs * reference.minOccurs > minOccurs -> (match * reference.range)?.minus(range)
+                    (match.minOccurs * reference.minOccurs).compareTo(minOccurs) > 0 -> (match * reference.range)?.minus(range)
                     match.range.contains(range) -> reference - AllNNIRange.SINGLERANGE
                     match.range.isSimple -> reference - range
                     else -> match.remove(this, isSiblingName, checkHelper) // TODO a bit more options

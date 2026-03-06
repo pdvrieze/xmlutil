@@ -20,14 +20,14 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved.facets
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.IDateTime
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VDecimal
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSMinExclusive
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.xml.schematypes.facets.FacetMinExclusive
+import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 class ResolvedMinExclusive(
     rawPart: XSMinExclusive,
@@ -37,19 +37,19 @@ class ResolvedMinExclusive(
     override val isInclusive: Boolean get() = false
     override val fixed: Boolean? = rawPart.fixed
 
-    override fun validate(type: ResPrimitiveDatatype<*>, decimal: VDecimal, version: SchemaVersion) {
+    override fun validate(type: ResPrimitiveDatatype<*>, decimal: XsdDecimal, version: SchemaVersion) {
         type.validateValue(value, version)
-        val v = (type.value(value) as VDecimal)
+        val v = (type.value(value) as XsdDecimal)
         check(decimal > v)
     }
 
     override fun validate(value: XsdAnySimple) = when (this.value) {
-        is VDecimal -> {
-            check(value is VDecimal)
+        is XsdDecimal -> {
+            check(value is XsdDecimal)
             check(value > this.value)
         }
-        is IDateTime -> {
-            check(value is IDateTime)
+        is IXsdDateTime -> {
+            check(value is IXsdDateTime)
             check(value > this.value)
         }
         else -> error("Value $value cannot be validated")
@@ -77,7 +77,7 @@ class ResolvedMinExclusive(
         }
 
         internal fun createUnverified(value: XsdAnySimple): ResolvedMinExclusive {
-            return ResolvedMinExclusive(XSMinExclusive(VString(value.xmlString)), value)
+            return ResolvedMinExclusive(XSMinExclusive(XsdString(value.xmlString)), value)
         }
     }
 

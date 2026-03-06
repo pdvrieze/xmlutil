@@ -20,10 +20,10 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 sealed interface ResolvedType : AnyType, ResolvedAnnotated {
     override val baseType: ResolvedType
@@ -32,7 +32,7 @@ sealed interface ResolvedType : AnyType, ResolvedAnnotated {
 
     fun checkType(checkHelper: CheckHelper)
 
-    fun validate(representation: VString, version: SchemaVersion)
+    fun validate(representation: XsdString, version: SchemaVersion)
 
     fun validateValue(value: Any, version: SchemaVersion) {}
 

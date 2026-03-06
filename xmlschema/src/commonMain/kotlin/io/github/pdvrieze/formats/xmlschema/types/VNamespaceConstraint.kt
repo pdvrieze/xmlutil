@@ -20,17 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.resolved.ContextT
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchemaLike
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.namespaceURI
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 
 data class VNamespaceConstraint<E : VQNameListBase.IElem>(
     val mdlVariety: Variety,
-    val namespaces: Set<VAnyURI>,
+    val namespaces: Set<XsdAnyURI>,
     val disallowedNames: VQNameListBase<E>,
 ) {
 
@@ -113,7 +113,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
                 Variety.NOT -> sup.namespaces.single().let { it.isEmpty() || it == namespaces.single() }// 3.10.6 (2)
 
                 Variety.ENUMERATION ->
-                    sup.namespaces.single() !in namespaces && VAnyURI.EMPTY !in namespaces
+                    sup.namespaces.single() !in namespaces && XsdAnyURI.EMPTY !in namespaces
 
                 else -> false
             }
@@ -212,7 +212,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
                 Variety.NOT -> {
                     val newNamespaces = namespaces.toMutableSet().apply {
                         remove(other.namespaces.single())
-                        remove(VAnyURI.EMPTY) // per the specification
+                        remove(XsdAnyURI.EMPTY) // per the specification
                     }
                     require(newNamespaces.isNotEmpty()) { "Intersection of namespace constraints is empty" }
                     VNamespaceConstraint(Variety.ENUMERATION, newNamespaces, newDisallowed)
@@ -237,7 +237,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
                 Variety.ENUMERATION -> {
                     val newNamespaces = other.namespaces.toMutableSet().apply {
                         remove(namespaces.single())
-                        remove(VAnyURI.EMPTY)
+                        remove(XsdAnyURI.EMPTY)
                     }
                     require(newNamespaces.isNotEmpty()) { "Intersection of namespace constraints is empty" }
                     VNamespaceConstraint(Variety.ENUMERATION, newNamespaces, newDisallowed)
@@ -305,7 +305,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         if (mdlVariety == Variety.NOT && other.mdlVariety == Variety.NOT) {
             if (schema.version == SchemaVersion.V1_0) {
                 if (namespaces.single() != other.namespaces.single()) {
-                    return VNamespaceConstraint(Variety.NOT, setOf(VAnyURI.EMPTY), newDisallowed)
+                    return VNamespaceConstraint(Variety.NOT, setOf(XsdAnyURI.EMPTY), newDisallowed)
                 }
                 throw UnsupportedOperationException("Union of two equal nots should not reach here")
             } else {
@@ -322,8 +322,8 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
         if (schema.version == SchemaVersion.V1_0) {
             // 1.1 -> part 5
             // Case 5 must be true (as they are unequal)
-            val notNs: VAnyURI?
-            val enumNs: Set<VAnyURI?>
+            val notNs: XsdAnyURI?
+            val enumNs: Set<XsdAnyURI?>
             if (mdlVariety == Variety.NOT) {
                 notNs = namespaces.single() // in 1.0 only one negative is allowed
                 enumNs = other.namespaces
@@ -332,7 +332,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
                 enumNs = namespaces
             }
 
-            val containsAbsent = enumNs.contains(null) || enumNs.contains(VAnyURI.EMPTY)
+            val containsAbsent = enumNs.contains(null) || enumNs.contains(XsdAnyURI.EMPTY)
             if (! notNs.isNullOrEmpty()) { // part 5
                 when {
                     // v1.0 -> part 5.1
@@ -341,7 +341,7 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
 
                     // v1.0 -> part 5.2
                     enumNs.contains(notNs) && !containsAbsent ->
-                        return VNamespaceConstraint(Variety.NOT, setOf(VAnyURI.EMPTY), newDisallowed)
+                        return VNamespaceConstraint(Variety.NOT, setOf(XsdAnyURI.EMPTY), newDisallowed)
 
                     // v1.0 -> part 5.3
                     containsAbsent && !enumNs.contains(notNs) ->
@@ -354,14 +354,14 @@ data class VNamespaceConstraint<E : VQNameListBase.IElem>(
             } else { // part 6
                 when {
                     containsAbsent -> return VNamespaceConstraint(Variety.ANY, emptySet(), newDisallowed)
-                    else -> return VNamespaceConstraint(Variety.NOT, setOf(VAnyURI.EMPTY), newDisallowed)
+                    else -> return VNamespaceConstraint(Variety.NOT, setOf(XsdAnyURI.EMPTY), newDisallowed)
                 }
             }
         } else {
             // 1.1 -> part 5
             // Case 5 must be true (as they are unequal)
-            val notNs: Set<VAnyURI?>
-            val enumNs: Set<VAnyURI?>
+            val notNs: Set<XsdAnyURI?>
+            val enumNs: Set<XsdAnyURI?>
             if (mdlVariety == Variety.NOT) {
                 notNs = namespaces
                 enumNs = other.namespaces

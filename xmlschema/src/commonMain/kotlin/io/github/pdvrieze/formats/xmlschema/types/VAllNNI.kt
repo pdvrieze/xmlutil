@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.types
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -39,9 +39,10 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
     abstract operator fun times(other: VAllNNI): VAllNNI
     abstract operator fun times(other: Value): VAllNNI
-    abstract operator fun times(other: VNonNegativeInteger): VAllNNI
+    abstract operator fun times(other: XsdNonNegativeInteger): VAllNNI
 
     abstract fun safeMinus(other: VAllNNI, min: Value = ZERO): VAllNNI
+
     abstract operator fun plus(other: ULong): VAllNNI
 
     object UNBOUNDED : VAllNNI() {
@@ -50,9 +51,9 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             else -> 1
         }
 
-        override fun times(other: VNonNegativeInteger): UNBOUNDED = this
+        override fun times(other: XsdNonNegativeInteger): UNBOUNDED = this
 
-        operator fun plus(other: VNonNegativeInteger): VAllNNI = UNBOUNDED
+        operator fun plus(other: XsdNonNegativeInteger): VAllNNI = UNBOUNDED
         override operator fun plus(other: VAllNNI): VAllNNI = UNBOUNDED
         override fun plus(other: ULong): VAllNNI = UNBOUNDED
 
@@ -74,9 +75,9 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
     }
 
     @Serializable(Value.Serializer::class)
-    class Value(val value: VNonNegativeInteger): VAllNNI(), VNonNegativeInteger by value {
-        constructor(value: ULong): this(VNonNegativeInteger(value))
-        constructor(value: UInt): this(VNonNegativeInteger(value))
+    class Value(val value: XsdNonNegativeInteger): VAllNNI(), XsdNonNegativeInteger by value {
+        constructor(value: ULong): this(XsdNonNegativeInteger(value))
+        constructor(value: UInt): this(XsdNonNegativeInteger(value))
 
         override fun compareTo(other: VAllNNI): Int {
             return when (other) {
@@ -85,7 +86,17 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             }
         }
 
-        override operator fun plus(other: VNonNegativeInteger): VNonNegativeInteger = when (other) {
+        override fun compareTo(other: XsdNonNegativeInteger): Int {
+            return toULong().compareTo(other.toULong())
+        }
+
+        fun compareTo(other: Value): Int {
+            return toULong().compareTo(other.toULong())
+        }
+
+        operator fun rangeTo(other: VAllNNI): AllNNIRange = AllNNIRange(this, other)
+
+        override operator fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger = when (other) {
             is Value -> Value(value + other.value)
             else -> Value(value + other)
         }
@@ -104,7 +115,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         override operator fun times(other: Value): Value = Value(value.toULong() * other.value.toULong())
 
-        override operator fun times(other: VNonNegativeInteger): Value = Value(value.toULong() * other.toULong())
+        override operator fun times(other: XsdNonNegativeInteger): Value = Value(value.toULong() * other.toULong())
 
         operator fun minus(other: Value): Value = Value(value.toULong() - other.value.toULong())
 
@@ -140,7 +151,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
         override fun equals(other: Any?): Boolean {
             if (this===other) return true
             return when (other) {
-                is VNonNegativeInteger -> compareTo(other) == 0
+                is XsdNonNegativeInteger -> compareTo(other) == 0
                 is ULong -> toULong() == other
                 is UInt -> toULong() == other.toULong()
                 else -> false
@@ -159,7 +170,7 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
             override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI.Value", PrimitiveKind.STRING)
 
             override fun deserialize(decoder: Decoder): Value {
-                return Value(VNonNegativeInteger(decoder.decodeString()))
+                return Value(XsdNonNegativeInteger(decoder.decodeString()))
             }
 
             override fun serialize(encoder: Encoder, value: Value) {
@@ -171,9 +182,9 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
     companion object Serializer: KSerializer<VAllNNI> {
 
-        val ONE = Value(VNonNegativeInteger.ONE)
+        val ONE = Value(XsdNonNegativeInteger.ONE)
 
-        val ZERO = Value(VNonNegativeInteger.ZERO)
+        val ZERO = Value(XsdNonNegativeInteger.ZERO)
 
         operator fun invoke(v: Int): Value = Value(v.toULong())
 
@@ -183,11 +194,13 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         operator fun invoke(v: ULong): Value = Value(v)
 
+        operator fun invoke(v: XsdNonNegativeInteger): Value = Value(v)
+
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AllNNI", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): VAllNNI = when (val v = decoder.decodeString()) {
             "unbounded" -> UNBOUNDED
-            else -> Value(VNonNegativeInteger(v))
+            else -> Value(XsdNonNegativeInteger(v))
         }
 
         override fun serialize(encoder: Encoder, value: VAllNNI) {
@@ -199,16 +212,29 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
     }
 }
 
+operator fun XsdNonNegativeInteger.compareTo(other: VAllNNI): Int = when (other) {
+    !is VAllNNI.Value -> 1 // not value, so unbounded
+    else -> compareTo(other.value)
+}
+
+operator fun XsdNonNegativeInteger.rangeTo(other: VAllNNI): AllNNIRange = AllNNIRange(this, other)
+
+fun XsdNonNegativeInteger.coerceAtMost(other: VAllNNI): XsdNonNegativeInteger = when {
+    other !is VAllNNI.Value -> this
+    else -> coerceAtMost(other.value)
+}
+
 class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: VAllNNI) : ClosedRange<VAllNNI> {
     val isSimple: Boolean get() = endInclusive == VAllNNI.ONE && startsWithOne
     val isSingletonRange: Boolean get() = start == endInclusive
     val startsWithOne: Boolean get() = start == VAllNNI.ONE
 
-    constructor(startNNI: VNonNegativeInteger, endInclusive: VAllNNI) : this(VAllNNI.Value(startNNI), endInclusive)
+    constructor(startNNI: XsdNonNegativeInteger, endInclusive: VAllNNI) : this(start = VAllNNI(startNNI), endInclusive)
+
     constructor(
-        startNNI: VNonNegativeInteger,
-        endInclusive: VNonNegativeInteger
-    ) : this(start = VAllNNI.Value(startNNI), VAllNNI.Value(endInclusive))
+        startNNI: XsdNonNegativeInteger,
+        endInclusive: XsdNonNegativeInteger
+    ) : this(start = VAllNNI(startNNI), VAllNNI.Value(endInclusive))
 
     override fun contains(value: VAllNNI): Boolean = when (value) {
         is VAllNNI.UNBOUNDED -> false
@@ -216,14 +242,14 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
     }
 
     operator fun contains(other: AllNNIRange): Boolean {
-        return start <= other.start && endInclusive >= other.endInclusive
+        return start.value <= other.start && endInclusive >= other.endInclusive
     }
 
     override fun isEmpty(): Boolean {
         return endInclusive !is VAllNNI.UNBOUNDED && start < endInclusive
     }
 
-    private operator fun times(mult: VNonNegativeInteger): AllNNIRange {
+    private operator fun times(mult: XsdNonNegativeInteger): AllNNIRange {
         return AllNNIRange(this.start*mult, endInclusive*mult)
     }
 
@@ -258,7 +284,7 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
         if (otherRange.endInclusive > endInclusive) return null
 
         val newStart: VAllNNI.Value = when { // out of range start is allowed
-            otherRange.start > start -> VAllNNI.ZERO
+            otherRange.start.value > start -> VAllNNI.ZERO
             else -> start - otherRange.start
         }
         val newEnd: VAllNNI = when {
@@ -273,7 +299,7 @@ class AllNNIRange(override val start: VAllNNI.Value, override val endInclusive: 
 
         val newStart: VAllNNI.Value = when {
             other !is VAllNNI.Value ||
-            other >= start -> VAllNNI.ZERO
+            other.value >= start -> VAllNNI.ZERO
             else -> start - other
         }
         val newEnd: VAllNNI = when {

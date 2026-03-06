@@ -21,20 +21,17 @@
 package io.github.pdvrieze.xml.schematypes.facets
 
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
-import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
-@Serializable
-@XmlSerialName("minLength", XSD_NS_URI, XSD_PREFIX)
-class FacetMinLength(
-    override val value: ULong,
-    override val fixed: Boolean? = null,
-) : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
+interface FacetMinLength : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
     override val facetName: XsdQName get() = NAME
 
+    private class Impl(override val value: ULong, override val fixed: Boolean?) : FacetMinLength
+
     companion object {
+        operator fun invoke(value: ULong, fixed: Boolean? = null): FacetMinLength = Impl(value, fixed)
+
         val NAME: XsdQName = XsdQName(XSD_NS_URI, "minLength", XSD_PREFIX)
     }
 

@@ -20,25 +20,15 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.isNCName10
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.core.XmlVersion
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-import kotlin.jvm.JvmInline
-import kotlin.jvm.JvmName
 
-typealias VNCName = XsdNCName
 fun VNCName(str: String): XsdNCName = XsdNCName(str)
 
+/*
 @Serializable(VNCNameXX.Serializer::class)
 interface VNCNameXX : VName {
 
-    fun toQname(targetNamespace: VAnyURI?): QName {
+    fun toQname(targetNamespace: XsdAnyURI?): QName {
         return QName(targetNamespace?.value ?: "", xmlString)
     }
 
@@ -81,3 +71,4 @@ interface VNCNameXX : VName {
         operator fun invoke(value: String?): VNCNameXX? = value?.let { Inst(it) }
     }
 }
+*/

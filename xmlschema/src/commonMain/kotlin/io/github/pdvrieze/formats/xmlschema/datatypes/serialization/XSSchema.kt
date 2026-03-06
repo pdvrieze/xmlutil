@@ -22,16 +22,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VLanguage
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VToken
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import io.github.pdvrieze.formats.xmlschema.types.VXPathDefaultNamespace
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.QName
@@ -60,14 +56,14 @@ class XSSchema : XSOpenAttrsBase {
     val finalDefault: Set<@Contextual VDerivationControl.Type>?
 
     @XmlId
-    val id: VID?
+    val id: XsdID?
 
     @XmlElement(false)
-    val targetNamespace: VAnyURI?
+    val targetNamespace: XsdAnyURI?
 
-    val version: VToken?
+    val version: XsdToken?
     @XmlSerialName("lang", XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX)
-    val lang: VLanguage?
+    val lang: XsdLanguage?
 
     val includes: List<XSInclude>
     val imports: List<XSImport>
@@ -93,10 +89,10 @@ class XSSchema : XSOpenAttrsBase {
         xpathDefaultNamespace: VXPathDefaultNamespace? = null,
         elementFormDefault: VFormChoice? = null,
         finalDefault: Set<VDerivationControl.Type>? = null,
-        id: VID? = null,
-        targetNamespace: VAnyURI? = null,
-        version: VToken? = null,
-        lang: VLanguage? = null,
+        id: XsdID? = null,
+        targetNamespace: XsdAnyURI? = null,
+        version: XsdToken? = null,
+        lang: XsdLanguage? = null,
         includes: List<XSInclude> = emptyList(),
         imports: List<XSImport> = emptyList(),
         redefines: List<XSRedefine> = emptyList(),

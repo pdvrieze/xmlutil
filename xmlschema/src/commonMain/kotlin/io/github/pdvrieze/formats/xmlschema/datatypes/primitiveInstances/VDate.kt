@@ -20,16 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResDateType
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlin.jvm.JvmInline
-
+/*
 @JvmInline
 @Serializable(VDate.Companion::class)
 value class VDate(val dateVal: ULong) : IDateTime {
@@ -87,3 +78,4 @@ value class VDate(val dateVal: ULong) : IDateTime {
         }
     }
 }
+*/

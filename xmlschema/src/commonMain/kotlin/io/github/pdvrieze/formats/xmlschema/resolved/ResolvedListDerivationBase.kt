@@ -21,10 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleList
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import nl.adaptivity.xmlutil.QName
 
 abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
@@ -76,7 +76,7 @@ abstract class ResolvedListDerivationBase() : ResolvedSimpleType.Derivation() {
          */
         internal constructor(
             itemType: ResolvedSimpleType<*>,
-            id: VID? = null,
+            id: XsdID? = null,
             annotations: List<ResolvedAnnotation> = emptyList(),
             otherAttrs: Map<QName, String> = emptyMap(),
         ) : super(annotations, id, otherAttrs) {

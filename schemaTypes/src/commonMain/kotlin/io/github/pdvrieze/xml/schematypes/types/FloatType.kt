@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdFloat
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface FloatType<out T : XsdFloat> : PrimitiveDatatype<T> {
+interface FloatType<out T : XsdFloat> : AnyAtomicType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
@@ -38,7 +38,7 @@ interface FloatType<out T : XsdFloat> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : FloatType<XsdFloat>, BuiltinType {
+    object Instance : FloatType<XsdFloat>, PrimitiveDatatype<XsdFloat>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "float", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

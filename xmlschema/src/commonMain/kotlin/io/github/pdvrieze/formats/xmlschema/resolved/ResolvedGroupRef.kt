@@ -20,16 +20,17 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.compareTo
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedGroupRef(
     rawPart: XSGroupRef,
     schema: ResolvedSchemaLike,
-    override val mdlMinOccurs: VNonNegativeInteger = rawPart.minOccurs ?: VNonNegativeInteger.ONE,
+    override val mdlMinOccurs: XsdNonNegativeInteger = rawPart.minOccurs ?: XsdNonNegativeInteger.ONE,
     override val mdlMaxOccurs: VAllNNI = rawPart.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupBase, ResolvedGroupParticle<ResolvedModelGroup> {
 
@@ -66,7 +67,7 @@ class ResolvedGroupRef(
             append("groupRef(")
             append(mdlRef)
             append(")")
-            if (mdlMinOccurs != VNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
+            if (mdlMinOccurs != XsdNonNegativeInteger.ONE || mdlMaxOccurs != VAllNNI.ONE) append(range)
         }
     }
 

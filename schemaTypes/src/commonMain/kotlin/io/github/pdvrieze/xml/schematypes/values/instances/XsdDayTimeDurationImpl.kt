@@ -23,7 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.values.XsdDayTimeDuration
 
-class XsdDayTimeDurationImpl(val millis: Long) : XsdDayTimeDuration {
+class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
 
     operator fun compareTo(other: XsdDurationImpl): Int = millis.compareTo(other.millis)
 
@@ -44,9 +44,6 @@ class XsdDayTimeDurationImpl(val millis: Long) : XsdDayTimeDuration {
         result = 31 * result + millis.hashCode()
         return result
     }
-
-    override val seconds: Double
-        get() = millis.toDouble() / 1000.0
 
     override val xmlString: String
         get() = buildString {

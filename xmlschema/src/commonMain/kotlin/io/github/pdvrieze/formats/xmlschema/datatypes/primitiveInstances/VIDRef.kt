@@ -20,14 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResIDRefType
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encoding.Decoder
-import nl.adaptivity.xmlutil.XmlReader
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-import kotlin.jvm.JvmInline
-
+/*
 @JvmInline
 @Serializable(VIDRef.Serializer::class)
 value class VIDRef(override val xmlString: String) : VNCNameXX {
@@ -55,3 +48,4 @@ value class VIDRef(override val xmlString: String) : VNCNameXX {
         }
     }
 }
+*/

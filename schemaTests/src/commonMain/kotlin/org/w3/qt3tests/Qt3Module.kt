@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -49,7 +49,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("module", QT3TNS)
 class Qt3Module(
-    val uri: VAnyURI? = null,
-    val location: VAnyURI? = null,
-    val file: VAnyURI? = null,
+    val uri: XsdAnyURI? = null,
+    val location: XsdAnyURI? = null,
+    val file: XsdAnyURI? = null,
 )

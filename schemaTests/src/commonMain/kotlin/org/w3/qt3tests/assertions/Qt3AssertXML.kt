@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.assertions
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -61,7 +61,7 @@ import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertXML
 @XmlSerialName("assert-xml", QT3TNS)
 class Qt3AssertXML(
     @XmlValue val assertion: String,
-    override val file: VAnyURI? = null,
+    override val file: XsdAnyURI? = null,
     @SerialName("ignore-prefixes")
     val ignorePrefixes: Boolean = false
 ): Qt3AbstractAssertion(), Qt3FileAttr {

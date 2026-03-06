@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdNotation
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NotationType<out T : XsdNotation> : PrimitiveDatatype<T> {
+interface NotationType<out T : XsdNotation> : AnyAtomicType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -38,7 +38,7 @@ interface NotationType<out T : XsdNotation> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: NotationType<XsdNotation>, BuiltinType {
+    object Instance: NotationType<XsdNotation>, PrimitiveDatatype<XsdNotation>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "NOTATION", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

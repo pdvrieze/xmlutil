@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnyType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResFiniteDateType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResNotationType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
@@ -33,6 +32,7 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedWhiteSpace
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
@@ -40,9 +40,21 @@ import io.github.pdvrieze.xml.schematypes.values.XsdNotation
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixStringList
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
-sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleType<T>, VSimpleTypeScope.Member {
+interface ExternalSimpleType: ResolvedSimpleType<XsdAnySimple> {
+
+    override val ordered: FacetOrdered get() = mdlFundamentalFacets.ordered
+    override val bounded: FacetBounded get() = mdlFundamentalFacets.bounded
+    override val cardinality: FacetCardinality get() = mdlFundamentalFacets.cardinality
+    override val numeric: FacetNumeric get() = mdlFundamentalFacets.numeric
+
+    override val constrainingFacets: List<ConstrainingFacet> get() = model.mdlFacets.toList()
+
+}
+
+interface ResolvedSimpleType<out T : XsdAnySimple> : ResolvedType, AnySimpleType<T>, VSimpleTypeScope.Member {
 
     override val mdlScope: VSimpleTypeScope
 
@@ -55,12 +67,6 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
     val mdlFacets: FacetList get() = model.mdlFacets
 
     val mdlFundamentalFacets: FundamentalFacets get() = model.mdlFundamentalFacets
-
-    override val ordered: FacetOrdered get() = mdlFundamentalFacets.ordered
-    override val bounded: FacetBounded get() = mdlFundamentalFacets.bounded
-    override val cardinality: FacetCardinality get() = mdlFundamentalFacets.cardinality
-    override val numeric: FacetNumeric get() = mdlFundamentalFacets.numeric
-    override val constrainingFacets: List<ConstrainingFacet> get() = model.mdlFacets.toList()
 
     val mdlVariety: Variety get() = model.mdlVariety
 
@@ -82,11 +88,9 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
         if (mdlPrimitiveTypeDefinition == ResNotationType) {
             for (enum in mdlFacets.enumeration) {
                 val name: XsdQName = when (val v = enum.value) {
-                    is VNotation -> XsdQName(v.value)
                     is XsdNotation -> XsdQName(v)
-                    is VPrefixString -> XsdQName(v.toQName())
                     is XsdPrefixString -> v.toQName()
-                    is VString -> XsdQName(v.xmlString)
+                    is XsdString -> XsdQName(v.xmlString)
                     else -> error("Value $v is not supported as notation")
                 }
                 // TODO (have notations resolved
@@ -135,7 +139,7 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
         }
     }
 
-    override fun validate(representation: VString, version: SchemaVersion) {
+    override fun validate(representation: XsdString, version: SchemaVersion) {
         check(this != mdlPrimitiveTypeDefinition) { "$mdlPrimitiveTypeDefinition fails to override validate" }
         val v = value(representation)
         if (v != null) validateValue(v, version)
@@ -194,6 +198,7 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
         return collector
     }
 
+    fun value(representation: String): Any? = value(XsdString(representation))
     fun value(representation: XsdString): Any? {
         val normalized = mdlFacets.whiteSpace?.value?.normalize(representation) ?: representation
         return when (mdlVariety) {
@@ -209,12 +214,12 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
 
                 when {
                     normalized.isEmpty() -> emptyList()
-                    normalized is VPrefixStringList -> normalized.elems.map {
+                    normalized is XsdPrefixStringList -> normalized.elems.map {
                         itemType.value(it)
                     }
 
                     else -> normalized.split(' ').map {
-                        itemType.value(VString(it))
+                        itemType.value(XsdString(it))
                     }
                 }
             }
@@ -273,7 +278,7 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
                     check(simpleDerivation is XSSimpleRestriction) { "Redefines are restrictions" }
                     require(typeName.isEquivalent(checkNotNull(simpleDerivation.base))) { "Redefine of simple type ($typeName) must use original as base" }
 
-                    schema.nestedType(typeName) as ResolvedGlobalSimpleType
+                    schema.nestedType(typeName) as ResolvedGlobalSimpleType<*>
                 }
 
                 simpleDerivation !is XSSimpleRestriction -> ResAnySimpleType
@@ -429,7 +434,7 @@ sealed interface ResolvedSimpleType<T : XsdAnySimple> : ResolvedType, AnySimpleT
                     mdlFacets.maxLength != null || mdlFacets.totalDigits != null -> FacetCardinality.FINITE
                     mdlFacets.minConstraint != null &&
                             mdlFacets.maxConstraint != null &&
-                            (mdlFacets.fractionDigits != null || mdlPrimitiveTypeDefinition is ResFiniteDateType) ->
+                            (mdlFacets.fractionDigits != null || mdlPrimitiveTypeDefinition is ResFiniteDateType<*>) ->
                         FacetCardinality.FINITE
 
                     else -> FacetCardinality.COUNTABLY_INFINITE

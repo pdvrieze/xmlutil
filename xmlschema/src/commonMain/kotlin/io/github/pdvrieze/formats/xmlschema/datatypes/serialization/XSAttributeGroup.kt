@@ -22,7 +22,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -40,7 +40,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 class XSAttributeGroup(
     val name: XsdNCName,
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     @XmlBefore("anyAttribute")
     val attributes: List<XSLocalAttribute> = emptyList(),
     @XmlBefore("anyAttribute")

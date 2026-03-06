@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.attrGroups
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
 interface Qt3UriAttr {
     /**
@@ -39,6 +39,6 @@ interface Qt3UriAttr {
      *
      * For schemas, the URI defines the target namespace URI.
      */
-    val uri: VAnyURI?
+    val uri: XsdAnyURI?
 }
 

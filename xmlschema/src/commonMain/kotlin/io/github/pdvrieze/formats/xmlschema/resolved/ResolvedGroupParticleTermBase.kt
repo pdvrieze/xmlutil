@@ -20,11 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
+import io.github.pdvrieze.formats.xmlschema.types.compareTo
+import io.github.pdvrieze.xml.schematypes.values.XsdID
+import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 
@@ -32,7 +33,7 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
     parent: VElementScope.Member,
     elemPart: SchemaElement<XSI_Grouplike>,
     schema: ResolvedSchemaLike,
-    final override val mdlMinOccurs: VNonNegativeInteger = elemPart.elem.minOccurs ?: VNonNegativeInteger.ONE,
+    final override val mdlMinOccurs: XsdNonNegativeInteger = elemPart.elem.minOccurs ?: XsdNonNegativeInteger.ONE,
     final override val mdlMaxOccurs: VAllNNI = elemPart.elem.maxOccurs ?: VAllNNI.ONE,
 ) : ResolvedGroupParticle<T>, ResolvedTerm {
 
@@ -70,7 +71,7 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
         constructor(
             particles: List<ResolvedParticle<ResolvedTerm>>,
             annotations: List<ResolvedAnnotation> = emptyList(),
-            id: VID? = null,
+            id: XsdID? = null,
             otherAttrs: Map<QName, String> = emptyMap(),
         ) : super(annotations, id, otherAttrs) {
             this.particles = particles

@@ -123,7 +123,7 @@ addNativeTargets(includeWasm = false, includeWasi = false)
 
 config {
     dokkaModuleName = "xmlschema"
-//    allWarningsAsErrors = false
+    allWarningsAsErrors = false
 }
 
 idea {

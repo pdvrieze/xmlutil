@@ -29,6 +29,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPat
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
+import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
 class ResolvedUnionDerivation(
@@ -68,7 +70,7 @@ class ResolvedUnionDerivation(
         init {
             val simpleTypes = rawPart.simpleTypes.map { ResolvedLocalSimpleType(it.filterUnionFacets(), schema, context) }
 
-            val resolvedMemberRefs: List<ResolvedGlobalSimpleType>? = rawPart.memberTypes?.map {
+            val resolvedMemberRefs: List<ResolvedGlobalSimpleType<*>>? = rawPart.memberTypes?.map {
                 schema.simpleType(it).unionMemberWrapper()
             }
 
@@ -89,7 +91,7 @@ class ResolvedUnionDerivation(
     }
 }
 
-private fun ResolvedGlobalSimpleType.unionMemberWrapper(): ResolvedGlobalSimpleType {
+private fun ResolvedGlobalSimpleType<*>.unionMemberWrapper(): ResolvedGlobalSimpleType<*> {
     val f = mdlFacets
     if (f.assertions.isEmpty() && f.minConstraint == null && f.maxConstraint == null &&
         f.explicitTimezone == null && f.fractionDigits == null && f.minLength == null &&
@@ -99,7 +101,7 @@ private fun ResolvedGlobalSimpleType.unionMemberWrapper(): ResolvedGlobalSimpleT
     return UnionMemberWrapper(this)
 }
 
-private class UnionMemberWrapper(val base: ResolvedGlobalSimpleType) : ResolvedGlobalSimpleType {
+private class UnionMemberWrapper(val base: ResolvedGlobalSimpleType<*>) : ResolvedGlobalSimpleType<XsdAnySimple> {
     override val mdlFacets: FacetList = FacetList(enumeration = base.mdlFacets.enumeration, patterns = base.mdlFacets.patterns)
     override val name: XsdQName get() = mdlQName
     override val mdlQName: XsdQName get() = base.mdlQName
@@ -107,6 +109,12 @@ private class UnionMemberWrapper(val base: ResolvedGlobalSimpleType) : ResolvedG
     override val model: ResolvedSimpleType.Model get() = base.model
     override val simpleDerivation: ResolvedSimpleType.Derivation get() = base.simpleDerivation
     override val mdlFinal: Set<VDerivationControl.Type> get() = base.mdlFinal
+
+    override val ordered: FacetOrdered get() = model.mdlFundamentalFacets.ordered
+    override val bounded: FacetBounded get() = model.mdlFundamentalFacets.bounded
+    override val cardinality: FacetCardinality get() = model.mdlFundamentalFacets.cardinality
+    override val numeric: FacetNumeric get() = model.mdlFundamentalFacets.numeric
+    override val constrainingFacets: List<ConstrainingFacet> get() = model.mdlFacets.toList()
 }
 
 /**

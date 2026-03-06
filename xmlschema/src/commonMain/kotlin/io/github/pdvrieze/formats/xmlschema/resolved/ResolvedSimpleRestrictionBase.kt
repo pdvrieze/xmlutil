@@ -21,11 +21,11 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.ResAnySimpleType
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAnyAtomicType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSSimpleRestriction
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
@@ -86,7 +86,7 @@ abstract class ResolvedSimpleRestrictionBase(
             baseType: ResolvedType = ResAnySimpleType,
             facets: FacetList = FacetList.EMPTY,
             otherContents: List<CompactFragment> = emptyList(),
-            id: VID? = null,
+            id: XsdID? = null,
             annotations: List<ResolvedAnnotation> = emptyList(),
             otherAttrs: Map<QName, String> = emptyMap(),
         ) : super(annotations, id, otherAttrs) {

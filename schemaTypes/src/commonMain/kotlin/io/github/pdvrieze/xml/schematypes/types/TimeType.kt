@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdTime
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface TimeType<out T : XsdTime> : PrimitiveDatatype<T> {
+interface TimeType<out T : XsdTime> : AnyAtomicType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -38,7 +38,7 @@ interface TimeType<out T : XsdTime> : PrimitiveDatatype<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: TimeType<XsdTime>, BuiltinType {
+    object Instance: TimeType<XsdTime>, PrimitiveDatatype<XsdTime>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "time", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

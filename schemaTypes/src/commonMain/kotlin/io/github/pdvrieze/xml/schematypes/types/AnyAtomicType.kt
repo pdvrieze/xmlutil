@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface AnyAtomicType<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T> {
+interface AnyAtomicType<out T : XsdAtomic> : AnySimpleType.AtomicOrUnion<T> {
     override val baseType: AnySimpleType<*>
 
     object Instance : AnyAtomicType<XsdAtomic>, BuiltinType {

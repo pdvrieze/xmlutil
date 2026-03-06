@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.serialization
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VBoolean
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VID
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -44,7 +44,7 @@ sealed class XSLocalComplexType(
     override val mixed: Boolean? = null,
     override val defaultAttributesApply: Boolean? = null,
     @XmlId
-    override val id: VID? = null,
+    override val id: XsdID? = null,
     @XmlBefore("*")
     override val annotation: XSAnnotation? = null,
     @XmlOtherAttributes
@@ -81,7 +81,7 @@ sealed class XSLocalComplexType(
     @Serializable
     @XmlSerialName("complexType", XSD_NS_URI, XSD_PREFIX)
     class SerialDelegate(
-        val mixed: VBoolean? = null,
+        val mixed: XsdBoolean? = null,
         val complexContent: XSComplexContent? = null,
         val simpleContent: XSSimpleContent? = null,
         @XmlBefore("attributes", "attributeGroups")
@@ -95,9 +95,9 @@ sealed class XSLocalComplexType(
         val anyAttribute: XSAnyAttribute? = null,
         @XmlBefore("term")
         val openContent: XSOpenContent? = null,
-        val defaultAttributesApply: VBoolean? = null,
+        val defaultAttributesApply: XsdBoolean? = null,
         @XmlId
-        val id: VID? = null,
+        val id: XsdID? = null,
         @XmlBefore("*")
         val annotation: XSAnnotation? = null,
         @XmlOtherAttributes

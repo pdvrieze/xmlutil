@@ -20,15 +20,11 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VString
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSEnumeration
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
-import io.github.pdvrieze.xml.schematypes.values.XsdNCName
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
-import io.github.pdvrieze.xml.schematypes.values.toAnyUri
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 
@@ -56,7 +52,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
                                 XSLocalSimpleType(
                                     simpleDerivation = XSSimpleRestriction(
                                         base = XsdQName(XMLConstants.XSD_NS_URI, "string"),
-                                        facets = listOf(XSEnumeration(VString("")))
+                                        facets = listOf(XSEnumeration(XsdString("")))
                                     )
                                 )
                             )
@@ -64,13 +60,13 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
                     ),
                 ),
                 XSGlobalAttribute(
-                    name = XsdNCName("space"), default = VString("preserve"),
+                    name = XsdNCName("space"), default = XsdString("preserve"),
                     simpleType = XSLocalSimpleType(
                         simpleDerivation = XSSimpleRestriction(
                             base = XsdQName(XMLConstants.XSD_NS_URI, "NCName"),
                             facets = listOf(
-                                XSEnumeration(VString("default")),
-                                XSEnumeration(VString("preserve")),
+                                XSEnumeration(XsdString("default")),
+                                XSEnumeration(XsdString("preserve")),
                             ),
                         )
                     )
@@ -94,7 +90,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
     }
 
     internal val resolver: ResolvedSchema.SchemaElementResolver = object : ResolvedSchema.SchemaElementResolver {
-        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType? {
+        override fun maybeSimpleType(typeName: String): ResolvedGlobalSimpleType<*>? {
             return maybeSimpleType(QName(XMLConstants.XML_NS_URI, typeName))
         }
 
@@ -128,7 +124,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
     }
 
 
-    override val targetNamespace: VAnyURI get() = delegate.targetNamespace
+    override val targetNamespace: XsdAnyURI get() = delegate.targetNamespace
 
     override val blockDefault: Set<VDerivationControl.T_BlockSetValues> get() = delegate.blockDefault
 
@@ -136,7 +132,7 @@ object BuiltinSchemaXml : ResolvedSchemaLike() {
 
     override val defaultOpenContent: XSDefaultOpenContent? get() = delegate.defaultOpenContent
 
-    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType? = delegate.maybeSimpleType(typeName)
+    override fun maybeSimpleType(typeName: QName): ResolvedGlobalSimpleType<*>? = delegate.maybeSimpleType(typeName)
 
     override fun maybeType(typeName: QName): ResolvedGlobalType? = delegate.maybeType(typeName)
 

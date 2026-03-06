@@ -24,14 +24,17 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSD_PREFIX
 
-class FacetMaxLength(
-    override val value: ULong,
-    override val fixed: Boolean? = null,
-) : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
+
+
+interface FacetMaxLength : ConstrainingFacet.Numeric, ConstrainingFacet.Fixed {
 
     override val facetName: XsdQName get() = NAME
 
+    private class Impl(override val value: ULong, override val fixed: Boolean?) : FacetMaxLength
+
     companion object {
+        operator fun invoke(value: ULong, fixed: Boolean? = null): FacetMaxLength = Impl(value, fixed)
+
         val NAME: XsdQName = XsdQName(XSD_NS_URI, "maxLength", XSD_PREFIX)
     }
 }

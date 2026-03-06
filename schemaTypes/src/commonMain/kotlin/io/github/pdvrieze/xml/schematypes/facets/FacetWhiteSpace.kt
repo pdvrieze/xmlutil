@@ -36,6 +36,9 @@ interface FacetWhiteSpace : ConstrainingFacet.Fixed {
 
 
     companion object {
+        operator fun invoke(value: WhitespaceValue, fixed: Boolean? = null): FacetWhiteSpace =
+            FacetWhiteSpaceImpl(value, fixed)
+
         val NAME: XsdQName = XsdQName(XSD_NS_URI, "whiteSpace", XSD_PREFIX)
     }
 }
