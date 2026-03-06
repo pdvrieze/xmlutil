@@ -266,8 +266,8 @@ class FacetList(
             is ResGDayType,
             is ResGMonthType,
             is ResDateTimeType -> {
-                val minDateTime = minConstraint?.let { primitiveType.value(it.value) } as IXsdDateTime?
-                val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) } as IXsdDateTime?
+                val minDateTime = minConstraint?.let { primitiveType.value(it.value) }
+                val maxDateTime = maxConstraint?.let { primitiveType.value(it.value) }
                 if (minDateTime != null && maxDateTime != null) {
                     check(minDateTime <= maxDateTime) { "DateTime values not in range" }
                 }
@@ -345,7 +345,7 @@ class FacetList(
             }
 
             is XsdString -> {
-                minLength?.let { kotlin.check(actualValue.length >= it.value.toInt()) { "Value |$actualValue| < ${minLength.value}" } }
+                minLength?.let { check(actualValue.length >= it.value.toInt()) { "Value |$actualValue| < ${minLength.value}" } }
                 maxLength?.let { kotlin.check(actualValue.length <= it.value.toInt()) { "Value |$actualValue| > ${maxLength.value}" } }
             }
 

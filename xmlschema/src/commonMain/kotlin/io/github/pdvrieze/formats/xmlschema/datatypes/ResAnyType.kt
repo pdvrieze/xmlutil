@@ -36,6 +36,8 @@ object ResAnyType : ResolvedGlobalComplexType(
     schema = BuiltinSchemaXmlschema,
     modelFactory = { AnyModel },
 ), ResolvedBuiltinType, AnyType {
+    @Suppress("DEPRECATION")
+    @Deprecated("Use name instead")
     override val mdlQName: XsdQName get() = super<ResolvedBuiltinType>.mdlQName
 
     override val id: Nothing? get() = null

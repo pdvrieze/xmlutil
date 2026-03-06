@@ -41,9 +41,6 @@ config {
 }
 
 kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
     js {
         browser {
             testTask {

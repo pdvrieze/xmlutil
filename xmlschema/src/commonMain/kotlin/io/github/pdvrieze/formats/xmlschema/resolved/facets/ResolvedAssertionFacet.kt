@@ -47,7 +47,7 @@ class ResolvedAssertionFacet(rawPart: XSAssertionFacet) :
     }
 
     override fun hashCode(): Int {
-        var result = testExpr?.hashCode() ?: 0
+        var result = testExpr.hashCode()
         result = 31 * result + (xpathDefaultNamespace?.hashCode() ?: 0)
         return result
     }

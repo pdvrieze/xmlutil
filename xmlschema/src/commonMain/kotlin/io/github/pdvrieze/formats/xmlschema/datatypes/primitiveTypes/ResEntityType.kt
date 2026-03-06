@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSPattern
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.XSWhiteSpace
+import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinAtomicType
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.ResolvedPattern
@@ -35,7 +36,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdEntity
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-object ResEntityType : ResPrimitiveDatatype<XsdEntity>, ResIStringType<XsdEntity>, EntityType<XsdEntity> {
+object ResEntityType : ResolvedBuiltinAtomicType<XsdEntity>, ResIStringType<XsdEntity>, EntityType<XsdEntity> {
     override val baseType: ResNCNameType get() = ResNCNameType
 
     override val mdlFacets: FacetList = FacetList(
