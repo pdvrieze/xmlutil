@@ -30,6 +30,8 @@ import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import io.github.pdvrieze.formats.xmlschemaTests.Resource
 import io.github.pdvrieze.formats.xmlschemaTests.getResource
 import io.github.pdvrieze.formats.xmlschemaTests.openStream
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.*
@@ -184,7 +186,7 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
             for ((setBaseUri, uri) in schemaUrls) {
                 val resolver = SimpleResolver(xml, setBaseUri)
                 try {
-                    val _ = resolver.readSchema(VAnyURI(uri.toString()))
+                    val _ = resolver.readSchema(XsdAnyURI(uri.toString()))
                 } catch (e: Exception) {
                     System.err.println("Failure to read schema: $uri \n${e.message?.prependIndent("        ")}")
                 }

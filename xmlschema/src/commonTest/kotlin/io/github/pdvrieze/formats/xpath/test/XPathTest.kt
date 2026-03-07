@@ -39,7 +39,7 @@ class XPathTest {
     @Test
     fun testNegative() {
         testPath("-42") {
-            assertEquals(UnaryExpr.Minus(IntLiteral(42)), expr)
+            assertEquals(UnaryExpr.Minus(LongLiteral(42)), expr)
         }
     }
 
@@ -98,9 +98,9 @@ class XPathTest {
         val e = assertIs<SequenceExpr>(p.expr)
         assertEquals(3, e.elements.size)
 
-        assertEquals(IntLiteral(1), e.elements[0])
-        assertEquals(IntLiteral(2), e.elements[1])
-        assertEquals(IntLiteral(3), e.elements[2])
+        assertEquals(LongLiteral(1), e.elements[0])
+        assertEquals(LongLiteral(2), e.elements[1])
+        assertEquals(LongLiteral(3), e.elements[2])
     }
 
     @Test
@@ -346,7 +346,7 @@ class XPathTest {
                                     assertStep(Axis.ATTRIBUTE, "nr")
                                 }
                             }
-                            assertRight<IntLiteral> {
+                            assertRight<LongLiteral> {
                                 assertEquals(1, expr.value)
                             }
                         }

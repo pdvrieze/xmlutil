@@ -57,7 +57,8 @@ value class XsdLanguageImpl internal constructor(override val xmlString: String)
             while (i < l && xmlString[i] in 'a'..'z') i++
             if (i == start) break
             if (i < l && xmlString[i] == '-') i++
-            while (i < l && xmlString[i] in 'a'..'z' || xmlString[i] in '0'..'9') i++
+
+            while (i < l && (xmlString[i] in 'a'..'z' || xmlString[i] in '0'..'9')) i += 1
         } while (i < l)
     }
 

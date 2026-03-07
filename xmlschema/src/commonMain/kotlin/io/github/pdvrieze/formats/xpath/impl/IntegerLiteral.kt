@@ -20,8 +20,14 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+
 @XPathInternal
-internal class IntLiteral(override val value: Long) : NumberLiteral<Long>() {
+internal class IntegerLiteral(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
+    override fun toDouble(): Double = value.toDouble()
+    override fun toLong(): Long = value.toLong()
+    override fun toInt(): Int = value.toInt()
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         when (builder) {
@@ -35,7 +41,7 @@ internal class IntLiteral(override val value: Long) : NumberLiteral<Long>() {
         if (other == null || this::class != other::class) return false
         if (!super.equals(other)) return false
 
-        other as IntLiteral
+        other as IntegerLiteral
 
         return value == other.value
     }

@@ -21,42 +21,43 @@
 package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
+import io.github.pdvrieze.xml.schematypes.values.XsdNCName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 
 object AGNameDefaults {
     val ns = "AttrGroup/name"
 
     val ag = XSAttributeGroup(
-        name = VNCName("aGr"),
+        name = XsdNCName("aGr"),
         attributes = listOf(
             XSLocalAttribute(
-                name = VNCName("number"),
+                name = XsdNCName("number"),
                 use = XSAttrUse.REQUIRED,
-                type = QName(XMLConstants.XSD_NS_URI, "integer", "xsd")
+                type = XsdQName(XMLConstants.XSD_NS_URI, "integer", "xsd")
             ),
             XSLocalAttribute(
-                name = VNCName("height"),
-                type = QName(XMLConstants.XSD_NS_URI, "decimal", "xsd")
+                name = XsdNCName("height"),
+                type = XsdQName(XMLConstants.XSD_NS_URI, "decimal", "xsd")
             )
         )
     )
     val expectedSchema = XSSchema(
         targetNamespace = ns.toAnyUri(),
         elements = listOf(
-            XSGlobalElement(name = VNCName("root")),
+            XSGlobalElement(name = XsdNCName("root")),
             XSGlobalElement(
-                name = VNCName("elementWithAttr"),
+                name = XsdNCName("elementWithAttr"),
                 localType = XSLocalComplexTypeShorthand(
                     attributes = listOf(
                         XSLocalAttribute(
-                            name = VNCName("good"),
-                            type = QName(XMLConstants.XSD_NS_URI, "string", "xsd")
+                            name = XsdNCName("good"),
+                            type = XsdQName(XMLConstants.XSD_NS_URI, "string", "xsd")
                         )
                     ),
                     attributeGroups = listOf(
-                        XSAttributeGroupRef(ref = QName(ns, "aGr", "tn"))
+                        XSAttributeGroupRef(ref = XsdQName(ns, "aGr", "tn"))
                     ),
                 )
             )

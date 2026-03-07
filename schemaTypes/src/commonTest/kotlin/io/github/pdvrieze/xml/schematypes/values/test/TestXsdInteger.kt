@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,11 +18,20 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.xml.schematypes.values.test
 
-@XPathInternal
-internal abstract class NumberLiteral<out T: Any>() : LiteralExpr<T>() {
-    abstract fun toDouble(): Double
-    abstract fun toLong(): Long
-    abstract fun toInt(): Int
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class TestXsdInteger {
+
+    @Test
+    fun testSimpleInteger() {
+        val bigInt = XsdInteger("1234567890")
+        assertEquals(1234567890, bigInt.toLong())
+        assertEquals(1234567890, bigInt.toInt())
+        assertEquals("1234567890", bigInt.xmlString)
+    }
+
 }

@@ -44,6 +44,24 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     override fun toUInt(): UInt = uLongValue.toUInt()
 
+    override fun countTrailingZeroBits(): ULong {
+        return uLongValue.countTrailingZeroBits().toULong()
+    }
+
+    override val size: ULong
+        get() = 2uL
+
+    override fun get(index: ULong): UInt = when (index) {
+        0uL -> uLongValue.toUInt()
+        1uL -> uLongValue.shr(32).toUInt()
+        else -> throw IndexOutOfBoundsException("Index $index out of bounds")
+    }
+
+    override fun get(index: Int): UInt = when (index) {
+        0 -> uLongValue.toUInt()
+        1 -> uLongValue.shr(32).toUInt()
+        else -> throw IndexOutOfBoundsException("Index $index out of bounds")
+    }
 
     override fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger {
         if (other !is XsdUnsignedLong) return other.plus(this)

@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
+@Deprecated("use BigUnsignedInt")
 @XmlUtilInternal
 internal class XsdNonNegativeIntegerStringImpl(override val xmlString: String) : XsdNonNegativeInteger {
     override val schemaType: NonNegativeIntegerType<*> get() = NonNegativeIntegerType.Instance
@@ -35,6 +36,18 @@ internal class XsdNonNegativeIntegerStringImpl(override val xmlString: String) :
     override fun toULong(): ULong = xmlString.toULong()
 
     override fun toUInt(): UInt = xmlString.toUInt()
+
+    override fun countTrailingZeroBits(): ULong = TODO("Not implemented")
+    override val size: ULong
+        get() = xmlString.length.toULong() / 9u
+
+    override fun get(index: ULong): UInt {
+        TODO("not implemented")
+    }
+
+    override fun get(index: Int): UInt {
+        TODO("not implemented")
+    }
 
     override fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger {
         return XsdUnsignedLong.Companion(toULong() + other.toULong())

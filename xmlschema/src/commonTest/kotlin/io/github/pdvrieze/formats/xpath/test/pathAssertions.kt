@@ -237,7 +237,7 @@ internal fun TestContext.assertPathOrSingle(test: PathContext.() -> Unit) {
 
 @OptIn(XPathInternal::class)
 internal fun TestContext.assertNumber(value: Long) {
-    val n = assertIs<IntLiteral>(expr)
+    val n = assertIs<LongLiteral>(expr)
     assertEquals(value, n.value)
 }
 

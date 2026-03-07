@@ -21,15 +21,15 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>() {
-    override fun toDouble(): Double = value
-    override fun toLong(): Long = value.toLong()
+internal class LongLiteral(override val value: Long) : NumberLiteral<Long>() {
+    override fun toDouble(): Double = value.toDouble()
+    override fun toLong(): Long = value
     override fun toInt(): Int = value.toInt()
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         when (builder) {
-            is StringBuilder -> builder.append(value.toString())
+            is StringBuilder -> builder.append(value)
             else -> builder.append(value.toString())
         }
     }
@@ -39,7 +39,7 @@ internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>
         if (other == null || this::class != other::class) return false
         if (!super.equals(other)) return false
 
-        other as DoubleLiteral
+        other as LongLiteral
 
         return value == other.value
     }
@@ -49,5 +49,6 @@ internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>
         result = 31 * result + value.hashCode()
         return result
     }
+
 
 }

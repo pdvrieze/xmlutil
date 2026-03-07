@@ -61,6 +61,10 @@ interface XsdInteger : XsdDecimal {
         operator fun invoke(l: Long): XsdInteger {
             return XsdLongImpl(l)
         }
+
+        operator fun invoke(value: String): XsdInteger {
+            return XsdDecimal.invoke(value) as XsdInteger
+        }
     }
 }
 

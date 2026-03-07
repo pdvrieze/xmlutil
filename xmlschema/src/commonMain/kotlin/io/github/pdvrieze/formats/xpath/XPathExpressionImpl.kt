@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.functions.Fn
 import io.github.pdvrieze.xml.schematypes.types.TokenType
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdToken
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
@@ -865,7 +866,7 @@ internal class XPathExpressionImpl internal constructor(
                     @OptIn(XPath3_0::class)
                     return DynamicFunctionCall(
                         LocationPath(AxisStep(Axis.SELF, NodeTest.node)),
-                        listOf(IntLiteral(value))
+                        listOf(LongLiteral(value))
                     )
                 }
 
@@ -1039,9 +1040,13 @@ internal class XPathExpressionImpl internal constructor(
                 }
                 ++i
             }
+            val substr = str.substring(start, i)
             return when {
-                seenPeriod || seenExp -> DoubleLiteral(str.substring(start, i).toDouble())
-                else -> IntLiteral(str.substring(start, i).toLong())
+                seenPeriod || seenExp -> DoubleLiteral(substr.toDouble())
+                else -> when (val l = substr.toLongOrNull()){
+                    null -> IntegerLiteral(XsdInteger(substr))
+                    else -> LongLiteral(l)
+                }
             }
         }
 

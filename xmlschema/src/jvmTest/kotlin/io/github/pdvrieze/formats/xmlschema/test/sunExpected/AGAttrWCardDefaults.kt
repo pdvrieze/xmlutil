@@ -22,8 +22,9 @@ package io.github.pdvrieze.formats.xmlschema.test.sunExpected
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.types.VProcessContents
+import io.github.pdvrieze.xml.schematypes.values.XsdNCName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.toAnyUri
-import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 
 object AGAttrWCardDefaults {
@@ -31,15 +32,15 @@ object AGAttrWCardDefaults {
     val ns = "AttrGroup/attrWCard"
 
     val ag = XSAttributeGroup(
-        name = VNCName("aGr"),
+        name = XsdNCName("aGr"),
         attributes = listOf(
             XSLocalAttribute(
-                name = VNCName("number"),
-                type = QName(XSD_NS_URI, "integer", "xsd")
+                name = XsdNCName("number"),
+                type = XsdQName(XSD_NS_URI, "integer", "xsd")
             ),
             XSLocalAttribute(
-                name = VNCName("height"),
-                type = QName(XSD_NS_URI, "decimal", "xsd")
+                name = XsdNCName("height"),
+                type = XsdQName(XSD_NS_URI, "decimal", "xsd")
             )
         ),
         anyAttribute = XSAnyAttribute(processContents = VProcessContents.SKIP)
@@ -48,18 +49,18 @@ object AGAttrWCardDefaults {
     val expectedSchema = XSSchema(
         targetNamespace = ns.toAnyUri(),
         elements = listOf(
-            XSGlobalElement(name = VNCName("root")),
+            XSGlobalElement(name = XsdNCName("root")),
             XSGlobalElement(
-                name = VNCName("elementWithAttr"),
+                name = XsdNCName("elementWithAttr"),
                 localType = XSLocalComplexTypeShorthand(
                     attributes = listOf(
                         XSLocalAttribute(
-                            name = VNCName("good"),
-                            type = QName(XSD_NS_URI, "string", "xsd")
+                            name = XsdNCName("good"),
+                            type = XsdQName(XSD_NS_URI, "string", "xsd")
                         )
                     ),
                     attributeGroups = listOf(
-                        XSAttributeGroupRef(ref = QName(ns, "aGr", "tn"))
+                        XSAttributeGroupRef(ref = XsdQName(ns, "aGr", "tn"))
                     ),
                 )
             )

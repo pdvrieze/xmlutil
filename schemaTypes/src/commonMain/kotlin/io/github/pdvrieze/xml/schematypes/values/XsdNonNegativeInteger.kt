@@ -22,7 +22,6 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdNonNegativeIntegerStringImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlTrimWhitespace
@@ -41,7 +40,24 @@ interface XsdNonNegativeInteger : XsdInteger {
         else -> maxMax
     }
 
+    /**
+     * Return the amount of zero bits at the end of the number (the least significant part). Note
+     * that this function is not valid for a value of zero.
+     */
+    fun countTrailingZeroBits(): ULong
+
+    /** The conceptual size in 32-bit values from 0. */
+    val size: ULong
+
+    /**
+     * Retrieve the [index] 32bit value from zero.
+     */
+    operator fun get(index: ULong): UInt
+
+    operator fun get(index: Int): UInt
+
     operator fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger
+
     operator fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger
 
     override fun compareTo(other: XsdInteger): Int = when (other) {
@@ -69,7 +85,7 @@ interface XsdNonNegativeInteger : XsdInteger {
             invoke(rawValue = charSequence.toString())
 
         operator fun invoke(rawValue: String): XsdNonNegativeInteger = when {
-            rawValue.length > MAXLONG.length -> XsdNonNegativeIntegerStringImpl(rawValue)
+            rawValue.length > MAXLONG.length -> BigUnsignedInt(rawValue)
 
             rawValue == "0" -> ZERO
             rawValue == "1" -> ONE
