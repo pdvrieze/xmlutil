@@ -459,6 +459,50 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
         TODO("not implemented")
     }
 
+    override fun compareTo(other: XsdNonNegativeInteger): Int {
+        if (other is BigUnsignedInt) return compareTo(other)
+
+        // optimize for 2 BigUnsignedInts
+        val s = size
+        val os = other.size
+        when {
+            s < os -> if ((s until os).any { other[it] != 0u }) return -1
+            s > os -> if ((os until s).any { get(it) != 0u }) return 1
+        }
+        for (i in (s-1u) downTo 0u) {
+            val v = get(i)
+            val o = other[i]
+            when {
+                v < o -> return -1
+                v > o -> return 1
+            }
+        }
+        return 0
+    }
+
+    fun compareTo(other: BigUnsignedInt): Int {
+        // optimize for 2 BigUnsignedInts
+        val s = significantBitsFromZero()
+        val os = significantBitsFromZero()
+        when {
+            s < os -> return -1
+            s > os -> return 1
+        }
+
+        val start = s shr 5
+
+        // TODO optimize to deal with exponents and int alignment
+        for (i in start downTo 0u) {
+            val v = get(i)
+            val o = other[i]
+            when {
+                v < o -> return -1
+                v > o -> return 1
+            }
+        }
+        return 0
+    }
+
 
 
     override val xmlString: String
@@ -668,7 +712,7 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
         }
 
         // Note that shr will optimize, no need here
-        val remainder = BigUnsignedInt(normalizedInts.copyOfRange(0, growth_m), 0uL).shr(shiftLeft_d)
+        val remainder = BigUnsignedInt(normalizedInts.copyOfRange(0, growth_m+1), 0uL).shr(shiftLeft_d)
 
         return DivRem(createOptimizedInstance(quotient, 0uL), remainder)
 
