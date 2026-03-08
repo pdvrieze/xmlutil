@@ -84,6 +84,16 @@ class TestXsdNonNegative {
     }
 
     @Test
+    fun testSimpleDivide() {
+        val a = BigUnsignedInt(0x1uL).shl(64).plus(0x1234uL)
+        val b = BigUnsignedInt(0x1uL).shl(32)
+
+        val d = a.divRem(b)
+        assertEquals(0x1234uL, d.remainder.toULong())
+        assertEquals(0x10000_0000uL, d.quotient.toULong(), "Unexpected quotient")
+    }
+
+    @Test
     fun testMultiplySimpleInteger() {
         val a = BigUnsignedInt(1234u).shl(47)
         val b = BigUnsignedInt(5678u).shl(13)

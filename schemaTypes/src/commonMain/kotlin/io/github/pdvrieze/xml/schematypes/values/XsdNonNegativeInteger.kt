@@ -32,8 +32,13 @@ interface XsdNonNegativeInteger : XsdInteger {
 
     override val schemaType: NonNegativeIntegerType<XsdNonNegativeInteger>
 
-    fun toULong(): ULong
-    fun toUInt(): UInt
+    fun toULong(): ULong {
+        return get(0).toULong() or (get(1).toULong() shl 32)
+    }
+
+    fun toUInt(): UInt {
+        return get(0)
+    }
 
     fun coerceAtMost(maxMax: XsdNonNegativeInteger): XsdNonNegativeInteger = when {
         this < maxMax -> this

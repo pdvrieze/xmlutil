@@ -42,7 +42,7 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
     )
 
     constructor(value: ULong, exp: ULong = 0uL) : this(
-        uintArrayOf(value.toUInt(), (value shr 32).toUInt()),
+        if (false && value.shr(32)==0uL) uintArrayOf(value.toUInt()) else uintArrayOf(value.toUInt(), (value shr 32).toUInt()),
         exp
     )
 
@@ -54,7 +54,20 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
         for (i in ints.indices) {
             if (ints[i] != 0u) return ((i.toULong() * 32uL) + ints[i].countTrailingZeroBits().toULong())
         }
-        throw IllegalStateException("The value is zero, ")
+        throw ArithmeticException("The value is zero, ")
+    }
+
+    private fun countLeadingZeroBits(): ULong {
+        for (i in ints.indices.reversed()) {
+            if (ints[i] != 0u) {
+                return (((ints.size - 1 - i).toULong() shl 5) + ints[i].countLeadingZeroBits().toULong())
+            }
+        }
+        return ints.size.toULong() shl 5
+    }
+
+    private fun significantBitsFromZero(): ULong {
+        return (ints.size.toULong() shl 5) - countLeadingZeroBits() + exp
     }
 
     override val size: ULong
@@ -119,35 +132,38 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
     operator fun div(divider: ULong): BigUnsignedInt = divRem(BigUnsignedInt(divider)).quotient
 
     operator fun div(divider: XsdNonNegativeInteger) = when (divider) {
-        is BigUnsignedInt -> divRem(divider)
-        is XsdUnsignedLong -> divRem(BigUnsignedInt(divider.toULong()))
-        is XsdUnsignedInt -> divRem(divider.toUInt())
-        else -> divRem(BigUnsignedInt(divider))
-    }.quotient
+        is BigUnsignedInt -> divRem(divider).quotient
+        is XsdUnsignedLong -> divRem(BigUnsignedInt(divider.toULong())).quotient
+        is XsdUnsignedInt -> divRem(divider.toUInt()).quotient
+        else -> divRem(BigUnsignedInt(divider)).quotient
+    }
 
     operator fun div(divider: BigUnsignedInt): BigUnsignedInt = divRem(divider).quotient
 
-    override fun plus(other: XsdNonNegativeInteger): BigUnsignedInt {
+    override operator fun plus(other: XsdNonNegativeInteger): BigUnsignedInt {
         if (other is BigUnsignedInt) { return plus(other) }
         return plus(BigUnsignedInt(other))
     }
 
-    override fun plus(other: ULong): XsdNonNegativeInteger {
-        val newInts = UIntArray(maxOf(size.toInt() + 1, 3))
+    override fun plus(other: ULong): BigUnsignedInt {
+        val newInts = when {
+            exp == 0uL && ints.size == 1 -> ints.copyOf(2)
+            else -> expandExp().ints // with exp>0 will be at least 2 ints big
+        }
 
         var carry: UInt
         run {
-            val sum = (other and 0xffffffffuL) + get(0)
+            val sum = (other and 0xffffffffuL) + newInts[0]
             carry = sum.shr(32).toUInt()
             newInts[0] = sum.toUInt()
         }
         run {
-            val sum = (other shr 32) + get(1) + carry
+            val sum = (other shr 32) + newInts[1] + carry
             carry = sum.shr(32).toUInt()
-            newInts[0] = sum.toUInt()
+            newInts[1] = sum.toUInt()
         }
 
-        if (newInts.size>=2) {
+        if (newInts.size>=2 && carry>0u) {
 
             for (i in 2 until newInts.size) {
                 val sum = get(i).toULong() + carry
@@ -156,13 +172,113 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
             }
         }
 
-        return when {
-            newInts.last() == 0u -> BigUnsignedInt(newInts.copyOfRange(0, newInts.size - 1), 0uL)
-            else -> BigUnsignedInt(newInts, 0uL)
+        return createOptimizedInstance(newInts, 0uL)
+    }
+
+    /** Count the bits used from zero for this value */
+    private fun bitCount(): ULong {
+        var r = exp + ints.size.toULong() * 32uL
+        for (i in ints.indices.reversed()) {
+            when (val v = ints[i]) {
+                0u -> r -= 32uL
+                else -> return r - v.countLeadingZeroBits().toULong()
+            }
+        }
+        return 0uL // no non-zero value found at all
+    }
+
+    /**
+     * Determines how many ints are needed to store the result. Will always return at least 1
+     */
+    private fun nonLeadingZeroIntCount(ints: UIntArray): Int {
+        for (i in ints.indices.reversed()) {
+            if (ints[i] != 0u) return i + 1
+        }
+        return 1
+    }
+
+    /**
+     * @param elems The base elements for the integer
+     * @params exp The exponent of the base elements. This  may not be the final value
+     */
+    private fun createOptimizedInstance(elems: UIntArray, exp: ULong): BigUnsignedInt {
+        var trailingBits = 0uL
+        for (i in elems.indices) {
+            when (val v = elems[i]) {
+                0u -> trailingBits += 32uL
+                else -> {
+                    trailingBits += v.countTrailingZeroBits().toULong()
+                    break
+                }
+            }
+        }
+
+        val trailingInts = (trailingBits shr 5).toInt() // ints to remove at the ls side
+
+        when ((elems.size.toLong() shl 5) - trailingInts) {
+            0L -> return ZERO
+            1L -> return ONE
+        }
+
+        var mostSigBit = elems.size.toULong() shl 5
+
+        for (i in elems.size-1 downTo trailingInts) {
+            when (val v = elems[i]) {
+                0u -> mostSigBit -= 32uL
+                else -> {
+                    mostSigBit -= v.countLeadingZeroBits().toULong()
+                    break
+                }
+            }
+        }
+
+        val bitShift = when (val s = (trailingBits and 0x1fuL).toInt()) {
+            0, 1, 2, 3, 4 -> 0 // Ignore 4 or fewer trailing zeros
+            else -> s
+        }
+
+        if (bitShift == 0) { // optimize the case where no shifts are needed
+            val newMax = (31u + mostSigBit).shr(5).toInt()
+            val newElems = elems.copyOfRange(trailingInts, newMax)
+            val newExp: ULong = exp + (trailingInts.toULong() shl 5)
+            return BigUnsignedInt(newElems, newExp)
+
+        } else {
+
+            val newElems = UIntArray((31u + mostSigBit + bitShift.toUInt()).shr(5).toInt())
+            val newExp: ULong = exp + (trailingInts.toULong() shr 5) + bitShift.toUInt()
+
+            for (i in trailingInts until (mostSigBit shr 5).toInt()) {
+                newElems[i - trailingInts] = (elems[i] shr bitShift) or
+                        (elems[i + 1] shl 32 - bitShift)
+            }
+            newElems[newElems.size - 1] = elems[mostSigBit.shr(5).toInt()].shr(bitShift)
+
+            return BigUnsignedInt(newElems, newExp)
         }
     }
 
-    override fun times(other: XsdNonNegativeInteger): BigUnsignedInt {
+    operator fun minus(other: BigUnsignedInt): BigUnsignedInt {
+        val bitCount = bitCount()
+        val otherBitcount = other.bitCount()
+        if (otherBitcount > bitCount) throw ArithmeticException("Integer underflow in subtraction")
+        val resultInts = UIntArray(((bitCount+31u) shr 5).toInt())
+        val startIdx = (minOf(exp, other.exp) shr 5).toInt() // allows skipping full int skips
+
+        var borrow: Long = 0L
+        for (i in startIdx until resultInts.size) {
+            val a = get(i).toLong() + borrow
+            val b = other.get(i).toLong()
+            // using bitwise and as mod to avoid branches
+            val diff: Long = (a - b)
+            resultInts[i] = diff.and(0xffff_ffff).toUInt()
+            borrow = diff.shr(63) // effectively fill with sign bit (which is -1)
+        }
+
+        return createOptimizedInstance(resultInts, 0uL)
+    }
+
+    override operator fun times(other: XsdNonNegativeInteger): BigUnsignedInt {
         return times(other as? BigUnsignedInt ?: BigUnsignedInt(other))
     }
 
@@ -189,25 +305,29 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
             }
         }
 
-        var lastByteToKeep = newInts.lastIndex
-        while (lastByteToKeep > 0 && newInts[lastByteToKeep] == 0u) lastByteToKeep-=1
+        return createOptimizedInstance(newInts, newExp)
+    }
 
-        val array = if (lastByteToKeep + 1 == newInts.size) newInts else newInts.copyOf(lastByteToKeep + 1)
+    operator fun times(other: UInt): BigUnsignedInt {
+        val newInts = UIntArray(size.toInt() + 1)
 
-        return BigUnsignedInt(array, newExp)
+        var carry = 0u
+        for (idx in ints.indices) {
+            val m = ints[idx].toULong() * other.toULong() + carry + newInts[idx]
+            newInts[idx] = m.toUInt()
+            carry = m.shr(32).toUInt()
+        }
+
+        val m = carry.toULong() + newInts[ints.size]
+        newInts[ints.size] = m.toUInt()
+        assert(m.shr(32).toUInt() == 0u)
+
+        return createOptimizedInstance(newInts, exp)
     }
 
     operator fun plus(other: BigUnsignedInt): BigUnsignedInt {
         val newExponent = minOf(countTrailingZeroBits(), other.countTrailingZeroBits())
         val newInts = UIntArray(maxOf(ints.size, other.ints.size) + 1 - (newExponent shr 5).toInt())
-
-/*
-        val intShift = (newExponent - exp) shr 5
-        val bitShiftRight = (newExponent - exp) and 0x1fu
-
-        val otherIntShift = (newExponent - other.exp) shr 5
-        val otherBitShiftRight = (newExponent - other.exp) and 0x1fu
-*/
 
         // TODO, internalize int calculation as the current solution duplicates a lot
 
@@ -220,7 +340,7 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
             carry = sum.shr(32)
         }
 
-        return BigUnsignedInt(newInts, newExponent)
+        return createOptimizedInstance(newInts, newExponent)
     }
 
     infix fun shl(shift: Int): BigUnsignedInt {
@@ -248,22 +368,25 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
         val lsbBitsToDrop = shift - exp
         val droppedInts = (lsbBitsToDrop shr 5).toInt()
 
+        var significantInts = ints.size
+        while (significantInts > 0 && ints[significantInts - 1] == 0u) significantInts -= 1
+
         if (lsbBitsToDrop and 0x1fuL == 0uL) { // shift multiple of 32 means no array changes are needed
-            return BigUnsignedInt(ints.copyOfRange(droppedInts, ints.size), exp - shift)
+            return BigUnsignedInt(ints.copyOfRange(droppedInts, significantInts), exp - shift)
         }
 
         val shiftRight = (lsbBitsToDrop and 0x1fu).toInt() // only the bits, not the word shifts
-        val newInts = UIntArray(ints.size - droppedInts) { i ->
+        val newInts = UIntArray(significantInts - droppedInts) { i ->
             val idx = i + droppedInts
             when {
-                idx + 1 >= ints.size -> (ints[idx] shr shiftRight)
+                idx + 1 >= significantInts -> (ints[idx] shr shiftRight)
                 else -> (ints[idx] shr shiftRight) or (ints[idx + 1] shl (32 - shiftRight))
             }
         }
 
         // Actually going to trim bits.
 
-        return BigUnsignedInt(newInts, 0uL)
+        return createOptimizedInstance(newInts, 0uL)
     }
 
     override val schemaType: NonNegativeIntegerType<XsdNonNegativeInteger>
@@ -272,43 +395,60 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
     override fun toLong(): Long = toULong().toLong()
 
     fun expandExp(): BigUnsignedInt {
-        val leadingZeroBits = ints.last().countLeadingZeroBits().toUInt()
-        val intsToAdd = ((exp + 31u - leadingZeroBits) shr 5).toInt()
+        return expandWithEffectiveExp(exp)
+    }
 
-        val newInts = UIntArray(ints.size + intsToAdd)
+    /**
+     * Helper function that elides a copy in normalization for division. There we need to
+     * shift left and then expand.
+     */
+    private fun expandWithEffectiveExp(exp: ULong): BigUnsignedInt {
+        val leadingZeroBits = countLeadingZeroBits().toLong()
+        val intsToAddX = ((exp.toLong() + 31 - leadingZeroBits) shr 5).toInt()
 
-        val shift = exp.rem(32u).toInt()
-        var carry  = 0u
-        for (idx in ints.indices) {
-            val mult = ints[idx].toULong().shl(shift)+carry
+        val newInts = UIntArray(ints.size + intsToAddX)
 
-            newInts[idx + intsToAdd] += mult.toUInt()
+        val shift = exp.and(0x1fu).toInt()
+        val intShift = exp.shr(5).toInt()
+        var carry = 0u
+        for (idx in 0 until (ints.size - (leadingZeroBits shr 5).toInt())) {
+            val mult = ints[idx].toULong().shl(shift) + carry
+
+            newInts[idx + intShift] += mult.toUInt()
 
             carry = mult.shr(32).toUInt()
         }
 
-        var lastByteToKeep = newInts.lastIndex
-        while (lastByteToKeep > 0 && newInts[lastByteToKeep] == 0u) lastByteToKeep-=1
-
-        val array = if (lastByteToKeep + 1 == newInts.size) newInts else newInts.copyOf(lastByteToKeep + 1)
-
-        return BigUnsignedInt(array, 0u)
-    }
-
-    override fun toULong(): ULong {
-        if (exp > 0u) { // optimize, we don't need to do most msb stuff
-            return expandExp().toULong()
+        // NOTE this cannot use the optimization as it requires the exponent to be 0
+        var significantInts = ints.size
+        for (i in newInts.size - 1 downTo 0) {
+            if (newInts[i] != 0u) {
+                significantInts = i + 1
+                break
+            }
         }
-        return when (ints.size) {
-            0 -> 0u
-            1 -> ints[0].toULong()
-            else -> ints[0].toULong() + (ints[1].toULong() shl 32)
+
+        return when {
+            significantInts != ints.size -> BigUnsignedInt(newInts.copyOfRange(0, maxOf(significantInts, 1)), 0uL)
+
+            else -> BigUnsignedInt(newInts, 0u)
         }
     }
 
-    override fun toUInt(): UInt {
-        // TODO optimize this
-        return toULong().toUInt()
+    override fun toULong(): ULong = when {
+        exp >= 64uL -> 0uL
+
+        exp >= 32uL -> get(1).toULong().shl(32)
+
+        exp >0uL || ints.size > 1 -> get(1).toULong().shl(32) or get(0).toULong()
+
+        else -> ints[0].toULong()
+    }
+
+    override fun toUInt(): UInt = when {
+        exp >= 32uL -> 0u
+
+        else -> get(0)
     }
 
     override fun toInt(): Int {
@@ -347,6 +487,8 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
     }
 
     private fun divRem(divider: UInt): UIntDivRem { // will (initially) expand exponents
+        if (divider == 0u) throw ArithmeticException("Division by zero")
+
         val leadingZeroBits = ints.last().countLeadingZeroBits().toUInt()
         val intsToAdd = ((exp + 31u - leadingZeroBits) shr 5).toInt()
 
@@ -382,27 +524,154 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
             rem = baseInt - (div * divider)
         }
 
-        var lastByteToKeep = newInts.lastIndex
-        while (lastByteToKeep > 0 && newInts[lastByteToKeep] == 0u) lastByteToKeep-=1
-
-        val array = if (lastByteToKeep + 1 == newInts.size) newInts else newInts.copyOf(lastByteToKeep + 1)
-        return UIntDivRem(BigUnsignedInt(array, 0uL), rem.toUInt())
-
+        return UIntDivRem(createOptimizedInstance(newInts, 0uL), rem.toUInt())
     }
 
-    private fun divRem(divider: BigUnsignedInt): UIntDivRem { // will (initially) expand exponents
-        val normalizedDivider = divider.expandExp()
+    /**
+     * Perform an in place multiplySubtract modifying [target]
+     * @param target The array to perform the multiplySubtract on
+     * @param a The array to multiply. For division this is the divider
+     * @param multiplier The single token multiplier the one "int" digit of the divider
+     * @param leftOffset The offset of the first int in the target array.
+     * @return If a "borrow" was needed
+     */
+    private fun multiplySubtractInPlace(target: UIntArray, a: UIntArray, multiplier: UInt, leftOffset: Int): Boolean {
+        var carry = 0u
+        var borrow = 0u
+        for (i in 0 until a.size) {
+            val ti = leftOffset + i
+
+            val mFull = (a[i].toULong() * multiplier.toULong() + carry)
+            carry = mFull.shr(32).toUInt()
+            val m = mFull and 0xffff_ffffuL
+            val t = target[ti] - borrow
+            if (t<m) {
+                borrow = ((m-t) shr 32).toUInt()
+                target[ti] = (0xffff_ffff_0000_0000uL+t-borrow).toUInt()
+            } else {
+                borrow = 0u
+                target[ti] = (t-m).toUInt()
+            }
+        }
+        val toReduce = borrow + carry
+
+        if (toReduce == 0u) return false
+
+        val t = target[a.size + leftOffset + 1]
+        if (t >= toReduce) {
+            target[a.size + leftOffset] = t - toReduce
+            return false
+        }
+        // Else Step D6 - Add a again
+        carry = 0u
+        for(i in 0 until a.size) {
+            val add = target[i+leftOffset].toULong() + a[i]
+            target[i+leftOffset] = add.toUInt()
+            carry = add.shr(32).toUInt()
+        }
+        target[a.size + leftOffset] = t + carry - toReduce
+        return true
+    }
+
+    fun divRem(divider: BigUnsignedInt): DivRem { // will (initially) expand exponents
+        // Deal with single element division separately
+        if (divider.size == 1uL) return divRem(divider[0]).toDivRem()
+
+        val leadingSignificantBits = bitCount()
+        val divSignificantBits = divider.bitCount()
+
+        // We are certain the divider is bigger than the dividend so we will have 0 quotient and
+        // dividend as remainder.
+        if (divSignificantBits > leadingSignificantBits) return DivRem(ZERO, this)
+
+        // For now needed for long multiplication
+        // Note that d can be anything that makes MSI[quotient]*d leq to 0x8000_0000
+        // this could
+        val divSigBits = (divSignificantBits and 0x1fuL).toInt() // the less significant values are multiples of 32
+        val shiftLeft_d = when {
+            divSigBits > 16 -> 0 // no need to shift
+
+            else -> { // we allow for choosing the shift that keeps int alignment (with exponent%32!=0)
+                val shiftWithExp = (32 - (divider.exp and 0x1fuL).toInt())
+
+                when (shiftWithExp + divSigBits) {
+                    in 17..31 -> shiftWithExp
+
+                    else -> 17 - divSigBits // make that the msb is bit 17
+                }
+            }
+        }.toULong()
+
+
+
+        // only normalize divider after we have decided no shortcuts apply
+        // TODO optimize this into a single function that combines both
+        val normalizedDivider = divider.expandWithEffectiveExp(divider.exp + shiftLeft_d).apply {
+            ifAssertions {
+                assert(exp == 0uL) { "Divider must not have an exponent" }
+                assert(ints.size > 1) { "Divider must have at least two integers" }
+            }
+        }.ints
+
+
+        val dividerSize_n = normalizedDivider.size
+
+
+        val normalizedInts = expandWithEffectiveExp(exp + shiftLeft_d).ints
         ifAssertions {
-            assert(normalizedDivider.exp == 0uL) { "Divider must not have an exponent" }
-            assert(normalizedDivider.ints.isNotEmpty()) { "Divider must have at least one integer" }
+            assert(normalizedInts.last() != 0u) { "Normalized ints must have non-zero most-significant-int" }
         }
 
-        if (normalizedDivider.ints.size == 1) return divRem(normalizedDivider.ints[0])
+        val growth_m = normalizedInts.size - dividerSize_n
 
-        val leadingZeroBits = ints.last().countLeadingZeroBits().toUInt()
-        val intsToAdd = ((exp + 31u - leadingZeroBits) shr 5).toInt()
 
-        TODO("Full division not yet implemented")
+        val divMSI = normalizedDivider.last() // we use this to determine the approximate quotient
+        val divMSI2 = normalizedDivider[normalizedDivider.size-2] // we use this to determine the approximate quotient
+
+        val quotient = UIntArray(growth_m + 1) // note this can be negative if there
+
+        run {//
+            val j = growth_m
+            val divident = normalizedInts.last()
+            var qX: ULong = divident.toULong() / divMSI // never too big
+            assert(qX <= 0x1_0000_0000uL) {"Should always be an UInt"}
+            var rX: ULong = divident - (qX * divMSI) // approximate remainder
+
+            while (rX < 0x1_0000_0000uL && qX * divMSI2 > (rX shl 32) + normalizedInts[j + dividerSize_n - 2]) {
+                qX -= 1u
+                rX += 1u
+            }
+
+            if(multiplySubtractInPlace(normalizedInts, normalizedDivider, qX.toUInt(), j))
+                qX-=1uL
+            quotient[growth_m] = qX.toUInt()
+        }
+
+        for (j in (growth_m -1) downTo 0) {
+            val divident = (normalizedInts[dividerSize_n+j].toULong().shl(32) + normalizedInts[dividerSize_n +j - 1].toULong())
+            var qX: ULong = divident / divMSI
+            var rX: ULong = divident - (qX * divMSI) // approximate remainder
+
+            do {
+                if (qX * divMSI2 > (rX shl 32) + normalizedInts[j + dividerSize_n - 2]) {
+                    qX -= 1u
+                    rX += 1u
+                } else {
+                    break
+                }
+            } while (rX < 0x1_0000_0000uL)
+
+            if(multiplySubtractInPlace(normalizedInts, normalizedDivider, qX.toUInt(), j)) {
+                qX -= 1uL
+            }
+            quotient[j] = qX.toUInt()
+        }
+
+        // Note that shr will optimize, no need here
+        val remainder = BigUnsignedInt(normalizedInts.copyOfRange(0, growth_m), 0uL).shr(shiftLeft_d)
+
+        return DivRem(createOptimizedInstance(quotient, 0uL), remainder)
+
 /*
         val newInts = UIntArray(ints.size + intsToAdd)
 
@@ -431,16 +700,19 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
 
     override fun toString(): String = buildString {
         append("BigUnsignedInt(")
-        for (i in ints.reversed()) {
-            append(i.toString(16).padStart(8, '0'))
+        ints.reversed().joinTo(this, "_") {
+            it.toString(16).padStart(8, '0')
         }
+
         if (exp != 0uL) append(" × 2^$exp")
         append(')')
-        return super.toString()
     }
 
     @ExperimentalXmlUtilApi
-    data class UIntDivRem(val quotient: BigUnsignedInt, val remainder: UInt)
+    data class UIntDivRem(val quotient: BigUnsignedInt, val remainder: UInt) {
+        fun toDivRem(): DivRem = DivRem(quotient, BigUnsignedInt(remainder))
+    }
+
 
     @ExperimentalXmlUtilApi
     data class DivRem(val quotient: BigUnsignedInt, val remainder: BigUnsignedInt)
@@ -448,6 +720,9 @@ class BigUnsignedInt private constructor(private val ints: UIntArray, private va
     private class ParseResult(val ints: UIntArray, val exp: ULong)
 
     companion object {
+
+        val ZERO = BigUnsignedInt(uintArrayOf(0u), 0uL)
+        val ONE = BigUnsignedInt(uintArrayOf(1u), 0uL)
 
         private fun convert(original : XsdNonNegativeInteger): ParseResult {
             val exp = original.countTrailingZeroBits()
