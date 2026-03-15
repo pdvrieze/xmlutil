@@ -21,21 +21,45 @@
 package org.w3.qt3tests.test
 
 import kotlinx.serialization.DeserializationStrategy
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.isIgnorable
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
-import nl.adaptivity.xmlutil.writeCurrent
-import nl.adaptivity.xmlutil.xmlStreaming
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.w3.dom.nthElement
 import org.w3.qt3tests.Qt3Catalog
+import org.w3.qt3tests.Qt3TestSet
 import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
 import kotlin.test.Test
 
 class TestParseCatalog {
+
+    @Test
+    fun testParseFnDoc() {
+        val xml = XML.v1{}
+        val testSet = KtXmlReader(javaClass.getResourceAsStream("/xpath/fn/doc.xml")!!).use { reader ->
+            xml.decodeFromReader<Qt3TestSet>(reader)
+        }
+
+        val resolutionContext = ResolutionContextImpl("/xpath/fn/", xml)
+        context(resolutionContext) {
+            val _= testSet.resolve()
+        }
+    }
+
+    @Test
+    fun testParseBcIsInvalid() {
+
+        val doc = KtXmlReader(javaClass.getResourceAsStream("/xpath/fn/id/BCisInvalid.xml")!!, relaxed = true).use { reader ->
+            assertEquals(EventType.START_DOCUMENT, reader.next())
+            assertEquals(EventType.DOCDECL, reader.next())
+            assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+            assertEquals(EventType.START_ELEMENT, reader.next())
+            assertEquals("germanÃ", reader.localName)
+        }
+    }
 
     @Test
     fun testParse() {
@@ -83,24 +107,40 @@ class ResolutionContextImpl(
         return ResolutionContextImpl(newBase, xml, HashMap(knownEnvironments), HashMap(idMap))
     }
 
+
     override fun parseDocument(relativePath: String): Document {
         val out = xmlStreaming.newWriter()
 
-        try {
             requireNotNull(javaClass.getResourceAsStream("$base$relativePath")){
                 "Could not find resource $base$relativePath"
             }.use {
                 val xr = KtXmlReader(it, relaxed = true)
-                while (xr.hasNext()) {
-                    val _ = xr.next()
-                    if (!xr.isIgnorable()) xr.writeCurrent(out)
+                try {
+                    while (xr.hasNext()) {
+                        val _ = xr.next()
+                        if (!xr.isIgnorable()) xr.writeCurrent(out)
+                    }
+                } catch (e: XmlSerialException) {
+                    if (e.extLocationInfo == null) {
+                        throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
+                            .also { it.setFileLocation("$base$relativePath") }
+                    } else {
+                        e.setFileLocation("$base$relativePath")
+                        throw e
+                    }
+                } catch (e: XmlException) {
+                    if (e.locationInfo == null) {
+                        throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
+                            .also { it.setFileLocation("$base$relativePath") }
+                    } else {
+                        e.setFileLocation("$base$relativePath")
+                        throw e
+                    }
+                } catch (e: Exception) {
+                    throw XmlException(xr.extLocationInfo, e)
                 }
             }
             return out.target
-        } catch (e: XmlSerialException) {
-            e.setFileLocation("$base$relativePath")
-            throw e
-        }
     }
 
     override fun <T> parseFile(
