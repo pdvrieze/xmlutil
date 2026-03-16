@@ -584,13 +584,13 @@ internal class XPathExpressionImpl internal constructor(
         private fun parseCastExpr(): ExprSingle {
             val expr = parseArrowExpr()
 
-            if (!tryCurrentWordToken("castable")) return expr
+            if (!tryCurrentWordToken("cast")) return expr
 
             parseRequire(tryCurrentWordToken("as"), "Missing 'as' in 'castable as' expression")
 
             val typeName = parseSimpleTypeName()
             val allowsEmpty = tryCurrentToken('?')
-            return CastableExpr(expr, typeName, allowsEmpty)
+            return CastExpr(expr, typeName, allowsEmpty)
         }
 
         private fun parseArrowExpr(): ExprSingle {

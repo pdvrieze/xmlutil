@@ -30,6 +30,26 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testCast() {
+        testPath("\$result?1?(xs:double(\"1.0\") cast as xs:decimal) eq 3") {
+            val outer = assertIs<BinaryExpr>(expr)
+            assertEquals(Operator.VAL_EQ,outer.operator)
+            val lookup1 = assertIs<LookupExpr>(outer.left)
+            val lookup2 = assertIs<LookupExpr>(lookup1.context)
+            val varRef = assertIs<VariableRef>(lookup2.context)
+            val key2 = assertIs<LookupExpr.IntegerKey>(lookup2.key)
+            assertEquals(1, key2.value)
+
+            val key1 = assertIs<LookupExpr.ParenKey>(lookup1.key)
+            val seqExpr = assertIs<SequenceExpr>(key1.expr)
+            val castExpr = assertIs<CastExpr>(seqExpr.elements.single())
+
+            val right1 = assertIs<LiteralExpr<*>>(outer.right)
+
+        }
+    }
+
+    @Test
     fun testParseNodeArgs() {
         testPath("\$result/*[1][self::a][not(child::node())]") {
 

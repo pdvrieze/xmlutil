@@ -83,11 +83,10 @@ interface XsdInteger : XsdDecimal {
     operator fun compareTo(other: XsdInteger): Int
 
     companion object : SimpleTypeSerializer<XsdInteger>("xsd.integer") {
-        val ZERO: XsdInteger = XsdIntImpl(0)
+        val ZERO: XsdInteger = BigInt(0)
 
         override fun deserialize(raw: String, input: XmlReader?): XsdInteger {
-            // TODO support integer only type
-            return XsdDecimal.invoke(raw) as XsdInteger
+            return BigInt(raw)
         }
 
         operator fun invoke(i: Int): XsdInt {
@@ -107,7 +106,7 @@ interface XsdInteger : XsdDecimal {
         }
 
         operator fun invoke(value: String): XsdInteger {
-            return XsdDecimal.invoke(value) as XsdInteger
+            return BigInt(value)
         }
     }
 }

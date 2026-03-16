@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-class CastExpr(val expr: Expr, val type: QName) : ExprSingle() {
+class CastExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : ExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)
