@@ -59,15 +59,15 @@ object ResBase64BinaryType : ResPrimitiveDatatype<XsdBase64Binary>,
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = FacetCardinality.Companion.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 
     override fun valueFromNormalized(normalized: XsdString): XsdBase64Binary {
         check(regex.matches(normalized))
-        return XsdBase64Binary.Companion(Base64.Default.decode(normalized))
+        return XsdBase64Binary.Companion(Base64.decode(normalized))
     }
 
     override fun value(maybeValue: XsdAnySimple): XsdBase64Binary {

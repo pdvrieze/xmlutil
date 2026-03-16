@@ -54,7 +54,7 @@ object ResAnySimpleType : ResolvedBuiltinSimpleType<XsdAnySimple>,
     override val mdlItemTypeDefinition: Nothing? get() = null
     override val mdlMemberTypeDefinitions: List<Nothing> get() = emptyList()
 
-    override val mdlFacets: FacetList get() = FacetList.Companion.EMPTY
+    override val mdlFacets: FacetList get() = FacetList.EMPTY
     override val annotations: List<ResolvedAnnotation> get() = emptyList()
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
         ordered = FacetOrdered.FALSE,

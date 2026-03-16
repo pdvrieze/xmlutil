@@ -48,9 +48,9 @@ object ResIDType : ResolvedBuiltinAtomicType<XsdID>, ResIStringType<XsdID>, IDTy
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = FacetCardinality.Companion.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 

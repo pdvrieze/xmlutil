@@ -44,7 +44,7 @@ object ResNonPositiveIntegerType : ResolvedBuiltinAtomicType<XsdNonPositiveInteg
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
-        maxConstraint = ResolvedMaxInclusive.Companion.createUnverified(XsdInteger(0)),
+        maxConstraint = ResolvedMaxInclusive.createUnverified(XsdInteger(0)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(

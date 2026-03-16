@@ -73,7 +73,7 @@ object ResAnyType : ResolvedGlobalComplexType(
         override val mdlFinal: Set<VDerivationControl.Complex> get() = emptySet()
         override val mdlContentType: MixedContentType = MixedContentType(
             SyntheticSequence(
-                XsdNonNegativeInteger.Companion.ZERO, VAllNNI.UNBOUNDED,
+                XsdNonNegativeInteger.ZERO, VAllNNI.UNBOUNDED,
                 listOf(urWildcard)
             ),
             { false },

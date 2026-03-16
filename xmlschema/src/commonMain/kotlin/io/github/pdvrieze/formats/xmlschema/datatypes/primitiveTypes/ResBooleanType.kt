@@ -43,15 +43,15 @@ object ResBooleanType : ResPrimitiveDatatype<XsdBoolean>, BooleanType<XsdBoolean
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.FALSE,
+        ordered = FacetOrdered.FALSE,
         bounded = false,
-        cardinality = FacetCardinality.Companion.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = false,
     )
 
     override fun valueFromNormalized(normalized: XsdString): XsdBoolean = when (normalized.toString()) {
-        "true", "1" -> XsdBoolean.Companion.TRUE
-        "false", "0" -> XsdBoolean.Companion.FALSE
+        "true", "1" -> XsdBoolean.TRUE
+        "false", "0" -> XsdBoolean.FALSE
         else -> error("$normalized is not a boolean")
     }
 

@@ -44,13 +44,13 @@ object ResNegativeIntegerType : ResolvedBuiltinAtomicType<XsdNegativeInteger>, R
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
-        maxConstraint = ResolvedMaxInclusive.Companion.createUnverified(XsdNegativeInteger(-1)),
+        maxConstraint = ResolvedMaxInclusive.createUnverified(XsdNegativeInteger(-1)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = FacetCardinality.Companion.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 

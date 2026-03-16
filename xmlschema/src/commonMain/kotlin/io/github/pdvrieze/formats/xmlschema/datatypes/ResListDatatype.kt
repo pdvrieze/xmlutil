@@ -87,9 +87,9 @@ interface ResListDatatype<out T: XsdAnySimple, out E: XsdAnySimple> : ResolvedBu
 
     companion object {
         val defaultFundamentalFacets: FundamentalFacets = FundamentalFacets(
-            ordered = FacetOrdered.Companion.FALSE,
+            ordered = FacetOrdered.FALSE,
             bounded = false,
-            cardinality = FacetCardinality.Companion.COUNTABLY_INFINITE,
+            cardinality = FacetCardinality.COUNTABLY_INFINITE,
             numeric = false
         )
 

@@ -51,9 +51,9 @@ object ResLongType : ResolvedBuiltinAtomicType<XsdLong>,
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = FacetCardinality.Companion.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 

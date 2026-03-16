@@ -41,9 +41,9 @@ object ResFloatType : ResPrimitiveDatatype<XsdFloat>, FloatType<XsdFloat> {
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = true,
-        cardinality = FacetCardinality.Companion.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 

@@ -45,14 +45,14 @@ object ResUnsignedShortType : ResolvedBuiltinAtomicType<XsdUnsignedShort>, ResII
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
-        maxConstraint = ResolvedMaxInclusive.Companion.createUnverified(XsdUnsignedShort(65535u)),
-        minConstraint = ResolvedMinInclusive.Companion.createUnverified(XsdUnsignedShort(0u)),
+        maxConstraint = ResolvedMaxInclusive.createUnverified(XsdUnsignedShort(65535u)),
+        minConstraint = ResolvedMinInclusive.createUnverified(XsdUnsignedShort(0u)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = FacetCardinality.Companion.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 

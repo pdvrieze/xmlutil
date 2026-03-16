@@ -48,9 +48,9 @@ object ResDateType : ResPrimitiveDatatype<XsdDate>,
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.PARTIAL,
+        ordered = FacetOrdered.PARTIAL,
         bounded = false,
-        cardinality = FacetCardinality.Companion.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = false,
     )
 

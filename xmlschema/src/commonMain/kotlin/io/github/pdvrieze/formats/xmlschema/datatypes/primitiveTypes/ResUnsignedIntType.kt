@@ -44,14 +44,14 @@ object ResUnsignedIntType : ResolvedBuiltinAtomicType<XsdUnsignedInt>,
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
-        maxConstraint = ResolvedMaxInclusive.Companion.createUnverified(XsdUnsignedInt(UInt.MAX_VALUE)),
-        minConstraint = ResolvedMinInclusive.Companion.createUnverified(XsdUnsignedInt(0u)),
+        maxConstraint = ResolvedMaxInclusive.createUnverified(XsdUnsignedInt(UInt.MAX_VALUE)),
+        minConstraint = ResolvedMinInclusive.createUnverified(XsdUnsignedInt(0u)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = true,
-        cardinality = FacetCardinality.Companion.FINITE,
+        cardinality = FacetCardinality.FINITE,
         numeric = true,
     )
 
