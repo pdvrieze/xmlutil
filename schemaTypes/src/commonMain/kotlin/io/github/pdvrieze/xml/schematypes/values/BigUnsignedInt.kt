@@ -22,7 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
-@ExperimentalUnsignedTypes
+@OptIn(ExperimentalUnsignedTypes::class)
 class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): AbstractBigUnsignedInt<BigUnsignedInt>(ints, exp) {
 
     constructor(value: UInt, exp: ULong = 0uL) : this(
@@ -31,7 +31,7 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     )
 
     constructor(value: ULong, exp: ULong = 0uL) : this(
-        if (false && value.shr(32) == 0uL) uintArrayOf(value.toUInt()) else uintArrayOf(
+        uintArrayOf(
             value.toUInt(),
             (value shr 32).toUInt()
         ),
@@ -39,8 +39,6 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     )
 
     constructor(str: String) : this(parse(str))
-
-    constructor(orginal: XsdNonNegativeInteger) : this(convert(orginal))
 
     private constructor(r: ParseResult) : this(r.ints, r.exp)
 
@@ -60,10 +58,26 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
      * Ensure the instance uses maximum exponent and minimum ints.
      */
     @ExperimentalXmlUtilApi
-    fun normalize(): BigUnsignedInt = createOptimizedInstance(ints, exp)
+    fun normalize(): BigUnsignedInt {
+        val trailingBits = countTrailingZeroBits()
+        val leadingBits = countLeadingZeroBits()
+        if (trailingBits >= 3uL || (trailingBits+leadingBits > 32u)) {
+            return createOptimizedInstance(ints, exp)
+        }
+        return this
+    }
 
     override val sign: Int
         get() = if (ints.isEmpty() && ints[0] == 0u) 0 else 1
+
+    override fun plus(other: XsdNonNegativeInteger): BigUnsignedInt {
+        if (other is BigUnsignedInt) { return plus(other) }
+        return plus(BigUnsignedInt(other))
+    }
+
+    override fun unaryMinus(): BigNonPositiveInt {
+        return BigNonPositiveInt(ints, exp)
+    }
 
     override fun div(divider: XsdNonNegativeInteger): BigUnsignedInt = when (divider) {
         is AbstractBigUnsignedInt<*> -> divRem(divider.asBigUnsignedInt()).quotient
@@ -72,7 +86,7 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         else -> divRem(BigUnsignedInt(divider)).quotient
     }
 
-    override fun divRem(divider: XsdNonNegativeInteger): DivRem {
+    override fun divRem(divider: XsdNonNegativeInteger): PosDivRem {
         return when (divider) {
             is AbstractBigUnsignedInt<*> -> unsignedDivRem(divider.asBigUnsignedInt())
             is XsdUnsignedLong -> unsignedDivRem(BigUnsignedInt(divider.toULong()))
@@ -81,7 +95,7 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         }
     }
 
-    override fun divRem(divider: BigUnsignedInt): DivRem {
+    override fun divRem(divider: BigUnsignedInt): PosDivRem {
         return unsignedDivRem(divider)
     }
 
@@ -96,21 +110,29 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     data class UIntDivRem(
         override val quotient: BigUnsignedInt,
         override val remainder: UInt
-    ) : AbstractBigInteger.DivRem<BigUnsignedInt, UInt> {
-        fun toDivRem(): DivRem {
-            return DivRem(quotient, BigUnsignedInt(remainder))
+    ) : DivRem<BigUnsignedInt, UInt> {
+        fun toDivRem(): PosDivRem {
+            return PosDivRem(quotient, BigUnsignedInt(remainder))
         }
     }
 
-    data class DivRem(
+    data class PosDivRem(
         override val quotient: BigUnsignedInt,
         override val remainder: BigUnsignedInt
-    ) : AbstractBigInteger.DivRem<BigUnsignedInt, BigUnsignedInt>
+    ) : AbstractBigUnsignedInt.PosDivRem
 
     companion object {
 
         val ZERO = BigUnsignedInt(uintArrayOf(0u), 0uL)
         val ONE = BigUnsignedInt(uintArrayOf(1u), 0uL)
+
+        operator fun invoke(value: XsdNonNegativeInteger): BigUnsignedInt = when (value) {
+            is BigUnsignedInt -> value
+            is AbstractBigUnsignedInt<*> -> value.asBigUnsignedInt()
+            is XsdUnsignedLong -> BigUnsignedInt(value.toULong())
+            is XsdUnsignedInt -> BigUnsignedInt(value.toUInt())
+            else -> BigUnsignedInt(convert(value))
+        }
 
     }
 }

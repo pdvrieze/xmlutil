@@ -37,6 +37,18 @@ internal class XsdShortImpl(override val shortValue: Short) : XsdShort {
         return XsdUnsignedShort(shortValue.toInt().absoluteValue.toUShort())
     }
 
+    override fun unaryMinus(): XsdShort = XsdShortImpl((-shortValue).toShort())
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdShort -> XsdShortImpl((shortValue + other.shortValue).toShort())
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdShort -> XsdShortImpl((shortValue - other.shortValue).toShort())
+        else -> other.plus(this)
+    }
+
     override fun compareTo(other: XsdInteger): Int = when (other) {
         is XsdNonNegativeInteger -> if (intValue<0) -1 else intValue.toULong().compareTo(other.toULong())
         else -> longValue.compareTo(other.toLong())

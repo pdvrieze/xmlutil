@@ -38,6 +38,8 @@ interface XsdInt : XsdLong {
     override val longValue: Long get() = intValue.toLong()
     override fun toInt(): Int = intValue
 
+    override fun toBigInt(): XsdInteger = BigInt(intValue)
+
     override val size: ULong get() = 1uL
 
     override val sign: Int get() = intValue.compareTo(0)
@@ -57,6 +59,12 @@ interface XsdInt : XsdLong {
     override fun countTrailingZeroBits(): ULong {
         return intValue.countTrailingZeroBits().toULong()
     }
+
+
+    override fun significantBitsFromZero(): ULong {
+        return 32u - intValue.countLeadingZeroBits().toULong()
+    }
+
 
     companion object : SimpleTypeSerializer<XsdInt>("xsd.int") {
         operator fun invoke(value: Int): XsdInt = XsdIntImpl(value)

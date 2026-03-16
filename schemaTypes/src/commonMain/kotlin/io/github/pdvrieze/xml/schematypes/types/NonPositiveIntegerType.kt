@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.types
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNonPositiveInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
@@ -39,7 +40,7 @@ interface NonPositiveIntegerType<out T : XsdInteger> : IntegerType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : NonPositiveIntegerType<XsdInteger>, BuiltinType {
+    object Instance : NonPositiveIntegerType<XsdNonPositiveInteger>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "nonPositiveInteger", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

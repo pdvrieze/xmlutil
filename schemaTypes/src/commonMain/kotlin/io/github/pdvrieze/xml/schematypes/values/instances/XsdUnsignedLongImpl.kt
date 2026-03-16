@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
@@ -28,6 +29,8 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsignedLong {
     override val xmlString: String get() = uLongValue.toString()
     override val schemaType: UnsignedLongType<*> get() = UnsignedLongType.Instance
+
+    override fun unaryMinus(): XsdLong = XsdLong(-uLongValue.toLong())
 
     override fun toString(): String {
         return "${uLongValue}u"

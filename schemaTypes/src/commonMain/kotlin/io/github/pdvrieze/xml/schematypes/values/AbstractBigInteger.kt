@@ -41,7 +41,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         throw ArithmeticException("The value is zero, ")
     }
 
-    private fun countLeadingZeroBits(): ULong {
+    protected fun countLeadingZeroBits(): ULong {
         for (i in ints.indices.reversed()) {
             if (ints[i] != 0u) {
                 return (((ints.size - 1 - i).toULong() shl 5) + ints[i].countLeadingZeroBits().toULong())
@@ -50,7 +50,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return ints.size.toULong() shl 5
     }
 
-    protected fun significantBitsFromZero(): ULong {
+    override fun significantBitsFromZero(): ULong {
         return (ints.size.toULong() shl 5) - countLeadingZeroBits() + exp
     }
 
@@ -101,9 +101,9 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         val byteShift = tmp.shr(5).toInt()
         val bitShift = tmp.and(0x1f).toInt()
 
-        if (bitShift == 0) return ints[byteShift]
-
         if (byteShift >= ints.size) return 0u
+
+        if (bitShift == 0) return ints[byteShift]
 
         val lsi = if (byteShift < 0) 0u else (ints[byteShift] shr bitShift)
         val msi = if (byteShift+1 >=ints.size) 0u else (ints[byteShift + 1] shl (32 - bitShift))
@@ -111,7 +111,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return lsi or msi
     }
 
-    operator fun div(divider: T): T = divRem(divider).quotient
+    abstract operator fun div(divider: T): AbstractBigInteger<*>
 
     /** Count the bits used from zero for this value */
     @Deprecated("Use significantBitsFromZero")
@@ -201,6 +201,11 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         }
     }
 
+    override operator fun plus(other: XsdInteger): XsdInteger =
+        BigInt(this).plus(other)
+
+    override operator fun minus(other: XsdInteger): XsdInteger =
+        BigInt(this).minus(other)
 
     operator fun times(other: T): T {
         @Suppress("UNCHECKED_CAST")
@@ -302,7 +307,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         }
     }
 
-    final fun toSigned(): BigInt {
+    fun toSigned(): BigInt {
         return BigInt(sign, ints, exp)
     }
 
@@ -317,7 +322,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
      * Helper function that elides a copy in normalization for division. There we need to
      * shift left and then expand.
      */
-    private fun expandWithEffectiveExp(exp: ULong): T {
+    protected fun expandWithEffectiveExp(exp: ULong): T {
         val leadingZeroBits = countLeadingZeroBits().toLong()
         val intsToAddX = ((exp.toLong() + 31 - leadingZeroBits) shr 5).toInt()
 
@@ -359,7 +364,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             s > os -> return 1
         }
 
-        val start = s shr 5
+        // note that we must subtract a bit so that a 32-bit value only has one int.
+        val start = (s - 1u) shr 5
 
         // TODO optimize to deal with exponents and int alignment
         for (i in start downTo 0u) {
@@ -451,32 +457,14 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return UnsignedDivRemUInt(BigUnsignedInt(newInts, 0uL).normalize(), rem.toUInt())
     }
 
-    abstract fun divRem(divider: T): DivRem<T, Any>
+    abstract fun divRem(divider: T): DivRem<AbstractBigInteger<*>, Any>
 
     fun unsignedDivRem(divider: T): UnsignedDivRem { // will (initially) expand exponents
         // Deal with single element division separately
         if (divider.size == 1uL) return unsignedDivRem(divider[0]).toDivRem()
 
-        val leadingSignificantBits = significantBitsFromZero()/*
-        var r = exp + ints.size.toULong() * 32uL
-        for (i in ints.indices.reversed()) {
-            when (val v = ints[i]) {
-                0u -> r -= 32uL
-                else -> return r - v.countLeadingZeroBits().toULong()
-            }
-        }
-        return 0uL // no non-zero value found at all
-*/
-        val divSignificantBits = divider.significantBitsFromZero()/*
-        var r = exp + ints.size.toULong() * 32uL
-        for (i in ints.indices.reversed()) {
-            when (val v = ints[i]) {
-                0u -> r -= 32uL
-                else -> return r - v.countLeadingZeroBits().toULong()
-            }
-        }
-        return 0uL // no non-zero value found at all
-*/
+        val leadingSignificantBits = significantBitsFromZero()
+        val divSignificantBits = divider.significantBitsFromZero()
 
         // We are certain the divider is bigger than the dividend so we will have 0 quotient and
         // dividend as remainder.
@@ -630,6 +618,11 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         append(')')
     }
 
+    interface PosDivRem<out R>: DivRem<BigUnsignedInt, R> {
+        override val quotient: BigUnsignedInt
+        override val remainder: R
+    }
+
     interface DivRem<out Q: AbstractBigInteger<out Q>, out R> {
         val quotient: Q
         val remainder: R
@@ -644,6 +637,6 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
     @ExperimentalXmlUtilApi
     @XmlUtilInternal
-    typealias UnsignedDivRem = BigUnsignedInt.DivRem
+    typealias UnsignedDivRem = BigUnsignedInt.PosDivRem
 
 }

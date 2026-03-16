@@ -34,20 +34,49 @@ class TestXsdInteger {
         assertEquals("1234567890", bigInt.xmlString)
     }
 
-    @Test
-    fun testMultiplyPosNeg() {
-        val a = 0x12345678
-        val b = -0x7890abcd
-        val smallMul = a.toLong() * b.toLong()
-
+    private fun testBinaryOperator(
+        a: Int,
+        b: Int,
+        expectedOperator: (Long, Long) -> Long,
+        actualOperator: (BigInt, BigInt) -> BigInt,
+    ) {
+        val expected = expectedOperator(a.toLong(), b.toLong())
         val bigA = BigInt(a)
         val bigB = BigInt(b)
-        val bigMul = bigA * bigB
+        val bigResult = actualOperator(bigA, bigB)
 
-        assertEquals(BigInt(smallMul), bigMul)
-        assertEquals(smallMul, bigMul.toLong())
+        assertEquals(BigInt(expected), bigResult)
+        assertEquals(expected, bigResult.toLong())
+        assertEquals(expected.toString(), bigResult.xmlString)
+    }
 
-        assertEquals(smallMul.toString(), bigMul.xmlString)
+    private fun testMultiply(a: Int, b: Int) {
+        testBinaryOperator(a, b, Long::times, BigInt::times)
+    }
+
+    @Test
+    fun testMultiplyPosNeg() {
+        testMultiply(0x12345678, -0x7890abcd)
+    }
+
+    @Test
+    fun testMultiplyPosPos() {
+        testMultiply(0x21132149, 0x7edcba09)
+    }
+
+    @Test
+    fun testMultiplyNegPos() {
+        testMultiply(-0x4f27a954, 0x560cad3f)
+    }
+
+    @Test
+    fun testMultiplyNegNeg() {
+        testMultiply(-0x45782acb, -0x3bfd89a2)
+    }
+
+    @Test
+    fun testAdd() {
+        testBinaryOperator(0x34151717, 0x7EADBEEF, Long::plus, { a, b -> a.plus(b) })
     }
 
 }

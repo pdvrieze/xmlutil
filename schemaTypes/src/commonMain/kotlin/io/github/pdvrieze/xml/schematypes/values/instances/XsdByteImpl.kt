@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.ByteType
-import io.github.pdvrieze.xml.schematypes.values.XsdByte
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedByte
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.absoluteValue
 
 internal class XsdByteImpl(override val byteValue: Byte) : XsdByte {
@@ -35,6 +32,18 @@ internal class XsdByteImpl(override val byteValue: Byte) : XsdByte {
 
     override fun abs(): XsdUnsignedByte {
         return XsdUnsignedByte(byteValue.toInt().absoluteValue.toUByte())
+    }
+
+    override fun unaryMinus(): XsdShort = XsdByteImpl((-byteValue).toByte())
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdByte -> XsdByteImpl((byteValue + other.byteValue).toByte())
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdByte -> XsdByteImpl((byteValue - other.byteValue).toByte())
+        else -> other.plus(this)
     }
 
     override fun compareTo(other: XsdInteger): Int = when (other) {

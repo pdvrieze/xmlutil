@@ -37,6 +37,18 @@ internal value class XsdLongImpl(override val longValue: Long) : XsdLong {
 
     override fun toString(): String = xmlString
 
+    override fun unaryMinus(): XsdLong = XsdLongImpl(-longValue)
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdLong -> XsdLongImpl(longValue + other.longValue)
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdLong -> XsdLongImpl(longValue - other.longValue)
+        else -> other.unaryMinus().plus(this)
+    }
+
     override fun abs(): XsdUnsignedLong {
         return XsdUnsignedLong(longValue.absoluteValue.toULong())
     }

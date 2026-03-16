@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.UnsignedShortType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedShortImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -49,6 +50,40 @@ interface XsdUnsignedShort : XsdUnsignedInt {
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other !is XsdUnsignedShort) return -other.compareTo(this)
         return uShortValue.compareTo(other.uShortValue)
+    }
+
+    override fun significantBitsFromZero(): ULong {
+        return (64 - uLongValue.countLeadingZeroBits()).toULong()
+    }
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedShort -> {
+            val v = uShortValue + other.uShortValue
+            when {
+                v <= UShort.MAX_VALUE -> XsdUnsignedShort(v.toUShort())
+                else -> XsdUnsignedInt(v)
+            }
+        }
+
+        is XsdShort -> {
+            val v = uShortValue.toInt() + other.shortValue
+            return when {
+                v > UShort.MAX_VALUE.toInt() -> XsdUnsignedInt(v.toUInt())
+                v >= 0 -> XsdUnsignedShort(v.toUShort())
+                v >= Short.MIN_VALUE -> XsdShort(v.toShort())
+                else -> XsdInt(v)
+            }
+        }
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedInt -> XsdInt(uIntValue.toInt() - other.uIntValue.toInt())
+        is XsdInt -> XsdInt(uIntValue.toInt() - other.intValue)
+        is XsdUnsignedLong -> XsdLongImpl(uLongValue.toLong() - other.uLongValue.toLong())
+        is XsdLong -> XsdLong(uLongValue.toLong() - other.longValue)
+        else if (other.significantBitsFromZero() < 64u) -> XsdLongImpl(uLongValue.toLong() - other.toLong())
+        else -> BigInt(other).minus(this)
     }
 
     companion object : SimpleTypeSerializer<XsdUnsignedShort>("xsd.unsignedLong") {

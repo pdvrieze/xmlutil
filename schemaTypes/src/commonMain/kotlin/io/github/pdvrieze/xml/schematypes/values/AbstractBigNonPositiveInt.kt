@@ -20,14 +20,14 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
+import io.github.pdvrieze.xml.schematypes.types.NonPositiveIntegerType
 
 @OptIn(ExperimentalUnsignedTypes::class)
-abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected constructor(
+abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> protected constructor(
     ints: UIntArray,
     exp: ULong
 ) : AbstractBigInteger<T>(ints, exp),
-    XsdNonNegativeInteger {
+    XsdNonPositiveInteger {
 
     init {
         require(ints.isNotEmpty()) { "At least one integer must be present" }
@@ -36,16 +36,14 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         }
     }
 
-    override val schemaType: NonNegativeIntegerType<XsdNonNegativeInteger>
-        get() = NonNegativeIntegerType.Instance
+    override val schemaType: NonPositiveIntegerType<XsdNonPositiveInteger>
+        get() = NonPositiveIntegerType.Instance
 
     internal class ParseResult(val ints: UIntArray, val exp: ULong)
 
-    protected abstract fun newInstance(baseValue: ULong): T
-
     override fun newInstance(value: Long): T {
         require(value >= 0) { "Value must be non-negative" }
-        return newInstance(value.toULong())
+        return newInstance(value)
     }
 
     override fun toULong(): ULong = when {
@@ -68,24 +66,24 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
 
     override fun toLong(): Long = toULong().toLong()
 
-    // Note this is abstract and not just a constructor call to allow for optimization
-    abstract fun asBigUnsignedInt(): BigUnsignedInt
+    operator fun div(divider: UInt): T = divRem(divider).quotient
 
-    operator fun div(divider: UInt): T = newInstance(divRem(divider).quotient.toULong())
+    operator fun div(divider: ULong): T = divRem(BigUnsignedInt(divider)).quotient
 
-    operator fun div(divider: ULong): BigUnsignedInt = divRem(newInstance(divider)).quotient
-    override fun div(divider: T): BigUnsignedInt = divRem(divider).quotient
+    abstract fun divRem(divider: XsdNonNegativeInteger): DivRem<T, AbstractBigNonPositiveInt<*>>
 
-    abstract override fun divRem(divider: T): PosDivRem
+    abstract fun divRem(divider: XsdNonPositiveInteger): DivRem<AbstractBigUnsignedInt<*>, AbstractBigNonPositiveInt<*>>
 
-    open fun divRem(divider: XsdNonNegativeInteger): PosDivRem =
-        BigUnsignedInt(this).divRem(BigUnsignedInt(divider))
-
-    open operator fun div(divider: XsdNonNegativeInteger): BigUnsignedInt {
+    open operator fun div(divider: XsdNonPositiveInteger): XsdNonNegativeInteger {
         return divRem(divider).quotient
     }
 
-    abstract fun divRem(divider: UInt): DivRem<BigUnsignedInt, UInt>
+    abstract fun divRem(divider: UInt): DivRem<T, Int>
+
+    override operator fun plus(other: XsdNonPositiveInteger): XsdNonPositiveInteger {
+        if (other is BigNonPositiveInt) { return plus(other) }
+        return plus(BigNonPositiveInt(other))
+    }
 
     operator fun plus(other: T): T {
         val newExponent = minOf(countTrailingZeroBits(), other.countTrailingZeroBits())
@@ -97,9 +95,9 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         for (i in newInts.indices) {
             val a = getBitIndex(newExponent + i.toULong() * 32uL)
             val b = other.getBitIndex(newExponent + i.toULong() * 32uL)
-            val sum = a.toULong() + b.toULong() + carry.toULong()
-            newInts[i] = sum.toUInt()
-            carry = sum.shr(32).toUInt()
+            val sum = a + b + carry
+            newInts[i] = sum
+            carry = sum.shr(32)
         }
 
         return createOptimizedInstance(newInts, newExponent)
@@ -184,8 +182,9 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         else -> compareTo(other.abs())
     }
 
-    override fun compareTo(other: XsdNonNegativeInteger): Int {
-        if (other is BigUnsignedInt) return compareTo(other)
+
+    override fun compareTo(other: XsdNonPositiveInteger): Int {
+        if (other is BigNonPositiveInt) return compareTo(other)
 
         // optimize for 2 BigUnsignedInts
         val s = size
@@ -205,12 +204,10 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         return 0
     }
 
-    interface PosDivRem : AbstractBigInteger.PosDivRem<BigUnsignedInt> {}
-
     companion object {
 
-        internal fun convert(original : XsdNonNegativeInteger): ParseResult {
-            if (original is AbstractBigUnsignedInt<*>) {
+        internal fun convert(original : XsdNonPositiveInteger): ParseResult {
+            if (original is AbstractBigNonPositiveInt<*>) {
                 return ParseResult(original.ints, original.exp)
             }
 

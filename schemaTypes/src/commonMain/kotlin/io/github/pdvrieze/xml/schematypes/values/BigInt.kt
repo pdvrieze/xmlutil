@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.types.IntegerType
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalUnsignedTypes::class)
@@ -64,8 +65,21 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         return BigInt(sign, elems, exp)
     }
 
+    internal fun normalize(): BigInt {
+        val trailingBits = countTrailingZeroBits()
+        val leadingBits = countLeadingZeroBits()
+        if (trailingBits >= 3uL || (trailingBits+leadingBits > 32u)) {
+            return createOptimizedInstance(sign, ints, exp)
+        }
+        return this
+    }
+
     override val schemaType: IntegerType<XsdInteger>
         get() = IntegerType.Instance
+
+    override fun toBigInt(): BigInt {
+        return this
+    }
 
     override fun toLong(): Long {
         val positive = when (size) {
@@ -80,6 +94,8 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         return if (sign < 0) -(positive) else positive
     }
 
+    override fun div(divider: BigInt): BigInt = divRem(divider).quotient
+
     override fun divRem(divider: BigInt): AbstractBigInteger.DivRem<BigInt, BigInt> {
         val finalSign = when {
             divider.sign < 0 -> -sign
@@ -92,6 +108,72 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
             remainder = BigInt(sign, base.remainder.ints, base.remainder.exp),
         )
 
+    }
+
+    override fun plus(other: XsdInteger): BigInt = when {
+        sign == 0 -> BigInt(other)
+
+        other.sign == 0 -> this
+
+        sign < 0 -> when {
+            other.sign > 0 -> plusNegPos(other.abs())
+
+            else -> BigInt(abs().plus(other.abs()).unaryMinus())
+        }
+
+        // sign > 0
+        other.sign < 0 -> BigInt(minus(other.abs()))
+
+        else -> BigInt(abs().plus(other.abs()))
+    }
+
+    /**
+     * Add the positive value to the existing negative one
+     */
+    private fun plusNegPos(add: XsdNonNegativeInteger): BigInt {
+        return BigInt(abs().minus(add).unaryMinus())
+    }
+
+    override fun unaryMinus(): XsdInteger = BigInt(-sign, ints, exp)
+
+    override fun minus(other: XsdInteger): XsdInteger {
+        when {
+            sign == 0 -> return BigInt(other.unaryMinus())
+            other.sign == 0 -> return this
+        }
+        val leftAbs = abs()
+        val rightAbs = other.abs()
+        when {
+            other.sign < 0 -> when {
+                sign > 0 -> return BigInt((leftAbs.plus(other.abs())))
+                else -> return BigInt((leftAbs - other.abs()).unaryMinus())
+            }
+            sign < 0 -> return BigInt(leftAbs.plus(other.abs()).unaryMinus())
+        }
+        // comparison is smart and compares MSI first
+        val c = leftAbs.compareTo(other.abs())
+        if (c== 0) return ZERO
+        if (c < 0) return (rightAbs - leftAbs).unaryMinus()
+        // The only case remaining is this one is where both are positive and left is larger than right
+        val bitsNeeded = maxOf(significantBitsFromZero(), other.significantBitsFromZero())
+        val result = UIntArray(((bitsNeeded + 31u) shr 5).toInt())
+
+        var borrow: Long = 0L
+        for (i in 0 until result.size) {
+            val a = get(0).toLong() - borrow
+            val b = other.get(0).toLong()
+            if (a>=b) {
+                result[i] = (a - b).toUInt()
+                borrow = 0L
+            } else {
+                val neg = (a + 0x1_0000_0000L - b)
+                result[i] = neg.toUInt()
+                borrow = 1L
+            }
+        }
+        assert(borrow == 0L) { "Sign inversion" }
+        // note that recursive calls will sign flip this if needed
+        return createOptimizedInstance(1, result, 0uL)
     }
 
     override fun compareTo(other: XsdInteger): Int {
@@ -123,6 +205,13 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     companion object {
         public val ZERO: BigInt = BigInt(0, uintArrayOf(0u), 0uL)
+
+        operator fun invoke(init: XsdInteger): BigInt {
+            if (init is AbstractBigInteger<*>) return BigInt(init.sign, init.ints, init.exp)
+            val sign = init.sign
+            val ints = UIntArray(init.size.toInt()) { init.get(it) }
+            return BigInt(sign, ints, 0uL).normalize()
+        }
 
         private fun parse(s: String): ParseResult {
             if (s.isEmpty()) throw NumberFormatException("Empty string")

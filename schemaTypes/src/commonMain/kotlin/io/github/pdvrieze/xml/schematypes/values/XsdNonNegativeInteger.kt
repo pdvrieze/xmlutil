@@ -33,13 +33,11 @@ interface XsdNonNegativeInteger : XsdInteger {
 
     override val schemaType: NonNegativeIntegerType<XsdNonNegativeInteger>
 
-    fun toULong(): ULong/* {
-        return get(0).toULong() or (get(1).toULong() shl 32)
-    }*/
+    fun toULong(): ULong
 
-    fun toUInt(): UInt /*{
-        return get(0)
-    }*/
+    fun toUInt(): UInt
+
+    override fun toBigInt(): XsdNonNegativeInteger = this
 
     fun coerceAtMost(maxMax: XsdNonNegativeInteger): XsdNonNegativeInteger = when {
         this < maxMax -> this
@@ -58,6 +56,8 @@ interface XsdNonNegativeInteger : XsdInteger {
     operator fun compareTo(other: XsdNonNegativeInteger): Int
 
     operator fun plus(other: ULong): XsdNonNegativeInteger
+
+    override fun unaryMinus(): XsdInteger
 
     companion object : SimpleTypeSerializer<XsdNonNegativeInteger>("xsd.nonNegativeInteger") {
         override fun deserialize(raw: String, input: XmlReader?): XsdNonNegativeInteger {

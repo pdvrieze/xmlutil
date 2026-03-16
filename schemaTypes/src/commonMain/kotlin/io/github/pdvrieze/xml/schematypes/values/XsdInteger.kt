@@ -38,6 +38,8 @@ interface XsdInteger : XsdDecimal {
 
     override fun toLong(): Long
     override fun toInt(): Int
+    fun toBigInt(): XsdInteger
+
 
     /** The conceptual size in 32-bit values from 0. */
     val size: ULong
@@ -47,6 +49,11 @@ interface XsdInteger : XsdDecimal {
      * that this function is not valid for a value of zero.
      */
     fun countTrailingZeroBits(): ULong
+
+    /**
+     * Count the amount of significant bits used for this value.
+     */
+    fun significantBitsFromZero(): ULong
 
     /**
      * An indicator of the sign of the number. For a logical value of `0` a sign of `0` is returned.
@@ -60,7 +67,13 @@ interface XsdInteger : XsdDecimal {
 
     operator fun get(index: Int): UInt
 
+    operator fun plus(other: XsdInteger): XsdInteger
+
+    operator fun minus(other: XsdInteger): XsdInteger
+
     fun abs(): XsdNonNegativeInteger
+
+    operator fun unaryMinus(): XsdInteger
 
     override fun compareTo(other: XsdDecimal): Int = when (other) {
         is XsdBigDecimal -> XsdDecimalStringImpl(xmlString).compareTo(other)
@@ -77,12 +90,20 @@ interface XsdInteger : XsdDecimal {
             return XsdDecimal.invoke(raw) as XsdInteger
         }
 
-        operator fun invoke(i: Int): XsdInteger {
+        operator fun invoke(i: Int): XsdInt {
             return XsdIntImpl(i)
         }
 
-        operator fun invoke(l: Long): XsdInteger {
+        operator fun invoke(l: Long): XsdLong {
             return XsdLongImpl(l)
+        }
+
+        operator fun invoke(l: ULong): XsdUnsignedLong {
+            return XsdUnsignedLong(l)
+        }
+
+        operator fun invoke(l: UInt): XsdUnsignedInt {
+            return XsdUnsignedInt(l)
         }
 
         operator fun invoke(value: String): XsdInteger {

@@ -69,18 +69,28 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     override val sign: Int
         get() = if (ints.isEmpty() && ints[0] == 0u) 0 else 1
 
-    override fun divRem(divider: XsdNonNegativeInteger): DivRem {
+    override fun unaryMinus(): XsdNonPositiveInteger {
+        return BigNegativeInt(ints, exp)
+    }
+
+    override fun plus(other: XsdNonNegativeInteger): BigPositiveInt {
+        if (other.sign == 0) return this // handles the zero case for which conversion does not work
+        if (other is BigPositiveInt) { return plus(other) }
+        return plus(BigPositiveInt(other))
+    }
+
+    override fun divRem(divider: XsdNonNegativeInteger): PosDivRem {
         return when (divider) {
             is BigPositiveInt -> divRem(divider)
             is AbstractBigUnsignedInt<*> -> divRem(divider.asBigUnsignedInt())
             is XsdUnsignedLong -> divRem(BigPositiveInt(divider.toULong()))
-            is XsdUnsignedInt -> DivRem(divRem(divider.toUInt()))
+            is XsdUnsignedInt -> PosDivRem(divRem(divider.toUInt()))
             else -> divRem(BigPositiveInt(divider))
         }
     }
 
-    override fun divRem(divider: BigPositiveInt): DivRem {
-        return DivRem(unsignedDivRem(divider))
+    override fun divRem(divider: BigPositiveInt): PosDivRem {
+        return PosDivRem(unsignedDivRem(divider))
     }
 
     override fun divRem(divider: UInt): UIntDivRem {
@@ -99,20 +109,20 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     }
 
     class UIntDivRem(
-        override val quotient: BigPositiveInt,
+        override val quotient: BigUnsignedInt,
         override val remainder: UInt
-    ) : AbstractBigInteger.DivRem<BigPositiveInt, UInt> {
+    ) : DivRem<BigUnsignedInt, UInt> {
         constructor(orig: BigUnsignedInt.UIntDivRem) :
-                this(BigPositiveInt(orig.quotient), orig.remainder)
+                this(BigUnsignedInt(orig.quotient), orig.remainder)
     }
 
-    class DivRem(
-        override val quotient: BigPositiveInt,
+    class PosDivRem(
+        override val quotient: BigUnsignedInt,
         override val remainder: BigUnsignedInt
-    ) : AbstractBigInteger.DivRem<BigPositiveInt, BigUnsignedInt> {
-        constructor(orig: BigUnsignedInt.DivRem): this(BigPositiveInt(orig.quotient), orig.remainder)
+    ) : AbstractBigUnsignedInt.PosDivRem {
+        constructor(orig: BigUnsignedInt.PosDivRem): this(BigUnsignedInt(orig.quotient), orig.remainder)
 
-        constructor(base: UIntDivRem): this(base.quotient, BigUnsignedInt(base.remainder))
+        constructor(base: UIntDivRem): this(base.quotient.asBigUnsignedInt(), BigUnsignedInt(base.remainder))
     }
 
     companion object {

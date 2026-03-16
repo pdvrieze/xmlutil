@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedLongImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -36,6 +37,8 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     val uLongValue: ULong
 
+    override fun unaryMinus(): XsdLong
+
     override fun toLong(): Long = uLongValue.toLong()
 
     override fun toInt(): Int = uLongValue.toInt()
@@ -44,8 +47,29 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     override fun toUInt(): UInt = uLongValue.toUInt()
 
+    override fun toBigInt(): XsdNonNegativeInteger {
+        return BigUnsignedInt(uLongValue)
+    }
+
     override fun countTrailingZeroBits(): ULong {
         return uLongValue.countTrailingZeroBits().toULong()
+    }
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedLong -> XsdUnsignedLongImpl(uLongValue + other.uLongValue)
+        is XsdLong -> XsdLong(uLongValue.toLong() + other.longValue)
+        else -> other.plus(this)
+    }
+
+    override fun significantBitsFromZero(): ULong {
+        return (64 - uLongValue.countLeadingZeroBits()).toULong()
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedLong -> XsdLongImpl(uLongValue.toLong() - other.uLongValue.toLong())
+        is XsdLong -> XsdLong(uLongValue.toLong() - other.longValue)
+        else if (other.significantBitsFromZero() < 64u) -> XsdLongImpl(uLongValue.toLong() - other.toLong())
+        else -> BigInt(other).minus(this)
     }
 
     override val size: ULong

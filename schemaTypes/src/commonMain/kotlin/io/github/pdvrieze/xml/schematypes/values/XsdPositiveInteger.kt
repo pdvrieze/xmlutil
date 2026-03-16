@@ -29,8 +29,10 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 @OptIn(ExperimentalUnsignedTypes::class)
 @Serializable(XsdPositiveInteger.Companion::class)
 interface XsdPositiveInteger : XsdNonNegativeInteger {
+    override fun toBigInt(): XsdPositiveInteger = this
 
     override val schemaType: PositiveIntegerType<XsdPositiveInteger>
+    override fun unaryMinus(): XsdNegativeInteger
 
     fun coerceAtMost(maxMax: XsdPositiveInteger): XsdPositiveInteger = when {
         this < maxMax -> this

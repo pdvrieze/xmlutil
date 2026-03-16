@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.UnsignedByteType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedByteImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -46,6 +47,36 @@ interface XsdUnsignedByte : XsdUnsignedShort {
     override fun toULong(): ULong = uByteValue.toULong()
 
     override fun abs(): XsdUnsignedByte = this
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedByte -> {
+            val v = uByteValue + other.uByteValue
+            when {
+                v <= UByte.MAX_VALUE -> XsdUnsignedByte(v.toUByte())
+                else -> XsdUnsignedShort(v.toUShort())
+            }
+        }
+
+        is XsdByte -> {
+            val v = uByteValue.toInt() + other.byteValue
+            return when {
+                v > UByte.MAX_VALUE.toInt() -> XsdUnsignedShort(v.toUShort())
+                v >= 0 -> XsdUnsignedByte(v.toUByte())
+                v >= Byte.MIN_VALUE -> XsdByte(v.toByte())
+                else -> XsdShort(v.toShort())
+            }
+        }
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedInt -> XsdInt(uIntValue.toInt() - other.uIntValue.toInt())
+        is XsdInt -> XsdInt(uIntValue.toInt() - other.intValue)
+        is XsdUnsignedLong -> XsdLongImpl(uLongValue.toLong() - other.uLongValue.toLong())
+        is XsdLong -> XsdLong(uLongValue.toLong() - other.longValue)
+        else if (other.significantBitsFromZero() < 64u) -> XsdLongImpl(uLongValue.toLong() - other.toLong())
+        else -> BigInt(other).minus(this)
+    }
 
     override fun compareTo(other: XsdInteger): Int {
         if (other.sign < 0) return 1

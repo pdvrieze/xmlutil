@@ -35,6 +35,18 @@ internal class XsdIntImpl(override val intValue: Int) : XsdInt {
         return XsdUnsignedInt(intValue.absoluteValue.toUInt())
     }
 
+    override fun unaryMinus(): XsdInt = XsdIntImpl(-intValue)
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdInt -> XsdIntImpl(intValue + other.intValue)
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdInt -> XsdIntImpl(intValue + other.intValue)
+        else -> other.plus(this)
+    }
+
     override fun toString(): String = xmlString
 
     override fun compareTo(other: XsdInteger): Int = when (other) {

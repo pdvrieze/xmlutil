@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.UnsignedIntType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedIntImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -36,6 +37,8 @@ interface XsdUnsignedInt : XsdUnsignedLong {
     override val uLongValue: ULong
         get() = uIntValue.toULong()
 
+    override fun unaryMinus(): XsdInt = XsdInt(-uIntValue.toInt())
+
     override fun toInt(): Int = uIntValue.toInt()
 
     override fun toLong(): Long = uIntValue.toLong()
@@ -43,6 +46,10 @@ interface XsdUnsignedInt : XsdUnsignedLong {
     override fun toUInt(): UInt = uIntValue
 
     override fun toULong(): ULong = uIntValue.toULong()
+
+    override fun toBigInt(): XsdNonNegativeInteger {
+        return BigUnsignedInt(uIntValue)
+    }
 
     override val size: ULong get() = 1uL
 
@@ -72,6 +79,25 @@ interface XsdUnsignedInt : XsdUnsignedLong {
     override fun abs(): XsdUnsignedInt = this
 
     override val sign: Int get() = if (uIntValue == 0u) 0 else 1
+
+    override fun significantBitsFromZero(): ULong {
+        return (64 - uLongValue.countLeadingZeroBits()).toULong()
+    }
+
+    override fun plus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedInt -> XsdUnsignedIntImpl(uIntValue + other.uIntValue)
+        is XsdInt -> XsdInt(uIntValue.toInt() + other.intValue)
+        else -> other.plus(this)
+    }
+
+    override fun minus(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedInt -> XsdInt(uIntValue.toInt() - other.uIntValue.toInt())
+        is XsdInt -> XsdInt(uIntValue.toInt() - other.intValue)
+        is XsdUnsignedLong -> XsdLongImpl(uLongValue.toLong() - other.uLongValue.toLong())
+        is XsdLong -> XsdLong(uLongValue.toLong() - other.longValue)
+        else if (other.significantBitsFromZero() < 64u) -> XsdLongImpl(uLongValue.toLong() - other.toLong())
+        else -> BigInt(other).minus(this)
+    }
 
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other !is XsdUnsignedInt) return -other.compareTo(this)
