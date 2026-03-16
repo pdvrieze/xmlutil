@@ -25,16 +25,22 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 @OptIn(ExperimentalUnsignedTypes::class)
 class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): AbstractBigUnsignedInt<BigUnsignedInt>(ints, exp) {
 
+    init {
+        if (ints.size > 1 || exp!=0uL) {
+            require(ints.any { it != 0u }) { "Zero values must be represented as a single int" }
+        }
+    }
+
     constructor(value: UInt, exp: ULong = 0uL) : this(
         uintArrayOf(value),
         exp
     )
 
     constructor(value: ULong, exp: ULong = 0uL) : this(
-        uintArrayOf(
-            value.toUInt(),
-            (value shr 32).toUInt()
-        ),
+        ints = when {
+            value < UInt.MAX_VALUE.toULong() -> uintArrayOf(value.toUInt())
+            else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
+        },
         exp
     )
 
@@ -68,7 +74,7 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     }
 
     override val sign: Int
-        get() = if (ints.isEmpty() && ints[0] == 0u) 0 else 1
+        get() = if (ints.size == 1 && ints[0] == 0u) 0 else 1
 
     override fun plus(other: XsdNonNegativeInteger): BigUnsignedInt {
         if (other is BigUnsignedInt) { return plus(other) }

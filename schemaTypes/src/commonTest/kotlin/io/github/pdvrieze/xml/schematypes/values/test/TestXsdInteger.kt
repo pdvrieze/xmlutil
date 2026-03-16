@@ -75,8 +75,47 @@ class TestXsdInteger {
     }
 
     @Test
-    fun testAdd() {
+    fun testAddPosPos() {
         testBinaryOperator(0x34151717, 0x7EADBEEF, Long::plus, { a, b -> a.plus(b) })
+    }
+
+    @Test
+    fun testAddNegPos() {
+        testBinaryOperator(-0x34158fe2, 0x7EAD2556, Long::plus, { a, b -> a.plus(b) })
+    }
+
+    @Test
+    fun testAddPosNeg() {
+        testBinaryOperator(0x34151717, -0x7EADBEEF, Long::plus, { a, b -> a.plus(b) })
+    }
+
+    @Test
+    fun testAddNegNegs() {
+        testBinaryOperator(-0x34FE4fe2, -0x3514BEEF, Long::plus, { a, b -> a.plus(b) })
+    }
+
+    @Test
+    fun testDivPosPos() {
+        testBinaryOperator(0x34151717, 0x7EADBEEF, Long::div, { a, b -> a.div(b) })
+        testBinaryOperator(0x7EADBEEF, 0x34151717, Long::div, { a, b -> a.div(b) })
+    }
+
+    @Test
+    fun testDivNegPos() {
+        testBinaryOperator(-0x34158fe2, 0x7EAD2556, Long::div, { a, b -> a.div(b) })
+        testBinaryOperator(-0x7EAD2556, 0x34158fe2, Long::div, { a, b -> a.div(b) })
+    }
+
+    @Test
+    fun testDivPosNeg() {
+        testBinaryOperator(0x34151717, -0x7EADBEEF, Long::div, { a, b -> a.div(b) })
+        testBinaryOperator(0x7EADBEEF, -0x34151717, Long::div, { a, b -> a.div(b) })
+    }
+
+    @Test
+    fun testDivNegNegs() {
+        testBinaryOperator(-0x34FE4fe2, -0x3514BEEF, Long::div, { a, b -> a.div(b) })
+        testBinaryOperator(-0x3514BEEF, -0x34FE4fe2, Long::div, { a, b -> a.div(b) })
     }
 
 }

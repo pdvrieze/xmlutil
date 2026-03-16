@@ -29,6 +29,9 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     AbstractBigInteger<BigInt>(ints, exp), XsdInteger {
     init {
         require(ints.isNotEmpty()) { "At least one integer must be present" }
+        if (sign != 0 || ints.size > 1 || exp != 0uL) {
+            require(ints.any { it != 0u }) { "Zero values must be represented as a single int" }
+        }
         require(sign in -1..1) { "Invalid sign" }
     }
 
@@ -44,7 +47,10 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     constructor(long: Long) : this(
         long.compareTo(0L),
-        long.absoluteValue.toULong().let { uintArrayOf(it.toUInt(), (it shr 32).toUInt()) },
+        when (long) {
+            in Int.MIN_VALUE..<Int.MAX_VALUE -> uintArrayOf(long.absoluteValue.toUInt())
+            else -> long.absoluteValue.toULong().let { uintArrayOf(it.toUInt(), (it shr 32).toUInt()) }
+        },
         0uL
     )
 
@@ -97,12 +103,13 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     override fun div(divider: BigInt): BigInt = divRem(divider).quotient
 
     override fun divRem(divider: BigInt): AbstractBigInteger.DivRem<BigInt, BigInt> {
-        val finalSign = when {
+        val nonzeroSign = when {
             divider.sign < 0 -> -sign
             divider.sign == 0 -> throw ArithmeticException("Division by zero")
             else -> sign
         }
         val base = unsignedDivRem(divider)
+        val finalSign = if (base.quotient.sign == 0) 0 else nonzeroSign
         return DivRem(
             quotient = BigInt(finalSign, base.quotient.ints, base.quotient.exp),
             remainder = BigInt(sign, base.remainder.ints, base.remainder.exp),
@@ -192,8 +199,15 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         }
     }
 
+    override fun hashCode(): Int {
+        return sign + ints.contentHashCode() + exp.toInt() * 31
+    }
     override fun equals(other: Any?): Boolean {
         return compareTo(other as? XsdInteger ?: return false) == 0
+    }
+
+    override fun toString(): String {
+        return xmlString
     }
 
     class DivRem(

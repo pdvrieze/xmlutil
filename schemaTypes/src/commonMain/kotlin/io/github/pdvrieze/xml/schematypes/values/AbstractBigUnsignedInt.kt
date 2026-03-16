@@ -187,9 +187,10 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other is BigUnsignedInt) return compareTo(other)
 
-        // optimize for 2 BigUnsignedInts
-        val s = size
-        val os = other.size
+        // Use counted significant bits. This catches most cases and is fairly cheap
+        // It also handles the case of spurious leading zero integers.
+        val s = significantBitsFromZero()
+        val os = other.significantBitsFromZero()
         when {
             s < os -> if ((s until os).any { other[it] != 0u }) return -1
             s > os -> if ((os until s).any { get(it) != 0u }) return 1
