@@ -24,10 +24,16 @@ import io.github.pdvrieze.xml.schematypes.types.IntType
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
+import kotlin.math.absoluteValue
 
 internal class XsdIntImpl(override val intValue: Int) : XsdInt {
     override val xmlString: String get() = intValue.toString()
     override val schemaType: IntType<*> get() = IntType.Instance
+
+    override fun abs(): XsdUnsignedInt {
+        return XsdUnsignedInt(intValue.absoluteValue.toUInt())
+    }
 
     override fun toString(): String = xmlString
 

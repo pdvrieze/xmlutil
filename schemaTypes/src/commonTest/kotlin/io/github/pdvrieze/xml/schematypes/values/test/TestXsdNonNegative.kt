@@ -20,11 +20,28 @@
 
 package io.github.pdvrieze.xml.schematypes.values.test
 
+import io.github.pdvrieze.xml.schematypes.values.BigPositiveInt
 import io.github.pdvrieze.xml.schematypes.values.BigUnsignedInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
+@OptIn(ExperimentalUnsignedTypes::class)
 class TestXsdNonNegative {
+
+    @Test
+    fun testPostiveNotZero() {
+        assertFailsWith<NumberFormatException> { BigPositiveInt(0u) }
+        assertFailsWith<NumberFormatException> { BigPositiveInt("0") }
+        assertFailsWith<NumberFormatException> { BigPositiveInt("+0") }
+        assertFailsWith<NumberFormatException> { BigPositiveInt("-0") }
+    }
+
+    @Test
+    fun testNonNegativeNotNegative() {
+        assertFailsWith<NumberFormatException> { BigUnsignedInt("-1") }
+        assertFailsWith<NumberFormatException> { BigUnsignedInt("-0") }
+    }
 
     @Test
     fun testSimpleInteger() {
@@ -51,13 +68,6 @@ class TestXsdNonNegative {
 
     @Test
     fun testLongInteger() {
-        /*
-                val str = buildString {
-                    val r = Random(0xdeadbeef)
-                    append(r.nextInt(1_000_000_000))
-                    for (i in 1..5) append(r.nextInt(1_000_000_000).toString().padStart(9, '0'))
-                }
-        */
         val str = "697371550937419271808991527491782891510896728514817744"
 
         val bigInt = BigUnsignedInt(str)

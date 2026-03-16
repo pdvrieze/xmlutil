@@ -24,7 +24,9 @@ import io.github.pdvrieze.xml.schematypes.types.LongType
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import kotlin.jvm.JvmInline
+import kotlin.math.absoluteValue
 
 @JvmInline
 internal value class XsdLongImpl(override val longValue: Long) : XsdLong {
@@ -35,6 +37,9 @@ internal value class XsdLongImpl(override val longValue: Long) : XsdLong {
 
     override fun toString(): String = xmlString
 
+    override fun abs(): XsdUnsignedLong {
+        return XsdUnsignedLong(longValue.absoluteValue.toULong())
+    }
 
     override fun compareTo(other: XsdInteger): Int = when (other) {
         is XsdNonNegativeInteger -> if (longValue < 0L) -1 else longValue.toULong().compareTo(other.toULong())

@@ -45,6 +45,19 @@ interface XsdUnsignedByte : XsdUnsignedShort {
 
     override fun toULong(): ULong = uByteValue.toULong()
 
+    override fun abs(): XsdUnsignedByte = this
+
+    override fun compareTo(other: XsdInteger): Int {
+        if (other.sign < 0) return 1
+        else if (other !is XsdUnsignedByte) return -other.compareTo(this)
+        return uByteValue.compareTo(other.uByteValue)
+    }
+
+    override fun compareTo(other: XsdNonNegativeInteger): Int {
+        if (other !is XsdUnsignedByte) return -other.compareTo(this)
+        return uByteValue.compareTo(other.uByteValue)
+    }
+
     companion object : SimpleTypeSerializer<XsdUnsignedByte>("xsd.unsignedLong") {
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedByte {
             return XsdUnsignedByteImpl(xmlTrimWhitespace(raw).toUByte())

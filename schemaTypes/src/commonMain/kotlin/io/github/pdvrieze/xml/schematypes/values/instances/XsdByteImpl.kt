@@ -24,12 +24,18 @@ import io.github.pdvrieze.xml.schematypes.types.ByteType
 import io.github.pdvrieze.xml.schematypes.values.XsdByte
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedByte
+import kotlin.math.absoluteValue
 
 internal class XsdByteImpl(override val byteValue: Byte) : XsdByte {
     override val xmlString: String get() = intValue.toString()
     override val schemaType: ByteType<XsdByte> get() = ByteType.Instance
 
     override fun toString(): String = xmlString
+
+    override fun abs(): XsdUnsignedByte {
+        return XsdUnsignedByte(byteValue.toInt().absoluteValue.toUByte())
+    }
 
     override fun compareTo(other: XsdInteger): Int = when (other) {
         is XsdNonNegativeInteger -> if (intValue<0) -1 else intValue.toULong().compareTo(other.toULong())

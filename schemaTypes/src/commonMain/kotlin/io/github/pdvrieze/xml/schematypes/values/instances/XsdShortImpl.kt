@@ -24,12 +24,18 @@ import io.github.pdvrieze.xml.schematypes.types.ShortType
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdShort
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedShort
+import kotlin.math.absoluteValue
 
 internal class XsdShortImpl(override val shortValue: Short) : XsdShort {
     override val xmlString: String get() = intValue.toString()
     override val schemaType: ShortType<*> get() = ShortType.Instance
 
     override fun toString(): String = xmlString
+
+    override fun abs(): XsdUnsignedShort {
+        return XsdUnsignedShort(shortValue.toInt().absoluteValue.toUShort())
+    }
 
     override fun compareTo(other: XsdInteger): Int = when (other) {
         is XsdNonNegativeInteger -> if (intValue<0) -1 else intValue.toULong().compareTo(other.toULong())

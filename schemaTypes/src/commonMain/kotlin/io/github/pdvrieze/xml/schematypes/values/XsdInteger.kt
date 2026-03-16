@@ -39,6 +39,29 @@ interface XsdInteger : XsdDecimal {
     override fun toLong(): Long
     override fun toInt(): Int
 
+    /** The conceptual size in 32-bit values from 0. */
+    val size: ULong
+
+    /**
+     * Return the amount of zero bits at the end of the number (the least significant part). Note
+     * that this function is not valid for a value of zero.
+     */
+    fun countTrailingZeroBits(): ULong
+
+    /**
+     * An indicator of the sign of the number. For a logical value of `0` a sign of `0` is returned.
+     */
+    val sign: Int
+
+    /**
+     * Retrieve the [index] 32bit value from zero.
+     */
+    operator fun get(index: ULong): UInt
+
+    operator fun get(index: Int): UInt
+
+    fun abs(): XsdNonNegativeInteger
+
     override fun compareTo(other: XsdDecimal): Int = when (other) {
         is XsdBigDecimal -> XsdDecimalStringImpl(xmlString).compareTo(other)
         else -> compareTo(other as XsdInteger)

@@ -26,6 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import kotlin.math.absoluteValue
 
 @Serializable(XsdLong.Companion::class)
 @XmlUtilInternal
@@ -36,6 +37,31 @@ interface XsdLong : XsdInteger {
     val longValue: Long
 
     override fun toLong(): Long = longValue
+
+    override val size: ULong get() = 2uL
+    override val sign: Int get() = longValue.compareTo(0L)
+
+    override fun abs(): XsdUnsignedLong
+
+    override fun get(index: Int): UInt {
+        when (index) {
+            0 -> return longValue.absoluteValue.toUInt()
+            1 -> return longValue.absoluteValue.toULong().shr(32).toUInt()
+            else -> throw IndexOutOfBoundsException("Index $index out of bounds")
+        }
+    }
+
+    override fun get(index: ULong): UInt {
+        when (index) {
+            0uL -> return longValue.absoluteValue.toUInt()
+            1uL -> return longValue.absoluteValue.toULong().shr(32).toUInt()
+            else -> throw IndexOutOfBoundsException("Index $index out of bounds")
+        }
+    }
+
+    override fun countTrailingZeroBits(): ULong {
+        return longValue.countTrailingZeroBits().toULong()
+    }
 
     companion object : SimpleTypeSerializer<XsdLong>("XSLong") {
         operator fun invoke(value: Long): XsdLong = XsdLongImpl(value)

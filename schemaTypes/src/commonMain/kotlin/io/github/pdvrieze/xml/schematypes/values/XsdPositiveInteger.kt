@@ -18,63 +18,47 @@
  * permissions and limitations under the License.
  */
 
-
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
-import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
+import io.github.pdvrieze.xml.schematypes.types.PositiveIntegerType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @OptIn(ExperimentalUnsignedTypes::class)
-@Serializable(XsdNonNegativeInteger.Companion::class)
-interface XsdNonNegativeInteger : XsdInteger {
+@Serializable(XsdPositiveInteger.Companion::class)
+interface XsdPositiveInteger : XsdNonNegativeInteger {
 
-    override val schemaType: NonNegativeIntegerType<XsdNonNegativeInteger>
+    override val schemaType: PositiveIntegerType<XsdPositiveInteger>
 
-    fun toULong(): ULong/* {
-        return get(0).toULong() or (get(1).toULong() shl 32)
-    }*/
-
-    fun toUInt(): UInt /*{
-        return get(0)
-    }*/
-
-    fun coerceAtMost(maxMax: XsdNonNegativeInteger): XsdNonNegativeInteger = when {
+    fun coerceAtMost(maxMax: XsdPositiveInteger): XsdPositiveInteger = when {
         this < maxMax -> this
         else -> maxMax
     }
 
-    operator fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger
+    operator fun times(other: XsdPositiveInteger): XsdPositiveInteger
 
-    operator fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger
+    override fun compareTo(other: XsdInteger): Int
 
-    override fun compareTo(other: XsdInteger): Int {
-        if (other.sign < sign) return 1
-        return abs().compareTo(other.abs())
-    }
+    operator fun compareTo(other: XsdPositiveInteger): Int =
+        toULong().compareTo(other.toULong())
 
-    operator fun compareTo(other: XsdNonNegativeInteger): Int
-
-    operator fun plus(other: ULong): XsdNonNegativeInteger
-
-    companion object : SimpleTypeSerializer<XsdNonNegativeInteger>("xsd.nonNegativeInteger") {
-        override fun deserialize(raw: String, input: XmlReader?): XsdNonNegativeInteger {
+    companion object : SimpleTypeSerializer<XsdPositiveInteger>("xsd.nonNegativeInteger") {
+        override fun deserialize(raw: String, input: XmlReader?): XsdPositiveInteger {
             return invoke(xmlTrimWhitespace(raw))
         }
 
-        val ONE = XsdUnsignedInt(1u)
-        val ZERO = XsdUnsignedInt(0u)
+        val ONE = BigPositiveInt(1u)
 
         operator fun invoke(charSequence: CharSequence) =
             invoke(rawValue = charSequence.toString())
 
-        operator fun invoke(rawValue: String): XsdNonNegativeInteger = when {
-            rawValue.length > MAXLONG.length -> BigUnsignedInt(rawValue)
-
-            rawValue == "0" -> ZERO
+        operator fun invoke(rawValue: String): XsdPositiveInteger = when {
+            rawValue == "0" -> throw IllegalArgumentException("Positive integers may not be zero")
             rawValue == "1" -> ONE
+            rawValue.length > MAXLONG.length -> BigPositiveInt(rawValue)
+
 
             rawValue.length == MAXLONG.length && (rawValue[0] == '0' || rawValue[0] == '1')
                     && rawValue.substring(1).toLong() <= MAXNONSIGNDIGITS ->
@@ -85,10 +69,10 @@ interface XsdNonNegativeInteger : XsdInteger {
             else -> invoke(rawValue.toULong())
         }
 
-        operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLong.Companion(value)
-        operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedInt.Companion(value)
-        operator fun invoke(value: Long): XsdUnsignedLong = run { require(value >= 0); XsdUnsignedLong(value.toULong()) }
-        operator fun invoke(value: Int): XsdUnsignedInt = run { require(value >= 0); XsdUnsignedInt(value.toUInt()) }
+        operator fun invoke(value: ULong): BigPositiveInt = BigPositiveInt(value)
+        operator fun invoke(value: UInt): BigPositiveInt = BigPositiveInt(value)
+        operator fun invoke(value: Long): BigPositiveInt = run { require(value > 0); BigPositiveInt(value.toULong()) }
+        operator fun invoke(value: Int): BigPositiveInt = run { require(value > 0); BigPositiveInt(value.toUInt()) }
 
         private val MAXLONG = ULong.MAX_VALUE.toString()
         private val MAXNONSIGNDIGITS = MAXLONG.substring(1).toLong()

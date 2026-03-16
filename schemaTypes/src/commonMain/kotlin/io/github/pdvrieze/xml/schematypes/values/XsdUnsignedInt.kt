@@ -69,6 +69,14 @@ interface XsdUnsignedInt : XsdUnsignedLong {
         return XsdUnsignedLong(toULong() * other.toULong())
     }
 
+    override fun abs(): XsdUnsignedInt = this
+
+    override val sign: Int get() = if (uIntValue == 0u) 0 else 1
+
+    override fun compareTo(other: XsdNonNegativeInteger): Int {
+        if (other !is XsdUnsignedInt) return -other.compareTo(this)
+        return uIntValue.compareTo(other.uIntValue)
+    }
 
     companion object : SimpleTypeSerializer<XsdUnsignedInt>("xsd.unsignedLong") {
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedInt {

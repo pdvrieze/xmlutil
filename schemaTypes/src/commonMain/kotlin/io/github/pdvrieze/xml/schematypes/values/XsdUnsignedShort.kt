@@ -44,6 +44,13 @@ interface XsdUnsignedShort : XsdUnsignedInt {
 
     override fun toULong(): ULong = uShortValue.toULong()
 
+    override fun abs(): XsdUnsignedShort = this
+
+    override fun compareTo(other: XsdNonNegativeInteger): Int {
+        if (other !is XsdUnsignedShort) return -other.compareTo(this)
+        return uShortValue.compareTo(other.uShortValue)
+    }
+
     companion object : SimpleTypeSerializer<XsdUnsignedShort>("xsd.unsignedLong") {
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedShort {
             return XsdUnsignedShortImpl(xmlTrimWhitespace(raw).toUShort())

@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.test
 
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.BigInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -28,10 +28,26 @@ class TestXsdInteger {
 
     @Test
     fun testSimpleInteger() {
-        val bigInt = XsdInteger("1234567890")
+        val bigInt = BigInt("1234567890")
         assertEquals(1234567890, bigInt.toLong())
         assertEquals(1234567890, bigInt.toInt())
         assertEquals("1234567890", bigInt.xmlString)
+    }
+
+    @Test
+    fun testMultiplyPosNeg() {
+        val a = 0x12345678
+        val b = -0x7890abcd
+        val smallMul = a.toLong() * b.toLong()
+
+        val bigA = BigInt(a)
+        val bigB = BigInt(b)
+        val bigMul = bigA * bigB
+
+        assertEquals(BigInt(smallMul), bigMul)
+        assertEquals(smallMul, bigMul.toLong())
+
+        assertEquals(smallMul.toString(), bigMul.xmlString)
     }
 
 }

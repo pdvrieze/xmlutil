@@ -36,6 +36,7 @@ interface XsdByte : XsdShort {
     override val shortValue: Short get() = byteValue.toShort()
     override val intValue: Int get() = shortValue.toInt()
     override val longValue: Long get() = shortValue.toLong()
+    override fun abs(): XsdUnsignedByte
 
     companion object : SimpleTypeSerializer<XsdByte>("xsd.byte") {
         operator fun invoke(value: Byte): XsdByte = XsdByteImpl(value)
