@@ -33,17 +33,18 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.NegativeIntegerType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-object ResNegativeIntegerType : ResolvedBuiltinAtomicType<XsdInteger>, ResIIntegerType<XsdInteger>,
-    NegativeIntegerType<XsdInteger> {
+object ResNegativeIntegerType : ResolvedBuiltinAtomicType<XsdNegativeInteger>, ResIIntegerType<XsdNegativeInteger>,
+    NegativeIntegerType<XsdNegativeInteger> {
     override val baseType: ResNonPositiveIntegerType get() = ResNonPositiveIntegerType
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),
         fractionDigits = ResolvedFractionDigits(XSFractionDigits(0u)),
         patterns = listOf(ResolvedPattern(XSPattern("[\\-+]?[0-9]+"), SchemaVersion.V1_1,)),
-        maxConstraint = ResolvedMaxInclusive.Companion.createUnverified(XsdInteger(-1)),
+        maxConstraint = ResolvedMaxInclusive.Companion.createUnverified(XsdNegativeInteger(-1)),
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
@@ -53,12 +54,12 @@ object ResNegativeIntegerType : ResolvedBuiltinAtomicType<XsdInteger>, ResIInteg
         numeric = true,
     )
 
-    override fun valueFromNormalized(normalized: XsdString): XsdInteger {
-        return when (normalized.toLong()) {
+    override fun valueFromNormalized(normalized: XsdString): XsdNegativeInteger {
+        return when (val l = normalized.toLong()) {
             in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
-                XsdInteger(normalized.toLong().toInt())
+                XsdNegativeInteger(l.toInt())
 
-            else -> XsdInteger(normalized.toLong())
+            else -> XsdNegativeInteger(l)
         }
     }
 

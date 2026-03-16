@@ -69,7 +69,7 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     override val sign: Int
         get() = if (ints.isEmpty() && ints[0] == 0u) 0 else 1
 
-    override fun unaryMinus(): XsdNonPositiveInteger {
+    override fun unaryMinus(): BigNegativeInt {
         return BigNegativeInt(ints, exp)
     }
 

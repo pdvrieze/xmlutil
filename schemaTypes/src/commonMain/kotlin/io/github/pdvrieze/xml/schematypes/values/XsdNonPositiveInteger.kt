@@ -32,6 +32,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 interface XsdNonPositiveInteger : XsdInteger {
 
     override val schemaType: NonPositiveIntegerType<XsdNonPositiveInteger>
+        get() = NonPositiveIntegerType.Instance
 
     fun toULong(): ULong
 
@@ -80,5 +81,3 @@ interface XsdNonPositiveInteger : XsdInteger {
 
     }
 }
-
-typealias XsdNegativeInteger = XsdNonPositiveInteger

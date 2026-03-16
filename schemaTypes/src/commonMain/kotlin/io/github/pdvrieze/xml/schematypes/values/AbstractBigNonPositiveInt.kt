@@ -20,14 +20,11 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.types.NonPositiveIntegerType
-
 @OptIn(ExperimentalUnsignedTypes::class)
 abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> protected constructor(
     ints: UIntArray,
     exp: ULong
-) : AbstractBigInteger<T>(ints, exp),
-    XsdNonPositiveInteger {
+) : AbstractBigInteger<T>(ints, exp), XsdNonPositiveInteger {
 
     init {
         require(ints.isNotEmpty()) { "At least one integer must be present" }
@@ -35,9 +32,6 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
             require(exp == 0uL) { "The value is zero, but an exponent is present" }
         }
     }
-
-    override val schemaType: NonPositiveIntegerType<XsdNonPositiveInteger>
-        get() = NonPositiveIntegerType.Instance
 
     internal class ParseResult(val ints: UIntArray, val exp: ULong)
 
@@ -66,11 +60,11 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
 
     override fun toLong(): Long = toULong().toLong()
 
-    operator fun div(divider: UInt): T = divRem(divider).quotient
+    operator fun div(divider: UInt): BigNonPositiveInt = divRem(divider).quotient
 
-    operator fun div(divider: ULong): T = divRem(BigUnsignedInt(divider)).quotient
+    operator fun div(divider: ULong): BigNonPositiveInt = divRem(BigUnsignedInt(divider)).quotient
 
-    abstract fun divRem(divider: XsdNonNegativeInteger): DivRem<T, AbstractBigNonPositiveInt<*>>
+    abstract fun divRem(divider: XsdNonNegativeInteger): DivRem<BigNonPositiveInt, AbstractBigNonPositiveInt<*>>
 
     abstract fun divRem(divider: XsdNonPositiveInteger): DivRem<AbstractBigUnsignedInt<*>, AbstractBigNonPositiveInt<*>>
 
@@ -78,7 +72,7 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
         return divRem(divider).quotient
     }
 
-    abstract fun divRem(divider: UInt): DivRem<T, Int>
+    abstract fun divRem(divider: UInt): DivRem<BigNonPositiveInt, Int>
 
     override operator fun plus(other: XsdNonPositiveInteger): XsdNonPositiveInteger {
         if (other is BigNonPositiveInt) { return plus(other) }

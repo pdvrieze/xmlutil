@@ -27,7 +27,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdNonPositiveInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface NonPositiveIntegerType<out T : XsdInteger> : IntegerType<T> {
+interface NonPositiveIntegerType<out T : XsdNonPositiveInteger> : IntegerType<T> {
     override val baseType: IntegerType<*> get() = IntegerType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL

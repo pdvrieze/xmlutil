@@ -33,10 +33,11 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.NonPositiveIntegerType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNonPositiveInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-object ResNonPositiveIntegerType : ResolvedBuiltinAtomicType<XsdInteger>, ResIIntegerType<XsdInteger>,
-    NonPositiveIntegerType<XsdInteger> {
+object ResNonPositiveIntegerType : ResolvedBuiltinAtomicType<XsdNonPositiveInteger>, ResIIntegerType<XsdNonPositiveInteger>,
+    NonPositiveIntegerType<XsdNonPositiveInteger> {
     override val baseType: ResIntegerType get() = ResIntegerType
 
     override val mdlFacets: FacetList = FacetList(
@@ -47,18 +48,18 @@ object ResNonPositiveIntegerType : ResolvedBuiltinAtomicType<XsdInteger>, ResIIn
     )
 
     override val mdlFundamentalFacets: FundamentalFacets = FundamentalFacets(
-        ordered = FacetOrdered.Companion.TOTAL,
+        ordered = FacetOrdered.TOTAL,
         bounded = false,
-        cardinality = FacetCardinality.Companion.COUNTABLY_INFINITE,
+        cardinality = FacetCardinality.COUNTABLY_INFINITE,
         numeric = true,
     )
 
-    override fun valueFromNormalized(normalized: XsdString): XsdInteger {
+    override fun valueFromNormalized(normalized: XsdString): XsdNonPositiveInteger {
         return when (normalized.toLong()) {
             in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
-                XsdInteger(normalized.toLong().toInt())
+                XsdNonPositiveInteger(normalized.toLong().toInt())
 
-            else -> XsdInteger(normalized.toLong())
+            else -> XsdNonPositiveInteger(normalized.toLong())
         }
     }
 

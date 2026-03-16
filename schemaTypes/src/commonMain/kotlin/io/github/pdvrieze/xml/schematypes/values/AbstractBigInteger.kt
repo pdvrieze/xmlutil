@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.types.IntegerType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -300,7 +299,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
     /**
      * Get the absolute value of this value.
      */
-    final override fun abs(): AbstractBigUnsignedInt<*> {
+    final override fun abs(): BigUnsignedInt {
         return when {
             sign == 0 -> BigUnsignedInt.ZERO
             else -> BigUnsignedInt(ints, exp)
@@ -310,9 +309,6 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
     fun toSigned(): BigInt {
         return BigInt(sign, ints, exp)
     }
-
-    override val schemaType: IntegerType<XsdInteger>
-        get() = IntegerType.Instance
 
     fun expandExp(): T {
         return expandWithEffectiveExp(exp)
