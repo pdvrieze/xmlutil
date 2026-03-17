@@ -24,8 +24,8 @@ import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlSerialException
+import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.w3.dom.nthElement
 import org.w3.qt3tests.Qt3Catalog
@@ -63,7 +63,29 @@ class TestParseCatalog {
 
     @Test
     fun testParse() {
-        val xml = XML.v1{}
+        val xml = XML.v1{
+            policy {
+                unknownChildHandler = object : UnknownChildHandler {
+                    override fun handleUnknownChildRecovering(
+                        input: XmlReader,
+                        inputKind: InputKind,
+                        descriptor: XmlDescriptor,
+                        name: QName?,
+                        candidates: Collection<Any>
+                    ): List<XML.ParsedData<*>> {
+                        if (inputKind == InputKind.Attribute &&
+                            input.eventType == EventType.START_ELEMENT &&
+                            input.localName == "query" &&
+                            name != null &&
+                            name.isEquivalent(QName("uri"))
+                        ) {
+                            return emptyList()
+                        }
+                        return XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER.handleUnknownChildRecovering(input, inputKind, descriptor, name, candidates)
+                    }
+                }
+            }
+        }
         val resolutionContext = ResolutionContextImpl("/xpath/", xml)
 
         val catalog = context(resolutionContext) {
