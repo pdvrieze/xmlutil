@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.XPath3_0
-
 enum class Operator(val literal: String, val priority: Int) {
 
     OR("or", 1),

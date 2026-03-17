@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath
 
-import io.github.pdvrieze.formats.xpath.impl.Expr
-import io.github.pdvrieze.formats.xpath.impl.OutputContext
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -88,7 +86,7 @@ interface XPathExpression: XQueryExpression {
             ver: XPathVersion = XPathVersion.XPath3_1,
             posInfo: XmlReader.LocationInfo? = null,
         ): XPathExpression {
-            val parser = XPathExpressionImpl.Parser(xmlTrimWhitespace(path), namespaceContext, ver, posInfo)
+            val parser = XQueryParser(xmlTrimWhitespace(path), namespaceContext, ver, posInfo)
             return XPathExpressionImpl(path, parser.parseXPathExpr(), ver)
         }
 

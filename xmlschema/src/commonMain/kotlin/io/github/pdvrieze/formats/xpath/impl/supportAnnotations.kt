@@ -20,18 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-@XPathInternal
-internal class MapConstructor @XPath3_1 constructor(val entries: List<Entry>): ExprSingle() {
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 2+ check")
+internal annotation class XPath2
 
-    context(c: OutputContext)
-    override fun appendToString(builder: Appendable) {
-        builder.append("map{")
-        builder.joinHelper(entries) {
-            it.key.appendToString(builder)
-            append(" : ")
-            it.value.appendToString(builder)
-        }
-    }
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3+ check")
+internal annotation class XPath3_0
 
-    class Entry(val key: ExprSingle, val value: ExprSingle)
-}
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3.1+ check")
+internal annotation class XPath3_1
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XQuery check")
+internal annotation class XQuery
+
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XQuery 3.1+ check")
+internal annotation class XQuery3_1

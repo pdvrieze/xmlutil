@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.XPath3_0
-
 @XPathInternal
 class LetExpr @XPath3_0 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingle() {
     context(c: OutputContext)

@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.XPath3_1
-
 @XPathInternal
 sealed class ArrayConstructor(): ExprSingle() {
 

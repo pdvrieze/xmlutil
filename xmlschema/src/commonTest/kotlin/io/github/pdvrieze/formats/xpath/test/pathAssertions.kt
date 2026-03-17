@@ -23,7 +23,6 @@
 package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
-import io.github.pdvrieze.formats.xpath.XPathExpressionImpl
 import io.github.pdvrieze.formats.xpath.impl.*
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
