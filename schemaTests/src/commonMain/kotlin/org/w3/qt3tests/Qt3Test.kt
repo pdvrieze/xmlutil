@@ -42,7 +42,7 @@ class Qt3Test(
     @XmlValue val value: UnresolvedXQueryExpr
 ) {
     context(ctx: AssertionResolutionContext)
-    fun resolve(isXpath: Boolean): ResolvedQt3Test {
-        return ResolvedQt3Test(file, value.resolve(isXpath).getOrThrow())
+    fun resolve(): ResolvedQt3Test {
+        return ResolvedQt3Test(file, value.resolveXQuery().getOrThrow())
     }
 }

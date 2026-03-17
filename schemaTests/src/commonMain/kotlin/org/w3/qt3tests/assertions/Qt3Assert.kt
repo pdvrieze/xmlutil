@@ -41,7 +41,7 @@ import org.w3.qt3tests.resolved.assertions.ResolvedQt3Assert
 class Qt3Assert(@XmlValue val assertion: UnresolvedXPathExpr): Qt3AbstractAssertion() {
     context(ctx: AssertionResolutionContext)
     override fun resolve(): ResolvedQt3Assert {
-        return ResolvedQt3Assert(assertion.resolve().getOrThrow())
+        return ResolvedQt3Assert(assertion.resolveXPath().getOrThrow())
     }
 }
 

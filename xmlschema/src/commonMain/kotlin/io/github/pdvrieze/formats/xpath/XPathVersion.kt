@@ -20,9 +20,19 @@
 
 package io.github.pdvrieze.formats.xpath
 
-enum class XPathVersion : Comparable<XPathVersion> {
+sealed interface SpecVersion
+
+enum class XPathVersion : Comparable<XPathVersion>, SpecVersion {
     XPath1_0,
     XPath2_0,
     XPath3_0,
     XPath3_1;
 }
+
+enum class XQueryVersion : Comparable<XQueryVersion>, SpecVersion {
+    XQuery1_0,
+    XQuery2_0,
+    XQuery3_0,
+    XQuery3_1;
+}
+

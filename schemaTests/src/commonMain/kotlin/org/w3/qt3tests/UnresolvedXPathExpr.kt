@@ -21,6 +21,9 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.XQueryExpression
+import io.github.pdvrieze.formats.xpath.XQueryVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -35,12 +38,12 @@ import org.w3.qt3tests.context.AssertionResolutionContext
 
 @Serializable(UnresolvedXPathExpr.Companion::class)
 interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
-    @Deprecated("Use resolve() instead", ReplaceWith("resolve()"))
-    context(ctx: AssertionResolutionContext)
-    override fun resolve(isXpath: Boolean): Result<XPathExpression> = resolve()
 
     context(ctx: AssertionResolutionContext)
-    fun resolve(): Result<XPathExpression>
+    override fun resolve(): Result<XPathExpression> = resolveXPath()
+
+    context(ctx: AssertionResolutionContext)
+    fun resolveXPath(): Result<XPathExpression>
 
     companion object: KSerializer<UnresolvedXPathExpr> {
         override val descriptor: SerialDescriptor =
@@ -62,13 +65,30 @@ interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
 }
 
 class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo?): UnresolvedXQueryExprImpl(expr, locationInfo), UnresolvedXPathExpr {
-    @Deprecated("Use resolve() instead", ReplaceWith("resolve()"))
-    context(ctx: AssertionResolutionContext)
-    override fun resolve(isXpath: Boolean): Result<XPathExpression> = resolve()
 
     context(ctx: AssertionResolutionContext)
-    override fun resolve(): Result<XPathExpression> {
-        return runCatching { XPathExpression(expr, ctx.namespaceContext, ctx.version, locationInfo) }
+    override fun resolveXQuery(): Result<XQueryExpression> {
+        val minPath = ctx.minXPathVersion
+        val minQuery = ctx.minXQueryVersion
+
+        return runCatching {
+            when {
+                minPath != null -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
+                else -> stubXQueryExpression(expr, ctx.namespaceContext, minQuery ?: XQueryVersion.XQuery3_1, locationInfo)
+            }
+        }
+    }
+
+    context(ctx: AssertionResolutionContext)
+    override fun resolveXPath(): Result<XPathExpression> {
+        return runCatching {
+            XPathExpression(
+                path = expr,
+                namespaceContext = ctx.namespaceContext,
+                ver = ctx.minXPathVersion ?: XPathVersion.XPath3_1,
+                posInfo = locationInfo
+            )
+        }
     }
 
 }

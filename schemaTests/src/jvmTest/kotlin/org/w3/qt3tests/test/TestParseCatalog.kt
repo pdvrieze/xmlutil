@@ -29,9 +29,12 @@ import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.w3.dom.nthElement
 import org.w3.qt3tests.Qt3Catalog
+import org.w3.qt3tests.Qt3Dependency
 import org.w3.qt3tests.Qt3TestSet
+import org.w3.qt3tests.resolved.CatalogResolutionContext
 import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
+import org.w3.qt3tests.resolved.TestSetResolutionContext
 import kotlin.test.Test
 
 class TestParseCatalog {
@@ -43,7 +46,7 @@ class TestParseCatalog {
             xml.decodeFromReader<Qt3TestSet>(reader)
         }
 
-        val resolutionContext = ResolutionContextImpl("/xpath/fn/", xml)
+        val resolutionContext = ResolutionContextImpl.Catalog("/xpath/fn/", xml)
         context(resolutionContext) {
             val _= testSet.resolve()
         }
@@ -86,7 +89,7 @@ class TestParseCatalog {
                 }
             }
         }
-        val resolutionContext = ResolutionContextImpl("/xpath/", xml)
+        val resolutionContext = ResolutionContextImpl.Catalog("/xpath/", xml)
 
         val catalog = context(resolutionContext) {
             resolutionContext.parseFile(Qt3Catalog.serializer(), "catalog.xml").resolve()
@@ -103,7 +106,7 @@ class TestParseCatalog {
     @Test
     fun testParseApply() {
         val xml = XML.v1{}
-        val resolutionContext = ResolutionContextImpl("/xpath/fn/", xml)
+        val resolutionContext = ResolutionContextImpl.Catalog("/xpath/fn/", xml)
 
         val testSet = context(resolutionContext) {
             resolutionContext.parseFile(org.w3.qt3tests.Qt3TestSet.serializer(), "apply.xml")
@@ -112,21 +115,21 @@ class TestParseCatalog {
     }
 }
 
-class ResolutionContextImpl(
+abstract class ResolutionContextImpl(
     override val base: String,
     override val xml: XML,
     override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
     override val idMap: MutableMap<String, Any> = HashMap(),
 ): ResolutionContext {
 
-    override fun subContext(file: String): ResolutionContext {
+    override fun subContext(file: String): CatalogResolutionContext {
         val i = file.lastIndexOf('/')
         val newBase = when {
-            i < 0 -> return this
+            i < 0 -> return this as? CatalogResolutionContext ?: Catalog(base, xml, knownEnvironments, idMap)
             else -> "$base${file.substring(0, i + 1)}"
         }
         // copy the maps to make names hierarchical (not ordered global across files)
-        return ResolutionContextImpl(newBase, xml, HashMap(knownEnvironments), HashMap(idMap))
+        return Catalog(newBase, xml, HashMap(knownEnvironments), HashMap(idMap))
     }
 
 
@@ -181,4 +184,26 @@ class ResolutionContextImpl(
             throw e
         }
     }
+
+    class Catalog(
+        base: String,
+        xml: XML,
+        knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
+        idMap: MutableMap<String, Any> = HashMap()
+    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap), CatalogResolutionContext {
+
+
+
+        override fun testSetContext(dependencies: List<Qt3Dependency>): TestSetResolutionContext {
+            return TestSet(base, xml, knownEnvironments, idMap, dependencies)
+        }
+    }
+
+    class TestSet(
+        base: String,
+        xml: XML,
+        knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
+        idMap: MutableMap<String, Any> = HashMap(),
+        override val setDependencies: List<Qt3Dependency>
+    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap), TestSetResolutionContext
 }

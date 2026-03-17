@@ -22,5 +22,5 @@ package io.github.pdvrieze.formats.xpath
 
 interface XQueryExpression {
     val xmlString: String
-    val version: XPathVersion
+    val version: SpecVersion
 }

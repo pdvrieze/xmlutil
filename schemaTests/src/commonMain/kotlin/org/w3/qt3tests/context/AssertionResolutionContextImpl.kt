@@ -20,15 +20,22 @@
 
 package org.w3.qt3tests.context
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.XQueryVersion
 import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
+import org.w3.qt3tests.Qt3SpecDependency
+import org.w3.qt3tests.resolved.CatalogResolutionContext
 import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
 
-class AssertionResolutionContextImpl(private val orig: ResolutionContext, val environment: ResolvedQt3Environment?) :
-    ResolutionContext, AssertionResolutionContext {
+class AssertionResolutionContextImpl(
+    private val orig: ResolutionContext,
+    override val environment: ResolvedQt3Environment?,
+    override val specDeps: List<Qt3SpecDependency.Spec>?,
+) : ResolutionContext, AssertionResolutionContext {
     override val base: String get() = orig.base
 
     override val xml: XML get() = orig.xml
@@ -39,6 +46,21 @@ class AssertionResolutionContextImpl(private val orig: ResolutionContext, val en
     }
 
     override val idMap: MutableMap<String, Any> = mutableMapOf()
+
+    override val minXPathVersion: XPathVersion? = specDeps?.run {
+        asSequence()
+            .flatMap { it.supported }
+            .filterIsInstance<XPathVersion>()
+            .minByOrNull { it.ordinal }
+    }
+
+    override val minXQueryVersion: XQueryVersion? = specDeps?.run {
+        asSequence()
+            .flatMap { it.supported }
+            .filterIsInstance<XQueryVersion>()
+            .minByOrNull { it.ordinal }
+    }
+
 
     override fun parseDocument(relativePath: String): Document {
         return orig.parseDocument(relativePath)
@@ -51,7 +73,7 @@ class AssertionResolutionContextImpl(private val orig: ResolutionContext, val en
         return orig.parseFile(deserializer, relativePath)
     }
 
-    override fun subContext(file: String): ResolutionContext {
+    override fun subContext(file: String): CatalogResolutionContext {
         return orig.subContext(file)
     }
 

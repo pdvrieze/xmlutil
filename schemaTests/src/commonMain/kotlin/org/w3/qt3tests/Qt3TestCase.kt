@@ -29,9 +29,9 @@ import org.w3.qt3tests.attrGroups.Qt3Covers30Attr
 import org.w3.qt3tests.attrGroups.Qt3CoversAttr
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
 import org.w3.qt3tests.context.AssertionResolutionContextImpl
-import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
+import org.w3.qt3tests.resolved.TestSetResolutionContext
 
 /**
  * Denotes an element that contains a test that must be run in a named environment, also contains
@@ -56,7 +56,7 @@ class Qt3TestCase(
     override val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>? = emptyList(),
 ): Qt3NameAttr, Qt3CoversAttr, Qt3Covers30Attr {
 
-    context(ctx: ResolutionContext)
+    context(ctx: TestSetResolutionContext)
     fun resolve(): ResolvedQt3TestCase {
 
         val env: ResolvedQt3Environment? = when {
@@ -66,7 +66,15 @@ class Qt3TestCase(
             }
             else -> null
         }
-        context(AssertionResolutionContextImpl(ctx, env)) {
+
+        val specDeps = (ctx.setDependencies.asSequence() + dependencies.asSequence())
+            .filterIsInstance<Qt3SpecDependency>()
+            .lastOrNull()
+            ?.supportedSpecs
+
+
+        val newCtx = AssertionResolutionContextImpl(ctx, env, specDeps)
+        context(newCtx) {
             val isXpath = env != null && env.namespaces.isNotEmpty()
             return ResolvedQt3TestCase(
                 description,
@@ -75,7 +83,7 @@ class Qt3TestCase(
                 environment,
                 modules,
                 dependencies,
-                test?.resolve(isXpath = false),
+                test?.resolve(),
                 result?.resolve(),
                 name,
                 covers,

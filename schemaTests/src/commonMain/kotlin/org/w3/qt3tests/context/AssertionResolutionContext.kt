@@ -21,9 +21,17 @@
 package org.w3.qt3tests.context
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.XQueryVersion
 import nl.adaptivity.xmlutil.NamespaceContext
+import org.w3.qt3tests.Qt3SpecDependency
+import org.w3.qt3tests.resolved.ResolvedQt3Environment
 
 interface AssertionResolutionContext {
     val namespaceContext: NamespaceContext
-    val version: XPathVersion get() = XPathVersion.XPath3_1
+
+    val environment: ResolvedQt3Environment?
+    val specDeps: List<Qt3SpecDependency.Spec>?
+
+    val minXPathVersion: XPathVersion?
+    val minXQueryVersion: XQueryVersion?
 }

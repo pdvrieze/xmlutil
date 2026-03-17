@@ -25,6 +25,7 @@ import kotlinx.serialization.SerializationException
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.qt3tests.FileContextException
+import org.w3.qt3tests.Qt3Dependency
 
 interface ResolutionContext {
     val base: String
@@ -34,10 +35,18 @@ interface ResolutionContext {
 
     fun parseDocument(relativePath: String): Document
     fun <T> parseFile(deserializer: DeserializationStrategy<T>, relativePath: String): T
-    fun subContext(file: String): ResolutionContext
+    fun subContext(file: String): CatalogResolutionContext
 }
 
-inline fun <R> ResolutionContext.subContext(file: String, block: context(ResolutionContext)  () -> R): R {
+interface CatalogResolutionContext: ResolutionContext {
+    fun testSetContext(dependencies: List<Qt3Dependency>): TestSetResolutionContext
+}
+
+interface TestSetResolutionContext: ResolutionContext {
+    val setDependencies: List<Qt3Dependency>
+}
+
+inline fun <R> ResolutionContext.subContext(file: String, block: context(CatalogResolutionContext)  () -> R): R {
     return context(subContext(file)) {
         try {
             block()

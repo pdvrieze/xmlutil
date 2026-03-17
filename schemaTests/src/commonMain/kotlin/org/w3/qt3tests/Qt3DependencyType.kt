@@ -42,7 +42,15 @@ enum class Qt3DependencyType {
     @SerialName("limits")
     LIMITS,
     @SerialName("spec")
-    SPEC,
+    SPEC {
+        override fun createDependency(value: String?, satisfied: Boolean): Qt3SpecDependency {
+            val specs= requireNotNull(value) {"Missing value"}
+                .splitToSequence(' ')
+                .map { Qt3SpecDependency.Spec.from(it) }
+                .toList()
+            return Qt3SpecDependency(specs, satisfied)
+        }
+    },
     @SerialName("schemaAware")
     SCHEMAAWARE,
     @SerialName("unicode-normalization-form")
@@ -52,5 +60,8 @@ enum class Qt3DependencyType {
     @SerialName("xml-version")
     XML_VERSION,
     @SerialName("xsd-version")
-    XSD_VERSION,
+    XSD_VERSION, ;
+
+    open fun createDependency(value: String?, satisfied: Boolean): Qt3Dependency =
+        Qt3Dependency.Generic(this, value, satisfied)
 }

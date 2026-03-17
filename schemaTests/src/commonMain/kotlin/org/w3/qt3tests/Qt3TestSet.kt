@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3Covers30Attr
 import org.w3.qt3tests.attrGroups.Qt3CoversAttr
 import org.w3.qt3tests.attrGroups.Qt3NameAttr
-import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.CatalogResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3TestSet
 
 
@@ -50,20 +50,24 @@ class Qt3TestSet(
     val testCases: List<Qt3TestCase>,
 ) : Qt3NameAttr, Qt3CoversAttr, Qt3Covers30Attr {
 
-    context(ctx: ResolutionContext)
+    context(ctx: CatalogResolutionContext)
     fun resolve(): ResolvedQt3TestSet {
-        val environments = environments.map { it.resolve() }
         // this will also register the environments
-        return ResolvedQt3TestSet(
-            name,
-            testCases.map { it.resolve() },
-            covers,
-            covers30,
-            descriptions,
-            environments,
-            dependencies,
-            links,
-        )
+        val environments = environments.map { it.resolve() }
+
+
+        return context(ctx.testSetContext(dependencies)) {
+            ResolvedQt3TestSet(
+                name,
+                testCases.map { it.resolve() },
+                covers,
+                covers30,
+                descriptions,
+                environments,
+                dependencies,
+                links,
+            )
+        }
     }
 
 }

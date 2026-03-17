@@ -23,6 +23,7 @@ package org.w3.qt3tests
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
+import io.github.pdvrieze.formats.xpath.XQueryVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -30,6 +31,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.name
 import nl.adaptivity.xmlutil.serialization.XML
@@ -41,8 +43,10 @@ interface UnresolvedXQueryExpr {
     val locationInfo: XmlReader.LocationInfo?
 
     context(ctx: AssertionResolutionContext)
-    fun resolve(isXpath: Boolean): Result<XQueryExpression>
+    fun resolve(): Result<XQueryExpression> = resolveXQuery()
 
+    context(ctx: AssertionResolutionContext)
+    fun resolveXQuery(): Result<XQueryExpression>
 
     companion object: KSerializer<UnresolvedXQueryExpr> {
         override val descriptor: SerialDescriptor =
@@ -67,22 +71,24 @@ open class UnresolvedXQueryExprImpl(
     override val expr: String,
     override val locationInfo: XmlReader.LocationInfo?
 ) : UnresolvedXQueryExpr {
-
     context(ctx: AssertionResolutionContext)
-    override fun resolve(isXpath: Boolean): Result<XQueryExpression> {
-        return when {
-            isXpath -> runCatching {
-                XPathExpression(expr, ctx.namespaceContext, ctx.version, locationInfo)
+    override fun resolveXQuery(): Result<XQueryExpression> {
+        val minPath = ctx.minXPathVersion
+        val minQuery = ctx.minXQueryVersion
+
+        return runCatching {
+            when {
+                minPath != null -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
+                minQuery != null -> stubXQueryExpression(expr, ctx.namespaceContext, minQuery, locationInfo)
+                else -> XPathExpression(expr, ctx.namespaceContext, minPath ?: XPathVersion.XPath3_1, locationInfo)
             }
-
-            else -> Result.success(object: XQueryExpression {
-                override val xmlString: String get() = expr
-                override val version: XPathVersion get() = XPathVersion.XPath3_1
-            })
         }
-
-
     }
+}
 
+
+internal fun stubXQueryExpression(expr: String, namepaceContext: NamespaceContext, version: XQueryVersion, locationInfo: XmlReader.LocationInfo?): XQueryExpression = object : XQueryExpression {
+    override val xmlString: String = expr
+    override val version: XQueryVersion = version
 }
 

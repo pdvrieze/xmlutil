@@ -20,7 +20,13 @@
 
 package org.w3.qt3tests
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.*
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3TypeAttr
@@ -51,12 +57,56 @@ import org.w3.qt3tests.attrGroups.Qt3ValueAttr
  * satisfied. For example, this might be used in a test to show what happens if a language
  * (such as `lang="jp"` is requested and the processor does not support that language.
  */
-@Serializable
-@XmlSerialName("dependency", QT3TNS)
-class Qt3Dependency(
-    @XmlElement(false) override val type: Qt3DependencyType? = null,
-    override val value: String? = null,
+@Serializable(Qt3Dependency.Companion::class)
+sealed class Qt3Dependency(
     val satisfied: Boolean = true,
-): Qt3TypeAttr, Qt3ValueAttr {
+) : Qt3TypeAttr, Qt3ValueAttr {
 
+    abstract override val type: Qt3DependencyType?
+    abstract override val value: String?
+
+    class Generic(
+        override val type: Qt3DependencyType?,
+        override val value: String?,
+        satisfied: Boolean
+    ) : Qt3Dependency(satisfied)
+
+    @OptIn(ExperimentalSerializationApi::class)
+    companion object: KSerializer<Qt3Dependency> {
+        val typeSerializer = Qt3DependencyType.serializer()
+
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("org.w3.qt3tests.Qt3Dependency") {
+            annotations = listOf(XmlSerialName("dependency", QT3TNS, ""))
+            element("type", typeSerializer.descriptor, listOf(XmlElement(false)), true)
+            element("value", String.serializer().descriptor, listOf(XmlElement(false)), true)
+            element("satisfied", Boolean.serializer().descriptor, listOf(XmlElement(false)), true)
+        }
+
+        override fun serialize(encoder: Encoder, value: Qt3Dependency) {
+            encoder.encodeStructure(descriptor) {
+                value.type?.let { encodeSerializableElement(descriptor, 0, typeSerializer, it) }
+                value.value?.let { encodeStringElement(descriptor, 1, it) }
+                encodeBooleanElement(descriptor, 2, value.satisfied)
+            }
+        }
+
+        override fun deserialize(decoder: Decoder): Qt3Dependency {
+            var type: Qt3DependencyType? = null
+            var value: String? = null
+            var satisfied: Boolean = true
+            decoder.decodeStructure(descriptor) {
+                while (true) {
+                    when (val idx = decodeElementIndex(descriptor)) {
+                        0 -> type = decodeSerializableElement(descriptor, 0, typeSerializer)
+                        1 -> value = decodeStringElement(descriptor, 1)
+                        2 -> satisfied = decodeBooleanElement(descriptor, 2)
+                        CompositeDecoder.DECODE_DONE -> break
+                        else -> error("Unexpected index: $idx")
+                    }
+                }
+            }
+            return type?.createDependency(value, satisfied) ?: return Generic(type, value, satisfied)
+        }
+    }
 }
+
