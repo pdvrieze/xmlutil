@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-@XPath3_1
 sealed class ArrayTypeTest: ItemTypeTest {
+    @XPath3_1
     object ANY: ArrayTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -30,7 +30,7 @@ sealed class ArrayTypeTest: ItemTypeTest {
         }
     }
 
-    class Typed(val elemType: SequenceTypeTest): ArrayTypeTest() {
+    class Typed @XPath3_1 constructor(val elemType: SequenceTypeTest): ArrayTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("array(")

@@ -20,10 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
 sealed class UnaryExpr: ExprSingle() {
 
-    class Plus(val expr: ExprSingle): UnaryExpr() {
+    class Plus @XPath2 constructor(val expr: ExprSingle): UnaryExpr() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('+')
@@ -49,7 +51,17 @@ sealed class UnaryExpr: ExprSingle() {
 
     }
 
+    @XPath1
     class Minus(val expr: ExprSingle): UnaryExpr() {
+        override fun collectUnsupportedExprs(
+            xPathVersion: XPathVersion,
+            isXQuery: Boolean,
+            collector: MutableList<Any>
+        ) {
+            expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
+        }
+
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('-')

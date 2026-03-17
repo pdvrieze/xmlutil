@@ -21,7 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-sealed class SequenceTypeTest : ItemTypeTest {
+sealed class SequenceTypeTest @XPath2 constructor() : ItemTypeTest {
+    @XPath2
     object EmptySequence : SequenceTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -29,7 +30,7 @@ sealed class SequenceTypeTest : ItemTypeTest {
         }
     }
 
-    class ItemSequenceTest(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceTypeTest() {
+    class ItemSequenceTest @XPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             itemType.appendToString(builder)

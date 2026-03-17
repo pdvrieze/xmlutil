@@ -24,6 +24,9 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.toCName
 
+/**
+ * Introduced in 3.0 to hold a QName in item type tests. However, this was just "AtomicType" in 2.0
+ */
 @XPathInternal
 class AtomicOrUnionTypeTest(val name: QName): ItemTypeTest {
     init {

@@ -20,35 +20,37 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-enum class Operator(val literal: String, val priority: Int) {
+import io.github.pdvrieze.formats.xpath.XPathVersion
 
-    OR("or", 1),
-    AND("and", 2),
-    UNION("union", 8),
-    INTERSECT("union", 9),
-    EXCEPT("except", 9),
-    EQ("=", 3),
-    NEQ("!=", 3),
-    LT("<", 4),
-    LE("<=", 4),
-    GT(">", 4),
-    GE(">=", 4),
-    VAL_EQ("eq", 3),
-    VAL_NEQ("neq", 3),
-    VAL_LT("lt", 4),
-    VAL_LE("le", 4),
-    VAL_GT("gt", 4),
-    VAL_GE("ge", 4),
-    ADD("+", 5),
-    SUB("-", 5),
-    MUL("*", 6),
-    DIV("div", 6),
-    IDIV("idiv", 6),
-    MOD("mod", 6),
-    PRECEDES("<<", 1),
-    FOLLOWS(">>", 1),
-    IS("is", 1),
-    @XPath3_0 CONCAT("||", 7)
+enum class Operator(val literal: String, val priority: Int, val minVersion: XPathVersion = XPathVersion.XPath3_1) {
+
+    @XPath1 OR("or", 1, XPathVersion.XPath1_0),
+    @XPath1 AND("and", 2, XPathVersion.XPath1_0),
+    @XPath1 UNION("union", 8, XPathVersion.XPath1_0),
+    @XPath2 INTERSECT("intersect", 9, XPathVersion.XPath2_0),
+    @XPath2 EXCEPT("except", 9, XPathVersion.XPath2_0),
+    @XPath1 EQ("=", 3, XPathVersion.XPath1_0),
+    @XPath1 NEQ("!=", 3, XPathVersion.XPath1_0),
+    @XPath1 LT("<", 4, XPathVersion.XPath1_0),
+    @XPath1 LE("<=", 4, XPathVersion.XPath1_0),
+    @XPath1 GT(">", 4, XPathVersion.XPath1_0),
+    @XPath1 GE(">=", 4, XPathVersion.XPath1_0),
+    @XPath2 VAL_EQ("eq", 3, XPathVersion.XPath2_0),
+    @XPath2 VAL_NEQ("neq", 3, XPathVersion.XPath2_0),
+    @XPath2 VAL_LT("lt", 4, XPathVersion.XPath2_0),
+    @XPath2 VAL_LE("le", 4, XPathVersion.XPath2_0),
+    @XPath2 VAL_GT("gt", 4, XPathVersion.XPath2_0),
+    @XPath2 VAL_GE("ge", 4, XPathVersion.XPath2_0),
+    @XPath1 ADD("+", 5, XPathVersion.XPath1_0),
+    @XPath1 SUB("-", 5, XPathVersion.XPath1_0),
+    @XPath1 MUL("*", 6, XPathVersion.XPath1_0),
+    @XPath1 DIV("div", 6, XPathVersion.XPath1_0),
+    @XPath2 IDIV("idiv", 6, XPathVersion.XPath2_0),
+    @XPath1 MOD("mod", 6, XPathVersion.XPath1_0),
+    @XPath2 PRECEDES("<<", 1, XPathVersion.XPath2_0),
+    @XPath2 FOLLOWS(">>", 1, XPathVersion.XPath2_0),
+    @XPath2 IS("is", 1, XPathVersion.XPath2_0),
+    @XPath3_0 CONCAT("||", 7, XPathVersion.XPath3_0)
     ;
 
 }

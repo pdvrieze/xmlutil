@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
+@XPath1
 internal sealed class NodeTest {
     sealed class NameTest() : NodeTest()
 

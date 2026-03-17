@@ -20,10 +20,19 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @XPathInternal
-internal class IntegerLiteral(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
+internal class IntegerLiteral @XPath2 constructor(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        if (xPathVersion < XPathVersion.XPath2_0) collector.add(this)
+    }
+
     override fun toDouble(): Double = value.toDouble()
     override fun toLong(): Long = value.toLong()
     override fun toInt(): Int = value.toInt()

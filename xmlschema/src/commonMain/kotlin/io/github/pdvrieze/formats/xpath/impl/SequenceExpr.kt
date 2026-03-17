@@ -20,17 +20,31 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
-class SequenceExpr(elements: List<ExprSingle>) : Expr() {
-    constructor(vararg elements: ExprSingle): this(elements.toList())
+class SequenceExpr @XPath2 constructor(elements: List<ExprSingle>) : Expr() {
+    @XPath2 constructor(vararg elements: ExprSingle): this(elements.toList())
 
     val elements: List<ExprSingle> = elements.toList()
 
     fun isEmpty() = elements.isEmpty()
 
+    @OptIn(XPath2::class)
     operator fun plus(expr: Expr): SequenceExpr = when (expr) {
         is SequenceExpr -> SequenceExpr(elements + expr.elements)
         is ExprSingle -> SequenceExpr(elements + expr)
+    }
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        if (xPathVersion< XPathVersion.XPath2_0) collector.add(this)
+        for (e in elements) {
+            e.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
+        }
     }
 
     context(c: OutputContext)

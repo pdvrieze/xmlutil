@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+//@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 2+ check")
+internal annotation class XPath1
+
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 2+ check")
 internal annotation class XPath2
 

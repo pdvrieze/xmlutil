@@ -20,9 +20,20 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
+/**
+ * Note that XPath 1.0 only supports doubles
+ */
 @XPathInternal
 internal abstract class NumberLiteral<out T: Any>() : LiteralExpr<T>() {
     abstract fun toDouble(): Double
     abstract fun toLong(): Long
     abstract fun toInt(): Int
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {}
 }

@@ -20,8 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
+@XPath1
 internal class StringLiteral(override val value: String) : LiteralExpr<String>() {
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {}
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         var hasQuot = false

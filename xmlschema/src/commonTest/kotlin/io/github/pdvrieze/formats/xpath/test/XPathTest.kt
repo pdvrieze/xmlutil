@@ -26,7 +26,7 @@ import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
 import kotlin.test.*
 
-@OptIn(XPathInternal::class)
+@OptIn(XPathInternal::class, XPath2::class, XPath3_0::class, XPath3_1::class)
 class XPathTest {
 
     @Test

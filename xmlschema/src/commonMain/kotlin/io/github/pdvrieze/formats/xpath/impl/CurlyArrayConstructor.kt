@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
-sealed class ArrayConstructor(): ExprSingle() {
+sealed class ArrayConstructor @XPath3_1 constructor(): ExprSingle() {
 
     @XPathInternal
     class Square @XPath3_1 constructor(val values: List<ExprSingle>): ArrayConstructor() {
@@ -31,6 +33,15 @@ sealed class ArrayConstructor(): ExprSingle() {
             builder.append("[ ")
             builder.appendExprs(values)
             builder.append(" ]")
+        }
+
+        override fun collectUnsupportedExprs(
+            xPathVersion: XPathVersion,
+            isXQuery: Boolean,
+            collector: MutableList<Any>
+        ) {
+            if (xPathVersion < XPathVersion.XPath3_1) collector.add(this)
+            values.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
         }
     }
 
@@ -43,5 +54,16 @@ sealed class ArrayConstructor(): ExprSingle() {
             expr.appendToString(builder)
             builder.append(" }")
         }
+
+
+        override fun collectUnsupportedExprs(
+            xPathVersion: XPathVersion,
+            isXQuery: Boolean,
+            collector: MutableList<Any>
+        ) {
+            if (xPathVersion < XPathVersion.XPath3_1) collector.add(this)
+            expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
+        }
+
     }
 }

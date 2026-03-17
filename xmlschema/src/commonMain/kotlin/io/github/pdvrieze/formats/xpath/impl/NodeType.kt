@@ -22,25 +22,35 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
-enum class NodeType(val literal: String) {
-    DOCUMENT("document-node"),
-    ELEMENT("element"),
-    SCHEMA_ELEMENT("schema-element"),
-    SCHEMA_ATTRIBUTE("schema-attribute"),
-    ATTRIBUTE("attribute"),
-    COMMENT("comment"),
-    TEXT("text"),
-    PROCESSING_INSTRUCTION("processing-instruction"),
-    NAMESPACE_NODE("namespace-node") {
-        override val minVersion: XPathVersion get() = XPathVersion.XPath3_0
-    },
-    ANY_KIND("node"),;
+enum class NodeType(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath3_1) {
+    @XPath2 DOCUMENT("document-node", XPathVersion.XPath2_0),
+    @XPath2 ELEMENT("element", XPathVersion.XPath2_0),
+    @XPath2 SCHEMA_ELEMENT("schema-element", XPathVersion.XPath2_0),
+    @XPath2 SCHEMA_ATTRIBUTE("schema-attribute", XPathVersion.XPath2_0),
+    @XPath2 ATTRIBUTE("attribute", XPathVersion.XPath2_0),
+    @XPath1 COMMENT("comment", XPathVersion.XPath1_0),
+    @XPath1 TEXT("text", XPathVersion.XPath1_0),
+    @XPath1 PROCESSING_INSTRUCTION("processing-instruction", XPathVersion.XPath1_0),
+    @XPath3_0 NAMESPACE_NODE("namespace-node", XPathVersion.XPath3_0),
+    @XPath1 ANY_KIND("node", XPathVersion.XPath1_0),;
 
-    open val minVersion: XPathVersion get() = XPathVersion.XPath1_0
+
+    fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        if (minVersion > xPathVersion) collector.add(this)
+    }
+
+    override fun toString(): String {
+        return "NodeType test($literal)"
+    }
 
     companion object {
         private val lookup = entries.associateBy { it.literal }
 
+        /** Has internal version check */
         fun maybeValueOf(name: String, version: XPathVersion): NodeType? {
             return lookup[name]?.takeIf { it.minVersion <= version }
         }

@@ -29,6 +29,7 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         builder.append(')')
     }
 
+    @OptIn(XPath2::class)
     fun toExprList(): List<ExprSingle> = when (expr) {
         is SequenceExpr -> expr.elements
         is ExprSingle -> listOf(expr)
@@ -50,6 +51,7 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
         return result
     }
 
+    @OptIn(XPath2::class)
     fun isEmptySequence(): Boolean {
         return expr is SequenceExpr && expr.isEmpty()
     }

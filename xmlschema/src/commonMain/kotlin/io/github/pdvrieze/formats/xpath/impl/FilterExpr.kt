@@ -20,8 +20,21 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @OptIn(XPathInternal::class)
+@XPath1
 internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        primaryExpr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
+        predicates.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         primaryExpr.appendToString(builder)

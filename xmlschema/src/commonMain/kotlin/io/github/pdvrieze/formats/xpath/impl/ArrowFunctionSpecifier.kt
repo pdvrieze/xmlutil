@@ -20,30 +20,56 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-internal sealed class ArrowFunctionSpecifier {
+internal sealed class ArrowFunctionSpecifier @XPath3_1 constructor() {
+
+
+    abstract fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    )
+
+
     context(c: OutputContext)
     abstract fun appendToString(builder: Appendable)
 
-    internal class QNameFunc(val qname: QName) : ArrowFunctionSpecifier() {
+    internal class QNameFunc @XPath3_1 constructor(val qname: QName) : ArrowFunctionSpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.appendQName(qname)
         }
+
+        override fun collectUnsupportedExprs(
+            xPathVersion: XPathVersion,
+            isXQuery: Boolean,
+            collector: MutableList<Any>
+        ) {}
+
     }
 
-    internal class SeqFunc internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
+    internal class SeqFunc @XPath3_1 internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
         init {
             require(elements.isNotEmpty()) {"SeqFunc must have at least one element"}
         }
+        @XPath3_1
         internal constructor(p: ParenExpr): this(
             when(val c = p.expr) {
                 is SequenceExpr -> c.elements
                 is ExprSingle -> listOf(c)
             }
         )
+
+        override fun collectUnsupportedExprs(
+            xPathVersion: XPathVersion,
+            isXQuery: Boolean,
+            collector: MutableList<Any>
+        ) {
+            elements.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+        }
 
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -53,11 +79,17 @@ internal sealed class ArrowFunctionSpecifier {
         }
     }
 
-    class VarRefFunc internal constructor(val varName: String): ArrowFunctionSpecifier() {
+    class VarRefFunc @XPath3_1 internal constructor(val varName: String): ArrowFunctionSpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('$').append(varName)
         }
+
+        override fun collectUnsupportedExprs(
+            xPathVersion: XPathVersion,
+            isXQuery: Boolean,
+            collector: MutableList<Any>
+        ) {}
     }
 }
 

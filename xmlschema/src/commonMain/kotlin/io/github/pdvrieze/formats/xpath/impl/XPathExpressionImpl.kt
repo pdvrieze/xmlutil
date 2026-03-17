@@ -35,11 +35,22 @@ internal class XPathExpressionImpl internal constructor(
 
     override val schemaType: TokenType<XsdToken> get() = TokenType.Instance
 
+    init {
+        val unsupportedExprs = mutableListOf<Any>()
+        expr.collectUnsupportedExprs(version, false, unsupportedExprs)
+        if (unsupportedExprs.isNotEmpty()) {
+            throw IllegalArgumentException(
+                "Unsupported expressions in XPath $version expression: ${unsupportedExprs.joinToString(", ")}"
+            )
+        }
+    }
+
     companion object {
 
         // TODO: Make including this configurable
 
-        @OptIn(XPathInternal::class)
+        // Opt in as it changes the semantics and is thus needed for XPath 1 too
+        @OptIn(XPathInternal::class, XPath2::class)
         internal val STEP_DOC_ROOT = FilterExpr(
             TreatAsExpr(
                 StaticFunctionCall(Fn.root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),

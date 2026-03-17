@@ -20,7 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @OptIn(XPathInternal::class)
+@XPath1
 internal class LocationPath(
     val rooted: Boolean,
     val steps: List<PrimaryOrStep>,
@@ -33,6 +36,14 @@ internal class LocationPath(
         false,
         listOf(FilterExpr(single))
     )
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        steps.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

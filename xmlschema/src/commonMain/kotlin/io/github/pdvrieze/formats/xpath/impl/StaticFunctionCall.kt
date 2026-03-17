@@ -20,18 +20,24 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
+@XPath1
 internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): FunctionCall(args) {
-    constructor(name: QName, args: ParenExpr):
-            this(name, when (val e = args.expr) {
-                is SequenceExpr -> e.elements
-                is ExprSingle -> listOf(e)
-            })
+    constructor(name: QName, args: ParenExpr) : this(name, args.toExprList())
 
     constructor(name: QName, vararg args: ExprSingle) :
             this(name, args.asList())
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        args.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

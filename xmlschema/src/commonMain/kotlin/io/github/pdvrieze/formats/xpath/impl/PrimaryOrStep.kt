@@ -20,8 +20,18 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
 internal sealed class PrimaryOrStep {
+
+    abstract fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    )
+
+
     context(c: OutputContext)
     abstract fun appendToString(builder: Appendable)
 

@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
 internal class AxisStep(
     val axis: Axis,
@@ -29,6 +31,15 @@ internal class AxisStep(
     constructor(test: NodeTest) : this(Axis.CHILD, test, emptyList())
 
     constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+
+        predicates.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

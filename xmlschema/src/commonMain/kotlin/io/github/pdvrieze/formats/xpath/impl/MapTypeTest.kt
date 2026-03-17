@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-@XPath3_1
-sealed class MapTypeTest: ItemTypeTest {
+sealed class MapTypeTest @XPath3_1 constructor(): ItemTypeTest {
+    @XPath3_1
     object ANY: MapTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -30,7 +30,8 @@ sealed class MapTypeTest: ItemTypeTest {
         }
     }
 
-    class Typed(val inputType: AtomicOrUnionTypeTest, val outputType: SequenceTypeTest): MapTypeTest() {
+    class Typed @XPath3_1 constructor(val inputType: AtomicOrUnionTypeTest, val outputType: SequenceTypeTest) :
+        MapTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("map(")

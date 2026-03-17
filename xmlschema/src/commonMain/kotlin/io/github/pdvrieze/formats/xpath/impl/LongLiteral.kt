@@ -20,11 +20,21 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
-internal class LongLiteral(override val value: Long) : NumberLiteral<Long>() {
+internal class LongLiteral @XPath2 constructor(override val value: Long) : NumberLiteral<Long>() {
     override fun toDouble(): Double = value.toDouble()
     override fun toLong(): Long = value
     override fun toInt(): Int = value.toInt()
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        if (xPathVersion < XPathVersion.XPath2_0) collector.add(this)
+    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

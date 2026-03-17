@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
+@XPath1
 sealed class Expr {
     @XPathInternal
     context(c: OutputContext)
@@ -40,6 +43,7 @@ sealed class Expr {
         return this::class.hashCode()
     }
 
+    open fun collectUnsupportedExprs(xPathVersion: XPathVersion, isXQuery: Boolean, collector: MutableList<Any>) {}
 
 }
 

@@ -20,8 +20,23 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
+
 @XPathInternal
-internal class ArrowFunction(val expr: ExprSingle, val functionSpecifier: ArrowFunctionSpecifier, val params: List<ExprSingle>): ExprSingle() {
+internal class ArrowFunction @XPath3_1 constructor(val expr: ExprSingle, val functionSpecifier: ArrowFunctionSpecifier, val params: List<ExprSingle>): ExprSingle() {
+
+
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {
+        if (xPathVersion < XPathVersion.XPath3_1) collector.add(this)
+        expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
+        functionSpecifier.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
+        params.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)
