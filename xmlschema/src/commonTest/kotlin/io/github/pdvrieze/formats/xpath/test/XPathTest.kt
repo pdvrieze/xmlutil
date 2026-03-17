@@ -41,8 +41,7 @@ class XPathTest {
             assertEquals(1, key2.value)
 
             val key1 = assertIs<LookupExpr.ParenKey>(lookup1.key)
-            val seqExpr = assertIs<SequenceExpr>(key1.expr)
-            val castExpr = assertIs<CastExpr>(seqExpr.elements.single())
+            val castExpr = assertIs<CastExpr>(key1.expr)
 
             val right1 = assertIs<LiteralExpr<*>>(outer.right)
 

@@ -907,7 +907,7 @@ internal class XPathExpressionImpl internal constructor(
             } while (tryCurrentToken(','))
             parseRequire(tryCurrentToken(')')) { "Expected ')' to finish sequence expression" }
 
-            return ParenExpr(SequenceExpr(elements))
+            return ParenExpr(elements.singleOrNull() ?: SequenceExpr(elements))
         }
 
         private fun parseQuantifiedExprCont(kind: QuantifiedExpr.Kind): ExprSingle {
