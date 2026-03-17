@@ -20,13 +20,14 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-@OptIn(XPathInternal::class)
-sealed class ExprSingle(): Expr() {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        if (!super.equals(other)) return false
-        return true
-    }
+import io.github.pdvrieze.formats.xpath.XPathVersion
 
+@OptIn(XPathInternal::class)
+sealed class ExprSingle(): AbstractExpr(), ExprSingleOrPlaceholder {
+    override fun collectUnsupportedExprs(
+        xPathVersion: XPathVersion,
+        isXQuery: Boolean,
+        collector: MutableList<Any>
+    ) {}
 }
+

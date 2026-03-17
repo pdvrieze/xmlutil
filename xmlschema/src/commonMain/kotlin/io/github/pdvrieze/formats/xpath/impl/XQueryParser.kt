@@ -935,7 +935,7 @@ internal class XQueryParser(
         parseRequire(tryCurrentToken('('), "Expected '(' in sequence expression")
         if (tryCurrentToken(')')) return ParenExpr(SequenceExpr(emptyList()))
 
-        val elements: MutableList<ExprSingle> = mutableListOf<ExprSingle>()
+        val elements: MutableList<ExprSingle> = mutableListOf()
         do {
             elements.add(parseExprSingle())
         } while (tryCurrentToken(','))
@@ -1013,6 +1013,8 @@ internal class XQueryParser(
     fun parseXPathExpr(): Expr {
         val e = try {
             parseExpr()
+        } catch (e: IllegalArgumentException) {
+            parseError(e)
         } catch (e: NumberFormatException) {
             parseError(e)
         }
@@ -1097,15 +1099,26 @@ internal class XQueryParser(
     }
 
     context(ctx: ParseContext)
-    private fun parseArgs(): List<ExprSingle> {
+    private fun parseArgs(): List<ExprSingleOrPlaceholder> {
         parseRequire(tryCurrentToken('('))
 
         if (tryCurrentToken(')')) return emptyList()
 
-        val args = mutableListOf<ExprSingle>()
+        val args = mutableListOf<ExprSingleOrPlaceholder>()
         do {
-            args.add(parseExprSingle())
-        } while (tryCurrentToken(','))
+            skipWhitespace()
+            val start = i
+            if (!isXPath31 || !peekCurrentToken('?')) args.add(parseExprSingle())
+            else {
+                i += 1 // consume ?
+                if (peekCurrentToken().let { it == ',' || it == ')' }) @OptIn(XPath3_1::class)
+                args.add(ParamPlaceholder)
+                else {
+                    i = start //reset position. This must be a lookup so shortcut there
+                    @OptIn(XPath3_1::class)
+                    args.add(parseUnaryLookup())
+                }
+            }        } while (tryCurrentToken(','))
         parseRequire(tryCurrentToken(')'), "Missing closing parenthesis in parameters")
         return args
 
@@ -1211,10 +1224,7 @@ internal class XQueryParser(
                     }
 
                     @OptIn(XPath2::class)
-                    val args = when (val s = parseSequenceOrParen().expr) {
-                        is ExprSingle -> listOf(s)
-                        is SequenceExpr -> s.elements
-                    }
+                    val args = parseSequenceOrParen().toExprList()
                     @OptIn(XPath3_0::class)
                     current = FilterExpr(DynamicFunctionCall(newPrimary, args))
                 }

@@ -30,7 +30,7 @@ internal class ParenExpr(val expr: Expr): ExprSingle() {
     }
 
     @OptIn(XPath2::class)
-    fun toExprList(): List<ExprSingle> = when (expr) {
+    fun toExprList(): List<ExprSingleOrPlaceholder> = when (expr) {
         is SequenceExpr -> expr.elements
         is ExprSingle -> listOf(expr)
     }

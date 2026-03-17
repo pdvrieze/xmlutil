@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,37 +22,8 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
-interface PrintableExpr {
-    @XPathInternal
-    context(c: OutputContext)
-    fun appendToString(builder: Appendable)
-}
-
-sealed interface Expr: PrintableExpr {
-
-
+@XPathInternal
+sealed interface ExprSingleOrPlaceholder: PrintableExpr {
     fun collectUnsupportedExprs(xPathVersion: XPathVersion, isXQuery: Boolean, collector: MutableList<Any>)
-
 }
-
-@XPath1
-sealed class AbstractExpr: Expr {
-
-    @OptIn(XPathInternal::class)
-    final override fun toString(): String = buildString {
-        context(OutputContext.EMPTY) { appendToString(this) }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return this::class.hashCode()
-    }
-
-}
-
 

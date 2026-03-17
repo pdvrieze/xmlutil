@@ -25,10 +25,10 @@ import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 @XPath1
-internal class StaticFunctionCall(val name: QName, args: List<ExprSingle>): FunctionCall(args) {
+internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceholder>): FunctionCall(args) {
     constructor(name: QName, args: ParenExpr) : this(name, args.toExprList())
 
-    constructor(name: QName, vararg args: ExprSingle) :
+    constructor(name: QName, vararg args: ExprSingleOrPlaceholder) :
             this(name, args.asList())
 
     override fun collectUnsupportedExprs(

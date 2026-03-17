@@ -35,7 +35,7 @@ internal inline fun <A: Appendable, T> A.joinHelper(collection: Iterable<T>, sep
 
 @XPathInternal
 context(c: OutputContext)
-internal fun <A: Appendable> A.appendExprs(collection: Iterable<Expr>, separator: String = ", ") {
+internal fun <A: Appendable> A.appendExprs(collection: Iterable<PrintableExpr>, separator: String = ", ") {
     val it = collection.iterator()
     if (it.hasNext()) {
         it.next().appendToString(this)

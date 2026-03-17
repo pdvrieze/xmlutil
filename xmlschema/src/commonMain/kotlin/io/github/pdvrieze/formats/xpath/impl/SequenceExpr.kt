@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-class SequenceExpr @XPath2 constructor(elements: List<ExprSingle>) : Expr() {
+class SequenceExpr @XPath2 constructor(elements: List<ExprSingle>) : AbstractExpr() {
     @XPath2 constructor(vararg elements: ExprSingle): this(elements.toList())
 
     val elements: List<ExprSingle> = elements.toList()
