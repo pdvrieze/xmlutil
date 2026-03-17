@@ -30,6 +30,14 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testInlineExpr() {
+        testPath("let \$func := function(\$a,\$b,\$c) { \$a + \$b + \$c }, \$args := [ 1, 2, 3 ] return apply(\$func, \$args)") {
+
+        }
+    }
+
+
+    @Test
     fun testCast() {
         testPath("\$result?1?(xs:double(\"1.0\") cast as xs:decimal) eq 3") {
             val outer = assertIs<BinaryExpr>(expr)

@@ -978,10 +978,12 @@ internal class XQueryParser(
         if (!tryCurrentToken(')')) {
             params = mutableListOf()
             do {
+                parseRequire(tryCurrentToken('$'), "Function parameters start with \$")
                 val name = parseEQName()
                 val type = if (tryCurrentWordToken("as")) parseEQName() else null
                 params.add(FunctionItem.Inline.Param(name, type))
             } while (tryCurrentToken(','))
+            parseRequire(tryCurrentToken(')'), "Expected ')' to finish function parameters")
         } else {
             params = emptyList()
         }
