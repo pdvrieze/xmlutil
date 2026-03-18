@@ -52,6 +52,62 @@ class TestParseCatalog {
         }
     }
 
+    private val KtXmlReader.col: Int
+        get() = (startLocationInfo as XmlReader.ExtLocationInfo).col
+
+    private val KtXmlReader.line: Int
+        get() = (startLocationInfo as XmlReader.ExtLocationInfo).line
+
+    private val KtXmlReader.pos: String
+        get() = "${line}:${col}"
+
+    @Test
+    fun testParseFnApply() {
+        val xml = XML.v1{}
+        val testSet = KtXmlReader(javaClass.getResourceAsStream("/xpath/fn/apply.xml")!!).use { reader ->
+            assertEquals("1:1", reader.pos)
+            assertEquals(EventType.START_DOCUMENT, reader.next())
+            assertEquals("1:1", reader.pos)
+
+            assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+            assertEquals("1:42", reader.pos)
+
+            assertEquals(EventType.START_ELEMENT, reader.next())
+            assertEquals("2:1", reader.pos)
+
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals("3:4", reader.pos)
+
+            assertEquals(EventType.TEXT, reader.next())
+            assertEquals("3:17", reader.pos)
+
+            assertEquals(EventType.END_ELEMENT, reader.next())
+            assertEquals("3:43", reader.pos)
+
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals("4:4", reader.pos)
+            assertEquals(EventType.END_ELEMENT, reader.nextTag())
+
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals("6:4", reader.pos)
+            assertEquals(EventType.END_ELEMENT, reader.nextTag())
+
+            assertEquals(EventType.START_ELEMENT, reader.nextTag())
+            assertEquals("7:4", reader.pos)
+            assertEquals(EventType.END_ELEMENT, reader.nextTag())
+
+            var i = 0
+            while (i < 7) {
+                if (reader.next() == EventType.START_ELEMENT) i+=1
+            }
+
+            assertEquals("15:6", reader.pos)
+
+            assertEquals(EventType.TEXT, reader.next())
+            assertEquals("15:17", reader.pos)
+        }
+    }
+
     @Test
     fun testParseBcIsInvalid() {
 
