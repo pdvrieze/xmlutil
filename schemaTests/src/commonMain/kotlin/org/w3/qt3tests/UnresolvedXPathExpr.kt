@@ -57,7 +57,7 @@ interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
         }
 
         override fun deserialize(decoder: Decoder): UnresolvedXPathExpr {
-            val locationInfo = (decoder as? XML.XmlInput)?.input?.extLocationInfo
+            val locationInfo = (decoder as? XML.XmlInput)?.input?.startLocationInfo
             return UnresolvedXPathExprImpl(decoder.decodeString(), locationInfo)
         }
     }

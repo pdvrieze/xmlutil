@@ -31,6 +31,11 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testInequality() {
+        testPath("fn:compare(\"database\", \"DÃTABASE\", \"http://www.w3.org/2013/collation/UCA?lang=en;strength=secondary\") != 0") {}
+    }
+
+    @Test
     fun testEmptySequenceParam2() {
         testPath(XPath2_0, "codepoints-to-string((),())") {}
     }

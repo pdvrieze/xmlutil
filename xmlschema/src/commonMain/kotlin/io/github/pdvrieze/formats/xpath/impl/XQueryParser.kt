@@ -276,7 +276,7 @@ internal class XQueryParser(
         skipWhitespace()
         val bindings = mutableListOf<ForExpr.Binding>()
         do {
-            parseRequire(tryCurrent('$'))
+            parseRequire(tryCurrentToken('$'))
             val varName = parseNCName()
             parseRequire(tryCurrentWordToken("in"))
             val seqExpr = parseExprSingle()
@@ -648,13 +648,13 @@ internal class XQueryParser(
     context(ctx: ParseContext)
     private fun parseValueExpr(): ExprSingle {
         val e = parsePathExpr()
-        if (!(isXPath30 && tryCurrentToken('!'))) return e
+        if (!(isXPath30 && !peekCurrentToken("!=") && tryCurrentToken('!'))) return e
 
         val exprs = mutableListOf<ExprSingle>(e)
 
         do {
             exprs.add(parsePathExpr())
-        } while (tryCurrentToken('!'))
+        } while (!peekCurrentToken("!=") && tryCurrentToken('!'))
 
         @OptIn(NeedsXPath3_0::class)
         return MapExpr(exprs)
