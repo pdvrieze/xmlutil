@@ -31,6 +31,11 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testPlaceholderParam() {
+        testPath("filter((\"apple\", \"pear\", \"apricot\", \"advocado\", \"orange\"),starts-with(?, \"a\"))") {}
+    }
+
+    @Test
     fun testHigherOrder() {
         testPath("(contains-token#2, starts-with#2, ends-with#2)!.(\"abc def\", \"def\")") {}
     }

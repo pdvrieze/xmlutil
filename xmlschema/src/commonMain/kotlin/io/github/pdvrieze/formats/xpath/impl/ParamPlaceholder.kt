@@ -36,6 +36,6 @@ internal object ParamPlaceholder: ExprSingleOrPlaceholder {
         isXQuery: Boolean,
         collector: MutableList<Any>
     ) {
-        if (xPathVersion < XPathVersion.XPath3_1) collector.add(this)
+        if (xPathVersion < XPathVersion.XPath3_0) collector.add(this)
     }
 }

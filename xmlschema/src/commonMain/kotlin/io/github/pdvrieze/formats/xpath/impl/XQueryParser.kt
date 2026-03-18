@@ -1112,7 +1112,7 @@ internal class XQueryParser(
         do {
             skipWhitespace()
             val start = i
-            if (!isXPath31 || !peekCurrentToken('?')) args.add(parseExprSingle())
+            if (!isXPath30 || !peekCurrentToken('?')) args.add(parseExprSingle())
             else {
                 i += 1 // consume ?
                 if (peekCurrentToken().let { it == ',' || it == ')' }) @OptIn(NeedsXPath3_1::class)
