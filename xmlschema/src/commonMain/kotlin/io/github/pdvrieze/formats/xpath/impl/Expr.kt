@@ -35,7 +35,7 @@ sealed interface Expr: PrintableExpr {
 
 }
 
-@XPath1
+@NeedsXPath1
 sealed class AbstractExpr: Expr {
 
     @OptIn(XPathInternal::class)

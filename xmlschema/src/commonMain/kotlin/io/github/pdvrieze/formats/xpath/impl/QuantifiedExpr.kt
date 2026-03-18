@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-class QuantifiedExpr @XPath2 constructor(
+class QuantifiedExpr @NeedsXPath2 constructor(
     val kind: Kind,
     val bindings: List<Binding>,
     val condition: Expr

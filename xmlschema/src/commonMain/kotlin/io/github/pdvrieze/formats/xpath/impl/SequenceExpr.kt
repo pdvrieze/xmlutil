@@ -23,14 +23,14 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-class SequenceExpr @XPath2 constructor(elements: List<ExprSingle>) : AbstractExpr() {
-    @XPath2 constructor(vararg elements: ExprSingle): this(elements.toList())
+class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : AbstractExpr() {
+    @NeedsXPath2 constructor(vararg elements: ExprSingle): this(elements.toList())
 
     val elements: List<ExprSingle> = elements.toList()
 
     fun isEmpty() = elements.isEmpty()
 
-    @OptIn(XPath2::class)
+    @OptIn(NeedsXPath2::class)
     operator fun plus(expr: Expr): SequenceExpr = when (expr) {
         is SequenceExpr -> SequenceExpr(elements + expr.elements)
         is ExprSingle -> SequenceExpr(elements + expr)

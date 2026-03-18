@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class DynamicFunctionCall @XPath3_0 constructor(val expr: Expr, args: List<ExprSingleOrPlaceholder>): FunctionCall(args) {
+internal class DynamicFunctionCall @NeedsXPath3_0 constructor(val expr: Expr, args: List<ExprSingleOrPlaceholder>): FunctionCall(args) {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)

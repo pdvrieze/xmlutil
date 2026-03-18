@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-sealed class FunctionTypeTest @XPath3_0 constructor(): ItemTypeTest {
-    @XPath3_0
+sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
+    @NeedsXPath3_0
     object ANY: FunctionTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -30,7 +30,7 @@ sealed class FunctionTypeTest @XPath3_0 constructor(): ItemTypeTest {
         }
     }
 
-    class Typed @XPath3_0 constructor(val returnType: SequenceTypeTest, val paramTypes: List<SequenceTypeTest>): FunctionTypeTest() {
+    class Typed @NeedsXPath3_0 constructor(val returnType: SequenceTypeTest, val paramTypes: List<SequenceTypeTest>): FunctionTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("function(")

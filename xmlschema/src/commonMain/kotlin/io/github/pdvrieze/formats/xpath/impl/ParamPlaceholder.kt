@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-@XPath3_1
+@NeedsXPath3_1
 internal object ParamPlaceholder: ExprSingleOrPlaceholder {
     context(c: OutputContext)
     @XPathInternal

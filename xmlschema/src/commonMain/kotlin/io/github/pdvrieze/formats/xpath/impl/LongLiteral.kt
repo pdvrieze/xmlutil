@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-internal class LongLiteral @XPath2 constructor(override val value: Long) : NumberLiteral<Long>() {
+internal class LongLiteral @NeedsXPath2 constructor(override val value: Long) : NumberLiteral<Long>() {
     override fun toDouble(): Double = value.toDouble()
     override fun toLong(): Long = value
     override fun toInt(): Int = value.toInt()

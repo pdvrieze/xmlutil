@@ -23,16 +23,16 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 enum class NodeType(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath3_1) {
-    @XPath2 DOCUMENT("document-node", XPathVersion.XPath2_0),
-    @XPath2 ELEMENT("element", XPathVersion.XPath2_0),
-    @XPath2 SCHEMA_ELEMENT("schema-element", XPathVersion.XPath2_0),
-    @XPath2 SCHEMA_ATTRIBUTE("schema-attribute", XPathVersion.XPath2_0),
-    @XPath2 ATTRIBUTE("attribute", XPathVersion.XPath2_0),
-    @XPath1 COMMENT("comment", XPathVersion.XPath1_0),
-    @XPath1 TEXT("text", XPathVersion.XPath1_0),
-    @XPath1 PROCESSING_INSTRUCTION("processing-instruction", XPathVersion.XPath1_0),
-    @XPath3_0 NAMESPACE_NODE("namespace-node", XPathVersion.XPath3_0),
-    @XPath1 ANY_KIND("node", XPathVersion.XPath1_0),;
+    @NeedsXPath2 DOCUMENT("document-node", XPathVersion.XPath2_0),
+    @NeedsXPath2 ELEMENT("element", XPathVersion.XPath2_0),
+    @NeedsXPath2 SCHEMA_ELEMENT("schema-element", XPathVersion.XPath2_0),
+    @NeedsXPath2 SCHEMA_ATTRIBUTE("schema-attribute", XPathVersion.XPath2_0),
+    @NeedsXPath2 ATTRIBUTE("attribute", XPathVersion.XPath2_0),
+    @NeedsXPath1 COMMENT("comment", XPathVersion.XPath1_0),
+    @NeedsXPath1 TEXT("text", XPathVersion.XPath1_0),
+    @NeedsXPath1 PROCESSING_INSTRUCTION("processing-instruction", XPathVersion.XPath1_0),
+    @NeedsXPath3_0 NAMESPACE_NODE("namespace-node", XPathVersion.XPath3_0),
+    @NeedsXPath1 ANY_KIND("node", XPathVersion.XPath1_0),;
 
 
     fun collectUnsupportedExprs(

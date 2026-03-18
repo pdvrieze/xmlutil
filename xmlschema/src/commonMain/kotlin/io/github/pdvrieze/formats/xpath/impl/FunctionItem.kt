@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.QName
 
 sealed class FunctionItem: ExprSingle() {
 
-    class NamedRef @XPath3_0 constructor(val name: QName, val index: Int) : FunctionItem() {
+    class NamedRef @NeedsXPath3_0 constructor(val name: QName, val index: Int) : FunctionItem() {
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {
@@ -32,7 +32,7 @@ sealed class FunctionItem: ExprSingle() {
         }
     }
 
-    class Inline @XPath3_0 constructor(val params: List<Param>, val returnType: QName?, body: Expr) : FunctionItem() {
+    class Inline @NeedsXPath3_0 constructor(val params: List<Param>, val returnType: QName?, body: Expr) : FunctionItem() {
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {

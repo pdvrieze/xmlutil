@@ -23,19 +23,19 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0) {
-    @XPath1 CHILD("child"),
-    @XPath1 DESCENDANT("descendant"),
-    @XPath1 PARENT("parent"),
-    @XPath1 ANCESTOR("ancestor"),
-    @XPath1 FOLLOWING_SIBLING("following-sibling"),
-    @XPath1 PRECEDING_SIBLING("preceding-sibling"),
-    @XPath1 FOLLOWING("following"),
-    @XPath1 PRECEDING("preceding"),
-    @XPath1 ATTRIBUTE("attribute"),
-    @XPath1 NAMESPACE("namespace"),
-    @XPath1 SELF("self"),
-    @XPath1 DESCENDANT_OR_SELF("descendant-or-self"),
-    @XPath1 ANCESTOR_OR_SELF("ancestor-or-self"),
+    @NeedsXPath1 CHILD("child"),
+    @NeedsXPath1 DESCENDANT("descendant"),
+    @NeedsXPath1 PARENT("parent"),
+    @NeedsXPath1 ANCESTOR("ancestor"),
+    @NeedsXPath1 FOLLOWING_SIBLING("following-sibling"),
+    @NeedsXPath1 PRECEDING_SIBLING("preceding-sibling"),
+    @NeedsXPath1 FOLLOWING("following"),
+    @NeedsXPath1 PRECEDING("preceding"),
+    @NeedsXPath1 ATTRIBUTE("attribute"),
+    @NeedsXPath1 NAMESPACE("namespace"),
+    @NeedsXPath1 SELF("self"),
+    @NeedsXPath1 DESCENDANT_OR_SELF("descendant-or-self"),
+    @NeedsXPath1 ANCESTOR_OR_SELF("ancestor-or-self"),
     ;
 
     companion object {

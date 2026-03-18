@@ -23,10 +23,10 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-sealed class ArrayConstructor @XPath3_1 constructor(): ExprSingle() {
+sealed class ArrayConstructor @NeedsXPath3_1 constructor(): ExprSingle() {
 
     @XPathInternal
-    class Square @XPath3_1 constructor(val values: List<ExprSingle>): ArrayConstructor() {
+    class Square @NeedsXPath3_1 constructor(val values: List<ExprSingle>): ArrayConstructor() {
 
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -46,7 +46,7 @@ sealed class ArrayConstructor @XPath3_1 constructor(): ExprSingle() {
     }
 
     @XPathInternal
-    class Curly @XPath3_1 constructor(val expr: Expr): ArrayConstructor() {
+    class Curly @NeedsXPath3_1 constructor(val expr: Expr): ArrayConstructor() {
 
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {

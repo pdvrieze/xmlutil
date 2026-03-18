@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-internal sealed class ArrowFunctionSpecifier @XPath3_1 constructor() {
+internal sealed class ArrowFunctionSpecifier @NeedsXPath3_1 constructor() {
 
 
     abstract fun collectUnsupportedExprs(
@@ -37,7 +37,7 @@ internal sealed class ArrowFunctionSpecifier @XPath3_1 constructor() {
     context(c: OutputContext)
     abstract fun appendToString(builder: Appendable)
 
-    internal class QNameFunc @XPath3_1 constructor(val qname: QName) : ArrowFunctionSpecifier() {
+    internal class QNameFunc @NeedsXPath3_1 constructor(val qname: QName) : ArrowFunctionSpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.appendQName(qname)
@@ -51,11 +51,11 @@ internal sealed class ArrowFunctionSpecifier @XPath3_1 constructor() {
 
     }
 
-    internal class SeqFunc @XPath3_1 internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
+    internal class SeqFunc @NeedsXPath3_1 internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
         init {
             require(elements.isNotEmpty()) {"SeqFunc must have at least one element"}
         }
-        @XPath3_1
+        @NeedsXPath3_1
         internal constructor(p: ParenExpr): this(
             when(val c = p.expr) {
                 is SequenceExpr -> c.elements
@@ -79,7 +79,7 @@ internal sealed class ArrowFunctionSpecifier @XPath3_1 constructor() {
         }
     }
 
-    class VarRefFunc @XPath3_1 internal constructor(val varName: String): ArrowFunctionSpecifier() {
+    class VarRefFunc @NeedsXPath3_1 internal constructor(val varName: String): ArrowFunctionSpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('$').append(varName)

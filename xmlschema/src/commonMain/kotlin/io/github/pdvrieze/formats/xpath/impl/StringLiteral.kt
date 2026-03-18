@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-@XPath1
+@NeedsXPath1
 internal class StringLiteral(override val value: String) : LiteralExpr<String>() {
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

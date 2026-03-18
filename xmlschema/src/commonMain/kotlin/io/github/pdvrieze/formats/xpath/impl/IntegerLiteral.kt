@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @XPathInternal
-internal class IntegerLiteral @XPath2 constructor(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
+internal class IntegerLiteral @NeedsXPath2 constructor(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
         isXQuery: Boolean,

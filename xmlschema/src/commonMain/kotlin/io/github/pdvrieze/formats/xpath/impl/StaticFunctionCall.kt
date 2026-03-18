@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-@XPath1
+@NeedsXPath1
 internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceholder>): FunctionCall(args) {
     constructor(name: QName, args: ParenExpr) : this(name, args.toExprList())
 

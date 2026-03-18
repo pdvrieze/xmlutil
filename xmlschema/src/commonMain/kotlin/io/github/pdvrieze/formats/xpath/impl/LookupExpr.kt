@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class LookupExpr @XPath3_1 constructor(val context: Expr?, val key: KeySpecifier): ExprSingle() {
+internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key: KeySpecifier): ExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         context?.appendToString(builder)
@@ -29,7 +29,7 @@ internal class LookupExpr @XPath3_1 constructor(val context: Expr?, val key: Key
         key.appendToString(builder)
     }
 
-    sealed class KeySpecifier @XPath3_1 constructor() {
+    sealed class KeySpecifier @NeedsXPath3_1 constructor() {
         context(c: OutputContext)
         abstract fun appendToString(builder: Appendable)
         override fun toString(): String = buildString {
@@ -39,7 +39,7 @@ internal class LookupExpr @XPath3_1 constructor(val context: Expr?, val key: Key
         }
     }
 
-    class IntegerKey @XPath3_1 constructor(val value: Int) : KeySpecifier() {
+    class IntegerKey @NeedsXPath3_1 constructor(val value: Int) : KeySpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             when (builder) {
@@ -49,14 +49,14 @@ internal class LookupExpr @XPath3_1 constructor(val context: Expr?, val key: Key
         }
     }
 
-    class NCNameKey @XPath3_1 constructor(val value: String) : KeySpecifier() {
+    class NCNameKey @NeedsXPath3_1 constructor(val value: String) : KeySpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append(value)
         }
     }
 
-    @XPath3_1
+    @NeedsXPath3_1
     object AnyKey : KeySpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -64,7 +64,7 @@ internal class LookupExpr @XPath3_1 constructor(val context: Expr?, val key: Key
         }
     }
 
-    class ParenKey @XPath3_1 constructor(val expr: Expr) : KeySpecifier() {
+    class ParenKey @NeedsXPath3_1 constructor(val expr: Expr) : KeySpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('(')

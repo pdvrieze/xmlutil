@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-class TreatAsExpr @XPath2 constructor(val expr: Expr, val sequenceType: SequenceTypeTest) : ExprSingle() {
+class TreatAsExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceTypeTest) : ExprSingle() {
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

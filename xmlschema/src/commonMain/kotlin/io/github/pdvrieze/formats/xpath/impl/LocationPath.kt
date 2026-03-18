@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @OptIn(XPathInternal::class)
-@XPath1
+@NeedsXPath1
 internal class LocationPath(
     val rooted: Boolean,
     val steps: List<PrimaryOrStep>,

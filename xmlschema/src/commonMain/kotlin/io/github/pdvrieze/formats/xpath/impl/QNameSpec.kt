@@ -31,7 +31,7 @@ internal sealed interface QNameSpec {
     fun asNodeTest(version: XPathVersion): NodeTest
 
 
-    class EQName @XPath3_0 constructor(val namespace: String?, val localName: String, val prefix: String?) : QNameSpec {
+    class EQName @NeedsXPath3_0 constructor(val namespace: String?, val localName: String, val prefix: String?) : QNameSpec {
         override fun asNodeTest(version: XPathVersion): NodeTest {
             if (namespace == null && prefix == null) {
                 NodeType.maybeValueOf(localName, version)?.let {

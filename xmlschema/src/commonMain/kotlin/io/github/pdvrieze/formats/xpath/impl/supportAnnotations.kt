@@ -21,19 +21,19 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 //@RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 2+ check")
-internal annotation class XPath1
+internal annotation class NeedsXPath1
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 2+ check")
-internal annotation class XPath2
+internal annotation class NeedsXPath2
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3+ check")
-internal annotation class XPath3_0
+internal annotation class NeedsXPath3_0
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XPath 3.1+ check")
-internal annotation class XPath3_1
+internal annotation class NeedsXPath3_1
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XQuery check")
-internal annotation class XQuery
+internal annotation class NeedsXQuery1
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR, message = "Only valid after XQuery 3.1+ check")
-internal annotation class XQuery3_1
+internal annotation class NeedsXQuery3_1

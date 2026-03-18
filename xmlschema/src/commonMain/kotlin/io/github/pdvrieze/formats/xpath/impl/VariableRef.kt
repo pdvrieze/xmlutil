@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @OptIn(XPathInternal::class)
 @XPathInternal
-@XPath1
+@NeedsXPath1
 internal class VariableRef(val varName: String): ExprSingle() {
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

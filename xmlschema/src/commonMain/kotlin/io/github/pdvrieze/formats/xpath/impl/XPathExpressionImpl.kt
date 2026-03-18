@@ -50,7 +50,7 @@ internal class XPathExpressionImpl internal constructor(
         // TODO: Make including this configurable
 
         // Opt in as it changes the semantics and is thus needed for XPath 1 too
-        @OptIn(XPathInternal::class, XPath2::class)
+        @OptIn(XPathInternal::class, NeedsXPath2::class)
         internal val STEP_DOC_ROOT = FilterExpr(
             TreatAsExpr(
                 StaticFunctionCall(Fn.root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),

@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-@file:OptIn(XPathInternal::class, XPath2::class, XPath3_0::class, XPath3_1::class)
+@file:OptIn(XPathInternal::class, NeedsXPath2::class, NeedsXPath3_0::class, NeedsXPath3_1::class)
 
 package io.github.pdvrieze.formats.xpath.test
 

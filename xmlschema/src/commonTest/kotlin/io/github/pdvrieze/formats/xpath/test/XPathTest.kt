@@ -21,13 +21,29 @@
 package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XPathVersion.*
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
 import kotlin.test.*
 
-@OptIn(XPathInternal::class, XPath2::class, XPath3_0::class, XPath3_1::class)
+@OptIn(XPathInternal::class, NeedsXPath2::class, NeedsXPath3_0::class, NeedsXPath3_1::class)
 class XPathTest {
+
+    @Test
+    fun testEmptySequenceParam2() {
+        testPath(XPath2_0, "codepoints-to-string((),())") {}
+    }
+
+    @Test
+    fun testEmptySequenceParam3() {
+        testPath(XPath3_0, "codepoints-to-string((),())") {}
+    }
+
+    @Test
+    fun testEmptySequenceParam31() {
+        testPath(XPath3_1, "codepoints-to-string((),())") {}
+    }
 
     @Test
     fun testInlineExpr() {

@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-@XPath1
+@NeedsXPath1
 internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>() {
     override fun toDouble(): Double = value
     override fun toLong(): Long = value.toLong()
