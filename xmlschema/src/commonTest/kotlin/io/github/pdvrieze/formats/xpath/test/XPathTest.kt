@@ -31,6 +31,11 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testHigherOrder() {
+        testPath("(contains-token#2, starts-with#2, ends-with#2)!.(\"abc def\", \"def\")") {}
+    }
+
+    @Test
     fun testInequality() {
         testPath("fn:compare(\"database\", \"DÃTABASE\", \"http://www.w3.org/2013/collation/UCA?lang=en;strength=secondary\") != 0") {}
     }

@@ -156,7 +156,7 @@ internal class XQueryParser(
                 }
 
                 "map" if isXPath31 -> when {
-                    tryCurrent('*') -> {
+                    tryCurrentToken('*') -> {
                         parseRequire(tryCurrentToken(')'))
                         @OptIn(NeedsXPath3_1::class)
                         return MapTypeTest.ANY
@@ -173,7 +173,7 @@ internal class XQueryParser(
                 }
 
                 "array" if isXPath31 -> when {
-                    tryCurrent('*') -> {
+                    tryCurrentToken('*') -> {
                         parseRequire(tryCurrentToken(')'))
                         @OptIn(NeedsXPath3_1::class)
                         return MapTypeTest.ANY
@@ -648,13 +648,13 @@ internal class XQueryParser(
     context(ctx: ParseContext)
     private fun parseValueExpr(): ExprSingle {
         val e = parsePathExpr()
-        if (!(isXPath30 && !peekCurrentToken("!=") && tryCurrentToken('!'))) return e
+        if (!(isXPath30 && tryCurrentToken('!', "!="))) return e
 
-        val exprs = mutableListOf<ExprSingle>(e)
+        val exprs = mutableListOf(e)
 
         do {
             exprs.add(parsePathExpr())
-        } while (!peekCurrentToken("!=") && tryCurrentToken('!'))
+        } while (tryCurrentToken('!', "!="))
 
         @OptIn(NeedsXPath3_0::class)
         return MapExpr(exprs)
@@ -764,11 +764,9 @@ internal class XQueryParser(
                         return AxisStep(Axis.PARENT, NodeTest.node)
                     }
 
-                    i >= str.length -> return AxisStep(Axis.SELF, NodeTest.node)
+                    str.getOrNull(i) in '0'..'9' -> return parsePostfixExpr(parseNumber())
 
-                    str[i] in '0'..'9' -> return parsePostfixExpr(parseNumber())
-
-                    else -> return AxisStep(Axis.SELF, NodeTest.node)
+                    else -> return parsePostfixExpr(ContextItemExpr)
                 }
             }
 
@@ -1242,7 +1240,7 @@ internal class XQueryParser(
                         else -> LocationPath(false, listOf(current))
                     }
                     @OptIn(NeedsXPath2::class, NeedsXPath3_1::class)
-                    when (val c2 = peekCurrent()) {
+                    when (val c2 = peekCurrentToken()) {
                         null -> parseError("Missing key specifier at end of expression")
                         '(' -> {
                             val expr = parseSequenceOrParen()
@@ -1286,20 +1284,9 @@ internal class XQueryParser(
         }
     }
 
-    private fun peekCurrent(): Char? {
-        if (i >= str.length) return null
-        return str[i]
-    }
-
     private fun peekCurrentToken(): Char? {
         skipWhitespace()
-        if (i >= str.length) return null
-        return str[i]
-    }
-
-    private fun peekCurrent(char: Char): Boolean {
-        if (i >= str.length) return false
-        return str[i] == char
+        return str.getOrNull(i)
     }
 
     private fun peekCurrentToken(char: Char): Boolean {
@@ -1320,6 +1307,20 @@ internal class XQueryParser(
         skipWhitespace()
         when {
             i < str.length && str[i] == char -> {
+                ++i
+                return true
+            }
+
+            else -> return false
+        }
+    }
+
+    private fun tryCurrentToken(char: Char, vararg exclude: String): Boolean {
+        skipWhitespace()
+        when {
+            str.getOrNull(i) == char && exclude.none {
+                str.startsWith(it, i)
+            } -> {
                 ++i
                 return true
             }
@@ -1354,6 +1355,18 @@ internal class XQueryParser(
     private fun tryCurrentToken(check: String): Boolean {
         skipWhitespace()
         return tryCurrent(check)
+    }
+
+    private fun tryCurrentToken(check: String, vararg exclude: String): Boolean {
+        skipWhitespace()
+        val end = i + check.length
+        if ((end - 1) >= str.length) return false
+        if (exclude.any { str.startsWith(it, i) }) return false
+        if (str.substring(i, end) == check) {
+            i = end
+            return true
+        }
+        return false
     }
 
     private fun tryCurrentWord(check: String): Boolean {
