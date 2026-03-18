@@ -144,7 +144,7 @@ internal class XQueryParser(
                     }
 
                     else -> {
-                        val params = mutableListOf<SequenceTypeTest>()
+                        val params = mutableListOf<SequenceType>()
                         while (!tryCurrentToken(')')) {
                             params.add(parseSequenceType())
                         }
@@ -209,32 +209,32 @@ internal class XQueryParser(
 
     @OptIn(NeedsXPath2::class)
     context(ctx: ParseContext)
-    private fun parseSequenceType(): SequenceTypeTest {
+    private fun parseSequenceType(): SequenceType {
         if (isXPath2 && tryCurrentWordToken("empty-sequence")) {
             parseRequire(tryCurrentToken('('))
             parseRequire(tryCurrentToken(')'))
-            return SequenceTypeTest.EmptySequence
+            return SequenceType.EmptySequence
         }
         val itemType = parseItemType()
         val occurrence = when (peekCurrentToken()) {
             '?' -> {
                 ++i
-                SequenceTypeTest.OccurrenceType.OPTIONAL
+                SequenceType.OccurrenceType.OPTIONAL
             }
 
             '*' -> {
                 ++i
-                SequenceTypeTest.OccurrenceType.ANY
+                SequenceType.OccurrenceType.ANY
             }
 
             '+' -> {
                 ++i
-                SequenceTypeTest.OccurrenceType.AT_LEAST_ONE
+                SequenceType.OccurrenceType.AT_LEAST_ONE
             }
 
-            else -> SequenceTypeTest.OccurrenceType.SINGLE
+            else -> SequenceType.OccurrenceType.SINGLE
         }
-        return SequenceTypeTest.ItemSequenceTest(itemType, occurrence)
+        return SequenceType.ItemTypeSequence(itemType, occurrence)
     }
 
     private fun parseVariableReference(): VariableRef {
@@ -984,14 +984,14 @@ internal class XQueryParser(
             do {
                 parseRequire(tryCurrentToken('$'), "Function parameters start with \$")
                 val name = parseEQName()
-                val type = if (tryCurrentWordToken("as")) parseEQName() else null
+                val type = if (tryCurrentWordToken("as")) parseSequenceType() else null
                 params.add(FunctionItem.Inline.Param(name, type))
             } while (tryCurrentToken(','))
             parseRequire(tryCurrentToken(')'), "Expected ')' to finish function parameters")
         } else {
             params = emptyList()
         }
-        val returnType = if (tryCurrentWordToken("as")) parseEQName() else null
+        val returnType = if (tryCurrentWordToken("as")) parseSequenceType() else null
         val body = parseEnclosedExpr()
         @OptIn(NeedsXPath3_0::class)
         return FunctionItem.Inline(params, returnType, body.contentExpr)

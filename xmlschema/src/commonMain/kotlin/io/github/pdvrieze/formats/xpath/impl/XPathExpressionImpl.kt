@@ -54,7 +54,7 @@ internal class XPathExpressionImpl internal constructor(
         internal val STEP_DOC_ROOT = FilterExpr(
             TreatAsExpr(
                 StaticFunctionCall(Fn.root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),
-                SequenceTypeTest.ItemSequenceTest(ItemTypeTest.documentNode, SequenceTypeTest.OccurrenceType.ANY)
+                SequenceType.ItemTypeSequence(ItemTypeTest.documentNode, SequenceType.OccurrenceType.ANY)
             ),
             emptyList()
         )

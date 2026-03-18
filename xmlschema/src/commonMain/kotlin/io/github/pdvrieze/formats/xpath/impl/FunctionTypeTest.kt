@@ -30,7 +30,7 @@ sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
         }
     }
 
-    class Typed @NeedsXPath3_0 constructor(val returnType: SequenceTypeTest, val paramTypes: List<SequenceTypeTest>): FunctionTypeTest() {
+    class Typed @NeedsXPath3_0 constructor(val returnType: SequenceType, val paramTypes: List<SequenceType>): FunctionTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("function(")

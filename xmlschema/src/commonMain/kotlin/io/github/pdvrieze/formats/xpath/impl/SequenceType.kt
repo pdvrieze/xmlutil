@@ -21,16 +21,19 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-sealed class SequenceTypeTest @NeedsXPath2 constructor() : ItemTypeTest {
+sealed class SequenceType @NeedsXPath2 constructor() {
+    context(c: OutputContext)
+    abstract fun appendToString(builder: Appendable)
+
     @NeedsXPath2
-    object EmptySequence : SequenceTypeTest() {
+    object EmptySequence : SequenceType() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("empty-sequence()")
         }
     }
 
-    class ItemSequenceTest @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceTypeTest() {
+    class ItemTypeSequence @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceType() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             itemType.appendToString(builder)

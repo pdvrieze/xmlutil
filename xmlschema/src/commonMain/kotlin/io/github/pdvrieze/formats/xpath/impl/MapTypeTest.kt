@@ -30,7 +30,7 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
         }
     }
 
-    class Typed @NeedsXPath3_1 constructor(val inputType: AtomicOrUnionTypeTest, val outputType: SequenceTypeTest) :
+    class Typed @NeedsXPath3_1 constructor(val inputType: AtomicOrUnionTypeTest, val outputType: SequenceType) :
         MapTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {

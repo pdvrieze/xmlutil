@@ -30,7 +30,7 @@ sealed class ArrayTypeTest: ItemTypeTest {
         }
     }
 
-    class Typed @NeedsXPath3_1 constructor(val elemType: SequenceTypeTest): ArrayTypeTest() {
+    class Typed @NeedsXPath3_1 constructor(val elemType: SequenceType): ArrayTypeTest() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("array(")

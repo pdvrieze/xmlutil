@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import nl.adaptivity.xmlutil.QName
 
+@XPathInternal
 sealed class FunctionItem: ExprSingle() {
 
     class NamedRef @NeedsXPath3_0 constructor(val name: QName, val index: Int) : FunctionItem() {
@@ -32,19 +33,26 @@ sealed class FunctionItem: ExprSingle() {
         }
     }
 
-    class Inline @NeedsXPath3_0 constructor(val params: List<Param>, val returnType: QName?, body: Expr) : FunctionItem() {
+    class Inline @NeedsXPath3_0 constructor(val params: List<Param>, val returnType: SequenceType?, body: Expr) : FunctionItem() {
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {
             builder.append("function(")
             builder.joinHelper(params) { (n, t) ->
                 builder.appendQName(n)
-                if (t != null) builder.append(" as ").appendQName(t)
+                if (t != null) {
+                    builder.append(" as ")
+                    t.appendToString(builder)
+                }
             }
             builder.append(')')
-            if (returnType != null) builder.append(" as ").appendQName(returnType)
+            if (returnType != null) {
+                builder.append(" as ")
+                returnType.appendToString(builder)
+            }
         }
 
-        data class Param(val name: QName, val type: QName?)
+        @XPathInternal
+        data class Param(val name: QName, val type: SequenceType?)
     }
 }
