@@ -45,7 +45,8 @@ data class Qt3Catalog(
 ) {
     context(ctx: ResolutionContext)
     fun resolve(): ResolvedQt3Catalog {
-        return ResolvedQt3Catalog(version, testSuite, environments.map { it.resolve() }, testSets.map { it.resolve() })
+        val resolvedEnvironments = environments.map { it.resolve() }
+        return ResolvedQt3Catalog(version, testSuite, resolvedEnvironments, testSets.map { it.resolve() })
     }
 }
 

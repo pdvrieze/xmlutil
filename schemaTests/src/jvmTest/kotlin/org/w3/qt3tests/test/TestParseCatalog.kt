@@ -150,6 +150,16 @@ class TestParseCatalog {
         testParseTestSet(getTestSetSpec("map-merge"))
     }
 
+    @Test
+    fun testParseFormatNumber() {
+        testParseTestSet(getTestSetSpec("fn-format-number"))
+    }
+
+    @Test
+    fun testParseOpExcept() {
+        testParseTestSet(getTestSetSpec("op-except"))
+    }
+
     context(ctx: ResolutionContext)
     private fun parseCatalogCommon(): Qt3Catalog {
         return ctx.parseFile(Qt3Catalog.serializer(), "catalog.xml")
@@ -207,6 +217,12 @@ class TestParseCatalog {
         fun getTestSetSpecs(): List<Named<TestSetSpec>> {
             val ctx = createResolutionContext("/xpath/")
             val catalog = ctx.parseFile(Qt3Catalog.serializer(), "catalog.xml")
+
+            val resolvedEnvironments = context(ctx) {
+                catalog.environments.map { it.resolve() }
+            }
+            require(ctx.knownEnvironments.isNotEmpty())
+
             return catalog.testSets.map {
                 Named.of(it.name, TestSetSpec(ctx, it))
             }

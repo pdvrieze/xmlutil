@@ -41,15 +41,20 @@ class ResolvedQt3TestCase(
     fun tryVerify() {
         val errorAssertions = result?.run { assertions.filterIsInstance<ResolvedQt3AssertError>() } ?: emptyList()
         when (errorAssertions.size) {
-            0 -> check(test != null && test.expr.isSuccess)
+            0 -> {
+                val t= checkNotNull (test) { "No test found for test case $name" }
+                if (!t.expr.isSuccess) {
+                    throw IllegalStateException("Test case $name should have passed", t.expr.exceptionOrNull())
+                }
+            }
 
             // XPST0003 is a parser error. We should be able to handle those (only)
             else if (errorAssertions.any { it.code?.startsWith("XPST0003") == true }) -> {
                 val expr = test!!.expr
                 if (expr.isSuccess) {
                     val e = expr.getOrThrow()
-                    if (e !is XPathExpression) {
-                        throw IllegalStateException("Expression '${e.xmlString}' should fail. with code ${errorAssertions.map { it.code }}")
+                    if (e is XPathExpression) {
+                        throw IllegalStateException("${name}: Expression '${e.xmlString}' should fail. with code ${errorAssertions.map { it.code }}")
                     }
                 }
             }
