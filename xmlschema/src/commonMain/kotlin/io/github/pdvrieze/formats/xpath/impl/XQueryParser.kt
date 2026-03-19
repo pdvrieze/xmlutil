@@ -504,7 +504,7 @@ internal class XQueryParser(
     private fun parseUnionExpr(): ExprSingle {
         val expr = parseIntersectExceptExpr()
 
-        if (!tryCurrentToken('|') && !tryCurrentWord("union")) { return expr}
+        if (!tryCurrentToken('|', "||") && !tryCurrentWord("union")) { return expr}
 
         val unions = mutableListOf(expr)
         unions.add(parseIntersectExceptExpr())
@@ -1018,9 +1018,9 @@ internal class XQueryParser(
         val e = try {
             parseExpr()
         } catch (e: IllegalArgumentException) {
-            parseError(e)
+            parseError(null, "Failure to parse expression at version $version", e)
         } catch (e: NumberFormatException) {
-            parseError(e)
+            parseError(null, "Failure to parse expression at version $version", e)
         }
         skipWhitespace()
         parseRequire(i >= str.length, "Trailing content in expression")
@@ -1112,8 +1112,9 @@ internal class XQueryParser(
         do {
             skipWhitespace()
             val start = i
-            if (!isXPath30 || !peekCurrentToken('?')) args.add(parseExprSingle())
-            else {
+            if (!isXPath30 || !peekCurrentToken('?')) {
+                args.add(parseExprSingle())
+            } else {
                 i += 1 // consume ?
                 if (peekCurrentToken().let { it == ',' || it == ')' }) @OptIn(NeedsXPath3_1::class)
                 args.add(ParamPlaceholder)

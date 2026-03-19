@@ -31,6 +31,12 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testStringConcat() {
+        testPath(XPath3_0, "matches(\$d||\$d)") {}
+    }
+
+
+    @Test
     fun testWildcardLocalname() {
         testPath("name((//@xml:*)[1])") {}
     }
