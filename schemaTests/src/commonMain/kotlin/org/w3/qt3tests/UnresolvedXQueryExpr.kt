@@ -21,7 +21,6 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
-import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
 import io.github.pdvrieze.formats.xpath.XQueryVersion
 import kotlinx.serialization.KSerializer
@@ -73,14 +72,14 @@ open class UnresolvedXQueryExprImpl(
 ) : UnresolvedXQueryExpr {
     context(ctx: AssertionResolutionContext)
     override fun resolveXQuery(): Result<XQueryExpression> {
-        val minPath = ctx.minXPathVersion
-        val minQuery = ctx.minXQueryVersion
+        val minPath = ctx.minRequiredXPath
+        val minQuery = ctx.minRequiredXQuery
 
         return runCatching {
             when {
-                minPath != null -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
+                // if not null, xquery is required
                 minQuery != null -> stubXQueryExpression(expr, ctx.namespaceContext, minQuery, locationInfo)
-                else -> XPathExpression(expr, ctx.namespaceContext, minPath ?: XPathVersion.XPath3_1, locationInfo)
+                else -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
             }
         }
     }

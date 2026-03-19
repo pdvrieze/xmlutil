@@ -34,7 +34,7 @@ import org.w3.qt3tests.resolved.ResolvedQt3Environment
 class AssertionResolutionContextImpl(
     private val orig: ResolutionContext,
     override val environment: ResolvedQt3Environment?,
-    override val specDeps: List<Qt3SpecDependency.Spec>?,
+    override val specDep: Qt3SpecDependency?,
 ) : ResolutionContext, AssertionResolutionContext {
     override val base: String get() = orig.base
 
@@ -47,18 +47,13 @@ class AssertionResolutionContextImpl(
 
     override val idMap: MutableMap<String, Any> = mutableMapOf()
 
-    override val minXPathVersion: XPathVersion? = specDeps?.run {
-        asSequence()
-            .flatMap { it.supported }
-            .filterIsInstance<XPathVersion>()
-            .minByOrNull { it.ordinal }
-    }
+    override val minRequiredXPath: XPathVersion =
+        specDep?.run {
+            supportedXPath().minByOrNull { it.ordinal }
+    } ?: XPathVersion.XPath3_1
 
-    override val minXQueryVersion: XQueryVersion? = specDeps?.run {
-        asSequence()
-            .flatMap { it.supported }
-            .filterIsInstance<XQueryVersion>()
-            .minByOrNull { it.ordinal }
+    override val minRequiredXQuery: XQueryVersion? = specDep?.run {
+        supportedXQuery().minByOrNull { it.ordinal }
     }
 
 

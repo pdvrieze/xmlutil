@@ -21,7 +21,9 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xpath.SpecVersion
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XPathVersion.*
+import io.github.pdvrieze.formats.xpath.XQueryVersion
 import io.github.pdvrieze.formats.xpath.XQueryVersion.*
 
 class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = true): Qt3Dependency(satisfied) {
@@ -30,6 +32,91 @@ class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = tru
 
     override val type: Qt3DependencyType
         get() = Qt3DependencyType.SPEC
+
+    fun override(other: Qt3SpecDependency): Qt3SpecDependency {
+        val newSatisfied: Boolean
+
+        val baseXPath = xpathVersions()
+        val baseXQuery = xqueryVersions()
+
+        val otherXPath = other.xpathVersions()
+        val otherXQuery = other.xqueryVersions()
+
+        val newXPath: MutableSet<XPathVersion>
+        val newXQuery: MutableSet<XQueryVersion>
+
+        when {
+            satisfied && other.satisfied -> {
+                newXPath = baseXPath.intersect(otherXPath).toMutableSet()
+                newXQuery = baseXQuery.intersect(otherXQuery).toMutableSet()
+                newSatisfied = true
+            }
+
+            satisfied /*&& ! other.satisfied*/ -> {
+                newXPath = baseXPath.subtract(otherXPath).toMutableSet()
+                newXQuery = baseXQuery.subtract(otherXQuery).toMutableSet()
+                newSatisfied = true
+            }
+
+            /*!satisfied &&*/ other.satisfied -> {
+                newXPath = otherXPath.subtract(baseXPath).toMutableSet()
+                newXQuery = otherXQuery.subtract(baseXQuery).toMutableSet()
+                newSatisfied = true
+            }
+
+            else -> { /* !satisfied && ! other.satisfied */
+                newXPath = baseXPath.union(otherXPath).toMutableSet()
+                newXQuery = baseXQuery.union(otherXQuery).toMutableSet()
+                newSatisfied = false
+            }
+        }
+
+        val newSpecs = mutableListOf<Spec>()
+        val sortedSpecs = Spec.entries.sortedByDescending { it.supported.size }
+
+        for (set in listOf(newXPath, newXQuery)) {
+            while (set.isNotEmpty()) {
+                val spec = sortedSpecs.first { newXPath.containsAll(it.supported) }
+                newSpecs.add(spec)
+                newXPath.removeAll(spec.supported)
+            }
+        }
+
+        return Qt3SpecDependency(newSpecs, newSatisfied)
+    }
+
+    internal fun xpathVersions(): Set<XPathVersion> = supportedSpecs.asSequence()
+        .flatMap { it.supported }
+        .filterIsInstance<XPathVersion>()
+        .toHashSet()
+
+
+    internal fun xqueryVersions(): Set<XQueryVersion> = supportedSpecs.asSequence()
+        .flatMap { it.supported }
+        .filterIsInstance<XQueryVersion>()
+        .toHashSet()
+
+    fun supportedXPath(baseSupport: List<XPathVersion> = XPathVersion.entries): Set<XPathVersion> {
+        val xpathVersions = xpathVersions()
+
+        return when {
+            satisfied -> xpathVersions
+
+            else -> baseSupport.toHashSet()
+                .apply { removeAll(xpathVersions) }
+        }
+    }
+
+    fun supportedXQuery(baseSupport: List<XQueryVersion> = XQueryVersion.entries): Set<XQueryVersion> {
+        val xqueryVersions = xqueryVersions()
+
+        return when {
+            satisfied -> xqueryVersions
+            else -> baseSupport.toHashSet()
+                .apply { removeAll(xqueryVersions) }
+        }
+    }
+
 
     enum class Spec(val value: String, val supported: Set<SpecVersion>) {
         XP10("XP10", XPath1_0),
@@ -55,5 +142,10 @@ class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = tru
         companion object {
             fun from(value: String): Spec = entries.first { it.value == value }
         }
+    }
+
+    companion object {
+        val XPATH1: Qt3SpecDependency = Qt3SpecDependency(listOf(Spec.XP10Plus))
+        val XPATH3_1: Qt3SpecDependency = Qt3SpecDependency(listOf(Spec.XP31))
     }
 }

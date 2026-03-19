@@ -89,3 +89,7 @@ kotlin {
 }
 
 addNativeTargets(includeWasm = false, includeWasi = false)
+
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform()
+}

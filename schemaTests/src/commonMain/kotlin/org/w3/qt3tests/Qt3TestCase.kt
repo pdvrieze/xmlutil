@@ -69,13 +69,12 @@ class Qt3TestCase(
 
         val specDeps = (ctx.setDependencies.asSequence() + dependencies.asSequence())
             .filterIsInstance<Qt3SpecDependency>()
-            .lastOrNull()
-            ?.supportedSpecs
+            .reduceOrNull { acc, dependency -> acc.override(dependency) }
+            ?: Qt3SpecDependency.XPATH3_1
 
 
         val newCtx = AssertionResolutionContextImpl(ctx, env, specDeps)
         context(newCtx) {
-            val isXpath = env != null && env.namespaces.isNotEmpty()
             return ResolvedQt3TestCase(
                 description,
                 created,

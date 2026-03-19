@@ -20,21 +20,26 @@
 
 package org.w3.qt3tests.test
 
-import kotlinx.serialization.DeserializationStrategy
-import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.EventType
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.core.impl.multiplatform.URI
+import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.serialization.InputKind
+import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlConfig
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 import org.w3.dom.nthElement
 import org.w3.qt3tests.Qt3Catalog
-import org.w3.qt3tests.Qt3Dependency
 import org.w3.qt3tests.Qt3TestSet
-import org.w3.qt3tests.resolved.CatalogResolutionContext
 import org.w3.qt3tests.resolved.ResolutionContext
-import org.w3.qt3tests.resolved.ResolvedQt3Environment
-import org.w3.qt3tests.resolved.TestSetResolutionContext
+import java.io.File
 import kotlin.test.Test
 
 class TestParseCatalog {
@@ -120,9 +125,24 @@ class TestParseCatalog {
         }
     }
 
+
+
     @Test
     fun testParse() {
-        val xml = XML.v1{
+        val catalog = context(createResolutionContext()) {
+            parseCatalogCommon().resolve()
+        }
+
+        assertEquals(13, catalog.environments.size)
+        val atomicDoc = catalog.environments.first { it.name=="atomic" }.sources.single().content
+        assertEquals("duration", atomicDoc.documentElement!!.nthElement(0).localName)
+        assertEquals("gMonthDay", atomicDoc.documentElement!!.nthElement(6).localName)
+
+        println(catalog)
+    }
+
+    private fun createResolutionContext(base: String = "/xpath/"): ResolutionContextImpl.Catalog {
+        val xml = XML.v1 {
             policy {
                 unknownChildHandler = object : UnknownChildHandler {
                     override fun handleUnknownChildRecovering(
@@ -140,23 +160,23 @@ class TestParseCatalog {
                         ) {
                             return emptyList()
                         }
-                        return XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER.handleUnknownChildRecovering(input, inputKind, descriptor, name, candidates)
+                        return XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER.handleUnknownChildRecovering(
+                            input,
+                            inputKind,
+                            descriptor,
+                            name,
+                            candidates
+                        )
                     }
                 }
             }
         }
-        val resolutionContext = ResolutionContextImpl.Catalog("/xpath/", xml)
+        return ResolutionContextImpl.Catalog(base, xml)
+    }
 
-        val catalog = context(resolutionContext) {
-            resolutionContext.parseFile(Qt3Catalog.serializer(), "catalog.xml").resolve()
-        }
-
-        assertEquals(13, catalog.environments.size)
-        val atomicDoc = catalog.environments.first { it.name=="atomic" }.sources.single().content
-        assertEquals("duration", atomicDoc.documentElement!!.nthElement(0).localName)
-        assertEquals("gMonthDay", atomicDoc.documentElement!!.nthElement(6).localName)
-
-        println(catalog)
+    context(ctx: ResolutionContext)
+    private fun parseCatalogCommon(): Qt3Catalog {
+        return ctx.parseFile(Qt3Catalog.serializer(), "catalog.xml")
     }
 
     @Test
@@ -169,97 +189,23 @@ class TestParseCatalog {
         }
         println(testSet)
     }
-}
 
-abstract class ResolutionContextImpl(
-    override val base: String,
-    override val xml: XML,
-    override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
-    override val idMap: MutableMap<String, Any> = HashMap(),
-): ResolutionContext {
+    @DisplayName("Test set")
+    @TestFactory
+    fun createTestSetTests(): List<DynamicTest> {
+        val ctx = createResolutionContext("/xpath/")
+        context(ctx) {
+            val catalog = parseCatalogCommon()
 
-    override fun subContext(file: String): CatalogResolutionContext {
-        val i = file.lastIndexOf('/')
-        val newBase = when {
-            i < 0 -> return this as? CatalogResolutionContext ?: Catalog(base, xml, knownEnvironments, idMap)
-            else -> "$base${file.substring(0, i + 1)}"
-        }
-        // copy the maps to make names hierarchical (not ordered global across files)
-        return Catalog(newBase, xml, HashMap(knownEnvironments), HashMap(idMap))
-    }
+            return catalog.testSets.map {
+                val uri = File(ctx.base).toURI().resolve(URI.create(it.file.toString()))
+                    .resolve("#default")
 
-
-    override fun parseDocument(relativePath: String): Document {
-        val out = xmlStreaming.newWriter()
-
-            requireNotNull(javaClass.getResourceAsStream("$base$relativePath")){
-                "Could not find resource $base$relativePath"
-            }.use {
-                val xr = KtXmlReader(it, relaxed = true)
-                try {
-                    while (xr.hasNext()) {
-                        val _ = xr.next()
-                        if (!xr.isIgnorable()) xr.writeCurrent(out)
-                    }
-                } catch (e: XmlSerialException) {
-                    if (e.extLocationInfo == null) {
-                        throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
-                            .also { it.setFileLocation("$base$relativePath") }
-                    } else {
-                        e.setFileLocation("$base$relativePath")
-                        throw e
-                    }
-                } catch (e: XmlException) {
-                    if (e.locationInfo == null) {
-                        throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
-                            .also { it.setFileLocation("$base$relativePath") }
-                    } else {
-                        e.setFileLocation("$base$relativePath")
-                        throw e
-                    }
-                } catch (e: Exception) {
-                    throw XmlException(xr.extLocationInfo, e)
+                DynamicTest.dynamicTest(it.name, uri) {
+                    val _ = it.resolve()
                 }
             }
-            return out.target
-    }
-
-    override fun <T> parseFile(
-        deserializer: DeserializationStrategy<T>,
-        relativePath: String
-    ): T {
-        System.getLogger("testing").log(System.Logger.Level.INFO, "Parsing $relativePath")
-        try {
-
-            return javaClass.getResourceAsStream("$base$relativePath")!!.use {
-                val xr = KtXmlReader(it, relaxed = true)
-                xml.decodeFromReader(deserializer, xr)
-            }
-        } catch (e: XmlSerialException) {
-            e.setFileLocation("$base$relativePath")
-            throw e
         }
     }
-
-    class Catalog(
-        base: String,
-        xml: XML,
-        knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
-        idMap: MutableMap<String, Any> = HashMap()
-    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap), CatalogResolutionContext {
-
-
-
-        override fun testSetContext(dependencies: List<Qt3Dependency>): TestSetResolutionContext {
-            return TestSet(base, xml, knownEnvironments, idMap, dependencies)
-        }
-    }
-
-    class TestSet(
-        base: String,
-        xml: XML,
-        knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
-        idMap: MutableMap<String, Any> = HashMap(),
-        override val setDependencies: List<Qt3Dependency>
-    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap), TestSetResolutionContext
 }
+

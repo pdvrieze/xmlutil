@@ -21,9 +21,7 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
-import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
-import io.github.pdvrieze.formats.xpath.XQueryVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -37,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.qt3tests.context.AssertionResolutionContext
 
 @Serializable(UnresolvedXPathExpr.Companion::class)
-interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
+interface UnresolvedXPathExpr : UnresolvedXQueryExpr {
 
     context(ctx: AssertionResolutionContext)
     override fun resolve(): Result<XPathExpression> = resolveXPath()
@@ -45,7 +43,7 @@ interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
     context(ctx: AssertionResolutionContext)
     fun resolveXPath(): Result<XPathExpression>
 
-    companion object: KSerializer<UnresolvedXPathExpr> {
+    companion object : KSerializer<UnresolvedXPathExpr> {
         override val descriptor: SerialDescriptor =
             PrimitiveSerialDescriptor(UnresolvedXPathExpr::class.name, PrimitiveKind.STRING)
 
@@ -64,18 +62,13 @@ interface UnresolvedXPathExpr: UnresolvedXQueryExpr {
 
 }
 
-class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo?): UnresolvedXQueryExprImpl(expr, locationInfo), UnresolvedXPathExpr {
+class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo?) :
+    UnresolvedXQueryExprImpl(expr, locationInfo), UnresolvedXPathExpr {
 
     context(ctx: AssertionResolutionContext)
     override fun resolveXQuery(): Result<XQueryExpression> {
-        val minPath = ctx.minXPathVersion
-        val minQuery = ctx.minXQueryVersion
-
         return runCatching {
-            when {
-                minPath != null -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
-                else -> stubXQueryExpression(expr, ctx.namespaceContext, minQuery ?: XQueryVersion.XQuery3_1, locationInfo)
-            }
+            XPathExpression(expr, ctx.namespaceContext, ctx.minRequiredXPath, locationInfo)
         }
     }
 
@@ -85,7 +78,7 @@ class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo
             XPathExpression(
                 path = expr,
                 namespaceContext = ctx.namespaceContext,
-                ver = ctx.minXPathVersion ?: XPathVersion.XPath3_1,
+                ver = ctx.minRequiredXPath,
                 posInfo = locationInfo
             )
         }
