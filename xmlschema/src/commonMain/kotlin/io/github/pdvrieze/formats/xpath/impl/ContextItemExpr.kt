@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-public object ContextItemExpr : ExprSingle() {
+internal object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
     context(c: OutputContext)
     @XPathInternal
     override fun appendToString(builder: Appendable) {

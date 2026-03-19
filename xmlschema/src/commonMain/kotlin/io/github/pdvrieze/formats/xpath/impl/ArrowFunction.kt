@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-internal class ArrowFunction @NeedsXPath3_1 constructor(val expr: ExprSingle, val functionSpecifier: ArrowFunctionSpecifier, val params: List<ExprSingle>): ExprSingle() {
+internal class ArrowFunction @NeedsXPath3_1 constructor(val expr: ExprSingle, val functionSpecifier: ArrowFunctionSpecifier, val params: List<ExprSingle>): AbstractExprSingle() {
 
 
     override fun collectUnsupportedExprs(

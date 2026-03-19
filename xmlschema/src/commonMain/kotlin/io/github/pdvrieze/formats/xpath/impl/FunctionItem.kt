@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-sealed class FunctionItem: ExprSingle() {
+sealed class FunctionItem: AbstractExprSingle() {
 
     class NamedRef @NeedsXPath3_0 constructor(val name: QName, val index: Int) : FunctionItem() {
         context(c: OutputContext)

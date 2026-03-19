@@ -63,6 +63,22 @@ internal class PathContext(val path: LocationPath) {
         return path.steps[stepCount++]
     }
 
+    private fun getAxisStep(): AxisStep {
+        when (val s = getStep()) {
+            is AxisStep -> return s
+            is FilterExpr -> when (val p = s.primaryExpr) {
+                is AxisStep -> return p
+                is LocationPath -> {
+                    require(! p.rooted) { "Expected a non-rooted path, but found a rooted path" }
+                    val s = requireNotNull(p.steps.singleOrNull()) { "Only a single axis step is expected" }
+                    return s as AxisStep
+                }
+
+                else -> error("Expression cannot be considered as axis step: $p")
+            }
+        }
+    }
+
     inline fun <reified E: ExprSingle> assertFilterStep(test: FilterContext<E>.() -> Unit) {
         val step = assertIs<FilterExpr>(getStep())
         val context = FilterContext(assertIs<E>(step.primaryExpr), step.predicates)
@@ -70,7 +86,7 @@ internal class PathContext(val path: LocationPath) {
     }
 
     fun assertStepSelf() {
-        val step = assertIs<AxisStep>(getStep())
+        val step = assertIs<AxisStep>(getAxisStep())
         assertEquals(Axis.SELF, step.axis)
         assertEquals(NodeTypeTest(NodeType.ANY_KIND), step.test)
         assertEquals(0, step.predicates.size)
@@ -221,7 +237,11 @@ internal inline fun <reified T1 : Expr, reified T2 : Expr> TestContext.assertBin
 
 @OptIn(XPathInternal::class)
 internal fun TestContext.assertPath(test: PathContext.() -> Unit) {
-    val path = assertIs<LocationPath>(expr)
+    val path = when (val e = expr) {
+        is LocationPath -> e
+        is ExprSingle -> LocationPath(e)
+        else -> fail("Expression can not be a path element")
+    }
     val c = PathContext(path)
     c.test()
     assertEquals(c.stepCount, path.steps.size)

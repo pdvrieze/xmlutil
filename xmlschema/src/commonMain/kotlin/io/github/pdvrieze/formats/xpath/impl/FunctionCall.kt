@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal sealed class FunctionCall(val args: List<ExprSingleOrPlaceholder>): ExprSingle() {
+internal sealed class FunctionCall(val args: List<ExprSingleOrPlaceholder>): AbstractExprSingle() {
     context(c: OutputContext)
     protected fun Appendable.appendParams() {
         append('(')

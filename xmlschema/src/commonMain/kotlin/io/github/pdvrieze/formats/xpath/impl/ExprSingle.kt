@@ -23,7 +23,10 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @OptIn(XPathInternal::class)
-sealed class ExprSingle(): AbstractExpr(), ExprSingleOrPlaceholder {
+sealed interface ExprSingle: ExprSingleOrPlaceholder, Expr
+
+@OptIn(XPathInternal::class)
+sealed class AbstractExprSingle(): AbstractExpr(), ExprSingle {
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
         isXQuery: Boolean,

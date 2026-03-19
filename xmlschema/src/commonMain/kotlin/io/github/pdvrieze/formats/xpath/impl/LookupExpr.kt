@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key: KeySpecifier): ExprSingle() {
+internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key: KeySpecifier): AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         context?.appendToString(builder)

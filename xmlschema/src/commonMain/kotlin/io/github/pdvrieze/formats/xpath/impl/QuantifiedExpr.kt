@@ -25,7 +25,7 @@ class QuantifiedExpr @NeedsXPath2 constructor(
     val kind: Kind,
     val bindings: List<Binding>,
     val condition: Expr
-) : ExprSingle() {
+) : AbstractExprSingle() {
     init {
         require(bindings.isNotEmpty()) { "Must have at least one binding" }
     }

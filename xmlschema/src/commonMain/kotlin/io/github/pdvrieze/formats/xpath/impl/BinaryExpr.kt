@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
 @NeedsXPath1
-internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): ExprSingle() {
+internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         left.appendToString(builder)

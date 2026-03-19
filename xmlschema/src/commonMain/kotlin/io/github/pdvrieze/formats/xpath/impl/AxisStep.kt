@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-internal class AxisStep(
+internal open class AxisStep(
     val axis: Axis,
     val test: NodeTest,
     val predicates: List<Expr>

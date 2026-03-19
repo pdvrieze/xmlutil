@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class EnclosedExpr @NeedsXPath3_0 constructor(val contentExpr: Expr): ExprSingle() {
+internal class EnclosedExpr @NeedsXPath3_0 constructor(val contentExpr: Expr): AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append('{')

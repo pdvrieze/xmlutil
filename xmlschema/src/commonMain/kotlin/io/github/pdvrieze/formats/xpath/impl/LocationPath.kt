@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 internal class LocationPath(
     val rooted: Boolean,
     val steps: List<PrimaryOrStep>,
-) : ExprSingle() {
+) : AbstractExprSingle() {
     constructor(step: AxisStep) : this(false, listOf(step))
 
     constructor(rooted: Boolean, step: AxisStep) : this(rooted, listOf(step))

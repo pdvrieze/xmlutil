@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): ExprSingle() {
+class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): AbstractExprSingle() {
     init {
         require(bindings.isNotEmpty()) { "Must have at least one binding" }
     }

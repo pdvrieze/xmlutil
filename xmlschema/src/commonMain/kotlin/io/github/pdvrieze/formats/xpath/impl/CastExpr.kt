@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 @NeedsXPath2
-class CastExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : ExprSingle() {
+class CastExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)

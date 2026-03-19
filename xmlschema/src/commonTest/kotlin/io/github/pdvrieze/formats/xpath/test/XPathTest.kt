@@ -31,6 +31,11 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testWildcardLocalname() {
+        testPath("name((//@xml:*)[1])") {}
+    }
+
+    @Test
     fun testLetExpr() {
         testPath("""let ${'$'}index-of-node := function(${'$'}seqParam as node()*, ${'$'}srchParam as node()) as xs:integer* 
                                     { filter( 1 to count(${'$'}seqParam), function(${'$'}this as xs:integer) as xs:boolean

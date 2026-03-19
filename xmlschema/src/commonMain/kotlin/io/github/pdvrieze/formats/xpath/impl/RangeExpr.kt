@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @OptIn(XPathInternal::class)
-class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : ExprSingle() {
+class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         from.appendToString(builder)

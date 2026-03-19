@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-data class IfExpr @NeedsXPath2 constructor(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : ExprSingle() {
+data class IfExpr @NeedsXPath2 constructor(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append("if(")

@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class ParenExpr(val expr: Expr): ExprSingle() {
+internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append('(')

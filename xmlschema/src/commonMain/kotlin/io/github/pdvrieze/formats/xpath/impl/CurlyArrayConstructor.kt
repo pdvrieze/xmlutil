@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-sealed class ArrayConstructor @NeedsXPath3_1 constructor(): ExprSingle() {
+sealed class ArrayConstructor @NeedsXPath3_1 constructor(): AbstractExprSingle() {
 
     @XPathInternal
     class Square @NeedsXPath3_1 constructor(val values: List<ExprSingle>): ArrayConstructor() {

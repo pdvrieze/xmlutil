@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class OperatorExpr constructor(val operator: Operator, val operands: List<ExprSingle>): ExprSingle() {
+internal class OperatorExpr constructor(val operator: Operator, val operands: List<ExprSingle>): AbstractExprSingle() {
     init {
         require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
     }

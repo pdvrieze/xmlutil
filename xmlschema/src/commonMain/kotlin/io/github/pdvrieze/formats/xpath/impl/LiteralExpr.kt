@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal abstract class LiteralExpr<out T : Any> : ExprSingle() {
+internal abstract class LiteralExpr<out T : Any> : AbstractExprSingle() {
 
     abstract val value: T
 

@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 
 @XPathInternal
-sealed class UnaryExpr: ExprSingle() {
+sealed class UnaryExpr: AbstractExprSingle() {
 
     class Plus @NeedsXPath2 constructor(val expr: ExprSingle): UnaryExpr() {
         context(c: OutputContext)

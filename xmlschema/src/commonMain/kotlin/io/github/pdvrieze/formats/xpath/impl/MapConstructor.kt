@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class MapConstructor @NeedsXPath3_1 constructor(val entries: List<Entry>): ExprSingle() {
+internal class MapConstructor @NeedsXPath3_1 constructor(val entries: List<Entry>): AbstractExprSingle() {
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
