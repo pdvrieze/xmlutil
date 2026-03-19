@@ -76,9 +76,11 @@ class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = tru
 
         for (set in listOf(newXPath, newXQuery)) {
             while (set.isNotEmpty()) {
-                val spec = sortedSpecs.first { newXPath.containsAll(it.supported) }
+                val spec = sortedSpecs.firstOrNull { set.containsAll(it.supported) }
+                    ?: throw IllegalStateException("Could not find spec for $set")
+
                 newSpecs.add(spec)
-                newXPath.removeAll(spec.supported)
+                set.removeAll(spec.supported)
             }
         }
 
@@ -114,6 +116,12 @@ class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = tru
             satisfied -> xqueryVersions
             else -> baseSupport.toHashSet()
                 .apply { removeAll(xqueryVersions) }
+        }
+    }
+
+    override fun toString(): String {
+        return buildString {
+            append("Qt3SpecDependency(supportedSpecs=$supportedSpecs, satisfied=$satisfied)")
         }
     }
 

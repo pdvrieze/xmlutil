@@ -85,6 +85,11 @@ kotlin {
                 implementation(kotlin("test-junit5"))
             }
         }
+        jvmTest {
+            dependencies {
+                implementation(libs.junit.params)
+            }
+        }
     }
 }
 

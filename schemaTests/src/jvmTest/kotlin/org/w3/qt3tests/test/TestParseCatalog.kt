@@ -24,7 +24,6 @@ import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.core.impl.multiplatform.URI
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.serialization.InputKind
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
@@ -32,14 +31,14 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlConfig
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.DynamicTest
-import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.api.Named
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.w3.dom.nthElement
 import org.w3.qt3tests.Qt3Catalog
 import org.w3.qt3tests.Qt3TestSet
+import org.w3.qt3tests.Qt3TestSetReference
 import org.w3.qt3tests.resolved.ResolutionContext
-import java.io.File
 import kotlin.test.Test
 
 class TestParseCatalog {
@@ -141,37 +140,9 @@ class TestParseCatalog {
         println(catalog)
     }
 
-    private fun createResolutionContext(base: String = "/xpath/"): ResolutionContextImpl.Catalog {
-        val xml = XML.v1 {
-            policy {
-                unknownChildHandler = object : UnknownChildHandler {
-                    override fun handleUnknownChildRecovering(
-                        input: XmlReader,
-                        inputKind: InputKind,
-                        descriptor: XmlDescriptor,
-                        name: QName?,
-                        candidates: Collection<Any>
-                    ): List<XML.ParsedData<*>> {
-                        if (inputKind == InputKind.Attribute &&
-                            input.eventType == EventType.START_ELEMENT &&
-                            input.localName == "query" &&
-                            name != null &&
-                            name.isEquivalent(QName("uri"))
-                        ) {
-                            return emptyList()
-                        }
-                        return XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER.handleUnknownChildRecovering(
-                            input,
-                            inputKind,
-                            descriptor,
-                            name,
-                            candidates
-                        )
-                    }
-                }
-            }
-        }
-        return ResolutionContextImpl.Catalog(base, xml)
+    @Test
+    fun testParseAnalyzeString() {
+        testParseTestSet(getTestSetSpec("fn-analyze-string"))
     }
 
     context(ctx: ResolutionContext)
@@ -190,6 +161,15 @@ class TestParseCatalog {
         println(testSet)
     }
 
+    @ParameterizedTest()
+    @MethodSource("getTestSetSpecs")
+    fun testParseTestSet(spec: TestSetSpec) {
+        val _ = context(spec.resolutionContext) {
+            spec.testSet.resolve()
+        }
+    }
+
+/*
     @DisplayName("Test set")
     @TestFactory
     fun createTestSetTests(): List<DynamicTest> {
@@ -206,6 +186,61 @@ class TestParseCatalog {
                 }
             }
         }
+    }
+*/
+
+    class TestSetSpec(val resolutionContext: ResolutionContext, val testSet: Qt3TestSetReference)
+
+    companion object {
+        fun getTestSetSpec(name: String): TestSetSpec {
+            return getTestSetSpecs().first {
+                it.name == name
+            }.payload
+        }
+
+        @JvmStatic
+        fun getTestSetSpecs(): List<Named<TestSetSpec>> {
+            val ctx = createResolutionContext("/xpath/")
+            val catalog = ctx.parseFile(Qt3Catalog.serializer(), "catalog.xml")
+            return catalog.testSets.map {
+                Named.of(it.name, TestSetSpec(ctx, it))
+            }
+
+        }
+
+        private fun createResolutionContext(base: String = "/xpath/"): ResolutionContextImpl.Catalog {
+            val xml = XML.v1 {
+                policy {
+                    unknownChildHandler = object : UnknownChildHandler {
+                        override fun handleUnknownChildRecovering(
+                            input: XmlReader,
+                            inputKind: InputKind,
+                            descriptor: XmlDescriptor,
+                            name: QName?,
+                            candidates: Collection<Any>
+                        ): List<XML.ParsedData<*>> {
+                            if (inputKind == InputKind.Attribute &&
+                                input.eventType == EventType.START_ELEMENT &&
+                                input.localName == "query" &&
+                                name != null &&
+                                name.isEquivalent(QName("uri"))
+                            ) {
+                                return emptyList()
+                            }
+                            return XmlConfig.DEFAULT_UNKNOWN_CHILD_HANDLER.handleUnknownChildRecovering(
+                                input,
+                                inputKind,
+                                descriptor,
+                                name,
+                                candidates
+                            )
+                        }
+                    }
+                }
+            }
+            return ResolutionContextImpl.Catalog(base, xml)
+        }
+
     }
 }
 
