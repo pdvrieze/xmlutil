@@ -43,6 +43,6 @@ class Qt3Test(
 ) {
     context(ctx: AssertionResolutionContext)
     fun resolve(): ResolvedQt3Test {
-        return ResolvedQt3Test(file, value.resolveXQuery().getOrThrow())
+        return ResolvedQt3Test(file, value.resolveXQuery())
     }
 }

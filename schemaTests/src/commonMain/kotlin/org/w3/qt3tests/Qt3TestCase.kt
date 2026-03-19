@@ -75,7 +75,7 @@ class Qt3TestCase(
 
         val newCtx = AssertionResolutionContextImpl(ctx, env, specDeps)
         context(newCtx) {
-            return ResolvedQt3TestCase(
+            val resolvedTestCase = ResolvedQt3TestCase(
                 description,
                 created,
                 modified,
@@ -88,6 +88,9 @@ class Qt3TestCase(
                 covers,
                 covers30,
             )
+            resolvedTestCase.tryVerify()
+
+            return resolvedTestCase
         }
     }
 }

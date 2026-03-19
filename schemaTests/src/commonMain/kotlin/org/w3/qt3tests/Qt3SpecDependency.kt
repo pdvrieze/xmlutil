@@ -127,6 +127,7 @@ class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = tru
 
 
     enum class Spec(val value: String, val supported: Set<SpecVersion>) {
+        UNKNOWN("unknown", emptySet()),
         XP10("XP10", XPath1_0),
         XP10Plus("XP10+", XPath1_0, XPath2_0, XPath3_0, XPath3_1),
         XP20("XP20", XPath2_0),
@@ -143,12 +144,17 @@ class Qt3SpecDependency(val supportedSpecs: List<Spec>, satisfied: Boolean = tru
         XQ30Plus("XQ30+", XQuery3_0, XQuery3_1),
         XQ31Plus("XQ31+", XQuery3_1),
         XQ31("XQ31", XQuery3_1),
+        XT30("XT30"), //XSLT
+        XT30Plus("XT30+"), //XSLT
+        XT31("XT31"), //XSLT
+        XT31Plus("XT31+"), //XSLT
         ;
 
         constructor(value: String, vararg supported: SpecVersion): this(value, supported.toHashSet())
 
         companion object {
-            fun from(value: String): Spec = entries.first { it.value == value }
+            fun from(value: String): Spec = entries.firstOrNull() { it.value == value }
+                ?: throw IllegalArgumentException("Unknown spec '$value'")
         }
     }
 

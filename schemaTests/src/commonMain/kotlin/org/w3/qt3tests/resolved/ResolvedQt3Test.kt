@@ -23,6 +23,6 @@ package org.w3.qt3tests.resolved
 import io.github.pdvrieze.formats.xpath.XQueryExpression
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
-class ResolvedQt3Test(val file: XsdAnyURI?, val expr: XQueryExpression) {
+class ResolvedQt3Test(val file: XsdAnyURI?, val expr: Result<XQueryExpression>) {
 
 }

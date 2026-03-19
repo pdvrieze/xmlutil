@@ -20,8 +20,10 @@
 
 package org.w3.qt3tests.resolved
 
+import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.xml.schematypes.values.XsdToken
 import org.w3.qt3tests.*
+import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertError
 
 class ResolvedQt3TestCase(
     val description: Qt3Description? = null,
@@ -36,5 +38,22 @@ class ResolvedQt3TestCase(
     val covers: List<XsdToken>? = emptyList(),
     val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>? = emptyList(),
 ) {
+    fun tryVerify() {
+        val errorAssertions = result?.run { assertions.filterIsInstance<ResolvedQt3AssertError>() } ?: emptyList()
+        when (errorAssertions.size) {
+            0 -> check(test != null && test.expr.isSuccess)
+
+            // XPST0003 is a parser error. We should be able to handle those (only)
+            else if (errorAssertions.any { it.code?.startsWith("XPST0003") == true }) -> {
+                val expr = test!!.expr
+                if (expr.isSuccess) {
+                    val e = expr.getOrThrow()
+                    if (e !is XPathExpression) {
+                        throw IllegalStateException("Expression '${e.xmlString}' should fail. with code ${errorAssertions.map { it.code }}")
+                    }
+                }
+            }
+        }
+    }
 
 }

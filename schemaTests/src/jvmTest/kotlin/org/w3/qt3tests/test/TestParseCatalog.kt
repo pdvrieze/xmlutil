@@ -145,6 +145,11 @@ class TestParseCatalog {
         testParseTestSet(getTestSetSpec("fn-analyze-string"))
     }
 
+    @Test
+    fun testParseMapMerge() {
+        testParseTestSet(getTestSetSpec("map-merge"))
+    }
+
     context(ctx: ResolutionContext)
     private fun parseCatalogCommon(): Qt3Catalog {
         return ctx.parseFile(Qt3Catalog.serializer(), "catalog.xml")
