@@ -23,7 +23,10 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.formats.xpath.impl.token.Axis
+import io.github.pdvrieze.formats.xpath.impl.token.Operator
+import io.github.pdvrieze.formats.xpath.impl.token.QNameToken
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
@@ -31,59 +34,21 @@ import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import kotlin.contracts.ExperimentalContracts
 
 internal class XQueryParser(
-    private val str: String,
+    str: String,
     private val namespaceContext: NamespaceContext,
     private val version: XPathVersion,
     private val posInfo: XmlReader.LocationInfo?
-) {
-    var i: Int = 0
+): Tokenizer(str,  posInfo) {
 
-    val isXPath2 get() = version >= XPathVersion.XPath2_0
-    val isXPath30 get() = version >= XPathVersion.XPath3_0
-    val isXPath31 get() = version >= XPathVersion.XPath3_1
-
-    private fun skipWhitespace() {
-        val l = str.length
-        while (i < l) {
-            val c = str[i]
-            when {
-                c == '(' -> {
-                    val j = i + 1
-                    if (j >= l || str[i + 1] != ':') return
-
-                    i += 2
-                    parseCommentCont()
-                }
-
-                !isXmlWhitespace(c) -> return
-                else -> ++i
-            }
-        }
-    }
-
-    private fun parseComment() {
-        check(tryCurrent("(:"))
-        return parseCommentCont()
-    }
-
-    private fun parseCommentCont() {
-        assertPrevious("(:")
-        val start = i - 2
-        while (i < str.length) {
-            val c = str[i]
-            when (c) {
-                ':' if tryCurrent(":)") -> return
-                '(' if peekCurrent("(:") -> parseComment()
-                else -> ++i
-            }
-        }
-        parseError("Comment not closed", start)
-    }
+    override val isXPath2 get() = version >= XPathVersion.XPath2_0
+    override val isXPath30 get() = version >= XPathVersion.XPath3_0
+    override val isXPath31 get() = version >= XPathVersion.XPath3_1
 
     /**
      * Parse a word (not allowing ':' letters)
      */
-    private fun parseNCName(): String = buildString {
+    @Deprecated("Use Tokenizer instead")
+    private fun parseNCNameDeprecated(): String = buildString {
         if (i >= str.length || !isNameStartChar(str[i])) return@buildString
 
         append(str[i++])
@@ -92,10 +57,11 @@ internal class XQueryParser(
         }
     }
 
-    private fun parseEQName(): QName {
+    @Deprecated("Use tokenizer")
+    private fun parseEQNameDeprecated(): QName {
         skipWhitespace()
         if (!(isXPath30 && tryCurrent("Q{"))) {
-            return parseQName()
+            return parseQNameDeprecated()
         }
 
         val namespace = buildString {
@@ -105,18 +71,27 @@ internal class XQueryParser(
             parseRequire(tryCurrent('}'))
         }.trim()
 
-        val localName = parseNCName()
+        val localName = parseNCNameDeprecated()
         return QName(namespace, localName)
     }
 
-    private fun parseQName(): QName {
-        val prefixOrLocal = parseNCName()
+    @Deprecated("Use tokenizer")
+    private fun parseQNameDeprecated(): QName {
+        val prefixOrLocal = parseNCNameDeprecated()
         return when {
             tryCurrent(':') ->
-                QName(lookupNamespace(prefixOrLocal), parseNCName(), prefixOrLocal)
+                QName(lookupNamespace(prefixOrLocal), parseNCNameDeprecated(), prefixOrLocal)
 
             else -> QName(lookupNamespace(""), prefixOrLocal, "")
         }
+    }
+
+    fun QNameToken.toQName(): QName {
+        val effectiveNS = namespace ?: prefix?.let { p ->
+            requireNotNull(lookupNamespace(p.toString())) { "No namespace for prefix '$p' found" }
+        } ?: ""
+
+        return XsdQNameImpl(effectiveNS.toString(), localName.toString(), prefix?.toString() ?: "")
     }
 
     context(ctx: ParseContext)
@@ -128,7 +103,7 @@ internal class XQueryParser(
             return t
         }
 
-        val localOrPrefix = parseNCName()
+        val localOrPrefix = parseNCNameDeprecated()
         if (tryCurrentToken('(')) {
             when (localOrPrefix) {
                 "item" -> {
@@ -163,7 +138,7 @@ internal class XQueryParser(
                     }
 
                     else -> {
-                        val inType = AtomicOrUnionTypeTest(parseEQName())
+                        val inType = AtomicOrUnionTypeTest(parseEQNameToken().toQName())
                         parseRequire(tryCurrentToken(","))
                         val outType = parseSequenceType()
                         parseRequire(tryCurrentToken(')')) { "Map specifiers must be closed by ')'" }
@@ -200,7 +175,7 @@ internal class XQueryParser(
 
 
         if (tryCurrentToken(':')) {
-            val localName = parseNCName()
+            val localName = parseNCNameDeprecated()
             return AtomicOrUnionTypeTest(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
         } else {
             return AtomicOrUnionTypeTest(QName(lookupNamespace(""), localOrPrefix, ""))
@@ -239,7 +214,7 @@ internal class XQueryParser(
 
     private fun parseVariableReference(): VariableRef {
         parseRequire(tryCurrentToken('$'), "Missing '$' in variable reference")
-        return VariableRef(parseNCName())
+        return VariableRef(parseNCNameDeprecated())
     }
 
     context(ctx: ParseContext)
@@ -277,7 +252,7 @@ internal class XQueryParser(
         val bindings = mutableListOf<ForExpr.Binding>()
         do {
             parseRequire(tryCurrentToken('$'))
-            val varName = parseNCName()
+            val varName = parseNCNameDeprecated()
             parseRequire(tryCurrentWordToken("in"))
             val seqExpr = parseExprSingle()
             bindings.add(ForExpr.Binding(varName, seqExpr))
@@ -295,7 +270,7 @@ internal class XQueryParser(
         val bindings = mutableListOf<LetExpr.Binding>()
         do {
             parseRequire(tryCurrentToken('$'))
-            val varName = parseNCName()
+            val varName = parseNCNameDeprecated()
             parseRequire(tryCurrentToken(":="))
             val rValueExpr = parseExprSingle()
             bindings.add(LetExpr.Binding(varName, rValueExpr))
@@ -573,7 +548,7 @@ internal class XQueryParser(
             parseRequire(tryCurrentWordToken("as"), "Missing 'as' in 'castable as' expression")
 
             skipWhitespace()
-            val typeName = parseQName()
+            val typeName = parseQName().toQName()
             val allowsEmpty = tryCurrentToken('?')
             return CastableExpr(e, typeName, allowsEmpty)
         }
@@ -590,7 +565,7 @@ internal class XQueryParser(
         parseRequire(tryCurrentWordToken("as"), "Missing 'as' in 'castable as' expression")
         skipWhitespace()
 
-        val typeName = parseQName()
+        val typeName = parseQName().toQName()
         val allowsEmpty = tryCurrentToken('?')
         return CastExpr(expr, typeName, allowsEmpty)
     }
@@ -622,7 +597,7 @@ internal class XQueryParser(
         return when (peekCurrentToken()) {
             '$' -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
             '(' -> ArrowFunctionSpecifier.SeqFunc(parseSequenceOrParen())
-            else -> ArrowFunctionSpecifier.QNameFunc(parseEQName())
+            else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameToken().toQName())
         }
 
     }
@@ -786,7 +761,7 @@ internal class XQueryParser(
                 return parsePostfixExpr(parseUnaryLookup())
 
             else if isNameStartChar(c) -> {
-                val ncName = parseNCName()
+                val ncName = parseNCNameDeprecated()
                 if (isXPath31 && ncName == "map" && peekCurrentToken('{')) {
                     @OptIn(NeedsXPath3_1::class)
                     return parsePostfixExpr(parseMapConstructorCont())
@@ -903,7 +878,7 @@ internal class XQueryParser(
             }
 
             else if isNameStartChar(c) -> {
-                val name = parseNCName()
+                val name = parseNCNameDeprecated()
                 return LookupExpr(null, LookupExpr.NCNameKey(name))
             }
         }
@@ -983,9 +958,9 @@ internal class XQueryParser(
             params = mutableListOf()
             do {
                 parseRequire(tryCurrentToken('$'), "Function parameters start with \$")
-                val name = parseEQName()
+                val varName = parseEQNameToken().toQName()
                 val type = if (tryCurrentWordToken("as")) parseSequenceType() else null
-                params.add(FunctionItem.Inline.Param(name, type))
+                params.add(FunctionItem.Inline.Param(varName, type))
             } while (tryCurrentToken(','))
             parseRequire(tryCurrentToken(')'), "Expected ')' to finish function parameters")
         } else {
@@ -1018,88 +993,13 @@ internal class XQueryParser(
         val e = try {
             parseExpr()
         } catch (e: IllegalArgumentException) {
-            parseError(null, "Failure to parse expression at version $version", e)
+            parseError(null, "XPath($version): ${e.message}", e)
         } catch (e: NumberFormatException) {
-            parseError(null, "Failure to parse expression at version $version", e)
+            parseError(null, "XPath($version): ${e.message}", e)
         }
         skipWhitespace()
         parseRequire(i >= str.length, "Trailing content in expression")
         return e
-    }
-
-    private fun parseStringLiteral(): StringLiteral {
-        val delim = when (str[i]) {
-            '\'' -> '\''
-            '"' -> '"'
-            else -> parseError("Literal does not start with quote")
-        }
-        ++i
-        var start = i
-
-        val string = StringBuilder()
-
-        while (i < str.length) {
-            when (str[i]) {
-                delim if (i + 1 < str.length && str[i + 1] == delim) -> {
-                    string.append(str, start, i + 1)
-                    i += 2 // skip reading the second delimiter (again)
-                    start = i // Set the start after the second delimiter
-                }
-
-                delim -> break
-                else -> ++i
-            }
-        }
-        if (i > start) {
-            string.append(str, start, i)
-        }
-        parseRequire(i < str.length, "Literal string not closed")
-        return StringLiteral(string.toString()).also { ++i } // skip delim
-    }
-
-    private fun parseNumber(): NumberLiteral<*> {
-        val start = i
-
-        if (str[i] == '-') ++i
-
-        parseRequire(i < str.length && str[i].isDigit(), "@$start> '${str.substring(start, i)}' not a number")
-
-        var seenPeriod = false
-        var seenExp = false
-        while (i < str.length) {
-            when (str[i]) {
-                '.' -> when {
-                    seenPeriod || seenExp -> return DoubleLiteral(str.substring(start, i).toDouble())
-                    else -> seenPeriod = true
-                }
-
-                'e', 'E' -> when {
-                    seenExp -> return DoubleLiteral(str.substring(start, i).toDouble())
-                    else -> {
-                        seenExp = true
-                        // skip signs here
-                        if (i + 1 < str.length) when (val c = str[i + 1]) {
-                            '+' -> ++i
-                            '-' -> ++i
-                        }
-                    }
-                }
-
-                !in '0'..'9' -> break
-            }
-            ++i
-        }
-        val substr = str.substring(start, i)
-        @OptIn(NeedsXPath2::class)
-        // TODO support decimal values without reverting to doubles
-        return when {
-            seenPeriod || seenExp || !isXPath2 -> DoubleLiteral(substr.toDouble())
-
-            else -> when (val l = substr.toLongOrNull()) {
-                null -> IntegerLiteral(XsdInteger(substr))
-                else -> LongLiteral(l)
-            }
-        }
     }
 
     context(ctx: ParseContext)
@@ -1155,7 +1055,7 @@ internal class XQueryParser(
                 "*"
             }
 
-            else if isNameStartChar(c) -> parseNCName()
+            else if isNameStartChar(c) -> parseNCName().name
 
             else -> return null
         }
@@ -1167,7 +1067,7 @@ internal class XQueryParser(
 
         if (initialWord == "*") {
             return when { // *: must start localname woildcard
-                tryCurrentToken(':') -> QNameSpec.LocalNameWC(parseNCName())
+                tryCurrentToken(':') -> QNameSpec.LocalNameWC(parseNCNameDeprecated())
                 else -> QNameSpec.Any
             }
         }
@@ -1183,7 +1083,7 @@ internal class XQueryParser(
             if (tryCurrentToken('*')) {
                 return QNameSpec.Namespace(namespace)
             } else {
-                val localPart = parseNCName()
+                val localPart = parseNCNameDeprecated()
                 return QNameSpec.EQName(namespace, localPart, null)
             }
         } else if (tryCurrentToken(':')) { //namespace separator
@@ -1191,7 +1091,7 @@ internal class XQueryParser(
             return when {
                 tryCurrentToken('*') -> QNameSpec.Namespace(ns, prefix = initialWord)
 
-                else -> QNameSpec.EQName(ns, localName = parseNCName(), prefix = initialWord)
+                else -> QNameSpec.EQName(ns, localName = parseNCNameDeprecated(), prefix = initialWord)
             }
         } else {
             return QNameSpec.EQName(lookupNamespace(""), localName = initialWord, prefix = null)
@@ -1261,7 +1161,7 @@ internal class XQueryParser(
                         }
 
                         else if isNameStartChar(c2) -> {
-                            val name = parseNCName()
+                            val name = parseNCNameDeprecated()
                             val newExpr = LookupExpr(newPrimary, LookupExpr.NCNameKey(name))
                             current = FilterExpr(newExpr)
                         }
@@ -1417,53 +1317,6 @@ internal class XQueryParser(
                 ) != expected
             ) parseError("Parse continuation not preceded by '$expected', found: '${str.substring(start, end)}'")
         }
-    }
-
-    fun <T> parseRequireNotNull(value: T?, message: String): T {
-        return value ?: parseError(message)
-    }
-
-    inline fun <T> parseRequireNotNull(value: T?, message: () -> String): T {
-        return value ?: parseError(message())
-    }
-
-    fun parseRequire(condition: Boolean, message: String = "Unexpected token") {
-        parseRequire(condition) { message }
-    }
-
-    inline fun parseRequire(condition: Boolean, message: () -> String) {
-        if (!condition) {
-            parseError("Invalid expression", message())
-        }
-    }
-
-    fun parseError(cause: Throwable, startIdx: Int = i): Nothing =
-        parseError(null, cause.message ?: "<unknown error>", cause, startIdx)
-
-    fun parseError(message: String, startIdx: Int = i): Nothing {
-        parseError(null, message, startIdx = startIdx)
-    }
-
-    fun parseError(msgPrefix: String?, message: String, cause: Throwable? = null, startIdx: Int = i): Nothing {
-        val indent = " ".repeat(6)
-        val msg = buildString {
-            msgPrefix?.let {
-                append(msgPrefix)
-                if (posInfo != null && msgPrefix.lastOrNull() != ' ') append(' ')
-            }
-            if (posInfo != null) append(" at $posInfo")
-            append(": ").appendLine(message)
-            val a = str.lastIndexOf('\n', startIdx)
-            val pos = if (a < 0) startIdx else (startIdx - a)
-            val b = str.indexOf('\n', startIdx)
-            appendLine(((if (b < 0) str else str.substring(0, b))).prependIndent(indent))
-            for (_ in 0 until (pos + indent.length)) append(' ')
-            when {
-                b < 0 -> append("^")
-                else -> appendLine("^").append(str.substring(b + 1).prependIndent(indent))
-            }
-        }
-        throw IllegalArgumentException(msg, cause)
     }
 
     internal data class ParseContext(val isXQuery: Boolean)

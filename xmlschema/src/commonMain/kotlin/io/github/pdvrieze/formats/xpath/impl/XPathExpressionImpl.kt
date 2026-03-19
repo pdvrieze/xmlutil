@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.impl.functions.Fn
+import io.github.pdvrieze.formats.xpath.impl.token.Axis
 import io.github.pdvrieze.xml.schematypes.types.TokenType
 import io.github.pdvrieze.xml.schematypes.values.XsdToken
 

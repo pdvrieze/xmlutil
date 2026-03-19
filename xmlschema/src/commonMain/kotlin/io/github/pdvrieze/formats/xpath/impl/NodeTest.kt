@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 @NeedsXPath1
-internal sealed class NodeTest {
+sealed class NodeTest {
     sealed class NameTest() : NodeTest()
 
     sealed class NameOrLiteral {
@@ -39,14 +39,14 @@ internal sealed class NodeTest {
             }
         }
 
-        class Literal(val literal: String) : NameOrLiteral() {
+        class LiteralTest(val literal: String) : NameOrLiteral() {
             context(c: OutputContext)
             override fun appendToString(builder: Appendable) {
                 StringLiteral(literal).appendToString(builder)
             }
         }
 
-        class NCName(val name: String) : NameOrLiteral() {
+        class NCNameTest(val name: String) : NameOrLiteral() {
             context(c: OutputContext)
             override fun appendToString(builder: Appendable) {
                 builder.append(name)

@@ -18,15 +18,8 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.token
 
-import io.github.pdvrieze.formats.xpath.impl.token.Axis
-
-@XPathInternal
-internal object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
-    context(c: OutputContext)
-    @XPathInternal
-    override fun appendToString(builder: Appendable) {
-        builder.append('.')
-    }
+data class QNameToken(val namespace: CharSequence?, val localName: CharSequence, val prefix: CharSequence?): Token {
+    override val isDelimiting: Boolean get() = true
 }

@@ -30,11 +30,15 @@ internal sealed interface QNameSpec {
 
     fun asNodeTest(version: XPathVersion): NodeTest
 
-
-    class EQName @NeedsXPath3_0 constructor(val namespace: String?, val localName: String, val prefix: String?) : QNameSpec {
+    @XPathInternal
+    class EQName @NeedsXPath3_0 constructor(
+        val namespace: String?,
+        val localName: String,
+        val prefix: String?
+    ) : QNameSpec {
         override fun asNodeTest(version: XPathVersion): NodeTest {
             if (namespace == null && prefix == null) {
-                NodeType.maybeValueOf(localName, version)?.let {
+                NodeType.Companion.maybeValueOf(localName, version)?.let {
                     return NodeTypeTest(it)
                 }
             }
@@ -45,6 +49,7 @@ internal sealed interface QNameSpec {
             return QName(namespace ?: "", localName, prefix ?: "")
         }
     }
+
 
     sealed interface WildCard : QNameSpec {
         override fun asNodeTest(version: XPathVersion): NodeTest = asNodeTest()
@@ -63,8 +68,7 @@ internal sealed interface QNameSpec {
 
     class Namespace(val namespace: String, val prefix: String? = null) : WildCard {
         override fun asNodeTest(): NodeTest {
-            return NodeTest.NSTest(XsdAnyURI(namespace), prefix?.let { XsdNCName(it) })
+            return NodeTest.NSTest(XsdAnyURI.Companion(namespace), prefix?.let { XsdNCName.Companion(it) })
         }
     }
 }
-

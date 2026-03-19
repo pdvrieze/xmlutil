@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,25 +18,42 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
 
-enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0) {
-    @NeedsXPath1 CHILD("child"),
-    @NeedsXPath1 DESCENDANT("descendant"),
-    @NeedsXPath1 PARENT("parent"),
-    @NeedsXPath1 ANCESTOR("ancestor"),
-    @NeedsXPath1 FOLLOWING_SIBLING("following-sibling"),
-    @NeedsXPath1 PRECEDING_SIBLING("preceding-sibling"),
-    @NeedsXPath1 FOLLOWING("following"),
-    @NeedsXPath1 PRECEDING("preceding"),
-    @NeedsXPath1 ATTRIBUTE("attribute"),
-    @NeedsXPath1 NAMESPACE("namespace"),
-    @NeedsXPath1 SELF("self"),
-    @NeedsXPath1 DESCENDANT_OR_SELF("descendant-or-self"),
-    @NeedsXPath1 ANCESTOR_OR_SELF("ancestor-or-self"),
+enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0): Token {
+    @NeedsXPath1
+    CHILD("child"),
+    @NeedsXPath1
+    DESCENDANT("descendant"),
+    @NeedsXPath1
+    PARENT("parent"),
+    @NeedsXPath1
+    ANCESTOR("ancestor"),
+    @NeedsXPath1
+    FOLLOWING_SIBLING("following-sibling"),
+    @NeedsXPath1
+    PRECEDING_SIBLING("preceding-sibling"),
+    @NeedsXPath1
+    FOLLOWING("following"),
+    @NeedsXPath1
+    PRECEDING("preceding"),
+    @NeedsXPath1
+    ATTRIBUTE("attribute"),
+    @NeedsXPath1
+    NAMESPACE("namespace"),
+    @NeedsXPath1
+    SELF("self"),
+    @NeedsXPath1
+    DESCENDANT_OR_SELF("descendant-or-self"),
+    @NeedsXPath1
+    ANCESTOR_OR_SELF("ancestor-or-self"),
     ;
+
+    final override val isDelimiting: Boolean
+        get() = false
 
     companion object {
         private val lookup = entries.associateBy { it.literal }

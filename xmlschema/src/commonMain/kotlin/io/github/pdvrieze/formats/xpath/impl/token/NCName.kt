@@ -18,15 +18,23 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.token
 
-import io.github.pdvrieze.formats.xpath.impl.token.Axis
+internal class NCName(val name: String): Token, CharSequence {
+    override val isDelimiting: Boolean get() = true
 
-@XPathInternal
-internal object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
-    context(c: OutputContext)
-    @XPathInternal
-    override fun appendToString(builder: Appendable) {
-        builder.append('.')
+    override fun get(index: Int): Char {
+        return name[index]
     }
+
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence {
+        return name.subSequence(startIndex, endIndex)
+    }
+
+    override val length: Int get() = name.length
+
+    override fun toString(): String = name
 }
+
+
+internal sealed interface ReservedFunctionName : Token

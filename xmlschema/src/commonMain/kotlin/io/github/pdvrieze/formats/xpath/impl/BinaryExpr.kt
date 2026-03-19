@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.impl.token.Operator
+
 @XPathInternal
 @NeedsXPath1
 internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): AbstractExprSingle() {

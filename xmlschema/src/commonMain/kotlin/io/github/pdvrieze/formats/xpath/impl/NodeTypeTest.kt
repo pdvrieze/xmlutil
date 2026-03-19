@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 @XPathInternal
-internal class NodeTypeTest(val type: NodeType, args: List<ExprSingleOrPlaceholder> = emptyList()) : NodeTest(), ItemTypeTest {
+public class NodeTypeTest(val type: NodeType, args: List<ExprSingleOrPlaceholder> = emptyList()) : NodeTest(), ItemTypeTest {
     val args: List<ExprSingleOrPlaceholder> = args.toList()
 
     override fun equals(other: Any?): Boolean {

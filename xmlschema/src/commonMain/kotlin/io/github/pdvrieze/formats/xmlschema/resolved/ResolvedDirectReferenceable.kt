@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityConstraint
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.formats.xpath.impl.token.Axis
+import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @OptIn(XPathInternal::class)
 sealed class ResolvedDirectReferenceable(

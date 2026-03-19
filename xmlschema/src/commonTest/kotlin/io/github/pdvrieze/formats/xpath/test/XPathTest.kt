@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xpath.test
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion.*
 import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.formats.xpath.impl.token.Axis
+import io.github.pdvrieze.formats.xpath.impl.token.Operator
 import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
 import kotlin.test.*
