@@ -20,6 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl.token
 
-data class QNameToken(val namespace: CharSequence?, val localName: CharSequence, val prefix: CharSequence?): Token {
+data class QNameToken(
+    val namespace: CharSequence?,
+    val localName: CharSequence,
+    val prefix: CharSequence?
+) : QNameOrBuiltin {
     override val isDelimiting: Boolean get() = true
 }

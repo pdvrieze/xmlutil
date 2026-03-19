@@ -23,9 +23,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.impl.token.Axis
-import io.github.pdvrieze.formats.xpath.impl.token.Operator
-import io.github.pdvrieze.formats.xpath.impl.token.QNameToken
+import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
@@ -57,35 +55,6 @@ internal class XQueryParser(
         }
     }
 
-    @Deprecated("Use tokenizer")
-    private fun parseEQNameDeprecated(): QName {
-        skipWhitespace()
-        if (!(isXPath30 && tryCurrent("Q{"))) {
-            return parseQNameDeprecated()
-        }
-
-        val namespace = buildString {
-            while (i < str.length && str[i] != '}') {
-                append(str[i++])
-            }
-            parseRequire(tryCurrent('}'))
-        }.trim()
-
-        val localName = parseNCNameDeprecated()
-        return QName(namespace, localName)
-    }
-
-    @Deprecated("Use tokenizer")
-    private fun parseQNameDeprecated(): QName {
-        val prefixOrLocal = parseNCNameDeprecated()
-        return when {
-            tryCurrent(':') ->
-                QName(lookupNamespace(prefixOrLocal), parseNCNameDeprecated(), prefixOrLocal)
-
-            else -> QName(lookupNamespace(""), prefixOrLocal, "")
-        }
-    }
-
     fun QNameToken.toQName(): QName {
         val effectiveNS = namespace ?: prefix?.let { p ->
             requireNotNull(lookupNamespace(p.toString())) { "No namespace for prefix '$p' found" }
@@ -103,15 +72,15 @@ internal class XQueryParser(
             return t
         }
 
-        val localOrPrefix = parseNCNameDeprecated()
+        val qNameOrToken = parseQNameOrBuiltin()
         if (tryCurrentToken('(')) {
-            when (localOrPrefix) {
-                "item" -> {
+            when (qNameOrToken) {
+                ReservedFunctions.ITEM -> {
                     parseRequire(tryCurrentToken(')')) { "The item type specifier has no arguments" }
                     return ItemTypeTest.ItemTestTest
                 }
 
-                "function" if isXPath30 -> when {
+                ReservedFunctions.FUNCTION if isXPath30 -> when {
                     tryCurrentToken('*') -> {
                         parseRequire(tryCurrentToken(')'))
                         @OptIn(NeedsXPath3_0::class)
@@ -130,7 +99,7 @@ internal class XQueryParser(
                     }
                 }
 
-                "map" if isXPath31 -> when {
+                ReservedFunctions.MAP if isXPath31 -> when {
                     tryCurrentToken('*') -> {
                         parseRequire(tryCurrentToken(')'))
                         @OptIn(NeedsXPath3_1::class)
@@ -138,7 +107,7 @@ internal class XQueryParser(
                     }
 
                     else -> {
-                        val inType = AtomicOrUnionTypeTest(parseEQNameToken().toQName())
+                        val inType = AtomicOrUnionTypeTest(parseEQNameTokenDelim().toQName())
                         parseRequire(tryCurrentToken(","))
                         val outType = parseSequenceType()
                         parseRequire(tryCurrentToken(')')) { "Map specifiers must be closed by ')'" }
@@ -147,7 +116,7 @@ internal class XQueryParser(
                     }
                 }
 
-                "array" if isXPath31 -> when {
+                ReservedFunctions.ARRAY if isXPath31 -> when {
                     tryCurrentToken('*') -> {
                         parseRequire(tryCurrentToken(')'))
                         @OptIn(NeedsXPath3_1::class)
@@ -162,23 +131,28 @@ internal class XQueryParser(
                     }
                 }
 
-                else -> { // Handle the different kinds of node type parameter packs better
+                is NodeType -> { // Handle the different kinds of node type parameter packs better
                     @OptIn(NeedsXPath2::class)
-                    val nodeType = NodeType.maybeValueOf(localOrPrefix, version)
-                    if (nodeType != null && nodeType.minVersion <= version) {
-                        --i
+                    val nodeType = qNameOrToken
+                    if (nodeType.minVersion <= version) {
+                        i -= 1 // we checked first whether there were parentheses. Maybe this should be undone.
                         return NodeTypeTest(nodeType, parseArgs())
+                    } else {
+                        parseError("Unsupported node type ${nodeType.literal} in version $version mode")
                     }
+                }
+
+                else -> {
+                    parseError("Unsupported node type $qNameOrToken in version $version mode")
                 }
             }
         }
 
 
-        if (tryCurrentToken(':')) {
-            val localName = parseNCNameDeprecated()
-            return AtomicOrUnionTypeTest(QName(lookupNamespace(localOrPrefix), localName, localOrPrefix))
+        if (qNameOrToken !is QNameToken) {
+            parseError("Unsupported token $qNameOrToken found while parsing item type specifier")
         } else {
-            return AtomicOrUnionTypeTest(QName(lookupNamespace(""), localOrPrefix, ""))
+            return AtomicOrUnionTypeTest(qNameOrToken.toQName())
         }
     }
 
@@ -597,7 +571,7 @@ internal class XQueryParser(
         return when (peekCurrentToken()) {
             '$' -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
             '(' -> ArrowFunctionSpecifier.SeqFunc(parseSequenceOrParen())
-            else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameToken().toQName())
+            else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameTokenDelim().toQName())
         }
 
     }
@@ -958,7 +932,7 @@ internal class XQueryParser(
             params = mutableListOf()
             do {
                 parseRequire(tryCurrentToken('$'), "Function parameters start with \$")
-                val varName = parseEQNameToken().toQName()
+                val varName = parseEQNameTokenUndelim().toQName()
                 val type = if (tryCurrentWordToken("as")) parseSequenceType() else null
                 params.add(FunctionItem.Inline.Param(varName, type))
             } while (tryCurrentToken(','))

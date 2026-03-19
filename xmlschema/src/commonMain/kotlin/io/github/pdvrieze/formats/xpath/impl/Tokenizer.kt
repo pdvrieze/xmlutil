@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.impl.token.NCName
-import io.github.pdvrieze.formats.xpath.impl.token.QNameToken
-import io.github.pdvrieze.formats.xpath.impl.token.Token
+import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
@@ -124,17 +122,38 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         }
     }
 
+    protected fun parseQNameOrBuiltin(): QNameOrBuiltin {
+        ensureDelimited()
+
+        if (peekCurrent("Q{")) return parseEQNameTokenUndelim()
+        val prefixOrLocal = parseNCName()
+        BuiltinToken.getBuiltin(prefixOrLocal.name)?.let { return saveToken { it } }
+
+        return saveToken {
+            when {
+                tryCurrent(':') ->
+                    QNameToken(null, parseNCName(), prefixOrLocal)
+
+                else -> QNameToken(null, prefixOrLocal, "")
+            }
+        }
+    }
+
     /**
      * Parse a word (not allowing ':' letters)
      */
     protected fun parseNCName(): NCName {
         ensureDelimited()
+        return parseNCNameUndelim()
+    }
+
+    private fun parseNCNameUndelim(): NCName {
         val l = str.length
-        require(i+1 < l) { "Expected NCName, found end of input" }
+        require(i + 1 < l) { "Expected NCName, found end of input" }
 
         val start = i
         require(isNameStartChar(str[i])) { "Expected NCName, found '${str[i]}'" }
-        i+=1
+        i += 1
         while (i < l && (str[i] != ':' && isNameChar11(str[i]))) {
             i += 1
         }
@@ -142,29 +161,41 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return saveToken { NCName(str.substring(start, i)) }
     }
 
-    protected fun parseQName(): QNameToken {
-        val prefixOrLocal = parseNCName()
+    protected fun parseQName(): QNameToken = saveToken {
+        ensureDelimited()
+        parseQNameUndelim()
+    }
+
+    private fun parseQNameUndelim(): QNameToken {
+        val prefixOrLocal = parseNCNameUndelim()
+
         return when {
             tryCurrent(':') ->
-                QNameToken(null, parseNCName(), prefixOrLocal)
+                QNameToken(null, parseNCNameUndelim(), prefixOrLocal)
 
             else -> QNameToken(null, prefixOrLocal, "")
         }
     }
 
-    protected fun parseEQNameToken(): QNameToken {
+    protected fun parseEQNameTokenDelim(): QNameToken {
         ensureDelimited()
 
+        return parseEQNameTokenUndelim()
+    }
+
+    protected fun parseEQNameTokenUndelim(): QNameToken {
         if (!(isXPath30 && tryCurrent("Q{"))) {
-            return parseQName()
+            return parseQNameUndelim()
         }
         val nsStart = i
         val l = str.length
-        while (i < l && str[i] != '}') { i+=1 }
+        while (i < l && str[i] != '}') {
+            i += 1
+        }
         val namespace = str.substring(nsStart, i) // note that trimming is not expected
 
         val localName = parseNCName()
-        return QNameToken(namespace, localName, null)
+        return saveToken { QNameToken(namespace, localName, null) }
     }
 
 
@@ -218,7 +249,8 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
     protected fun ensureDelimited() {
         skipWhitespace()
-        parseRequire(lastWasDelimited, "Multiple non-delimiting tokens succeeding each other")
+        // TODO this is disabled for now as XQuery parser still does some things on its own.
+//        parseRequire(lastWasDelimited, "Multiple non-delimiting tokens succeeding each other")
 
     }
 
@@ -240,6 +272,10 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             }
         }
         if (i > start) lastWasDelimited = true
+    }
+
+    private fun peekCurrent(str: String): Boolean {
+        return str.startsWith(str, i)
     }
 
     private fun tryCurrent(str: String): Boolean {
@@ -277,7 +313,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         parseError("Comment not closed", start)
     }
 
-    private inline fun <R: Token> saveToken(body: () -> R): R {
+    private inline fun <R: Token> saveToken(crossinline body: () -> R): R {
         return body().also { lastToken = it }
     }
 

@@ -25,43 +25,51 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryVersion
 import io.github.pdvrieze.formats.xpath.impl.NeedsXQuery1
 
-enum class ReservedFunctions(val fnName: String, val minSpecVersion: SpecVersion = XPathVersion.XPath1_0): Token {
+enum class ReservedFunctions(
+    override val literal: String,
+    val minSpecVersion: SpecVersion = XPathVersion.XPath1_0
+): BuiltinToken {
+
     ARRAY("array"),
     ATTRIBUTE("attribute"),
-    COMMENT("comment"),
-    DOCUMENT_NODE("document-node"),
-    ELEMENT("element"),
+//    COMMENT("comment"),
+//    DOCUMENT_NODE("document-node"),
+//    ELEMENT("element"),
     EMPTY_SEQUENCE("empty-sequence"),
     FUNCTION("function"),
     IF("if"),
     ITEM("item"),
     MAP("map"),
-    NAMESPACE_NODE("namespace-node"),
-    NODE("node"),
-    PROCESSING_INSTRUCTION("processing-instruction"),
-    SCHEMA_ATTRIBUTE("schema-attribute"),
-    SCHEMA_ELEMENT("schema-element"),
+//    NAMESPACE_NODE("namespace-node"),
+//    NODE("node"),
+//    PROCESSING_INSTRUCTION("processing-instruction"),
+//    SCHEMA_ATTRIBUTE("schema-attribute"),
+//    SCHEMA_ELEMENT("schema-element"),
     @NeedsXQuery1 SWITCH("switch", XQueryVersion.XQuery1_0),
-    TEXT("text"),
+//    TEXT("text"),
     @NeedsXQuery1 TYPESWITCH("typeswitch", XQueryVersion.XQuery1_0),
     ;
 
     override val isDelimiting: Boolean get() = false
 
     companion object {
-        private val RESERVED_LOOKUP: Array<Array<Array<String>>> = Array(23) { size ->
+        private val RESERVED_LOOKUP: Array<Array<Array<ReservedFunctions>>> = Array(23) { size ->
             Array(26) { firstLetter ->
-                entries.map { it.fnName }.filter { it.length == size && (it[0].code - 'a'.code) == firstLetter }.toTypedArray()
+                entries.filter { it.literal.length == size && (it.literal[0].code - 'a'.code) == firstLetter }.toTypedArray()
             }
         }
 
-        public fun isReserved(name: String): Boolean {
-            return (name.length in 1..<26) &&
-                    (name[0] in 'a'..'z') &&
-                    RESERVED_LOOKUP[name.length - 1][name[0].code - 'a'.code].contains(name)
+        public fun getReserved(name: String): ReservedFunctions? {
+            return when {
+                name.length !in 1..<26 -> null
+                name[0] !in 'a'..'z' -> null
+                else -> RESERVED_LOOKUP[name.length - 1][name[0].code - 'a'.code].firstOrNull { name == it.literal }
+            }
         }
 
+        public fun isReserved(name: String): Boolean = getReserved(name) != null
 
-        val RESERVED_NAMES: Set<String> = entries.mapTo(HashSet()) { it.fnName }
+
+        val RESERVED_NAMES: Set<String> = entries.mapTo(HashSet()) { it.literal }
     }
 }

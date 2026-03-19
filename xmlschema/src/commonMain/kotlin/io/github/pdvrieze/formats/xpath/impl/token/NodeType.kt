@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,22 +18,40 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 
-enum class NodeType(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath3_1) {
-    @NeedsXPath2 DOCUMENT("document-node", XPathVersion.XPath2_0),
-    @NeedsXPath2 ELEMENT("element", XPathVersion.XPath2_0),
-    @NeedsXPath2 SCHEMA_ELEMENT("schema-element", XPathVersion.XPath2_0),
-    @NeedsXPath2 SCHEMA_ATTRIBUTE("schema-attribute", XPathVersion.XPath2_0),
-    @NeedsXPath2 ATTRIBUTE("attribute", XPathVersion.XPath2_0),
-    @NeedsXPath1 COMMENT("comment", XPathVersion.XPath1_0),
-    @NeedsXPath1 TEXT("text", XPathVersion.XPath1_0),
-    @NeedsXPath1 PROCESSING_INSTRUCTION("processing-instruction", XPathVersion.XPath1_0),
-    @NeedsXPath3_0 NAMESPACE_NODE("namespace-node", XPathVersion.XPath3_0),
-    @NeedsXPath1 ANY_KIND("node", XPathVersion.XPath1_0),;
+enum class NodeType(
+    override val literal: String,
+    val minVersion: XPathVersion = XPathVersion.XPath3_1
+): BuiltinToken {
 
+    @NeedsXPath2
+    DOCUMENT("document-node", XPathVersion.XPath2_0),
+    @NeedsXPath2
+    ELEMENT("element", XPathVersion.XPath2_0),
+    @NeedsXPath2
+    SCHEMA_ELEMENT("schema-element", XPathVersion.XPath2_0),
+    @NeedsXPath2
+    SCHEMA_ATTRIBUTE("schema-attribute", XPathVersion.XPath2_0),
+    @NeedsXPath2
+    ATTRIBUTE("attribute", XPathVersion.XPath2_0),
+    @NeedsXPath1
+    COMMENT("comment", XPathVersion.XPath1_0),
+    @NeedsXPath1
+    TEXT("text", XPathVersion.XPath1_0),
+    @NeedsXPath1
+    PROCESSING_INSTRUCTION("processing-instruction", XPathVersion.XPath1_0),
+    @NeedsXPath3_0
+    NAMESPACE_NODE("namespace-node", XPathVersion.XPath3_0),
+    @NeedsXPath1
+    ANY_KIND("node", XPathVersion.XPath1_0),;
+
+    override val isDelimiting: Boolean get() = false
 
     fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

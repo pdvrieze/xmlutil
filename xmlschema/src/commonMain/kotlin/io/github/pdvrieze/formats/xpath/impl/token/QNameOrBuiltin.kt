@@ -18,29 +18,10 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.token
 
-import io.github.pdvrieze.formats.xpath.impl.token.NodeType
+internal sealed interface QNameOrBuiltin : Token {
 
-@XPathInternal
-public class NodeTypeTest(val type: NodeType, args: List<ExprSingleOrPlaceholder> = emptyList()) : NodeTest(), ItemTypeTest {
-    val args: List<ExprSingleOrPlaceholder> = args.toList()
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is NodeTypeTest) return false
-
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return type.hashCode()
-    }
-
-    context(c: OutputContext)
-    override fun appendToString(builder: Appendable) {
-        builder.append(type.literal).append("()")
-    }
 }
+
