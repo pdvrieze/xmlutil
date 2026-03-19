@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryVersion
 import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.qt3tests.Qt3SpecDependency
@@ -74,16 +75,28 @@ class AssertionResolutionContextImpl(
 
     override val namespaceContext: NamespaceContext = object : NamespaceContext {
         override fun getNamespaceURI(prefix: String): String? {
-            return environment?.namespaces?.firstOrNull { it.prefix == prefix }?.uri?.value
+            return when (prefix) {
+                "xml" -> XMLConstants.XML_NS_URI
+                "xmlns" -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+                else -> environment?.namespaces?.firstOrNull { it.prefix == prefix }?.uri?.value
+            }
         }
 
         override fun getPrefix(namespaceURI: String): String? {
-            return environment?.namespaces?.firstOrNull { it.uri.value == namespaceURI }?.prefix
+            return when (namespaceURI) {
+                XMLConstants.XML_NS_URI -> "xml"
+                XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> "xmlns"
+                else -> environment?.namespaces?.firstOrNull { it.uri.value == namespaceURI }?.prefix
+            }
         }
 
         override fun getPrefixes(namespaceURI: String): Iterator<String> {
-            return environment?.namespaces?.filter { it.uri.value == namespaceURI }?.map { it.prefix }?.iterator()
+            return when (namespaceURI) {
+                XMLConstants.XML_NS_URI -> listOf("xml").iterator()
+                XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> listOf("xmlns").iterator()
+                else -> environment?.namespaces?.filter { it.uri.value == namespaceURI }?.map { it.prefix }?.iterator()
                 ?: emptyList<String>().iterator()
+            }
         }
 
     }
