@@ -376,6 +376,27 @@ class XPathTest {
         assertContains(e.message!!, "Missing delimiter before non-delimiting operator",)
     }
 
+    @Test
+    fun testDelim2() {
+        testPath("for \$x in 65 to 75 return boolean(codepoints-to-string(\$x[. mod 2 = 0] to (\$x+9)[. mod 2 = 0]))") {}
+    }
+
+    @Test
+    fun testDelim3() {
+        testPath("empty((1 div 0))") {}
+    }
+
+    @Test
+    fun testDelim4() {
+        val e = assertFailsWith<IllegalArgumentException> { testPath("10 div3") {} }
+        assertContains(e.message!!, "Multiple non-delimiting tokens succeeding each other")
+    }
+
+    @Test
+    fun testDelim5() {
+        testPath("\$result?1?a1 = \"string\"") {}
+    }
+
 
     @Test
     fun testContextNode() {

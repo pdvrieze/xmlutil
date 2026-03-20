@@ -104,7 +104,7 @@ enum class Operator(
     @NeedsXPath1
     UNION("union", 10, XPathVersion.XPath1_0, false),
     @NeedsXPath1
-    PIPEUNION("|", 10, XPathVersion.XPath1_0, false){
+    PIPEUNION("|", 10, XPathVersion.XPath1_0, true){
         @OptIn(NeedsXPath3_0::class)
         override val longer: List<Operator> = listOf(CONCAT)
     },

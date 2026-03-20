@@ -33,7 +33,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     /** Flag to determine whether the last token was delimited */
     private var lastWasDelimited: Boolean = true
 
-    private var lastIsPeeked: Boolean = false
+//    private var lastIsPeeked: Boolean = false
 
     private var lastToken: Token? = null
         set(value) {
@@ -102,10 +102,12 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             i += 1
         }
         val s = str.substring(start, i)
+        lastWasDelimited = false
         return s
     }
 
     protected fun parseNumber(): NumberLiteral<*> {
+        ensureDelimited()
         val start = i
 
         if (str[i] == '-') i+=1
@@ -280,7 +282,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     protected fun ensureDelimited() {
         skipWhitespace()
         // TODO this is disabled for now as XQuery parser still does some things on its own.
-//        parseRequire(lastWasDelimited, "Multiple non-delimiting tokens succeeding each other")
+        parseRequire(lastWasDelimited, "Multiple non-delimiting tokens succeeding each other")
 
     }
 
@@ -297,7 +299,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
                     parseCommentCont()
                 }
 
-                !isXmlWhitespace(c) -> return
+                !isXmlWhitespace(c) -> break
                 else -> ++i
             }
         }
@@ -338,7 +340,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             val newI = i + s.length
             if (!delim && !Token.isDelimOrWS(str.getOrNull(newI))) return false
             i = newI
-            lastIsPeeked = delim
+            lastWasDelimited = delim
             return true
         }
         return false
@@ -350,7 +352,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         }
         if(i < str.length && str[i] == char) {
             i += 1
-            lastIsPeeked = Token.isDelim(char)
+            lastWasDelimited = Token.isDelim(char)
             return true
         }
         return false
@@ -380,7 +382,6 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     protected fun tryAnyOf(vararg operators: Operator): Operator? {
         skipWhitespace()
         val delim = lastWasDelimited
-        val start = i
         if (i < str.length) {
             val ch = str[i]
             for (op in operators) {
@@ -394,6 +395,13 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
                     }
 
                     i += op.literal.length
+
+/*
+                    if (! (op.isDelimiting || (i< str.length && Token.isDelim(str[i])))) {
+                        parseError("Missing delimiter after non-delimiting operator")
+                    }
+*/
+
                     return saveToken { op }
                 }
             }

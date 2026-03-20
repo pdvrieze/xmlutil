@@ -850,7 +850,7 @@ internal class XQueryParser(
         val elements: MutableList<ExprSingle> = mutableListOf()
         do {
             elements.add(parseExprSingle())
-        } while (tryCurrentToken(','))
+        } while (tryAnyOf(Operator.COMMA) != null)
         parseRequire(tryCurrentToken(')')) { "Expected ')' to finish sequence expression" }
 
         return ParenExpr(elements.singleOrNull() ?: SequenceExpr(elements))
@@ -1062,7 +1062,7 @@ internal class XQueryParser(
                 }
 
                 '?' if (isXPath31) -> {
-                    ++i
+                    tryCurrent('?')
                     val newPrimary: ExprSingle = when {
                         current.predicates.isEmpty() -> current.primaryExpr
                         else -> LocationPath(false, listOf(current))
@@ -1113,8 +1113,8 @@ internal class XQueryParser(
     }
 
     private fun peekCurrentToken(): Char? {
-        skipWhitespace()
-        return str.getOrNull(i)
+        val i = peekNext()
+        return if (i < 0) null else i.toChar()
     }
 
     private fun peekCurrentToken(char: Char): Boolean {
