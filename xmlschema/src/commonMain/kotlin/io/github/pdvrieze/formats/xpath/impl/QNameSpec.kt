@@ -32,6 +32,11 @@ internal sealed interface QNameSpec {
     fun asNodeTest(version: XPathVersion): NodeTest
 
     @XPathInternal
+    context(c: OutputContext)
+    fun appendToString(builder: Appendable)
+
+
+    @XPathInternal
     class EQName @NeedsXPath3_0 constructor(
         val namespace: String?,
         val localName: String,
@@ -49,6 +54,26 @@ internal sealed interface QNameSpec {
         fun asQName(): QName {
             return QName(namespace ?: "", localName, prefix ?: "")
         }
+
+        context(c: OutputContext)
+        @XPathInternal
+        override fun appendToString(builder: Appendable) {
+            if (prefix != null) {
+                builder.append(prefix).append(':').append(localName)
+            } else if (namespace != null) {
+                builder.append("Q{").append(namespace).append("}").append(localName)
+            } else {
+                builder.append(localName)
+            }
+        }
+
+        override fun toString() = buildString {
+            append("QNameSpec(")
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
+            append(")")
+        }
     }
 
 
@@ -59,17 +84,50 @@ internal sealed interface QNameSpec {
 
     object Any : WildCard {
         override fun asNodeTest(): NodeTest = NodeTest.AnyNameTest
+
+        context(c: OutputContext)
+        @XPathInternal
+        override fun appendToString(builder: Appendable) {
+            builder.append('*')
+        }
+
+        override fun toString(): String = "QNameSpec(*)"
     }
 
     class LocalNameWC(val localName: String) : WildCard {
         override fun asNodeTest(): NodeTest {
             return NodeTest.LocalNameTest(localName)
         }
+
+        context(c: OutputContext)
+        @XPathInternal
+        override fun appendToString(builder: Appendable) {
+            builder.append("*:").append(localName)
+        }
+
+        override fun toString(): String {
+            return "QNameSpec(*:$localName)"
+        }
     }
 
     class Namespace(val namespace: String, val prefix: String? = null) : WildCard {
+        context(c: OutputContext)
+        @XPathInternal
+        override fun appendToString(builder: Appendable) {
+            builder.append("Q{").append(namespace).append("}*")
+        }
+
         override fun asNodeTest(): NodeTest {
             return NodeTest.NSTest(XsdAnyURI.Companion(namespace), prefix?.let { XsdNCName.Companion(it) })
         }
+
+        override fun toString() = buildString {
+            append("QNameSpec(")
+            context(OutputContext.EMPTY) {
+                appendToString(this)
+            }
+            append(")")
+        }
+
     }
 }

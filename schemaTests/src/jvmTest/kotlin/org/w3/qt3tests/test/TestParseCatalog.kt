@@ -31,6 +31,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlConfig
 import nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Named
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -127,6 +128,7 @@ class TestParseCatalog {
 
 
     @Test
+    @Disabled("Instead testParseTestSet breaks it down to sets")
     fun testParse() {
         val catalog = context(createResolutionContext()) {
             parseCatalogCommon().resolve()

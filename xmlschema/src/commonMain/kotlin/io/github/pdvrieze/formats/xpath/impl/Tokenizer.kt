@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import nl.adaptivity.xmlutil.XmlReader
@@ -32,6 +33,8 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     /** Flag to determine whether the last token was delimited */
     private var lastWasDelimited: Boolean = true
 
+    private var lastIsPeeked: Boolean = false
+
     private var lastToken: Token? = null
         set(value) {
             value?.let { lastWasDelimited = it.isDelimiting }
@@ -40,9 +43,13 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
     protected var i = 0
 
+    abstract val xpathVersion: XPathVersion
+
     abstract val isXPath2: Boolean
     abstract val isXPath30: Boolean
     abstract val isXPath31: Boolean
+
+    fun mark(): Mark = Mark(i, lastWasDelimited)
 
     protected fun parseStringLiteral(): StringLiteral {
         val delim = when (str[i]) {
@@ -72,6 +79,30 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         }
         parseRequire(i < str.length, "Literal string not closed")
         return StringLiteral(string.toString()).also { ++i } // skip delim
+    }
+
+    @OptIn(NeedsXPath2::class)
+    protected fun parseUnsignedLong(): Long {
+        val s = parseDigitSequence()
+        return (s.toLongOrNull()
+            ?: throw NumberFormatException("'$s' is not a valid long value"))
+    }
+
+    @OptIn(NeedsXPath2::class)
+    protected fun parseUnsignedInt(): Int {
+        val s = parseDigitSequence()
+        return (s.toIntOrNull()
+            ?: throw NumberFormatException("'$s' is not a valid long value"))
+    }
+
+    private fun parseDigitSequence(): String {
+        val start = i
+        val l = str.length
+        while (i < l && str[i] in '0'..'9') {
+            i += 1
+        }
+        val s = str.substring(start, i)
+        return s
     }
 
     protected fun parseNumber(): NumberLiteral<*> {
@@ -106,9 +137,8 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             i += 1
         }
         val substr = str.substring(start, i)
-        require(str.getOrNull(i)?.isLetter() != true) {
-            "Number must not be followed by name character without intermediate whitespace: '${str.substring(start, i+1)}'"
-        }
+
+        lastWasDelimited = false
 
         @OptIn(NeedsXPath2::class)
         // TODO support decimal values without reverting to doubles
@@ -149,7 +179,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
     private fun parseNCNameUndelim(): NCName {
         val l = str.length
-        require(i + 1 < l) { "Expected NCName, found end of input" }
+        require(i < l) { "Expected NCName, found end of input" }
 
         val start = i
         require(isNameStartChar(str[i])) { "Expected NCName, found '${str[i]}'" }
@@ -274,26 +304,6 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         if (i > start) lastWasDelimited = true
     }
 
-    private fun peekCurrent(str: String): Boolean {
-        return str.startsWith(str, i)
-    }
-
-    private fun tryCurrent(str: String): Boolean {
-        if(str.startsWith(str, i)) {
-            i += str.length
-            return true
-        }
-        return false
-    }
-
-    private fun tryCurrent(char: Char): Boolean {
-        if(i < str.length && str[i] == char) {
-            i += 1
-            return true
-        }
-        return false
-    }
-
     private fun parseComment() {
         check(tryCurrent("(:"))
         return parseCommentCont()
@@ -313,8 +323,94 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         parseError("Comment not closed", start)
     }
 
+    protected fun peekNext(): Int {
+        skipWhitespace()
+        return if (i <str.length) str[i].code else -1
+    }
+
+    protected open fun peekCurrent(s: String): Boolean {
+        return str.startsWith(s, i)
+    }
+
+    protected open fun tryCurrent(s: String): Boolean {
+        if(str.startsWith(s, i)) {
+            val delim = Token.isDelim(s.last())
+            val newI = i + s.length
+            if (!delim && !Token.isDelimOrWS(str.getOrNull(newI))) return false
+            i = newI
+            lastIsPeeked = delim
+            return true
+        }
+        return false
+    }
+
+    protected open fun tryCurrent(char: Char): Boolean {
+        if (! (lastWasDelimited || Token.isDelim(char))) {
+            return false
+        }
+        if(i < str.length && str[i] == char) {
+            i += 1
+            lastIsPeeked = Token.isDelim(char)
+            return true
+        }
+        return false
+    }
+
+    protected fun tryCurrentToken(char: Char): Boolean {
+        skipWhitespace()
+        return tryCurrent(char)
+    }
+
+    protected fun peekAnyOf(vararg chars: Char): Boolean {
+        return i < str.length && str[i] in chars
+    }
+
+    protected fun tryAnyOf(vararg chars: Char): Char {
+        if (i < str.length) {
+            val ch = str[i]
+            if (ch in chars) {
+                i += 1
+                lastWasDelimited = Token.isDelim(ch)
+                return ch
+            }
+        }
+        return '\u0000'
+    }
+
+    protected fun tryAnyOf(vararg operators: Operator): Operator? {
+        skipWhitespace()
+        val delim = lastWasDelimited
+        val start = i
+        if (i < str.length) {
+            val ch = str[i]
+            for (op in operators) {
+                if (op.minVersion <= xpathVersion && op.literal[0] == ch &&
+                    (i + op.literal.length < str.length) &&
+                    str.startsWith(op.literal, i) &&
+                    op.longer.none { str.startsWith(it.literal, i) }
+                ) {
+                    if (! op.isDelimiting && ! delim) {
+                        parseError("Missing delimiter before non-delimiting operator")
+                    }
+
+                    i += op.literal.length
+                    return saveToken { op }
+                }
+            }
+        }
+        return null
+    }
+
+
     private inline fun <R: Token> saveToken(crossinline body: () -> R): R {
         return body().also { lastToken = it }
+    }
+
+    inner class Mark(private val i: Int, private val lastWasDelimited: Boolean) {
+        fun reset() {
+            this@Tokenizer.i = i
+            this@Tokenizer.lastWasDelimited = lastWasDelimited
+        }
     }
 
 }

@@ -68,8 +68,5 @@ enum class ReservedFunctions(
         }
 
         public fun isReserved(name: String): Boolean = getReserved(name) != null
-
-
-        val RESERVED_NAMES: Set<String> = entries.mapTo(HashSet()) { it.literal }
     }
 }

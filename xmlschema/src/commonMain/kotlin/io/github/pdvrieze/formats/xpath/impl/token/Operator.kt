@@ -26,9 +26,14 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_1
 
-enum class Operator(val literal: String, val priority: Int, val minVersion: XPathVersion = XPathVersion.XPath3_1, override val isDelimiting: Boolean):
-    Token {
-    COMMA(",", 1, XPathVersion.XPath1_0, true),
+enum class Operator(
+    val literal: String,
+    val priority: Int,
+    val minVersion: XPathVersion = XPathVersion.XPath3_1,
+    override val isDelimiting: Boolean,
+): Token {
+    @NeedsXPath2
+    COMMA(",", 1, XPathVersion.XPath2_0, true),
 
     // FOR|LET|SOME|EVERY|IF -> 2, isDelimiting = false
 
@@ -38,15 +43,24 @@ enum class Operator(val literal: String, val priority: Int, val minVersion: XPat
     AND("and", 4, XPathVersion.XPath1_0, false),
 
     @NeedsXPath1
-    EQ("=", 5, XPathVersion.XPath1_0, true),
+    EQ("=", 5, XPathVersion.XPath1_0, true){
+        @OptIn(NeedsXPath3_1::class)
+        override val longer: List<Operator> get() = listOf(ARROW)
+    },
     @NeedsXPath1
     NEQ("!=", 5, XPathVersion.XPath1_0, true),
     @NeedsXPath1
-    LT("<", 5, XPathVersion.XPath1_0, true),
+    LT("<", 5, XPathVersion.XPath1_0, true) {
+        @OptIn(NeedsXPath2::class)
+        override val longer: List<Operator> get() = listOf(LE, PRECEDES)
+    },
     @NeedsXPath1
     LE("<=", 5, XPathVersion.XPath1_0, true),
     @NeedsXPath1
-    GT(">", 5, XPathVersion.XPath1_0, true),
+    GT(">", 5, XPathVersion.XPath1_0, true){
+        @OptIn(NeedsXPath2::class)
+        override val longer: List<Operator> get() = listOf(GE, FOLLOWS)
+    },
     @NeedsXPath1
     GE(">=", 5, XPathVersion.XPath1_0, true),
     @NeedsXPath2
@@ -90,7 +104,10 @@ enum class Operator(val literal: String, val priority: Int, val minVersion: XPat
     @NeedsXPath1
     UNION("union", 10, XPathVersion.XPath1_0, false),
     @NeedsXPath1
-    PIPEUNION("|", 10, XPathVersion.XPath1_0, false),
+    PIPEUNION("|", 10, XPathVersion.XPath1_0, false){
+        @OptIn(NeedsXPath3_0::class)
+        override val longer: List<Operator> = listOf(CONCAT)
+    },
 
     @NeedsXPath2
     INTERSECT("intersect", 11, XPathVersion.XPath2_0, false),
@@ -107,11 +124,17 @@ enum class Operator(val literal: String, val priority: Int, val minVersion: XPat
     @NeedsXPath1 UNARY_MINUS("-", 17, XPathVersion.XPath1_0, true),
     @NeedsXPath2 UNARY_PLUS("+", 17, XPathVersion.XPath2_0, true),
 
-    @NeedsXPath3_0 MAP("!", 18, XPathVersion.XPath3_0, true),
+    @NeedsXPath3_0 MAP("!", 18, XPathVersion.XPath3_0, true) {
+        @OptIn(NeedsXPath3_1::class)
+        override val longer: List<Operator> get() = listOf(NEQ)
+    },
+
 
     // '/', '//' (path separators) -> 19, isDelimiting = true
     // '[', '?' (binary lookup) -> 20, isDelimiting = true
     // '?' (unary lookup) -> 21, isDelimiting = true
     ;
+
+    open val longer: List<Operator> get() = emptyList()
 
 }

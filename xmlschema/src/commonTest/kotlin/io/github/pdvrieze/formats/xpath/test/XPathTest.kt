@@ -334,7 +334,7 @@ class XPathTest {
 
     @Test
     fun testChapterParaDescendants() {
-        val expr = XPathExpression.Serializer("chapter//para")
+        val expr = XPathExpression("chapter//para")
         testPath("chapter//para") {
             assertPath {
                 assertStep("chapter")
@@ -357,7 +357,7 @@ class XPathTest {
 
     @Test
     fun testAnyOlistItem() {
-        val expr = XPathExpression.Serializer("//olist/item")
+        val expr = XPathExpression("//olist/item")
         assertEquals("//olist/item", expr.xmlString)
         testPath("//olist/item") {
             assertPath {
@@ -369,6 +369,13 @@ class XPathTest {
         }
 
     }
+
+    @Test
+    fun testDelim() {
+        val e= assertFailsWith<IllegalArgumentException> { testPath("3div 5") {} }
+        assertContains(e.message!!, "Missing delimiter before non-delimiting operator",)
+    }
+
 
     @Test
     fun testContextNode() {

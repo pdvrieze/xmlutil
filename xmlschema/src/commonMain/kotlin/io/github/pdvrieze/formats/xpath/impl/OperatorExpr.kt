@@ -28,6 +28,8 @@ internal class OperatorExpr constructor(val operator: Operator, val operands: Li
         require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
     }
 
+    constructor(op: Operator, vararg operands: ExprSingle): this(op, operands.asList())
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.joinHelper(operands, " ${operator.literal} ") {
@@ -53,6 +55,60 @@ internal class OperatorExpr constructor(val operator: Operator, val operands: Li
         result = 31 * result + operator.hashCode()
         result = 31 * result + operands.hashCode()
         return result
+    }
+
+    companion object {
+        fun priority(op: Operator, left: ExprSingle, right: ExprSingle): OperatorExpr {
+            when (left) {
+                is BinaryExpr  -> return when {
+                    left.operator == op -> when (right) {
+                        is BinaryExpr if right.operator == op ->
+                            OperatorExpr(op, listOf(left.left, left.right, right.left, right.right))
+
+                        is OperatorExpr if right.operator == op ->
+                            OperatorExpr(op, listOf(left.left, left.right) + right.operands)
+
+                        else ->
+                            OperatorExpr(op, listOf(left.left, left.right, right))
+                    }
+
+                    op.priority > left.operator.priority ->
+                        OperatorExpr(op, left, right)
+
+                    else ->
+                        OperatorExpr(left.operator, left.left, OperatorExpr(op, left.right, right))
+                }
+
+                is OperatorExpr -> return when {
+                    left.operator == op -> when (right) {
+                        is BinaryExpr if right.operator == op ->
+                            OperatorExpr(op, left.operands + listOf(right.left, right.right))
+
+                        is OperatorExpr if right.operator == op ->
+                            OperatorExpr(op, left.operands + right.operands)
+
+                        else ->
+                            OperatorExpr(op, left.operands + listOf(right))
+
+                    }
+
+                    op.priority > left.operator.priority ->
+                        OperatorExpr(op, left, right)
+
+                    else ->
+                        OperatorExpr(left.operator, buildList {
+                            left.operands.asSequence().take(left.operands.size - 1).forEach {
+                                add(it)
+                            }
+                            add(OperatorExpr(op, left.operands.last(), right))
+                        })
+
+                }
+
+                else -> return OperatorExpr(op, left, right)
+            }
+        }
+
     }
 
 }

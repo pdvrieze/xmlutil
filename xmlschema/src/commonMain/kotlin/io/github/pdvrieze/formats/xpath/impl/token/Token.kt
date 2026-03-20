@@ -27,19 +27,36 @@ internal sealed interface Token {
 
     companion object {
         @XPathInternal
-        public fun isDelimStart(c: Int): Boolean = (c and DELIMSTARTMASK) == 0 && DELIMSTARTCHAR[c]
+        public fun isDelim(c: Int): Boolean = (c and DELIMSTARTMASK) == 0 && DELIMSTARTCHAR[c]
 
         @XPathInternal
-        public fun isDelimStart(c: Char): Boolean =
+        public fun isDelim(c: Char): Boolean =
             c.code.let { code -> ((code and DELIMSTARTMASK) == 0) && DELIMSTARTCHAR[code] }
 
-        private val DELIMSTARTMASK:Int = 0x7FFF_FF70
+        @XPathInternal
+        public fun isDelim(c: Char?): Boolean =
+            c!= null && c.code.let { code -> ((code and DELIMSTARTMASK) == 0) && DELIMSTARTCHAR[code] }
+
+        @XPathInternal
+        public fun isDelimOrWS(c: Int): Boolean = (c and DELIMSTARTMASK) == 0 && DELIMORWSCHAR[c]
+
+        @XPathInternal
+        public fun isDelimOrWS(c: Char): Boolean =
+            c.code.let { code -> ((code and DELIMSTARTMASK) == 0) && DELIMORWSCHAR[code] }
+
+        @XPathInternal
+        public fun isDelimOrWS(c: Char?): Boolean =
+            c!= null && c.code.let { code ->
+                ((code and DELIMSTARTMASK) == 0) && DELIMORWSCHAR[code]
+            }
+
+        private val DELIMSTARTMASK:Int = 0x7FFF_FF80
         private val DELIMSTARTCHAR = BooleanArray(0x7f)
         private val DELIMORWSCHAR: BooleanArray
 
         init {
             for (c in arrayOf('!', '"', '#', '$', '(', ')', '*', '+', ',', ',', '-', '.',
-                '/', ':', '<', '=', '=', '>', '?', '@', '[', '\'', ']', '{', '|', '|', '}')) {
+                '/', ':', '<', '=', '>', '?', '@', '[', '\'', ']', '{', '|', '|', '}')) {
                 DELIMSTARTCHAR[c.code] = true
             }
             DELIMORWSCHAR = DELIMSTARTCHAR.copyOf()

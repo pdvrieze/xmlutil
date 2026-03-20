@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @XPathInternal
 @NeedsXPath1
-internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Expr): AbstractExprSingle() {
+internal class BinaryExpr(val operator: Operator, val left: ExprSingle, val right: ExprSingle): AbstractExprSingle() {
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         left.appendToString(builder)
@@ -56,7 +56,7 @@ internal class BinaryExpr(val operator: Operator, val left: Expr, val right: Exp
 
 
     companion object {
-        fun priority(op: Operator, left: Expr, right: Expr): BinaryExpr {
+        fun priority(op: Operator, left: ExprSingle, right: ExprSingle): BinaryExpr {
             if (left !is BinaryExpr ||
                 op.priority<= left.operator.priority) return BinaryExpr(op, left, right)
 
