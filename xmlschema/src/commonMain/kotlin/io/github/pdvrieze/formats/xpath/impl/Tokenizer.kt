@@ -408,12 +408,11 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         skipWhitespace()
         val delim = lastWasDelimited
         if (i < str.length) {
-            val ch = str[i]
             for (op in operators) {
                 val newI = i + op.literal.length
                 if ((newI < str.length) &&
                     str.startsWith(op.literal, i) &&
-                    str.getOrNull(newI+1).let { it == null || Token.isDelimOrWS(it) }
+                    str.getOrNull(newI).let { it == null || Token.isDelimOrWS(it) }
                 ) {
                     if (! op.isDelimiting && ! delim) {
                         parseError("Missing delimiter before non-delimiting operator")

@@ -588,19 +588,13 @@ internal class XQueryParser(
 
         if (tryCurrent("//")) {
             steps.add(STEP_DESCENDANT_OR_SELF)
-            ++i
             parseRelativePathExpr(steps)
         } else {
             check(tryCurrent('/'))
             skipWhitespace()
 
-            when (val c2 = str[++i]) {
-                '/' -> {
-                    steps.add(STEP_DESCENDANT_OR_SELF)
-                    ++i
-                    parseRelativePathExpr(steps)
-                }
-
+            val n = peekNext()
+            when (val c2 = n.toChar()) {
                 // ALl non-letters that are step starts
                 /* Axis steps:
                          *  - `*` wildcard
