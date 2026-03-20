@@ -397,6 +397,14 @@ class XPathTest {
         testPath("\$result?1?a1 = \"string\"") {}
     }
 
+    @Test
+    fun testOperatorError() {
+        // Per the leading-lone-slash rule this should not be valid
+
+        val e = assertFailsWith<IllegalArgumentException> { testPath("/ * 5") {} }
+        assertContains(e.message!!, "Trailing content in expression")
+    }
+
 
     @Test
     fun testContextNode() {

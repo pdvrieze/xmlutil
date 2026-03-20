@@ -32,7 +32,7 @@ enum class Operator(
     val minVersion: XPathVersion = XPathVersion.XPath3_1,
     override val isDelimiting: Boolean,
 ): Token {
-    @NeedsXPath2
+//    @NeedsXPath2
     COMMA(",", 1, XPathVersion.XPath2_0, true),
 
     // FOR|LET|SOME|EVERY|IF -> 2, isDelimiting = false

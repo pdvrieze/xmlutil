@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl.token
 
-internal sealed interface BuiltinToken: QNameOrBuiltin {
-
-    val literal: String
+internal sealed interface BuiltinToken: QNameOrBuiltin, WordToken {
 
     companion object {
         private val BUILTIN_LOOKUP: Array<Array<Array<BuiltinToken>>>

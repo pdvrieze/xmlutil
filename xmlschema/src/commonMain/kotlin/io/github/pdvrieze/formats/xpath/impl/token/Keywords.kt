@@ -20,13 +20,21 @@
 
 package io.github.pdvrieze.formats.xpath.impl.token
 
-enum class ExprStart(val literal: String): Token {
-    FOR("for"),
-    LET("let"),
-    SOME("some"),
+enum class Keywords(override val literal: String) : WordToken {
+    AS("as"),
     EVERY("every"),
+    FOR("for"),
     IF("if"),
+    IN("in"),
+    LET("let"),
+    RETURN("return"),
+    SOME("some"),
+
     ;
 
     override val isDelimiting: Boolean get() = false
+}
+
+internal interface WordToken: Token {
+    val literal: String
 }

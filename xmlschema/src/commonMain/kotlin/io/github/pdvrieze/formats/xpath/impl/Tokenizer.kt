@@ -231,6 +231,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     }
 
 
+    @IgnorableReturnValue
     fun <T> parseRequireNotNull(value: T?, message: String): T {
         return value ?: parseError(message)
     }
@@ -396,11 +397,29 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
                     i += op.literal.length
 
-/*
-                    if (! (op.isDelimiting || (i< str.length && Token.isDelim(str[i])))) {
-                        parseError("Missing delimiter after non-delimiting operator")
+                    return saveToken { op }
+                }
+            }
+        }
+        return null
+    }
+
+    protected fun tryAnyOf(vararg operators: WordToken): WordToken? {
+        skipWhitespace()
+        val delim = lastWasDelimited
+        if (i < str.length) {
+            val ch = str[i]
+            for (op in operators) {
+                val newI = i + op.literal.length
+                if ((newI < str.length) &&
+                    str.startsWith(op.literal, i) &&
+                    str.getOrNull(newI+1).let { it == null || Token.isDelimOrWS(it) }
+                ) {
+                    if (! op.isDelimiting && ! delim) {
+                        parseError("Missing delimiter before non-delimiting operator")
                     }
-*/
+
+                    i += op.literal.length
 
                     return saveToken { op }
                 }

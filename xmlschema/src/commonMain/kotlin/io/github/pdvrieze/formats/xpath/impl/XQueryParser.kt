@@ -79,7 +79,7 @@ internal class XQueryParser(
                         while (!tryCurrentToken(')')) {
                             params.add(parseSequenceType())
                         }
-                        parseRequire(tryCurrentWordToken("as"), "The function type specifier has no return type")
+                        parseRequire(tryAnyOf(Keywords.AS) != null, "The function type specifier has no return type")
                         val returnType = parseSequenceType()
                         @OptIn(NeedsXPath3_0::class)
                         return FunctionTypeTest.Typed(returnType, params)
@@ -146,7 +146,7 @@ internal class XQueryParser(
     @OptIn(NeedsXPath2::class)
     context(ctx: ParseContext)
     private fun parseSequenceType(): SequenceType {
-        if (isXPath2 && tryCurrentWordToken("empty-sequence")) {
+        if (tryAnyOf(ReservedFunctions.EMPTY_SEQUENCE) != null) {
             parseRequire(tryCurrentToken('('))
             parseRequire(tryCurrentToken(')'))
             return SequenceType.EmptySequence
@@ -208,12 +208,12 @@ internal class XQueryParser(
         do {
             parseRequire(tryCurrentToken('$'))
             val varName = parseNCName().name
-            parseRequire(tryCurrentWordToken("in"))
+            parseRequireNotNull(tryAnyOf(Keywords.IN), "Missing 'in' in for expression")
             val seqExpr = parseExprSingle()
             bindings.add(ForExpr.Binding(varName, seqExpr))
-        } while (tryCurrentToken(','))
+        } while (tryAnyOf(Operator.COMMA) != null)
 
-        parseRequire(tryCurrentWordToken("return"))
+        parseRequireNotNull(tryAnyOf(Keywords.RETURN), "Missing 'return' in for expression")
         val returned = parseExprSingle()
         return ForExpr(bindings, returned)
     }
@@ -229,9 +229,9 @@ internal class XQueryParser(
             parseRequire(tryCurrentToken(":="))
             val rValueExpr = parseExprSingle()
             bindings.add(LetExpr.Binding(varName, rValueExpr))
-        } while (tryCurrentToken(','))
+        } while (tryAnyOf(Operator.COMMA) != null)
 
-        parseRequire(tryCurrentWordToken("return"))
+        parseRequireNotNull(tryAnyOf(Keywords.RETURN), "Missing 'return' in let expression")
         val returned = parseExprSingle()
         return LetExpr(bindings, returned)
     }
@@ -586,15 +586,23 @@ internal class XQueryParser(
         // TODO special leading lone slash
         if (i >= str.length) return LocationPath(true, steps)
 
-        when (val c2 = str[++i]) {
-            '/' -> {
-                steps.add(STEP_DESCENDANT_OR_SELF)
-                ++i
-                parseRelativePathExpr(steps)
-            }
+        if (tryCurrent("//")) {
+            steps.add(STEP_DESCENDANT_OR_SELF)
+            ++i
+            parseRelativePathExpr(steps)
+        } else {
+            check(tryCurrent('/'))
+            skipWhitespace()
 
-            // ALl non-letters that are step starts
-            /* Axis steps:
+            when (val c2 = str[++i]) {
+                '/' -> {
+                    steps.add(STEP_DESCENDANT_OR_SELF)
+                    ++i
+                    parseRelativePathExpr(steps)
+                }
+
+                // ALl non-letters that are step starts
+                /* Axis steps:
                          *  - `*` wildcard
                          *  - `@` attribute
                          *  - `.` self or parent
@@ -608,13 +616,14 @@ internal class XQueryParser(
                          *  - `[` square array constructor
                          *  - `?` unary lookup
                          */
-            '*', '@', '.', '\'', '"', '[', '?', '$', '(',
-            in '0'..'9' -> parseRelativePathExpr(steps)
+                '*', '@', '.', '\'', '"', '[', '?', '$', '(',
+                in '0'..'9' -> parseRelativePathExpr(steps)
 
-            // letters are step starts
-            else if isNameStartChar(c2) -> parseRelativePathExpr(steps)
+                // letters are step starts
+                else if isNameStartChar(c2) -> parseRelativePathExpr(steps)
 
-            else -> return LocationPath(true, steps)
+                else -> return LocationPath(true, steps)
+            }
         }
         return LocationPath(true, steps)
     }
@@ -764,7 +773,7 @@ internal class XQueryParser(
         val exprs = mutableListOf<ExprSingle>()
         if (!tryCurrentToken(']')) { // empty is allowed
             exprs.add(parseExprSingle())
-            while (tryCurrentToken(',')) {
+            while (tryAnyOf(Operator.COMMA) != null) {
                 exprs.add(parseExprSingle())
             }
             parseRequire(tryCurrentToken(']'), "Missing ']' in square array constructor")
@@ -832,7 +841,7 @@ internal class XQueryParser(
                 parseRequire(tryCurrentToken(':'))
                 val value = parseExprSingle()
                 entries.add(MapConstructor.Entry(key, value))
-            } while (tryCurrentToken(','))
+            } while (tryAnyOf(Operator.COMMA) != null)
         }
         parseRequire(tryCurrentToken('}'))
         return MapConstructor(entries)
@@ -872,7 +881,7 @@ internal class XQueryParser(
             val source = parseExprSingle()//exprs.singleOrNull() ?: SequenceExpr(exprs)
 
             bindings.add(QuantifiedExpr.Binding(varName.varName, source))
-        } while (tryCurrentToken(','))
+        } while (tryAnyOf(Operator.COMMA) != null)
 
         parseRequire(tryCurrentWord("satisfies"), "Missing satisfies in quantified expression")
 
@@ -894,7 +903,7 @@ internal class XQueryParser(
                 val varName = parseEQNameTokenUndelim().toQName()
                 val type = if (tryCurrentWordToken("as")) parseSequenceType() else null
                 params.add(FunctionItem.Inline.Param(varName, type))
-            } while (tryCurrentToken(','))
+            } while (tryAnyOf(Operator.COMMA) != null)
             parseRequire(tryCurrentToken(')'), "Expected ')' to finish function parameters")
         } else {
             params = emptyList()
