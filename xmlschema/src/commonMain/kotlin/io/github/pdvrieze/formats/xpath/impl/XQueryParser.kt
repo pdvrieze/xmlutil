@@ -123,7 +123,7 @@ internal class XQueryParser(
                     val nodeType = qNameOrToken
                     if (nodeType.minVersion <= xpathVersion) {
                         i -= 1 // we checked first whether there were parentheses. Maybe this should be undone.
-                        return NodeTypeTest(nodeType, parseArgs())
+                        return parseNodeTypeArgs(nodeType)
                     } else {
                         parseError("Unsupported node type ${nodeType.literal} in version $xpathVersion mode")
                     }
@@ -141,6 +141,71 @@ internal class XQueryParser(
         } else {
             return AtomicOrUnionTypeTest(qNameOrToken.toQName())
         }
+    }
+
+    @OptIn(NeedsXPath2::class, NeedsXPath3_0::class)
+    private fun parseNodeTypeArgs(nodeType: NodeType): NodeTypeTest {
+        parseRequireNotNull(tryCurrentToken('('), "Missing ( in node type test")
+        val result = when (nodeType) {
+            NodeType.DOCUMENT -> when (val nested = tryAnyOf(NodeType.ELEMENT, NodeType.SCHEMA_ELEMENT)) {
+                null -> NodeTypeTest.Document()
+                else -> NodeTypeTest.Document(parseNodeTypeArgs(nested))
+            }
+
+            NodeType.ELEMENT -> when {
+                peekCurrentToken(')') -> NodeTypeTest.Element()
+
+                else -> {
+                    val name = when {
+                        tryCurrent('*') -> QNameSpec.Any
+                        else -> QNameSpec.EQName(parseEQNameTokenDelim())
+                    }
+                    if (tryCurrentToken(',')) {
+                        val typeName = parseEQNameTokenDelim().toQName()
+                        NodeTypeTest.Element(name, typeName, tryCurrentToken('?'))
+                    } else {
+                        NodeTypeTest.Element(name)
+                    }
+                }
+            }
+
+            NodeType.ATTRIBUTE -> when {
+                peekCurrentToken(')') -> NodeTypeTest.Attribute()
+
+                else -> {
+                    val name = when {
+                        tryCurrent('*') -> QNameSpec.Any
+                        else -> QNameSpec.EQName(parseEQNameTokenDelim())
+                    }
+                    if (tryCurrentToken(',')) {
+                        val typeName = parseEQNameTokenDelim().toQName()
+                        NodeTypeTest.Attribute(name, typeName, tryCurrentToken('?'))
+                    } else {
+                        NodeTypeTest.Attribute(name)
+                    }
+                }
+            }
+
+            NodeType.SCHEMA_ELEMENT -> NodeTypeTest.SchemaElement(parseEQNameTokenDelim().toQName())
+
+            NodeType.SCHEMA_ATTRIBUTE -> NodeTypeTest.SchemaAttribute(parseEQNameTokenDelim().toQName())
+
+            NodeType.COMMENT -> NodeTypeTest.Comment
+            NodeType.TEXT -> NodeTypeTest.Text
+            NodeType.ANY_KIND -> NodeTypeTest.AnyKind
+            NodeType.NAMESPACE_NODE -> NodeTypeTest.NamepaceNode
+
+            NodeType.PROCESSING_INSTRUCTION -> {
+                when (peekCurrentToken()) {
+                    ')' -> NodeTypeTest.ProcInstr()
+                    '\'', '"' -> NodeTypeTest.ProcInstr(parseStringLiteral().value)
+                    else -> NodeTypeTest.ProcInstr(parseEQNameTokenDelim().toQName())
+                }
+            }
+        }
+
+        parseRequire(tryCurrentToken(')'), "Missing ) in node type test")
+        return result
     }
 
     @OptIn(NeedsXPath2::class)
@@ -629,7 +694,7 @@ internal class XQueryParser(
         while (tryCurrentToken('/')) {
             when {
                 tryCurrentToken("/") -> steps.apply {
-                    add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest(NodeType.ANY_KIND)))
+                    add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest.AnyKind))
                     add(parseRequireNotNull(parseStepExpr(), "Missing step after '//' in relative path expression"))
                 }
 
@@ -1040,9 +1105,7 @@ internal class XQueryParser(
 
             else -> return null
         }
-
-        val args = parseArgs()
-        return NodeTypeTest(nodeType, args)
+        return parseNodeTypeArgs(nodeType)
     }
 
     context(ctx: ParseContext)

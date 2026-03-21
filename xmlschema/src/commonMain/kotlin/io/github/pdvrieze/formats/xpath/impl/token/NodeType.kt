@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 
 enum class NodeType(
     override val literal: String,
-    val minVersion: XPathVersion = XPathVersion.XPath3_1
+    val minVersion: XPathVersion = XPathVersion.XPath3_1,
 ): BuiltinToken {
 
     @NeedsXPath2
@@ -63,6 +63,11 @@ enum class NodeType(
 
     override fun toString(): String {
         return "NodeType test($literal)"
+    }
+
+    enum class ExpectedContent {
+        ELEMENT_DECL,
+        NODE,
     }
 
     companion object {

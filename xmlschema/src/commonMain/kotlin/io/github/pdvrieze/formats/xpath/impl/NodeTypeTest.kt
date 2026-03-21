@@ -21,26 +21,171 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
+import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-public class NodeTypeTest(val type: NodeType, args: List<ExprSingleOrPlaceholder> = emptyList()) : NodeTest(), ItemTypeTest {
-    val args: List<ExprSingleOrPlaceholder> = args.toList()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is NodeTypeTest) return false
-
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return type.hashCode()
-    }
+public sealed class NodeTypeTest() : NodeTest(), ItemTypeTest {
+    abstract val type: NodeType
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append(type.literal).append("()")
     }
+
+    @NeedsXPath2
+    internal class Document(val arg: NodeTypeTest? = null) : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.DOCUMENT
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Document
+
+            return arg == other.arg
+        }
+
+        override fun hashCode(): Int {
+            return arg?.hashCode() ?: 0
+        }
+    }
+
+    @NeedsXPath2
+    internal class Element private constructor(val elemName: QNameSpec?, val typeName: QName?, val isOptional: Boolean, dummy: Unit) : NodeTypeTest() {
+        constructor(name: QNameSpec? = null): this(name, null, false, Unit)
+        constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, isOptional, Unit)
+
+        override val type: NodeType get() = NodeType.ELEMENT
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Element
+
+            if (elemName != other.elemName) return false
+            if (typeName != other.typeName) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = elemName?.hashCode() ?: 0
+            result = 31 * result + (typeName?.hashCode() ?: 0)
+            return result
+        }
+
+
+    }
+
+    @NeedsXPath2
+    internal class Attribute private constructor(val elemName: QNameSpec?, val typeName: QName?, isOptional: Boolean, dummy: Unit) : NodeTypeTest() {
+        constructor(name: QNameSpec? = null): this(name, null, false, Unit)
+        constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, isOptional, Unit)
+
+        override val type: NodeType get() = NodeType.ATTRIBUTE
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Attribute
+
+            if (elemName != other.elemName) return false
+            if (typeName != other.typeName) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = elemName?.hashCode() ?: 0
+            result = 31 * result + (typeName?.hashCode() ?: 0)
+            return result
+        }
+
+
+    }
+
+    @NeedsXPath2
+    internal class SchemaElement(val name: QName) : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.SCHEMA_ELEMENT
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as SchemaElement
+
+            return name == other.name
+        }
+
+        override fun hashCode(): Int {
+            return name.hashCode()
+        }
+
+    }
+
+    @NeedsXPath2
+    internal class SchemaAttribute(val name: QName) : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.SCHEMA_ATTRIBUTE
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as SchemaAttribute
+
+            return name == other.name
+        }
+
+        override fun hashCode(): Int {
+            return name.hashCode()
+        }
+
+    }
+
+    internal class ProcInstr private constructor(val name: QName?, val text: String?) : NodeTypeTest() {
+        constructor(): this(null, null)
+        constructor(name: QName): this(name, null)
+        constructor(text: String): this(null, text)
+
+        override val type: NodeType get() = NodeType.PROCESSING_INSTRUCTION
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as ProcInstr
+
+            if (name != other.name) return false
+            if (text != other.text) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = name?.hashCode() ?: 0
+            result = 31 * result + (text?.hashCode() ?: 0)
+            return result
+        }
+
+
+    }
+
+    internal object Comment : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.COMMENT
+    }
+
+    internal object Text : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.TEXT
+    }
+
+    @NeedsXPath3_0
+    internal object NamepaceNode : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.NAMESPACE_NODE
+    }
+
+    internal object AnyKind : NodeTypeTest() {
+        override val type: NodeType get() = NodeType.ANY_KIND
+    }
+
+
 }

@@ -22,9 +22,13 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
+import io.github.pdvrieze.formats.xpath.impl.token.QNameToken
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
+import nl.adaptivity.xmlutil.prefix
 
 @XPathInternal
 internal sealed interface QNameSpec {
@@ -42,10 +46,16 @@ internal sealed interface QNameSpec {
         val localName: String,
         val prefix: String?
     ) : QNameSpec {
+        @NeedsXPath3_0
+        constructor(name: QName) : this(name.namespaceURI, name.localPart, name.prefix)
+
+        @NeedsXPath3_0
+        constructor(name: QNameToken) : this(name.namespace?.toString(), name.localName.toString(), name.prefix?.toString())
+
         override fun asNodeTest(version: XPathVersion): NodeTest {
             if (namespace == null && prefix == null) {
-                NodeType.Companion.maybeValueOf(localName, version)?.let {
-                    return NodeTypeTest(it)
+                require(NodeType.maybeValueOf(localName, version) == null) {
+                    throw IllegalArgumentException("Cannot use node type name '$localName' as unprefixed qname for a node test")
                 }
             }
             return NodeTest.QNameTest(asQName())

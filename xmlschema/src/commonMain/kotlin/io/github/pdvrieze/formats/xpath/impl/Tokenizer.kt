@@ -231,8 +231,9 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             i += 1
         }
         val namespace = str.substring(nsStart, i) // note that trimming is not expected
+        parseRequire(tryCurrentToken('}'), "Expected '}' after namespace name")
 
-        val localName = parseNCName()
+        val localName = parseNCNameUndelim()
         return saveToken { QNameToken(namespace, localName, null) }
     }
 
@@ -415,7 +416,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return null
     }
 
-    protected fun tryAnyOf(vararg operators: WordToken): WordToken? {
+    protected fun <T: WordToken> tryAnyOf(vararg operators: T): T? {
         skipWhitespace()
         val delim = lastWasDelimited
         if (i < str.length) {

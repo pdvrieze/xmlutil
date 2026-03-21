@@ -179,6 +179,15 @@ class XPathTest {
     }
 
     @Test
+    fun testNoTextInSchemaElement() {
+        val e = assertThrows<IllegalArgumentException> {
+            val _ = XPathExpression("schema-element(\"quotesAreNotAllowed\")")
+        }
+        assertContains(e.message!!, "Expected NCName, found '\"'")
+    }
+
+
+    @Test
     fun testParseParenSequence() {
         val expr = XPathExpression("(1,2,3)")
         val p = assertIs<ParenExpr>(expr.expr)
@@ -413,7 +422,7 @@ class XPathTest {
     @Test
     fun testNoWSInQName() {
         val e = assertFailsWith<IllegalArgumentException> { testPath("*:(:hey:)ncname") {} }
-        assertContains(e.message!!, "Trailing content in expression")
+        assertContains(e.message!!, "Expected NCName, found '('")
     }
 
     @Test

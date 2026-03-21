@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSIdentityCo
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
-import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @OptIn(XPathInternal::class)
@@ -57,9 +56,7 @@ sealed class ResolvedDirectReferenceable(
                 if (expr.rooted || expr.steps.size==0) return false
                 val firstStep = requireNotNull(expr.steps.first() as? AxisStep) { "XPath doesn't support most expressions" }
                 val stepIndices: IntRange = if (firstStep.axis == Axis.SELF && expr.steps.size>1 &&
-                    (expr.steps[1] as AxisStep).let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTypeTest(
-                        NodeType.ANY_KIND
-                    )
+                    (expr.steps[1] as AxisStep).let { it.axis== Axis.DESCENDANT_OR_SELF && it.test== NodeTypeTest.AnyKind
                     }) {
                     2 until expr.steps.size
                 } else {
@@ -75,7 +72,7 @@ sealed class ResolvedDirectReferenceable(
     }
 
     private fun isXsdSubset(step: AxisStep, canBeAttr: Boolean = false): Boolean = step.predicates.size == 0 && when(step.axis) {
-        Axis.SELF -> step.test == NodeTypeTest(NodeType.ANY_KIND)
+        Axis.SELF -> step.test == NodeTypeTest.AnyKind
         Axis.ATTRIBUTE -> canBeAttr && step.test is NodeTest.NameTest
         Axis.CHILD -> step.test is NodeTest.NameTest
         else -> false

@@ -33,7 +33,7 @@ sealed class SequenceType @NeedsXPath2 constructor() {
         }
     }
 
-    class ItemTypeSequence @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType) : SequenceType() {
+    class ItemTypeSequence @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType = OccurrenceType.SINGLE) : SequenceType() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             itemType.appendToString(builder)
