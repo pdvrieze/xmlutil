@@ -405,6 +405,14 @@ class XPathTest {
         assertContains(e.message!!, "Trailing content in expression")
     }
 
+    @Test
+    fun testNoWSInQName() {
+        // Per the leading-lone-slash rule this should not be valid
+
+        val e = assertFailsWith<IllegalArgumentException> { testPath("*:(:hey:)ncname") {} }
+        assertContains(e.message!!, "Trailing content in expression")
+    }
+
 
     @Test
     fun testContextNode() {

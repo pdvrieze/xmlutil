@@ -532,7 +532,7 @@ internal class XQueryParser(
     context(ctx: ParseContext)
     private fun parseArrowFunctionSpecifier(): ArrowFunctionSpecifier {
         skipWhitespace()
-        return when (peekNext()) {
+        return when (peekNextToken()) {
             '$'.code -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
             '('.code -> ArrowFunctionSpecifier.SeqFunc(parseSequenceOrParen())
             else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameTokenDelim().toQName())
@@ -593,7 +593,7 @@ internal class XQueryParser(
             check(tryCurrent('/'))
             skipWhitespace()
 
-            val n = peekNext()
+            val n = peekNextToken()
             when (val c2 = n.toChar()) {
                 // ALl non-letters that are step starts
                 /* Axis steps:
@@ -658,7 +658,7 @@ internal class XQueryParser(
          *  - `[` square array constructor
          *  - `?` unary lookup
          */
-        val next = peekNext()
+        val next = peekNextToken()
         if (next < 0 ) return null
 
         when (val c = next.toChar()) {
@@ -702,7 +702,7 @@ internal class XQueryParser(
                 return parsePostfixExpr(parseUnaryLookup())
 
             else if isNameStartChar(c) -> {
-                val ncName = parseNCName().name
+                val ncName = parseNCNameUndelim().name
                 if (isXPath31 && ncName == "map" && peekCurrentToken('{')) {
                     @OptIn(NeedsXPath3_1::class)
                     return parsePostfixExpr(parseMapConstructorCont())
@@ -727,7 +727,7 @@ internal class XQueryParser(
                             return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
                         }
 
-                        is QNameSpec.EQName -> when (val c = peekNext()) {
+                        is QNameSpec.EQName -> when (val c = peekNextToken()) {
                             '('.code -> when (val nt = maybeParseNodeTypeTest(nameOrWildcard)) {
                                 null -> {
                                     val funcCall = StaticFunctionCall(nameOrWildcard.asQName(), parseArgs())
@@ -788,7 +788,7 @@ internal class XQueryParser(
     context(ctx: ParseContext)
     private fun parseUnaryLookup(): ExprSingle {
         parseRequire(tryCurrentToken('?'), "Missing '?' in unary lookup")
-        val next = peekNext()
+        val next = peekNextToken()
         if (next < 0) throw IllegalArgumentException("Expected key specifier, found end of expression")
         when (val c = next.toChar()) {
             '*' -> return LookupExpr(null, LookupExpr.AnyKey)
@@ -814,7 +814,7 @@ internal class XQueryParser(
             }
 
             else if isNameStartChar(c) -> {
-                val name = parseNCName().name
+                val name = parseNCNameUndelim().name
                 return LookupExpr(null, LookupExpr.NCNameKey(name))
             }
         }
@@ -981,11 +981,10 @@ internal class XQueryParser(
 
     @OptIn(ExperimentalContracts::class)
     private fun parseEQNameOrWildcard(): QNameSpec? {
-        skipWhitespace()
         val word = when {
-            tryCurrent('*') -> "*"
+            tryCurrentToken('*') -> "*"
 
-            isNameStartChar(peekNext().toChar()) -> parseNCName().name
+            isNameStartChar(peekNextToken().toChar()) -> parseNCNameUndelim().name
 
             else -> return null
         }
@@ -997,7 +996,7 @@ internal class XQueryParser(
 
         if (initialWord == "*") {
             return when { // *: must start localname woildcard
-                tryCurrent(':') -> QNameSpec.LocalNameWC(parseNCName().name)
+                tryCurrent(':') -> QNameSpec.LocalNameWC(parseNCNameUndelim().name)
                 else -> QNameSpec.Any
             }
         }
@@ -1013,7 +1012,7 @@ internal class XQueryParser(
             if (tryCurrentToken('*')) {
                 return QNameSpec.Namespace(namespace)
             } else {
-                val localPart = parseNCName().name
+                val localPart = parseNCNameUndelim().name
                 return QNameSpec.EQName(namespace, localPart, null)
             }
         } else if (tryCurrentToken(':')) { //namespace separator
@@ -1021,7 +1020,7 @@ internal class XQueryParser(
             return when {
                 tryCurrentToken('*') -> QNameSpec.Namespace(ns, prefix = initialWord)
 
-                else -> QNameSpec.EQName(ns, localName = parseNCName().name, prefix = initialWord)
+                else -> QNameSpec.EQName(ns, localName = parseNCNameUndelim().name, prefix = initialWord)
             }
         } else {
             return QNameSpec.EQName(lookupNamespace(""), localName = initialWord, prefix = null)
@@ -1091,7 +1090,7 @@ internal class XQueryParser(
                         }
 
                         else if isNameStartChar(c2) -> {
-                            val name = parseNCName().name
+                            val name = parseNCNameUndelim().name
                             val newExpr = LookupExpr(newPrimary, LookupExpr.NCNameKey(name))
                             current = FilterExpr(newExpr)
                         }
@@ -1116,7 +1115,7 @@ internal class XQueryParser(
     }
 
     private fun peekCurrentToken(): Char? {
-        val i = peekNext()
+        val i = peekNextToken()
         return if (i < 0) null else i.toChar()
     }
 

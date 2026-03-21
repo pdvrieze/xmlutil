@@ -179,7 +179,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return parseNCNameUndelim()
     }
 
-    private fun parseNCNameUndelim(): NCName {
+    protected fun parseNCNameUndelim(): NCName {
         val l = str.length
         require(i < l) { "Expected NCName, found end of input" }
 
@@ -326,7 +326,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         parseError("Comment not closed", start)
     }
 
-    protected fun peekNext(): Int {
+    protected fun peekNextToken(): Int {
         skipWhitespace()
         return if (i <str.length) str[i].code else -1
     }
