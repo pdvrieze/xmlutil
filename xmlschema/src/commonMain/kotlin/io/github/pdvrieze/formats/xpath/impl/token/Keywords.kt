@@ -31,6 +31,7 @@ enum class Keywords(override val literal: String, override val minVersion: XPath
     LET("let", XPathVersion.XPath3_0),
     RETURN("return"),
     SOME("some", XPathVersion.XPath2_0),
+    SATISFIES("satisfies", XPathVersion.XPath2_0),
     ;
 
     override val isDelimiting: Boolean get() = false

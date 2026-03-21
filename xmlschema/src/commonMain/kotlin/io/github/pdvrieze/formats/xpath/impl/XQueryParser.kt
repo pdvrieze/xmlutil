@@ -90,7 +90,7 @@ internal class XQueryParser(
                         while (!tryCurrentToken(')')) {
                             params.add(parseSequenceType())
                         }
-                        parseRequire(tryAnyOf(Keywords.AS) != null, "The function type specifier has no return type")
+                        parseRequire(tryCurrent(Keywords.AS), "The function type specifier has no return type")
                         val returnType = parseSequenceType()
                         @OptIn(NeedsXPath3_0::class)
                         return FunctionTypeTest.Typed(returnType, params)
@@ -222,7 +222,7 @@ internal class XQueryParser(
     @OptIn(NeedsXPath2::class)
     context(ctx: ParseContext)
     private fun parseSequenceType(): SequenceType {
-        if (tryAnyOf(ReservedFunctions.EMPTY_SEQUENCE) != null) {
+        if (tryCurrent(ReservedFunctions.EMPTY_SEQUENCE)) {
             parseRequire(tryCurrentToken('('))
             parseRequire(tryCurrentToken(')'))
             return SequenceType.EmptySequence
@@ -252,7 +252,8 @@ internal class XQueryParser(
     private fun parseExpr(): Expr {
         val e = parseExprSingle()
 
-        val _ = tryAnyOf(Operator.COMMA) ?: return e
+        if (!tryCurrent(Operator.COMMA)) return e
+//        val _ = tryAnyOf(Operator.COMMA) ?: return e
 
         val expressions = mutableListOf(e)
 
@@ -286,12 +287,12 @@ internal class XQueryParser(
         do {
             parseRequire(tryCurrentToken('$'))
             val varName = parseEQNameTokenUndelim().toQName()
-            parseRequireNotNull(tryAnyOf(Keywords.IN), "Missing 'in' in for expression")
+            parseRequire(tryCurrent(Keywords.IN), "Missing 'in' in for expression")
             val seqExpr = parseExprSingle()
             bindings.add(ForExpr.Binding(varName, seqExpr))
         } while (tryAnyOf(Operator.COMMA) != null)
 
-        parseRequireNotNull(tryAnyOf(Keywords.RETURN), "Missing 'return' in for expression")
+        parseRequire(tryCurrent(Keywords.RETURN), "Missing 'return' in for expression")
         val returned = parseExprSingle()
         return ForExpr(bindings, returned)
     }
@@ -309,7 +310,7 @@ internal class XQueryParser(
             bindings.add(LetExpr.Binding(varName, rValueExpr))
         } while (tryAnyOf(Operator.COMMA) != null)
 
-        parseRequireNotNull(tryAnyOf(Keywords.RETURN), "Missing 'return' in let expression")
+        parseRequire(tryCurrent(Keywords.RETURN), "Missing 'return' in let expression")
         val returned = parseExprSingle()
         return LetExpr(bindings, returned)
     }
@@ -358,82 +359,17 @@ internal class XQueryParser(
         return OperatorExpr(Operator.AND, exprs)
     }
 
+    @OptIn(NeedsXPath2::class)
     context(ctx: ParseContext)
     private fun parseComparisonExpr(): ExprSingle {
         val current: ExprSingle = parseStringConcatExpr()
-        skipWhitespace()
 
-        // there must always be a following expression so testing for second operator character is fine
-        if (i + 1 > str.length) return current
-        val ch = str[i]
-        when (ch) {
-            '=' -> {
-                i += 1
-                return BinaryExpr.priority(Operator.EQ, current, parseStringConcatExpr())
-            }
+        val op = tryAnyOf(Operator.NEQ, Operator.LE, Operator.GE,
+            Operator.EQ, Operator.LT, Operator.GT, Operator.PRECEDES, Operator.FOLLOWS,
+            Operator.VAL_EQ, Operator.VAL_NEQ, Operator.VAL_LT, Operator.VAL_LE,
+            Operator.VAL_GT, Operator.VAL_GE, Operator.IS) ?: return current
 
-            '!' if str[i + 1] == '=' -> {
-                i += 2
-                return BinaryExpr.priority(Operator.NEQ, current, parseStringConcatExpr())
-            }
-
-            '<' -> {
-                i += 1
-                return when {
-                    tryCurrent('=') -> BinaryExpr.priority(Operator.LE, current, parseStringConcatExpr())
-
-                    isXPath2 && tryCurrent('<') ->
-                        @OptIn(NeedsXPath2::class)
-                        BinaryExpr.priority(Operator.PRECEDES, current, parseStringConcatExpr())
-
-                    else -> BinaryExpr.priority(Operator.LT, current, parseStringConcatExpr())
-                }
-            }
-
-            '>' -> {
-                i += 1
-                return when {
-                    tryCurrent('=') -> BinaryExpr.priority(Operator.GE, current, parseStringConcatExpr())
-
-                    isXPath2 && tryCurrent('>') ->
-                        @OptIn(NeedsXPath2::class)
-                        BinaryExpr.priority(Operator.FOLLOWS, current, parseStringConcatExpr())
-
-                    else -> BinaryExpr.priority(Operator.GT, current, parseStringConcatExpr())
-                }
-            }
-        }
-        @OptIn(NeedsXPath2::class)
-        if (isXPath2) {
-            when (ch) {
-
-                'e' if tryCurrentWord("eq") ->
-                    return BinaryExpr.priority(Operator.VAL_EQ, current, parseStringConcatExpr())
-
-                'n' if tryCurrentWord("ne") ->
-                    return BinaryExpr.priority(Operator.VAL_NEQ, current, parseStringConcatExpr())
-
-                'l' -> when {
-                    tryCurrentWord("lt") ->
-                        return BinaryExpr.priority(Operator.VAL_LT, current, parseStringConcatExpr())
-
-                    tryCurrentWord("le") ->
-                        return BinaryExpr.priority(Operator.VAL_LE, current, parseStringConcatExpr())
-                }
-
-                'g' -> @OptIn(NeedsXPath2::class) when {
-                    tryCurrentWord("gt") ->
-                        return BinaryExpr.priority(Operator.VAL_GT, current, parseStringConcatExpr())
-
-                    tryCurrentWord("ge") ->
-                        return BinaryExpr.priority(Operator.VAL_GE, current, parseStringConcatExpr())
-                }
-
-                'i' if tryCurrentWord("is") ->
-                    @OptIn(NeedsXPath2::class) return BinaryExpr(Operator.IS, current, parseStringConcatExpr())
-            }
-        }
-        return current
+        return BinaryExpr.priority(op, current, parseStringConcatExpr())
     }
 
     context(ctx: ParseContext)
@@ -457,8 +393,8 @@ internal class XQueryParser(
         val e = parseAdditiveExpr()
 
         @OptIn(NeedsXPath2::class)
-        return when {
-            isXPath2 && tryCurrentWord("to") -> RangeExpr(e, parseAdditiveExpr())
+        return when (tryAnyOf(Operator.TO)){
+            Operator.TO -> RangeExpr(e, parseAdditiveExpr())
             else -> e
         }
     }
@@ -957,20 +893,18 @@ internal class XQueryParser(
     private fun parseQuantifiedExprCont(kind: QuantifiedExpr.Kind): ExprSingle {
         assertPrevious(kind.literal)
 
-        parseRequire(peekCurrentToken('$'), "Missing '$' in quantified expression ")
-
         val bindings = mutableListOf<QuantifiedExpr.Binding>()
         do {
             val varName = parseVariableReference()
 
-            parseRequire(tryCurrentWordToken("in"), "Missing 'in' in quantified expression ")
+            parseRequire(tryCurrent(Keywords.IN), "Missing 'in' in quantified expression ")
 
-            val source = parseExprSingle()//exprs.singleOrNull() ?: SequenceExpr(exprs)
+            val source = parseExprSingle()
 
             bindings.add(QuantifiedExpr.Binding(varName.varName, source))
         } while (tryAnyOf(Operator.COMMA) != null)
 
-        parseRequire(tryCurrentWord("satisfies"), "Missing satisfies in quantified expression")
+        parseRequire(tryCurrent(Keywords.SATISFIES), "Missing satisfies in quantified expression")
 
         val condition = parseExprSingle()
 
@@ -988,9 +922,9 @@ internal class XQueryParser(
             do {
                 parseRequire(tryCurrentToken('$'), "Function parameters start with \$")
                 val varName = parseEQNameTokenUndelim().toQName()
-                val type = if (tryCurrentWordToken("as")) parseSequenceType() else null
+                val type = if (tryCurrent(Keywords.AS)) parseSequenceType() else null
                 params.add(FunctionItem.Inline.Param(varName, type))
-            } while (tryAnyOf(Operator.COMMA) != null)
+            } while (tryCurrent(Operator.COMMA))
             parseRequire(tryCurrentToken(')'), "Expected ')' to finish function parameters")
         } else {
             params = emptyList()
@@ -1220,10 +1154,6 @@ internal class XQueryParser(
         val end = i + check.length
         if ((end - 1) >= str.length) return false
         return str.substring(i, end) == check
-    }
-
-    private fun tryCurrentWord(check: String): Boolean {
-        return tryCurrent(check)
     }
 
     private fun tryCurrentWordToken(check: String): Boolean {

@@ -27,11 +27,11 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_1
 
 enum class Operator(
-    val literal: String,
+    override val literal: String,
     val priority: Int,
-    val minVersion: XPathVersion = XPathVersion.XPath3_1,
+    override val minVersion: XPathVersion = XPathVersion.XPath3_1,
     override val isDelimiting: Boolean,
-): Token {
+): WordToken {
 //    @NeedsXPath2
     COMMA(",", 1, XPathVersion.XPath2_0, true),
 

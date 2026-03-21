@@ -34,6 +34,11 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testSequence() {
+        testPath("1,2,3") {}
+    }
+
+    @Test
     fun testForExprWithout24() {
         testPath("for \$fn:name in (1, 1) return \$fn:name") {}
     }

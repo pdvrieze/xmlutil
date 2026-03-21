@@ -356,6 +356,32 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return str.startsWith(s, i)
     }
 
+    protected fun tryCurrent(token : WordToken): Boolean {
+        skipWhitespace()
+        val delim = lastWasDelimited
+        if (i < str.length) {
+            val op = token
+            val newI = i + op.literal.length
+            if (!str.startsWith(op.literal, i)) return false
+
+            if (!op.isDelimiting) {
+                if (!delim) {
+                    parseError("Missing delimiter before non-delimiting operator")
+                }
+                if (newI < str.length && !Token.isDelimOrWS(str[newI])) return false
+            }
+
+            if (op.minVersion.isSupported) {
+                i += op.literal.length
+
+                val _ = saveToken { op }
+                return true
+            }
+        }
+        return false
+
+    }
+
     protected fun tryCurrent(s: String): Boolean {
         if(str.startsWith(s, i)) {
             val delim = Token.isDelim(s.last())
@@ -406,14 +432,13 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return '\u0000'
     }
 
+    /** Note that this function does exist to ensure that length extensions are checked */
     protected fun tryAnyOf(vararg operators: Operator): Operator? {
         skipWhitespace()
         val delim = lastWasDelimited
         if (i < str.length) {
-            val ch = str[i]
             for (op in operators) {
-                if (op.minVersion <= xpathVersion && op.literal[0] == ch &&
-                    (i + op.literal.length < str.length) &&
+                if ((i + op.literal.length < str.length) &&
                     str.startsWith(op.literal, i) &&
                     op.longer.none { str.startsWith(it.literal, i) }
                 ) {
@@ -431,24 +456,26 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return null
     }
 
-    protected fun <T : WordToken> tryAnyOf(vararg operators: T): T? {
+    protected fun <T : WordToken> tryAnyOf(vararg tokens: T): T? {
         skipWhitespace()
         val delim = lastWasDelimited
         if (i < str.length) {
-            for (op in operators) {
-                val newI = i + op.literal.length
-                if ((newI < str.length) &&
-                    str.startsWith(op.literal, i) &&
-                    str.getOrNull(newI).let { it == null || Token.isDelimOrWS(it) }
-                ) {
-                    if (!op.isDelimiting && !delim) {
-                        parseError("Missing delimiter before non-delimiting operator")
+            for (token in tokens) {
+                val newI = i + token.literal.length
+                if (str.startsWith(token.literal, i)) {
+                    if (!token.isDelimiting) {
+                        if (!token.isDelimiting && !delim) {
+                            parseError("Missing delimiter before non-delimiting operator")
+                        }
+
+                        if (newI < str.length && !Token.isDelimOrWS(str[newI])) continue
                     }
 
-                    if (op.minVersion.isSupported) {
-                        i += op.literal.length
 
-                        return saveToken { op }
+                    if (token.minVersion.isSupported) {
+                        i += token.literal.length
+
+                        return saveToken { token }
                     }
                 }
             }
