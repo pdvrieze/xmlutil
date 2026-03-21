@@ -21,5 +21,8 @@
 package org.w3.qt3tests.resolved.assertions
 
 class ResolvedQt3AssertError(val code: String?): ResolvedQt3Assertion() {
+    override fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {
+        accumulator.add(this)
+    }
 
 }

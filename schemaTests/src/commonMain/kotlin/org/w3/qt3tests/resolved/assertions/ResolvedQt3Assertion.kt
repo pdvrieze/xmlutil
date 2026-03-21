@@ -21,4 +21,9 @@
 package org.w3.qt3tests.resolved.assertions
 
 abstract class ResolvedQt3Assertion {
+    fun expectedErrors(): List<ResolvedQt3AssertError> = buildList {
+        expectedErrors(this)
+    }
+
+    internal open fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {}
 }

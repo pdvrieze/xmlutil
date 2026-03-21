@@ -20,4 +20,8 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-class ResolvedQt3AnyOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3Assertion()
+class ResolvedQt3AnyOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3Assertion() {
+    override fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {
+        for (a in assertions) a.expectedErrors(accumulator)
+    }
+}

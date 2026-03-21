@@ -21,9 +21,9 @@
 package org.w3.qt3tests.resolved
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import io.github.pdvrieze.xml.schematypes.values.XsdToken
 import org.w3.qt3tests.*
-import org.w3.qt3tests.resolved.assertions.ResolvedQt3AssertError
 
 class ResolvedQt3TestCase(
     val description: Qt3Description? = null,
@@ -36,10 +36,15 @@ class ResolvedQt3TestCase(
     val result: ResolvedQt3Result? = null,
     val name: String? = null,
     val covers: List<XsdToken>? = emptyList(),
-    val covers30: List<io.github.pdvrieze.xml.schematypes.values.XsdNCName>? = emptyList(),
+    val covers30: List<XsdNCName>? = emptyList(),
 ) {
     fun tryVerify() {
-        val errorAssertions = result?.run { assertions.filterIsInstance<ResolvedQt3AssertError>() } ?: emptyList()
+        val errorAssertions = buildList {
+            if (result != null) {
+                for(r in result.assertions) r.expectedErrors(this)
+            }
+        }
+
         when (errorAssertions.size) {
             0 -> {
                 val t= checkNotNull (test) { "No test found for test case $name" }
