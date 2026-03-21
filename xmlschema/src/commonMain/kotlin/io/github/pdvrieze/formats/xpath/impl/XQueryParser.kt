@@ -675,15 +675,17 @@ internal class XQueryParser(
             in '0'..'9' -> return parsePostfixExpr(parseNumber())
 
             '.' -> {
-                ++i
                 when {
-                    tryCurrent('.') -> {
+                    tryCurrent("..") -> {
                         return AxisStep(Axis.PARENT, NodeTest.node)
                     }
 
-                    str.getOrNull(i) in '0'..'9' -> return parsePostfixExpr(parseNumber())
+                    peekNextChar(1) in '0'..'9' -> return parsePostfixExpr(parseNumber())
 
-                    else -> return parsePostfixExpr(ContextItemExpr)
+                    else -> {
+                        val _= tryCurrent('.')
+                        return parsePostfixExpr(ContextItemExpr)
+                    }
                 }
             }
 

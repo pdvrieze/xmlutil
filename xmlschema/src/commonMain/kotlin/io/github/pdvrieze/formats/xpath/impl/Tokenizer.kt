@@ -110,11 +110,17 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         ensureDelimited()
         val start = i
 
-        if (str[i] == '-') i+=1
+        var seenPeriod = false
+
+        when (str[i]) {
+            '-' -> i += 1
+            '.' -> {
+                seenPeriod = true
+                i += 1
+            }
+        }
 
         parseRequire(i < str.length && str[i].isDigit(), "@$start> '${str.substring(start, i)}' not a number")
-
-        var seenPeriod = false
         var seenExp = false
         while (i < str.length) {
             when (str[i]) {
@@ -329,6 +335,11 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     protected fun peekNextToken(): Int {
         skipWhitespace()
         return if (i <str.length) str[i].code else -1
+    }
+
+    protected fun peekNextChar(cnt: Int): Char? {
+        val idx = i + cnt
+        return if (idx < str.length) str[idx] else null
     }
 
     protected open fun peekCurrent(s: String): Boolean {

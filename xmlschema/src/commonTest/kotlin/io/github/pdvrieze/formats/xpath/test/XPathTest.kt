@@ -424,6 +424,19 @@ class XPathTest {
         assertContains(e.message!!, "Expected NCName, found ':'")
     }
 
+    @Test
+    fun testLeadingDotDecimal() {
+        testPath(".65535032") {}
+    }
+
+    @Test
+    fun testNoInvalidNumber() {
+        val e = assertFailsWith<IllegalArgumentException> {
+            testPath(".0.1") {}
+        }
+        assertContains(e.message!!, "Trailing content in expression")
+    }
+
 
     @Test
     fun testContextNode() {
