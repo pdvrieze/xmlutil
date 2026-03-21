@@ -702,7 +702,7 @@ internal class XQueryParser(
                 @OptIn(NeedsXPath3_1::class)
                 return parsePostfixExpr(parseUnaryLookup())
 
-            else if isNameStartChar(c) -> {
+            else if (c != ':' && isNameStartChar(c)) -> {
                 val ncName = parseNCNameUndelim().name
                 if (isXPath31 && ncName == "map" && peekCurrentToken('{')) {
                     @OptIn(NeedsXPath3_1::class)
@@ -947,14 +947,14 @@ internal class XQueryParser(
 
         val args = mutableListOf<ExprSingleOrPlaceholder>()
         do {
-            val start = mark()
+            val mark = mark()
             if (isXPath30 && tryCurrent('?')) {
 
                 if (peekAnyOf(',', ')')) {
                     @OptIn(NeedsXPath3_1::class)
                     args.add(ParamPlaceholder)
                 } else {
-                    mark().reset()
+                    mark.reset()
                     //reset position. This must be a lookup so shortcut there
                     @OptIn(NeedsXPath3_1::class)
                     args.add(parseUnaryLookup())
@@ -1065,7 +1065,7 @@ internal class XQueryParser(
                 }
 
                 '?' if (isXPath31) -> {
-                    tryCurrent('?')
+                    val _ = tryCurrent('?')
                     val newPrimary: ExprSingle = when {
                         current.predicates.isEmpty() -> current.primaryExpr
                         else -> LocationPath(false, listOf(current))

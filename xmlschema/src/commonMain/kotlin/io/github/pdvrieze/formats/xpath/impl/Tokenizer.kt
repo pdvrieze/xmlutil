@@ -184,9 +184,9 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         require(i < l) { "Expected NCName, found end of input" }
 
         val start = i
-        require(isNameStartChar(str[i])) { "Expected NCName, found '${str[i]}'" }
+        require(str[i].let { c -> c != ':' && isNameStartChar(c) }) { "Expected NCName, found '${str[i]}'" }
         i += 1
-        while (i < l && (str[i] != ':' && isNameChar11(str[i]))) {
+        while (i < l && isNameChar11(str[i], false)) {
             i += 1
         }
 

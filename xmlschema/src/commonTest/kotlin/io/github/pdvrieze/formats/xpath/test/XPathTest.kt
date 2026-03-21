@@ -412,10 +412,16 @@ class XPathTest {
 
     @Test
     fun testNoWSInQName() {
-        // Per the leading-lone-slash rule this should not be valid
-
         val e = assertFailsWith<IllegalArgumentException> { testPath("*:(:hey:)ncname") {} }
         assertContains(e.message!!, "Trailing content in expression")
+    }
+
+    @Test
+    fun testNoInvalidFunctionName() {
+        val e = assertFailsWith<IllegalArgumentException> {
+            testPath(":f()") {}
+        }
+        assertContains(e.message!!, "Expected NCName, found ':'")
     }
 
 
