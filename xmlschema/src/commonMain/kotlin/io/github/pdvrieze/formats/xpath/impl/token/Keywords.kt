@@ -27,11 +27,18 @@ enum class Keywords(override val literal: String, override val minVersion: XPath
     EVERY("every", XPathVersion.XPath2_0),
     FOR("for", XPathVersion.XPath2_0),
     IF("if", XPathVersion.XPath2_0),
+    THEN("then", XPathVersion.XPath2_0),
+    ELSE("else", XPathVersion.XPath2_0),
     IN("in"),
     LET("let", XPathVersion.XPath3_0),
     RETURN("return"),
     SOME("some", XPathVersion.XPath2_0),
     SATISFIES("satisfies", XPathVersion.XPath2_0),
+    INSTANCE("instance", XPathVersion.XPath2_0),
+    OF("of", XPathVersion.XPath2_0),
+    TREAT("treat", XPathVersion.XPath2_0),
+    CASTABLE("castable", XPathVersion.XPath2_0),
+    CAST("cast", XPathVersion.XPath2_0),
     ;
 
     override val isDelimiting: Boolean get() = false

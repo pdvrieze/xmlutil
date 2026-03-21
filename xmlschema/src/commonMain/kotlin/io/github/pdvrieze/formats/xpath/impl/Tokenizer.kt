@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
 import nl.adaptivity.xmlutil.core.internal.isNameChar11
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import nl.adaptivity.xmlutil.isXmlWhitespace
@@ -42,7 +43,8 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             field = value
         }
 
-    protected var i = 0
+    protected var curPos = 0
+        private set
 
     abstract val xpathVersion: XPathVersion
 
@@ -53,36 +55,37 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     val SpecVersion.isSupported: Boolean
         get() = this is XPathVersion && this <= xpathVersion
 
-    fun mark(): Mark = Mark(i, lastWasDelimited)
+    fun mark(): Mark = Mark(curPos, lastWasDelimited)
 
     protected fun parseStringLiteral(): StringLiteral {
-        val delim = when (str[i]) {
+        val delim = when (str[curPos]) {
             '\'' -> '\''
             '"' -> '"'
             else -> parseError("Literal does not start with quote")
         }
-        ++i
-        var start = i
+        ++curPos
+        var start = curPos
 
         val string = StringBuilder()
 
-        while (i < str.length) {
-            when (str[i]) {
-                delim if (i + 1 < str.length && str[i + 1] == delim) -> {
-                    string.append(str, start, i + 1)
-                    i += 2 // skip reading the second delimiter (again)
-                    start = i // Set the start after the second delimiter
+        while (curPos < str.length) {
+            when (str[curPos]) {
+                delim if (curPos + 1 < str.length && str[curPos + 1] == delim) -> {
+                    string.append(str, start, curPos + 1)
+                    curPos += 2 // skip reading the second delimiter (again)
+                    start = curPos // Set the start after the second delimiter
                 }
 
                 delim -> break
-                else -> ++i
+                else -> ++curPos
             }
         }
-        if (i > start) {
-            string.append(str, start, i)
+        if (curPos > start) {
+            string.append(str, start, curPos)
         }
-        parseRequire(i < str.length, "Literal string not closed")
-        return StringLiteral(string.toString()).also { ++i } // skip delim
+        parseRequire(curPos < str.length, "Literal string not closed")
+        lastWasDelimited = true
+        return StringLiteral(string.toString()).also { curPos+=1 } // skip delim
     }
 
     @OptIn(NeedsXPath2::class)
@@ -100,55 +103,55 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     }
 
     private fun parseDigitSequence(): String {
-        val start = i
+        val start = curPos
         val l = str.length
-        while (i < l && str[i] in '0'..'9') {
-            i += 1
+        while (curPos < l && str[curPos] in '0'..'9') {
+            curPos += 1
         }
-        val s = str.substring(start, i)
+        val s = str.substring(start, curPos)
         lastWasDelimited = false
         return s
     }
 
     protected fun parseNumber(): NumberLiteral<*> {
         ensureDelimited()
-        val start = i
+        val start = curPos
 
         var seenPeriod = false
 
-        when (str[i]) {
-            '-' -> i += 1
+        when (str[curPos]) {
+            '-' -> curPos += 1
             '.' -> {
                 seenPeriod = true
-                i += 1
+                curPos += 1
             }
         }
 
-        parseRequire(i < str.length && str[i].isDigit(), "@$start> '${str.substring(start, i)}' not a number")
+        parseRequire(curPos < str.length && str[curPos].isDigit(), "@$start> '${str.substring(start, curPos)}' not a number")
         var seenExp = false
-        while (i < str.length) {
-            when (str[i]) {
+        while (curPos < str.length) {
+            when (str[curPos]) {
                 '.' -> when {
-                    seenPeriod || seenExp -> return DoubleLiteral(str.substring(start, i).toDouble())
+                    seenPeriod || seenExp -> return DoubleLiteral(str.substring(start, curPos).toDouble())
                     else -> seenPeriod = true
                 }
 
                 'e', 'E' -> when {
-                    seenExp -> return DoubleLiteral(str.substring(start, i).toDouble())
+                    seenExp -> return DoubleLiteral(str.substring(start, curPos).toDouble())
                     else -> {
                         seenExp = true
                         // skip signs here
-                        if (i + 1 < str.length) when (val c = str[i + 1]) {
-                            '+', '-' -> i+=1
+                        if (curPos + 1 < str.length) when (val c = str[curPos + 1]) {
+                            '+', '-' -> curPos+=1
                         }
                     }
                 }
 
                 !in '0'..'9' -> break
             }
-            i += 1
+            curPos += 1
         }
-        val substr = str.substring(start, i)
+        val substr = str.substring(start, curPos)
 
         lastWasDelimited = false
 
@@ -167,7 +170,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     protected fun parseQNameOrBuiltin(): QNameOrBuiltin {
         ensureDelimited()
 
-        if (peekCurrent("Q{")) return parseEQNameTokenUndelim()
+        if (peekNext("Q{")) return parseEQNameTokenUndelim()
         val prefixOrLocal = parseNCName()
         BuiltinToken.getBuiltin(prefixOrLocal.name)?.let { return saveToken { it } }
 
@@ -191,16 +194,16 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
     protected fun parseNCNameUndelim(): NCName {
         val l = str.length
-        require(i < l) { "Expected NCName, found end of input" }
+        require(curPos < l) { "Expected NCName, found end of input" }
 
-        val start = i
-        require(str[i].let { c -> c != ':' && isNameStartChar(c) }) { "Expected NCName, found '${str[i]}'" }
-        i += 1
-        while (i < l && isNameChar11(str[i], false)) {
-            i += 1
+        val start = curPos
+        require(str[curPos].let { c -> c != ':' && isNameStartChar(c) }) { "Expected NCName, found '${str[curPos]}'" }
+        curPos += 1
+        while (curPos < l && isNameChar11(str[curPos], false)) {
+            curPos += 1
         }
 
-        return saveToken { NCName(str.substring(start, i)) }
+        return saveToken { NCName(str.substring(start, curPos)) }
     }
 
     protected fun parseQName(): UnresolvedQNameToken = saveToken {
@@ -229,12 +232,12 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         if (!(isXPath30 && tryCurrent("Q{"))) {
             return parseQNameUndelim()
         }
-        val nsStart = i
+        val nsStart = curPos
         val l = str.length
-        while (i < l && str[i] != '}') {
-            i += 1
+        while (curPos < l && str[curPos] != '}') {
+            curPos += 1
         }
-        val namespace = str.substring(nsStart, i) // note that trimming is not expected
+        val namespace = str.substring(nsStart, curPos) // note that trimming is not expected
         parseRequire(tryCurrentToken('}'), "Expected '}' after namespace name")
 
         val localName = parseNCNameUndelim()
@@ -251,7 +254,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         parseRequire(condition) { message }
     }
 
-    fun parseError(cause: Throwable, startIdx: Int = i): Nothing =
+    fun parseError(cause: Throwable, startIdx: Int = curPos): Nothing =
         parseError(null, cause.message ?: "<unknown error>", cause, startIdx)
 
 
@@ -265,11 +268,11 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         }
     }
 
-    fun parseError(message: String, startIdx: Int = i): Nothing {
+    fun parseError(message: String, startIdx: Int = curPos): Nothing {
         parseError(null, message, startIdx = startIdx)
     }
 
-    fun parseError(msgPrefix: String?, message: String, cause: Throwable? = null, startIdx: Int = i): Nothing {
+    fun parseError(msgPrefix: String?, message: String, cause: Throwable? = null, startIdx: Int = curPos): Nothing {
         val indent = " ".repeat(6)
         val msg = buildString {
             msgPrefix?.let {
@@ -293,29 +296,27 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
     protected fun ensureDelimited() {
         skipWhitespace()
-        // TODO this is disabled for now as XQuery parser still does some things on its own.
         parseRequire(lastWasDelimited, "Multiple non-delimiting tokens succeeding each other")
-
     }
 
     protected fun skipWhitespace() {
-        val start = i
+        val start = curPos
         val l = str.length
-        while (i < l) {
-            val c = str[i]
+        while (curPos < l) {
+            val c = str[curPos]
             when {
                 c == '(' -> {
-                    if (str.getOrNull(i + 1) != ':') break
+                    if (str.getOrNull(curPos + 1) != ':') break
 
-                    i += 2
+                    curPos += 2
                     parseCommentCont()
                 }
 
                 !isXmlWhitespace(c) -> break
-                else -> ++i
+                else -> ++curPos
             }
         }
-        if (i > start) lastWasDelimited = true
+        if (curPos > start) lastWasDelimited = true
     }
 
     private fun parseComment() {
@@ -324,45 +325,73 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     }
 
     private fun parseCommentCont() {
-        val start = i - 2
-        while (i < str.length) {
-            val c = str[i]
+        val start = curPos - 2
+        while (curPos < str.length) {
+            val c = str[curPos]
             when (c) {
                 ':' if tryCurrent(":)") -> return
                 // support nesting
-                '(' if str.getOrNull(i+1) ==':' -> parseComment()
-                else -> i += 1
+                '(' if str.getOrNull(curPos+1) ==':' -> parseComment()
+                else -> curPos += 1
             }
         }
         parseError("Comment not closed", start)
     }
 
+    /**
+     * Read until the delimiter, consuming the delimiter as well.
+     */
+    protected fun readUntil(delim: Char): String {
+        val end = str.indexOf(delim, curPos)
+        if (end < 0) parseError("Expected '$delim' but found end of input")
+        curPos = end + 1
+        return str
+    }
+
     protected fun peekNextToken(): Int {
         skipWhitespace()
-        return if (i <str.length) str[i].code else -1
+        return if (curPos <str.length) str[curPos].code else -1
     }
 
     protected fun peekNextCharToken(): Char {
         skipWhitespace()
-        return if (i <str.length) str[i] else '\u0000'
+        return if (curPos <str.length) str[curPos] else '\u0000'
     }
 
     protected fun peekNextChar(cnt: Int): Char {
-        val idx = i + cnt
+        val idx = curPos + cnt
         return if (idx < str.length) str[idx] else '\u0000'
     }
 
-    protected open fun peekCurrent(s: String): Boolean {
-        return str.startsWith(s, i)
+    protected fun peekNextChar(): Char {
+        return if (curPos < str.length) str[curPos] else '\u0000'
+    }
+
+    protected fun peekNext(s: String): Boolean {
+        return str.startsWith(s, curPos)
+    }
+
+    protected fun peekNextToken(s: String): Boolean {
+        skipWhitespace()
+        return (lastWasDelimited || Token.isDelim(s[0])) && str.startsWith(s, curPos)
+    }
+
+    protected fun peekNext(c: Char): Boolean {
+        return curPos < str.length && str[curPos] == c
+    }
+
+    protected fun peekNextToken(c: Char): Boolean {
+        skipWhitespace()
+        return (lastWasDelimited || Token.isDelim(c)) && str[curPos] == c
     }
 
     protected fun tryCurrent(token : WordToken): Boolean {
         skipWhitespace()
         val delim = lastWasDelimited
-        if (i < str.length) {
+        if (curPos < str.length) {
             val op = token
-            val newI = i + op.literal.length
-            if (!str.startsWith(op.literal, i)) return false
+            val newI = curPos + op.literal.length
+            if (!str.startsWith(op.literal, curPos)) return false
 
             if (!op.isDelimiting) {
                 if (!delim) {
@@ -371,23 +400,27 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
                 if (newI < str.length && !Token.isDelimOrWS(str[newI])) return false
             }
 
-            if (op.minVersion.isSupported) {
-                i += op.literal.length
+            if (!op.minVersion.isSupported) return false
 
-                val _ = saveToken { op }
-                return true
-            }
+            // important for distinguishing between operators such as '!' and '!=' or '<" and '<='
+            if (op is Operator && op.longer.any { str.startsWith(it.literal, curPos) })
+                return false
+
+            curPos += op.literal.length
+
+            val _ = saveToken { op }
+            return true
         }
         return false
 
     }
 
     protected fun tryCurrent(s: String): Boolean {
-        if(str.startsWith(s, i)) {
+        if(str.startsWith(s, curPos)) {
             val delim = Token.isDelim(s.last())
-            val newI = i + s.length
+            val newI = curPos + s.length
             if (!delim && !Token.isDelimOrWS(str.getOrNull(newI))) return false
-            i = newI
+            curPos = newI
             lastWasDelimited = delim
             return true
         }
@@ -403,8 +436,8 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         if (! (lastWasDelimited || Token.isDelim(char))) {
             return false
         }
-        if(i < str.length && str[i] == char) {
-            i += 1
+        if(curPos < str.length && str[curPos] == char) {
+            curPos += 1
             lastWasDelimited = Token.isDelim(char)
             return true
         }
@@ -417,14 +450,14 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     }
 
     protected fun peekAnyOf(vararg chars: Char): Boolean {
-        return i < str.length && str[i] in chars
+        return curPos < str.length && str[curPos] in chars
     }
 
     protected fun tryAnyOf(vararg chars: Char): Char {
-        if (i < str.length) {
-            val ch = str[i]
+        if (curPos < str.length) {
+            val ch = str[curPos]
             if (ch in chars) {
-                i += 1
+                curPos += 1
                 lastWasDelimited = Token.isDelim(ch)
                 return ch
             }
@@ -436,17 +469,17 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     protected fun tryAnyOf(vararg operators: Operator): Operator? {
         skipWhitespace()
         val delim = lastWasDelimited
-        if (i < str.length) {
+        if (curPos < str.length) {
             for (op in operators) {
-                if ((i + op.literal.length < str.length) &&
-                    str.startsWith(op.literal, i) &&
-                    op.longer.none { str.startsWith(it.literal, i) }
+                if ((curPos + op.literal.length < str.length) &&
+                    str.startsWith(op.literal, curPos) &&
+                    op.longer.none { str.startsWith(it.literal, curPos) }
                 ) {
                     if (!op.isDelimiting && !delim) {
                         parseError("Missing delimiter before non-delimiting operator")
                     }
                     if (op.minVersion.isSupported) {
-                        i += op.literal.length
+                        curPos += op.literal.length
 
                         return saveToken { op }
                     }
@@ -459,10 +492,11 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     protected fun <T : WordToken> tryAnyOf(vararg tokens: T): T? {
         skipWhitespace()
         val delim = lastWasDelimited
-        if (i < str.length) {
+        var longestToken: T? = null
+        if (curPos < str.length) {
             for (token in tokens) {
-                val newI = i + token.literal.length
-                if (str.startsWith(token.literal, i)) {
+                if ((longestToken== null || token.literal.length > longestToken.literal.length) && str.startsWith(token.literal, curPos)) {
+                    val newI = curPos + token.literal.length
                     if (!token.isDelimiting) {
                         if (!token.isDelimiting && !delim) {
                             parseError("Missing delimiter before non-delimiting operator")
@@ -473,24 +507,45 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
 
                     if (token.minVersion.isSupported) {
-                        i += token.literal.length
+                        curPos += token.literal.length
 
-                        return saveToken { token }
+                        longestToken = token
                     }
                 }
             }
         }
-        return null
+        return saveToken { longestToken }
     }
 
+    protected fun assertPrevious(kw: WordToken) {
+        ifAssertions {
+            // first skip any trailing whitespace
+            var end = curPos - 1
+            // TODO also skip comments
+            while (end >= 0 && isXmlWhitespace(str[end])) --end
+            end += 1
 
-    private inline fun <R: Token> saveToken(crossinline body: () -> R): R {
-        return body().also { lastToken = it }
+            val expected = kw.literal
+
+            val start = end - expected.length
+            if (start < 0) parseError("Parse continuation not preceded by '$expected' due to length issue")
+
+
+            if (str.substring(
+                    start,
+                    end
+                ) != expected
+            ) parseError("Parse continuation not preceded by '$expected', found: '${str.substring(start, end)}'")
+        }
+    }
+
+    private inline fun <R: Token?> saveToken(crossinline body: () -> R): R {
+        return body().also { if (it != null) lastToken = it }
     }
 
     inner class Mark(private val i: Int, private val lastWasDelimited: Boolean) {
         fun reset() {
-            this@Tokenizer.i = i
+            this@Tokenizer.curPos = i
             this@Tokenizer.lastWasDelimited = lastWasDelimited
         }
     }

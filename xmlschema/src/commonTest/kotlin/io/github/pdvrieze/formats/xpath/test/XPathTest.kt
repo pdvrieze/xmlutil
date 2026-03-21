@@ -39,6 +39,11 @@ class XPathTest {
     }
 
     @Test
+    fun testNeq() {
+        testPath("fn:false() != fn:false()") {}
+    }
+
+    @Test
     fun testForExprWithout24() {
         testPath("for \$fn:name in (1, 1) return \$fn:name") {}
     }

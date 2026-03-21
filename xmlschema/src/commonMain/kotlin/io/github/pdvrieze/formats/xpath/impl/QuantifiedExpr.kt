@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.impl.token.WordToken
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -32,9 +33,11 @@ class QuantifiedExpr @NeedsXPath2 constructor(
         require(bindings.isNotEmpty()) { "Must have at least one binding" }
     }
 
-    enum class Kind(val literal: String) {
+    enum class Kind(override val literal: String): WordToken {
         EVERY("every"),
         SOME("some");
+
+        override val isDelimiting: Boolean get() = false
     }
 
     data class Binding(val varName: QName, val source: ExprSingle) {

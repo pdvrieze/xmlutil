@@ -83,7 +83,7 @@ enum class Operator(
     IS("is", 5, XPathVersion.XPath2_0, false),
 
     @NeedsXPath3_0
-    CONCAT("||", 6, XPathVersion.XPath3_0, false),
+    CONCAT("||", 6, XPathVersion.XPath3_0, true),
     @NeedsXPath2
     TO("to", 7, XPathVersion.XPath2_0, false),
 

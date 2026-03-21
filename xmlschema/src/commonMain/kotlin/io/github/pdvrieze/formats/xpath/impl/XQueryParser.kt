@@ -25,9 +25,11 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
-import nl.adaptivity.xmlutil.*
-import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
-import nl.adaptivity.xmlutil.core.internal.isNameChar11
+import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.XmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
 import kotlin.contracts.ExperimentalContracts
 
@@ -71,6 +73,7 @@ internal class XQueryParser(
         }
 
         val qNameOrToken = parseQNameOrBuiltin()
+        val mark = mark()
         if (tryCurrentToken('(')) {
             when (qNameOrToken) {
                 ReservedFunctions.ITEM -> {
@@ -133,7 +136,9 @@ internal class XQueryParser(
                     @OptIn(NeedsXPath2::class)
                     val nodeType = qNameOrToken
                     if (nodeType.minVersion <= xpathVersion) {
-                        i -= 1 // we checked first whether there were parentheses. Maybe this should be undone.
+                        // we checked first whether there were parentheses. Maybe this should be undone.
+                        mark.reset()
+
                         return parseNodeTypeArgs(nodeType)
                     } else {
                         parseError("Unsupported node type ${nodeType.literal} in version $xpathVersion mode")
@@ -164,7 +169,7 @@ internal class XQueryParser(
             }
 
             NodeType.ELEMENT -> when {
-                peekCurrentToken(')') -> NodeTypeTest.Element()
+                peekNextToken(')') -> NodeTypeTest.Element()
 
                 else -> {
                     val name = when {
@@ -181,7 +186,7 @@ internal class XQueryParser(
             }
 
             NodeType.ATTRIBUTE -> when {
-                peekCurrentToken(')') -> NodeTypeTest.Attribute()
+                peekNextToken(')') -> NodeTypeTest.Attribute()
 
                 else -> {
                     val name = when {
@@ -207,7 +212,7 @@ internal class XQueryParser(
             NodeType.NAMESPACE_NODE -> NodeTypeTest.NamepaceNode
 
             NodeType.PROCESSING_INSTRUCTION -> {
-                when (peekCurrentToken()) {
+                when (peekNextChar()) {
                     ')' -> NodeTypeTest.ProcInstr()
                     '\'', '"' -> NodeTypeTest.ProcInstr(parseStringLiteral().value)
                     else -> NodeTypeTest.ProcInstr(parseEQNameTokenDelim().toQName())
@@ -290,7 +295,7 @@ internal class XQueryParser(
             parseRequire(tryCurrent(Keywords.IN), "Missing 'in' in for expression")
             val seqExpr = parseExprSingle()
             bindings.add(ForExpr.Binding(varName, seqExpr))
-        } while (tryAnyOf(Operator.COMMA) != null)
+        } while (tryCurrent(Operator.COMMA))
 
         parseRequire(tryCurrent(Keywords.RETURN), "Missing 'return' in for expression")
         val returned = parseExprSingle()
@@ -308,7 +313,7 @@ internal class XQueryParser(
             parseRequire(tryCurrentToken(":="))
             val rValueExpr = parseExprSingle()
             bindings.add(LetExpr.Binding(varName, rValueExpr))
-        } while (tryAnyOf(Operator.COMMA) != null)
+        } while (tryCurrent(Operator.COMMA))
 
         parseRequire(tryCurrent(Keywords.RETURN), "Missing 'return' in let expression")
         val returned = parseExprSingle()
@@ -323,40 +328,46 @@ internal class XQueryParser(
         val condition = parseExpr()
 
         parseRequire(tryCurrentToken(')')) { "Missing closing parenthesis in if expression" }
-        parseRequire(tryCurrentWordToken("then"), "Missing 'then' in if expression")
+        parseRequire(tryCurrent(Keywords.THEN), "Missing 'then' in if expression")
 
         val thenExpr = parseExprSingle()
 
-        parseRequire(tryCurrentWordToken("else"))
+        parseRequire(tryCurrent(Keywords.ELSE), "Missing 'else' in if expression")
         return IfExpr(condition, thenExpr, parseExprSingle())
+    }
+
+    private inline fun parseOperator(operator: Operator, crossinline parseBelow: () -> ExprSingle): ExprSingle {
+        val e = parseBelow()
+        if (!tryCurrent(operator)) return e
+        val exprs = mutableListOf(e)
+        do {
+            exprs.add(parseBelow())
+        } while (tryCurrent(operator))
+
+        return OperatorExpr(operator, exprs)
+    }
+
+    private inline fun parseOperators(vararg operators: Operator, crossinline parseBelow: () -> ExprSingle): ExprSingle {
+        var current = parseBelow()
+
+        do {
+            current = when (val op = tryAnyOf(*operators)) {
+                null -> return current
+                else -> OperatorExpr.priority(op, current, parseBelow())
+            }
+        } while (curPos < str.length)
+
+        return current
     }
 
     context(ctx: ParseContext)
     private fun parseOrExpr(): ExprSingle {
-        val e = parseAndExpr()
-        if (!tryCurrentWordToken("or")) return e
-        val exprs = mutableListOf(e)
-
-        do {
-            exprs.add(parseAndExpr())
-        } while (tryCurrentWordToken("or"))
-
-        return OperatorExpr(Operator.OR, exprs)
+        return parseOperator(Operator.OR) { parseAndExpr() }
     }
 
     context(ctx: ParseContext)
     private fun parseAndExpr(): ExprSingle {
-        val e = parseComparisonExpr()
-
-        if (!tryCurrentWordToken("and")) return e
-
-        val exprs = mutableListOf(e)
-
-        do {
-            exprs.add(parseComparisonExpr())
-        } while (tryCurrentWordToken("and"))
-
-        return OperatorExpr(Operator.AND, exprs)
+        return parseOperator(Operator.AND) { parseComparisonExpr() }
     }
 
     @OptIn(NeedsXPath2::class)
@@ -372,20 +383,10 @@ internal class XQueryParser(
         return BinaryExpr.priority(op, current, parseStringConcatExpr())
     }
 
+    @OptIn(NeedsXPath3_0::class)
     context(ctx: ParseContext)
     private fun parseStringConcatExpr(): ExprSingle {
-        val e = parseRangeExpr()
-
-        if (!isXPath30 || !tryCurrentToken("||")) return e
-
-        val concats = mutableListOf(e)
-
-        do {
-            concats.add(parseRangeExpr())
-        } while (tryCurrentToken("||"))
-
-        @OptIn(NeedsXPath3_0::class)
-        return OperatorExpr(Operator.CONCAT, concats)
+        return parseOperator(Operator.CONCAT) { parseRangeExpr() }
     }
 
     context(ctx: ParseContext)
@@ -393,41 +394,26 @@ internal class XQueryParser(
         val e = parseAdditiveExpr()
 
         @OptIn(NeedsXPath2::class)
-        return when (tryAnyOf(Operator.TO)){
-            Operator.TO -> RangeExpr(e, parseAdditiveExpr())
+        return when {
+            tryCurrent(Operator.TO) -> RangeExpr(e, parseAdditiveExpr())
             else -> e
         }
     }
 
     context(ctx: ParseContext)
     private fun parseAdditiveExpr(): ExprSingle {
-        var current: ExprSingle = parseMultiplicativeExpr()
-        do {
-            current = when (val op = tryAnyOf(Operator.ADD, Operator.SUB)) {
-                Operator.ADD, Operator.SUB ->
-                    OperatorExpr.priority(op, current, parseMultiplicativeExpr())
-
-                else -> return current
-            }
-        } while (i < str.length)
-
-        return current
+        return parseOperators(Operator.ADD, Operator.SUB) { parseMultiplicativeExpr() }
     }
 
     context(ctx: ParseContext)
     private fun parseMultiplicativeExpr(): ExprSingle {
-        var current: ExprSingle = parseUnionExpr()
-        do {
-            @OptIn(NeedsXPath2::class)
-            val op = tryAnyOf(Operator.MUL, Operator.DIV, Operator.IDIV, Operator.MOD)
-                ?: return current
-            current = BinaryExpr.priority(op, current, parseUnionExpr())
-        } while (i < str.length)
-        return current
+        @OptIn(NeedsXPath2::class)
+        return parseOperators(Operator.MUL, Operator.DIV, Operator.IDIV, Operator.MOD) { parseUnionExpr() }
     }
 
     context(ctx: ParseContext)
     private fun parseUnionExpr(): ExprSingle {
+        // no simplification as both are equivalent
         val expr = parseIntersectExceptExpr()
 
         val _ = tryAnyOf(Operator.UNION, Operator.PIPEUNION) ?: return expr
@@ -446,23 +432,7 @@ internal class XQueryParser(
     context(ctx: ParseContext)
     private fun parseIntersectExceptExpr(): ExprSingle {
         if (!isXPath2) return parseUnaryExpr()
-
-        var current: ExprSingle = parseInstanceofExpr()
-
-        @OptIn(NeedsXPath2::class)
-        do {
-            current = when {
-                tryCurrentWordToken("intersect") ->
-                    BinaryExpr.priority(Operator.INTERSECT, current, parseInstanceofExpr())
-
-                tryCurrentWordToken("except") ->
-                    BinaryExpr.priority(Operator.EXCEPT, current, parseInstanceofExpr())
-
-                else -> return current
-            }
-
-        } while (i < str.length)
-        return current
+        return parseOperators(Operator.INTERSECT, Operator.EXCEPT) { parseInstanceofExpr() }
     }
 
     @NeedsXPath2
@@ -470,8 +440,8 @@ internal class XQueryParser(
     private fun parseInstanceofExpr(): ExprSingle {
         val e = parseTreatExpr()
 
-        if (tryCurrentWordToken("instance")) {
-            parseRequire(tryCurrentWordToken("of"), "Missing 'of' in 'instance of' expression")
+        if (tryCurrent(Keywords.INSTANCE)) {
+            parseRequire(tryCurrent(Keywords.OF), "Missing 'of' in 'instance of' expression")
             return InstanceOfExpr(e, parseSequenceType())
         }
         return e
@@ -482,8 +452,8 @@ internal class XQueryParser(
     private fun parseTreatExpr(): ExprSingle {
         val e = parseCastableExpr()
 
-        if (tryCurrentWordToken("treat")) {
-            parseRequire(tryCurrentWordToken("as"), "Missing 'as' in 'treat as' expression")
+        if (tryCurrent(Keywords.TREAT)) {
+            parseRequire(tryCurrent(Keywords.AS), "Missing 'as' in 'treat as' expression")
             return TreatAsExpr(e, parseSequenceType())
         }
         return e
@@ -494,9 +464,9 @@ internal class XQueryParser(
     private fun parseCastableExpr(): ExprSingle {
         val e = parseCastExpr()
 
-        if (tryCurrentWordToken("castable")) {
+        if (tryCurrent(Keywords.CASTABLE)) {
 
-            parseRequire(tryCurrentWordToken("as"), "Missing 'as' in 'castable as' expression")
+            parseRequire(tryCurrent(Keywords.AS), "Missing 'as' in 'castable as' expression")
 
             skipWhitespace()
             val typeName = parseQName().toQName()
@@ -511,9 +481,9 @@ internal class XQueryParser(
     private fun parseCastExpr(): ExprSingle {
         val expr = parseArrowExpr()
 
-        if (!tryCurrentWordToken("cast")) return expr
+        if (!tryCurrent(Keywords.CAST)) return expr
 
-        parseRequire(tryCurrentWordToken("as"), "Missing 'as' in 'castable as' expression")
+        parseRequire(tryCurrent(Keywords.AS), "Missing 'as' in 'castable as' expression")
         skipWhitespace()
 
         val typeName = parseQName().toQName()
@@ -525,18 +495,12 @@ internal class XQueryParser(
     private fun parseArrowExpr(): ExprSingle {
         var expr = parseUnaryExpr()
 
-        if (isXPath31) {
-            @OptIn(NeedsXPath2::class, NeedsXPath3_0::class, NeedsXPath3_1::class)
-            while (tryCurrentToken("=>")) {
-                val functionSpecifier = parseArrowFunctionSpecifier()
-                skipWhitespace()
-                val params = when (val e = parseSequenceOrParen().expr) {
-                    is SequenceExpr -> e.elements
-                    is ExprSingle -> listOf(e)
-                }
-                @OptIn(NeedsXPath3_1::class)
-                expr = ArrowFunction(expr, functionSpecifier, params)
-            }
+        @OptIn(NeedsXPath2::class, NeedsXPath3_0::class, NeedsXPath3_1::class)
+        while (tryCurrent(Operator.ARROW)) {
+            val functionSpecifier = parseArrowFunctionSpecifier()
+
+            val params = parseSequenceOrParen().toExprList()
+            expr = ArrowFunction(expr, functionSpecifier, params)
         }
         return expr
     }
@@ -566,29 +530,26 @@ internal class XQueryParser(
         }
     }
 
+    @OptIn(NeedsXPath3_0::class)
     context(ctx: ParseContext)
     private fun parseValueExpr(): ExprSingle {
         val e = parsePathExpr()
-        if (!isXPath30) return e
 
-        @OptIn(NeedsXPath3_0::class)
-        val _ = tryAnyOf(Operator.MAP) ?: return e
+        if (!tryCurrent(Operator.MAP)) return e
 
         val exprs = mutableListOf(e)
 
-        @OptIn(NeedsXPath3_0::class)
         do {
             exprs.add(parsePathExpr())
         } while (tryAnyOf(Operator.MAP) != null)
 
-        @OptIn(NeedsXPath3_0::class)
         return MapExpr(exprs)
     }
 
     context(ctx: ParseContext)
     private fun parsePathExpr(): ExprSingle {
         val steps = mutableListOf<PrimaryOrStep>()
-        if (!peekCurrentToken('/')) {
+        if (!peekNextToken('/')) {
             parseRelativePathExpr(steps)
             return (steps.singleOrNull() as? FilterExpr)?.takeIf { it.predicates.isEmpty() }?.primaryExpr
                 ?: LocationPath(false, steps)
@@ -598,7 +559,7 @@ internal class XQueryParser(
         steps.add(XPathExpressionImpl.STEP_DOC_ROOT)
 
         // TODO special leading lone slash
-        if (i >= str.length) return LocationPath(true, steps)
+        if (curPos >= str.length) return LocationPath(true, steps)
 
         if (tryCurrent("//")) {
             steps.add(STEP_DESCENDANT_OR_SELF)
@@ -677,9 +638,8 @@ internal class XQueryParser(
             '\u0000' -> return null
 
             '@' -> {
+                assert(tryCurrent('@'))
                 val axis = Axis.ATTRIBUTE
-                ++i
-
                 val nodeTest = parseNodeTest()
                 val predicates = parsePredicates()
                 return AxisStep(axis, nodeTest, predicates)
@@ -725,13 +685,13 @@ internal class XQueryParser(
 
                 @OptIn(NeedsXQuery1::class)
                 when (maybeReserved) {
-                    ReservedFunctions.MAP if peekCurrentToken('{') ->
+                    ReservedFunctions.MAP if peekNextToken('{') ->
                         @OptIn(NeedsXPath3_1::class)
                         return parsePostfixExpr(parseMapConstructorCont())
 
-                    ReservedFunctions.ARRAY if peekCurrentToken('{') ->
+                    ReservedFunctions.ARRAY if peekNextToken('{') ->
                         @OptIn(NeedsXPath3_1::class)
-                        return parsePostfixExpr(parseMapConstructorCont())
+                        return parsePostfixExpr(parseCurlyArrayConstructorCont())
 
                     ReservedFunctions.SWITCH ->
                         parseError("`switch` is reserved in XPath 3.0 (for XQuery)")
@@ -739,7 +699,7 @@ internal class XQueryParser(
                     ReservedFunctions.TYPESWITCH ->
                         parseError("`typeswitch` is reserved in XPath 3.0 (for XQuery)")
 
-                    ReservedFunctions.FUNCTION if peekCurrentToken('(') ->
+                    ReservedFunctions.FUNCTION if peekNextToken('(') ->
                         @OptIn(NeedsXPath3_0::class)
                         return parsePostfixExpr(parseInlineFunctionCont())
 
@@ -769,7 +729,8 @@ internal class XQueryParser(
                         }
 
                         '#'.code if isXPath30 -> {
-                            i += 1
+                            assert(tryCurrent('#'))
+
                             val idx = parseUnsignedLong()
 
                             @OptIn(NeedsXPath3_0::class)
@@ -808,7 +769,7 @@ internal class XQueryParser(
     @NeedsXPath3_1
     context(ctx: ParseContext)
     private fun parseCurlyArrayConstructorCont(): ExprSingle {
-        assertPrevious("array")
+        assertPrevious(ReservedFunctions.ARRAY)
         val expr = parseEnclosedExpr()
         return ArrayConstructor.Curly(expr.contentExpr)
     }
@@ -823,7 +784,7 @@ internal class XQueryParser(
             '*' -> return LookupExpr(null, LookupExpr.AnyKey)
 
             '(' -> {
-                i += 1
+                assert(tryCurrent('('))
                 @OptIn(NeedsXPath2::class)
                 val key: Expr = when {
                     tryCurrentToken(')') && (isXPath2) -> SequenceExpr(emptyList())
@@ -854,11 +815,11 @@ internal class XQueryParser(
     @NeedsXPath3_1
     context(ctx: ParseContext)
     private fun parseMapConstructorCont(): ExprSingle {
-        assertPrevious("map")
+        assertPrevious(ReservedFunctions.MAP)
         // Expects "map" before
         parseRequire(tryCurrentToken('{'))
         val entries = mutableListOf<MapConstructor.Entry>()
-        if (!peekCurrentToken('}')) {
+        if (!peekNextToken('}')) {
             do {
                 val key = parseExprSingle()
                 parseRequire(tryCurrentToken(':'))
@@ -891,7 +852,7 @@ internal class XQueryParser(
     @NeedsXPath2
     context(ctx: ParseContext)
     private fun parseQuantifiedExprCont(kind: QuantifiedExpr.Kind): ExprSingle {
-        assertPrevious(kind.literal)
+        assertPrevious(kind)
 
         val bindings = mutableListOf<QuantifiedExpr.Binding>()
         do {
@@ -914,7 +875,7 @@ internal class XQueryParser(
     @NeedsXPath3_0
     context(ctx: ParseContext)
     private fun parseInlineFunctionCont(): FunctionItem.Inline {
-        assertPrevious("function")
+        assertPrevious(ReservedFunctions.FUNCTION)
         parseRequire(tryCurrentToken('('), "Expected function parameters start")
         val params: List<FunctionItem.Inline.Param>
         if (!tryCurrentToken(')')) {
@@ -929,7 +890,7 @@ internal class XQueryParser(
         } else {
             params = emptyList()
         }
-        val returnType = if (tryCurrentWordToken("as")) parseSequenceType() else null
+        val returnType = if (tryCurrent(Keywords.AS)) parseSequenceType() else null
         val body = parseEnclosedExpr()
         @OptIn(NeedsXPath3_0::class)
         return FunctionItem.Inline(params, returnType, body.contentExpr)
@@ -940,7 +901,7 @@ internal class XQueryParser(
         parseRequire(tryCurrentToken('{'))
         @OptIn(NeedsXPath2::class)
         val contentExpr = when {
-            !peekCurrentToken('}') -> parseExpr()
+            !peekNextToken('}') -> parseExpr()
 
             !isXPath31 -> parseError("Before 3.1 function bodies may not be empty")
 
@@ -961,7 +922,7 @@ internal class XQueryParser(
             parseError(null, "XPath($xpathVersion): ${e.message}", e)
         }
         skipWhitespace()
-        parseRequire(i >= str.length, "Trailing content in expression")
+        parseRequire(curPos >= str.length, "Trailing content in expression")
         return e
     }
 
@@ -1030,13 +991,12 @@ internal class XQueryParser(
 
         /* EQName wildcards only allowed in 3.0+. But create them for semantic reasonsfrom the old syntax  */
         @OptIn(NeedsXPath3_0::class)
-        if (isXPath30 && initialWord == "Q" && peekCurrentToken('{')) {
-            val endBrace = str.indexOf('}', i + 1)
+        if (isXPath30 && initialWord == "Q" && tryCurrent('{')) {
+            val endBrace = str.indexOf('}', curPos)
             parseRequire(endBrace >= 0, "Missing closing brace in Braced URI literal")
-            val namespace = str.substring(i + 1, endBrace)
-            i = endBrace + 1
+            val namespace = readUntil('}')
 
-            if (tryCurrentToken('*')) {
+            if (tryCurrent('*')) { // note that whitespace is not allowed
                 return QNameSpec.Namespace(namespace)
             } else {
                 val localPart = parseNCNameUndelim().name
@@ -1045,7 +1005,7 @@ internal class XQueryParser(
         } else if (tryCurrentToken(':')) { //namespace separator
             val ns = lookupNamespace(initialWord)
             return when {
-                tryCurrentToken('*') -> QNameSpec.Namespace(ns, initialWord)
+                tryCurrent('*') -> QNameSpec.Namespace(ns, initialWord)
 
                 else -> QNameSpec.ResolvedQName(XsdQNameImpl(ns, parseNCNameUndelim().name, initialWord))
             }
@@ -1071,7 +1031,7 @@ internal class XQueryParser(
     private fun parsePostfixExpr(primary: ExprSingle): FilterExpr {
         var current = FilterExpr(primary)
         while (true) {
-            when (peekCurrentToken()) {
+            when (peekNextCharToken()) {
                 '[' -> {
                     current = FilterExpr(primary, current.predicates + parsePredicates())
                 }
@@ -1095,8 +1055,8 @@ internal class XQueryParser(
                         else -> LocationPath(false, listOf(current))
                     }
                     @OptIn(NeedsXPath2::class, NeedsXPath3_1::class)
-                    when (val c2 = peekCurrentToken()) {
-                        null -> parseError("Missing key specifier at end of expression")
+                    when (val c2 = peekNextChar()) {
+                        '\u0000' -> parseError("Missing key specifier at end of expression")
                         '(' -> {
                             val expr = parseSequenceOrParen()
                             val newExpr = LookupExpr(newPrimary, LookupExpr.ParenKey(expr.expr))
@@ -1104,7 +1064,7 @@ internal class XQueryParser(
                         }
 
                         '*' -> {
-                            ++i
+                            val _ = tryCurrent('*')
                             val newExpr = LookupExpr(newPrimary, LookupExpr.AnyKey)
                             current = FilterExpr(newExpr)
                         }
@@ -1120,7 +1080,7 @@ internal class XQueryParser(
                             current = FilterExpr(newExpr)
                         }
 
-                        else -> parseError("Invalid key specifier start: $c2", i - 1)
+                        else -> parseError("Invalid key specifier start: $c2", curPos - 1)
                     }
                 }
 
@@ -1139,33 +1099,6 @@ internal class XQueryParser(
         }
     }
 
-    private fun peekCurrentToken(): Char? {
-        val i = peekNextToken()
-        return if (i < 0) null else i.toChar()
-    }
-
-    private fun peekCurrentToken(char: Char): Boolean {
-        skipWhitespace()
-        return i < str.length && str[i] == char
-    }
-
-    private fun peekCurrentToken(check: String): Boolean {
-        skipWhitespace()
-        val end = i + check.length
-        if ((end - 1) >= str.length) return false
-        return str.substring(i, end) == check
-    }
-
-    private fun tryCurrentWordToken(check: String): Boolean {
-        if (!peekCurrentToken(check)) return false
-        val j = i + check.length
-        if (j >= str.length || !isNameChar11(str[j])) {
-            i = j
-            return true
-        }
-        return false
-    }
-
     fun lookupNamespace(prefix: String?): String = when {
         prefix.isNullOrEmpty() -> namespaceContext.getNamespaceURI("") ?: ""
         else -> {
@@ -1175,25 +1108,6 @@ internal class XQueryParser(
         }
     }
 
-    fun assertPrevious(expected: String) {
-        ifAssertions {
-            // first skip any trailing whitespace
-            var end = i - 1
-            // TODO also skip comments
-            while (end >= 0 && isXmlWhitespace(str[end])) --end
-            end += 1
-
-            val start = end - expected.length
-            if (start < 0) parseError("Parse continuation not preceded by '$expected' due to length issue")
-
-
-            if (str.substring(
-                    start,
-                    end
-                ) != expected
-            ) parseError("Parse continuation not preceded by '$expected', found: '${str.substring(start, end)}'")
-        }
-    }
 
     internal data class ParseContext(val isXQuery: Boolean)
 
