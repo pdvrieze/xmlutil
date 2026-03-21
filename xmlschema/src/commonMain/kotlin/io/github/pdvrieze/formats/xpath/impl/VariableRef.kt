@@ -21,11 +21,12 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import nl.adaptivity.xmlutil.QName
 
 @OptIn(XPathInternal::class)
 @XPathInternal
 @NeedsXPath1
-internal class VariableRef(val varName: String): AbstractExprSingle() {
+internal class VariableRef(val varName: QName): AbstractExprSingle() {
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
         isXQuery: Boolean,
@@ -34,7 +35,7 @@ internal class VariableRef(val varName: String): AbstractExprSingle() {
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
-        builder.append('@').append(varName)
+        builder.append('$').appendQName(varName)
     }
 
     override fun equals(other: Any?): Boolean {

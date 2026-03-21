@@ -79,10 +79,10 @@ internal sealed class ArrowFunctionSpecifier @NeedsXPath3_1 constructor() {
         }
     }
 
-    class VarRefFunc @NeedsXPath3_1 internal constructor(val varName: String): ArrowFunctionSpecifier() {
+    class VarRefFunc @NeedsXPath3_1 internal constructor(val varName: QName): ArrowFunctionSpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
-            builder.append('$').append(varName)
+            builder.append('$').appendQName(varName)
         }
 
         override fun collectUnsupportedExprs(

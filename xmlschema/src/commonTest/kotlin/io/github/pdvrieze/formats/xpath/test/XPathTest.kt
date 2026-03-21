@@ -34,6 +34,11 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testForExprWithout24() {
+        testPath("for \$fn:name in (1, 1) return \$fn:name") {}
+    }
+
+    @Test
     fun testStringConcat() {
         testPath(XPath3_0, "matches(\$d||\$d)") {}
     }

@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import nl.adaptivity.xmlutil.QName
+
 @XPathInternal
 class QuantifiedExpr @NeedsXPath2 constructor(
     val kind: Kind,
@@ -35,10 +37,10 @@ class QuantifiedExpr @NeedsXPath2 constructor(
         SOME("some");
     }
 
-    data class Binding(val varName: String, val source: ExprSingle) {
+    data class Binding(val varName: QName, val source: ExprSingle) {
         context(c: OutputContext)
         fun appendToString(builder: Appendable) {
-            builder.append('$').append(varName).append(" in ")
+            builder.append('$').appendQName(varName).append(" in ")
             source.appendToString(builder)
         }
 

@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import nl.adaptivity.xmlutil.QName
+
 @XPathInternal
 class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): AbstractExprSingle() {
     init {
@@ -57,10 +59,10 @@ class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnEx
     }
 
 
-    class Binding(val varName: String, val collection: ExprSingle) {
+    class Binding(val varName: QName, val collection: ExprSingle) {
         context(c: OutputContext)
         fun appendToString(builder: Appendable) {
-            builder.append('$').append(varName).append(" in ")
+            builder.append('$').appendQName(varName).append(" in ")
             collection.appendToString(builder)
         }
 

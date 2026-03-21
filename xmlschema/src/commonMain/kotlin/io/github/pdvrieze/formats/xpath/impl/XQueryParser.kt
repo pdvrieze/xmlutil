@@ -167,7 +167,8 @@ internal class XQueryParser(
 
     private fun parseVariableReference(): VariableRef {
         parseRequire(tryCurrentToken('$'), "Missing '$' in variable reference")
-        return VariableRef(parseNCName().name)
+        skipWhitespace()
+        return VariableRef(parseEQNameTokenUndelim().toQName())
     }
 
     @OptIn(NeedsXPath2::class)
@@ -207,7 +208,7 @@ internal class XQueryParser(
         val bindings = mutableListOf<ForExpr.Binding>()
         do {
             parseRequire(tryCurrentToken('$'))
-            val varName = parseNCName().name
+            val varName = parseEQNameTokenUndelim().toQName()
             parseRequireNotNull(tryAnyOf(Keywords.IN), "Missing 'in' in for expression")
             val seqExpr = parseExprSingle()
             bindings.add(ForExpr.Binding(varName, seqExpr))
