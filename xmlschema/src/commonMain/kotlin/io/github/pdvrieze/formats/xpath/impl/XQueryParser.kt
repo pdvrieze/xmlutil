@@ -758,7 +758,7 @@ internal class XQueryParser(
 
             '$' -> return parsePostfixExpr(parseVariableReference())
 
-            '\'', '"' -> return FilterExpr(parseStringLiteral())
+            '\'', '"' -> return parsePostfixExpr(parseStringLiteral())
 
             '[' if isXPath31 -> {
                 @OptIn(NeedsXPath3_1::class)
