@@ -544,9 +544,9 @@ internal class XQueryParser(
     private fun parseUnaryExpr(): ExprSingle {
         @OptIn(NeedsXPath2::class)
         return when (tryAnyOf(Operator.UNARY_PLUS, Operator.UNARY_MINUS)) {
-            Operator.UNARY_PLUS -> UnaryExpr.Plus(parseValueExpr())
+            Operator.UNARY_PLUS -> UnaryExpr.Plus(parseUnaryExpr())
 
-            Operator.UNARY_MINUS -> UnaryExpr.Minus(parseValueExpr())
+            Operator.UNARY_MINUS -> UnaryExpr.Minus(parseUnaryExpr())
 
             else -> parseValueExpr()
         }
