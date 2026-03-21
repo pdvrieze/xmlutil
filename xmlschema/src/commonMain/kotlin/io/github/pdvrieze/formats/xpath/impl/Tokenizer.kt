@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.SpecVersion
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
@@ -48,6 +49,9 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     abstract val isXPath2: Boolean
     abstract val isXPath30: Boolean
     abstract val isXPath31: Boolean
+
+    val SpecVersion.isSupported: Boolean
+        get() = this is XPathVersion && this <= xpathVersion
 
     fun mark(): Mark = Mark(i, lastWasDelimited)
 
@@ -338,16 +342,21 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return if (i <str.length) str[i].code else -1
     }
 
-    protected fun peekNextChar(cnt: Int): Char? {
+    protected fun peekNextCharToken(): Char {
+        skipWhitespace()
+        return if (i <str.length) str[i] else '\u0000'
+    }
+
+    protected fun peekNextChar(cnt: Int): Char {
         val idx = i + cnt
-        return if (idx < str.length) str[idx] else null
+        return if (idx < str.length) str[idx] else '\u0000'
     }
 
     protected open fun peekCurrent(s: String): Boolean {
         return str.startsWith(s, i)
     }
 
-    protected open fun tryCurrent(s: String): Boolean {
+    protected fun tryCurrent(s: String): Boolean {
         if(str.startsWith(s, i)) {
             val delim = Token.isDelim(s.last())
             val newI = i + s.length
@@ -357,6 +366,11 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
             return true
         }
         return false
+    }
+
+    protected fun tryCurrentToken(s: String): Boolean {
+        skipWhitespace()
+        return tryCurrent(s)
     }
 
     protected open fun tryCurrent(char: Char): Boolean {
@@ -403,20 +417,21 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
                     str.startsWith(op.literal, i) &&
                     op.longer.none { str.startsWith(it.literal, i) }
                 ) {
-                    if (! op.isDelimiting && ! delim) {
+                    if (!op.isDelimiting && !delim) {
                         parseError("Missing delimiter before non-delimiting operator")
                     }
+                    if (op.minVersion.isSupported) {
+                        i += op.literal.length
 
-                    i += op.literal.length
-
-                    return saveToken { op }
+                        return saveToken { op }
+                    }
                 }
             }
         }
         return null
     }
 
-    protected fun <T: WordToken> tryAnyOf(vararg operators: T): T? {
+    protected fun <T : WordToken> tryAnyOf(vararg operators: T): T? {
         skipWhitespace()
         val delim = lastWasDelimited
         if (i < str.length) {
@@ -426,13 +441,15 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
                     str.startsWith(op.literal, i) &&
                     str.getOrNull(newI).let { it == null || Token.isDelimOrWS(it) }
                 ) {
-                    if (! op.isDelimiting && ! delim) {
+                    if (!op.isDelimiting && !delim) {
                         parseError("Missing delimiter before non-delimiting operator")
                     }
 
-                    i += op.literal.length
+                    if (op.minVersion.isSupported) {
+                        i += op.literal.length
 
-                    return saveToken { op }
+                        return saveToken { op }
+                    }
                 }
             }
         }

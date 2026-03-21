@@ -95,7 +95,7 @@ internal class XQueryParser(
 
                     else -> {
                         val inType = AtomicOrUnionTypeTest(parseEQNameTokenDelim().toQName())
-                        parseRequire(tryCurrentToken(","))
+                        parseRequire(tryCurrentToken(','))
                         val outType = parseSequenceType()
                         parseRequire(tryCurrentToken(')')) { "Map specifiers must be closed by ')'" }
                         @OptIn(NeedsXPath3_1::class)
@@ -254,14 +254,15 @@ internal class XQueryParser(
 
     context(ctx: ParseContext)
     private fun parseExprSingle(): ExprSingle {
-        skipWhitespace()
+        val kw = tryAnyOf(Keywords.FOR, Keywords.LET, Keywords.SOME, Keywords.EVERY, Keywords.IF)
+
         @OptIn(NeedsXPath2::class, NeedsXPath3_0::class)
-        return when (str[i]) {
-            'f' if (isXPath2 && tryCurrentWord("for")) -> parseForExprCont()
-            'l' if (isXPath30 && tryCurrentWord("let")) -> parseLetExprCont()
-            's' if (isXPath2 && tryCurrentWord("some")) -> parseQuantifiedExprCont(QuantifiedExpr.Kind.SOME)
-            'e' if (isXPath2 && tryCurrentWord("every")) -> parseQuantifiedExprCont(QuantifiedExpr.Kind.EVERY)
-            'i' if (isXPath2 && tryCurrentWord("if")) -> parseIfExprCont()
+        return when (kw) {
+            Keywords.FOR -> parseForExprCont()
+            Keywords.LET -> parseLetExprCont()
+            Keywords.SOME -> parseQuantifiedExprCont(QuantifiedExpr.Kind.SOME)
+            Keywords.EVERY -> parseQuantifiedExprCont(QuantifiedExpr.Kind.EVERY)
+            Keywords.IF -> parseIfExprCont()
             else -> parseOrExpr()
         }
     }
@@ -724,10 +725,10 @@ internal class XQueryParser(
          *  - `[` square array constructor
          *  - `?` unary lookup
          */
-        val next = peekNextToken()
-        if (next < 0 ) return null
 
-        when (val c = next.toChar()) {
+        when (val c = peekNextCharToken()) {
+            '\u0000' -> return null
+
             '@' -> {
                 val axis = Axis.ATTRIBUTE
                 ++i
@@ -739,8 +740,7 @@ internal class XQueryParser(
 
             in '0'..'9' -> return parsePostfixExpr(parseNumber())
 
-            '.' -> {
-                when {
+            '.' -> when {
                     tryCurrent("..") -> {
                         return AxisStep(Axis.PARENT, NodeTest.node)
                     }
@@ -752,7 +752,6 @@ internal class XQueryParser(
                         return parsePostfixExpr(ContextItemExpr)
                     }
                 }
-            }
 
             '(' if isXPath2 -> @OptIn(NeedsXPath2::class) return parsePostfixExpr(parseSequenceOrParen())
 
@@ -862,7 +861,7 @@ internal class XQueryParser(
             '*' -> return LookupExpr(null, LookupExpr.AnyKey)
 
             '(' -> {
-                ++i
+                i += 1
                 @OptIn(NeedsXPath2::class)
                 val key: Expr = when {
                     tryCurrentToken(')') && (isXPath2) -> SequenceExpr(emptyList())
@@ -1195,23 +1194,6 @@ internal class XQueryParser(
         val end = i + check.length
         if ((end - 1) >= str.length) return false
         return str.substring(i, end) == check
-    }
-
-    private fun tryCurrentToken(check: String): Boolean {
-        skipWhitespace()
-        return tryCurrent(check)
-    }
-
-    private fun tryCurrentToken(check: String, vararg exclude: String): Boolean {
-        skipWhitespace()
-        val end = i + check.length
-        if ((end - 1) >= str.length) return false
-        if (exclude.any { str.startsWith(it, i) }) return false
-        if (str.substring(i, end) == check) {
-            i = end
-            return true
-        }
-        return false
     }
 
     private fun tryCurrentWord(check: String): Boolean {

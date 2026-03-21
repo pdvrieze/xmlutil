@@ -61,7 +61,7 @@ enum class ReservedFunctions(
 
         public fun getReserved(name: String): ReservedFunctions? {
             return when {
-                name.length !in 1..<26 -> null
+                name.length >= RESERVED_LOOKUP.size -> null
                 name[0] !in 'a'..'z' -> null
                 else -> RESERVED_LOOKUP[name.length - 1][name[0].code - 'a'.code].firstOrNull { name == it.literal }
             }

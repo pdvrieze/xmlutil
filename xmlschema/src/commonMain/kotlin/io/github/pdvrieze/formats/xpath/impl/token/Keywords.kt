@@ -20,16 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl.token
 
-enum class Keywords(override val literal: String) : WordToken {
-    AS("as"),
-    EVERY("every"),
-    FOR("for"),
-    IF("if"),
-    IN("in"),
-    LET("let"),
-    RETURN("return"),
-    SOME("some"),
+import io.github.pdvrieze.formats.xpath.XPathVersion
 
+enum class Keywords(override val literal: String, override val minVersion: XPathVersion = XPathVersion.XPath1_0) : WordToken {
+    AS("as"),
+    EVERY("every", XPathVersion.XPath2_0),
+    FOR("for", XPathVersion.XPath2_0),
+    IF("if", XPathVersion.XPath2_0),
+    IN("in"),
+    LET("let", XPathVersion.XPath3_0),
+    RETURN("return"),
+    SOME("some", XPathVersion.XPath2_0),
     ;
 
     override val isDelimiting: Boolean get() = false
@@ -37,4 +38,5 @@ enum class Keywords(override val literal: String) : WordToken {
 
 internal interface WordToken: Token {
     val literal: String
+    val minVersion: XPathVersion get() = XPathVersion.XPath1_0
 }
