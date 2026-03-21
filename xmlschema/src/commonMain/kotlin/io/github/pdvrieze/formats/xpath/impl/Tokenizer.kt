@@ -174,9 +174,9 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return saveToken {
             when {
                 tryCurrent(':') ->
-                    QNameToken(null, parseNCName(), prefixOrLocal)
+                    UnresolvedQNameToken(null, parseNCName(), prefixOrLocal)
 
-                else -> QNameToken(null, prefixOrLocal, "")
+                else -> UnresolvedQNameToken(null, prefixOrLocal, "")
             }
         }
     }
@@ -203,29 +203,29 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         return saveToken { NCName(str.substring(start, i)) }
     }
 
-    protected fun parseQName(): QNameToken = saveToken {
+    protected fun parseQName(): UnresolvedQNameToken = saveToken {
         ensureDelimited()
         parseQNameUndelim()
     }
 
-    private fun parseQNameUndelim(): QNameToken {
+    private fun parseQNameUndelim(): UnresolvedQNameToken {
         val prefixOrLocal = parseNCNameUndelim()
 
         return when {
             tryCurrent(':') ->
-                QNameToken(null, parseNCNameUndelim(), prefixOrLocal)
+                UnresolvedQNameToken(null, parseNCNameUndelim(), prefixOrLocal)
 
-            else -> QNameToken(null, prefixOrLocal, "")
+            else -> UnresolvedQNameToken(null, prefixOrLocal, "")
         }
     }
 
-    protected fun parseEQNameTokenDelim(): QNameToken {
+    protected fun parseEQNameTokenDelim(): UnresolvedQNameToken {
         ensureDelimited()
 
         return parseEQNameTokenUndelim()
     }
 
-    protected fun parseEQNameTokenUndelim(): QNameToken {
+    protected fun parseEQNameTokenUndelim(): UnresolvedQNameToken {
         if (!(isXPath30 && tryCurrent("Q{"))) {
             return parseQNameUndelim()
         }
@@ -238,7 +238,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         parseRequire(tryCurrentToken('}'), "Expected '}' after namespace name")
 
         val localName = parseNCNameUndelim()
-        return saveToken { QNameToken(namespace, localName, null) }
+        return saveToken { UnresolvedQNameToken(namespace, localName, null) }
     }
 
 

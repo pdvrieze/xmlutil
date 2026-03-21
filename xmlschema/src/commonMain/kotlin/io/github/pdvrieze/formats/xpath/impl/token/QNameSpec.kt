@@ -18,13 +18,16 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.impl.token.NodeType
-import io.github.pdvrieze.formats.xpath.impl.token.QNameToken
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
+import io.github.pdvrieze.formats.xpath.impl.NodeTest
+import io.github.pdvrieze.formats.xpath.impl.OutputContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
@@ -40,40 +43,59 @@ internal sealed interface QNameSpec {
     fun appendToString(builder: Appendable)
 
 
-    @XPathInternal
-    class EQName @NeedsXPath3_0 constructor(
-        val namespace: String?,
-        val localName: String,
-        val prefix: String?
-    ) : QNameSpec {
-        @NeedsXPath3_0
-        constructor(name: QName) : this(name.namespaceURI, name.localPart, name.prefix)
 
-        @NeedsXPath3_0
-        constructor(name: QNameToken) : this(name.namespace?.toString(), name.localName.toString(), name.prefix?.toString())
+    @XPathInternal
+    sealed class EQName: QNameSpec {
+        abstract val namespace: String
+        abstract val localName: String
+        abstract val prefix: String?
+    }
+
+    @XPathInternal
+    class UriQualifiedName(override val namespace: String, override val localName: String) : EQName() {
+        override val prefix: Nothing?
+            get() = null
 
         override fun asNodeTest(version: XPathVersion): NodeTest {
-            if (namespace == null && prefix == null) {
-                require(NodeType.maybeValueOf(localName, version) == null) {
-                    throw IllegalArgumentException("Cannot use node type name '$localName' as unprefixed qname for a node test")
+            return NodeTest.QNameTest(XsdQName(namespace, localName, "").toQName())
+        }
+
+        context(c: OutputContext)
+        @XPathInternal
+        override fun appendToString(builder: Appendable) {
+            builder.append("Q{").append(namespace).append("}").append(localName)
+        }
+    }
+
+
+    @XPathInternal
+    class ResolvedQName @NeedsXPath3_0 constructor(val name: QName) : EQName() {
+        override val namespace: String get() = name.namespaceURI
+        override val localName: String get() = name.localPart
+        override val prefix: String get() = name.prefix
+
+        override fun asNodeTest(version: XPathVersion): NodeTest {
+            if (name.namespaceURI.isEmpty() && name.prefix.isEmpty()) {
+                require(NodeType.maybeValueOf(name.localPart, version) == null) {
+                    throw IllegalArgumentException("Cannot use node type name '${name.localPart}' as unprefixed qname for a node test")
                 }
             }
             return NodeTest.QNameTest(asQName())
         }
 
         fun asQName(): QName {
-            return QName(namespace ?: "", localName, prefix ?: "")
+            return name
         }
 
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {
-            if (prefix != null) {
-                builder.append(prefix).append(':').append(localName)
-            } else if (namespace != null) {
-                builder.append("Q{").append(namespace).append("}").append(localName)
+            if (name.prefix.isNotEmpty()) {
+                builder.append(name.prefix).append(':').append(name.localPart)
+            } else if (name.namespaceURI.isNotEmpty()) {
+                builder.append("Q{").append(name.namespaceURI).append("}").append(name.localPart)
             } else {
-                builder.append(localName)
+                builder.append(name.localPart)
             }
         }
 

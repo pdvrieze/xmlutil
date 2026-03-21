@@ -42,12 +42,23 @@ internal class XQueryParser(
     override val isXPath30 get() = xpathVersion >= XPathVersion.XPath3_0
     override val isXPath31 get() = xpathVersion >= XPathVersion.XPath3_1
 
-    fun QNameToken.toQName(): QName {
+    fun UnresolvedQNameToken.toQName(): QName {
         val effectiveNS = namespace ?: prefix?.let { p ->
             requireNotNull(lookupNamespace(p.toString())) { "No namespace for prefix '$p' found" }
         } ?: ""
 
         return XsdQNameImpl(effectiveNS.toString(), localName.toString(), prefix?.toString() ?: "")
+    }
+
+    fun QNameSpec.EQName.toQName(): QName {
+        when (this) {
+            is QNameSpec.ResolvedQName -> return name
+
+            is QNameSpec.UriQualifiedName -> {
+                val prefix = namespaceContext.getPrefix(namespace) ?: ""
+                return XsdQNameImpl(namespace, localName, prefix)
+            }
+        }
     }
 
     context(ctx: ParseContext)
@@ -136,7 +147,7 @@ internal class XQueryParser(
         }
 
 
-        if (qNameOrToken !is QNameToken) {
+        if (qNameOrToken !is UnresolvedQNameToken) {
             parseError("Unsupported token $qNameOrToken found while parsing item type specifier")
         } else {
             return AtomicOrUnionTypeTest(qNameOrToken.toQName())
@@ -158,7 +169,7 @@ internal class XQueryParser(
                 else -> {
                     val name = when {
                         tryCurrent('*') -> QNameSpec.Any
-                        else -> QNameSpec.EQName(parseEQNameTokenDelim())
+                        else -> QNameSpec.ResolvedQName(parseEQNameTokenDelim().toQName())
                     }
                     if (tryCurrentToken(',')) {
                         val typeName = parseEQNameTokenDelim().toQName()
@@ -175,7 +186,7 @@ internal class XQueryParser(
                 else -> {
                     val name = when {
                         tryCurrent('*') -> QNameSpec.Any
-                        else -> QNameSpec.EQName(parseEQNameTokenDelim())
+                        else -> QNameSpec.ResolvedQName(parseEQNameTokenDelim().toQName())
                     }
                     if (tryCurrentToken(',')) {
                         val typeName = parseEQNameTokenDelim().toQName()
@@ -770,51 +781,66 @@ internal class XQueryParser(
 
             else if (c != ':' && isNameStartChar(c)) -> {
                 val ncName = parseNCNameUndelim().name
-                if (isXPath31 && ncName == "map" && peekCurrentToken('{')) {
-                    @OptIn(NeedsXPath3_1::class)
-                    return parsePostfixExpr(parseMapConstructorCont())
-                } else if (isXPath31 && ncName == "array" && peekCurrentToken('{')) {
-                    @OptIn(NeedsXPath3_1::class)
-                    return parsePostfixExpr(parseCurlyArrayConstructorCont())
-                } else if (isXPath30 && ncName == "switch") {
-                    parseError("`switch` is reserved in XPath 3.0 (for XQuery)")
-                } else if (isXPath30 && ncName == "typeswitch") {
-                    parseError("`typeswitch` is reserved in XPath 3.0 (for XQuery)")
-                } else if (isXPath30 && ncName == "function" && peekCurrentToken('(')) {
-                    @OptIn(NeedsXPath3_0::class)
-                    return parsePostfixExpr(parseInlineFunctionCont())
-                } else if (tryCurrentToken("::")) { // found axis
+
+                val maybeReserved = ReservedFunctions.getReserved(ncName)
+                parseRequire(maybeReserved == null || maybeReserved.minSpecVersion.isSupported) {
+                    "Reserved function name '$ncName' is not supported in this XPath version ($xpathVersion)"
+                }
+
+                @OptIn(NeedsXQuery1::class)
+                when (maybeReserved) {
+                    ReservedFunctions.MAP if peekCurrentToken('{') ->
+                        @OptIn(NeedsXPath3_1::class)
+                        return parsePostfixExpr(parseMapConstructorCont())
+
+                    ReservedFunctions.ARRAY if peekCurrentToken('{') ->
+                        @OptIn(NeedsXPath3_1::class)
+                        return parsePostfixExpr(parseMapConstructorCont())
+
+                    ReservedFunctions.SWITCH ->
+                        parseError("`switch` is reserved in XPath 3.0 (for XQuery)")
+
+                    ReservedFunctions.TYPESWITCH ->
+                        parseError("`typeswitch` is reserved in XPath 3.0 (for XQuery)")
+
+                    ReservedFunctions.FUNCTION if peekCurrentToken('(') ->
+                        @OptIn(NeedsXPath3_0::class)
+                        return parsePostfixExpr(parseInlineFunctionCont())
+
+                    else ->{}
+                }
+
+                if (tryCurrentToken("::")) { // found axis
                     val axis = Axis.from(ncName)
                     val nodeTest = parseNodeTest()
                     return AxisStep(axis, nodeTest, parsePredicates())
-                } else {
-                    val nameOrWildcard = parseEQNameOrWildcard(ncName)
-                    when (nameOrWildcard) {
-                        is QNameSpec.WildCard -> { // function calls are only supported by 3+
-                            return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
-                        }
+                }
 
-                        is QNameSpec.EQName -> when (val c = peekNextToken()) {
-                            '('.code -> when (val nt = maybeParseNodeTypeTest(nameOrWildcard)) {
-                                null -> {
-                                    val funcCall = StaticFunctionCall(nameOrWildcard.asQName(), parseArgs())
+                when (val nameOrWildcard = parseEQNameOrWildcard(ncName)) {
+                    is QNameSpec.WildCard -> { // function calls are only supported by 3+
+                        return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
+                    }
 
-                                    return parsePostfixExpr(funcCall)
-                                }
+                    is QNameSpec.EQName -> when (val c = peekNextToken()) {
+                        '('.code -> when (val nt = maybeParseNodeTypeTest(nameOrWildcard)) {
+                            null -> {
+                                val funcCall = StaticFunctionCall(nameOrWildcard.toQName(), parseArgs())
 
-                                else -> return AxisStep(Axis.CHILD, nt, parsePredicates())
+                                return parsePostfixExpr(funcCall)
                             }
 
-                            '#'.code if isXPath30 -> {
-                                i += 1
-                                val idx = parseUnsignedLong()
-
-                                @OptIn(NeedsXPath3_0::class)
-                                return parsePostfixExpr(FunctionItem.NamedRef(nameOrWildcard.asQName(), idx))
-                            }
-
-                            else -> return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
+                            else -> return AxisStep(Axis.CHILD, nt, parsePredicates())
                         }
+
+                        '#'.code if isXPath30 -> {
+                            i += 1
+                            val idx = parseUnsignedLong()
+
+                            @OptIn(NeedsXPath3_0::class)
+                            return parsePostfixExpr(FunctionItem.NamedRef(nameOrWildcard.toQName(), idx))
+                        }
+
+                        else -> return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
                     }
                 }
             }
@@ -1080,17 +1106,17 @@ internal class XQueryParser(
                 return QNameSpec.Namespace(namespace)
             } else {
                 val localPart = parseNCNameUndelim().name
-                return QNameSpec.EQName(namespace, localPart, null)
+                return QNameSpec.UriQualifiedName(namespace, localPart)
             }
         } else if (tryCurrentToken(':')) { //namespace separator
             val ns = lookupNamespace(initialWord)
             return when {
-                tryCurrentToken('*') -> QNameSpec.Namespace(ns, prefix = initialWord)
+                tryCurrentToken('*') -> QNameSpec.Namespace(ns, initialWord)
 
-                else -> QNameSpec.EQName(ns, localName = parseNCNameUndelim().name, prefix = initialWord)
+                else -> QNameSpec.ResolvedQName(XsdQNameImpl(ns, parseNCNameUndelim().name, initialWord))
             }
         } else {
-            return QNameSpec.EQName(lookupNamespace(""), localName = initialWord, prefix = null)
+            return QNameSpec.ResolvedQName(XsdQNameImpl(lookupNamespace(""), initialWord, ""))
         }
     }
 
@@ -1099,7 +1125,7 @@ internal class XQueryParser(
         val nodeType = when (name) {
             is QNameSpec.WildCard -> return name.asNodeTest()
 
-            is QNameSpec.EQName if (name.prefix.isNullOrEmpty() && name.namespace.isNullOrEmpty()) ->
+            is QNameSpec.ResolvedQName if (name.prefix.isEmpty() && name.namespace.isEmpty()) ->
                 NodeType.maybeValueOf(name.localName, xpathVersion) ?: return null
 
             else -> return null

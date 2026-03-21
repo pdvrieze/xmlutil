@@ -55,18 +55,17 @@ enum class ReservedFunctions(
     companion object {
         private val RESERVED_LOOKUP: Array<Array<Array<ReservedFunctions>>> = Array(23) { size ->
             Array(26) { firstLetter ->
-                entries.filter { it.literal.length == size && (it.literal[0].code - 'a'.code) == firstLetter }.toTypedArray()
+                entries.filter { it.literal.length-1 == size && (it.literal[0].code - 'a'.code) == firstLetter }.toTypedArray()
             }
         }
 
-        public fun getReserved(name: String): ReservedFunctions? {
+        fun getReserved(name: String): ReservedFunctions? {
             return when {
-                name.length >= RESERVED_LOOKUP.size -> null
+                name.length > RESERVED_LOOKUP.size -> null
                 name[0] !in 'a'..'z' -> null
                 else -> RESERVED_LOOKUP[name.length - 1][name[0].code - 'a'.code].firstOrNull { name == it.literal }
             }
         }
 
-        public fun isReserved(name: String): Boolean = getReserved(name) != null
     }
 }

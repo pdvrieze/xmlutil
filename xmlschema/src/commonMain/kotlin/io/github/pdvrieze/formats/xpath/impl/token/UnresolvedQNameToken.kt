@@ -20,10 +20,35 @@
 
 package io.github.pdvrieze.formats.xpath.impl.token
 
-data class QNameToken(
+import io.github.pdvrieze.formats.xpath.impl.OutputContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+
+@XPathInternal
+data class UnresolvedQNameToken(
     val namespace: CharSequence?,
     val localName: CharSequence,
     val prefix: CharSequence?
 ) : QNameOrBuiltin {
     override val isDelimiting: Boolean get() = true
+
+    context(c: OutputContext)
+    @XPathInternal
+    fun appendToString(builder: Appendable) {
+        if (prefix != null) {
+            builder.append(prefix).append(':').append(localName)
+        } else if (namespace != null) {
+            builder.append("Q{").append(namespace).append("}").append(localName)
+        } else {
+            builder.append(localName)
+        }
+    }
+
+    override fun toString() = buildString {
+        append("UnresolvedQNameToken(")
+        context(OutputContext.EMPTY) {
+            appendToString(this)
+        }
+        append(")")
+    }
+
 }

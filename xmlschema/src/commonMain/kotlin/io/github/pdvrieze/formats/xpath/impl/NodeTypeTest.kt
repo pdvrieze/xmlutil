@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
+import io.github.pdvrieze.formats.xpath.impl.token.QNameSpec
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
