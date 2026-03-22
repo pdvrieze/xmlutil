@@ -280,7 +280,7 @@ internal class XQueryParser(
             Keywords.SOME -> parseQuantifiedExprCont(QuantifiedExpr.Kind.SOME)
             Keywords.EVERY -> parseQuantifiedExprCont(QuantifiedExpr.Kind.EVERY)
             Keywords.IF -> parseIfExprCont()
-            else -> parseOrExpr()
+            else -> parseLogicExpr()
         }
     }
 
@@ -361,13 +361,8 @@ internal class XQueryParser(
     }
 
     context(ctx: ParseContext)
-    private fun parseOrExpr(): ExprSingle {
-        return parseOperator(Operator.OR) { parseAndExpr() }
-    }
-
-    context(ctx: ParseContext)
-    private fun parseAndExpr(): ExprSingle {
-        return parseOperator(Operator.AND) { parseComparisonExpr() }
+    private fun parseLogicExpr(): ExprSingle {
+        return parseOperators(Operator.OR, Operator.AND) { parseComparisonExpr() }
     }
 
     @OptIn(NeedsXPath2::class)
@@ -391,24 +386,19 @@ internal class XQueryParser(
 
     context(ctx: ParseContext)
     private fun parseRangeExpr(): ExprSingle {
-        val e = parseAdditiveExpr()
+        val e = parseArithmeticExpr()
 
         @OptIn(NeedsXPath2::class)
         return when {
-            tryCurrent(Operator.TO) -> RangeExpr(e, parseAdditiveExpr())
+            tryCurrent(Operator.TO) -> RangeExpr(e, parseArithmeticExpr())
             else -> e
         }
     }
 
     context(ctx: ParseContext)
-    private fun parseAdditiveExpr(): ExprSingle {
-        return parseOperators(Operator.ADD, Operator.SUB) { parseMultiplicativeExpr() }
-    }
-
-    context(ctx: ParseContext)
-    private fun parseMultiplicativeExpr(): ExprSingle {
+    private fun parseArithmeticExpr(): ExprSingle {
         @OptIn(NeedsXPath2::class)
-        return parseOperators(Operator.MUL, Operator.DIV, Operator.IDIV, Operator.MOD) { parseUnionExpr() }
+        return parseOperators(Operator.ADD, Operator.SUB, Operator.MUL, Operator.DIV, Operator.IDIV, Operator.MOD) { parseUnionExpr() }
     }
 
     context(ctx: ParseContext)

@@ -92,7 +92,7 @@ internal class OperatorExpr constructor(val operator: Operator, val operands: Li
 
                     }
 
-                    op.priority > left.operator.priority ->
+                    op.priority < left.operator.priority ->
                         OperatorExpr(op, left, right)
 
                     else ->

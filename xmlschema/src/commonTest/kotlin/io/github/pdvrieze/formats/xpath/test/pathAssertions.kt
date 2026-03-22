@@ -226,7 +226,7 @@ internal class BinaryContext(private val expr: ExprContext<BinaryExpr>) {
 }
 
 @OptIn(XPathInternal::class)
-internal inline fun <reified T1 : Expr, reified T2 : Expr> TestContext.assertBinary(
+internal inline fun <reified T1 : ExprSingle, reified T2 : ExprSingle> TestContext.assertBinary(
     op: Operator,
     left: ExprContext<T1>.() -> Unit,
     right: ExprContext<T2>.() -> Unit
@@ -236,6 +236,21 @@ internal inline fun <reified T1 : Expr, reified T2 : Expr> TestContext.assertBin
 
     nestedContext(assertIs<T1>(bin.left)).apply(left)
     nestedContext(assertIs<T2>(bin.right)).apply(right)
+}
+
+@PathTestDsl
+internal class OperatorContext(val expr: ExprContext<OperatorExpr>) {
+    fun assertCount(expected: Int) = assertEquals(expected, expr.expr.operands.size)
+
+    inline fun assertOperand(i: Int, test: ExprContext<ExprSingle>.() -> Unit) {
+        expr.nestedContext(expr.expr.operands[i]).apply(test)
+    }
+}
+
+internal  fun TestContext.assertOperator(operator: Operator, test: OperatorContext.() -> Unit) {
+    val op = assertIs<OperatorExpr>(expr)
+    assertEquals(operator, op.operator)
+    OperatorContext(nestedContext(op)).apply(test)
 }
 
 @OptIn(XPathInternal::class)

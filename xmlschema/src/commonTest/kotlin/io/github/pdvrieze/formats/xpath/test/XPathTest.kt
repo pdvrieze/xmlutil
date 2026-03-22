@@ -34,6 +34,31 @@ import kotlin.test.*
 class XPathTest {
 
     @Test
+    fun testOperatorLogic() {
+        testPath("2 or 3 and 5 or 6") {
+            assertOperator(Operator.OR) {
+                assertCount(3)
+                assertOperand(0) {
+                    assertNumber(2)
+                }
+                assertOperand(1) {
+                    assertOperator(Operator.AND) {
+                        assertCount(2)
+                        assertOperand(0) {
+                            assertNumber(3)
+                        }
+                        assertOperand(1) {
+                            assertNumber(5)
+                        }
+                    }
+                }
+                assertOperand(2) { assertNumber(6) }
+            }
+        }
+    }
+
+
+    @Test
     fun testSequence() {
         testPath("1,2,3") {}
     }
