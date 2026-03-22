@@ -20,8 +20,14 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
-class XdmNode(val node: PlatformNode, val type: AnyType = UntypedType.Instance)
+@XPathInternal
+@OptIn(NeedsXPath2::class)
+class XdmNode constructor(val node: PlatformNode, override val type: XdmSequenceType = XdmSequenceType(UntypedType.Instance)) : XdmValue() {
+    override fun get(index: Int): XdmNode = this
+
+}

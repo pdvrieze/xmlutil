@@ -21,10 +21,12 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_1
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.OP_BOOLEAN_EQUAL
+import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 enum class Operator(
     override val literal: String,
@@ -43,12 +45,31 @@ enum class Operator(
     AND("and", 4, XPathVersion.XPath1_0, false),
 
     @NeedsXPath1
-    EQ("=", 5, XPathVersion.XPath1_0, true){
+    EQ("=", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath3_1::class)
         override val longer: List<Operator> get() = listOf(ARROW)
+
+        context(ctx: EvalContext)
+        @XPathInternal
+        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+            when {
+                left.type.isA(BooleanType.Instance) -> {
+                    return OP_BOOLEAN_EQUAL.eval(listOf(left, right))
+                }
+                else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
+            }
+        }
     },
     @NeedsXPath1
-    NEQ("!=", 5, XPathVersion.XPath1_0, true),
+    NEQ("!=", 5, XPathVersion.XPath1_0, true) {
+        context(ctx: EvalContext)
+        @XPathInternal
+        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+            val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
+            return XdmAtomic(XsdBoolean(! eval.value))
+        }
+    },
+
     @NeedsXPath1
     LT("<", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath2::class)
@@ -136,5 +157,20 @@ enum class Operator(
     ;
 
     open val longer: List<Operator> get() = emptyList()
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    open fun eval(left: XdmValue, right: XdmValue): XdmValue =
+        TODO("Evaluation of operator $name not yet implemented")
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    fun eval(param: XdmValue): XdmValue = eval(listOf(param))
+
+    @XPathInternal
+    context(ctx: EvalContext)
+    fun eval(params: List<XdmValue>): XdmValue =
+        params.reduce { acc, param -> eval(acc, param) }
+
 
 }

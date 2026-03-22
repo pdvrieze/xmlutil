@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,10 +18,28 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.data
 
-@RequiresOptIn("accessible for testing only")
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CONSTRUCTOR)
-internal annotation class XPathInternal()
+import io.github.pdvrieze.formats.xpath.impl.Expr
+
+class EvaluationException : Exception {
+    val expr: Expr
+
+    constructor(expr: Expr, message: String?) : super(message) {
+        this.expr = expr
+    }
+
+    constructor(expr: Expr, message: String?, cause: Throwable?) : super(message, cause) {
+        this.expr = expr
+    }
+
+    constructor(expr: Expr, cause: Throwable?) : super("Evaluation of expression $expr failed", cause) {
+        this.expr = expr
+    }
+
+    constructor(expr: Expr) : super("Evaluation of expression $expr failed") {
+        this.expr = expr
+    }
+
+
+}

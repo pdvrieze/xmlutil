@@ -21,7 +21,14 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.data.XdmBuiltinFunction
+import io.github.pdvrieze.formats.xpath.data.XdmPartialApplication
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 
 @XPathInternal
 @NeedsXPath1
@@ -30,6 +37,30 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
 
     constructor(name: QName, vararg args: ExprSingleOrPlaceholder) :
             this(name, args.asList())
+
+    @OptIn(NeedsXPath3_1::class)
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        val function = when (name.namespaceURI) {
+            BuiltinFunction.FN_NAMESPACE, "" -> BuiltinFunction.FN.of(name.localPart)
+            else -> throw EvaluationException(this, "No builtin function from namespace")
+        }
+        if (function == null) throw EvaluationException(this, "Function with name ${name} not found")
+
+        if (args.any { it is ParamPlaceholder }) {
+            val partialArgs = args.map {
+                when (it) {
+                    is ExprSingle -> it.eval()
+                    ParamPlaceholder -> null
+                }
+            }
+            return XdmPartialApplication(XdmBuiltinFunction(function), partialArgs)
+        }
+        val evalArgs = args.map { (it as ExprSingle).eval() }
+
+        return function.eval(evalArgs)
+    }
 
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

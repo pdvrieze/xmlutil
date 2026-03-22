@@ -20,11 +20,18 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @XPathInternal
 @NeedsXPath1
 internal class BinaryExpr(val operator: Operator, val left: ExprSingle, val right: ExprSingle): AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return operator.eval(left.eval(), right.eval())
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         left.appendToString(builder)

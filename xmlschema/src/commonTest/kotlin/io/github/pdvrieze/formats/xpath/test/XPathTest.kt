@@ -24,10 +24,12 @@ import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion.*
 import io.github.pdvrieze.formats.xpath.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.formats.xpath.impl.token.Operator
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
@@ -71,7 +73,16 @@ class XPathTest {
 
     @Test
     fun testNeq() {
-        testPath("fn:false() != fn:false()") {}
+        val expr = testPath("fn:false() != fn:false()", "fn" to BuiltinFunction.FN_NAMESPACE) {}
+        val evalResult = assertIs<XdmAtomic<XsdBoolean>>(expr.eval())
+        assertEquals(false, evalResult.value.value)
+    }
+
+    @Test
+    fun testEq() {
+        val expr = testPath("fn:false() = fn:false()", "fn" to BuiltinFunction.FN_NAMESPACE) {}
+        val evalResult = assertIs<XdmAtomic<XsdBoolean>>(expr.eval())
+        assertEquals(true, evalResult.value.value)
     }
 
     @Test

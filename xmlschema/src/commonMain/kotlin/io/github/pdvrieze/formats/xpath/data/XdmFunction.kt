@@ -20,4 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-sealed class XdmFunction
+sealed class XdmFunction : XdmValue() {
+    override val type: XdmSequenceType
+        get() = TODO("There is no function type type yet")
+}
+

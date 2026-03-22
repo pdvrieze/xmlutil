@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-@XPathInternal
-sealed class SequenceType @NeedsXPath2 constructor() {
+
+@OptIn(XPathInternal::class)
+sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
+    @XPathInternal
     context(c: OutputContext)
     abstract fun appendToString(builder: Appendable)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,10 +18,19 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.data
 
-@RequiresOptIn("accessible for testing only")
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CONSTRUCTOR)
-internal annotation class XPathInternal()
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
+import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
+
+class XdmSequenceType(val baseType: AnyType, val cardinality: SequenceType.OccurrenceType = SequenceType.OccurrenceType.SINGLE) {
+    fun isA(expectedType: AnyType): Boolean {
+        return baseType.isA(expectedType)
+    }
+
+
+    companion object {
+        internal val boolean = XdmSequenceType(BooleanType.Instance)
+    }
+}

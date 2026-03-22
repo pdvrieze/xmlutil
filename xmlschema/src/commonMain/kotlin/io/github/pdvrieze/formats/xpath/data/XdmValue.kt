@@ -23,5 +23,7 @@ package io.github.pdvrieze.formats.xpath.data
 sealed class XdmValue {
     open val size: Int get() = 1
     abstract operator fun get(index: Int): XdmValue
+
+    abstract val type: XdmSequenceType
 }
 

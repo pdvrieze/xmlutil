@@ -20,28 +20,37 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-class XdmSequence<T : XdmValue>(private val elements: List<T> = emptyList()) : XdmValue(), List<T> {
+class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList()) : XdmValue(), List<T> {
     override val size: Int get() = elements.size
 
     override fun get(index: Int): T {
         return elements[index]
     }
 
-    override fun contains(element: T): Boolean = elements.contains(element)
+    override val type: XdmSequenceType by lazy {
+        TODO("Not yet implemented")
+    }
 
-    override fun containsAll(elements: Collection<T>): Boolean = elements.containsAll(elements)
 
-    override fun indexOf(element: T): Int = elements.indexOf(element)
+    override fun contains(element: @UnsafeVariance T): Boolean = elements.contains(element)
+
+    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean = elements.containsAll(elements)
+
+    override fun indexOf(element: @UnsafeVariance T): Int = elements.indexOf(element)
 
     override fun isEmpty(): Boolean = elements.isEmpty()
 
     override fun iterator(): Iterator<T> = elements.iterator()
 
-    override fun lastIndexOf(element: T): Int = elements.lastIndexOf(element)
+    override fun lastIndexOf(element: @UnsafeVariance T): Int = elements.lastIndexOf(element)
 
     override fun listIterator(): ListIterator<T> = elements.listIterator()
 
     override fun listIterator(index: Int): ListIterator<T> = elements.listIterator(index)
 
     override fun subList(fromIndex: Int, toIndex: Int): List<T> = elements.subList(fromIndex, toIndex)
+
+    companion object {
+        val EMPTY: XdmSequence<Nothing> = XdmSequence()
+    }
 }

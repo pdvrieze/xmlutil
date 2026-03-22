@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 
 interface XPathExpression: XQueryExpression {
-    fun eval(contextItem: XdmValue = XdmSequence<XdmValue>()): XdmValue {
+    fun eval(contextItem: XdmValue = XdmSequence.EMPTY): XdmValue {
         @OptIn(XPathInternal::class)
         return context(EvalContext(contextItem)){ expr.eval() }
     }

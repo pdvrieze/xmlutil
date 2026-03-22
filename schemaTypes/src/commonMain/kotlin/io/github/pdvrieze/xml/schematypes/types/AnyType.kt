@@ -24,6 +24,15 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnyType {
+    fun isA(expectedType: AnyType): Boolean {
+        var t = this
+        do {
+            if (t == expectedType) return true
+            t = t.baseType
+        } while (t != Instance)
+        return expectedType == Instance
+    }
+
     val name: XsdQName?
     val baseType: AnyType
 
@@ -33,5 +42,13 @@ interface AnyType {
         override val baseType: AnyType get() = this
 
         override fun toString(): String = "xs:any"
+
+        override fun hashCode(): Int {
+            return name.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is AnyType && other.name == name
+        }
     }
 }

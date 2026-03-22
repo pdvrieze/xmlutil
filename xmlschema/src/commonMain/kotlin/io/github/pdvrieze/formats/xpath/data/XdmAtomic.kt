@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
@@ -28,5 +29,8 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
         index == 0 -> this
         else -> error("Index out of bounds")
     }
+
+    override val type: XdmSequenceType
+        get() = XdmSequenceType(value.schemaType, SequenceType.OccurrenceType.SINGLE)
 }
 

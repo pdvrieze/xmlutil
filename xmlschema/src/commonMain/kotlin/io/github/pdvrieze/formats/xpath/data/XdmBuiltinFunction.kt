@@ -21,6 +21,10 @@
 package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
-class XdmBuiltinFunction(private val function: BuiltinFunction)
+@XPathInternal
+class XdmBuiltinFunction(private val function: BuiltinFunction): XdmFunction() {
+    override fun get(index: Int): XdmBuiltinFunction = this
+}
 

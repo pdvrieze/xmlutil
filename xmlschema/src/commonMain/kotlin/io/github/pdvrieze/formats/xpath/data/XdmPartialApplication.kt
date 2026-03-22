@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,10 +18,8 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xpath.data
 
-@RequiresOptIn("accessible for testing only")
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CONSTRUCTOR)
-internal annotation class XPathInternal()
+class XdmPartialApplication(val function: XdmFunction, val args: List<XdmValue?>) : XdmFunction() {
+    override fun get(index: Int): XdmPartialApplication = this
+}
