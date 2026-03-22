@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath
 
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -31,6 +33,11 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.XML
 
 interface XPathExpression: XQueryExpression {
+    fun eval(contextItem: XdmValue = XdmSequence<XdmValue>()): XdmValue {
+        @OptIn(XPathInternal::class)
+        return context(EvalContext(contextItem)){ expr.eval() }
+    }
+
     override val xmlString: String
     @OptIn(XPathInternal::class)
     val expr: Expr

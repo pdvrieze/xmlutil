@@ -33,7 +33,7 @@ sealed class FunctionItem: AbstractExprSingle() {
         }
     }
 
-    class Inline @NeedsXPath3_0 constructor(val params: List<Param>, val returnType: SequenceType?, body: Expr) : FunctionItem() {
+    class Inline @NeedsXPath3_0 constructor(val params: List<Param>, val returnType: SequenceType?, val body: Expr) : FunctionItem() {
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {

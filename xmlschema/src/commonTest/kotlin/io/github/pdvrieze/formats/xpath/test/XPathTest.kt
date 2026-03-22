@@ -22,10 +22,13 @@ package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion.*
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.formats.xpath.impl.token.Operator
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
 import kotlin.test.*
@@ -60,7 +63,10 @@ class XPathTest {
 
     @Test
     fun testSequence() {
-        testPath("1,2,3") {}
+        val expr = testPath("1,2,3") {}
+        val evalResult = assertIs<XdmSequence<*>>(expr.eval())
+
+        assertEquals(listOf(XsdLong(1), XsdLong(2), XsdLong(3)), evalResult.map { (it as XdmAtomic<*>).value })
     }
 
     @Test

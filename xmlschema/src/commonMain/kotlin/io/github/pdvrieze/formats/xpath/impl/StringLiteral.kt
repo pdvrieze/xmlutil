@@ -21,10 +21,19 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 @XPathInternal
 @NeedsXPath1
 internal class StringLiteral(override val value: String) : LiteralExpr<String>() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return XdmAtomic(XsdString(value))
+    }
+
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
         isXQuery: Boolean,

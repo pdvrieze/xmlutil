@@ -21,12 +21,21 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
 
 @XPathInternal
 internal class LongLiteral @NeedsXPath2 constructor(override val value: Long) : NumberLiteral<Long>() {
     override fun toDouble(): Double = value.toDouble()
     override fun toLong(): Long = value
     override fun toInt(): Int = value.toInt()
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return XdmAtomic(XsdLong(value))
+    }
 
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

@@ -21,10 +21,18 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @XPathInternal
 internal class IntegerLiteral @NeedsXPath2 constructor(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return XdmAtomic(value)
+    }
+
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
         isXQuery: Boolean,

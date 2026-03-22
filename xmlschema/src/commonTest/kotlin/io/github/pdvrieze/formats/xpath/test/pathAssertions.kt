@@ -36,14 +36,17 @@ import kotlin.test.*
 @DslMarker
 annotation class PathTestDsl
 
-fun testPath(path: String, vararg namespaces: Pair<String, String>, test: TestContext.() -> Unit) {
-    testPath(XPathVersion.XPath3_1, path, *namespaces, test = test)
+@IgnorableReturnValue
+fun testPath(path: String, vararg namespaces: Pair<String, String>, test: TestContext.() -> Unit): XPathExpression {
+    return testPath(XPathVersion.XPath3_1, path, *namespaces, test = test)
 }
 
-fun testPath(version: XPathVersion, path: String, vararg namespaces: Pair<String, String>, test: TestContext.() -> Unit) {
+@IgnorableReturnValue
+fun testPath(version: XPathVersion, path: String, vararg namespaces: Pair<String, String>, test: TestContext.() -> Unit): XPathExpression {
     val nsContext = SimpleNamespaceContext(namespaces.map { (p, ns) -> XmlEvent.NamespaceImpl(p, ns) })
     val expr = XPathExpression(path, nsContext, ver = version)
     TestContextImpl(path, expr).apply(test)
+    return expr
 }
 
 @OptIn(XPathInternal::class)

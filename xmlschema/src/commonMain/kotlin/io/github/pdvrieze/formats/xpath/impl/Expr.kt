@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 interface PrintableExpr {
     @XPathInternal
@@ -32,6 +33,10 @@ sealed interface Expr: PrintableExpr {
 
 
     fun collectUnsupportedExprs(xPathVersion: XPathVersion, isXQuery: Boolean, collector: MutableList<Any>)
+
+    @XPathInternal
+    context(ctx: EvalContext)
+    fun eval(): XdmValue = TODO("Evaluation of ${this::class.simpleName} is not yet supported")
 
 }
 

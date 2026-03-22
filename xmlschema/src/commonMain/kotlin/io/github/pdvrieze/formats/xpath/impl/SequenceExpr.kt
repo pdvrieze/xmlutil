@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 @XPathInternal
 class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : AbstractExpr() {
@@ -45,6 +47,12 @@ class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : Abstra
         for (e in elements) {
             e.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
         }
+    }
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmSequence<XdmValue> {
+        return XdmSequence(elements.map { it.eval() })
     }
 
     context(c: OutputContext)
