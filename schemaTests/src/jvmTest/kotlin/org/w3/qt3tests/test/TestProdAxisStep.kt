@@ -48,13 +48,27 @@ class TestProdAxisStep {
 
     @Test
     fun testAxes001_1() {
-        val evalValue = testEvalTestCase(getTestCase("Axes001-1"))
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes001-1"))
+    }
+
+    @Test
+    fun testAxes001_3() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes001-3"))
+    }
+
+    @Test
+    fun testAxes008_3() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes008-3"))
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestCases")
+    fun testEvalTestCase(testCase: ResolvedQt3TestCase) {
+        testEvalTestCaseImpl(testCase)
     }
 
     @IgnorableReturnValue
-    @ParameterizedTest
-    @MethodSource("getTestCases")
-    fun testEvalTestCase(testCase: ResolvedQt3TestCase): XdmValue {
+    private fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): XdmValue {
         val environment = testCase.environment?.getOrThrow()
         val contextDoc: Document? = environment?.run {
             val s = sources.filter { it.role == "." }
@@ -75,7 +89,6 @@ class TestProdAxisStep {
                 assertEquals(AssertionResult.Success, a.verify(evalResult))
             }
         }
-
         return evalResult
     }
 

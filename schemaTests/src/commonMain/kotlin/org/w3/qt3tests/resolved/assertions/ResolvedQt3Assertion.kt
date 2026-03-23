@@ -35,7 +35,10 @@ abstract class ResolvedQt3Assertion {
 }
 
 sealed class AssertionResult {
-    object Success: AssertionResult()
+    object Success: AssertionResult() {
+        override fun toString(): String = "Success"
+    }
+
     class Failure(val error: String) : AssertionResult() {
         constructor(error: XdmError): this(error.message)
 

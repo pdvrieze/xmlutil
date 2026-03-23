@@ -47,5 +47,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
     override fun withType(type: XdmType): XdmValue {
         TODO("Xsd coercion not yet implemented")
     }
+
+    override fun toString(): String = value.toString()
 }
 

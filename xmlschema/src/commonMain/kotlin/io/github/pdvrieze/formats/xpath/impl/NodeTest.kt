@@ -187,6 +187,18 @@ sealed class NodeTest {
         override fun appendToString(builder: Appendable) {
             builder.append("*")
         }
+
+        override fun eval(it: XdmValue): Boolean {
+            return when (it) {
+                is XdmNode -> when (it.node) {
+                    is Attr,
+                    is Element -> true
+
+                    else -> false
+                }
+                else -> false
+            }
+        }
     }
 
     context(c: OutputContext)

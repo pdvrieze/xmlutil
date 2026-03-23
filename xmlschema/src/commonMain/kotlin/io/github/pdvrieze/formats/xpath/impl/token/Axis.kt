@@ -28,6 +28,8 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
 import io.github.pdvrieze.formats.xpath.impl.NodeTest
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.attributes
 
 enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0): Token {
     @NeedsXPath1
@@ -63,7 +65,23 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
     @NeedsXPath1
     PRECEDING("preceding"),
     @NeedsXPath1
-    ATTRIBUTE("attribute"),
+    ATTRIBUTE("attribute"){
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun evalNode(context: XdmNode, test: NodeTest): XdmValue {
+            return when (val node= context.node) {
+                is Element -> {
+                    val newAttrs = node.attributes.asSequence()
+                        .map{ XdmNode(it) }
+                        .filter { test.eval(it) }
+                        .toList()
+                    XdmSequence(newAttrs)
+                }
+
+                else -> XdmSequence.EMPTY
+            }
+        }
+    },
     @NeedsXPath1
     NAMESPACE("namespace"),
     @NeedsXPath1
@@ -91,7 +109,15 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
     context(ctx: ExprEvalContext)
     fun eval(context: XdmValue, test: NodeTest): XdmValue {
         return when (context) {
-            is XdmSequence<*> -> context.flatMap { i -> eval(i, test) }
+            is XdmSequence<*> -> {
+                val newNodes: List<XdmValue> = context.flatMapTo(LinkedHashSet()) {
+                    when (val v = eval(it, test)) {
+                        is XdmSequence<*> -> v
+                        else -> listOf(v)
+                    }
+                }.toList()
+                XdmSequence(newNodes)
+            }
             is XdmNode -> evalNode(context, test)
             else -> TODO("Evaluation of axis $literal is not yet implemented")
         }
@@ -100,6 +126,7 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
     @XPathInternal
     context(ctx: ExprEvalContext)
     open fun evalNode(context: XdmNode, test: NodeTest): XdmValue {
+//        TODO("Evaluation of axis $literal is not yet implemented")
         return if (test.eval(context)) context else XdmSequence.EMPTY
     }
 

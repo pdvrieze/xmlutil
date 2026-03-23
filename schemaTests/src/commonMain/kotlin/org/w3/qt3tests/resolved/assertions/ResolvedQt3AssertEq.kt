@@ -27,8 +27,10 @@ class ResolvedQt3AssertEq(val xPathExpression: XPathExpression): ResolvedQt3Asse
     override fun verify(evalResult: XdmValue): AssertionResult {
         val expected = xPathExpression.eval(evalResult)
 
-        if (evalResult.isValEqual(expected)) return AssertionResult.Success
-        else return AssertionResult.Failure("Values are not equal")
+        return when {
+            evalResult.isValEqual(expected) -> AssertionResult.Success
+            else -> AssertionResult.Failure("Values are not equal: $evalResult != $expected")
+        }
 
     }
 
