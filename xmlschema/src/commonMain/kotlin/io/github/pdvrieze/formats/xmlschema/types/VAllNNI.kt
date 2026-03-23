@@ -213,8 +213,8 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 }
 
 operator fun XsdNonNegativeInteger.compareTo(other: VAllNNI): Int = when (other) {
-    !is VAllNNI.Value -> 1 // not value, so unbounded
-    else -> compareTo(other.value)
+    is VAllNNI.UNBOUNDED -> -1  // not value, so unbounded
+    is VAllNNI.Value -> compareTo(other.value)
 }
 
 operator fun XsdNonNegativeInteger.rangeTo(other: VAllNNI): AllNNIRange = AllNNIRange(this, other)

@@ -52,7 +52,7 @@ class TestProdAxisStep {
     }
 
     @IgnorableReturnValue
-    @ParameterizedTest()
+    @ParameterizedTest
     @MethodSource("getTestCases")
     fun testEvalTestCase(testCase: ResolvedQt3TestCase): XdmValue {
         val environment = testCase.environment?.getOrThrow()
