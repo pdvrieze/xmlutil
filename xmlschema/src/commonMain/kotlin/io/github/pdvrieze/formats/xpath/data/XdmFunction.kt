@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 sealed class XdmFunction : XdmValue() {
-    override val type: XdmType
+    override val type: XdmSequenceType.Function
         get() = TODO("There is no function type type yet")
 
     @OptIn(XPathInternal::class)

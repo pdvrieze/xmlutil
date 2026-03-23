@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 @OptIn(XPathInternal::class)
 @NeedsXPath1
@@ -36,6 +37,16 @@ internal class LocationPath(
         false,
         listOf(FilterExpr(single))
     )
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        withExprContext {
+            return steps.fold(ctx.contextItem) { c, step ->
+                step.eval(c)
+            }
+        }
+    }
 
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

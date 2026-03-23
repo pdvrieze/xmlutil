@@ -21,7 +21,15 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 class ResolvedQt3AssertEq(val xPathExpression: XPathExpression): ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        val expected = xPathExpression.eval(evalResult)
+
+        if (evalResult.isValEqual(expected)) return AssertionResult.Success
+        else return AssertionResult.Failure("Values are not equal")
+
+    }
 
 }

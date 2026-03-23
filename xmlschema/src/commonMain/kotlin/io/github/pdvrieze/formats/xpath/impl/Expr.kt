@@ -22,6 +22,9 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.data.XdmValue
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 interface PrintableExpr {
     @XPathInternal
@@ -38,6 +41,15 @@ sealed interface Expr: PrintableExpr {
     context(ctx: EvalContext)
     fun eval(): XdmValue = TODO("Evaluation of ${this::class.simpleName} is not yet supported")
 
+}
+
+@OptIn(XPathInternal::class, ExperimentalContracts::class)
+context(ctx: EvalContext)
+inline fun <T: Expr, R> T.withExprContext(block: context(ExprEvalContext)(T)-> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return ctx.withExprContext(this) { block(this) }
 }
 
 @NeedsXPath1

@@ -24,12 +24,32 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
-import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Node
 
 @XPathInternal
 @OptIn(NeedsXPath2::class)
-class XdmNode constructor(val node: PlatformNode, override val type: XdmType = XdmSequenceType.Schema(UntypedType.Instance)) : XdmValue() {
+class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequenceType.Schema(UntypedType.Instance)) : XdmValue() {
     override fun get(index: Int): XdmNode = this
+
+    fun descendantsSequence(): Sequence<XdmNode> {
+        return sequence {
+            for (c in node.getChildNodes()) {
+                val value = XdmNode(c)
+                yield(value)
+                yieldAll(value.descendantsSequence())
+            }
+        }
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun withType(type: XdmType): XdmValue {
+        // TODO do some checks
+        return XdmNode(node, type)
+    }
+
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return expected is XdmNode && node == expected.node
+    }
 
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmValue {

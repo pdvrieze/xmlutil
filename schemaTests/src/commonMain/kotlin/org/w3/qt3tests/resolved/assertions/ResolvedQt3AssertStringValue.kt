@@ -20,4 +20,10 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion()
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
+class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        TODO("not implemented")
+    }
+}

@@ -20,6 +20,7 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
 class ResolvedQt3SerializationMatches(
@@ -27,5 +28,8 @@ class ResolvedQt3SerializationMatches(
     val file: XsdAnyURI?,
     val flags: String?
 ) : ResolvedQt3Assertion(){
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        TODO("not implemented")
+    }
 
 }

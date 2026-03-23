@@ -29,12 +29,12 @@ class ResolvedQt3TestCase(
     val description: Qt3Description? = null,
     val created: Qt3Created? = null,
     val modified: List<Qt3Modified> = emptyList(),
-    val environment: Qt3Environment? = null,
+    val environment: Result<ResolvedQt3Environment>? = null,
     val modules: List<Qt3Module> = emptyList(),
     val dependencies: List<Qt3Dependency> = emptyList(),
-    val test: ResolvedQt3Test? = null,
+    val test: ResolvedQt3Test/*? = null*/,
     val result: ResolvedQt3Result? = null,
-    val name: String? = null,
+    val name: String,
     val covers: List<XsdToken>? = emptyList(),
     val covers30: List<XsdNCName>? = emptyList(),
 ) {
@@ -55,7 +55,7 @@ class ResolvedQt3TestCase(
 
             // XPST0003 is a parser error. We should be able to handle those (only)
             else if (errorAssertions.any { it.code?.startsWith("XPST0003") == true }) -> {
-                val expr = test!!.expr
+                val expr = test.expr
                 if (expr.isSuccess) {
                     val e = expr.getOrThrow()
                     if (e is XPathExpression) {

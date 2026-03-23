@@ -40,6 +40,7 @@ import org.w3.qt3tests.Qt3Catalog
 import org.w3.qt3tests.Qt3TestSet
 import org.w3.qt3tests.Qt3TestSetReference
 import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3TestSet
 import kotlin.test.Test
 
 class TestParseCatalog {
@@ -67,7 +68,7 @@ class TestParseCatalog {
         get() = "${line}:${col}"
 
     @Test
-    fun testParseFnApply() {
+    fun testParseFnApplyFile() {
         val xml = XML.v1{}
         val testSet = KtXmlReader(javaClass.getResourceAsStream("/xpath/fn/apply.xml")!!).use { reader ->
             assertEquals("1:1", reader.pos)
@@ -186,26 +187,6 @@ class TestParseCatalog {
         }
     }
 
-/*
-    @DisplayName("Test set")
-    @TestFactory
-    fun createTestSetTests(): List<DynamicTest> {
-        val ctx = createResolutionContext("/xpath/")
-        context(ctx) {
-            val catalog = parseCatalogCommon()
-
-            return catalog.testSets.map {
-                val uri = File(ctx.base).toURI().resolve(URI.create(it.file.toString()))
-                    .resolve("#default")
-
-                DynamicTest.dynamicTest(it.name, uri) {
-                    val _ = it.resolve()
-                }
-            }
-        }
-    }
-*/
-
     class TestSetSpec(val resolutionContext: ResolutionContext, val testSet: Qt3TestSetReference)
 
     companion object {
@@ -213,6 +194,12 @@ class TestParseCatalog {
             return getTestSetSpecs().first {
                 it.name == name
             }.payload
+        }
+
+        fun parseTestSetImpl(spec: TestSetSpec): ResolvedQt3TestSet {
+            return context(spec.resolutionContext) {
+                spec.testSet.resolve()
+            }
         }
 
         @JvmStatic

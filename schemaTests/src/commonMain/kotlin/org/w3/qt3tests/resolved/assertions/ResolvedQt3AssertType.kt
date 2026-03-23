@@ -20,6 +20,11 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
 class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        TODO("not implemented. We don't properly parse types")
+    }
 
 }

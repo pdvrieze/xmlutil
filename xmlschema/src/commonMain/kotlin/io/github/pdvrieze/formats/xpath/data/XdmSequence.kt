@@ -36,6 +36,25 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
     }
 
     context(ctx: ExprEvalContext)
+    override fun withType(type: XdmType): XdmValue {
+        TODO("not implemented")
+    }
+
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return expected is XdmSequence<*> && elements == expected.elements
+    }
+
+    fun flatMap(transform: (T) -> XdmValue): XdmSequence<XdmValue> {
+        val newElems = elements.flatMap {
+            when (val e = transform(it)) {
+                is XdmSequence<*> -> e.elements
+                else -> listOf(e)
+            }
+        }
+        return XdmSequence(newElems)
+    }
+
+    context(ctx: ExprEvalContext)
     override fun atomize(): XdmValue {
         val newElements = elements.flatMap {
             when (val e = it.atomize()) {

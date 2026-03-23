@@ -21,7 +21,20 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
+@OptIn(XPathInternal::class)
 class ResolvedQt3Assert(val assertion: XPathExpression) : ResolvedQt3Assertion() {
-
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        val assertResult = context(ExprEvalContext.DUMMY) {
+            BuiltinFunction.FN.BOOLEAN.eval(assertion.eval(evalResult))
+        }
+        return when (assertResult.value.value) {
+            true -> AssertionResult.Success
+            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed")
+        }
+    }
 }

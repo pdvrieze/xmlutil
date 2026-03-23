@@ -21,10 +21,11 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 
 @XPathInternal
-internal open class AxisStep(
+open class AxisStep(
     val axis: Axis,
     val test: NodeTest,
     val predicates: List<Expr>
@@ -32,6 +33,13 @@ internal open class AxisStep(
     constructor(test: NodeTest) : this(Axis.CHILD, test, emptyList())
 
     constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
+
+    context(ctx: ExprEvalContext)
+    override fun eval(context: XdmValue): XdmValue {
+        val base = axis.eval(context, test)
+        if (predicates.isEmpty()) return base
+        TODO("Handling predicates is not yet implemented")
+    }
 
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

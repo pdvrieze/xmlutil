@@ -20,13 +20,21 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
 @XPathInternal
 class TreatAsExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceType) : AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        val origValue = expr.eval()
+        return withExprContext { origValue.withType(sequenceType.eval()) }
+    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)
-        builder.append(" instance of ")
+        builder.append(" treat as ")
         sequenceType.appendToString(builder)
     }
 

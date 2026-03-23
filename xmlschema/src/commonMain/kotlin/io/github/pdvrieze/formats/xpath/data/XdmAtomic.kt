@@ -38,5 +38,14 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
 
     override val type: XdmType
         get() = XdmSequenceType.Schema(value.schemaType, SequenceType.OccurrenceType.SINGLE)
+
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return expected is XdmAtomic<*> && value == expected.value
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun withType(type: XdmType): XdmValue {
+        TODO("Xsd coercion not yet implemented")
+    }
 }
 

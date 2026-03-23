@@ -20,9 +20,19 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmError
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
 class ResolvedQt3AssertError(val code: String?): ResolvedQt3Assertion() {
     override fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {
         accumulator.add(this)
     }
 
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        return when {
+            evalResult !is XdmError -> AssertionResult.Failure("Expected error, got ${evalResult.type}: '$evalResult'")
+            evalResult.errorCode.code == code -> AssertionResult.Success
+            else -> AssertionResult.Failure("Expected error code $code, got ${evalResult.errorCode.code}")
+        }
+    }
 }

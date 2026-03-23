@@ -24,21 +24,35 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @OptIn(XPathInternal::class)
-sealed class XdmValue {
-    open val size: Int get() = 1
-    abstract operator fun get(index: Int): XdmValue
+class XdmError(
+    val errorCode: EvaluationException.ErrorCodes,
+    val message: String = errorCode.message,
+    val cause: Throwable? = null
+) : XdmValue() {
+
+    constructor(errorCode: String, message: String) : this(EvaluationException.ErrorCodes.entries.first { it.code == errorCode }, message)
+
+    constructor(errorCode: String) : this(EvaluationException.ErrorCodes.entries.first { it.code == errorCode })
+
+    override fun get(index: Int): XdmValue {
+        if (index != 0) throw IndexOutOfBoundsException()
+        return this
+    }
 
     context(ctx: ExprEvalContext)
-    abstract fun atomize(): XdmValue
+    override fun atomize(): XdmError {
+        return this
+    }
 
     context(ctx: ExprEvalContext)
-    abstract fun withType(type: XdmType): XdmValue
+    override fun withType(type: XdmType): XdmValue {
+        if (type !is XdmSequenceType.Error) throw IllegalArgumentException("Cannot cast to $type")
+        return this
+    }
 
-    /**
-     * Implement the VAL_EQ operator
-     */
-    abstract fun isValEqual(expected: XdmValue): Boolean
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return expected is XdmError && errorCode == expected.errorCode
+    }
 
-    abstract val type: XdmType
+    override val type: XdmType = XdmSequenceType.Error()
 }
-

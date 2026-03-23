@@ -24,19 +24,19 @@ import io.github.pdvrieze.formats.xpath.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
 import io.github.pdvrieze.formats.xpath.data.XdmType
 import io.github.pdvrieze.formats.xpath.data.XdmValue
-import io.github.pdvrieze.formats.xpath.impl.EvalContext
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @XPathInternal
-object OP_BOOLEAN_EQUAL: BuiltinFunction {
+object OP_BOOLEAN_EQUAL: BuiltinFunction<XdmAtomic<XsdBoolean>> {
     override val argumentTypes: List<XdmType> = listOf(XdmSequenceType.boolean, XdmSequenceType.boolean)
     override val returnType: XdmType = XdmSequenceType.boolean
 
-    context(ctx: EvalContext)
+    context(ctx: ExprEvalContext)
     override fun eval(args: List<XdmValue>): XdmAtomic<XsdBoolean> {
-        val left = ((args[0] as XdmAtomic<*>).value as XsdBoolean).value
-        val right = ((args[1] as XdmAtomic<*>).value as XsdBoolean).value
+        val left = args.atomicArgN<XsdBoolean>(0).value
+        val right = args.atomicArgN<XsdBoolean>(1).value
 
         return XdmAtomic(XsdBoolean(left == right))
     }

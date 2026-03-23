@@ -20,9 +20,20 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
 class ResolvedQt3AllOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3Assertion() {
     override fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {
         for (a in assertions) a.expectedErrors(accumulator)
+    }
+
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        val failures = assertions
+            .mapNotNull { it.verify(evalResult) as? AssertionResult.Failure }
+        return when {
+            failures.isNotEmpty() -> AssertionResult.Failure(failures.joinToString { it.error })
+            else -> AssertionResult.Success
+        }
     }
 }
 

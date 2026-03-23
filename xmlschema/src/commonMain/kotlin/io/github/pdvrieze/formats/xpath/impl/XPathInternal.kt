@@ -24,4 +24,4 @@ package io.github.pdvrieze.formats.xpath.impl
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FIELD, AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CONSTRUCTOR)
-internal annotation class XPathInternal()
+annotation class XPathInternal()

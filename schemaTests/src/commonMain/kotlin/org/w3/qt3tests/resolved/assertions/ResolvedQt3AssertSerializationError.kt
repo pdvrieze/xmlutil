@@ -20,6 +20,10 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-class ResolvedQt3AssertSerializationError(val assertion: String, val code: String?): ResolvedQt3Assertion() {
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
+class ResolvedQt3AssertSerializationError(val assertion: String, val code: String?): ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        TODO("not implemented")
+    }
 }

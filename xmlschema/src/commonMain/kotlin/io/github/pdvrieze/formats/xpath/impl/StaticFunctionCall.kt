@@ -59,7 +59,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
         }
         val evalArgs = args.map { (it as ExprSingle).eval() }
 
-        return function.eval(evalArgs)
+        return withExprContext { function.eval(evalArgs) }
     }
 
     override fun collectUnsupportedExprs(

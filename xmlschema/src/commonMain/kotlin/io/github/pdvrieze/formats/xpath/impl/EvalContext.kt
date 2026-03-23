@@ -20,11 +20,15 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.data.XdmNode
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.xmlStreaming
@@ -52,4 +56,17 @@ open class EvalContext(val contextItem: XdmValue) {
 }
 
 @XPathInternal
-class ExprEvalContext(contextItem: XdmValue, val expr: Expr) : EvalContext(contextItem)
+class ExprEvalContext(contextItem: XdmValue, val expr: Expr) : EvalContext(contextItem) {
+    companion object {
+        val DUMMY = ExprEvalContext(XdmSequence.EMPTY, ContextItemExpr)
+    }
+}
+
+@XPathInternal
+context(ctx: ExprEvalContext)
+val nodeContext: Node?
+    get() {
+        val item = ctx.contextItem
+        val i = (item as? XdmNode) ?: throw EvaluationException(ctx.expr, "Item has incorrect type")
+        return i.node
+    }

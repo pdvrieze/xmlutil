@@ -21,11 +21,33 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmNode
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
+import io.github.pdvrieze.formats.xpath.impl.NodeTest
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0): Token {
     @NeedsXPath1
-    CHILD("child"),
+    CHILD("child") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalNode(
+            context: XdmNode,
+            test: NodeTest
+        ): XdmValue {
+            val xmlNode= context.node
+            val children= xmlNode.getChildNodes().asSequence()
+            val result= children
+                .map { XdmNode(it) }
+                .filter { test.eval(it) }
+                .toList()
+
+            return XdmSequence(result)
+        }
+    },
     @NeedsXPath1
     DESCENDANT("descendant"),
     @NeedsXPath1
@@ -47,10 +69,39 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
     @NeedsXPath1
     SELF("self"),
     @NeedsXPath1
-    DESCENDANT_OR_SELF("descendant-or-self"),
+    DESCENDANT_OR_SELF("descendant-or-self") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalNode(
+            context: XdmNode,
+            test: NodeTest
+        ): XdmValue {
+            val result= mutableListOf<XdmValue>()
+            for (desc in sequenceOf(context) + context.descendantsSequence()) {
+                if (test.eval(desc)) result.add(desc)
+            }
+            return XdmSequence(result)
+        }
+    },
     @NeedsXPath1
     ANCESTOR_OR_SELF("ancestor-or-self"),
     ;
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun eval(context: XdmValue, test: NodeTest): XdmValue {
+        return when (context) {
+            is XdmSequence<*> -> context.flatMap { i -> eval(i, test) }
+            is XdmNode -> evalNode(context, test)
+            else -> TODO("Evaluation of axis $literal is not yet implemented")
+        }
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    open fun evalNode(context: XdmNode, test: NodeTest): XdmValue {
+        return if (test.eval(context)) context else XdmSequence.EMPTY
+    }
 
     final override val isDelimiting: Boolean
         get() = false

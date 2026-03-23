@@ -21,10 +21,23 @@
 package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
-class XdmBuiltinFunction(private val function: BuiltinFunction): XdmFunction() {
+class XdmBuiltinFunction(private val function: BuiltinFunction<*>): XdmFunction() {
+    override val type: XdmSequenceType.Function =
+        XdmSequenceType.Function(function.argumentTypes, function.returnType)
+
+    context(ctx: ExprEvalContext)
+    override fun withType(type: XdmType): XdmValue {
+        TODO("Function casting not yet implemented")
+    }
+
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return expected is XdmBuiltinFunction && expected.function == function
+    }
+
     override fun get(index: Int): XdmBuiltinFunction = this
 }
 

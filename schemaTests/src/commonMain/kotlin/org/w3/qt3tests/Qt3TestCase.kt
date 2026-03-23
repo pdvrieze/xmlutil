@@ -46,9 +46,9 @@ class Qt3TestCase(
     val environment: Qt3Environment? = null,
     val modules: List<Qt3Module> = emptyList(),
     val dependencies: List<Qt3Dependency> = emptyList(),
-    val test: Qt3Test? = null,
+    val test: Qt3Test,
     val result: Qt3Result? = null,
-    override val name: String? = null,
+    override val name: String,
     @XmlElement(false)
     override val covers: List<XsdToken>? = emptyList(),
     @XmlElement(false)
@@ -74,15 +74,18 @@ class Qt3TestCase(
 
 
         val newCtx = AssertionResolutionContextImpl(ctx, env, specDeps)
+
         context(newCtx) {
+            val resulvedEnvironment = environment?.let { runCatching { it.resolve() } }
+
             val resolvedTestCase = ResolvedQt3TestCase(
                 description,
                 created,
                 modified,
-                environment,
+                resulvedEnvironment,
                 modules,
                 dependencies,
-                test?.resolve(),
+                test.resolve(),
                 result?.resolve(),
                 name,
                 covers,

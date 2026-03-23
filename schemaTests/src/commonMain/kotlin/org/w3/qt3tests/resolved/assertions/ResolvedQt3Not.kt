@@ -20,6 +20,14 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-class ResolvedQt3Not(val assertion: ResolvedQt3Assertion): ResolvedQt3Assertion() {
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
+class ResolvedQt3Not(val assertion: ResolvedQt3Assertion): ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        val base = assertion.verify(evalResult)
+        return when (base) {
+            is AssertionResult.Success -> AssertionResult.Failure("Expected failure, got success")
+            is AssertionResult.Failure -> AssertionResult.Success
+        }
+    }
 }

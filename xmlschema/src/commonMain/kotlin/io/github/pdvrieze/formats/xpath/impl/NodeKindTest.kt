@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.formats.xpath.impl.token.QNameSpec
 import nl.adaptivity.xmlutil.QName
@@ -238,6 +239,8 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
 
     internal object AnyKind : NodeKindTest() {
         override val type: NodeType get() = NodeType.ANY_KIND
+
+        override fun eval(it: XdmValue): Boolean = true
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {

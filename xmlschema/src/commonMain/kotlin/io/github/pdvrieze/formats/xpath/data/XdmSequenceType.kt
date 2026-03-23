@@ -85,8 +85,8 @@ sealed class XdmSequenceType(val cardinality: OccurrenceType): XdmType() {
     }
 
     class Function(
-        val argTypes: List<XdmSequenceType>,
-        val returnType: XdmSequenceType,
+        val argTypes: List<XdmType>,
+        val returnType: XdmType,
         cardinality: OccurrenceType = OccurrenceType.SINGLE
     ) : XdmSequenceType(cardinality) {
         context(ctxt: ExprEvalContext)
@@ -146,6 +146,8 @@ sealed class XdmSequenceType(val cardinality: OccurrenceType): XdmType() {
     companion object {
         val ANY: ItemType = ItemType(ItemTypeTest.ItemTestTest, OccurrenceType.ANY)
         internal val boolean = Schema(BooleanType.Instance)
+        internal val integer = Schema(IntegerType.Instance)
+        internal val node = ItemType(ItemTypeTest.ItemTestTest)
 
         operator fun invoke(type: AnyType, cardinality: OccurrenceType = OccurrenceType.SINGLE): XdmSequenceType =
             Schema(type, cardinality)

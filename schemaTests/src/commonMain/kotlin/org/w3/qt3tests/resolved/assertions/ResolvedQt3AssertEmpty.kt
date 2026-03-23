@@ -20,6 +20,14 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
 class ResolvedQt3AssertEmpty : ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        return when {
+            evalResult.size != 0 -> AssertionResult.Failure("expected empty, got ${evalResult.size} items")
+            else -> AssertionResult.Success
+        }
+    }
 
 }

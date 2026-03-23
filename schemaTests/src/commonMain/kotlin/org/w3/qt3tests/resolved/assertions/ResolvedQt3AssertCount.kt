@@ -20,4 +20,13 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-class ResolvedQt3AssertCount(val count: Int): ResolvedQt3Assertion()
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
+class ResolvedQt3AssertCount(val count: Int): ResolvedQt3Assertion() {
+    override fun verify(evalResult: XdmValue): AssertionResult {
+        return when {
+            evalResult.size == count -> AssertionResult.Success
+            else -> AssertionResult.Failure("expected $count items, got ${evalResult.size}")
+        }
+    }
+}

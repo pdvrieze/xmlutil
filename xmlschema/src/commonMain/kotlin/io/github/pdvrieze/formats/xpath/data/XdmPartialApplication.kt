@@ -20,6 +20,29 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+
+@OptIn(XPathInternal::class)
 class XdmPartialApplication(val function: XdmFunction, val args: List<XdmValue?>) : XdmFunction() {
+    override val type: XdmSequenceType.Function
+
+    init {
+        val newArgTypes = args.indices.mapNotNull { idx ->
+            if (args[idx] == null) function.type.argTypes[idx] else null
+        }
+
+        type = XdmSequenceType.Function(newArgTypes, function.type.returnType)
+    }
+
     override fun get(index: Int): XdmPartialApplication = this
+
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return this == expected
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun withType(type: XdmType): XdmFunction {
+        TODO("not implemented")
+    }
 }

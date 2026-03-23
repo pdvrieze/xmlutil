@@ -21,10 +21,17 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 @OptIn(XPathInternal::class)
 @NeedsXPath1
 internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
+    context(ctx: ExprEvalContext)
+    override fun eval(context: XdmValue): XdmValue {
+        val base = primaryExpr.eval()
+        if (predicates.isEmpty()) return base
+        TODO("Handling predicates is not yet implemented")
+    }
 
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,

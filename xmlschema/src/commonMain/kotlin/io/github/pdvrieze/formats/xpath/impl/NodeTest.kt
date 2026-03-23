@@ -20,9 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmNode
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.localName
+import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 
 @XPathInternal
 @NeedsXPath1
@@ -102,6 +110,15 @@ sealed class NodeTest {
     }
 
     class QNameTest(val qName: QName) : NameTest() {
+        override fun eval(it: XdmValue): Boolean {
+            if (it !is XdmNode) return false
+            return when (val n = it.node) {
+                is Attr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
+                is Element -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
+                else -> false
+            }
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.appendQName(qName)
@@ -179,6 +196,10 @@ sealed class NodeTest {
         context(OutputContext.EMPTY) {
             appendToString(this)
         }
+    }
+
+    open fun eval(it: XdmValue): Boolean {
+        TODO("not implemented for ${this::class.simpleName}")
     }
 
     companion object {

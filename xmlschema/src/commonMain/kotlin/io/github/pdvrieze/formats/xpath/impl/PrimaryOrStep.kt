@@ -21,9 +21,10 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 @XPathInternal
-internal sealed class PrimaryOrStep {
+sealed class PrimaryOrStep {
 
     abstract fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
@@ -50,5 +51,8 @@ internal sealed class PrimaryOrStep {
     override fun hashCode(): Int {
         return this::class.hashCode()
     }
+
+    context(ctx: ExprEvalContext)
+    abstract fun eval(context: XdmValue): XdmValue
 
 }

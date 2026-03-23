@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import nl.adaptivity.xmlutil.QName
-
 @XPathInternal
 interface ItemTypeTest {
 
@@ -46,6 +44,7 @@ interface ItemTypeTest {
     fun isSubtypeOf(baseType: ItemTypeTest): Boolean
 
     companion object {
-        val documentNode: ItemTypeTest = AtomicOrUnionTypeTest(QName("document-node"))
+        @OptIn(NeedsXPath2::class)
+        val documentNode: ItemTypeTest = NodeKindTest.Document()
     }
 }
