@@ -49,11 +49,11 @@ enum class Operator(
         @OptIn(NeedsXPath3_1::class)
         override val longer: List<Operator> get() = listOf(ARROW)
 
-        context(ctx: EvalContext)
+        context(ctx: ExprEvalContext)
         @XPathInternal
         override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
             when {
-                left.type.isA(BooleanType.Instance) -> {
+                left.type.isSubtypeOf(BooleanType.Instance) -> {
                     return OP_BOOLEAN_EQUAL.eval(listOf(left, right))
                 }
                 else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
@@ -62,7 +62,7 @@ enum class Operator(
     },
     @NeedsXPath1
     NEQ("!=", 5, XPathVersion.XPath1_0, true) {
-        context(ctx: EvalContext)
+        context(ctx: ExprEvalContext)
         @XPathInternal
         override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
             val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
@@ -85,7 +85,20 @@ enum class Operator(
     @NeedsXPath1
     GE(">=", 5, XPathVersion.XPath1_0, true),
     @NeedsXPath2
-    VAL_EQ("eq", 5, XPathVersion.XPath2_0, false),
+    VAL_EQ("eq", 5, XPathVersion.XPath2_0, false) {
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+            when {
+                left.type.isSubtypeOf(BooleanType.Instance) -> {
+                    return OP_BOOLEAN_EQUAL.eval(listOf(left, right))
+                }
+                else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
+            }
+        }
+
+    },
     @NeedsXPath2
     VAL_NEQ("ne", 5, XPathVersion.XPath2_0, false),
     @NeedsXPath2
@@ -158,17 +171,17 @@ enum class Operator(
 
     open val longer: List<Operator> get() = emptyList()
 
-    context(ctx: EvalContext)
+    context(ctx: ExprEvalContext)
     @XPathInternal
     open fun eval(left: XdmValue, right: XdmValue): XdmValue =
         TODO("Evaluation of operator $name not yet implemented")
 
-    context(ctx: EvalContext)
+    context(ctx: ExprEvalContext)
     @XPathInternal
     fun eval(param: XdmValue): XdmValue = eval(listOf(param))
 
     @XPathInternal
-    context(ctx: EvalContext)
+    context(ctx: ExprEvalContext)
     fun eval(params: List<XdmValue>): XdmValue =
         params.reduce { acc, param -> eval(acc, param) }
 

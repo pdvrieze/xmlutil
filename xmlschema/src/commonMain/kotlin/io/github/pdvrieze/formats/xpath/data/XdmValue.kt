@@ -20,10 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+
+@OptIn(XPathInternal::class)
 sealed class XdmValue {
     open val size: Int get() = 1
     abstract operator fun get(index: Int): XdmValue
 
-    abstract val type: XdmSequenceType
+    context(ctx: ExprEvalContext)
+    abstract fun atomize(): XdmValue
+
+    abstract val type: XdmType
 }
 

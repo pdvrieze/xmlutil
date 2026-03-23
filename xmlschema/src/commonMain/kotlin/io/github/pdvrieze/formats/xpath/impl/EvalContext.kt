@@ -21,12 +21,35 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.types.builtinType
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.xmlStreaming
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @XPathInternal
-class EvalContext(val contextItem: XdmValue) {
+open class EvalContext(val contextItem: XdmValue) {
+    fun resolveType(name: QName): AnyType? {
+        return builtinType(name.localPart, name.namespaceURI)
+    }
+
     val outputDocument: Document by lazy {
         xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
+
+    @OptIn(ExperimentalContracts::class)
+    inline fun <R> withExprContext(expr: Expr, block: context(ExprEvalContext) ()-> R): R {
+        contract {
+            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+        }
+        return block(ExprEvalContext(contextItem, expr))
+    }
 }
+
+@XPathInternal
+class ExprEvalContext(contextItem: XdmValue, val expr: Expr) : EvalContext(contextItem)

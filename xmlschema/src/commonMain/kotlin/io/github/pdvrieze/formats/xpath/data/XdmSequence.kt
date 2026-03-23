@@ -20,6 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+
+@OptIn(XPathInternal::class)
 class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList()) : XdmValue(), List<T> {
     override val size: Int get() = elements.size
 
@@ -27,10 +31,20 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
         return elements[index]
     }
 
-    override val type: XdmSequenceType by lazy {
+    override val type: XdmType by lazy {
         TODO("Not yet implemented")
     }
 
+    context(ctx: ExprEvalContext)
+    override fun atomize(): XdmValue {
+        val newElements = elements.flatMap {
+            when (val e = it.atomize()) {
+                is XdmSequence<*> -> e.elements
+                else -> listOf(e)
+            }
+        }
+        return XdmSequence(newElements)
+    }
 
     override fun contains(element: @UnsafeVariance T): Boolean = elements.contains(element)
 

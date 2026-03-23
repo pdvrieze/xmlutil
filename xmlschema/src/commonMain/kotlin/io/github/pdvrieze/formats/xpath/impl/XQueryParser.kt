@@ -160,16 +160,16 @@ internal class XQueryParser(
     }
 
     @OptIn(NeedsXPath2::class, NeedsXPath3_0::class)
-    private fun parseNodeTypeArgs(nodeType: NodeType): NodeTypeTest {
+    private fun parseNodeTypeArgs(nodeType: NodeType): NodeKindTest {
         parseRequireNotNull(tryCurrentToken('('), "Missing ( in node type test")
         val result = when (nodeType) {
             NodeType.DOCUMENT -> when (val nested = tryAnyOf(NodeType.ELEMENT, NodeType.SCHEMA_ELEMENT)) {
-                null -> NodeTypeTest.Document()
-                else -> NodeTypeTest.Document(parseNodeTypeArgs(nested))
+                null -> NodeKindTest.Document()
+                else -> NodeKindTest.Document(parseNodeTypeArgs(nested))
             }
 
             NodeType.ELEMENT -> when {
-                peekNextToken(')') -> NodeTypeTest.Element()
+                peekNextToken(')') -> NodeKindTest.Element()
 
                 else -> {
                     val name = when {
@@ -178,15 +178,15 @@ internal class XQueryParser(
                     }
                     if (tryCurrentToken(',')) {
                         val typeName = parseEQNameTokenDelim().toQName()
-                        NodeTypeTest.Element(name, typeName, tryCurrentToken('?'))
+                        NodeKindTest.Element(name, typeName, tryCurrentToken('?'))
                     } else {
-                        NodeTypeTest.Element(name)
+                        NodeKindTest.Element(name)
                     }
                 }
             }
 
             NodeType.ATTRIBUTE -> when {
-                peekNextToken(')') -> NodeTypeTest.Attribute()
+                peekNextToken(')') -> NodeKindTest.Attribute()
 
                 else -> {
                     val name = when {
@@ -195,27 +195,27 @@ internal class XQueryParser(
                     }
                     if (tryCurrentToken(',')) {
                         val typeName = parseEQNameTokenDelim().toQName()
-                        NodeTypeTest.Attribute(name, typeName, tryCurrentToken('?'))
+                        NodeKindTest.Attribute(name, typeName, tryCurrentToken('?'))
                     } else {
-                        NodeTypeTest.Attribute(name)
+                        NodeKindTest.Attribute(name)
                     }
                 }
             }
 
-            NodeType.SCHEMA_ELEMENT -> NodeTypeTest.SchemaElement(parseEQNameTokenDelim().toQName())
+            NodeType.SCHEMA_ELEMENT -> NodeKindTest.SchemaElement(parseEQNameTokenDelim().toQName())
 
-            NodeType.SCHEMA_ATTRIBUTE -> NodeTypeTest.SchemaAttribute(parseEQNameTokenDelim().toQName())
+            NodeType.SCHEMA_ATTRIBUTE -> NodeKindTest.SchemaAttribute(parseEQNameTokenDelim().toQName())
 
-            NodeType.COMMENT -> NodeTypeTest.Comment
-            NodeType.TEXT -> NodeTypeTest.Text
-            NodeType.ANY_KIND -> NodeTypeTest.AnyKind
-            NodeType.NAMESPACE_NODE -> NodeTypeTest.NamepaceNode
+            NodeType.COMMENT -> NodeKindTest.Comment
+            NodeType.TEXT -> NodeKindTest.Text
+            NodeType.ANY_KIND -> NodeKindTest.AnyKind
+            NodeType.NAMESPACE_NODE -> NodeKindTest.NamepaceNode
 
             NodeType.PROCESSING_INSTRUCTION -> {
                 when (peekNextChar()) {
-                    ')' -> NodeTypeTest.ProcInstr()
-                    '\'', '"' -> NodeTypeTest.ProcInstr(parseStringLiteral().value)
-                    else -> NodeTypeTest.ProcInstr(parseEQNameTokenDelim().toQName())
+                    ')' -> NodeKindTest.ProcInstr()
+                    '\'', '"' -> NodeKindTest.ProcInstr(parseStringLiteral().value)
+                    else -> NodeKindTest.ProcInstr(parseEQNameTokenDelim().toQName())
                 }
             }
         }
@@ -593,7 +593,7 @@ internal class XQueryParser(
         while (tryCurrentToken('/')) {
             when {
                 tryCurrentToken("/") -> steps.apply {
-                    add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeTypeTest.AnyKind))
+                    add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeKindTest.AnyKind))
                     add(parseRequireNotNull(parseStepExpr(), "Missing step after '//' in relative path expression"))
                 }
 

@@ -20,38 +20,23 @@
 
 package io.github.pdvrieze.formats.xpath.functions
 
-import io.github.pdvrieze.formats.xpath.data.XdmType
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.EvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @XPathInternal
-interface BuiltinFunction {
-    val argumentTypes: List<XdmType>
-    val returnType: XdmType
+object FN_DATA: BuiltinFunction {
+    override val argumentTypes: List<XdmSequenceType.ItemType> = listOf(XdmSequenceType.Companion.ANY)
+    override val returnType: XdmSequenceType.Schema =
+        XdmSequenceType.Schema(BooleanType.Instance, SequenceType.OccurrenceType.SINGLE)
 
     context(ctx: EvalContext)
-    fun eval(args: List<XdmValue>): XdmValue
-
-    companion object {
-        const val FN_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions"
-        const val MAP_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions/map"
-        const val ARRAY_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions/array"
-        const val MATH_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions/math"
-
-
-    }
-
-    object FN {
-        fun of(localName: String): BuiltinFunction? = when (localName) {
-            "false" -> FN_FALSE
-            "true" -> FN_TRUE
-            else -> null
-        }
-
-        val FALSE: FN_FALSE get() = FN_FALSE
-        val TRUE: FN_TRUE get() = FN_TRUE
-        val DATA: FN_DATA get() = FN_DATA
+    override fun eval(args: List<XdmValue>): XdmAtomic<XsdBoolean> {
+        return XdmAtomic(XsdBoolean.Companion.TRUE)
     }
 }
-

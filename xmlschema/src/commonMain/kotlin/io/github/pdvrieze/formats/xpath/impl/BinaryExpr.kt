@@ -29,7 +29,9 @@ internal class BinaryExpr(val operator: Operator, val left: ExprSingle, val righ
     context(ctx: EvalContext)
     @XPathInternal
     override fun eval(): XdmValue {
-        return operator.eval(left.eval(), right.eval())
+        val l = ctx.withExprContext(left) { left.eval() }
+        val r = ctx.withExprContext(right) { right.eval() }
+        return ctx.withExprContext(this) { operator.eval(l, r) }
     }
 
     context(c: OutputContext)

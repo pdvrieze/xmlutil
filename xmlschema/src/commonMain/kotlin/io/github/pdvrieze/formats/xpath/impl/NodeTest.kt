@@ -182,7 +182,7 @@ sealed class NodeTest {
     }
 
     companion object {
-        val node: NodeTypeTest = NodeTypeTest.AnyKind
+        val node: NodeKindTest = NodeKindTest.AnyKind
     }
 }
 

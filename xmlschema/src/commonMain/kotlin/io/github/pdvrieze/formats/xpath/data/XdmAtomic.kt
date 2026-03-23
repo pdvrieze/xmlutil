@@ -20,9 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
+@OptIn(XPathInternal::class)
 class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
     override val size: Int get() = 0
     override fun get(index: Int): XdmAtomic<T> = when {
@@ -30,7 +33,10 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
         else -> error("Index out of bounds")
     }
 
-    override val type: XdmSequenceType
-        get() = XdmSequenceType(value.schemaType, SequenceType.OccurrenceType.SINGLE)
+    context(ctx: ExprEvalContext)
+    override fun atomize(): XdmValue = this
+
+    override val type: XdmType
+        get() = XdmSequenceType.Schema(value.schemaType, SequenceType.OccurrenceType.SINGLE)
 }
 

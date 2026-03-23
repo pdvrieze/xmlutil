@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.functions
 
 import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
+import io.github.pdvrieze.formats.xpath.data.XdmSequenceType.Schema
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
@@ -31,8 +31,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @XPathInternal
 object FN_FALSE: BuiltinFunction {
-    override val argumentTypes: List<XdmSequenceType> = emptyList()
-    override val returnType: XdmSequenceType = XdmSequenceType(BooleanType.Instance, SequenceType.OccurrenceType.SINGLE)
+    override val argumentTypes: List<Nothing> = emptyList()
+    override val returnType: Schema = Schema(BooleanType.Instance, SequenceType.OccurrenceType.SINGLE)
 
     context(ctx: EvalContext)
     override fun eval(args: List<XdmValue>): XdmAtomic<XsdBoolean> {

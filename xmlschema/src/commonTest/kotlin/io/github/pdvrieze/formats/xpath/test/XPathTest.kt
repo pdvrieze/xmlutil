@@ -310,7 +310,7 @@ class XPathTest {
         testPath("text()") {
             assertPath {
                 assertFalse(path.rooted)
-                assertStep<NodeTypeTest> { assertEquals(NodeType.TEXT, it.type) }
+                assertStep<NodeKindTest> { assertEquals(NodeType.TEXT, it.type) }
             }
         }
     }

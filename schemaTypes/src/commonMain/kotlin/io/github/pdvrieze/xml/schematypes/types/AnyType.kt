@@ -24,13 +24,13 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnyType {
-    fun isA(expectedType: AnyType): Boolean {
+    fun derivesFrom(expectedBaseType: AnyType): Boolean {
         var t = this
         do {
-            if (t == expectedType) return true
+            if (t == expectedBaseType) return true
             t = t.baseType
         } while (t != Instance)
-        return expectedType == Instance
+        return expectedBaseType == Instance
     }
 
     val name: XsdQName?

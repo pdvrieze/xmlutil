@@ -22,4 +22,8 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 
-interface AnySimpleUnion<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T>
+interface AnySimpleUnion<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T> {
+    fun isPureUnion(): Boolean
+
+    val members: Collection<AnySimpleType<T>>
+}

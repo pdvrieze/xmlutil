@@ -26,6 +26,11 @@ import nl.adaptivity.xmlutil.QName
 interface ItemTypeTest {
 
     object ItemTestTest: ItemTypeTest {
+        context(ctx: ExprEvalContext)
+        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+            return baseType == this
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append(toString())
@@ -36,6 +41,9 @@ interface ItemTypeTest {
 
     context(c: OutputContext)
     fun appendToString(builder: Appendable)
+
+    context(ctx: ExprEvalContext)
+    fun isSubtypeOf(baseType: ItemTypeTest): Boolean
 
     companion object {
         val documentNode: ItemTypeTest = AtomicOrUnionTypeTest(QName("document-node"))

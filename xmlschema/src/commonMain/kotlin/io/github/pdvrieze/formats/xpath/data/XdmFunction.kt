@@ -20,8 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+
 sealed class XdmFunction : XdmValue() {
-    override val type: XdmSequenceType
+    override val type: XdmType
         get() = TODO("There is no function type type yet")
+
+    @OptIn(XPathInternal::class)
+    context(ctx: ExprEvalContext)
+    override fun atomize(): XdmValue {
+        throw EvaluationException(EvaluationException.ErrorCodes.FOTY0013, ctx.expr, "Cannot atomize a function")
+    }
 }
 

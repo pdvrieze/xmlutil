@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
@@ -27,7 +28,11 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @XPathInternal
 @OptIn(NeedsXPath2::class)
-class XdmNode constructor(val node: PlatformNode, override val type: XdmSequenceType = XdmSequenceType(UntypedType.Instance)) : XdmValue() {
+class XdmNode constructor(val node: PlatformNode, override val type: XdmType = XdmSequenceType.Schema(UntypedType.Instance)) : XdmValue() {
     override fun get(index: Int): XdmNode = this
 
+    context(ctx: ExprEvalContext)
+    override fun atomize(): XdmValue {
+        TODO("not implemented")
+    }
 }

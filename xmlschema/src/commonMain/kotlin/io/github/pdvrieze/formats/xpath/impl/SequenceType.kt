@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
+import io.github.pdvrieze.formats.xpath.data.XdmType
+
 
 @OptIn(XPathInternal::class)
 sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
@@ -27,12 +30,18 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
     context(c: OutputContext)
     abstract fun appendToString(builder: Appendable)
 
+    context(ctx: ExprEvalContext)
+    abstract fun eval(): XdmType
+
     @NeedsXPath2
     object EmptySequence : SequenceType() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("empty-sequence()")
         }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(): XdmType = XdmType.EmptySequence
     }
 
     class ItemTypeSequence @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType = OccurrenceType.SINGLE) : SequenceType() {
@@ -41,12 +50,21 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
             itemType.appendToString(builder)
             builder.append(occurrence.literal)
         }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(): XdmType {
+            when (itemType) {
+                is AtomicOrUnionTypeTest -> return XdmSequenceType.Schema(itemType.eval(), occurrence)
+            }
+
+            return XdmSequenceType.ItemType(itemType, occurrence)
+        }
     }
 
-    enum class OccurrenceType(val literal: String) {
-        SINGLE(""),
-        OPTIONAL("?"),
-        ANY("*"),
-        AT_LEAST_ONE("+")
+    enum class OccurrenceType(val literal: String, val allowsEmpty: Boolean) {
+        SINGLE("", false),
+        OPTIONAL("?", true),
+        ANY("*", true),
+        AT_LEAST_ONE("+", false);
     }
 }

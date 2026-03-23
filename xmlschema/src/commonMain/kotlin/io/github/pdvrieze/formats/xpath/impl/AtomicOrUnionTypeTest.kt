@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.toCName
@@ -39,4 +41,13 @@ class AtomicOrUnionTypeTest(val name: QName): ItemTypeTest {
     }
 
     override fun toString(): String = name.toCName()
+
+    context(ctx: ExprEvalContext)
+    fun eval(): AnyType = ctx.resolveType(name)
+        ?: throw EvaluationException(ctx.expr, "Could not resolve type ${name.toCName()}")
+
+    context(ctx: ExprEvalContext)
+    override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+        TODO("not implemented")
+    }
 }

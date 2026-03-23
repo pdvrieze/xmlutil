@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+@OptIn(NeedsXPath3_0::class)
 @XPathInternal
 sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
     @NeedsXPath3_0
@@ -27,6 +28,12 @@ sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("function(*)")
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+            if (baseType == NodeKindTest.AnyKind) return true
+            return baseType == ANY
         }
     }
 
@@ -39,6 +46,18 @@ sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
             }
             builder.append(") as ")
             returnType.appendToString(builder)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+            if (baseType == NodeKindTest.AnyKind || baseType == ANY) return true
+            if (baseType !is Typed) return false
+            if (baseType.paramTypes.size != paramTypes.size) return false
+            if (!returnType.eval().isSubtypeOf(baseType.returnType.eval())) return false
+            for (i in paramTypes.indices) {
+                if (!baseType.paramTypes[i].eval().isSubtypeOf(paramTypes[i].eval())) return false
+            }
+            return true
         }
     }
 }
