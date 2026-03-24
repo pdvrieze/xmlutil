@@ -24,7 +24,6 @@ import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.isIgnorable
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.writeCurrent
@@ -63,7 +62,7 @@ abstract class ResolutionContextImpl(
                 try {
                     while (xr.hasNext()) {
                         val _ = xr.next()
-                        if (!xr.isIgnorable()) xr.writeCurrent(out)
+                        xr.writeCurrent(out)
                     }
                 } catch (e: XmlSerialException) {
                     if (e.extLocationInfo == null) {
