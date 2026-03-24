@@ -21,32 +21,22 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmError
 import io.github.pdvrieze.formats.xpath.data.XdmValue
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @OptIn(XPathInternal::class)
 class ResolvedQt3AssertFalse: ResolvedQt3Assertion() {
-    override fun verify(evalResult: XdmValue): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         val assertResult = context(ExprEvalContext.DUMMY) {
-            try { BuiltinFunction.FN.BOOLEAN.eval(evalResult) } catch (e: EvaluationException) {
-                val errorCode = e.errorCode ?: throw e
-                XdmError(errorCode, e.message ?: errorCode.message, e)
+            try { evalResult.toBoolean() } catch (e: EvaluationException) {
+                return AssertionResult.Failure(e)
             }
         }
-        return when (assertResult) {
-            is XdmError -> AssertionResult.Failure(assertResult)
-            !is XdmAtomic<*> -> AssertionResult.Failure("Expected boolean, got ${evalResult.type}")
-            else -> when (val value = assertResult.value) {
-                !is XsdBoolean -> AssertionResult.Failure("Expected boolean, got ${evalResult.type}")
-                else if (!value.value) -> AssertionResult.Success
-                else -> AssertionResult.Failure("Expected false, got '${evalResult}' failed")
-            }
+        return when {
+            !assertResult -> AssertionResult.Success
+            else -> AssertionResult.Failure("Expected false, got '${evalResult}' failed")
         }
-
     }
 }

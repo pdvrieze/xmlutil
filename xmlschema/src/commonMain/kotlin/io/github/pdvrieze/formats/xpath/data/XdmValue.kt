@@ -39,6 +39,9 @@ sealed class XdmValue {
      */
     abstract fun isValEqual(expected: XdmValue): Boolean
 
+    context(ctx: ExprEvalContext)
+    abstract fun toBoolean(): Boolean
+
     abstract val type: XdmType
 }
 

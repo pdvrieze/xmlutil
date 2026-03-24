@@ -48,6 +48,10 @@ sealed class XdmType {
                 else -> return false
             }
         }
+
+        override fun toString(): String = "EmptySequence()"
+
+
     }
 }
 
@@ -82,6 +86,7 @@ sealed class XdmSequenceType(val cardinality: OccurrenceType): XdmType() {
             return itemType.isSubtypeOf(other.itemType)
         }
 
+        override fun toString(): String = "$itemType${cardinality.literal}"
     }
 
     class Function(
@@ -92,6 +97,10 @@ sealed class XdmSequenceType(val cardinality: OccurrenceType): XdmType() {
         context(ctxt: ExprEvalContext)
         override fun isSubtypeItemType(other: XdmSequenceType): Boolean {
             TODO("not implemented")
+        }
+
+        override fun toString(): String {
+            return "function(${argTypes.joinToString(", ") { it.toString() }}) as $returnType)"
         }
     }
 
@@ -124,6 +133,10 @@ sealed class XdmSequenceType(val cardinality: OccurrenceType): XdmType() {
                 else -> false
             }
         }
+
+        override fun toString(): String {
+            return schemaType.name.toString()
+        }
     }
 
     class Error(cardinality: OccurrenceType = OccurrenceType.SINGLE): XdmSequenceType(cardinality) {
@@ -141,6 +154,9 @@ sealed class XdmSequenceType(val cardinality: OccurrenceType): XdmType() {
             cardinality.allowsEmpty -> EmptySequence.isSubtypeOf(other)
             else -> true
         }
+
+        override fun toString(): String = "xs:error"
+
     }
 
     companion object {

@@ -57,6 +57,11 @@ class TestProdAxisStep {
     }
 
     @Test
+    fun testAxes003_4() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes003-4"))
+    }
+
+    @Test
     fun testAxes008_3() {
         val evalValue = testEvalTestCaseImpl(getTestCase("Axes008-3"))
     }
@@ -68,7 +73,7 @@ class TestProdAxisStep {
     }
 
     @IgnorableReturnValue
-    private fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): XdmValue {
+    private fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue> {
         val environment = testCase.environment?.getOrThrow()
         val contextDoc: Document? = environment?.run {
             val s = sources.filter { it.role == "." }
@@ -82,7 +87,7 @@ class TestProdAxisStep {
         val context = contextDoc?.let { XdmNode(it.documentElement!!) } ?: XdmSequence.EMPTY
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
-        val evalResult = testExpression.eval(context)
+        val evalResult = runCatching { testExpression.eval(context) }
 
         if (testCase.result != null) {
             for (a in testCase.result.assertions) {

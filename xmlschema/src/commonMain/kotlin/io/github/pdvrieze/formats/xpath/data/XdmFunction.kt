@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
+@OptIn(XPathInternal::class)
 sealed class XdmFunction : XdmValue() {
     override val type: XdmSequenceType.Function
         get() = TODO("There is no function type type yet")
@@ -31,6 +33,11 @@ sealed class XdmFunction : XdmValue() {
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmValue {
         throw EvaluationException(EvaluationException.ErrorCodes.FOTY0013, ctx.expr, "Cannot atomize a function")
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun toBoolean(): Boolean {
+        throw EvaluationException(FORG0006, ctx.expr, "Cannot cast functions to boolean")
     }
 }
 

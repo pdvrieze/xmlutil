@@ -23,7 +23,8 @@ package org.w3.qt3tests.resolved.assertions
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion() {
-    override fun verify(evalResult: XdmValue): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         TODO("not implemented")
     }
 }

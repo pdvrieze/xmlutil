@@ -56,7 +56,12 @@ open class EvalContext(val contextItem: XdmValue) {
 }
 
 @XPathInternal
-class ExprEvalContext(contextItem: XdmValue, val expr: Expr) : EvalContext(contextItem) {
+class ExprEvalContext(
+    contextItem: XdmValue,
+    val expr: Expr,
+    val isXPath1compat: Boolean = false
+) : EvalContext(contextItem) {
+
     companion object {
         val DUMMY = ExprEvalContext(XdmSequence.EMPTY, ContextItemExpr)
     }

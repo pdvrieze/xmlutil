@@ -24,7 +24,8 @@ import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 class ResolvedQt3AssertDeepEq(val assertion: XPathExpression): ResolvedQt3Assertion() {
-    override fun verify(evalResult: XdmValue): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         TODO("Requires fn:deep-equal, not implemented yet")
     }
 

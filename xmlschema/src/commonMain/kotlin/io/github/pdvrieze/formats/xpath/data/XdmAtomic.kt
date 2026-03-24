@@ -20,10 +20,11 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
 class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
@@ -41,6 +42,21 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
 
     override fun isValEqual(expected: XdmValue): Boolean {
         return expected is XdmAtomic<*> && value == expected.value
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun toBoolean(): Boolean = when (value) {
+        is XsdBoolean -> value.value
+        is XsdAnyURI -> value.value.isNotEmpty()
+        is XsdString -> value.isNotEmpty()
+        is XsdFloat -> value.value != 0.0f && !value.value.isNaN()
+        is XsdDouble -> value.value != 0.0 && !value.value.isNaN()
+        is XsdInteger -> value != XsdInteger.ZERO
+        else -> throw EvaluationException(
+            FORG0006,
+            contextOf<ExprEvalContext>().expr,
+            "Cannot cast to boolean"
+        )
     }
 
     context(ctx: ExprEvalContext)

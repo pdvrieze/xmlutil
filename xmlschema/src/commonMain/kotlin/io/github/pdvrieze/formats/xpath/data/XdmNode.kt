@@ -42,6 +42,12 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
     }
 
     context(ctx: ExprEvalContext)
+    override fun toBoolean(): Boolean {
+        return false
+//        if (type.isSubtypeOf(BooleanType.Instance))
+    }
+
+    context(ctx: ExprEvalContext)
     override fun withType(type: XdmType): XdmValue {
         // TODO do some checks
         return XdmNode(node, type)
@@ -55,4 +61,13 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
     override fun atomize(): XdmValue {
         TODO("not implemented")
     }
+
+    override fun toString(): String {
+        return "XdmNode(" +
+                "type=$type," +
+                "node=$node, " +
+                ")"
+    }
+
+
 }

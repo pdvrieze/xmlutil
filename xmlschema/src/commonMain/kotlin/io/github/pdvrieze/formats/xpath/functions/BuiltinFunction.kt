@@ -23,14 +23,14 @@
 package io.github.pdvrieze.formats.xpath.functions
 
 import io.github.pdvrieze.formats.xpath.data.*
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.BooleanType
-import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import nl.adaptivity.xmlutil.dom2.ownerDocument
 
 @XPathInternal
@@ -77,33 +77,11 @@ interface BuiltinFunction <out R: XdmValue> {
         val DATA = builtIn("data", XdmSequenceType.ANY, XdmSequenceType.ANY) { it.singleArg<XdmValue>().atomize() }
 
         val BOOLEAN = builtIn("boolean", XdmSequenceType.boolean, XdmSequenceType.ANY) {
-            val result = when (val arg = it.singleArg<XdmValue>()) {
-                is XdmSequence<*> -> when {
-                    arg.isEmpty() -> false
-                    arg.first() is XdmNode -> true
-                    else -> throw EvaluationException(FORG0006, contextOf<ExprEvalContext>().expr, "Cannot cast to boolean")
-                }
-
-                is XdmAtomic<*> -> when (val value = arg.value) {
-                    is XsdBoolean -> value.value
-                    is XsdAnyURI -> value.value.isNotEmpty()
-                    is XsdString -> value.isNotEmpty()
-                    is XsdFloat -> value.value != 0.0f && !value.value.isNaN()
-                    is XsdDouble -> value.value != 0.0 && !value.value.isNaN()
-                    is XsdInteger -> value != XsdInteger.ZERO
-                    else -> throw EvaluationException(
-                        FORG0006,
-                        contextOf<ExprEvalContext>().expr,
-                        "Cannot cast to boolean"
-                    )
-                }
-
-                else -> throw EvaluationException(FORG0006, contextOf<ExprEvalContext>().expr, "Cannot cast to boolean")
-            }
-            XdmAtomic(XsdBoolean(result))
+            XdmAtomic(XsdBoolean(it.singleArg<XdmValue>().toBoolean()))
         }
 
         private val functions = hashMapOf(
+            "boolean" to BOOLEAN,
             "false" to FALSE,
             "true" to TRUE,
             "data" to DATA,

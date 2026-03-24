@@ -36,6 +36,12 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
     }
 
     context(ctx: ExprEvalContext)
+    override fun toBoolean(): Boolean = when {
+        isEmpty() -> false
+        else -> elements[0] is XdmNode
+    }
+
+    context(ctx: ExprEvalContext)
     override fun withType(type: XdmType): XdmValue {
         TODO("not implemented")
     }

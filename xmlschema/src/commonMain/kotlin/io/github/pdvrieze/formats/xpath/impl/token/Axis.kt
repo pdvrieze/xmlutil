@@ -118,6 +118,7 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
                 }.toList()
                 XdmSequence(newNodes)
             }
+
             is XdmNode -> evalNode(context, test)
             else -> TODO("Evaluation of axis $literal is not yet implemented")
         }

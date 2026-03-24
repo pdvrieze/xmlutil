@@ -20,7 +20,6 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-import io.github.pdvrieze.formats.xpath.data.XdmError
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 abstract class ResolvedQt3Assertion {
@@ -30,32 +29,7 @@ abstract class ResolvedQt3Assertion {
 
     internal open fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {}
 
-    abstract fun verify(evalResult: XdmValue): AssertionResult
+    abstract fun verify(evalResult: Result<XdmValue>): AssertionResult
 
 }
 
-sealed class AssertionResult {
-    object Success: AssertionResult() {
-        override fun toString(): String = "Success"
-    }
-
-    class Failure(val error: String) : AssertionResult() {
-        constructor(error: XdmError): this(error.message)
-
-        override fun toString(): String = "Failure('$error')"
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || this::class != other::class) return false
-
-            other as Failure
-
-            return error == other.error
-        }
-
-        override fun hashCode(): Int {
-            return error.hashCode()
-        }
-
-    }
-}

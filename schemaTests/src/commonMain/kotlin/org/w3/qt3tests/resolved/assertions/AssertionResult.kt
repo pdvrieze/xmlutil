@@ -21,22 +21,29 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmValue
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
-@OptIn(XPathInternal::class)
-class ResolvedQt3AssertTrue : ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
-        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
-        val assertResult = context(ExprEvalContext.DUMMY) {
-            try { evalResult.toBoolean() } catch (e: EvaluationException) {
-                return AssertionResult.Failure(e)
-            }
+sealed class AssertionResult {
+    object Success: AssertionResult() {
+        override fun toString(): String = "Success"
+    }
+
+    class Failure(val error: String) : AssertionResult() {
+        constructor(error: EvaluationException): this(error.message ?: error.errorCode?.message ?: "Unknown error")
+        constructor(error: Throwable): this(error.message ?: "Unknown error")
+
+        override fun toString(): String = "Failure('$error')"
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Failure
+
+            return error == other.error
         }
-        return when {
-            assertResult -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected false, got '${evalResult}' failed")
+
+        override fun hashCode(): Int {
+            return error.hashCode()
         }
 
     }
