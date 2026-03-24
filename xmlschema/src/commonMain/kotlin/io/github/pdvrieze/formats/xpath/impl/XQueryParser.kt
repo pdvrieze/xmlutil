@@ -164,12 +164,12 @@ internal class XQueryParser(
         parseRequireNotNull(tryCurrentToken('('), "Missing ( in node type test")
         val result = when (nodeType) {
             NodeType.DOCUMENT -> when (val nested = tryAnyOf(NodeType.ELEMENT, NodeType.SCHEMA_ELEMENT)) {
-                null -> NodeKindTest.Document()
-                else -> NodeKindTest.Document(parseNodeTypeArgs(nested))
+                null -> NodeKindTest.DocumentTest()
+                else -> NodeKindTest.DocumentTest(parseNodeTypeArgs(nested))
             }
 
             NodeType.ELEMENT -> when {
-                peekNextToken(')') -> NodeKindTest.Element()
+                peekNextToken(')') -> NodeKindTest.ElementTest()
 
                 else -> {
                     val name = when {
@@ -178,15 +178,15 @@ internal class XQueryParser(
                     }
                     if (tryCurrentToken(',')) {
                         val typeName = parseEQNameTokenDelim().toQName()
-                        NodeKindTest.Element(name, typeName, tryCurrentToken('?'))
+                        NodeKindTest.ElementTest(name, typeName, tryCurrentToken('?'))
                     } else {
-                        NodeKindTest.Element(name)
+                        NodeKindTest.ElementTest(name)
                     }
                 }
             }
 
             NodeType.ATTRIBUTE -> when {
-                peekNextToken(')') -> NodeKindTest.Attribute()
+                peekNextToken(')') -> NodeKindTest.AttributeTest()
 
                 else -> {
                     val name = when {
@@ -195,27 +195,27 @@ internal class XQueryParser(
                     }
                     if (tryCurrentToken(',')) {
                         val typeName = parseEQNameTokenDelim().toQName()
-                        NodeKindTest.Attribute(name, typeName, tryCurrentToken('?'))
+                        NodeKindTest.AttributeTest(name, typeName, tryCurrentToken('?'))
                     } else {
-                        NodeKindTest.Attribute(name)
+                        NodeKindTest.AttributeTest(name)
                     }
                 }
             }
 
-            NodeType.SCHEMA_ELEMENT -> NodeKindTest.SchemaElement(parseEQNameTokenDelim().toQName())
+            NodeType.SCHEMA_ELEMENT -> NodeKindTest.SchemaElementTest(parseEQNameTokenDelim().toQName())
 
-            NodeType.SCHEMA_ATTRIBUTE -> NodeKindTest.SchemaAttribute(parseEQNameTokenDelim().toQName())
+            NodeType.SCHEMA_ATTRIBUTE -> NodeKindTest.SchemaAttributeTest(parseEQNameTokenDelim().toQName())
 
-            NodeType.COMMENT -> NodeKindTest.Comment
-            NodeType.TEXT -> NodeKindTest.Text
+            NodeType.COMMENT -> NodeKindTest.CommentTest
+            NodeType.TEXT -> NodeKindTest.TextTest
             NodeType.ANY_KIND -> NodeKindTest.AnyKind
-            NodeType.NAMESPACE_NODE -> NodeKindTest.NamepaceNode
+            NodeType.NAMESPACE_NODE -> NodeKindTest.NamepaceNodeTest
 
             NodeType.PROCESSING_INSTRUCTION -> {
                 when (peekNextChar()) {
-                    ')' -> NodeKindTest.ProcInstr()
-                    '\'', '"' -> NodeKindTest.ProcInstr(parseStringLiteral().value)
-                    else -> NodeKindTest.ProcInstr(parseEQNameTokenDelim().toQName())
+                    ')' -> NodeKindTest.ProcInstrTest()
+                    '\'', '"' -> NodeKindTest.ProcInstrTest(parseStringLiteral().value)
+                    else -> NodeKindTest.ProcInstrTest(parseEQNameTokenDelim().toQName())
                 }
             }
         }

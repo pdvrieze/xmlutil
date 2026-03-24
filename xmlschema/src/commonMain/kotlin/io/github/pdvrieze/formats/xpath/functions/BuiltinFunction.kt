@@ -89,7 +89,7 @@ interface BuiltinFunction <out R: XdmValue> {
                 val arg = it.singleArg<XdmValue>()
                 XdmAtomic(XsdInteger(arg.size.toLong()))
             },
-            "root" to builtIn("root", XdmSequenceType.ItemType(NodeKindTest.Document()), XdmSequenceType.node) { args ->
+            "root" to builtIn("root", XdmSequenceType.ItemType(NodeKindTest.DocumentTest()), XdmSequenceType.node) { args ->
                 val node = when {
                     args.isEmpty() -> contextOf<ExprEvalContext>().contextItem as XdmNode
                     else -> args.singleArg<XdmNode>()

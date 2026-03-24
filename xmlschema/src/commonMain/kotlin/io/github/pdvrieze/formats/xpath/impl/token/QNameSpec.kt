@@ -21,10 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
-import io.github.pdvrieze.formats.xpath.impl.NodeTest
-import io.github.pdvrieze.formats.xpath.impl.OutputContext
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
@@ -42,6 +39,8 @@ internal sealed interface QNameSpec {
     context(c: OutputContext)
     fun appendToString(builder: Appendable)
 
+    context(ctx: ExprEvalContext)
+    fun eval(namespaceURI: String?, localName: String): Boolean
 
 
     @XPathInternal
@@ -58,6 +57,11 @@ internal sealed interface QNameSpec {
 
         override fun asNodeTest(version: XPathVersion): NodeTest {
             return NodeTest.QNameTest(XsdQName(namespace, localName, "").toQName())
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(namespaceURI: String?, localName: String): Boolean {
+            return namespace == (namespaceURI ?: "") && localName == this.localName
         }
 
         context(c: OutputContext)
@@ -81,6 +85,11 @@ internal sealed interface QNameSpec {
                 }
             }
             return NodeTest.QNameTest(asQName())
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(namespaceURI: String?, localName: String): Boolean {
+            return namespace == (namespaceURI ?: "") && localName == this.localName
         }
 
         fun asQName(): QName {
@@ -117,6 +126,9 @@ internal sealed interface QNameSpec {
     object Any : WildCard {
         override fun asNodeTest(): NodeTest = NodeTest.AnyNameTest
 
+        context(ctx: ExprEvalContext)
+        override fun eval(namespaceURI: String?, localName: String): Boolean = true
+
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {
@@ -129,6 +141,11 @@ internal sealed interface QNameSpec {
     class LocalNameWC(val localName: String) : WildCard {
         override fun asNodeTest(): NodeTest {
             return NodeTest.LocalNameTest(localName)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(namespaceURI: String?, localName: String): Boolean {
+            return localName == this.localName
         }
 
         context(c: OutputContext)
@@ -147,6 +164,11 @@ internal sealed interface QNameSpec {
         @XPathInternal
         override fun appendToString(builder: Appendable) {
             builder.append("Q{").append(namespace).append("}*")
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(namespaceURI: String?, localName: String): Boolean {
+            return namespace == (namespaceURI ?: "")
         }
 
         override fun asNodeTest(): NodeTest {

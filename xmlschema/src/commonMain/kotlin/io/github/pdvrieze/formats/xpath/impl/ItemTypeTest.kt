@@ -45,6 +45,6 @@ interface ItemTypeTest {
 
     companion object {
         @OptIn(NeedsXPath2::class)
-        val documentNode: ItemTypeTest = NodeKindTest.Document()
+        val documentNode: ItemTypeTest = NodeKindTest.DocumentTest()
     }
 }

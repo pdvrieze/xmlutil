@@ -25,10 +25,7 @@ import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.localName
-import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -65,6 +62,16 @@ sealed class NodeTest {
 
 
     class ProcessingInstructionTest(val literal: NameOrLiteral? = null) : NodeTest() {
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            val pi = ((it as? XdmNode)?.node as? ProcessingInstruction) ?: return false
+            return when (literal) {
+                null -> true
+                is NameOrLiteral.LiteralTest -> literal.literal == pi.data
+                is NameOrLiteral.NCNameTest -> literal.name == pi.target
+            }
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is ProcessingInstructionTest) return false
@@ -89,6 +96,15 @@ sealed class NodeTest {
     }
 
     class LocalNameTest(val localName: String) : NameTest() {
+        context(ctx: ExprEvalContext)
+        override fun eval(
+            it: XdmValue,
+            index: Int,
+            count: Int
+        ): Boolean {
+            return it is XdmNode && (it.node as? Element)?.localName == localName
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("*:").append(localName)
@@ -110,6 +126,7 @@ sealed class NodeTest {
     }
 
     class QNameTest(val qName: QName) : NameTest() {
+        context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             return when (val n = it.node) {
@@ -139,6 +156,17 @@ sealed class NodeTest {
     }
 
     class NSTest(val namespace: XsdAnyURI, val prefix: XsdNCName? = null) : NameTest() {
+        context(ctx: ExprEvalContext)
+        override fun eval(
+            it: XdmValue,
+            index: Int,
+            count: Int
+        ): Boolean {
+            return it is XdmNode && (it.node as? Element).let {
+                it?.namespaceURI == namespace.xmlString && it.prefix == prefix?.xmlString
+            }
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is NSTest) return false
@@ -188,6 +216,7 @@ sealed class NodeTest {
             builder.append("*")
         }
 
+        context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
             return when (it) {
                 is XdmNode -> when (it.node) {
@@ -210,9 +239,10 @@ sealed class NodeTest {
         }
     }
 
-    open fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+    context(ctx: ExprEvalContext)
+    abstract fun eval(it: XdmValue, index: Int, count: Int): Boolean/* {
         TODO("not implemented for ${this::class.simpleName}")
-    }
+    }*/
 
     companion object {
         val node: NodeKindTest = NodeKindTest.AnyKind

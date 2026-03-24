@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Named
 import org.junit.jupiter.api.Named.named
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.opentest4j.AssertionFailedError
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 import org.w3.qt3tests.resolved.assertions.AssertionResult
 import org.w3.qt3tests.test.TestParseCatalog.Companion.getTestSetSpec
@@ -66,6 +67,11 @@ class TestProdAxisStep {
         val evalValue = testEvalTestCaseImpl(getTestCase("Axes008-3"))
     }
 
+    @Test
+    fun testAxes030_2() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes030-2"))
+    }
+
     @ParameterizedTest
     @MethodSource("getTestCases")
     fun testEvalTestCase(testCase: ResolvedQt3TestCase) {
@@ -90,10 +96,15 @@ class TestProdAxisStep {
         val evalResult = runCatching { testExpression.eval(context) }
 
         if (testCase.result != null) {
-            for (a in testCase.result.assertions) {
-                assertEquals(AssertionResult.Success, a.verify(evalResult))
+            try {
+                for (a in testCase.result.assertions) {
+                    assertEquals(AssertionResult.Success, a.verify(evalResult))
+                }
+            } catch (e: AssertionFailedError) {
+                val evalError = evalResult.exceptionOrNull() ?: throw e
+                throw e.initCause(evalError)
             }
-        }
+        } else if (evalResult.isFailure) throw evalResult.exceptionOrNull()!!
         return evalResult
     }
 

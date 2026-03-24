@@ -20,35 +20,50 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes
+import io.github.pdvrieze.formats.xpath.data.XdmNode
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.formats.xpath.impl.token.QNameSpec
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isEquivalent
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.dom2.Comment as Comment2
 
 @XPathInternal
 public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     abstract val type: NodeType
 
     context(c: OutputContext)
-    override fun appendToString(builder: Appendable) {
+    final override fun appendToString(builder: Appendable) {
         builder.append(type.literal).append("()")
     }
 
     @NeedsXPath2
-    internal class Document(val arg: NodeKindTest? = null) : NodeKindTest() {
+    internal class DocumentTest(val arg: NodeKindTest? = null) : NodeKindTest() {
         override val type: NodeType get() = NodeType.DOCUMENT
 
         context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            if (it !is XdmNode) return false
+            val n = it.node
+            if (n !is Document) return false
+            if (arg == null) return true
+            TODO("Document test with argument not supported yet")
+        }
+
+        context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            return baseType == AnyKind || baseType is Document
+            return baseType == AnyKind || baseType is DocumentTest
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as Document
+            other as DocumentTest
 
             return arg == other.arg
         }
@@ -59,7 +74,7 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     }
 
     @NeedsXPath2
-    internal class Element private constructor(val elemName: QNameSpec?, val typeName: QName?, val isOptional: Boolean, dummy: Unit) : NodeKindTest() {
+    internal class ElementTest private constructor(val elemName: QNameSpec?, val typeName: QName?, val isOptional: Boolean, dummy: Unit) : NodeKindTest() {
         constructor(name: QNameSpec? = null): this(name, null, false, Unit)
         constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, isOptional, Unit)
 
@@ -68,7 +83,7 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
             if (baseType == AnyKind) return true
-            if (baseType !is Element) return false
+            if (baseType !is ElementTest) return false
             if (baseType.elemName == null && baseType.typeName == null) return true
             return false
         }
@@ -77,11 +92,29 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as Element
+            other as ElementTest
 
             if (elemName != other.elemName) return false
             if (typeName != other.typeName) return false
 
+            return true
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            if (it !is XdmNode) return false
+            val elem = it.node as? Element ?: return false
+            if (elemName != null) {
+                if (! elemName.eval(elem.namespaceURI, elem.localName)) return false
+
+                if (typeName != null) {
+                    val expectedSchemaType = ctx.resolveType(typeName)
+                        ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unknown type $typeName")
+
+                    if (! it.type.isSubtypeOf(expectedSchemaType)) return false
+                    if (elem.localName != typeName.localPart) return false
+                }
+            }
             return true
         }
 
@@ -95,11 +128,16 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     }
 
     @NeedsXPath2
-    internal class Attribute private constructor(val elemName: QNameSpec?, val typeName: QName?, isOptional: Boolean, dummy: Unit) : NodeKindTest() {
+    internal class AttributeTest private constructor(val elemName: QNameSpec?, val typeName: QName?, isOptional: Boolean, dummy: Unit) : NodeKindTest() {
         constructor(name: QNameSpec? = null): this(name, null, false, Unit)
         constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, isOptional, Unit)
 
         override val type: NodeType get() = NodeType.ATTRIBUTE
+
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            return it is XdmNode && it.node is Attr
+        }
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
@@ -111,7 +149,7 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as Attribute
+            other as AttributeTest
 
             if (elemName != other.elemName) return false
             if (typeName != other.typeName) return false
@@ -129,8 +167,15 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     }
 
     @NeedsXPath2
-    internal class SchemaElement(val name: QName) : NodeKindTest() {
+    internal class SchemaElementTest(val name: QName) : NodeKindTest() {
         override val type: NodeType get() = NodeType.SCHEMA_ELEMENT
+
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            if (it !is XdmNode) return false
+            val n = it.node as? Element ?: return false
+            TODO("Schema element matching not complete")
+        }
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
@@ -142,7 +187,7 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as SchemaElement
+            other as SchemaElementTest
 
             return name == other.name
         }
@@ -154,20 +199,27 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     }
 
     @NeedsXPath2
-    internal class SchemaAttribute(val name: QName) : NodeKindTest() {
+    internal class SchemaAttributeTest(val name: QName) : NodeKindTest() {
         override val type: NodeType get() = NodeType.SCHEMA_ATTRIBUTE
+
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            if (it !is XdmNode) return false
+            val n = it.node as? Attr ?: return false
+            TODO("Schema element matching not complete")
+        }
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
             if (baseType == AnyKind) return true
-            return baseType is SchemaAttribute && baseType.name.isEquivalent(name)
+            return baseType is SchemaAttributeTest && baseType.name.isEquivalent(name)
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as SchemaAttribute
+            other as SchemaAttributeTest
 
             return name == other.name
         }
@@ -178,7 +230,7 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
 
     }
 
-    internal class ProcInstr private constructor(val name: QName?, val text: String?) : NodeKindTest() {
+    internal class ProcInstrTest private constructor(val name: QName?, val text: String?) : NodeKindTest() {
         constructor(): this(null, null)
         constructor(name: QName): this(name, null)
         constructor(text: String): this(null, text)
@@ -186,16 +238,25 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.PROCESSING_INSTRUCTION
 
         context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            if (it !is XdmNode) return false
+            val n = it.node as? ProcessingInstruction ?: return false
+            if (name != null && ! name.isEquivalent(QName(n.target))) return false
+            if (text != null && text != n.data) return false
+            return true
+        }
+
+        context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
             if (baseType == AnyKind) return true
-            return baseType is ProcInstr && (baseType.name == name)
+            return baseType is ProcInstrTest && (baseType.name == name)
         }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
 
-            other as ProcInstr
+            other as ProcInstrTest
 
             if (name != other.name) return false
             if (text != other.text) return false
@@ -212,35 +273,61 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
 
     }
 
-    internal object Comment : NodeKindTest() {
+    internal object CommentTest : NodeKindTest() {
         override val type: NodeType get() = NodeType.COMMENT
+        context(ctx: ExprEvalContext)
+        override fun eval(
+            it: XdmValue,
+            index: Int,
+            count: Int
+        ): Boolean {
+            return it is XdmNode && it.node is Comment2
+
+        }
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
-            baseType == AnyKind || baseType == Comment
+            baseType == AnyKind || baseType == CommentTest
     }
 
-    internal object Text : NodeKindTest() {
+    internal object TextTest : NodeKindTest() {
         override val type: NodeType get() = NodeType.TEXT
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
-            baseType == AnyKind || baseType == Text
-    }
-
-    @NeedsXPath3_0
-    internal object NamepaceNode : NodeKindTest() {
-        override val type: NodeType get() = NodeType.NAMESPACE_NODE
+        override fun eval(
+            it: XdmValue,
+            index: Int,
+            count: Int
+        ): Boolean {
+            return it is XdmNode && it.node is Text
+        }
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
-            baseType == AnyKind || baseType == NamepaceNode
+            baseType == AnyKind || baseType == TextTest
+    }
+
+    @NeedsXPath3_0
+    internal object NamepaceNodeTest : NodeKindTest() {
+        override val type: NodeType get() = NodeType.NAMESPACE_NODE
+
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            throw EvaluationException(ErrorCodes.XQST0134_NS_AXIS_NOT_SUPPORTED, "Namespace node test not supported")
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
+            baseType == AnyKind || baseType == NamepaceNodeTest
     }
 
     internal object AnyKind : NodeKindTest() {
         override val type: NodeType get() = NodeType.ANY_KIND
 
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean = true
+        context(ctx: ExprEvalContext)
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+            return it is XdmNode
+        }
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
