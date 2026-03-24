@@ -240,7 +240,7 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     internal object AnyKind : NodeKindTest() {
         override val type: NodeType get() = NodeType.ANY_KIND
 
-        override fun eval(it: XdmValue): Boolean = true
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean = true
 
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {

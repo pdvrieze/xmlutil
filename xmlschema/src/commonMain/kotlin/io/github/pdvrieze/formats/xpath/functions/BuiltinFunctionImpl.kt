@@ -65,9 +65,9 @@ class BuiltinFunctionImpl<R: XdmValue>(
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XdmValue> Collection<XdmValue>.singleArg(): T {
+inline fun <reified T : XdmValue> Collection<XdmValue>.singleArg(): T {
     return (singleOrNull() ?: throw EvaluationException(EvaluationException.ErrorCodes.FOAP0001_WRONG_ARG_CNT, ctx.expr)) as? T
-    ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
 }
 
 context(ctx: ExprEvalContext)
@@ -80,11 +80,11 @@ inline fun <reified T: XsdAtomic> Collection<XdmValue>.singleAtomicArg(): T {
 context(ctx: ExprEvalContext)
 inline fun <reified T: XdmValue> List<XdmValue>.argN(arg: Int): T {
     return this[arg] as? T
-    ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
 }
 
 context(ctx: ExprEvalContext)
 inline fun <reified T: XsdAtomic> List<XdmValue>.atomicArgN(arg: Int): T {
     return (this[arg] as? XdmAtomic<*>)?.value as? T
-    ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
 }

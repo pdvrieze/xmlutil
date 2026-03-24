@@ -28,81 +28,187 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
 import io.github.pdvrieze.formats.xpath.impl.NodeTest
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.attributes
+import nl.adaptivity.xmlutil.dom2.*
 
 enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0): Token {
     @NeedsXPath1
     CHILD("child") {
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun evalNode(
-            context: XdmNode,
-            test: NodeTest
-        ): XdmValue {
-            val xmlNode= context.node
-            val children= xmlNode.getChildNodes().asSequence()
-            val result= children
-                .map { XdmNode(it) }
-                .filter { test.eval(it) }
-                .toList()
-
-            return XdmSequence(result)
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return context.node.getChildNodes().map { XdmNode(it)}
         }
     },
     @NeedsXPath1
-    DESCENDANT("descendant"),
-    @NeedsXPath1
-    PARENT("parent"),
-    @NeedsXPath1
-    ANCESTOR("ancestor"),
-    @NeedsXPath1
-    FOLLOWING_SIBLING("following-sibling"),
-    @NeedsXPath1
-    PRECEDING_SIBLING("preceding-sibling"),
-    @NeedsXPath1
-    FOLLOWING("following"),
-    @NeedsXPath1
-    PRECEDING("preceding"),
-    @NeedsXPath1
-    ATTRIBUTE("attribute"){
+    DESCENDANT("descendant") {
         @XPathInternal
         context(ctx: ExprEvalContext)
-        override fun evalNode(context: XdmNode, test: NodeTest): XdmValue {
-            return when (val node= context.node) {
-                is Element -> {
-                    val newAttrs = node.attributes.asSequence()
-                        .map{ XdmNode(it) }
-                        .filter { test.eval(it) }
-                        .toList()
-                    XdmSequence(newAttrs)
-                }
-
-                else -> XdmSequence.EMPTY
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return context.descendantsSequence().toList()
+        }
+    },
+    @NeedsXPath1
+    PARENT("parent") {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return listOfNotNull(context.node.parentNode?.let { XdmNode(it) })
+        }
+    },
+    @NeedsXPath1
+    ANCESTOR("ancestor") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            var node= context.node.parentNode ?: return emptyList()
+            return buildList {
+                do {
+                    add(XdmNode(node))
+                    node = node.parentNode ?: break
+                } while (node is Element)
             }
         }
     },
     @NeedsXPath1
-    NAMESPACE("namespace"),
+    FOLLOWING_SIBLING("following-sibling") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return buildList {
+                var node = context.node.nextSibling
+                while (node != null) {
+                    add(XdmNode(node))
+                    node = node.nextSibling
+                }
+            }
+        }
+    },
     @NeedsXPath1
-    SELF("self"),
+    PRECEDING_SIBLING("preceding-sibling") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return buildList {
+                var node = context.node.previousSibling
+                while (node != null) {
+                    add(XdmNode(node))
+                    node = node.previousSibling
+                }
+            }
+
+        }
+    },
+    @NeedsXPath1
+    FOLLOWING("following") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return buildList {
+                //addAll(context.descendantsSequence())
+                var p: Node? = context.node
+                while (p is Element) {
+                    var s= p.nextSibling
+                    while (s != null) {
+                        val xdmNode = XdmNode(s)
+                        add(xdmNode)
+                        addAll(xdmNode.descendantsSequence())
+                        s = s.nextSibling
+                    }
+                    p = p.parentNode
+                }
+            }
+        }
+    },
+    @NeedsXPath1
+    PRECEDING("preceding") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return buildList {
+                var p: Node? = context.node
+                while (p is Element) {
+                    var s = p.previousSibling
+                    while (s != null) {
+                        val xdmNode = XdmNode(s)
+                        add(xdmNode)
+                        addAll(xdmNode.descendantsSequence().toList().reversed())
+                        s = s.previousSibling
+                    }
+                    p = p.parentNode // the loop will get the previous sibling anyway
+                }
+            }
+
+        }
+    },
+    @NeedsXPath1
+    ATTRIBUTE("attribute"){
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return when (val node= context.node) {
+                is Element -> node.attributes.map { XdmNode(it) }
+
+                else -> emptyList()
+            }
+        }
+    },
+    @NeedsXPath1
+    NAMESPACE("namespace") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return emptyList()
+/*
+            val node = context.node as? Element ?: return emptyList()
+            val l= node.attributes.asSequence()
+                .filter { it.namespaceURI == XMLConstants.XMLNS_ATTRIBUTE_NS_URI }
+                .map {
+                    val prefix = it.name.substringAfterLast(':')
+                    val ns = it.value
+                    ctx.outputDocument.create
+                }
+
+            return super.elementSequence(context)
+*/
+        }
+    },
+
+    @NeedsXPath1
+    SELF("self") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return listOf(context)
+        }
+    },
+
     @NeedsXPath1
     DESCENDANT_OR_SELF("descendant-or-self") {
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun evalNode(
-            context: XdmNode,
-            test: NodeTest
-        ): XdmValue {
-            val result= mutableListOf<XdmValue>()
-            for (desc in sequenceOf(context) + context.descendantsSequence()) {
-                if (test.eval(desc)) result.add(desc)
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return buildList {
+                add(context)
+                addAll(context.descendantsSequence())
             }
-            return XdmSequence(result)
         }
     },
+
     @NeedsXPath1
-    ANCESTOR_OR_SELF("ancestor-or-self"),
+    ANCESTOR_OR_SELF("ancestor-or-self") {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun elementSequence(context: XdmNode): List<XdmValue> {
+            return buildList {
+                add(context)
+                var p: Node? = context.node.parentNode
+                while (p is Element) {
+                    add(XdmNode(p))
+                    p = p.parentNode
+                }
+            }
+        }
+    },
     ;
 
     @XPathInternal
@@ -126,9 +232,21 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    open fun evalNode(context: XdmNode, test: NodeTest): XdmValue {
-//        TODO("Evaluation of axis $literal is not yet implemented")
-        return if (test.eval(context)) context else XdmSequence.EMPTY
+    open fun elementSequence(context: XdmNode): List<XdmValue> {
+        TODO("Axis sequences not implemented yet")
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun evalNode(context: XdmNode, test: NodeTest): XdmValue {
+        val axisElementSequence = elementSequence(context)
+        val result = axisElementSequence.filterIndexed { index, value ->
+            test.eval(value, index, axisElementSequence.size)
+        }
+        return when (axisElementSequence.size) {
+            1 if result.size == 1 -> result.single()
+            else -> XdmSequence(result)
+        }
     }
 
     final override val isDelimiting: Boolean

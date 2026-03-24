@@ -110,7 +110,7 @@ sealed class NodeTest {
     }
 
     class QNameTest(val qName: QName) : NameTest() {
-        override fun eval(it: XdmValue): Boolean {
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             return when (val n = it.node) {
                 is Attr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
@@ -188,7 +188,7 @@ sealed class NodeTest {
             builder.append("*")
         }
 
-        override fun eval(it: XdmValue): Boolean {
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
             return when (it) {
                 is XdmNode -> when (it.node) {
                     is Attr,
@@ -210,7 +210,7 @@ sealed class NodeTest {
         }
     }
 
-    open fun eval(it: XdmValue): Boolean {
+    open fun eval(it: XdmValue, index: Int, count: Int): Boolean {
         TODO("not implemented for ${this::class.simpleName}")
     }
 
