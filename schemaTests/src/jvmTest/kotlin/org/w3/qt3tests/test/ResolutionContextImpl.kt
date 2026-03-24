@@ -55,36 +55,36 @@ abstract class ResolutionContextImpl(
     override fun parseDocument(relativePath: String): Document {
         val out = xmlStreaming.newWriter()
 
-            requireNotNull(javaClass.getResourceAsStream("$base$relativePath")){
-                "Could not find resource $base$relativePath"
-            }.use {
-                val xr = KtXmlReader(it, relaxed = true)
-                try {
-                    while (xr.hasNext()) {
-                        val _ = xr.next()
-                        xr.writeCurrent(out)
-                    }
-                } catch (e: XmlSerialException) {
-                    if (e.extLocationInfo == null) {
-                        throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
-                            .also { it.setFileLocation("$base$relativePath") }
-                    } else {
-                        e.setFileLocation("$base$relativePath")
-                        throw e
-                    }
-                } catch (e: XmlException) {
-                    if (e.locationInfo == null) {
-                        throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
-                            .also { it.setFileLocation("$base$relativePath") }
-                    } else {
-                        e.setFileLocation("$base$relativePath")
-                        throw e
-                    }
-                } catch (e: Exception) {
-                    throw XmlException(xr.extLocationInfo, e)
+        requireNotNull(javaClass.getResourceAsStream("$base$relativePath")) {
+            "Could not find resource $base$relativePath"
+        }.use {
+            val xr = KtXmlReader(it, relaxed = true)
+            try {
+                while (xr.hasNext()) {
+                    val _ = xr.next()
+                    xr.writeCurrent(out)
                 }
+            } catch (e: XmlSerialException) {
+                if (e.extLocationInfo == null) {
+                    throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
+                        .also { it.setFileLocation("$base$relativePath") }
+                } else {
+                    e.setFileLocation("$base$relativePath")
+                    throw e
+                }
+            } catch (e: XmlException) {
+                if (e.locationInfo == null) {
+                    throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
+                        .also { it.setFileLocation("$base$relativePath") }
+                } else {
+                    e.setFileLocation("$base$relativePath")
+                    throw e
+                }
+            } catch (e: Exception) {
+                throw XmlException(xr.extLocationInfo, e)
             }
-            return out.target
+        }
+        return out.target
     }
 
     override fun <T> parseFile(
