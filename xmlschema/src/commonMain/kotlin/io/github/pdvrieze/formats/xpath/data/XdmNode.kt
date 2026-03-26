@@ -24,10 +24,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
-import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.dom2.parentNode
-import nl.adaptivity.xmlutil.dom2.previousSibling
+import nl.adaptivity.xmlutil.dom2.*
 
 @XPathInternal
 @OptIn(NeedsXPath2::class)
@@ -53,10 +50,12 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
 
     fun descendantsSequence(): Sequence<XdmNode> {
         return sequence {
-            for (c in node.getChildNodes()) {
-                val value = XdmNode(c)
-                yield(value)
-                yieldAll(value.descendantsSequence())
+            if (node is Element || node is Document) {
+                for (c in node.getChildNodes()) {
+                    val value = XdmNode(c)
+                    yield(value)
+                    yieldAll(value.descendantsSequence())
+                }
             }
         }
     }
