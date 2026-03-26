@@ -235,9 +235,7 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    open fun elementSequence(context: XdmNode): List<XdmValue> {
-        TODO("Axis sequences not implemented yet")
-    }
+    abstract fun elementSequence(context: XdmNode): List<XdmValue>
 
     @XPathInternal
     context(ctx: ExprEvalContext)
