@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.XPTY0020_CONTEXT_ITEM_NOT_NODE
 import io.github.pdvrieze.formats.xpath.data.XdmNode
 import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
@@ -226,7 +228,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
             }
 
             is XdmNode -> evalNode(context, test)
-            else -> TODO("Evaluation of axis $literal is not yet implemented")
+
+            else -> throw EvaluationException(XPTY0020_CONTEXT_ITEM_NOT_NODE)
         }
     }
 

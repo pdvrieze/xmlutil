@@ -36,7 +36,6 @@ import org.w3.qt3tests.resolved.assertions.AssertionResult
 import org.w3.qt3tests.test.TestParseCatalog.Companion.getTestSetSpec
 import org.w3.qt3tests.test.TestParseCatalog.Companion.parseTestSetImpl
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 @OptIn(XPathInternal::class)
 class TestProdAxisStep {
@@ -68,8 +67,8 @@ class TestProdAxisStep {
     }
 
     @Test
-    fun testAxes030_2() {
-        val evalValue = testEvalTestCaseImpl(getTestCase("Axes030-2"))
+    fun testAxes036_2() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes036-2"))
     }
 
     @ParameterizedTest
@@ -96,13 +95,12 @@ class TestProdAxisStep {
         val evalResult = runCatching { testExpression.eval(context) }
 
         if (testCase.result != null) {
-            try {
-                for (a in testCase.result.assertions) {
-                    assertEquals(AssertionResult.Success, a.verify(evalResult))
+            for (a in testCase.result.assertions) {
+                val verifyResult = a.verify(evalResult)
+                if (verifyResult is AssertionResult.Failure) {
+                    if (evalResult.isFailure) throw AssertionFailedError("Unexpected failure", evalResult.exceptionOrNull())
+                    else throw AssertionFailedError("Unexpected assertion failure for result: ${verifyResult.error}", verifyResult.cause)
                 }
-            } catch (e: AssertionFailedError) {
-                val evalError = evalResult.exceptionOrNull() ?: throw e
-                throw e.initCause(evalError)
             }
         } else if (evalResult.isFailure) throw evalResult.exceptionOrNull()!!
         return evalResult

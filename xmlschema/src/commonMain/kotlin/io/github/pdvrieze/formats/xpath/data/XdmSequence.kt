@@ -89,6 +89,10 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
 
     override fun subList(fromIndex: Int, toIndex: Int): List<T> = elements.subList(fromIndex, toIndex)
 
+    override fun toString(): String {
+        return elements.joinToString(prefix = "(", postfix = ")")
+    }
+
     companion object {
         val EMPTY: XdmSequence<Nothing> = XdmSequence()
     }
