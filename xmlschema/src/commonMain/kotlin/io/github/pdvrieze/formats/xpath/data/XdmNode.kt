@@ -78,7 +78,7 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
     }
 
     override fun equals(other: Any?): Boolean {
-        return node === (other as? XdmNode)?.node
+        return node == (other as? XdmNode)?.node
     }
 
     override fun isValEqual(expected: XdmValue): Boolean {
@@ -120,6 +120,7 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
                 // loop through all ancestors (not considering the actual node)
                 for (i in 1 until minOf(ancestorsA.size, ancestorsB.size)) {
                     if (ancestorsA[i] != ancestorsB[i]) {
+                        // We look in the previous siblings of the ancestors to optimize for already sorted
                         var x = ancestorsB[i].previousSibling
                         while (x != null) {
                             if (x === ancestorsA[i]) return -1
