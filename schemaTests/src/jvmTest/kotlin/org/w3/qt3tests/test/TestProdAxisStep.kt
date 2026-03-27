@@ -109,7 +109,8 @@ class TestProdAxisStep {
 
     companion object {
         fun getTestCase(name: String): ResolvedQt3TestCase {
-            return getTestCases().single { it.name == name }.payload
+            val testCases = getTestCases()
+            return testCases.single { it.name == name }.payload
         }
 
         @JvmStatic
@@ -119,6 +120,7 @@ class TestProdAxisStep {
                 .filter {
                     it.test.expr.getOrNull() is XPathExpression
                 }
+                .filter { "namespace-axis" !in it.neededFeatures() }
                 .map { named(it.name, it) }
                 .toList()
         }

@@ -190,6 +190,7 @@ class TestParseCatalog {
     class TestSetSpec(val resolutionContext: ResolutionContext, val testSet: Qt3TestSetReference)
 
     companion object {
+
         fun getTestSetSpec(name: String): TestSetSpec {
             return getTestSetSpecs().first {
                 it.name == name

@@ -66,4 +66,10 @@ class ResolvedQt3TestCase(
         }
     }
 
+    fun neededFeatures(): List<String> {
+        return dependencies.asSequence()
+            .filter { it.type == Qt3DependencyType.FEATURE && it.satisfied }
+            .mapNotNullTo(ArrayList()) { it.value }
+    }
+
 }
