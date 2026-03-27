@@ -20,8 +20,16 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+
 @XPathInternal
 internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return expr.eval()
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append('(')
