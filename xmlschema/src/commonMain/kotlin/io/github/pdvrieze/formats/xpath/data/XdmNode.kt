@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import nl.adaptivity.xmlutil.dom2.*
 
@@ -44,6 +42,12 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
                 i -= 1
             } while (i >= 0)
         }
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
+        predicates.evalPredicates(this) -> this
+        else -> XdmSequence.EMPTY
     }
 
     override fun get(index: Int): XdmNode = this

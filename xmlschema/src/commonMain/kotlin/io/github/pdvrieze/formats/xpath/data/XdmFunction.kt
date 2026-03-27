@@ -21,13 +21,21 @@
 package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006
+import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.evalPredicates
 
 @OptIn(XPathInternal::class)
 sealed class XdmFunction : XdmValue() {
     override val type: XdmSequenceType.Function
         get() = TODO("There is no function type type yet")
+
+    context(ctx: ExprEvalContext)
+    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
+        predicates.evalPredicates(this) -> this
+        else -> XdmSequence.EMPTY
+    }
 
     @OptIn(XPathInternal::class)
     context(ctx: ExprEvalContext)

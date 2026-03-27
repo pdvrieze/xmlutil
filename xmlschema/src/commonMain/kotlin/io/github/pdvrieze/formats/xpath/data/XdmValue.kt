@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
@@ -34,6 +35,9 @@ sealed class XdmValue {
     context(ctx: ExprEvalContext)
     abstract fun withType(type: XdmType): XdmValue
 
+    context(ctx: ExprEvalContext)
+    abstract fun evalPredicates(predicates: Iterable<Expr>): XdmValue
+
     /**
      * Implement the VAL_EQ operator
      */
@@ -43,5 +47,6 @@ sealed class XdmValue {
     abstract fun toBoolean(): Boolean
 
     abstract val type: XdmType
+
 }
 

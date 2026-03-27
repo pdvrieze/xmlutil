@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 
@@ -36,9 +37,29 @@ open class AxisStep(
 
     context(ctx: ExprEvalContext)
     override fun eval(context: XdmValue): XdmValue {
-        val base = axis.eval(context, test)
-        if (predicates.isEmpty()) return base
-        TODO("Handling predicates is not yet implemented")
+        var current = axis.eval(context, test)
+        if (predicates.isEmpty()) return current
+
+        for (predicate in predicates) {
+            when (current) {
+                is XdmSequence<*> -> {
+                    val newElems = current.filter {
+                        ctx.withValueContext(it) { predicate.eval() }.toBoolean()
+                    }
+
+                    when (newElems.size) {
+                        0 -> return XdmSequence.EMPTY
+                        1 -> current = newElems.single()
+                        else -> current = XdmSequence(newElems)
+                    }
+                }
+
+                else -> ctx.withValueContext(current) {
+                    if (! predicate.eval().toBoolean()) return XdmSequence.EMPTY
+                }
+            }
+        }
+        return current
     }
 
     override fun collectUnsupportedExprs(

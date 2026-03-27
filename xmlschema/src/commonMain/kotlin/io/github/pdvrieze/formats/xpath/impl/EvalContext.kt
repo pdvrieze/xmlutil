@@ -37,7 +37,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @XPathInternal
-open class EvalContext(val contextItem: XdmValue) {
+open class EvalContext(val contextItem: XdmValue, val isXPath1Compat: Boolean = false) {
     fun resolveType(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
     }
@@ -46,6 +46,8 @@ open class EvalContext(val contextItem: XdmValue) {
         xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
 
+    open fun copy(contextItem: XdmValue = this.contextItem): EvalContext = EvalContext(contextItem)
+
     @OptIn(ExperimentalContracts::class)
     inline fun <R> withExprContext(expr: Expr, block: context(ExprEvalContext) ()-> R): R {
         contract {
@@ -53,14 +55,33 @@ open class EvalContext(val contextItem: XdmValue) {
         }
         return block(ExprEvalContext(contextItem, expr))
     }
+
+}
+
+@OptIn(XPathInternal::class)
+inline fun <C: EvalContext, R> C.withValueContext(value: XdmValue, function: context(C)  () -> R): R {
+
+    return context(copy(contextItem = value) as C, function)
 }
 
 @XPathInternal
 class ExprEvalContext(
     contextItem: XdmValue,
     val expr: Expr,
-    val isXPath1compat: Boolean = false
-) : EvalContext(contextItem) {
+    isXPath1compat: Boolean = false
+) : EvalContext(contextItem, isXPath1compat) {
+
+    override fun copy(contextItem: XdmValue): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1Compat)
+
+    open fun copy(
+        contextItem: XdmValue = this.contextItem,
+        expr: Expr = this.expr,
+        isXPath1compat: Boolean = this.isXPath1Compat
+    ): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1compat)
+
+    inline fun <R> withValueContext(value: XdmValue, function: context(ExprEvalContext)  () -> R): R {
+        return context(ExprEvalContext(value, expr, isXPath1Compat), function)
+    }
 
     companion object {
         val DUMMY = ExprEvalContext(XdmSequence.EMPTY, ContextItemExpr)

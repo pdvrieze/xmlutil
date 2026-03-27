@@ -21,9 +21,7 @@
 package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.SequenceType
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
@@ -32,6 +30,12 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
     override fun get(index: Int): XdmAtomic<T> = when {
         index == 0 -> this
         else -> error("Index out of bounds")
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
+        predicates.evalPredicates(this) -> this
+        else -> XdmSequence.EMPTY
     }
 
     context(ctx: ExprEvalContext)

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
@@ -50,14 +51,23 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
         return expected is XdmSequence<*> && elements == expected.elements
     }
 
-    fun flatMap(transform: (T) -> XdmValue): XdmSequence<XdmValue> {
+    context(ctx: ExprEvalContext)
+    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue {
+        return flatMap { it.evalPredicates(predicates) }
+    }
+
+    fun flatMap(transform: (T) -> XdmValue): XdmValue {
         val newElems = elements.flatMap {
             when (val e = transform(it)) {
                 is XdmSequence<*> -> e.elements
                 else -> listOf(e)
             }
         }
-        return XdmSequence(newElems)
+        return when (newElems.size) {
+            0 -> EMPTY
+            1 -> newElems.single()
+            else -> XdmSequence(newElems)
+        }
     }
 
     context(ctx: ExprEvalContext)
