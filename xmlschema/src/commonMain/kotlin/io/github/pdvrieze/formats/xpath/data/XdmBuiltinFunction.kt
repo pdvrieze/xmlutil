@@ -25,9 +25,11 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
-class XdmBuiltinFunction(private val function: BuiltinFunction<*>): XdmFunction() {
-    override val type: XdmSequenceType.Function =
-        XdmSequenceType.Function(function.argumentTypes, function.returnType)
+class XdmBuiltinFunction(private val function: BuiltinFunction<*>): XdmFunction<XdmBuiltinFunction>() {
+    override fun asT(): XdmBuiltinFunction = this
+
+    override val type: XdmFunctionType =
+        XdmFunctionType(function.argumentTypes, function.returnType)
 
     context(ctx: ExprEvalContext)
     override fun withType(type: XdmType): XdmValue {
@@ -37,7 +39,5 @@ class XdmBuiltinFunction(private val function: BuiltinFunction<*>): XdmFunction(
     override fun isValEqual(expected: XdmValue): Boolean {
         return expected is XdmBuiltinFunction && expected.function == function
     }
-
-    override fun get(index: Int): XdmBuiltinFunction = this
 }
 

@@ -47,15 +47,15 @@ open class AxisStep(
                         ctx.withValueContext(it) { predicate.eval() }.toBoolean()
                     }
 
-                    when (newElems.size) {
+                    current = when (newElems.size) {
                         0 -> return XdmSequence.EMPTY
-                        1 -> current = newElems.single()
-                        else -> current = XdmSequence(newElems)
+                        1 -> newElems.single()
+                        else -> XdmSequence(newElems)
                     }
                 }
 
                 else -> ctx.withValueContext(current) {
-                    if (! predicate.eval().toBoolean()) return XdmSequence.EMPTY
+                    if (!predicate.eval().toBoolean()) return XdmSequence.EMPTY
                 }
             }
         }

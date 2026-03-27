@@ -23,18 +23,21 @@ package io.github.pdvrieze.formats.xpath.data
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @OptIn(XPathInternal::class)
-class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList()) : XdmValue(), List<T> {
+class XdmSequence<out T : XdmSingleValue<T>>(
+    internal val elements: List<T> = emptyList(),
+    override val type: XdmType = XdmSequenceType.ANYSEQ
+) : XdmValue(), List<T> {
     override val size: Int get() = elements.size
 
     override fun get(index: Int): T {
         return elements[index]
     }
 
-    override val type: XdmType by lazy {
-        TODO("Not yet implemented")
-    }
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean = when {
@@ -57,28 +60,16 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
     }
 
     fun flatMap(transform: (T) -> XdmValue): XdmValue {
-        val newElems = elements.flatMap {
-            when (val e = transform(it)) {
-                is XdmSequence<*> -> e.elements
-                else -> listOf(e)
-            }
-        }
-        return when (newElems.size) {
-            0 -> EMPTY
-            1 -> newElems.single()
-            else -> XdmSequence(newElems)
+        return build {
+            for (e in elements) add(transform(e))
         }
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmValue {
-        val newElements = elements.flatMap {
-            when (val e = it.atomize()) {
-                is XdmSequence<*> -> e.elements
-                else -> listOf(e)
-            }
+    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+        for (e in elements) {
+            e.atomizeTo(receiver)
         }
-        return XdmSequence(newElements)
     }
 
     override fun contains(element: @UnsafeVariance T): Boolean = elements.contains(element)
@@ -105,5 +96,47 @@ class XdmSequence<out T : XdmValue>(private val elements: List<T> = emptyList())
 
     companion object {
         val EMPTY: XdmSequence<Nothing> = XdmSequence()
+
+        interface XdmSequenceBuilder {
+            fun add(value: XdmSingleValue<*>)
+
+            fun addAll(values: Iterable<XdmSingleValue<*>>)
+
+            fun add(value: XdmSequence<*>) = addAll(value.elements)
+
+            fun add(value: XdmValue) = when (value) {
+                is XdmSequence<*> -> add(value)
+                is XdmSingleValue<*> -> add(value)
+            }
+        }
+
+        internal class XdmSequenceBuilderImpl : XdmSequenceBuilder {
+            private val elements = mutableListOf<XdmSingleValue<*>>()
+            override fun add(value: XdmSingleValue<*>) {
+                elements.add(value)
+            }
+
+            override fun addAll(values: Iterable<XdmSingleValue<*>>) {
+                elements.addAll(values)
+            }
+
+            fun build(type: XdmSequenceType): XdmValue {
+                return when (elements.size) {
+                    0 -> EMPTY
+                    1 -> elements.single()
+                    else -> XdmSequence(elements, type)
+                }
+            }
+        }
+
+        @OptIn(ExperimentalContracts::class)
+        internal inline fun build(
+            type: XdmSequenceType = XdmSequenceType.ANYSEQ,
+            builderAction: XdmSequenceBuilder.() -> Unit
+        ): XdmValue {
+            contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+
+            return XdmSequenceBuilderImpl().apply(builderAction).build(type)
+        }
     }
 }

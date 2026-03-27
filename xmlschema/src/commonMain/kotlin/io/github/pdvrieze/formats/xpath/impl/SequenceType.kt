@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
 import io.github.pdvrieze.formats.xpath.data.XdmType
+import io.github.pdvrieze.formats.xpath.data.XdmTypeTest
 
 
 @OptIn(XPathInternal::class)
@@ -52,12 +54,12 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
         }
 
         context(ctx: ExprEvalContext)
-        override fun eval(): XdmType {
+        override fun eval(): XdmSequenceType {
             when (itemType) {
-                is AtomicOrUnionTypeTest -> return XdmSequenceType.Schema(itemType.eval(), occurrence)
+                is AtomicOrUnionTypeTest -> return XdmSequenceType(XdmSchemaType(itemType.eval()), occurrence)
             }
 
-            return XdmSequenceType.ItemType(itemType, occurrence)
+            return XdmSequenceType(XdmTypeTest(itemType), occurrence)
         }
     }
 

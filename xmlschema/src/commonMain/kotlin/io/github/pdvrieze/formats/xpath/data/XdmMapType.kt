@@ -20,23 +20,32 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
-@OptIn(XPathInternal::class)
-sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
-    override val type: XdmFunctionType
-        get() = TODO("There is no function type type yet")
-
-    context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
-        throw EvaluationException(EvaluationException.ErrorCodes.FOTY0013, "Cannot atomize a function")
+@XPathInternal
+class XdmMapType(
+    keyType: XdmSchemaType,
+    valueType: XdmSequenceType
+) : XdmFunctionType(listOf(keyType), XdmArrayType(valueType)) {
+    init {
+        require(keyType.schemaType is AnySimpleType.AtomicOrUnion<*>) { "Key type must be atomic or integer" }
     }
 
+    val keyType: XdmType get() = argTypes.single()
+    val valueType: XdmType get() = returnType
+
     context(ctx: ExprEvalContext)
-    override fun toBoolean(): Boolean {
-        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, ctx.expr, "Cannot cast functions to boolean")
+    override fun isSubtypeOf(other: XdmSingleType): Boolean {
+        return when (other) {
+            is XdmMapType -> other.keyType.isSubtypeOf(keyType) &&
+                    returnType.isSubtypeOf(other.returnType)
+
+            is XdmFunctionType -> super.isSubtypeOf(other)
+
+
+            else -> false
+        }
     }
 }
-

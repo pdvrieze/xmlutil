@@ -20,29 +20,24 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006
+import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
-class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
-    override val size: Int get() = 0
-    override fun get(index: Int): XdmAtomic<T> = when {
-        index == 0 -> this
-        else -> error("Index out of bounds")
-    }
+class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>() {
+    override fun asT(): XdmAtomic<T> = this
 
     context(ctx: ExprEvalContext)
-    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
-        predicates.evalPredicates(this) -> this
-        else -> XdmSequence.EMPTY
-    }
+    override fun atomize(): XdmAtomic<T> = this
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmValue = this
+    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+        receiver.add(this)
+    }
 
     override val type: XdmType
-        get() = XdmSequenceType.Schema(value.schemaType, SequenceType.OccurrenceType.SINGLE)
+        get() = XdmSchemaType(value.schemaType)
 
     override fun isValEqual(expected: XdmValue): Boolean {
         return expected is XdmAtomic<*> && value == expected.value
@@ -57,7 +52,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmValue() {
         is XsdDouble -> value.value != 0.0 && !value.value.isNaN()
         is XsdInteger -> value != XsdInteger.ZERO
         else -> throw EvaluationException(
-            FORG0006,
+            FORG0006_INVALID_ARGUMENT_TYPE,
             contextOf<ExprEvalContext>().expr,
             "Cannot cast to boolean"
         )

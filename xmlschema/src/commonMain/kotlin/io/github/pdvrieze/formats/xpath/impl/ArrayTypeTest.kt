@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
+import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 
@@ -42,7 +42,7 @@ sealed class ArrayTypeTest: ItemTypeTest {
             // 2.5.6.2 #34
             if (baseType is FunctionTypeTest.Typed) {
                 val paramType: SequenceType = (baseType.paramTypes.singleOrNull()) ?: return false
-                val evalType = paramType.eval() as? XdmSequenceType.Schema ?: return false
+                val evalType = paramType.eval() as? XdmSchemaType ?: return false
                 return evalType.schemaType.name?.isEquivalent(QName(XMLConstants.XSD_NS_URI, "integer")) == true
             }
 

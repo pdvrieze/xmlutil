@@ -20,23 +20,36 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
+import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
 import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
-@OptIn(XPathInternal::class)
-sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
-    override val type: XdmFunctionType
-        get() = TODO("There is no function type type yet")
+@XPathInternal
+class XdmArray(val content: List<XdmValue>, override val type: XdmArrayType) : XdmFunction<XdmArray>() {
+    override fun asT(): XdmArray = this
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
-        throw EvaluationException(EvaluationException.ErrorCodes.FOTY0013, "Cannot atomize a function")
+        for (c in content) c.atomizeTo(receiver)
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun withType(type: XdmType): XdmValue {
+        if (type !is XdmArrayType) throw EvaluationException(ctx.expr, "Cannot cast array to $type")
+        //TODO check type compatibility
+        return XdmArray(content, type)
+    }
+
+    override fun isValEqual(expected: XdmValue): Boolean {
+        return expected is XdmArray &&
+                content.isContentEqual(expected.content)
     }
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean {
-        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, ctx.expr, "Cannot cast functions to boolean")
+        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot convert array to boolean")
     }
 }
+
 

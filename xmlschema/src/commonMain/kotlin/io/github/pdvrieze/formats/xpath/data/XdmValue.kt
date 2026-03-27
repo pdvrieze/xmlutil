@@ -30,7 +30,14 @@ sealed class XdmValue {
     abstract operator fun get(index: Int): XdmValue
 
     context(ctx: ExprEvalContext)
-    abstract fun atomize(): XdmValue
+    internal abstract fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>)
+
+    context(ctx: ExprEvalContext)
+    open fun atomize(): XdmValue {
+        val newElems = mutableListOf<XdmSingleValue<*>>()
+        atomizeTo(newElems)
+        return newElems.singleOrNull() ?: XdmSequence(newElems)
+    }
 
     context(ctx: ExprEvalContext)
     abstract fun withType(type: XdmType): XdmValue

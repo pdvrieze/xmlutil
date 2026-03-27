@@ -43,8 +43,8 @@ class BuiltinFunctionImpl<R: XdmValue>(
         evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
     ) : this(
         name,
-        XdmSequenceType.Schema(returnType),
-        argumentTypes.map { XdmSequenceType.Schema(it) },
+        XdmSchemaType(returnType),
+        argumentTypes.map { XdmSchemaType(it) },
         evalFunction
     )
 

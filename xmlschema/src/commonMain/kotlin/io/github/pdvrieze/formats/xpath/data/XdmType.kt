@@ -20,23 +20,33 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 
 @OptIn(XPathInternal::class)
-sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
-    override val type: XdmFunctionType
-        get() = TODO("There is no function type type yet")
+sealed class XdmType {
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
-        throw EvaluationException(EvaluationException.ErrorCodes.FOTY0013, "Cannot atomize a function")
-    }
+    abstract fun isSubtypeOf(other: XdmType): Boolean
 
     context(ctx: ExprEvalContext)
-    override fun toBoolean(): Boolean {
-        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, ctx.expr, "Cannot cast functions to boolean")
+    fun isSubtypeOf(expectedType: AnyType): Boolean =
+        isSubtypeOf(XdmSchemaType(expectedType))
+
+
+    object EmptySequence : XdmType() {
+        context(ctx: ExprEvalContext)
+        override fun isSubtypeOf(other: XdmType): Boolean {
+            when {
+                other == EmptySequence -> return true
+                other is XdmSequenceType -> return other.cardinality.allowsEmpty
+                else -> return false
+            }
+        }
+
+        override fun toString(): String = "EmptySequence()"
+
+
     }
 }
-

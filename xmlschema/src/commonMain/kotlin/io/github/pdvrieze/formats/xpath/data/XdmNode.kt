@@ -20,13 +20,18 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import nl.adaptivity.xmlutil.dom2.*
 
 @XPathInternal
 @OptIn(NeedsXPath2::class)
-class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequenceType.Schema(UntypedType.Instance)) : XdmValue() {
+class XdmNode(
+    val node: Node,
+    override val type: XdmType = XdmSchemaType(UntypedType.Instance)
+) : XdmSingleValue<XdmNode>() {
     val posSeq: IntArray
 
     init {
@@ -44,13 +49,7 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
         }
     }
 
-    context(ctx: ExprEvalContext)
-    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
-        predicates.evalPredicates(this) -> this
-        else -> XdmSequence.EMPTY
-    }
-
-    override fun get(index: Int): XdmNode = this
+    override fun asT(): XdmNode = this
 
     fun descendantsSequence(): Sequence<XdmNode> {
         return sequence {
@@ -89,8 +88,15 @@ class XdmNode constructor(val node: Node, override val type: XdmType = XdmSequen
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmValue {
-        TODO("not implemented")
+    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+        receiver.add(atomize())
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun atomize(): XdmNode {
+        // TODO add check that the value is not "typed" (there is an actual value in the node)
+        // otherwise throw FOTY0012
+        return this
     }
 
     override fun toString(): String {

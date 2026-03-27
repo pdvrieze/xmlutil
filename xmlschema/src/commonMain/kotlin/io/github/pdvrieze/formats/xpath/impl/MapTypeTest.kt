@@ -20,7 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
+import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
+import io.github.pdvrieze.formats.xpath.data.XdmTypeTest
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 
 @OptIn(NeedsXPath3_0::class, NeedsXPath3_1::class)
@@ -36,10 +37,10 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
             // 2.5.6.2 #30
             if (baseType is FunctionTypeTest.Typed) {
                 val paramType: SequenceType = (baseType.paramTypes.singleOrNull()) ?: return false
-                val evalType = paramType.eval() as? XdmSequenceType.Schema ?: return false
+                val evalType = paramType.eval() as? XdmSchemaType ?: return false
                 if(evalType.schemaType.name?.isEquivalent(AnyAtomicType.Instance.name) == true) {
                     val otherReturnType = baseType.returnType.eval()
-                    if (otherReturnType is XdmSequenceType.ItemType && otherReturnType.itemType == ItemTypeTest.ItemTestTest) {
+                    if (otherReturnType is XdmTypeTest && otherReturnType.itemType == ItemTypeTest.ItemTestTest) {
                         return true
                     }
                 }

@@ -530,7 +530,7 @@ class EvaluationException : Exception {
          * Raised by functions such as `fn:max`, `fn:min`, `fn:avg`, `fn:sum` if the supplied
          * sequence contains values inappropriate to this function.
          */
-        FORG0006("FORG0006", "Invalid argument type."),
+        FORG0006_INVALID_ARGUMENT_TYPE("FORG0006", "Invalid argument type."),
 
         /**
          * Raised by `fn:dateTime` if the two arguments both have timezones and the timezones
