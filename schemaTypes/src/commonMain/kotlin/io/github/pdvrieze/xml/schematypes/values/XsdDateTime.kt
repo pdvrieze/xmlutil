@@ -36,7 +36,7 @@ interface XsdDateTime : IXsdDateTime {
 
     companion object: SimpleTypeSerializer<XsdDateTime>("xsd.dateTime") {
 
-        operator fun invoke(str: String): XsdDateTime = XsdDateTimeImpl(str)
+        operator fun invoke(str: CharSequence): XsdDateTime = XsdDateTimeImpl(str)
 
         operator fun invoke(
             year: Int,

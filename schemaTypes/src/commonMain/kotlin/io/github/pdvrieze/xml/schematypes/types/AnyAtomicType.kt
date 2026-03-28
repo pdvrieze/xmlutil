@@ -24,10 +24,14 @@ import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnyAtomicType<out T : XsdAtomic> : AnySimpleType.AtomicOrUnion<T> {
+
     override val baseType: AnySimpleType<*>
+
+    fun fromString(value: CharSequence): T
 
     object Instance : AnyAtomicType<XsdAtomic>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "anyAtomicType", "xs")
@@ -39,5 +43,9 @@ interface AnyAtomicType<out T : XsdAtomic> : AnySimpleType.AtomicOrUnion<T> {
         override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
         override val constrainingFacets: List<ConstrainingFacet> get() = emptyList()
+
+        override fun fromString(value: CharSequence): XsdAtomic {
+            return XsdString(value)
+        }
     }
 }

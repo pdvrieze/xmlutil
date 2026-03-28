@@ -46,5 +46,9 @@ interface NameType<out T : XsdName> : TokenType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetPattern("\\i\\c*"),
         )
+
+        override fun fromString(value: CharSequence): XsdName {
+            return XsdName(value)
+        }
     }
 }

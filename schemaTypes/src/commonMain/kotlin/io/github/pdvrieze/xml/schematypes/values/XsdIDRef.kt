@@ -35,8 +35,8 @@ interface XsdIDRef : XsdNCName {
     override val schemaType: IDRefType<XsdIDRef>
 
     companion object : SimpleTypeSerializer<XsdIDRef>("xs.IDREF") {
-        operator fun invoke(rawId: String): XsdIDRef {
-            return XsdIDRefImpl(rawId)
+        operator fun invoke(rawId: CharSequence): XsdIDRef {
+            return XsdIDRefImpl(rawId.toString())
         }
 
         override fun deserialize(decoder: Decoder): XsdIDRef {

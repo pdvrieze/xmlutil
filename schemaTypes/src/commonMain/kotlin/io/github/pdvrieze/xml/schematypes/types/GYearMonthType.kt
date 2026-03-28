@@ -45,5 +45,9 @@ interface GYearMonthType<out T : XsdGYearMonth> : AnyAtomicType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun fromString(value: CharSequence): XsdGYearMonth {
+            return XsdGYearMonth(value)
+        }
     }
 }

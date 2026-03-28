@@ -122,6 +122,10 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
         operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLongImpl(value)
         operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedInt(value)
+
+        operator fun invoke(value: CharSequence): XsdUnsignedLong =
+            XsdUnsignedLongImpl(value.toString().toULong())
+
     }
 
 }

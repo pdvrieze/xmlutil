@@ -43,6 +43,8 @@ interface BooleanType<out T : XsdBoolean> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, false)
         )
+
+        override fun fromString(value: CharSequence): XsdBoolean = XsdBoolean(value)
     }
 
 }

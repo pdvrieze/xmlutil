@@ -97,7 +97,7 @@ class XsdDurationImpl(override val months: Long, override val millis: Long) : Xs
     override val schemaType: DurationType<XsdDuration> get() = DurationType.Instance
 
     companion object {
-        operator fun invoke(representation: String): XsdDurationImpl {
+        operator fun invoke(representation: CharSequence): XsdDurationImpl {
             require(representation.length >= 3) // some value is needed with suffix
             var i = 0
             val sign = when {

@@ -95,6 +95,8 @@ interface XsdUnsignedByte : XsdUnsignedShort {
         }
 
         operator fun invoke(value: UByte): XsdUnsignedByte = XsdUnsignedByteImpl(value)
+
+        operator fun invoke(value: CharSequence): XsdUnsignedByte = invoke(value.toString().toUByte())
     }
 
 }

@@ -38,7 +38,7 @@ interface XsdToken : XsdNormalizedString {
             return XsdTokenImpl(xmlCollapseWhitespace(raw))
         }
 
-        operator fun invoke(value: String): XsdToken = XsdTokenImpl(xmlCollapseWhitespace(value))
+        operator fun invoke(value: CharSequence): XsdToken = XsdTokenImpl(xmlCollapseWhitespace(value))
     }
 
 }

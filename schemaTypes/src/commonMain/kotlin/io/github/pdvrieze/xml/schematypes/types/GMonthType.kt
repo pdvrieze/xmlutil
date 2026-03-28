@@ -45,5 +45,9 @@ interface GMonthType<out T : XsdGMonth> : AnyAtomicType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun fromString(value: CharSequence): XsdGMonth {
+            return XsdGMonth(value)
+        }
     }
 }

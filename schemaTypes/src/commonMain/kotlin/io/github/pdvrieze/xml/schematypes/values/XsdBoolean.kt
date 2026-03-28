@@ -44,6 +44,16 @@ interface XsdBoolean : XsdAtomic {
 
         operator fun invoke(value: Boolean): XsdBoolean = if (value) TRUE else FALSE
 
+        public operator fun invoke(str: CharSequence): XsdBoolean {
+            return when (val s = xmlTrimWhitespace(str)) {
+                "0", "false" -> FALSE
+
+                "1", "true" -> TRUE
+
+                else -> throw NumberFormatException("Invalid boolean value: $s")
+            }
+        }
+
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xsd.boolean", PrimitiveKind.STRING)
 
         override fun serialize(encoder: Encoder, value: XsdBoolean) = when (value.value) {
@@ -51,14 +61,9 @@ interface XsdBoolean : XsdAtomic {
             else -> encoder.encodeString("false")
         }
 
-        override fun deserialize(decoder: Decoder): XsdBoolean =
-            when (val s = xmlTrimWhitespace(decoder.decodeString())) {
-                "0", "false" -> FALSE
-
-                "1", "true" -> TRUE
-
-                else -> throw NumberFormatException("Invalid boolean value: $s")
-            }
+        override fun deserialize(decoder: Decoder): XsdBoolean {
+            return invoke(decoder.decodeString())
+        }
     }
 
 }

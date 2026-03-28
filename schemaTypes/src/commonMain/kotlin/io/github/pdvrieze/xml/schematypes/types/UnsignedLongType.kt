@@ -39,7 +39,7 @@ interface UnsignedLongType<out T : XsdUnsignedLong> : NonNegativeIntegerType<T> 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: UnsignedLongType<XsdUnsignedLong>, BuiltinType {
+    object Instance : UnsignedLongType<XsdUnsignedLong>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "unsignedLong", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
@@ -49,5 +49,9 @@ interface UnsignedLongType<out T : XsdUnsignedLong> : NonNegativeIntegerType<T> 
             FacetMaxInclusive.Companion(XsdUnsignedLong.Companion(ULong.MAX_VALUE)),
             FacetMinInclusive.Companion(XsdUnsignedLong.Companion(0uL)),
         )
+
+        override fun fromString(value: CharSequence): XsdUnsignedLong {
+            return XsdUnsignedLong(value)
+        }
     }
 }

@@ -71,7 +71,7 @@ value class XsdGMonthDayImpl(val monthdayVal: UInt) : XsdGMonthDay {
     override fun toString(): String = xmlString
 
     companion object {
-        operator fun invoke(str: String) : XsdGMonthDayImpl {
+        operator fun invoke(str: CharSequence) : XsdGMonthDayImpl {
             val normalized = xmlCollapseWhitespace(str)
             require(normalized.startsWith("--"))
             val tzIndex = normalized.indexOf('Z', 2)

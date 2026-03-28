@@ -84,7 +84,7 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
     override fun toString(): String = xmlString
 
     companion object {
-        operator fun invoke(representation: String): XsdTimeImpl {
+        operator fun invoke(representation: CharSequence): XsdTimeImpl {
             require(representation.length >= 8)
             val hours = representation.substring(0, 2).toUInt()
             require(representation[2] == ':')

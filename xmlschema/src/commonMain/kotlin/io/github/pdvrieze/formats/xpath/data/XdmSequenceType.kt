@@ -33,7 +33,7 @@ sealed class XdmSingleType : XdmType() {
     context(ctx: ExprEvalContext)
     final override fun isSubtypeOf(other: XdmType): Boolean {
         return when (other) {
-            EmptySequence -> false
+            EmptySequenceType -> false
             is XdmSequenceType -> isSubtypeOf(other.baseType) // all cardinalities allow single values
             is XdmSingleType -> isSubtypeOf(other)
         }
@@ -59,6 +59,11 @@ class XdmSequenceType(val baseType: XdmSingleType = ANY, val cardinality: Occurr
     context(ctx: ExprEvalContext)
     override fun isSubtypeOf(other: XdmType): Boolean {
         return other is XdmSequenceType && isCardinalSubtype(other.cardinality) && baseType.isSubtypeOf(other.baseType)
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun fromString(value: String): XdmValue {
+        throw EvaluationException(ctx.expr, "Sequences cannot be created from strings")
     }
 
     companion object {

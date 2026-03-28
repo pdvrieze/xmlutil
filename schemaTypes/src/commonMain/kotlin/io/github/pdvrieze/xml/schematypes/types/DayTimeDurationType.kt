@@ -46,6 +46,10 @@ interface DayTimeDurationType<out T : XsdDayTimeDuration> : DurationType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetPattern("[^YM]*(T.*)?"),
         )
+
+        override fun fromString(value: CharSequence): XsdDayTimeDuration {
+            return XsdDayTimeDuration(value)
+        }
     }
 
 }

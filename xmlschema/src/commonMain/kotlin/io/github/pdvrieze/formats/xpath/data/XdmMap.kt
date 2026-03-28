@@ -45,20 +45,26 @@ class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val type: XdmMap
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>): Nothing {
-        throw EvaluationException.Companion(EvaluationException.ErrorCodes.FOTY0013, "Cannot atomize a map")
+        throw EvaluationException.Companion(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 
     context(ctx: ExprEvalContext)
     override fun atomize(): Nothing {
-        throw EvaluationException.Companion(EvaluationException.ErrorCodes.FOTY0013, "Cannot atomize a map")
+        throw EvaluationException.Companion(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Nothing {
         throw EvaluationException(
-            EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+            ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
             ctx.expr,
             "Cannot cast maps to boolean"
         )
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun normalizeToArithmetic(): XdmValue {
+        throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Maps are not compatible with an arithmetic operator")
     }
 }

@@ -110,6 +110,9 @@ interface XsdUnsignedInt : XsdUnsignedLong {
         }
 
         operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedIntImpl(value)
+
+        operator fun invoke(value: CharSequence): XsdUnsignedInt =
+            XsdUnsignedIntImpl(value.toString().toUInt())
     }
 
 }

@@ -61,6 +61,10 @@ interface ResAtomicDatatype<out T: XsdAtomic> : ResolvedBuiltinSimpleType<T>, Re
 
     fun valueFromNormalized(normalized: XsdString): T
 
+    override fun fromString(value: CharSequence): T {
+        return value(value as? XsdString ?: XsdString.Companion(value))
+    }
+
 //    override fun toString(): String = "Builtin:${mdlQName.getLocalPart()}"
 
     override val simpleDerivation: ResolvedSimpleRestrictionBase

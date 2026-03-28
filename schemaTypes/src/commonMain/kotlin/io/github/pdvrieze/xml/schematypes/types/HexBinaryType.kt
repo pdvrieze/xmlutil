@@ -45,10 +45,14 @@ interface HexBinaryType<out T : XsdHexBinary> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )
+
+        override fun fromString(value: CharSequence): XsdHexBinary {
+            return XsdHexBinary(value)
+        }
     }
 
     companion object {
-        fun length(representation: String): Int {
+        fun length(representation: CharSequence): Int {
             var acc = 0
             for (c in representation) {
                 when {

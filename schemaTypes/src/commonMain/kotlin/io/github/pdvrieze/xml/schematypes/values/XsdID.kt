@@ -36,8 +36,8 @@ interface XsdID : XsdNCName {
             return invoke(raw)
         }
 
-        operator fun invoke(rawId: String): XsdID {
-            return XsdIDImpl(rawId)
+        operator fun invoke(rawId: CharSequence): XsdID {
+            return XsdIDImpl(rawId.toString())
         }
 
     }

@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixStringList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.normalizeWhitespace
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable
@@ -39,30 +40,17 @@ enum class WhitespaceValue {
     @SerialName("replace")
     REPLACE {
 
-        private fun replace(representation: CharSequence): String {
-            return buildString(representation.length, fun StringBuilder.() {
-                for (c in representation) when (c) {
-                    '\t', '\n', '\r' -> append(' ')
-                    else -> append(c)
-                }
-            })
-        }
-
         override fun normalize(representation: XsdString): XsdString = when(representation) {
             is XsdPrefixStringList -> XsdPrefixStringList(
                 representation.elems.map { normalize(it) })
 
             is XsdPrefixString -> XsdPrefixString(
-                namespace = replace(representation.namespace),
-                prefix = replace(representation.prefix),
-                localname = replace(representation.localname),
+                namespace = normalizeWhitespace(representation.namespace),
+                prefix = normalizeWhitespace(representation.prefix),
+                localname = normalizeWhitespace(representation.localname),
             )
 
-            else -> XsdString.Companion(
-                replace(
-                    representation.xmlString
-                )
-            )
+            else -> XsdString(normalizeWhitespace(representation))
         }
 
         override fun canOverride(oldValue: WhitespaceValue): Boolean = (oldValue != COLLAPSE)
@@ -84,7 +72,7 @@ enum class WhitespaceValue {
                 localname = xmlCollapseWhitespace(representation.localname),
             )
 
-            else -> XsdString.Companion(
+            else -> XsdString(
                 xmlCollapseWhitespace(representation.xmlString)
             )
         }

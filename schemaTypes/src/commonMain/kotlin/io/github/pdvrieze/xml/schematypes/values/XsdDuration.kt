@@ -44,7 +44,7 @@ interface XsdDuration : XsdAtomic {
 
     companion object : SimpleTypeSerializer<XsdDuration>("xsd.duration") {
 
-        operator fun invoke(str: String): XsdDuration {
+        operator fun invoke(str: CharSequence): XsdDuration {
             return XsdDurationImpl(str)
         }
 

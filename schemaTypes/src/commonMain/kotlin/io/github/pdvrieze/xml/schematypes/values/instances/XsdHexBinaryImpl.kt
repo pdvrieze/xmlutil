@@ -33,7 +33,7 @@ import kotlin.jvm.JvmInline
 @OptIn(ExperimentalEncodingApi::class)
 value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, ListHelper<Byte> {
 
-    constructor(hexString: String) : this(hexString.toByteArray())
+    constructor(hexString: CharSequence) : this(hexString.toString().toByteArray())
 
     override val xmlString: String get() = Base64.encode(value)
 

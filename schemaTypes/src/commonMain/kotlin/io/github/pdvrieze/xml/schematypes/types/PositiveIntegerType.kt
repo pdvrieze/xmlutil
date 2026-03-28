@@ -50,6 +50,10 @@ interface PositiveIntegerType<out T : XsdNonNegativeInteger> : NonNegativeIntege
             FacetPattern("+?[0-9]+"),
             FacetMinInclusive(XsdNonNegativeInteger(1)),
         )
+
+        override fun fromString(value: CharSequence): XsdPositiveInteger {
+            return XsdPositiveInteger(value)
+        }
     }
 
 

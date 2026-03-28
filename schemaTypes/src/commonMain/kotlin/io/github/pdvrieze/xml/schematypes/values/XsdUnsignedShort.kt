@@ -92,6 +92,8 @@ interface XsdUnsignedShort : XsdUnsignedInt {
         }
 
         operator fun invoke(value: UShort): XsdUnsignedShort = XsdUnsignedShortImpl(value)
+
+        operator fun invoke(value: CharSequence): XsdUnsignedShort = XsdUnsignedShortImpl(value.toString().toUShort())
     }
 
 }

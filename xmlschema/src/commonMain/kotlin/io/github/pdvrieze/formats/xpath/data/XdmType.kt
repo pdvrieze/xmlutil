@@ -34,12 +34,15 @@ sealed class XdmType {
     fun isSubtypeOf(expectedType: AnyType): Boolean =
         isSubtypeOf(XdmSchemaType(expectedType))
 
+    context(ctx: ExprEvalContext)
+    abstract fun fromString(value: String): XdmValue
 
-    object EmptySequence : XdmType() {
+
+    object EmptySequenceType : XdmType() {
         context(ctx: ExprEvalContext)
         override fun isSubtypeOf(other: XdmType): Boolean {
             when {
-                other == EmptySequence -> return true
+                other == EmptySequenceType -> return true
                 other is XdmSequenceType -> return other.cardinality.allowsEmpty
                 else -> return false
             }
@@ -47,6 +50,24 @@ sealed class XdmType {
 
         override fun toString(): String = "EmptySequence()"
 
+        context(ctx: ExprEvalContext)
+        override fun fromString(value: String): XdmValue {
+            var state: Int = 0
+            for (c in value) {
+                when (c) {
+                    ' ', '\t', '\n', '\r' -> {}
+                    '(' if state == 0 -> state = 1
+                    ')' if state == 1 -> state = 2
 
+                    else -> {
+                        state = -1
+                        break
+                    }
+                }
+            }
+            if (state != 2) throw EvaluationException(ctx.expr, "Cannot convert string to empty sequence")
+
+            return XdmSequence.EMPTY
+        }
     }
 }

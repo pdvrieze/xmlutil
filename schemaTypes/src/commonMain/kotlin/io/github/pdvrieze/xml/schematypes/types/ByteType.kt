@@ -48,5 +48,9 @@ interface ByteType<out T : XsdByte> : ShortType<T> {
             FacetMaxInclusive.Companion(XsdByte.Companion(Byte.MAX_VALUE)),
             FacetMinInclusive.Companion(XsdByte.Companion(Byte.MIN_VALUE)),
         )
+
+        override fun fromString(value: CharSequence): XsdByte {
+            return XsdByte(value)
+        }
     }
 }

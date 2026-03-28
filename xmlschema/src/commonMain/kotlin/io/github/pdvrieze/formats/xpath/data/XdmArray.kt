@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 

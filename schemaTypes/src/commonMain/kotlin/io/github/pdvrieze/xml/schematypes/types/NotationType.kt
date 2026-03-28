@@ -44,5 +44,9 @@ interface NotationType<out T : XsdNotation> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )
+
+        override fun fromString(value: CharSequence): XsdNotation {
+            throw UnsupportedOperationException("Notation types are namespace sensitive and cannot be parsed from strings")
+        }
     }
 }

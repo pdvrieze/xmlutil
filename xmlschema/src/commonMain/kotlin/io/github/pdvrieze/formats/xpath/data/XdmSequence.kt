@@ -95,7 +95,7 @@ class XdmSequence<out T : XdmSingleValue<T>>(
     }
 
     companion object {
-        val EMPTY: XdmSequence<Nothing> = XdmSequence()
+        val EMPTY: XdmSequence<Nothing> = XdmSequence(type = XdmType.EmptySequenceType)
 
         interface XdmSequenceBuilder {
             fun add(value: XdmSingleValue<*>)

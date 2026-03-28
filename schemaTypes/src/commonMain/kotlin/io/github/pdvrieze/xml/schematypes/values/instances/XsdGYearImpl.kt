@@ -55,7 +55,7 @@ value class XsdGYearImpl(val yearVal: UInt) : XsdGYear {
     override val schemaType: GYearType<*> get() = GYearType.Instance
 
     companion object {
-        operator fun invoke(str: String): XsdGYearImpl {
+        operator fun invoke(str: CharSequence): XsdGYearImpl {
             val s = xmlCollapseWhitespace(str)
             val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it >= 0) it + 1 else s.length }
             val year = s.substring(0, yearEnd).toInt()

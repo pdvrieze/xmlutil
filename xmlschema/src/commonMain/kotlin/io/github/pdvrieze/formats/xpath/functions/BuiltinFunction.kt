@@ -27,10 +27,11 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.BooleanType
-import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.types.DoubleType
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.dom2.ownerDocument
 
 @XPathInternal
@@ -80,6 +81,19 @@ interface BuiltinFunction <out R: XdmValue> {
             XdmAtomic(XsdBoolean(it.singleArg<XdmValue>().toBoolean()))
         }
 
+        val NUMBER: BuiltinFunction<XdmAtomic<XsdDouble>> = builtIn("number", DoubleType.Instance, AnyAtomicType.Instance) { args ->
+            val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextItem else args.singleArg<XdmValue>()
+            if(arg !is XdmAtomic<*>) return@builtIn XdmAtomic.NaN
+
+            @Suppress("UNCHECKED_CAST")
+            when (val value = arg.value) {
+                is XsdDouble -> arg as XdmAtomic<XsdDouble>
+                is XsdFloat -> XdmAtomic(XsdDouble(value.value.toDouble()))
+                is XsdDecimal -> XdmAtomic(XsdDouble(value.toDouble()))
+                else -> XdmAtomic(XsdDouble(value.xmlString.toDoubleOrNull()?: Double.NaN))
+            }
+        }
+
         private val functions = hashMapOf(
             "boolean" to BOOLEAN,
             "false" to FALSE,
@@ -90,9 +104,14 @@ interface BuiltinFunction <out R: XdmValue> {
                 XdmAtomic(XsdInteger(arg.size.toLong()))
             },
             "root" to builtIn("root", XdmTypeTest(NodeKindTest.DocumentTest()), XdmSequenceType.node) { args ->
-                val node = when {
+                val node: XdmNode = when {
                     args.isEmpty() -> contextOf<ExprEvalContext>().contextItem as XdmNode
-                    else -> args.singleArg<XdmNode>()
+                    args.size > 1 -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "root() takes zero or one argument")
+                    else -> when (val a = args[0]){
+                        is XdmNode -> a
+//                        null -> throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+                        else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "root() takes a node as argument, found ${a.type}")
+                    }
                 }
                 XdmNode(node.node.ownerDocument)
             },

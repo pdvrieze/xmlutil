@@ -49,5 +49,9 @@ interface UnsignedByteType<out T : XsdUnsignedByte> : UnsignedShortType<T> {
             FacetMaxInclusive.Companion(XsdUnsignedByte.Companion(UByte.MAX_VALUE)),
             FacetMinInclusive.Companion(XsdUnsignedByte.Companion(0u)),
         )
+
+        override fun fromString(value: CharSequence): XsdUnsignedByte {
+            return XsdUnsignedByte(value)
+        }
     }
 }

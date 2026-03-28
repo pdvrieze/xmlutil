@@ -21,12 +21,12 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.FN
 import io.github.pdvrieze.formats.xpath.functions.OP_BOOLEAN_EQUAL
 import io.github.pdvrieze.formats.xpath.impl.*
-import io.github.pdvrieze.xml.schematypes.types.BooleanType
-import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.types.*
+import io.github.pdvrieze.xml.schematypes.values.*
 
 enum class Operator(
     override val literal: String,
@@ -122,7 +122,9 @@ enum class Operator(
     TO("to", 7, XPathVersion.XPath2_0, false),
 
     @NeedsXPath1
-    ADD("+", 8, XPathVersion.XPath1_0, true),
+    ADD("+", 8, XPathVersion.XPath1_0, true) {
+
+    },
     @NeedsXPath1
     SUB("-", 8, XPathVersion.XPath1_0, true),
 
@@ -186,4 +188,78 @@ enum class Operator(
         params.reduce { acc, param -> eval(acc, param) }
 
 
+}
+
+interface ArithmeticOperator {
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun normalizeToArithmetic(value: XdmValue): XdmValue {
+        val v1 = value.atomize()
+        // Handle sequences
+        val v2: XdmSingleValue<*> = when (v1.size) {
+            0 -> return if (ctx.isXPath1Compat) XdmAtomic.NaN else XdmSequence.EMPTY
+            1 -> v1[0]
+            else if ctx.isXPath1Compat -> v1[0]
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as arithmatic operand")
+        }
+        if (v2 !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value type ${value.type} is not compatible with an arithmetic operator")
+        when {
+            v2.value is XsdDouble -> return v2
+            !ctx.isXPath1Compat -> {
+                if (v2.type == UntypedAtomicType.Instance) {
+                    return v2.toXdmDouble()
+                } else return v2
+            }
+            v2.value is XsdBoolean ||
+                    v2.value is XsdDecimal ||
+                    v2.value is XsdFloat ||
+                    v2.type == UntypedAtomicType.Instance -> return FN.NUMBER.eval(v2)
+        }
+        return v2
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun eval(left: XdmValue, right: XdmValue): XdmValue {
+        val l = when (val n = normalizeToArithmetic(left)) {
+            is XdmAtomic<*> -> n
+            XdmSequence.EMPTY -> return XdmSequence.EMPTY
+            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
+        }
+        val r = when (val n = normalizeToArithmetic(right)) {
+            is XdmAtomic<*> -> n
+            XdmSequence.EMPTY -> return XdmSequence.EMPTY
+            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
+        }
+        val requiredType = operatorMapping(l.value.schemaType, r.value.schemaType)
+        return when (requiredType) {
+            is DoubleType<*> -> evalDouble(l.toXdmDouble().value.value, r.toXdmDouble().value.value)
+            is FloatType<*> -> evalFloat(l.toXdmFloat().value.value, r.toXdmFloat().value.value)
+            is IntegerType<*> -> evalInteger(l.toXdmInteger().value, r.toXdmInteger().value)
+            is DecimalType<*> -> evalDecimal(l.toXdmDecimal().value, r.toXdmDecimal().value)
+            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
+        }
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun operatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*>
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun evalFloat(left: Float, right: Float): XdmValue
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun evalDouble(left: Double, right: Double): XdmValue
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun evalInteger(left: XsdInteger, right: XsdInteger): XdmValue
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XdmValue
+
+//    fun evalNormalized(left: XdmAtomic<*>, right: XdmValue<*>)
 }

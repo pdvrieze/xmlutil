@@ -48,6 +48,10 @@ interface NonNegativeIntegerType<out T : XsdNonNegativeInteger> : IntegerType<T>
             FacetPattern("[\\-+]?[0-9]+"),
             FacetMinInclusive.Companion(XsdNonNegativeInteger.Companion(0)),
         )
+
+        override fun fromString(value: CharSequence): XsdNonNegativeInteger {
+            return XsdNonNegativeInteger(value)
+        }
     }
 
 

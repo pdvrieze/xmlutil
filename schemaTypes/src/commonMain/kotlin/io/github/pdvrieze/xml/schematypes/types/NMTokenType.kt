@@ -46,5 +46,9 @@ interface NMTokenType<out T : XsdNMToken> : TokenType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetPattern("\\c+"),
         )
+
+        override fun fromString(value: CharSequence): XsdNMToken {
+            return XsdNMToken(value)
+        }
     }
 }

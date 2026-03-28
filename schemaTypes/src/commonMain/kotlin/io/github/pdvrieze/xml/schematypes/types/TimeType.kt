@@ -45,6 +45,10 @@ interface TimeType<out T : XsdTime> : AnyAtomicType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun fromString(value: CharSequence): XsdTime {
+            return XsdTime(value)
+        }
     }
 
 

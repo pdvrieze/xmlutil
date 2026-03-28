@@ -54,10 +54,10 @@ interface XsdNCName : XsdName {
             return XsdNCNameImpl(xmlCollapseWhitespace(raw), version)
         }
 
-        operator fun invoke(value: String): XsdNCName = XsdNCNameImpl(value)
+        operator fun invoke(value: CharSequence): XsdNCName = XsdNCNameImpl(value.toString())
 
         @JvmName("invokeNullable")
-        operator fun invoke(value: String?): XsdNCName? = value?.let { XsdNCNameImpl(it) }
+        operator fun invoke(value: CharSequence?): XsdNCName? = value?.let { XsdNCNameImpl(it.toString()) }
     }
 }
 

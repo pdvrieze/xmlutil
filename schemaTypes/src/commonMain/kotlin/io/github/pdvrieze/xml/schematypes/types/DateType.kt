@@ -45,5 +45,7 @@ interface DateType<out T : XsdDate> : AnyAtomicType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun fromString(value: CharSequence): XsdDate = XsdDate(value)
     }
 }

@@ -65,7 +65,7 @@ value class XsdGYearMonthImpl(val monthYear: ULong) : XsdGYearMonth {
     override fun toString(): String = xmlString
 
     companion object {
-        operator fun invoke(str: String): XsdGYearMonth {
+        operator fun invoke(str: CharSequence): XsdGYearMonth {
             val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.toInt() }
             return XsdGYearMonthImpl(year, month.toUInt())
         }

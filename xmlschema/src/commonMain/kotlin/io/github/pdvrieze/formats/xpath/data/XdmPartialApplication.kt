@@ -45,4 +45,10 @@ class XdmPartialApplication(val function: XdmFunction<*>, val args: List<XdmValu
     override fun withType(type: XdmType): XdmPartialApplication {
         TODO("not implemented")
     }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun normalizeToArithmetic(): XdmValue {
+        throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Partial function applications not compatible with an arithmetic operator")
+    }
 }

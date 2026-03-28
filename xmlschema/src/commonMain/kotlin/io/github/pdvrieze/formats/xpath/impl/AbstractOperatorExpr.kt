@@ -20,39 +20,18 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @XPathInternal
-sealed class PrimaryOrStep {
+internal abstract class AbstractOperatorExpr(val operator: Operator): AbstractExprSingle() {
+    protected abstract val operands: List<ExprSingle>
 
-    abstract fun collectUnsupportedExprs(
-        xPathVersion: XPathVersion,
-        isXQuery: Boolean,
-        collector: MutableList<Any>
-    )
-
-
-    context(c: OutputContext)
-    abstract fun appendToString(builder: Appendable)
-
-    override fun toString(): String = buildString {
-        context(OutputContext.EMPTY) {
-            appendToString(this)
-        }
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return operands.asSequence()
+            .map { it.eval() }
+            .reduce { left, right -> withExprContext { operator.eval(left, right) } }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return this::class.hashCode()
-    }
-
-    context(ctx: ExprEvalContext)
-    abstract fun eval(context: XdmValue?): XdmValue
-
 }

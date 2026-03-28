@@ -105,7 +105,7 @@ interface XsdInteger : XsdDecimal {
             return XsdUnsignedInt(l)
         }
 
-        operator fun invoke(value: String): XsdInteger {
+        operator fun invoke(value: CharSequence): XsdInteger {
             return BigInt(value)
         }
     }

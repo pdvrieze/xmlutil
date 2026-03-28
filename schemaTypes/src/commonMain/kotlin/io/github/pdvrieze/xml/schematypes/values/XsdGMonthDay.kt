@@ -41,7 +41,7 @@ interface XsdGMonthDay: IXsdDateTime {
     override val second: Nothing? get() = null
 
     companion object: SimpleTypeSerializer<XsdGMonthDay>("xsd.gMonthDay") {
-        operator fun invoke(str: String): XsdGMonthDay = XsdGMonthDayImpl(str)
+        operator fun invoke(str: CharSequence): XsdGMonthDay = XsdGMonthDayImpl(str)
 
         operator fun invoke(month: UInt, day: UInt): XsdGMonthDay =
             XsdGMonthDayImpl(month, day)

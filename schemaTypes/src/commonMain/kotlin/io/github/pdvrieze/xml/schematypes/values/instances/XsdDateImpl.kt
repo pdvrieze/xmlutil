@@ -68,7 +68,7 @@ value class XsdDateImpl(val dateVal: ULong) : XsdDate {
     override fun toString(): String = xmlString
 
     companion object {
-        operator fun invoke(str: String) : XsdDate {
+        operator fun invoke(str: CharSequence) : XsdDate {
             val normalized = xmlCollapseWhitespace(str)
             val monthIdx = normalized.indexOf('-', 1) // sign can be start
             val year = normalized.substring(0, monthIdx).toInt()

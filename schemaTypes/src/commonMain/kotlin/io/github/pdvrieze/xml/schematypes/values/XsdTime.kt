@@ -42,7 +42,7 @@ interface XsdTime : IXsdDateTime {
     override val year: Nothing? get() = null
 
     companion object : SimpleTypeSerializer<XsdTime>("xsd.time") {
-        operator fun invoke(str: String): XsdTime = XsdTimeImpl(str)
+        operator fun invoke(str: CharSequence): XsdTime = XsdTimeImpl(str)
         operator fun invoke(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int?): XsdTime =
             XsdTimeImpl(hours, minutes, millis, timezoneOffset)
 

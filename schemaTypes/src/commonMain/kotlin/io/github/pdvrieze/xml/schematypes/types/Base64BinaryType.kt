@@ -46,5 +46,7 @@ interface Base64BinaryType<out T : XsdBase64Binary> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )
+
+        override fun fromString(value: CharSequence): XsdBase64Binary = XsdBase64Binary(value)
     }
 }

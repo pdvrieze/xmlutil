@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
@@ -31,12 +31,13 @@ sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
-        throw EvaluationException(EvaluationException.ErrorCodes.FOTY0013, "Cannot atomize a function")
+        throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a function")
     }
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean {
         throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, ctx.expr, "Cannot cast functions to boolean")
     }
+
 }
 

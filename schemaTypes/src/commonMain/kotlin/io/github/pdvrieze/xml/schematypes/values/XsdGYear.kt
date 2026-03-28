@@ -41,7 +41,7 @@ interface XsdGYear : IXsdDateTime {
     override val month: Nothing? get() = null
 
     companion object: SimpleTypeSerializer<XsdGYear>("xsd.gYear") {
-        operator fun invoke(str: String): XsdGYear = XsdGYearImpl(str)
+        operator fun invoke(str: CharSequence): XsdGYear = XsdGYearImpl(str)
 
         operator fun invoke(year: Int): XsdGYear = XsdGYearImpl(year, null)
 

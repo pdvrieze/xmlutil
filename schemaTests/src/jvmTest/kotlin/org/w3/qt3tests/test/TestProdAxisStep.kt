@@ -21,6 +21,9 @@
 package org.w3.qt3tests.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.data.XdmNil
 import io.github.pdvrieze.formats.xpath.data.XdmNode
 import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
@@ -36,6 +39,8 @@ import org.w3.qt3tests.resolved.assertions.AssertionResult
 import org.w3.qt3tests.test.TestParseCatalog.Companion.getTestSetSpec
 import org.w3.qt3tests.test.TestParseCatalog.Companion.parseTestSetImpl
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 @OptIn(XPathInternal::class)
 class TestProdAxisStep {
@@ -71,6 +76,18 @@ class TestProdAxisStep {
         val evalValue = testEvalTestCaseImpl(getTestCase("Axes036-2"))
     }
 
+    @Test
+    fun testK2Axes43() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("K2-Axes-43"))
+        val e = assertIs<EvaluationException>(evalValue.exceptionOrNull())
+        assertEquals(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, e.errorCode)
+    }
+
+    @Test
+    fun testCurrent() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("K2-Axes-50"))
+    }
+
     @ParameterizedTest
     @MethodSource("getTestCases")
     fun testEvalTestCase(testCase: ResolvedQt3TestCase) {
@@ -89,7 +106,7 @@ class TestProdAxisStep {
             }
         }
 
-        val context = contextDoc?.let { XdmNode(it.documentElement!!) } ?: XdmSequence.EMPTY
+        val context = contextDoc?.let { XdmNode(it.documentElement!!) }
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
         val evalResult = runCatching { testExpression.eval(context) }

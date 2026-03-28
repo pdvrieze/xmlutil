@@ -38,8 +38,8 @@ interface XsdYearMonthDuration : XsdDuration {
 
     companion object : SimpleTypeSerializer<XsdYearMonthDuration>("xsd.dateTimeDuration") {
 
-        operator fun invoke(str: String): XsdYearMonthDuration {
-            return XsdYearMonthDurationImpl.Companion(str)
+        operator fun invoke(str: CharSequence): XsdYearMonthDuration {
+            return XsdYearMonthDurationImpl(str)
         }
 
         operator fun invoke(months: Long): XsdYearMonthDuration {

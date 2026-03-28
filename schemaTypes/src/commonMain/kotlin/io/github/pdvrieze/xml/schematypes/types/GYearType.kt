@@ -45,6 +45,10 @@ interface GYearType<out T : XsdGYear> : AnyAtomicType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun fromString(value: CharSequence): XsdGYear {
+            return XsdGYear(value)
+        }
     }
 
 }

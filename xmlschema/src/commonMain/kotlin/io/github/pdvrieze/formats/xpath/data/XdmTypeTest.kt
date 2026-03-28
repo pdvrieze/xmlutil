@@ -33,4 +33,9 @@ class XdmTypeTest(val itemType: ItemTypeTest) : XdmSingleType() {
     }
 
     override fun toString(): String = "$itemType"
+
+    context(ctx: ExprEvalContext)
+    override fun fromString(value: String): XdmValue {
+        throw UnsupportedOperationException("Type tests cannot be created from strings")
+    }
 }

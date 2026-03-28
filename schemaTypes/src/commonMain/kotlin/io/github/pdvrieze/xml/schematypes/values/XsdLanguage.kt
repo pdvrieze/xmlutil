@@ -40,8 +40,8 @@ interface XsdLanguage: XsdToken {
             return invoke(raw)
         }
 
-        operator fun invoke(rawId: String): XsdLanguage {
-            return XsdLanguageImpl(rawId)
+        operator fun invoke(rawId: CharSequence): XsdLanguage {
+            return XsdLanguageImpl(rawId.toString())
         }
 
     }

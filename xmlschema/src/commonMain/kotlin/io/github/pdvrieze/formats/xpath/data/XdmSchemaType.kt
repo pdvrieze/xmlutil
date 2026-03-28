@@ -26,6 +26,7 @@ import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleUnion
 import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @XPathInternal
 class XdmSchemaType(
@@ -58,7 +59,18 @@ class XdmSchemaType(
         }
     }
 
+    context(ctx: ExprEvalContext)
+    override fun fromString(value: String): XdmAtomic<*> {
+        if (schemaType !is AnyAtomicType<*>) throw EvaluationException(ctx.expr, "Cannot convert string to non-atomic type")
+        val xsdValue: XsdAtomic = schemaType.fromString(value)
+        return XdmAtomic(xsdValue)
+    }
+
     override fun toString(): String {
         return schemaType.name.toString()
+    }
+
+    companion object {
+        val ANY_ATOMIC = XdmSchemaType(AnyAtomicType.Instance)
     }
 }

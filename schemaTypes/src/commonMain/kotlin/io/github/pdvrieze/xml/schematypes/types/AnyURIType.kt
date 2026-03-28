@@ -43,6 +43,8 @@ interface AnyURIType<out T : XsdAnyURI> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
+
+        override fun fromString(value: CharSequence): XsdAnyURI = XsdAnyURI(value)
     }
 
 }

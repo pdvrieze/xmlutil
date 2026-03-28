@@ -46,5 +46,15 @@ interface UntypedAtomicType : AnyAtomicType<XsdAtomic> {
         override val cardinality: FacetCardinality get() = baseType.cardinality
         override val numeric: FacetNumeric get() = baseType.numeric
         override val constrainingFacets: List<ConstrainingFacet> get() = baseType.constrainingFacets
+
+        override fun fromString(value: CharSequence): XsdAtomic {
+            return XsdUntyped(value.toString())
+        }
     }
+
+    private class XsdUntyped(override val xmlString: String): XsdAtomic {
+        override val schemaType: AnyAtomicType<XsdAtomic>
+            get() = UntypedAtomicType.Instance
+    }
+
 }

@@ -51,7 +51,7 @@ interface XsdDecimal : XsdAtomic {
             return invoke(raw)
         }
 
-        operator fun invoke(value: String): XsdDecimal {
+        operator fun invoke(value: CharSequence): XsdDecimal {
             val trimmed = xmlTrimWhitespace(value)
             val hasDecimal = '.' in trimmed
             if (hasDecimal) return XsdDecimalStringImpl(trimmed)

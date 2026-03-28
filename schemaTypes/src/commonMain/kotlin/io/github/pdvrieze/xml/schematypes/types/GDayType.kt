@@ -45,5 +45,9 @@ interface GDayType<out T : XsdGDay> : AnyAtomicType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun fromString(value: CharSequence): XsdGDay {
+            return XsdGDay(value)
+        }
     }
 }

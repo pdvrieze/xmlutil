@@ -45,5 +45,9 @@ interface TokenType<out T : XsdToken> : NormalizedStringType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )
+
+        override fun fromString(value: CharSequence): XsdToken {
+            return XsdToken(value)
+        }
     }
 }

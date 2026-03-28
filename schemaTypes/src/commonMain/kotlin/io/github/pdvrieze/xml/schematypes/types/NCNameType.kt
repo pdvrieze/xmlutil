@@ -47,6 +47,10 @@ interface NCNameType<out T : XsdNCName> : NameType<T> {
             FacetPattern("\\i\\c*"),
             FacetPattern("[\\i-[:]][\\c-[:]]*"),
         )
+
+        override fun fromString(value: CharSequence): XsdNCName {
+            return XsdNCName(value)
+        }
     }
 
 }

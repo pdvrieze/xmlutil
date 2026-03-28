@@ -47,5 +47,9 @@ interface IntegerType<out T: XsdInteger> : DecimalType<T> {
             FacetFractionDigits.Companion(0u),
             FacetPattern("[\\-+]?[0-9]+"),
         )
+
+        override fun fromString(value: CharSequence): XsdInteger {
+            return XsdInteger(value)
+        }
     }
 }

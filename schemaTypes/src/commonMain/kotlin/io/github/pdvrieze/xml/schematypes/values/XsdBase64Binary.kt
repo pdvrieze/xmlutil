@@ -37,6 +37,8 @@ interface XsdBase64Binary : XsdByteArray {
 
         public operator fun invoke(value: ByteArray): XsdBase64Binary = XsdBase64BinaryImpl(value)
 
+        public operator fun invoke(base64Text: CharSequence): XsdBase64Binary = XsdBase64BinaryImpl(Base64.decode(base64Text))
+
         override fun deserialize(
             raw: String,
             input: XmlReader?

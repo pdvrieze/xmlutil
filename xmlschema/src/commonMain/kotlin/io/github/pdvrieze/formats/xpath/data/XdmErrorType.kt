@@ -35,13 +35,17 @@ object XdmErrorType : XdmSingleType() {
         return false
     }
 
-/*
+    /*
     context(ctx: ExprEvalContext)
     override fun isSubtypeOf(other: XdmType): Boolean = when {
         cardinality.allowsEmpty -> EmptySequence.isSubtypeOf(other)
         else -> true
     }
 */
+    context(ctx: ExprEvalContext)
+    override fun fromString(value: String): XdmValue {
+        throw EvaluationException(ctx.expr, "Errors cannot be created from strings")
+    }
 
     override fun toString(): String = "xs:error"
 

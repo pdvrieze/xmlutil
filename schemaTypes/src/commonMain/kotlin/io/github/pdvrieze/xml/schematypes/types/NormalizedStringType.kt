@@ -24,7 +24,9 @@ import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdNormalizedString
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.normalizeWhitespace
 
 interface NormalizedStringType<out T : XsdNormalizedString> : StringType<T> {
     override val baseType: StringType<*> get() = StringType.Instance
@@ -45,5 +47,9 @@ interface NormalizedStringType<out T : XsdNormalizedString> : StringType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.REPLACE, true),
         )
+
+        override fun fromString(value: CharSequence): XsdNormalizedString {
+            return XsdNormalizedString(normalizeWhitespace(value))
+        }
     }
 }

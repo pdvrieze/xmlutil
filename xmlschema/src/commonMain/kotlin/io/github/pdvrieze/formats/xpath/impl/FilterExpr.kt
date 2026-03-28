@@ -28,8 +28,8 @@ import io.github.pdvrieze.formats.xpath.data.XdmValue
 @NeedsXPath1
 internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
     context(ctx: ExprEvalContext)
-    override fun eval(context: XdmValue): XdmValue {
-        val base = primaryExpr.eval()
+    override fun eval(context: XdmValue?): XdmValue {
+        val base = context(EvalContext(context, ctx.isXPath1Compat)) { primaryExpr.eval() }
         if (predicates.isEmpty()) return base
 
 

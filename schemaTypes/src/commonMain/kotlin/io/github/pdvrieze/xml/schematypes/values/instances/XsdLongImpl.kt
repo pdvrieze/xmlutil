@@ -30,6 +30,9 @@ import kotlin.math.absoluteValue
 
 @JvmInline
 internal value class XsdLongImpl(override val longValue: Long) : XsdLong {
+
+    constructor(value: CharSequence): this(value.toString().toLong())
+
     override fun toInt(): Int = longValue.toInt()
 
     override val xmlString: String get() = longValue.toString()

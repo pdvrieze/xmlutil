@@ -25,12 +25,14 @@ import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @XPathInternal
 @NeedsXPath1
-class BinaryExpr(val operator: Operator, val left: ExprSingle, val right: ExprSingle): AbstractExprSingle() {
+internal class BinaryExpr(operator: Operator, val left: ExprSingle, val right: ExprSingle): AbstractOperatorExpr(operator) {
+    override val operands: List<ExprSingle> get() = listOf(left, right)
+
     context(ctx: EvalContext)
     @XPathInternal
     override fun eval(): XdmValue {
-        val l = left.withExprContext { it.eval() }
-        val r = right.withExprContext { it.eval() }
+        val l = left.eval()
+        val r = right.eval()
         return withExprContext { operator.eval(l, r) }
     }
 

@@ -32,7 +32,7 @@ interface XsdEntity : XsdNCName {
     override val schemaType: EntityType<XsdEntity>
 
     companion object : SimpleTypeSerializer<XsdEntity>("xs.ENTITY") {
-        operator fun invoke(value: String) = XsdEntityImpl(value)
+        operator fun invoke(value: CharSequence) = XsdEntityImpl(value.toString())
 
         override fun deserialize(raw: String, input: XmlReader?): XsdEntity {
             return XsdEntityImpl(xmlCollapseWhitespace(raw))

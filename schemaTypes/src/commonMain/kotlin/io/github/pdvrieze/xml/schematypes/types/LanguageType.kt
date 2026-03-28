@@ -46,6 +46,10 @@ interface LanguageType<out T : XsdLanguage> : TokenType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetPattern("[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*")
         )
+
+        override fun fromString(value: CharSequence): XsdLanguage {
+            return XsdLanguage(value)
+        }
     }
 
 }

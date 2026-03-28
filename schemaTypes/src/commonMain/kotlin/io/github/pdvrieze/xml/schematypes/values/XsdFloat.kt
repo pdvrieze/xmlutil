@@ -37,6 +37,8 @@ interface XsdFloat: XsdAtomic {
     companion object : SimpleTypeSerializer<XsdFloat>("xsd.float") {
         operator fun invoke(value: Float): XsdFloat = XsdFloatImpl(value)
 
+        operator fun invoke(value: CharSequence): XsdFloat = XsdFloatImpl(value.toString().toFloat())
+
         override fun deserialize(
             raw: String,
             input: XmlReader?

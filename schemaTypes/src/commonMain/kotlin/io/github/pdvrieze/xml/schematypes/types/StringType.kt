@@ -43,5 +43,7 @@ interface StringType<out T : XsdString> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.PRESERVE, false)
         )
+
+        override fun fromString(value: CharSequence): XsdString = XsdString(value)
     }
 }

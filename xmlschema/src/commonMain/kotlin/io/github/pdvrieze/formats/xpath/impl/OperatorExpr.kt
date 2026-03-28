@@ -23,17 +23,17 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @XPathInternal
-internal class OperatorExpr constructor(val operator: Operator, val operands: List<ExprSingle>): AbstractExprSingle() {
+internal class OperatorExpr constructor(operator: Operator, override val operands: List<ExprSingle>): AbstractOperatorExpr(operator) {
     init {
-        require(operands.isNotEmpty()) {"OperatorExpr must have at least one operand"}
+        require(operands.size > 1) { "OperatorExpr must have at least two operands" }
     }
 
-    constructor(op: Operator, vararg operands: ExprSingle): this(op, operands.asList())
+    constructor(op: Operator, vararg operands: ExprSingle) : this(op, operands.asList())
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.joinHelper(operands, " ${operator.literal} ") {
-            it.appendToString(builder)
+            it.appendToString(this)
         }
     }
 

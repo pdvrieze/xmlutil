@@ -50,5 +50,9 @@ interface LongType<out T : XsdLong> : IntegerType<T> {
             FacetMaxInclusive.Companion(XsdLong.Companion(Long.MAX_VALUE)),
             FacetMinInclusive.Companion(XsdLong.Companion(Long.MIN_VALUE)),
         )
+
+        override fun fromString(value: CharSequence): XsdLong {
+            return XsdLong(value)
+        }
     }
 }

@@ -41,6 +41,8 @@ interface XsdByte : XsdShort {
     companion object : SimpleTypeSerializer<XsdByte>("xsd.byte") {
         operator fun invoke(value: Byte): XsdByte = XsdByteImpl(value)
 
+        operator fun invoke(value: CharSequence): XsdByte = XsdByteImpl(value.toString().toByte())
+
         override fun deserialize(raw: String, input: XmlReader?): XsdByte {
             return XsdByteImpl(raw.toByte())
         }

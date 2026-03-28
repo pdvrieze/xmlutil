@@ -47,6 +47,10 @@ interface EntityType<out T : XsdEntity> : NCNameType<T> {
             FacetPattern("\\i\\c*"),
             FacetPattern("[\\i-[:]][\\c-[:]]*"),
         )
+
+        override fun fromString(value: CharSequence): XsdEntity {
+            return XsdEntity(value)
+        }
     }
 
 

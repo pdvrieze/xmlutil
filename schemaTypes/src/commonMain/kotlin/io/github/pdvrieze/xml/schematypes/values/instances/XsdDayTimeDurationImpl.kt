@@ -87,7 +87,7 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
     override val schemaType: DayTimeDurationType<XsdDayTimeDuration> get() = DayTimeDurationType.Instance
 
     companion object {
-        operator fun invoke(representation: String): XsdDayTimeDurationImpl {
+        operator fun invoke(representation: CharSequence): XsdDayTimeDurationImpl {
             require(representation.length >= 3) // some value is needed with suffix
             var i = 0
             val sign = when {

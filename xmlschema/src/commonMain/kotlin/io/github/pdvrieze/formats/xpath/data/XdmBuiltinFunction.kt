@@ -39,5 +39,11 @@ class XdmBuiltinFunction(private val function: BuiltinFunction<*>): XdmFunction<
     override fun isValEqual(expected: XdmValue): Boolean {
         return expected is XdmBuiltinFunction && expected.function == function
     }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun normalizeToArithmetic(): XdmValue {
+        throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Built in functions are not compatible with an arithmetic operator")
+    }
 }
 

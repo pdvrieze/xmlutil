@@ -60,8 +60,14 @@ interface XsdString : XsdAtomic, CharSequence {
                 var seenNonSpace =false
                 for (i in raw.indices) {
                     when(raw[i]) {
-                        ' ' -> if(seenNonSpace) { hasSpc = true; if (cpos>=0) break }
-                        ':' -> { cpos = i; seenNonSpace = true; if (hasSpc) break }
+                        ' ' -> if (seenNonSpace) {
+                            hasSpc = true; if (cpos >= 0) break
+                        }
+
+                        ':' -> {
+                            cpos = i; seenNonSpace = true; if (hasSpc) break
+                        }
+
                         else -> seenNonSpace = true
                     }
                 }
@@ -118,6 +124,9 @@ interface XsdString : XsdAtomic, CharSequence {
             return null
         }
 
-        operator fun invoke(value: String): XsdString = XsdStringImpl(value)
+        operator fun invoke(value: CharSequence): XsdString = when (value) {
+            is XsdString -> value
+            else -> XsdStringImpl(value.toString())
+        }
     }
 }

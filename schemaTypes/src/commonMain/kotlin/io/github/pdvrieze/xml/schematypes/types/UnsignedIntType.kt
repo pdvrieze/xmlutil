@@ -49,6 +49,10 @@ interface UnsignedIntType<out T : XsdUnsignedInt> : UnsignedLongType<T> {
             FacetMaxInclusive.Companion(XsdUnsignedInt.Companion(UInt.MAX_VALUE)),
             FacetMinInclusive.Companion(XsdUnsignedInt.Companion(0u)),
         )
+
+        override fun fromString(value: CharSequence): XsdUnsignedInt {
+            return XsdUnsignedInt(value)
+        }
     }
 
 

@@ -36,6 +36,7 @@ interface XsdDouble: XsdAtomic {
 
     companion object : SimpleTypeSerializer<XsdDouble>("xsd.double") {
         operator fun invoke(value: Double): XsdDouble = XsdDoubleImpl(value)
+        operator fun invoke(value: CharSequence): XsdDouble = XsdDoubleImpl(value.toString().toDouble())
 
         override fun deserialize(
             raw: String,

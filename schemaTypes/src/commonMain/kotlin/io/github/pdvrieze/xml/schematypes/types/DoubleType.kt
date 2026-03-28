@@ -44,6 +44,10 @@ interface DoubleType<out T: XsdDouble> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
+
+        override fun fromString(value: CharSequence): XsdDouble {
+            return XsdDouble(value)
+        }
     }
 
 

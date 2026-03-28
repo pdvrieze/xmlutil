@@ -20,8 +20,11 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
-import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.FN
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
@@ -51,18 +54,79 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>() {
         is XsdFloat -> value.value != 0.0f && !value.value.isNaN()
         is XsdDouble -> value.value != 0.0 && !value.value.isNaN()
         is XsdInteger -> value != XsdInteger.ZERO
-        else -> throw EvaluationException(
-            FORG0006_INVALID_ARGUMENT_TYPE,
-            contextOf<ExprEvalContext>().expr,
-            "Cannot cast to boolean"
-        )
+        else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast to boolean")
     }
+
+    context(ctx: ExprEvalContext)
+    fun toXdmFloat(): XdmAtomic<XsdFloat> =
+        @Suppress("UNCHECKED_CAST") // for the cast where this is a float
+        when (value){
+            is XsdFloat -> this as XdmAtomic<XsdFloat>
+            is XsdDecimal -> XdmAtomic(XsdFloat(value.toDouble().toFloat()))
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value of type ${value.schemaType} cannot be cast to double")
+        }
+
+    context(ctx: ExprEvalContext)
+    fun toXdmDouble(): XdmAtomic<XsdDouble> =
+        @Suppress("UNCHECKED_CAST") // for the cast where this is a double
+        when (value){
+            is XsdDouble -> this as XdmAtomic<XsdDouble>
+            is XsdFloat -> XdmAtomic(XsdDouble(value.value.toDouble()))
+            is XsdDecimal -> XdmAtomic(XsdDouble(value.toDouble()))
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value of type ${value.schemaType} cannot be cast to double")
+        }
+
+    context(ctx: ExprEvalContext)
+    fun toXdmInteger(): XdmAtomic<XsdInteger> =
+        @Suppress("UNCHECKED_CAST") // for the cast where this is a double
+        when (value){
+            is XsdInteger -> this as XdmAtomic<XsdInteger>
+            else -> XdmAtomic(XsdInteger(value.xmlString))
+//            else -> throw EvaluationException(EvaluationException.ErrorCodes.XPTY0004_TYPE_ERROR, "Value of type ${value.schemaType} cannot be cast to double")
+        }
+
+    context(ctx: ExprEvalContext)
+    fun toXdmDecimal(): XdmAtomic<XsdDecimal> =
+        @Suppress("UNCHECKED_CAST") // for the cast where this is a double
+        when (value){
+            is XsdDecimal -> this as XdmAtomic<XsdDecimal>
+            else -> XdmAtomic(XsdDecimal(value.xmlString))
+        }
+
 
     context(ctx: ExprEvalContext)
     override fun withType(type: XdmType): XdmValue {
         TODO("Xsd coercion not yet implemented")
     }
 
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun normalizeToArithmetic(): XdmAtomic<*> {
+        // Handle sequences
+        return when {
+            value is XsdDouble -> this
+
+            !ctx.isXPath1Compat -> when (type) {
+                UntypedAtomicType.Instance -> toXdmDouble()
+                else -> this
+            }
+
+            this.value is XsdBoolean ||
+                    this.value is XsdDecimal ||
+                    this.value is XsdFloat ||
+                    this.type == UntypedAtomicType.Instance -> return FN.NUMBER.eval(this)
+
+            else -> this
+        }
+    }
+
     override fun toString(): String = value.toString()
+
+    companion object {
+        val NaN = XdmAtomic(XsdDouble(Double.NaN))
+
+        fun unTyped(value: String): XdmAtomic<XsdAtomic> = XdmAtomic(UntypedAtomicType.Instance.fromString(value))
+    }
+
 }
 

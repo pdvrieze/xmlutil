@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XsdNotation
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
@@ -43,5 +44,11 @@ interface QNameType<out T : XsdQName> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )
+
+
+        override fun fromString(value: CharSequence): XsdQName {
+            throw UnsupportedOperationException("QName types are namespace sensitive and cannot be parsed from strings")
+        }
+
     }
 }

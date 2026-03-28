@@ -20,15 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmNode
 import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.xmlStreaming
@@ -37,7 +34,7 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @XPathInternal
-open class EvalContext(val contextItem: XdmValue, val isXPath1Compat: Boolean = false) {
+open class EvalContext(val contextItem: XdmValue?, val isXPath1Compat: Boolean = false) {
     fun resolveType(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
     }
@@ -46,7 +43,7 @@ open class EvalContext(val contextItem: XdmValue, val isXPath1Compat: Boolean = 
         xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
 
-    open fun copy(contextItem: XdmValue = this.contextItem): EvalContext = EvalContext(contextItem)
+    open fun copy(contextItem: XdmValue? = this.contextItem): EvalContext = EvalContext(contextItem)
 
     @OptIn(ExperimentalContracts::class)
     inline fun <R> withExprContext(expr: Expr, block: context(ExprEvalContext) ()-> R): R {
@@ -66,15 +63,15 @@ inline fun <C: EvalContext, R> C.withValueContext(value: XdmValue, function: con
 
 @XPathInternal
 class ExprEvalContext(
-    contextItem: XdmValue,
+    contextItem: XdmValue?,
     val expr: Expr,
     isXPath1compat: Boolean = false
 ) : EvalContext(contextItem, isXPath1compat) {
 
-    override fun copy(contextItem: XdmValue): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1Compat)
+    override fun copy(contextItem: XdmValue?): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1Compat)
 
     open fun copy(
-        contextItem: XdmValue = this.contextItem,
+        contextItem: XdmValue? = this.contextItem,
         expr: Expr = this.expr,
         isXPath1compat: Boolean = this.isXPath1Compat
     ): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1compat)
@@ -87,12 +84,3 @@ class ExprEvalContext(
         val DUMMY = ExprEvalContext(XdmSequence.EMPTY, ContextItemExpr)
     }
 }
-
-@XPathInternal
-context(ctx: ExprEvalContext)
-val nodeContext: Node?
-    get() {
-        val item = ctx.contextItem
-        val i = (item as? XdmNode) ?: throw EvaluationException(ctx.expr, "Item has incorrect type")
-        return i.node
-    }

@@ -46,5 +46,9 @@ interface YearMonthDurationType<out T : XsdYearMonthDuration> : DurationType<T> 
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetPattern("[^DT]*"),
         )
+
+        override fun fromString(value: CharSequence): XsdYearMonthDuration {
+            return XsdYearMonthDuration(value)
+        }
     }
 }

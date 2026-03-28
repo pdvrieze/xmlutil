@@ -44,6 +44,10 @@ interface FloatType<out T : XsdFloat> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
+
+        override fun fromString(value: CharSequence): XsdFloat {
+            return XsdFloat(value)
+        }
     }
 
 }

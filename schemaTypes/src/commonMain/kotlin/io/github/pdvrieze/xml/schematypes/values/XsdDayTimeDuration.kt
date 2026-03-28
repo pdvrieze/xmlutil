@@ -37,8 +37,8 @@ interface XsdDayTimeDuration : XsdDuration {
 
     companion object : SimpleTypeSerializer<XsdDayTimeDuration>("xsd.dayTimeDuration") {
 
-        operator fun invoke(str: String): XsdDayTimeDuration {
-            return XsdDayTimeDurationImpl.Companion(str)
+        operator fun invoke(str: CharSequence): XsdDayTimeDuration {
+            return XsdDayTimeDurationImpl(str)
         }
 
         operator fun invoke(millis: Long): XsdDayTimeDuration {

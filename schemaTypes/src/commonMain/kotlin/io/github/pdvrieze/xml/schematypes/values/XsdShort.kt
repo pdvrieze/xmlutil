@@ -41,6 +41,8 @@ interface XsdShort : XsdInt {
     companion object : SimpleTypeSerializer<XsdShort>("XSShort") {
         operator fun invoke(value: Short): XsdShort = XsdShortImpl(value)
 
+        operator fun invoke(value: CharSequence): XsdShort = XsdShortImpl(value.toString().toShort())
+
         override fun deserialize(raw: String, input: XmlReader?): XsdShort {
             return XsdShortImpl(raw.toShort())
         }

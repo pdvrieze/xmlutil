@@ -46,6 +46,8 @@ interface DateTimeStampType<out T : XsdDateTime> : DateTimeType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.REQUIRED,
         )
+
+        override fun fromString(value: CharSequence): XsdDateTime = XsdDateTime(value)
     }
 
 }

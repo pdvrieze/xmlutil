@@ -50,6 +50,8 @@ interface ShortType<out T : XsdShort> : IntType<T> {
             FacetMaxInclusive.Companion(XsdShort.Companion(Short.MAX_VALUE)),
             FacetMinInclusive.Companion(XsdShort.Companion(Short.MIN_VALUE)),
         )
+
+        override fun fromString(value: CharSequence): XsdShort = XsdShort(value)
     }
 
 }

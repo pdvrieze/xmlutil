@@ -44,6 +44,10 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T> {
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
+
+        override fun fromString(value: CharSequence): XsdDecimal {
+            return XsdDecimal(value)
+        }
     }
 
 

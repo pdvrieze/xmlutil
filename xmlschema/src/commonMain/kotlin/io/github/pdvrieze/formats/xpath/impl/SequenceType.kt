@@ -43,7 +43,7 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
         }
 
         context(ctx: ExprEvalContext)
-        override fun eval(): XdmType = XdmType.EmptySequence
+        override fun eval(): XdmType = XdmType.EmptySequenceType
     }
 
     class ItemTypeSequence @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType = OccurrenceType.SINGLE) : SequenceType() {

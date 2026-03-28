@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.data.*
-import io.github.pdvrieze.formats.xpath.data.EvaluationException.ErrorCodes.XPTY0020_CONTEXT_ITEM_NOT_NODE
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes.XPTY0020_CONTEXT_ITEM_NOT_NODE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
 import io.github.pdvrieze.formats.xpath.impl.NodeTest

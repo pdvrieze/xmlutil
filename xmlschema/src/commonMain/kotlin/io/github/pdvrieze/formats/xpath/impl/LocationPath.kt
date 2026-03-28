@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 @OptIn(XPathInternal::class)
@@ -44,7 +46,7 @@ internal class LocationPath(
         withExprContext {
             return steps.fold(ctx.contextItem) { c, step ->
                 step.eval(c)
-            }
+            } ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, this, "No context item")
         }
     }
 

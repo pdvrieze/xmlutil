@@ -18,23 +18,16 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl
+package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmValue
-import io.github.pdvrieze.formats.xpath.impl.token.Axis
+import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAtomicDatatype
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-@XPathInternal
-public object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
-    context(c: OutputContext)
-    @XPathInternal
-    override fun appendToString(builder: Appendable) {
-        builder.append('.')
-    }
+interface ResolvedBuiltinAtomicType<out T : XsdAtomic> : ResolvedBuiltinSimpleType<T>, ResAtomicDatatype<T> {
+    override val baseType: ResolvedBuiltinSimpleType<*>
 
-    context(ctx: ExprEvalContext)
-    override fun eval(context: XdmValue?): XdmValue {
-        return context ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, "No context provided")
+    override fun fromString(value: CharSequence): T {
+        return value(value as? XsdString ?: XsdString.Companion(value))
     }
 }

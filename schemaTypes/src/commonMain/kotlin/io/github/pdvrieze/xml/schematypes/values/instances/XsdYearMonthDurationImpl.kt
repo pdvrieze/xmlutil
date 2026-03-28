@@ -65,7 +65,7 @@ class XsdYearMonthDurationImpl(override val months: Long) : XsdYearMonthDuration
     override val schemaType: YearMonthDurationType<*> get() = YearMonthDurationType.Instance
 
     companion object {
-        operator fun invoke(representation: String): XsdYearMonthDurationImpl {
+        operator fun invoke(representation: CharSequence): XsdYearMonthDurationImpl {
             require(representation.length >= 3) // some value is needed with suffix
             var i = 0
             val sign = when {

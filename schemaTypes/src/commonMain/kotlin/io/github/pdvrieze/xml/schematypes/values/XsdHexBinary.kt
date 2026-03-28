@@ -34,7 +34,7 @@ interface XsdHexBinary : XsdByteArray {
 
     companion object : SimpleTypeSerializer<XsdHexBinary>("xsd.hexBinary") {
 
-        operator fun invoke(string: String): XsdHexBinary {
+        operator fun invoke(string: CharSequence): XsdHexBinary {
             return XsdHexBinaryImpl(string)
         }
 

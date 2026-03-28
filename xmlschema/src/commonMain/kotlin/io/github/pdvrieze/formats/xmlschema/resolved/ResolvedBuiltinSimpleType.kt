@@ -20,19 +20,13 @@
 
 package io.github.pdvrieze.formats.xmlschema.resolved
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAtomicDatatype
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResPrimitiveDatatype
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.QName
-
-interface ResolvedBuiltinAtomicType<out T : XsdAtomic> : ResolvedBuiltinSimpleType<T>, ResAtomicDatatype<T> {
-    override val baseType: ResolvedBuiltinSimpleType<*>
-}
 
 interface ResolvedBuiltinSimpleType<out T : XsdAnySimple> : ResolvedGlobalSimpleType<T>, ResolvedBuiltinType,
     ResolvedSimpleType.Model {

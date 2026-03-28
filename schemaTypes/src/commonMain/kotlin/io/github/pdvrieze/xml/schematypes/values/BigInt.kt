@@ -37,7 +37,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     private constructor(r: ParseResult): this(r.sign, r.ints, r.exp)
 
-    constructor(str: String): this(parse(str))
+    constructor(str: CharSequence): this(parse(str))
 
     constructor(int: Int) : this(
         int.compareTo(0),
@@ -227,7 +227,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
             return BigInt(sign, ints, 0uL).normalize()
         }
 
-        private fun parse(s: String): ParseResult {
+        private fun parse(s: CharSequence): ParseResult {
             if (s.isEmpty()) throw NumberFormatException("Empty string")
             val isNegative: Boolean
             val base: AbstractBigUnsignedInt.ParseResult

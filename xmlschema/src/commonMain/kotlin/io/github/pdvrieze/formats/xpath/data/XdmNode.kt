@@ -23,7 +23,10 @@ package io.github.pdvrieze.formats.xpath.data
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
+import io.github.pdvrieze.xml.schematypes.values.XsdString
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.*
 
 @XPathInternal
@@ -50,6 +53,13 @@ class XdmNode(
     }
 
     override fun asT(): XdmNode = this
+
+    context(ctx: ExprEvalContext)
+    fun typedValue(): XdmValue = when (node) {
+        is Attr -> type.fromString(node.value)
+        else -> throw EvaluationException(ctx.expr, "Node has no value")
+    }
+
 
     fun descendantsSequence(): Sequence<XdmNode> {
         return sequence {
@@ -89,14 +99,46 @@ class XdmNode(
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
-        receiver.add(atomize())
+        when (val a = atomize()) {
+            is XdmSequence<*> -> receiver.addAll(a.elements)
+            is XdmAtomic<*> -> receiver.add(a)
+            else -> error("Should not be returned")
+        }
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmNode {
+    override fun atomize(): XdmValue {
+        return when (node) {
+            is Attr -> type.fromString(node.value)
+            is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))
+            is Comment -> XdmAtomic(XsdString(node.getData()))
+            is Text -> XdmAtomic(XsdString(node.getData()))
+            is Element if (node.getAttributeNS(XMLConstants.XSI_NS_URI, "nil") == "true") ->
+                XdmSequence.EMPTY
+
+            is Document if type.isSubtypeOf(AnyAtomicType.Instance) -> node.documentElement
+                ?.let { type.fromString(it.textContent ?:"") }
+                ?: throw EvaluationException(ctx.expr, "Missing document element")
+
+            is Document -> throw EvaluationException(ctx.expr, "Cannot atomize a document to non-atomic type")
+            is Element if type.isSubtypeOf(AnyAtomicType.Instance) ->
+                type.fromString(node.textContent ?: "")
+
+            is Element -> throw EvaluationException(ctx.expr, "Cannot atomize an element to non-atomic type")
+            else -> throw UnsupportedOperationException("Unsupported node type: ${node.getNodetype()}")
+        }
+
         // TODO add check that the value is not "typed" (there is an actual value in the node)
         // otherwise throw FOTY0012
         return this
+    }
+
+
+    context(ctx: ExprEvalContext)
+    @XPathInternal
+    override fun normalizeToArithmetic(): XdmValue = when (node) {
+        is Attr -> type.fromString(node.value)
+        else -> super.normalizeToArithmetic()
     }
 
     override fun toString(): String {

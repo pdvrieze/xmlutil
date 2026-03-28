@@ -72,6 +72,7 @@ interface XsdLong : XsdInteger {
 
     companion object : SimpleTypeSerializer<XsdLong>("XSLong") {
         operator fun invoke(value: Long): XsdLong = XsdLongImpl(value)
+        operator fun invoke(value: CharSequence): XsdLong = XsdLongImpl(value)
 
         override fun deserialize(raw: String, input: XmlReader?): XsdLong {
             return XsdLongImpl(raw.toLong())

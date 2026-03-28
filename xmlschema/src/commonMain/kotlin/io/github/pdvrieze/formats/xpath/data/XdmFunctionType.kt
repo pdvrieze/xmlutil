@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.data
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
+@XPathInternal
 open class XdmFunctionType(
     val argTypes: List<XdmType>,
     val returnType: XdmType
@@ -38,6 +39,11 @@ open class XdmFunctionType(
         return other.argTypes.asSequence()
             .zip(argTypes.asSequence())
             .all { (a, b) -> b.isSubtypeOf(a) }
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun fromString(value: String): XdmValue {
+        throw EvaluationException(ctx.expr, "Functions cannot be created from strings")
     }
 
     override fun toString(): String {

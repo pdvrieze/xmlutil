@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.data.ErrorCodes
+import io.github.pdvrieze.formats.xpath.data.EvaluationException
 import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
@@ -36,7 +38,9 @@ open class AxisStep(
     constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
 
     context(ctx: ExprEvalContext)
-    override fun eval(context: XdmValue): XdmValue {
+    override fun eval(context: XdmValue?): XdmValue {
+        if (context == null) throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, "Missing context for path evaluation")
+
         var current = axis.eval(context, test)
         if (predicates.isEmpty()) return current
 

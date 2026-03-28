@@ -45,9 +45,9 @@ interface XsdName : XsdToken {
             return invoke(raw)
         }
 
-        operator fun invoke(value: String): XsdName {
+        operator fun invoke(value: CharSequence): XsdName {
             check(value.isXmlName()) { "'$value' is not an xml name" }
-            return XsdNameImpl(value)
+            return XsdNameImpl(value.toString())
         }
 
     }

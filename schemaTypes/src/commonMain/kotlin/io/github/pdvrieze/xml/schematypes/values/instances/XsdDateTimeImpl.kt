@@ -66,7 +66,7 @@ open class XsdDateTimeImpl(
     override val schemaType: DateTimeType<XsdDateTime> get() = DateTimeType.Instance
 
     companion object {
-        internal fun timezoneFragValue(tz: String): Int? {
+        internal fun timezoneFragValue(tz: CharSequence): Int? {
             if (tz.isEmpty()) return null
             if (tz == "Z") return 0 // handle Z case differently
             if (tz.length != 6) throw NumberFormatException("Timezone fragments are 6 characters long: '$tz'")
@@ -84,7 +84,7 @@ open class XsdDateTimeImpl(
         }
 
 
-        internal operator fun invoke(str: String): XsdDateTimeImpl {
+        internal operator fun invoke(str: CharSequence): XsdDateTimeImpl {
             val s = xmlCollapseWhitespace(str)
             val tIndex = s.indexOf('T')
             require(tIndex >= 0)
