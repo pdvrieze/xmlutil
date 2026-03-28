@@ -22,10 +22,7 @@ package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
-import io.github.pdvrieze.xml.schematypes.types.AnySimpleUnion
-import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @XPathInternal
@@ -71,6 +68,8 @@ class XdmSchemaType(
     }
 
     companion object {
-        val ANY_ATOMIC = XdmSchemaType(AnyAtomicType.Instance)
+        val UNTYPED = XdmSchemaType(UntypedType.Instance)
+        val UNTYPED_ATOMIC = XdmSchemaType(UntypedAtomicType.Instance)
+        val ANY = XdmSchemaType(AnyType.Instance)
     }
 }

@@ -95,7 +95,7 @@ class XdmSequence<out T : XdmSingleValue<T>>(
     }
 
     companion object {
-        val EMPTY: XdmSequence<Nothing> = XdmSequence(type = XdmType.EmptySequenceType)
+        val EMPTY: XdmSequence<Nothing> = empty(XdmType.EmptySequenceType)
 
         interface XdmSequenceBuilder {
             fun add(value: XdmSingleValue<*>)
@@ -122,7 +122,7 @@ class XdmSequence<out T : XdmSingleValue<T>>(
 
             fun build(type: XdmSequenceType): XdmValue {
                 return when (elements.size) {
-                    0 -> EMPTY
+                    0 -> empty(type)
                     1 -> elements.single()
                     else -> XdmSequence(elements, type)
                 }
@@ -137,6 +137,10 @@ class XdmSequence<out T : XdmSingleValue<T>>(
             contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
 
             return XdmSequenceBuilderImpl().apply(builderAction).build(type)
+        }
+
+        fun empty(type: XdmType): XdmSequence<Nothing> {
+            return XdmSequence(emptyList(), type)
         }
     }
 }

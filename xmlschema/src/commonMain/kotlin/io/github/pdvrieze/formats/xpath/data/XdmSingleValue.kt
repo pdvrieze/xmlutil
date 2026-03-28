@@ -39,7 +39,7 @@ sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmValue() {
     context(ctx: ExprEvalContext)
     final override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
         predicates.evalPredicates(this) -> this
-        else -> XdmSequence.EMPTY
+        else -> XdmSequence.empty(type)
     }
 
 }

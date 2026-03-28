@@ -52,9 +52,9 @@ open class AxisStep(
                     }
 
                     current = when (newElems.size) {
-                        0 -> return XdmSequence.EMPTY
+                        0 -> return XdmSequence.empty(current.type)
                         1 -> newElems.single()
-                        else -> XdmSequence(newElems)
+                        else -> XdmSequence(newElems, current.type)
                     }
                 }
 

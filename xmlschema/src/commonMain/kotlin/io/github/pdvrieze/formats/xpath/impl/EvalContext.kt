@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
@@ -70,7 +69,7 @@ class ExprEvalContext(
 
     override fun copy(contextItem: XdmValue?): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1Compat)
 
-    open fun copy(
+    fun copy(
         contextItem: XdmValue? = this.contextItem,
         expr: Expr = this.expr,
         isXPath1compat: Boolean = this.isXPath1Compat
@@ -81,6 +80,6 @@ class ExprEvalContext(
     }
 
     companion object {
-        val DUMMY = ExprEvalContext(XdmSequence.EMPTY, ContextItemExpr)
+        val DUMMY = ExprEvalContext(null, ContextItemExpr)
     }
 }

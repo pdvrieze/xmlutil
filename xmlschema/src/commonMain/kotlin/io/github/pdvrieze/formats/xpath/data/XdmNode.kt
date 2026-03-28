@@ -114,7 +114,7 @@ class XdmNode(
             is Comment -> XdmAtomic(XsdString(node.getData()))
             is Text -> XdmAtomic(XsdString(node.getData()))
             is Element if (node.getAttributeNS(XMLConstants.XSI_NS_URI, "nil") == "true") ->
-                XdmSequence.EMPTY
+                XdmSequence.empty(type)
 
             is Document if type.isSubtypeOf(AnyAtomicType.Instance) -> node.documentElement
                 ?.let { type.fromString(it.textContent ?:"") }
