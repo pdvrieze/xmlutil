@@ -64,11 +64,13 @@ internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key
         }
     }
 
-    class ParenKey @NeedsXPath3_1 constructor(val expr: Expr) : KeySpecifier() {
+    class ParenKey @NeedsXPath3_1 constructor(val params: List<ExprSingle>) : KeySpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('(')
-            expr.appendToString(builder)
+            builder.joinHelper(params) { expr ->
+                expr.appendToString(this)
+            }
             builder.append(')')
         }
     }

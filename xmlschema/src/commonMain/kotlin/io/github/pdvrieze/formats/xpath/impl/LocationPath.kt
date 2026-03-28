@@ -44,7 +44,10 @@ internal class LocationPath(
         withExprContext {
             val base = steps.dropLast(1).fold(ctx.contextItem) { c, step ->
                 when (val e = step.eval(c)) {
-                    XdmSequence.EMPTY -> throw EvaluationException(ErrorCodes.XPST0005_INVALID_EMPTY_SEQ, "Missing context for path evaluation")
+                    XdmSequence.EMPTY -> throw EvaluationException(
+                        ErrorCodes.XPST0005_INVALID_EMPTY_SEQ,
+                        "Missing context for path evaluation"
+                    )
 
                     is XdmSequence<*> -> {
                         for (m in e.elements) {
@@ -57,13 +60,18 @@ internal class LocationPath(
 
                     is XdmNode -> e
 
-                    else -> throw EvaluationException(ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item, found: ${e.type}")
+                    else -> throw EvaluationException(
+                        ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES,
+                        "Expected node as context item, found: ${e.type}"
+                    )
                 }
             }
 
             val last = steps.last()
             val result = last.eval(base)
-            if (result.size == 0) return XdmSequence.empty(/*last.evalType*/ XdmSchemaType.UNTYPED)
+            if (result.size == 0) {
+                return XdmSequence.empty(/* TODO last.evalType*/ base?.type ?: XdmSequenceType.ANYSEQ)
+            }
             if (result[0] is XdmNode) {
                 for (i in 1 until result.size) {
                     if (result[i] !is XdmNode) {

@@ -489,7 +489,7 @@ internal class XQueryParser(
         while (tryCurrent(Operator.ARROW)) {
             val functionSpecifier = parseArrowFunctionSpecifier()
 
-            val params = parseSequenceOrParen().toExprList()
+            val params = parseParameters()
             expr = ArrowFunction(expr, functionSpecifier, params)
         }
         return expr
@@ -502,7 +502,7 @@ internal class XQueryParser(
         skipWhitespace()
         return when (peekNextToken()) {
             '$'.code -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
-            '('.code -> ArrowFunctionSpecifier.SeqFunc(parseSequenceOrParen())
+            '('.code -> ArrowFunctionSpecifier.SeqFunc(parseParameters())
             else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameTokenDelim().toQName())
         }
 
@@ -650,7 +650,7 @@ internal class XQueryParser(
                     }
                 }
 
-            '(' if isXPath2 -> @OptIn(NeedsXPath2::class) return parsePostfixExpr(parseSequenceOrParen())
+            '(' if isXPath2 -> @OptIn(NeedsXPath2::class) return parsePostfixExpr(parseParen())
 
             '$' -> return parsePostfixExpr(parseVariableReference())
 
@@ -774,13 +774,9 @@ internal class XQueryParser(
             '*' -> return LookupExpr(null, LookupExpr.AnyKey)
 
             '(' -> {
-                assert(tryCurrent('('))
-                @OptIn(NeedsXPath2::class)
-                val key: Expr = when {
-                    tryCurrentToken(')') && (isXPath2) -> SequenceExpr(emptyList())
-                    else -> parseExpr().also { parseRequire(tryCurrentToken(')'), "Missing ')' at end of lookup") }
-                }
-                return LookupExpr(null, LookupExpr.ParenKey(key))
+                val params = parseParameters()
+
+                return LookupExpr(null, LookupExpr.ParenKey(params))
             }
 
             in '0'..'9' if isXPath30 -> {
@@ -821,14 +817,12 @@ internal class XQueryParser(
         return MapConstructor(entries)
     }
 
-    /**
-     * For now allow this to generate sequence expressions even if they don't really exist in XPath 2.0
-     */
     @NeedsXPath2
     context(ctx: ParseContext)
-    private fun parseSequenceOrParen(): ParenExpr {
+    private fun parseParen(): ExprSingle {
         parseRequire(tryCurrentToken('('), "Expected '(' in sequence expression")
-        if (tryCurrentToken(')')) return ParenExpr(SequenceExpr(emptyList()))
+        if (tryCurrentToken(')')) return EmptySequenceExpr
+
 
         val elements: MutableList<ExprSingle> = mutableListOf()
         do {
@@ -837,6 +831,23 @@ internal class XQueryParser(
         parseRequire(tryCurrentToken(')')) { "Expected ')' to finish sequence expression" }
 
         return ParenExpr(elements.singleOrNull() ?: SequenceExpr(elements))
+    }
+
+    /**
+     * For now allow this to generate sequence expressions even if they don't really exist in XPath 2.0
+     */
+    context(ctx: ParseContext)
+    private fun parseParameters(): List<ExprSingle> {
+        parseRequire(tryCurrentToken('('), "Expected '(' in sequence expression")
+        if (tryCurrentToken(')')) return emptyList()
+
+        val elements: MutableList<ExprSingle> = mutableListOf()
+        do {
+            elements.add(parseExprSingle())
+        } while (tryAnyOf(Operator.COMMA) != null)
+        parseRequire(tryCurrentToken(')')) { "Expected ')' to finish sequence expression" }
+
+        return elements
     }
 
     @NeedsXPath2
@@ -1033,7 +1044,7 @@ internal class XQueryParser(
                     }
 
                     @OptIn(NeedsXPath2::class)
-                    val args = parseSequenceOrParen().toExprList()
+                    val args = parseParameters()
                     @OptIn(NeedsXPath3_0::class)
                     current = FilterExpr(DynamicFunctionCall(newPrimary, args))
                 }
@@ -1048,8 +1059,8 @@ internal class XQueryParser(
                     when (val c2 = peekNextChar()) {
                         '\u0000' -> parseError("Missing key specifier at end of expression")
                         '(' -> {
-                            val expr = parseSequenceOrParen()
-                            val newExpr = LookupExpr(newPrimary, LookupExpr.ParenKey(expr.expr))
+                            val params = parseParameters()
+                            val newExpr = LookupExpr(newPrimary, LookupExpr.ParenKey(params))
                             current = FilterExpr(newExpr)
                         }
 

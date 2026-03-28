@@ -261,7 +261,7 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
             is XdmNode -> evalNode(context, test)
 
-            else -> throw EvaluationException(XPTY0020_CONTEXT_ITEM_NOT_NODE)
+            else -> throw EvaluationException(XPTY0020_CONTEXT_ITEM_NOT_NODE, "Context items for axes ($literal) must be nodes (found: ${context.type})")
         }
     }
 

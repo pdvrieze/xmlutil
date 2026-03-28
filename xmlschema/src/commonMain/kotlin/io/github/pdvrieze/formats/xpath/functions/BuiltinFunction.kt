@@ -97,12 +97,18 @@ interface BuiltinFunction <out R: XdmValue> {
         private val functions = hashMapOf(
             "boolean" to BOOLEAN,
             "false" to FALSE,
-            "true" to TRUE,
-            "data" to DATA,
             "count" to builtIn("count", XdmSequenceType.integer, XdmSequenceType.ANY) {
                 val arg = it.singleArg<XdmValue>()
                 XdmAtomic(XsdInteger(arg.size.toLong()))
             },
+            "data" to DATA,
+            "empty" to builtIn("empty", XdmSequenceType.boolean, XdmSequenceType.ANY) {
+                val b = it.size == 1 && it[0].type == XdmType.EmptySequenceType
+
+                XdmAtomic(XsdBoolean(b))
+            },
+            "false" to FALSE,
+            "number" to NUMBER,
             "root" to builtIn("root", XdmTypeTest(NodeKindTest.DocumentTest()), XdmSequenceType.node) { args ->
                 val node: XdmNode = when {
                     args.isEmpty() -> contextOf<ExprEvalContext>().contextItem as XdmNode
@@ -116,6 +122,7 @@ interface BuiltinFunction <out R: XdmValue> {
                 // if not document throw XPDY0050
                 XdmNode(node.node.ownerDocument)
             },
+            "true" to TRUE,
         )
 
     }

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 @XPathInternal
@@ -67,3 +68,14 @@ internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
 
 }
 
+object EmptySequenceExpr : AbstractExprSingle() {
+    context(c: OutputContext)
+    @XPathInternal
+    override fun appendToString(builder: Appendable) {
+        builder.append("()")
+    }
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue = XdmSequence.EMPTY
+}
