@@ -21,9 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.data.*
 
 @OptIn(XPathInternal::class)
 @NeedsXPath1
@@ -44,9 +42,39 @@ internal class LocationPath(
     @XPathInternal
     override fun eval(): XdmValue {
         withExprContext {
-            return steps.fold(ctx.contextItem) { c, step ->
-                step.eval(c)
-            } ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, this, "No context item")
+            val base = steps.dropLast(1).fold(ctx.contextItem) { c, step ->
+                when (val e = step.eval(c)) {
+                    is XdmSequence<*> -> {
+                        for (m in e.elements) {
+                            if (m !is XdmNode) throw EvaluationException(
+                                ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
+                            )
+                        }
+                        e
+                    }
+
+                    is XdmNode -> e
+
+                    else -> throw EvaluationException(ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item, found: ${e.type}")
+                }
+            }
+
+            val result = steps.last().eval(base)
+            if (result.size == 0) return XdmSequence.EMPTY
+            if (result[0] is XdmNode) {
+                for (i in 1 until result.size) {
+                    if (result[i] !is XdmNode) {
+                        throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
+                    }
+                }
+            } else {
+                for (i in 1 until result.size) {
+                    if (result[i] is XdmNode) {
+                        throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
+                    }
+                }
+            }
+            return result
         }
     }
 

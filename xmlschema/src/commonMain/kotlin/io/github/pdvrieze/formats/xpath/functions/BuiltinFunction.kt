@@ -113,6 +113,7 @@ interface BuiltinFunction <out R: XdmValue> {
                         else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "root() takes a node as argument, found ${a.type}")
                     }
                 }
+                // if not document throw XPDY0050
                 XdmNode(node.node.ownerDocument)
             },
         )
