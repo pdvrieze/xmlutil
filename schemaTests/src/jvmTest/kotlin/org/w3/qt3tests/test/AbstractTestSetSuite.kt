@@ -1,0 +1,98 @@
+/*
+ * Copyright (c) 2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package org.w3.qt3tests.test
+
+import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.data.XdmNode
+import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.dom2.Document
+import org.junit.jupiter.api.Named
+import org.opentest4j.AssertionFailedError
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
+import org.w3.qt3tests.resolved.assertions.AssertionResult
+
+@OptIn(XPathInternal::class)
+abstract class AbstractTestSetSuite {
+
+    @IgnorableReturnValue
+    protected fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue> {
+        val environment = testCase.environment?.getOrThrow()
+        val contextDoc: Document? = environment?.run {
+            val s = sources.filter { it.role == "." }
+            if (s.isEmpty()) {
+                null
+            } else {
+                s.single().content
+            }
+        }
+
+        val context = contextDoc?.let { XdmNode(it.documentElement!!) }
+
+        val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
+        val evalResult = runCatching { testExpression.eval(context) }
+
+        if (testCase.result != null) {
+            for (a in testCase.result.assertions) {
+                val verifyResult = a.verify(evalResult)
+                if (verifyResult is AssertionResult.Failure) {
+                    if (evalResult.isFailure) throw AssertionFailedError(
+                        "Unexpected failure",
+                        evalResult.exceptionOrNull()
+                    )
+                    else throw AssertionFailedError(
+                        "Unexpected assertion failure for result: ${verifyResult.error}",
+                        verifyResult.cause
+                    )
+                }
+            }
+        } else if (evalResult.isFailure) throw evalResult.exceptionOrNull()!!
+        return evalResult
+    }
+
+    abstract class CompanionBase(val testSetName: String) {
+        fun getTestCase(name: String): ResolvedQt3TestCase {
+            return getTestCases(testSetName).single { it.name == name }.payload
+        }
+
+        abstract fun getTestCases(): List<Named<ResolvedQt3TestCase>>
+    }
+
+    companion object {
+
+        val testCases = mutableMapOf<String, List<Named<ResolvedQt3TestCase>>>()
+
+        @JvmStatic
+        fun getTestCases(testSetName: String): List<Named<ResolvedQt3TestCase>> {
+            return testCases.getOrPut(testSetName) {
+                val testSet = TestParseCatalog.parseTestSetImpl(TestParseCatalog.getTestSetSpec(testSetName))
+                testSet.testCases.asSequence()
+                    .filter {
+                        it.test.expr.getOrNull() is XPathExpression
+                    }
+                    .filter { "namespace-axis" !in it.neededFeatures() }
+                    .map { Named.named(it.name, it) }
+                    .toList()
+            }
+        }
+
+    }
+}
