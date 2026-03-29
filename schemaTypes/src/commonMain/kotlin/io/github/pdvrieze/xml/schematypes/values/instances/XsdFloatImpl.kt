@@ -22,14 +22,22 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.values.XsdFloat
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
+import kotlin.math.absoluteValue
 
 @JvmInline
 @XmlUtilInternal
 value class XsdFloatImpl(override val value: Float): XsdFloat {
     override val xmlString: String get() = value.toString()
     override val schemaType: FloatType<*> get() = FloatType.Instance
+
+    override fun toDouble(): Double = value.toDouble()
+
+    override fun abs(): XsdFloat = XsdFloatImpl(value.absoluteValue)
+
+    override fun unaryMinus(): XsdFloat = XsdFloatImpl(-value)
 
     override fun toString(): String = xmlString
 }

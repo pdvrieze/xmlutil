@@ -21,7 +21,8 @@
 package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.FN
+import io.github.pdvrieze.formats.xpath.functions.Fn
+import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
@@ -114,7 +115,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>() {
             this.value is XsdBoolean ||
                     this.value is XsdDecimal ||
                     this.value is XsdFloat ||
-                    this.type == UntypedAtomicType.Instance -> return FN.NUMBER.eval(this)
+                    this.type == UntypedAtomicType.Instance -> return Fn.number(this) as XdmAtomic<*>
 
             else -> this
         }

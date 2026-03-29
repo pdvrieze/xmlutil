@@ -64,4 +64,7 @@ object ResDecimalType : ResPrimitiveDatatype<XsdDecimal>,
         validateValue(value(representation), version)
     }
 
+    override fun fromString(value: CharSequence): XsdDecimal {
+        return super<IResolvedDecimalType>.fromString(value)
+    }
 }

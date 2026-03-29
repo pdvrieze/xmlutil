@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.data.*
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.FN
-import io.github.pdvrieze.formats.xpath.functions.OP_BOOLEAN_EQUAL
+import io.github.pdvrieze.formats.xpath.functions.Fn
+import io.github.pdvrieze.formats.xpath.functions.impl.BooleanOperators
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
@@ -54,7 +54,7 @@ enum class Operator(
         override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
             when {
                 left.type.isSubtypeOf(BooleanType.Instance) -> {
-                    return OP_BOOLEAN_EQUAL.eval(listOf(left, right))
+                    return BooleanOperators.opBooleanEqual(listOf(left, right))
                 }
                 else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
             }
@@ -92,7 +92,7 @@ enum class Operator(
         override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
             when {
                 left.type.isSubtypeOf(BooleanType.Instance) -> {
-                    return OP_BOOLEAN_EQUAL.eval(listOf(left, right))
+                    return BooleanOperators.opBooleanEqual(listOf(left, right))
                 }
                 else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
             }
@@ -213,7 +213,7 @@ interface ArithmeticOperator {
             v2.value is XsdBoolean ||
                     v2.value is XsdDecimal ||
                     v2.value is XsdFloat ||
-                    v2.type == UntypedAtomicType.Instance -> return FN.NUMBER.eval(v2)
+                    v2.type == UntypedAtomicType.Instance -> return Fn.number(v2)
         }
         return v2
     }

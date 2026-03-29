@@ -1,0 +1,177 @@
+/*
+ * Copyright (c) 2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package io.github.pdvrieze.formats.xpath.functions.impl
+
+import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.data.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdString
+import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.Comment
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
+import nl.adaptivity.xmlutil.dom2.Text
+import nl.adaptivity.xmlutil.dom2.localName
+import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.dom2.nodeName
+import nl.adaptivity.xmlutil.dom2.parentNode
+import nl.adaptivity.xmlutil.dom2.previousSibling
+import nl.adaptivity.xmlutil.dom2.target
+
+@XPathInternal
+object NodeOperators : AbstractFunctionObject() {
+
+    val fnName = BuiltinFunctionImpl("name", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val name = when(val n = arg.node) {
+            is Element -> n.nodeName
+            is Attr -> n.nodeName
+            is ProcessingInstruction -> n.target
+            else -> ""
+        }
+        XdmAtomic(XsdString(name))
+    }
+
+    val fnLocalName =
+        BuiltinFunctionImpl("local-name", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+            val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+            val name = when (val n = arg.node) {
+                is Element -> n.localName
+                is Attr -> n.localName ?: n.nodeName
+                is ProcessingInstruction -> n.target
+                else -> ""
+            }
+            XdmAtomic(XsdString(name))
+        }
+
+    val fnNamespaceUri = BuiltinFunctionImpl("namespace-uri", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val name = when(val n = arg.node) {
+            is Element -> n.namespaceURI
+            is Attr -> n.namespaceURI
+            else -> ""
+        }
+        XdmAtomic(XsdString(name ?: ""))
+    }
+
+    val fnLang = BuiltinFunctionImpl("lang", contextFunctionTypes(XdmType.BOOLEAN, XdmType.NODE, XdmType.STRING.opt)) { args ->
+        val testLang = when {
+            args.isEmpty() -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+            else -> ((args[0] as? XdmAtomic<*>)?.value as? XsdString)?.xmlString
+                ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:string, found: ${args[0].type}")
+        }
+
+        val arg1 = (argOrContext(1, args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
+        val node: Node = (arg1 as? XdmNode ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${arg1.type}")).node
+
+        val effectiveLang = generateSequence<Node>(node) { it.parentNode as? Element }
+            .filterIsInstance<Element>()
+            .mapNotNull { it.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang") }
+            .firstOrNull()
+
+        val r = when {
+            effectiveLang == null -> false
+            effectiveLang == testLang -> true
+            effectiveLang.startsWith("${testLang}-") -> true
+            else -> false
+        }
+
+        XdmAtomic(XsdBoolean(r))
+
+    }
+
+    val fnRoot = BuiltinFunctionImpl("root",
+        listOf(
+            XdmFunctionType(XdmType.NODE),
+            XdmFunctionType(XdmType.NODE.opt, XdmType.NODE.opt)
+        )) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+
+        val r = generateSequence(arg.node) { it.getParentNode() as? Element }.last()
+        XdmNode(r)
+    }
+
+    val fnPath = BuiltinFunctionImpl("path",contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+        val n = arg.node
+
+        val elemPath = generateSequence((n as? Element) ?: (n.parentNode as? Element)) { it.getParentNode() as? Element }
+            .map { a ->
+                val position = generateSequence(a.previousSibling) { it.previousSibling }
+                    .filterIsInstance<Element>()
+                    .count { it.namespaceURI == a.namespaceURI && it.localName == a.localName } + 1
+                "Q{${a.namespaceURI}}${a.localName}[$position]"
+            }
+            .toList()
+            .reversed()
+
+        val path = buildString {
+            elemPath.joinTo(this, "/") { it }
+            when (n) {
+                is Attr if (n.namespaceURI.isNullOrBlank()) -> append("/@").append(n.localName)
+                is Attr -> append("/@Q{").append(n.namespaceURI).append("}").append(n.localName)
+
+                is Text -> {
+                    val position = generateSequence(n.previousSibling) { it.previousSibling }
+                        .count { it is Text } + 1
+                    append("/text()[").append(position).append(']')
+                }
+
+                is Comment -> {
+                    val position = generateSequence(n.previousSibling) { it.previousSibling }
+                        .count { it is Comment } + 1
+                    append("/comment()[").append(position).append(']')
+                }
+
+                is ProcessingInstruction -> {
+                    val position = generateSequence(n.previousSibling) { it.previousSibling }
+                        .count { it is ProcessingInstruction && it.target == n.target } + 1
+                    append("/processing-instruction(").append(n.target).append(")[").append(position).append(']')
+                }
+            }
+        }
+
+        XdmAtomic(XsdString(path))
+    }
+
+    val fnHasChildren = BuiltinFunctionImpl("has-children",contextFunctionTypes(XdmType.BOOLEAN, XdmType.NODE.opt)) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
+        XdmAtomic(XsdBoolean(arg.node.getChildNodes().getLength() > 0))
+    }
+
+    val fnInnermost = BuiltinFunctionImpl("innermost",contextFunctionTypes(XdmType.NODE.any, XdmType.NODE.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+
+        TODO("Not yet implemented")
+
+    }
+
+    val fnOutermost = BuiltinFunctionImpl("outermost",contextFunctionTypes(XdmType.NODE.any, XdmType.NODE.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+
+        TODO("Not yet implemented")
+    }
+
+}

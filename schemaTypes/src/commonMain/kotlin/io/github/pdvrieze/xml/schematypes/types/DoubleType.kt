@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DoubleType<out T: XsdDouble> : AnyAtomicType<T> {
+interface DoubleType<out T: XsdDouble> : AnyAtomicType<T>, NumericType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
@@ -34,6 +34,10 @@ interface DoubleType<out T: XsdDouble> : AnyAtomicType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
+
+    override val members: Collection<DoubleType<T>> get() = listOf(this)
+
+    override fun fromString(value: CharSequence): T
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets

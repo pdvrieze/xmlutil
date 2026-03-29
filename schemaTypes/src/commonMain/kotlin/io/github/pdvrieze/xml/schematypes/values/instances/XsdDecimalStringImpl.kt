@@ -21,6 +21,16 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
+import kotlin.math.absoluteValue
+import kotlin.math.nextDown
+import kotlin.math.nextUp
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 internal class XsdDecimalStringImpl(override val xmlString: String) : XsdBigDecimal {
 
@@ -57,6 +67,59 @@ internal class XsdDecimalStringImpl(override val xmlString: String) : XsdBigDeci
 
     override fun toInt(): Int {
         return xmlString.toInt()
+    }
+
+    override fun abs(): XsdDecimal = when {
+        xmlString.startsWith('-') -> XsdDecimalStringImpl(xmlString.substring(1))
+        else -> this
+    }
+
+    override fun unaryMinus(): XsdDecimal = when {
+        xmlString.startsWith('-') -> XsdDecimalStringImpl(xmlString.substring(1))
+        else -> XsdDecimalStringImpl("-$xmlString")
+    }
+
+    override fun round(): XsdInteger {
+        val decPos: Int = when {
+            xmlString.contains('e', true) -> return XsdInteger(xmlString.toDouble().roundToLong())
+            else -> xmlString.lastIndexOf('.')
+        }
+        return when {
+            decPos >= 0 -> XsdInteger(xmlString.substring(0, decPos))
+            else -> XsdInteger(xmlString)
+        }
+    }
+
+    override fun roundToHalfEven(): XsdInteger {
+        TODO("not implemented")
+    }
+
+    override fun ceiling(): XsdInteger {
+        val decPos: Int = when {
+            xmlString.contains('e', true) -> return XsdInteger(xmlString.toDouble().nextUp().roundToLong())
+            else -> xmlString.lastIndexOf('.')
+        }
+        return when {
+            decPos < 0 -> XsdInteger(xmlString)
+
+            ((decPos + 1) until xmlString.length).all { xmlString[it] == '0' } ->
+                XsdInteger(xmlString.substring(0, decPos))
+
+            else -> XsdInteger(xmlString.substring(0, decPos)).plus(XsdInt(1))
+        }
+    }
+
+    override fun floor(): XsdInteger {
+        val decPos: Int = when {
+            xmlString.contains('e', true) -> return XsdInteger(xmlString.toDouble().nextDown().roundToLong())
+            else -> xmlString.lastIndexOf('.')
+        }
+        return when {
+            decPos < 0 -> XsdInteger(xmlString)
+
+            else -> XsdInteger(xmlString.substring(0, decPos))
+        }
+
     }
 
     override fun compareTo(other: XsdDecimal): Int = when (other){

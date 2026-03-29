@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdDouble.Companion::class)
-interface XsdDouble: XsdAtomic {
+interface XsdDouble: XsdAtomic, XsdNumeric<XsdDouble> {
     override val schemaType: DoubleType<XsdDouble>
 
     val value: Double

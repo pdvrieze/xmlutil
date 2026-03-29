@@ -44,6 +44,8 @@ interface ItemTypeTest {
     fun isSubtypeOf(baseType: ItemTypeTest): Boolean
 
     companion object {
+        val node: ItemTypeTest = NodeKindTest.AnyKind
+
         @OptIn(NeedsXPath2::class)
         val documentNode: ItemTypeTest = NodeKindTest.DocumentTest()
     }

@@ -20,16 +20,16 @@
 
 package io.github.pdvrieze.formats.xpath.data
 
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.functions.Function
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
-class XdmBuiltinFunction(private val function: BuiltinFunction<*>): XdmFunction<XdmBuiltinFunction>() {
+class XdmBuiltinFunction(private val function: Function): XdmFunction<XdmBuiltinFunction>() {
     override fun asT(): XdmBuiltinFunction = this
 
-    override val type: XdmFunctionType =
-        XdmFunctionType(function.argumentTypes, function.returnType)
+    override val type: XdmFunctionType get() =
+        function.functionTypes.single()
 
     context(ctx: ExprEvalContext)
     override fun withType(type: XdmType): XdmValue {

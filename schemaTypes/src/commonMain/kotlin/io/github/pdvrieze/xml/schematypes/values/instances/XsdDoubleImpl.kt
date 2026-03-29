@@ -22,14 +22,76 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
+import kotlin.math.absoluteValue
+import kotlin.math.nextDown
+import kotlin.math.nextUp
+import kotlin.math.pow
+import kotlin.math.roundToLong
+import kotlin.math.floor as kmFloor
+import kotlin.math.round as kmRound
 
 @JvmInline
 @XmlUtilInternal
 value class XsdDoubleImpl(override val value: Double): XsdDouble {
     override val xmlString: String get() = value.toString()
     override val schemaType: DoubleType<*> get() = DoubleType.Instance
+
+    override fun toDouble(): Double = value
+
+    override fun abs(): XsdDouble = XsdDoubleImpl(value.absoluteValue)
+
+    override fun unaryMinus(): XsdDouble = XsdDoubleImpl(-value)
+
+    override fun ceiling(): XsdDouble {
+        return XsdDouble(value.nextUp())
+    }
+
+    override fun floor(): XsdDouble {
+        return XsdDouble(value.nextDown())
+    }
+
+    override fun round(): XsdDouble {
+        return XsdDouble(kmRound(value))
+    }
+
+    override fun round(precision: Int): XsdDouble {
+        val factor = 10.0.pow(precision)
+        return XsdDouble(kmRound(value * factor) / factor)
+    }
+
+    override fun roundToHalfEven(): XsdDouble {
+        val scaled = value
+        val floorVal = kmFloor(value)
+        val fraction = scaled - floorVal
+
+        val result = when {
+            fraction > 0.5 -> (floorVal + 1.0)
+            fraction < 0.5 -> floorVal
+            floorVal % 2.0 == 0.0 -> floorVal
+            else -> (floorVal + 1.0)
+        }
+        return XsdDouble(result)
+    }
+
+    override fun roundToHalfEven(precision: Int): XsdDouble {
+        val factor = 10.0.pow(precision)
+        val scaled = value * factor
+        val floorVal = kmFloor(scaled)
+        val fraction = scaled - floorVal
+
+        val result = when {
+            fraction > 0.5 -> (floorVal + 1.0) / factor
+            fraction < 0.5 -> floorVal / factor
+            // exactly halfway: round to even
+            floorVal % 2.0 == 0.0 -> floorVal / factor
+            else -> (floorVal + 1.0) / factor
+        }
+        return XsdDouble(result)
+    }
 
     override fun toString(): String = xmlString
 }

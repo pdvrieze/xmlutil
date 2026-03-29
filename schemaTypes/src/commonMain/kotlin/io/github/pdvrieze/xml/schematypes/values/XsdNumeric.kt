@@ -18,27 +18,27 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.impl.functions
+package io.github.pdvrieze.xml.schematypes.values
 
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
+import io.github.pdvrieze.xml.schematypes.types.NumericType
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
-interface Function {
-    val name: QName
-}
+@ExperimentalXmlUtilApi
+interface XsdNumeric<out T: XsdNumeric<T>>: XsdAnySimple {
+    override val schemaType: NumericType<T>
 
-object Fn {
-    object root: Function {
-        override val name: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, "root")
-    }
-    object data: Function {
-        override val name: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, "data")
-    }
+    fun toDouble(): Double
 
-    object map {
-        object keys: Function {
-            override val name: QName = QName("${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/map", "keys")
-        }
-    }
+    fun abs(): T
 
+    operator fun unaryMinus(): T
+
+    fun ceiling(): T
+    fun floor(): T
+    fun round(): T
+    fun round(precision: XsdInteger): T = round(precision.toInt())
+    fun round(precision: Int): T
+    fun roundToHalfEven(): T
+    fun roundToHalfEven(precision: XsdInteger): T = roundToHalfEven(precision.toInt())
+    fun roundToHalfEven(precision: Int): T
 }

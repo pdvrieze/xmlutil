@@ -63,4 +63,7 @@ object ResFloatType : ResPrimitiveDatatype<XsdFloat>, FloatType<XsdFloat> {
         val _ = value(representation)
     }
 
+    override fun fromString(value: CharSequence): XsdFloat {
+        return super.fromString(value)
+    }
 }

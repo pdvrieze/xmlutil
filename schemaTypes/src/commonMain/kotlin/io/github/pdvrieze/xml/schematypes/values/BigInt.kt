@@ -26,7 +26,7 @@ import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalUnsignedTypes::class)
 class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: ULong) :
-    AbstractBigInteger<BigInt>(ints, exp), XsdInteger {
+    AbstractBigInteger<BigInt>(ints, exp) {
     init {
         require(ints.isNotEmpty()) { "At least one integer must be present" }
         if (sign != 0 || ints.size > 1 || exp != 0uL) {

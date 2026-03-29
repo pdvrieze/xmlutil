@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import nl.adaptivity.xmlutil.dom2.Node
 
 @XPathInternal
 class XdmSchemaType(

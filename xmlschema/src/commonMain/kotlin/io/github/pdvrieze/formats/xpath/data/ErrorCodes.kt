@@ -518,7 +518,7 @@ enum class ErrorCodes(val code: String, val message: String) {
      * Raised by `fn:string`, or by implicit string conversion, if the input sequence
      * contains a function item.
      */
-    FOTY0014("FOTY0014", "The argument to fn:string() is a function item."),
+    FOTY0014_FN_IN_TOSTRING("FOTY0014", "The argument to fn:string() is a function item."),
 
     /**
      * Raised by `fn:deep-equal` if either input sequence contains a function item.

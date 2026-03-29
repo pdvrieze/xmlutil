@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xpath.data.XdmBuiltinFunction
 import io.github.pdvrieze.formats.xpath.data.XdmPartialApplication
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.functions.Fn
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
@@ -43,8 +44,8 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
     @XPathInternal
     override fun eval(): XdmValue {
         val function = when (name.namespaceURI) {
-            BuiltinFunction.FN_NAMESPACE, "" -> BuiltinFunction.FN.of(name.localPart)
-            else -> throw EvaluationException(this, "No builtin function from namespace")
+            BuiltinFunction.FN_NAMESPACE, "" -> Fn.of(name.localPart)
+            else -> throw EvaluationException(this, "No builtin function from namespace: '${name.namespaceURI}'")
         }
         if (function == null) throw EvaluationException(this, "Function with name ${name} not found")
 
@@ -59,7 +60,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
         }
         val evalArgs = args.map { (it as ExprSingle).eval() }
 
-        return withExprContext { function.eval(evalArgs) }
+        return withExprContext { function.invoke(evalArgs) }
     }
 
     override fun collectUnsupportedExprs(

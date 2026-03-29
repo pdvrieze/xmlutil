@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.impl.functions.Fn
+import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 import io.github.pdvrieze.xml.schematypes.types.TokenType
 import io.github.pdvrieze.xml.schematypes.values.XsdToken
@@ -54,7 +54,7 @@ internal class XPathExpressionImpl internal constructor(
         @OptIn(XPathInternal::class, NeedsXPath2::class)
         internal val STEP_DOC_ROOT = FilterExpr(
             TreatAsExpr(
-                StaticFunctionCall(Fn.root.name, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),
+                StaticFunctionCall(Fn.root.functionName, LocationPath(AxisStep(Axis.SELF, NodeTest.node))),
                 SequenceType.ItemTypeSequence(ItemTypeTest.documentNode, SequenceType.OccurrenceType.ANY)
             ),
             emptyList()

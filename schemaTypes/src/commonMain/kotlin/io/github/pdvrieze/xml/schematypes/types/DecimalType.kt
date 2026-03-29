@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T> {
+interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -34,6 +34,8 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
+
+    override val members: Collection<DecimalType<T>> get() = listOf(this)
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets

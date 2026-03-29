@@ -33,12 +33,12 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdDecimal.Companion::class)
-interface XsdDecimal : XsdAtomic {
+interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
     override val schemaType: DecimalType<XsdDecimal>
 
     fun toLong(): Long
     fun toInt(): Int
-    fun toDouble(): Double = xmlString.toDouble()
+    override fun toDouble(): Double = xmlString.toDouble()
     fun toVDecimal(): XsdBigDecimal = XsdDecimalStringImpl(xmlString)
 
     operator fun compareTo(other: XsdDecimal): Int

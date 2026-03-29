@@ -22,12 +22,23 @@ package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 
-@XPathInternal
 open class XdmFunctionType(
     val argTypes: List<XdmType>,
     val returnType: XdmType
 ) : XdmSingleType() {
+
+    constructor(returnType: XdmType, vararg argTypes: XdmType) : this(
+        argTypes.toList(),
+        returnType
+    )
+
+    @OptIn(XPathInternal::class)
+    constructor(returnType: AnyType, vararg argTypes: AnyType) : this(
+        argTypes.map { XdmSchemaType(it) },
+        XdmSchemaType(returnType),
+    )
 
     @XPathInternal
     context(ctx: ExprEvalContext)
@@ -41,6 +52,7 @@ open class XdmFunctionType(
             .all { (a, b) -> b.isSubtypeOf(a) }
     }
 
+    @XPathInternal
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue {
         throw EvaluationException(ctx.expr, "Functions cannot be created from strings")

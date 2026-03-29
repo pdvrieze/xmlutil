@@ -22,17 +22,73 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.FloatType
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdFloat
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdFloatImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
+import kotlin.math.nextDown
+import kotlin.math.nextUp
+import kotlin.math.pow
+import kotlin.math.floor as kmFloor
+import kotlin.math.round as kmRound
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdFloat.Companion::class)
-interface XsdFloat: XsdAtomic {
+interface XsdFloat: XsdAtomic, XsdNumeric<XsdFloat> {
     val value: Float
 
     override val schemaType: FloatType<XsdFloat>
+
+
+    override fun ceiling(): XsdFloat {
+        return XsdFloat(value.toDouble().nextUp().toFloat())
+    }
+
+    override fun floor(): XsdFloat {
+        return XsdFloat(value.toDouble().nextDown().toFloat())
+    }
+
+    override fun round(): XsdFloat {
+        return XsdFloat(kmRound(value))
+    }
+
+    override fun round(precision: Int): XsdFloat {
+        val factor = 10.0.pow(precision)
+        return XsdFloat((kmRound(value * factor) / factor).toFloat())
+    }
+
+    override fun roundToHalfEven(): XsdFloat {
+        val scaled = value
+        val floorVal = kmFloor(value)
+        val fraction = scaled - floorVal
+
+        val result = when {
+            fraction > 0.5 -> (floorVal + 1.0)
+            fraction < 0.5 -> floorVal
+            floorVal % 2.0 == 0.0 -> floorVal
+            else -> (floorVal + 1.0)
+        }
+        return XsdFloat(result.toFloat())
+    }
+
+    override fun roundToHalfEven(precision: Int): XsdFloat {
+        val factor = 10.0.pow(precision)
+        val scaled = value * factor
+        val floorVal = kmFloor(scaled)
+        val fraction = scaled - floorVal
+
+        val result = when {
+            fraction > 0.5 -> (floorVal + 1.0) / factor
+            fraction < 0.5 -> floorVal / factor
+            // exactly halfway: round to even
+            floorVal % 2.0 == 0.0 -> floorVal / factor
+            else -> (floorVal + 1.0) / factor
+        }
+        return XsdFloat(result.toFloat())
+    }
+
 
     companion object : SimpleTypeSerializer<XsdFloat>("xsd.float") {
         operator fun invoke(value: Float): XsdFloat = XsdFloatImpl(value)

@@ -22,11 +22,18 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdFloat
+import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
+/**
+ * Union of all numeric types. Used by XPath/XQuery functions.
+ */
+interface NumericType<out T: XsdNumeric<*>> : AnySimpleUnion<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
@@ -34,20 +41,40 @@ interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
-    override val members: Collection<FloatType<T>> get() = listOf(this)
+
+    override val members: Collection<AnySimpleType<T>>
+
+    override val baseType: AnySimpleType<XsdAnySimple>
+
+    fun fromString(value: CharSequence): XsdNumeric<*>
+
+    override fun isPureUnion(): Boolean = true
+
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : FloatType<XsdFloat>, PrimitiveDatatype<XsdFloat>, BuiltinType {
-        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "float", "xs")
+    object Instance: NumericType<XsdNumeric<*>>, AnySimpleUnion<XsdNumeric<*>>, BuiltinType {
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "numeric", "xs")
+
+        override val baseType: AnySimpleType<XsdAnySimple>
+            get() = AnySimpleType.Instance
+
+        override val members: Collection<AnySimpleType<XsdNumeric<*>>> = listOf(
+            DecimalType.Instance, FloatType.Instance, DoubleType.Instance,
+        )
+
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
 
-        override fun fromString(value: CharSequence): XsdFloat {
-            return XsdFloat(value)
+        override fun fromString(value: CharSequence): XsdNumeric<*> {
+            return XsdDouble(value)
         }
     }
+
+
+
+
 
 }

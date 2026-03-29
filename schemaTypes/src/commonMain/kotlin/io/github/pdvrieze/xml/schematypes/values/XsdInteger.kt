@@ -71,9 +71,21 @@ interface XsdInteger : XsdDecimal {
 
     operator fun minus(other: XsdInteger): XsdInteger
 
-    fun abs(): XsdNonNegativeInteger
+    override fun abs(): XsdNonNegativeInteger
 
-    operator fun unaryMinus(): XsdInteger
+    override operator fun unaryMinus(): XsdInteger
+
+    override fun ceiling(): XsdInteger = this
+
+    override fun floor(): XsdInteger = this
+
+    override fun round(): XsdInteger = this
+
+    override fun round(precision: Int): XsdInteger = this
+
+    override fun roundToHalfEven(): XsdInteger = this
+
+    override fun roundToHalfEven(precision: Int): XsdInteger = this
 
     override fun compareTo(other: XsdDecimal): Int = when (other) {
         is XsdBigDecimal -> XsdDecimalStringImpl(xmlString).compareTo(other)

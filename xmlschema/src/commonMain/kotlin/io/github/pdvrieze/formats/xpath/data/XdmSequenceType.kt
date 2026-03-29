@@ -42,6 +42,10 @@ sealed class XdmSingleType : XdmType() {
     @OptIn(XPathInternal::class)
     context(ctx: ExprEvalContext)
     abstract fun isSubtypeOf(other: XdmSingleType): Boolean
+
+    val opt: XdmSequenceType get() = XdmSequenceType(this, OccurrenceType.OPTIONAL)
+    val atLeastOne: XdmSequenceType get() = XdmSequenceType(this, OccurrenceType.AT_LEAST_ONE)
+    val any: XdmSequenceType get() = XdmSequenceType(this, OccurrenceType.ANY)
 }
 
 @OptIn(XPathInternal::class)
