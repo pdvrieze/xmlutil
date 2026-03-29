@@ -21,22 +21,18 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.jvm.JvmInline
 import kotlin.math.absoluteValue
 import kotlin.math.nextDown
 import kotlin.math.nextUp
 import kotlin.math.pow
-import kotlin.math.roundToLong
 import kotlin.math.floor as kmFloor
 import kotlin.math.round as kmRound
 
-@JvmInline
 @XmlUtilInternal
-value class XsdDoubleImpl(override val value: Double): XsdDouble {
+class XsdDoubleImpl(override val value: Double): XsdDouble {
     override val xmlString: String get() = value.toString()
     override val schemaType: DoubleType<*> get() = DoubleType.Instance
 
@@ -94,4 +90,16 @@ value class XsdDoubleImpl(override val value: Double): XsdDouble {
     }
 
     override fun toString(): String = xmlString
+
+    override fun equals(other: Any?): Boolean = when {
+        this === other -> true
+        other is XsdDouble -> other.toDouble() == value
+        other is XsdDecimal -> other == XsdDecimal(xmlString)
+        else -> false
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
 }

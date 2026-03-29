@@ -21,15 +21,14 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.FloatType
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdFloat
-import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.jvm.JvmInline
 import kotlin.math.absoluteValue
 
-@JvmInline
 @XmlUtilInternal
-value class XsdFloatImpl(override val value: Float): XsdFloat {
+class XsdFloatImpl(override val value: Float): XsdFloat {
     override val xmlString: String get() = value.toString()
     override val schemaType: FloatType<*> get() = FloatType.Instance
 
@@ -40,4 +39,18 @@ value class XsdFloatImpl(override val value: Float): XsdFloat {
     override fun unaryMinus(): XsdFloat = XsdFloatImpl(-value)
 
     override fun toString(): String = xmlString
+
+
+    override fun equals(other: Any?): Boolean = when {
+        this === other -> true
+        other is XsdFloat -> other.value == value
+        other is XsdDouble -> other.toDouble() == value.toDouble()
+        other is XsdDecimal -> other == XsdDecimal(xmlString)
+        else -> false
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
 }
