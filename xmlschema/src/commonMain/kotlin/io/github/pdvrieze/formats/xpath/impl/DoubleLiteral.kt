@@ -20,12 +20,19 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+
 @XPathInternal
 @NeedsXPath1
 internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>() {
     override fun toDouble(): Double = value
     override fun toLong(): Long = value.toLong()
     override fun toInt(): Int = value.toInt()
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmAtomic<XsdDouble> = XdmAtomic(XsdDouble(value))
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
