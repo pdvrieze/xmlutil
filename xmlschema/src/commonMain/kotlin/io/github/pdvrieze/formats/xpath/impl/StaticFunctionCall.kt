@@ -27,7 +27,9 @@ import io.github.pdvrieze.formats.xpath.data.XdmPartialApplication
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.functions.Fn
+import io.github.pdvrieze.formats.xpath.functions.Xs
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
@@ -45,6 +47,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
     override fun eval(): XdmValue {
         val function = when (name.namespaceURI) {
             BuiltinFunction.FN_NAMESPACE, "" -> Fn.of(name.localPart)
+            XMLConstants.XSD_NS_URI -> ctx.withExprContext(this) { Xs.createFromSchemaType(name) }
             else -> throw EvaluationException(this, "No builtin function from namespace: '${name.namespaceURI}'")
         }
         if (function == null) throw EvaluationException(this, "Function with name ${name} not found")

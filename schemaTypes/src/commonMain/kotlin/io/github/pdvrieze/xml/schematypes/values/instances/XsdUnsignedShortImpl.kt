@@ -21,6 +21,9 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.UnsignedShortType
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedShort
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
@@ -32,4 +35,17 @@ internal class XsdUnsignedShortImpl(override val uShortValue: UShort) : XsdUnsig
     override fun toString(): String {
         return "${uShortValue}u"
     }
+
+
+    override fun hashCode(): Int {
+        return uIntValue.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean = when (other) {
+        is XsdUnsignedInt -> uIntValue == other.uIntValue
+        is XsdInt -> other.intValue>=0 && other.intValue.toUInt() == uIntValue
+        is XsdInteger -> other == this
+        else -> false
+    }
+
 }

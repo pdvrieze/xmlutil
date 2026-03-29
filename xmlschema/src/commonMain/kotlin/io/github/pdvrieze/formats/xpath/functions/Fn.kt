@@ -22,31 +22,12 @@ package io.github.pdvrieze.formats.xpath.functions
 
 import io.github.pdvrieze.formats.xpath.data.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.data.XdmValue
-import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
-import io.github.pdvrieze.formats.xpath.functions.impl.BooleanOperators
-import io.github.pdvrieze.formats.xpath.functions.impl.NodeOperators
-import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
-import io.github.pdvrieze.formats.xpath.functions.impl.SequenceOperators
+import io.github.pdvrieze.formats.xpath.functions.impl.*
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
-
-interface Function {
-    val functionName: QName
-
-    val functionTypes: List<XdmFunctionType>
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    operator fun invoke(vararg args: XdmValue): XdmValue = invoke(args.toList())
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    operator fun invoke(args: List<XdmValue>): XdmValue
-
-}
 
 @OptIn(XPathInternal::class)
 enum class Fn(

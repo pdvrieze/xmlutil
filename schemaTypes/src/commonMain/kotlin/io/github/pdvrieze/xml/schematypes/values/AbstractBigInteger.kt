@@ -351,7 +351,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         }
     }
 
-    fun compareTo(other: BigUnsignedInt): Int {
+    fun compareTo(other: AbstractBigInteger<*>): Int {
+        if (sign != other.sign) return sign.compareTo(other.sign)
         // optimize for 2 BigUnsignedInts
         val s = significantBitsFromZero()
         val os = significantBitsFromZero()
@@ -603,6 +604,18 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         target[a.size + leftOffset] = t + carry - toReduce
         return true
     }
+
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is AbstractBigInteger<*>) return false
+        return compareTo(other) == 0
+    }
+
+    override fun hashCode(): Int {
+        // TODO something more sane (and efficient)
+        return xmlString.hashCode()
+    }
+
 
     override fun toString(): String = buildString {
         append("BigUnsignedInt(")

@@ -178,7 +178,7 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
 
 
     override fun compareTo(other: XsdNonPositiveInteger): Int {
-        if (other is BigNonPositiveInt) return compareTo(other)
+        if (other is BigNonPositiveInt) return compareTo(other as AbstractBigInteger<*>)
 
         // optimize for 2 BigUnsignedInts
         val s = size

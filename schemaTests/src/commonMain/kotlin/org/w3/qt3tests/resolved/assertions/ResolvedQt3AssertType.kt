@@ -20,12 +20,25 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.builtinType
+import nl.adaptivity.xmlutil.XMLConstants
 
+@OptIn(XPathInternal::class)
 class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
-        TODO("not implemented. We don't properly parse types")
+
+        val expectedType = builtinType(type.substringAfterLast(':'), XMLConstants.XSD_NS_URI)
+            ?: return AssertionResult.Failure("Unknown type $type")
+
+        val actualType = evalResult.type as? XdmSchemaType ?: return AssertionResult.Failure("Expected Schema type $expectedType, got ${evalResult.type}")
+
+        if (actualType.schemaType.derivesFrom(expectedType)) return AssertionResult.Success
+
+        return AssertionResult.Failure("Expected Schema type $expectedType, got ${actualType.schemaType}")
     }
 
 }

@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.ShortType
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdShort
-import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedShort
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.absoluteValue
 
 internal class XsdShortImpl(override val shortValue: Short) : XsdShort {
@@ -53,4 +50,18 @@ internal class XsdShortImpl(override val shortValue: Short) : XsdShort {
         is XsdNonNegativeInteger -> if (intValue<0) -1 else intValue.toULong().compareTo(other.toULong())
         else -> longValue.compareTo(other.toLong())
     }
+
+
+    override fun equals(other: Any?): Boolean = when {
+        this === other -> true
+        other is XsdInt -> intValue == other.intValue
+        other is XsdUnsignedInt -> intValue >=0 && intValue.toUInt() == other.toUInt()
+        other is XsdInteger -> other == this
+        else -> false
+    }
+
+    override fun hashCode(): Int {
+        return shortValue.hashCode()
+    }
+
 }

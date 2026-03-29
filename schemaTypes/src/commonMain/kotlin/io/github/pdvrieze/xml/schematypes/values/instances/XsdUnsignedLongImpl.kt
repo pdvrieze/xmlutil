@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -34,6 +35,17 @@ internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsigned
 
     override fun toString(): String {
         return "${uLongValue}u"
+    }
+
+    override fun hashCode(): Int {
+        return uLongValue.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean = when (other) {
+        is XsdUnsignedLong -> uLongValue == other.uLongValue
+        is XsdLong -> other.longValue>=0 && other.longValue.toULong() == uLongValue
+        is XsdInteger -> other == this
+        else -> false
     }
 
 }

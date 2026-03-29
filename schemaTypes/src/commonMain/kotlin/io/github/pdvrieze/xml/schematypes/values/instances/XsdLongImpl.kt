@@ -25,11 +25,9 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
-import kotlin.jvm.JvmInline
 import kotlin.math.absoluteValue
 
-@JvmInline
-internal value class XsdLongImpl(override val longValue: Long) : XsdLong {
+internal class XsdLongImpl(override val longValue: Long) : XsdLong {
 
     constructor(value: CharSequence): this(value.toString().toLong())
 
@@ -59,6 +57,18 @@ internal value class XsdLongImpl(override val longValue: Long) : XsdLong {
     override fun compareTo(other: XsdInteger): Int = when (other) {
         is XsdNonNegativeInteger -> if (longValue < 0L) -1 else longValue.toULong().compareTo(other.toULong())
         else -> longValue.compareTo(other.toLong())
+    }
+
+    override fun equals(other: Any?): Boolean = when {
+        this === other -> true
+        other is XsdLong -> longValue == other.longValue
+        other is XsdUnsignedLong -> longValue >=0 && longValue.toULong() == other.toULong()
+        other is XsdInteger -> other == this
+        else -> false
+    }
+
+    override fun hashCode(): Int {
+        return longValue.hashCode()
     }
 
 }

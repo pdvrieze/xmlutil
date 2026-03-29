@@ -53,5 +53,18 @@ internal class XsdIntImpl(override val intValue: Int) : XsdInt {
         is XsdNonNegativeInteger -> if (intValue<0) -1 else intValue.toULong().compareTo(other.toULong())
         else -> longValue.compareTo(other.toLong())
     }
+
+    override fun equals(other: Any?): Boolean = when {
+        this === other -> true
+        other is XsdInt -> intValue == other.intValue
+        other is XsdUnsignedInt -> intValue >=0 && intValue.toUInt() == other.toUInt()
+        other is XsdInteger -> other == this
+        else -> false
+    }
+
+    override fun hashCode(): Int {
+        return intValue.hashCode()
+    }
+
 }
 
