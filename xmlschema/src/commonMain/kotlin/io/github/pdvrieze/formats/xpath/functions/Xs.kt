@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xpath.functions.impl.AbstractFunctionObject
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -35,8 +34,8 @@ object Xs: AbstractFunctionObject() {
     fun createFromSchemaType(name: QName): BuiltinFunction<*> {
         val type = ctx.resolveType(name) as AnyAtomicType<*>
         return BuiltinFunctionImpl(name, listOf(XdmFunctionType(XdmType.STRING, XdmSchemaType(type)))) { args ->
-            val arg = toSingleAtomic<XsdString>(args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)
-            XdmAtomic(type.fromString(arg.xmlString))
+            val arg = toAnySingleAtomic(args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)
+            XdmAtomic(type.fromString(arg.value.xmlString))
         }
     }
 
