@@ -351,7 +351,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         }
     }
 
-    fun compareTo(other: AbstractBigInteger<*>): Int {
+    override fun compareTo(other: XsdInteger): Int {
         if (sign != other.sign) return sign.compareTo(other.sign)
         // optimize for 2 BigUnsignedInts
         val s = significantBitsFromZero()
@@ -607,7 +607,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
 
     override fun equals(other: Any?): Boolean {
-        if (other !is AbstractBigInteger<*>) return false
+        if (other !is XsdInteger) return false
         return compareTo(other) == 0
     }
 

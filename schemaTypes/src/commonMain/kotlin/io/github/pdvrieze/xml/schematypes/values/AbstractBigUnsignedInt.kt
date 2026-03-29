@@ -195,7 +195,9 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
             s < os -> if ((s until os).any { other[it] != 0u }) return -1
             s > os -> if ((os until s).any { get(it) != 0u }) return 1
         }
-        for (i in (s-1u) downTo 0u) {
+        val ints = (s-1u+31u) shr 5
+
+        for (i in (ints-1u) downTo 0u) {
             val v = get(i)
             val o = other[i]
             when {
