@@ -46,7 +46,7 @@ interface XsdPositiveInteger : XsdNonNegativeInteger {
     operator fun compareTo(other: XsdPositiveInteger): Int =
         toULong().compareTo(other.toULong())
 
-    companion object : SimpleTypeSerializer<XsdPositiveInteger>("xsd.nonNegativeInteger") {
+    companion object : SimpleTypeSerializer<XsdPositiveInteger>("xsd.positiveInteger") {
         override fun deserialize(raw: String, input: XmlReader?): XsdPositiveInteger {
             return invoke(xmlTrimWhitespace(raw))
         }

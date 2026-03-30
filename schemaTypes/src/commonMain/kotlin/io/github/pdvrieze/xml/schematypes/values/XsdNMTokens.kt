@@ -36,7 +36,7 @@ interface XsdNMTokens : XsdAnySimple, ListHelper<XsdNMToken> {
 
     override val schemaType: NMTokensType<XsdNMTokens, XsdNMToken>
 
-    companion object : SimpleTypeSerializer<XsdNMTokens>("xs.IDS") {
+    companion object : SimpleTypeSerializer<XsdNMTokens>("xsd.IDS") {
         override fun deserialize(raw: String, input: XmlReader?): XsdNMTokens {
             val members = raw.rawStringToCollapsedSequence()
                 .map { XsdNMTokenImpl(it) }

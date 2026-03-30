@@ -31,7 +31,7 @@ interface XsdID : XsdNCName {
 
     override val schemaType: IDType<XsdID>
 
-    companion object : SimpleTypeSerializer<XsdID>("ID") {
+    companion object : SimpleTypeSerializer<XsdID>("xsd.ID") {
         override fun deserialize(raw: String, input: XmlReader?): XsdID {
             return invoke(raw)
         }

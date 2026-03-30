@@ -38,7 +38,7 @@ interface XsdShort : XsdInt {
     override val longValue: Long get() = shortValue.toLong()
     override fun abs(): XsdUnsignedShort
 
-    companion object : SimpleTypeSerializer<XsdShort>("XSShort") {
+    companion object : SimpleTypeSerializer<XsdShort>("xsd.short") {
         operator fun invoke(value: Short): XsdShort = XsdShortImpl(value)
 
         operator fun invoke(value: CharSequence): XsdShort = XsdShortImpl(value.toString().toShort())

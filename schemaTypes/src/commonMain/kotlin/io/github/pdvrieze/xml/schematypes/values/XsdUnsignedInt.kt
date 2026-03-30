@@ -105,6 +105,7 @@ interface XsdUnsignedInt : XsdUnsignedLong {
     }
 
     companion object : SimpleTypeSerializer<XsdUnsignedInt>("xsd.unsignedLong") {
+    companion object : SimpleTypeSerializer<XsdUnsignedInt>("xsd.unsignedInt") {
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedInt {
             return XsdUnsignedIntImpl(xmlTrimWhitespace(raw).toUInt())
         }

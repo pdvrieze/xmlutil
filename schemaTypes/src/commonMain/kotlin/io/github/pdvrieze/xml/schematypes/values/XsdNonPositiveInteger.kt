@@ -61,7 +61,7 @@ interface XsdNonPositiveInteger : XsdInteger {
 
     override fun unaryMinus(): XsdNonNegativeInteger
 
-    companion object : SimpleTypeSerializer<XsdNonPositiveInteger>("xsd.nonNegativeInteger") {
+    companion object : SimpleTypeSerializer<XsdNonPositiveInteger>("xsd.nonPositiveInteger") {
         override fun deserialize(raw: String, input: XmlReader?): XsdNonPositiveInteger {
             return invoke(xmlTrimWhitespace(raw))
         }

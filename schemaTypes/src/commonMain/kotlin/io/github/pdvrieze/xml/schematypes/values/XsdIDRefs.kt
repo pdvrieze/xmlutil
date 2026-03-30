@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.XmlReader
 interface XsdIDRefs: XsdAnySimple, ListHelper<XsdIDRef> {
     override val schemaType: IDRefsType<XsdIDRefs, XsdIDRef>
 
-    companion object : SimpleTypeSerializer<XsdIDRefs>("xs.IDS") {
+    companion object : SimpleTypeSerializer<XsdIDRefs>("xsd.IDS") {
         override fun deserialize(raw: String, input: XmlReader?): XsdIDRefs {
             val members = raw.rawStringToCollapsedSequence()
                 .map { XsdIDRefImpl(it) }

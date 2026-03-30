@@ -33,7 +33,7 @@ interface XsdLanguage: XsdToken {
 
     override val schemaType: LanguageType<XsdLanguage>
 
-    companion object : SimpleTypeSerializer<XsdLanguage>("xs.language") {
+    companion object : SimpleTypeSerializer<XsdLanguage>("xsd.language") {
 
 
         override fun deserialize(raw: String, input: XmlReader?): XsdLanguage {

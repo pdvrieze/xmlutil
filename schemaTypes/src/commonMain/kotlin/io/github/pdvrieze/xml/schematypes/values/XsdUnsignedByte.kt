@@ -90,6 +90,7 @@ interface XsdUnsignedByte : XsdUnsignedShort {
     }
 
     companion object : SimpleTypeSerializer<XsdUnsignedByte>("xsd.unsignedLong") {
+    companion object : SimpleTypeSerializer<XsdUnsignedByte>("xsd.unsignedByte") {
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedByte {
             return XsdUnsignedByteImpl(xmlTrimWhitespace(raw).toUByte())
         }

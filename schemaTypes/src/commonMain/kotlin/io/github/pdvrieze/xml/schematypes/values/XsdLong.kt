@@ -70,7 +70,7 @@ interface XsdLong : XsdInteger {
         return 64u - longValue.countLeadingZeroBits().toULong()
     }
 
-    companion object : SimpleTypeSerializer<XsdLong>("XSLong") {
+    companion object : SimpleTypeSerializer<XsdLong>("xsd.long") {
         operator fun invoke(value: Long): XsdLong = XsdLongImpl(value)
         operator fun invoke(value: CharSequence): XsdLong = XsdLongImpl(value)
 

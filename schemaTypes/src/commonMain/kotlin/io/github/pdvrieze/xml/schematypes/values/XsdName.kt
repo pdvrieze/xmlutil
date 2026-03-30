@@ -35,7 +35,7 @@ interface XsdName : XsdToken {
 
     override val schemaType: NameType<XsdName>
 
-    companion object : SimpleTypeSerializer<XsdName>("VName") {
+    companion object : SimpleTypeSerializer<XsdName>("xsd.name") {
         override fun deserialize(raw: String, input: XmlReader?): XsdName {
             when (input?.version) {
                 "1.0" -> check(raw.isXmlName10()) { "'$raw' is not an xml name" }
