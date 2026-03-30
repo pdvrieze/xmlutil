@@ -28,7 +28,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.dom2.*
 
 @XPathInternal
-object NodeOperators : AbstractFunctionObject() {
+object NodeFunctions : AbstractFunctionObject() {
 
     val fnName = BuiltinFunctionImpl("name", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
         val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))

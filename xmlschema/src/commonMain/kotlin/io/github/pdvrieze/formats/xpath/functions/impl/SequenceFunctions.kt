@@ -28,7 +28,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @XPathInternal
-object SequenceOperators : AbstractFunctionObject() {
+object SequenceFunctions : AbstractFunctionObject() {
 
     val fnEmpty = BuiltinFunctionImpl("empty", functionType(XdmType.BOOLEAN, XdmType.ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))

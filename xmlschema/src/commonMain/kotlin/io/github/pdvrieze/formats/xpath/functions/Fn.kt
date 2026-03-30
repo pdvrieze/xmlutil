@@ -45,10 +45,10 @@ enum class Fn(
     //endregion
 
     //region Boolean functions (7)
-    True(BooleanOperators.fnTrue),
-    False(BooleanOperators.fnFalse),
-    boolean(BooleanOperators.fnBoolean),
-    not(BooleanOperators.fnNot),
+    True(BooleanFunctions.fnTrue),
+    False(BooleanFunctions.fnFalse),
+    boolean(BooleanFunctions.fnBoolean),
+    not(BooleanFunctions.fnNot),
     //endregion
 
     //region Number functions (4)
@@ -62,21 +62,21 @@ enum class Fn(
     //endregion
 
     //region Node Operations (13)
-    Name(NodeOperators.fnName),
-    localName(NodeOperators.fnLocalName),
-    namespaceUri(NodeOperators.fnNamespaceUri),
-    lang(NodeOperators.fnLang),
-    root(NodeOperators.fnRoot),
-    path(NodeOperators.fnPath),
-    hasChildren(NodeOperators.fnHasChildren),
-    innermost(NodeOperators.fnInnermost),
-    outermost(NodeOperators.fnOutermost),
+    Name(NodeFunctions.fnName),
+    localName(NodeFunctions.fnLocalName),
+    namespaceUri(NodeFunctions.fnNamespaceUri),
+    lang(NodeFunctions.fnLang),
+    root(NodeFunctions.fnRoot),
+    path(NodeFunctions.fnPath),
+    hasChildren(NodeFunctions.fnHasChildren),
+    innermost(NodeFunctions.fnInnermost),
+    outermost(NodeFunctions.fnOutermost),
     //endregion
 
     //region Sequence operations (14)
-    empty(SequenceOperators.fnEmpty),
-    exists(SequenceOperators.fnExists),
-    Count(SequenceOperators.fnCount),
+    empty(SequenceFunctions.fnEmpty),
+    exists(SequenceFunctions.fnExists),
+    Count(SequenceFunctions.fnCount),
     //endregion
     ;
 

@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl.token
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.data.*
 import io.github.pdvrieze.formats.xpath.functions.Fn
-import io.github.pdvrieze.formats.xpath.functions.impl.BooleanOperators
+import io.github.pdvrieze.formats.xpath.functions.impl.BooleanFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
@@ -54,7 +54,7 @@ enum class Operator(
         override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
             when {
                 left.type.isSubtypeOf(BooleanType.Instance) -> {
-                    return BooleanOperators.opBooleanEqual(listOf(left, right))
+                    return BooleanFunctions.opBooleanEqual(listOf(left, right))
                 }
                 else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
             }

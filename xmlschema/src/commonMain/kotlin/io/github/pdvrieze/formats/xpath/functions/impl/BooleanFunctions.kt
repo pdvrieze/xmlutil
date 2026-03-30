@@ -31,7 +31,7 @@ import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @XPathInternal
-object BooleanOperators: AbstractFunctionObject() {
+object BooleanFunctions: AbstractFunctionObject() {
     val fnTrue = BuiltinFunctionImpl("true", BooleanType.Instance) { args ->
         if (args.isNotEmpty()) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         XdmAtomic(XsdBoolean.TRUE)
