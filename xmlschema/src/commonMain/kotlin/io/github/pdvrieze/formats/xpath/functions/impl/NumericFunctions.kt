@@ -20,39 +20,29 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.data.XdmType
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.data.*
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.functions.singleArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdFloat
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
+import io.github.pdvrieze.xml.schematypes.values.*
 
 @XPathInternal
 object NumericFunctions: AbstractFunctionObject() {
 
     val fnAbs = BuiltinFunctionImpl("abs", functionType(XdmType.NUMERIC.opt, XdmType.NUMERIC.opt)) { args ->
-        val n = toSingleAtomic<XsdNumeric<*>>(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NUMERIC)
+        val n = toSingleAtomic<XsdNumeric<*>>(args, false) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NUMERIC)
         XdmAtomic(n.abs() as XsdAtomic)
     }
 
     val fnCeiling = BuiltinFunctionImpl("ceiling", functionType(XdmType.NUMERIC.opt, XdmType.NUMERIC.opt)) { args ->
-        val n = toSingleAtomic<XsdNumeric<*>>(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NUMERIC)
+        val n = toSingleAtomic<XsdNumeric<*>>(args, false) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NUMERIC)
         XdmAtomic(n.ceiling() as XsdAtomic)
     }
 
     val fnFloor = BuiltinFunctionImpl("floor", functionType(XdmType.NUMERIC.opt, XdmType.NUMERIC.opt)) { args ->
-        val n = toSingleAtomic<XsdNumeric<*>>(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NUMERIC)
+        val n = toSingleAtomic<XsdNumeric<*>>(args, false) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NUMERIC)
         XdmAtomic(n.floor() as XsdAtomic)
     }
 

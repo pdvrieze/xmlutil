@@ -20,41 +20,31 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmFunctionType
-import io.github.pdvrieze.formats.xpath.data.XdmNode
-import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
-import io.github.pdvrieze.formats.xpath.data.XdmType
-import io.github.pdvrieze.formats.xpath.data.XdmValue
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.data.*
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import kotlin.reflect.typeOf
 
 @XPathInternal
 abstract class AbstractFunctionObject() {
 
     context(ctx: ExprEvalContext)
-    protected fun argOrContext(index: Int, args: List<XdmValue>): XdmValue? = when (args.size - index){
-        0 -> ctx.contextItem
+    protected fun argOrContext(index: Int, args: List<XdmValue>, allowContext: Boolean = false): XdmValue? = when (args.size - index){
+        0 if allowContext -> ctx.contextItem
         1 -> args[index]
-        else -> throw EvaluationException.Companion(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+        else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toSingleArg(args: List<XdmValue>): XdmValue? {
+    protected fun toSingleArg(args: List<XdmValue>, allowContext: Boolean = false): XdmValue? {
         return argOrContext(0, args)
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toAnySingleAtomic(args: List<XdmValue>): XdmAtomic<*>?{
-        val arg = toSingleArg(args) ?: throw EvaluationException.Companion(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+    protected fun toAnySingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): XdmAtomic<*>?{
+        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException.Companion(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return null
         if (arg !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${arg.type}")
         @Suppress("UNCHECKED_CAST")
@@ -71,8 +61,8 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected inline fun <reified T: XsdAnySimple> toSingleAtomic(args: List<XdmValue>): T? {
-        val arg = toAnySingleAtomic(args) ?: return null
+    protected inline fun <reified T: XsdAnySimple> toSingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): T? {
+        val arg = toAnySingleAtomic(args, allowContext) ?: return null
         return arg.value as? T
             ?: throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -91,8 +81,8 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toSingleNode(args: List<XdmValue>): XdmNode? {
-        val arg = toSingleArg(args) ?: throw EvaluationException.Companion(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+    protected fun toSingleNode(args: List<XdmValue>, allowContext: Boolean = false): XdmNode? {
+        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException.Companion(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return null
         return arg as? XdmNode ?: throw EvaluationException.Companion(
             ErrorCodes.XPTY0004_TYPE_ERROR,
