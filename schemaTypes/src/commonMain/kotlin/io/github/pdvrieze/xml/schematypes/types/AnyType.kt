@@ -25,12 +25,16 @@ import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnyType {
     fun derivesFrom(expectedBaseType: AnyType): Boolean {
+        val expectedName = expectedBaseType.name ?: return false
         var t = this
         do {
-            if (t == expectedBaseType) return true
+            val tn = t.name
+            if (tn != null) {
+                if (tn.isEquivalent(expectedName)) return true
+                if (tn.isEquivalent(Instance.name)) return false
+            }
             t = t.baseType
-        } while (t != Instance)
-        return expectedBaseType == Instance
+        } while (true)
     }
 
     val name: XsdQName?
@@ -40,6 +44,10 @@ interface AnyType {
     object Instance: BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "any", "xs")
         override val baseType: AnyType get() = this
+
+        override fun derivesFrom(expectedBaseType: AnyType): Boolean {
+            return expectedBaseType.name?.isEquivalent(name) ?: false
+        }
 
         override fun toString(): String = "xs:any"
 

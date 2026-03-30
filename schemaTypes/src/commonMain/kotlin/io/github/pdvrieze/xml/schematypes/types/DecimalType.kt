@@ -35,7 +35,7 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
 
     override val name: XsdQName? get() = Instance.name
 
-    override val members: Collection<DecimalType<T>> get() = listOf(this)
+    override val members: Collection<DecimalType<T>> get() = emptyList()
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets

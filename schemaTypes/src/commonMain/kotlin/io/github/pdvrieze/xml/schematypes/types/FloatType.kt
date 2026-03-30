@@ -34,7 +34,7 @@ interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
-    override val members: Collection<FloatType<T>> get() = listOf(this)
+    override val members: Collection<FloatType<T>> get() = emptyList()
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 

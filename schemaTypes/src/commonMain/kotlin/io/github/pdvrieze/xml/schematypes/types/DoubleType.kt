@@ -35,7 +35,7 @@ interface DoubleType<out T: XsdDouble> : AnyAtomicType<T>, NumericType<T> {
 
     override val name: XsdQName? get() = Instance.name
 
-    override val members: Collection<DoubleType<T>> get() = listOf(this)
+    override val members: Collection<DoubleType<T>> get() = emptyList()
 
     override fun fromString(value: CharSequence): T
 
