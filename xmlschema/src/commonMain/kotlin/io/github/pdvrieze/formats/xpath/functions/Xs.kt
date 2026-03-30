@@ -35,7 +35,16 @@ object Xs: AbstractFunctionObject() {
         val type = ctx.resolveType(name) as AnyAtomicType<*>
         return BuiltinFunctionImpl(name, listOf(XdmFunctionType(XdmType.STRING, XdmSchemaType(type)))) { args ->
             val arg = toAnySingleAtomic(args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)
-            XdmAtomic(type.fromString(arg.value.xmlString))
+            val value = runCatching { type.fromString(arg.value.xmlString) }
+                .getOrElse {e ->
+                    when (e) {
+                        is IllegalArgumentException,
+                        is NumberFormatException -> throw EvaluationException(ErrorCodes.FORG0001, e)
+                        else -> throw EvaluationException(ctx.expr, e)
+                    }
+                }
+
+            XdmAtomic(value)
         }
     }
 
