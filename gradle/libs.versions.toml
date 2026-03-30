@@ -15,7 +15,7 @@ woodstox = "7.1.1"
 xmlutil = "1.0.0-SNAPSHOT"
 httpComponents = "4.5.14"
 httpComponents5 = "5.6"
-atomicfu = "0.32.0"
+atomicfu = "0.32.1"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
