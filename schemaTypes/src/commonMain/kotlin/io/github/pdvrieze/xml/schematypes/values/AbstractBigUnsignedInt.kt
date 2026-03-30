@@ -192,8 +192,8 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         val s = significantBitsFromZero()
         val os = other.significantBitsFromZero()
         when {
-            s < os -> if ((s until os).any { other[it] != 0u }) return -1
-            s > os -> if ((os until s).any { get(it) != 0u }) return 1
+            s < os -> return -1
+            s > os -> return 1
         }
         val ints = (s-1u+31u) shr 5
 
@@ -230,7 +230,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
             if (normalised.isEmpty()) throw NumberFormatException("Empty string")
             if (normalised[0] == '+') normalised = normalised.substring(1)
 
-            val intsNeeded = 1 + s.length / 9 // not very accurate but good enough for now
+            val intsNeeded = 1 + normalised.length / 9 // not very accurate but good enough for now
 
             val last = normalised.length
 
@@ -239,7 +239,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
             var intsUsed = 1
 
 
-            var first = s.length.rem(9) // actually initialise it after the first substring
+            var first = normalised.length.rem(9) // actually initialise it after the first substring
 
             if (first > 0) {
                 numbers[0] = normalised.substring(0, minOf(first, last)).toUInt()

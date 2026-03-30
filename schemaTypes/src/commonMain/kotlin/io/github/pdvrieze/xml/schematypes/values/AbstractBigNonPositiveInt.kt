@@ -219,7 +219,7 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
             if (normalised[0] != '-') throw NumberFormatException("String must start with a minus sign")
             normalised = normalised.substring(1)
 
-            val intsNeeded = 1 + s.length / 9 // not very accurate but good enough for now
+            val intsNeeded = 1 + normalised.length / 9 // not very accurate but good enough for now
 
             val last = normalised.length
 
@@ -228,7 +228,7 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
             var intsUsed = 1
 
 
-            var first = s.length.rem(9) // actually initialise it after the first substring
+            var first = normalised.length.rem(9) // actually initialise it after the first substring
 
             if (first > 0) {
                 numbers[0] = normalised.substring(0, minOf(first, last)).toUInt()
