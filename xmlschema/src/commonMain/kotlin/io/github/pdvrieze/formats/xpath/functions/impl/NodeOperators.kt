@@ -21,24 +21,11 @@
 package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.data.*
-import io.github.pdvrieze.formats.xpath.data.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdString
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.Text
-import nl.adaptivity.xmlutil.dom2.localName
-import nl.adaptivity.xmlutil.dom2.namespaceURI
-import nl.adaptivity.xmlutil.dom2.nodeName
-import nl.adaptivity.xmlutil.dom2.parentNode
-import nl.adaptivity.xmlutil.dom2.previousSibling
-import nl.adaptivity.xmlutil.dom2.target
+import nl.adaptivity.xmlutil.dom2.*
 
 @XPathInternal
 object NodeOperators : AbstractFunctionObject() {
@@ -109,7 +96,7 @@ object NodeOperators : AbstractFunctionObject() {
         )) { args ->
         val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
 
-        val r = generateSequence(arg.node) { it.getParentNode() as? Element }.last()
+        val r = generateSequence(arg.node) { it.getParentNode() }.last()
         XdmNode(r)
     }
 
