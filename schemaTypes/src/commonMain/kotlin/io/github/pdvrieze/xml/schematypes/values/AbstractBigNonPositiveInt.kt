@@ -216,7 +216,8 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
         internal fun parse(s: CharSequence): ParseResult {
             var normalised = s.trim()
             if (normalised.isEmpty()) throw NumberFormatException("Empty string")
-            if (normalised[0] == '+') normalised = normalised.substring(1)
+            if (normalised[0] != '-') throw NumberFormatException("String must start with a minus sign")
+            normalised = normalised.substring(1)
 
             val intsNeeded = 1 + s.length / 9 // not very accurate but good enough for now
 

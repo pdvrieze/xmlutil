@@ -76,7 +76,7 @@ class TestProdAxisStep : AbstractTestSetSuite() {
 
     @Test
     fun testCurrent() {
-        val evalValue = testEvalTestCaseImpl(getTestCase("K2-Axes-50"))
+        val evalValue = testEvalTestCaseImpl(getTestCase("Axes018-1"))
     }
 
     @ParameterizedTest

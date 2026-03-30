@@ -22,13 +22,8 @@ package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.ItemTypeTest
-import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.AnyType
-import io.github.pdvrieze.xml.schematypes.types.BooleanType
-import io.github.pdvrieze.xml.schematypes.types.NumericType
-import io.github.pdvrieze.xml.schematypes.types.StringType
+import io.github.pdvrieze.xml.schematypes.types.*
 
 @OptIn(XPathInternal::class)
 sealed class XdmType {
@@ -81,6 +76,7 @@ sealed class XdmType {
         val ATOMIC = XdmSchemaType(AnyAtomicType.Instance)
         val STRING = XdmSchemaType(StringType.Instance)
         val BOOLEAN = XdmSchemaType(BooleanType.Instance)
+        val INTEGER = XdmSchemaType(IntegerType.Instance)
         val NODE = XdmTypeTest(ItemTypeTest.node)
         val ITEM = XdmTypeTest(ItemTypeTest.ItemTestTest)
         val NUMERIC = XdmSchemaType(NumericType.Instance)

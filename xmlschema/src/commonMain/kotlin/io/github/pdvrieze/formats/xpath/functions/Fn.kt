@@ -74,6 +74,8 @@ enum class Fn(
     //endregion
 
     //region Sequence operations (14)
+    empty(SequenceOperators.fnEmpty),
+    exists(SequenceOperators.fnExists),
     Count(SequenceOperators.fnCount),
     //endregion
     ;
