@@ -20,11 +20,20 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.data.XdmValue
 
 class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue>): AssertionResult {
-        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
-        TODO("not implemented")
+        val r = evalResult.getOrElse { return AssertionResult.Failure(it) }
+
+        if (r !is XdmAtomic<*>) return AssertionResult.Failure("Expected atomic value, got ${evalResult::class.simpleName}")
+
+        val evalString = r.value.xmlString
+        return when (expected) {
+            evalString -> AssertionResult.Success
+            else -> AssertionResult.Failure("Expected '$expected', got '$evalString'")
+        }
     }
+
 }

@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xpath.data
 
 import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.functions.Fn
-import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
@@ -44,7 +43,20 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>() {
         get() = XdmSchemaType(value.schemaType)
 
     override fun isValEqual(expected: XdmValue): Boolean {
-        return expected is XdmAtomic<*> && value == expected.value
+        if (expected !is XdmAtomic<*>) return false
+        val expectedValue = expected.value
+
+        when (value) {
+            is XsdQName -> return expectedValue is XsdQName && value.isEquivalent(expectedValue)
+            is XsdDouble if (expectedValue is XsdNumeric<*>) -> return value.value == expectedValue.toDouble()
+            is XsdFloat if (expectedValue is XsdNumeric<*>) -> return value.toDouble() == expectedValue.toDouble()
+            is XsdDecimal -> when (expectedValue) {
+                is XsdDouble,
+                is XsdFloat -> return value.toDouble() == expectedValue.toDouble()
+                is XsdDecimal -> return value == expectedValue
+            }
+        }
+        return value.xmlString == expectedValue.xmlString
     }
 
     context(ctx: ExprEvalContext)
