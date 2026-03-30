@@ -73,6 +73,7 @@ interface XsdNonNegativeInteger : XsdInteger {
         operator fun invoke(rawValue: String): XsdNonNegativeInteger = when {
             rawValue.length > MAXLONG.length -> BigUnsignedInt(rawValue)
 
+            rawValue == "-0" ||
             rawValue == "0" -> ZERO
             rawValue == "1" -> ONE
 
