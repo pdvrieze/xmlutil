@@ -37,6 +37,14 @@ import kotlin.math.round as kmRound
 interface XsdFloat: XsdAtomic, XsdNumeric<XsdFloat> {
     val value: Float
 
+    override val xmlString: String
+        get() = when (value) {
+            Float.POSITIVE_INFINITY -> "INF"
+            Float.NEGATIVE_INFINITY -> "-INF"
+            else if (value.isNaN()) -> "NaN"
+            else -> value.toString()
+        }
+
     override val schemaType: FloatType<XsdFloat>
 
 
@@ -91,7 +99,14 @@ interface XsdFloat: XsdAtomic, XsdNumeric<XsdFloat> {
     companion object : SimpleTypeSerializer<XsdFloat>("xsd.float") {
         operator fun invoke(value: Float): XsdFloat = XsdFloatImpl(value)
 
-        operator fun invoke(value: CharSequence): XsdFloat = XsdFloatImpl(value.toString().toFloat())
+        operator fun invoke(value: CharSequence): XsdFloat {
+            return when (val v = value.trim().toString()) {
+                "+INF", "INF" -> XsdFloatImpl(Float.POSITIVE_INFINITY)
+                "-INF" -> XsdFloatImpl(Float.NEGATIVE_INFINITY)
+                "NaN" -> XsdFloatImpl(Float.NaN)
+                else -> XsdFloatImpl(v.toFloat())
+            }
+        }
 
         override fun deserialize(
             raw: String,

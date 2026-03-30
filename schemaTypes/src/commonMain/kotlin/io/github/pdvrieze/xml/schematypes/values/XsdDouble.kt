@@ -34,9 +34,24 @@ interface XsdDouble: XsdAtomic, XsdNumeric<XsdDouble> {
 
     val value: Double
 
+    override val xmlString: String
+        get() = when (value) {
+            Double.POSITIVE_INFINITY -> "INF"
+            Double.NEGATIVE_INFINITY -> "-INF"
+            else if (value.isNaN()) -> "NaN"
+            else -> value.toString()
+        }
+
     companion object : SimpleTypeSerializer<XsdDouble>("xsd.double") {
         operator fun invoke(value: Double): XsdDouble = XsdDoubleImpl(value)
-        operator fun invoke(value: CharSequence): XsdDouble = XsdDoubleImpl(value.toString().toDouble())
+        operator fun invoke(value: CharSequence): XsdDouble {
+            return when (val v = value.trim().toString()) {
+                "+INF", "INF" -> XsdDoubleImpl(Double.POSITIVE_INFINITY)
+                "-INF" -> XsdDoubleImpl(Double.NEGATIVE_INFINITY)
+                "NaN" -> XsdDoubleImpl(Double.NaN)
+                else -> XsdDoubleImpl(v.toDouble())
+            }
+        }
 
         override fun deserialize(
             raw: String,

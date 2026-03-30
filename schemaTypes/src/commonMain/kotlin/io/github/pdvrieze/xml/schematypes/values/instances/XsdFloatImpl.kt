@@ -29,7 +29,6 @@ import kotlin.math.absoluteValue
 
 @XmlUtilInternal
 class XsdFloatImpl(override val value: Float): XsdFloat {
-    override val xmlString: String get() = value.toString()
     override val schemaType: FloatType<*> get() = FloatType.Instance
 
     override fun toDouble(): Double = value.toDouble()

@@ -33,7 +33,7 @@ import kotlin.math.round as kmRound
 
 @XmlUtilInternal
 class XsdDoubleImpl(override val value: Double): XsdDouble {
-    override val xmlString: String get() = value.toString()
+
     override val schemaType: DoubleType<*> get() = DoubleType.Instance
 
     override fun toDouble(): Double = value
