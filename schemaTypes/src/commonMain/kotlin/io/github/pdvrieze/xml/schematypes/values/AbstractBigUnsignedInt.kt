@@ -194,6 +194,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         when {
             s < os -> return -1
             s > os -> return 1
+            s == 1uL -> return 0 // special case for 1 bit, otherwise the for loop breaks.
         }
         val ints = (s-1u+31u) shr 5
 
