@@ -44,7 +44,7 @@ class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val type: XdmMap
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>): Nothing {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>): Nothing {
         throw EvaluationException.Companion(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 

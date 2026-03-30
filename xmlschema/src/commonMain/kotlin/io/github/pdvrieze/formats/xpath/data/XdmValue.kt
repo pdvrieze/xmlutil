@@ -25,16 +25,17 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @OptIn(XPathInternal::class)
-sealed class XdmValue {
-    open val size: Int get() = 1
-    abstract operator fun get(index: Int): XdmSingleValue<*>
+sealed interface XdmValue {
+    val size: Int get() = 1
+    operator fun get(index: Int): XdmSingleValue<*>
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>)
 
     context(ctx: ExprEvalContext)
-    internal abstract fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>)
-
-    context(ctx: ExprEvalContext)
-    open fun atomize(): XdmValue {
-        val newElems = mutableListOf<XdmSingleValue<*>>()
+    fun atomize(): XdmAtomicOrSequence {
+        val newElems = mutableListOf<XdmAtomic<*>>()
         atomizeTo(newElems)
         return newElems.singleOrNull() ?: XdmSequence(newElems)
     }

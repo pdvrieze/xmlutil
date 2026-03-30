@@ -28,14 +28,14 @@ import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
-class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>() {
+class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), XdmAtomicOrEmpty, XdmAtomicOrSequence {
     override fun asT(): XdmAtomic<T> = this
 
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmAtomic<T> = this
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
         receiver.add(this)
     }
 

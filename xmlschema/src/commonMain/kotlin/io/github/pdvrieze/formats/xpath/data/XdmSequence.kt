@@ -28,10 +28,10 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @OptIn(XPathInternal::class)
-class XdmSequence<out T : XdmSingleValue<T>>(
+open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     internal val elements: List<T> = emptyList(),
     override val type: XdmType = XdmSequenceType.ANYSEQ
-) : XdmValue(), List<T> {
+) : XdmAtomicOrSequence, List<T> {
     override val size: Int get() = elements.size
 
     override fun get(index: Int): T {
@@ -66,7 +66,7 @@ class XdmSequence<out T : XdmSingleValue<T>>(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
         for (e in elements) {
             e.atomizeTo(receiver)
         }
@@ -94,8 +94,10 @@ class XdmSequence<out T : XdmSingleValue<T>>(
         return elements.joinToString(prefix = "(", postfix = ")")
     }
 
+    class Empty(type: XdmType = XdmType.EmptySequenceType): XdmSequence<Nothing>(type = type), XdmAtomicOrEmpty
+
     companion object {
-        val EMPTY: XdmSequence<Nothing> = empty(XdmType.EmptySequenceType)
+        val EMPTY: Empty = empty(XdmType.EmptySequenceType)
 
         interface XdmSequenceBuilder {
             fun add(value: XdmSingleValue<*>)
@@ -139,8 +141,9 @@ class XdmSequence<out T : XdmSingleValue<T>>(
             return XdmSequenceBuilderImpl().apply(builderAction).build(type)
         }
 
-        fun empty(type: XdmType): XdmSequence<Nothing> {
-            return XdmSequence(emptyList(), type)
-        }
+        fun empty(type: XdmType): Empty = Empty(type)
     }
 }
+
+sealed interface XdmAtomicOrEmpty: XdmAtomicOrSequence
+sealed interface XdmAtomicOrSequence: XdmValue

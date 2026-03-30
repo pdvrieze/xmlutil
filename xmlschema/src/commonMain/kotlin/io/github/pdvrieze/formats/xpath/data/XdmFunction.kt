@@ -30,7 +30,7 @@ sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
         get() = TODO("There is no function type type yet")
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
         throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a function")
     }
 

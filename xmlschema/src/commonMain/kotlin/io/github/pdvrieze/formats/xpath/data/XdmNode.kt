@@ -98,18 +98,15 @@ class XdmNode(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
-        when (val a = atomize()) {
-            is XdmSequence<*> -> receiver.addAll(a.elements)
-            is XdmAtomic<*> -> receiver.add(a)
-            else -> error("Should not be returned")
-        }
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
+        val a = atomize()
+        if (a is XdmAtomic<*>) receiver.add(a)
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmValue {
+    override fun atomize(): XdmAtomicOrEmpty {
         return when (node) {
-            is Attr -> type.fromString(node.value)
+            is Attr -> (type).fromString(node.value) as XdmAtomic<*>
             is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))
             is Comment -> XdmAtomic(XsdString(node.getData()))
             is Text -> XdmAtomic(XsdString(node.getData()))
@@ -117,12 +114,12 @@ class XdmNode(
                 XdmSequence.empty(type)
 
             is Document if type.isSubtypeOf(AnyAtomicType.Instance) -> node.documentElement
-                ?.let { type.fromString(it.textContent ?:"") }
+                ?.let { type.fromString(it.textContent ?:"")  as XdmAtomic<*> }
                 ?: throw EvaluationException(ctx.expr, "Missing document element")
 
             is Document -> throw EvaluationException(ctx.expr, "Cannot atomize a document to non-atomic type")
             is Element if type.isSubtypeOf(AnyAtomicType.Instance) ->
-                type.fromString(node.textContent ?: "")
+                type.fromString(node.textContent ?: "") as XdmAtomic<*>
 
             is Element -> throw EvaluationException(ctx.expr, "Cannot atomize an element to non-atomic type")
             else -> throw UnsupportedOperationException("Unsupported node type: ${node.getNodetype()}")
@@ -130,7 +127,6 @@ class XdmNode(
 
         // TODO add check that the value is not "typed" (there is an actual value in the node)
         // otherwise throw FOTY0012
-        return this
     }
 
 

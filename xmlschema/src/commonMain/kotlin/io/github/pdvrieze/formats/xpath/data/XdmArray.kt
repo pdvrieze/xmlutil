@@ -30,7 +30,7 @@ class XdmArray(val content: List<XdmValue>, override val type: XdmArrayType) : X
     override fun asT(): XdmArray = this
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmSingleValue<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
         for (c in content) c.atomizeTo(receiver)
     }
 
