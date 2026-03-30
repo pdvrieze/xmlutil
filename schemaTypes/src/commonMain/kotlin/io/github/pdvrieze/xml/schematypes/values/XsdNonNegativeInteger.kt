@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedIntImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlTrimWhitespace
@@ -64,8 +65,8 @@ interface XsdNonNegativeInteger : XsdInteger {
             return invoke(xmlTrimWhitespace(raw))
         }
 
-        val ONE = XsdUnsignedInt(1u)
-        val ZERO = XsdUnsignedInt(0u)
+        val ONE: XsdUnsignedInt = XsdUnsignedIntImpl(1u)
+        val ZERO: XsdUnsignedInt = XsdUnsignedIntImpl(0u)
 
         operator fun invoke(charSequence: CharSequence) =
             invoke(rawValue = charSequence.toString())
