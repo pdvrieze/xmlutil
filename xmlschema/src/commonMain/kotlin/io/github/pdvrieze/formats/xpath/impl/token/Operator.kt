@@ -28,24 +28,25 @@ import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
 
-enum class Operator(
+sealed class Operator(
     override val literal: String,
     val priority: Int,
     override val minVersion: XPathVersion = XPathVersion.XPath3_1,
     override val isDelimiting: Boolean,
 ): WordToken {
 //    @NeedsXPath2
-    COMMA(",", 1, XPathVersion.XPath2_0, true),
+    object COMMA: Operator(",", 1, XPathVersion.XPath2_0, true)
 
     // FOR|LET|SOME|EVERY|IF -> 2, isDelimiting = false
 
     @NeedsXPath1
-    OR("or", 3, XPathVersion.XPath1_0, false),
-    @NeedsXPath1
-    AND("and", 4, XPathVersion.XPath1_0, false),
+    object OR: Operator("or", 3, XPathVersion.XPath1_0, false)
 
     @NeedsXPath1
-    EQ("=", 5, XPathVersion.XPath1_0, true) {
+    object AND: Operator("and", 4, XPathVersion.XPath1_0, false)
+
+    @NeedsXPath1
+    object EQ: Operator("=", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath3_1::class)
         override val longer: List<Operator> get() = listOf(ARROW)
 
@@ -59,33 +60,44 @@ enum class Operator(
                 else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
             }
         }
-    },
+    }
     @NeedsXPath1
-    NEQ("!=", 5, XPathVersion.XPath1_0, true) {
+    object NEQ: Operator("!=", 5, XPathVersion.XPath1_0, true) {
         context(ctx: ExprEvalContext)
         @XPathInternal
         override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
             val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
             return XdmAtomic(XsdBoolean(! eval.value))
         }
-    },
+    }
 
     @NeedsXPath1
-    LT("<", 5, XPathVersion.XPath1_0, true) {
+    object LT: Operator("<", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(LE, PRECEDES)
-    },
+    }
     @NeedsXPath1
-    LE("<=", 5, XPathVersion.XPath1_0, true),
+    object LE : Operator("<=", 5, XPathVersion.XPath1_0, true)
     @NeedsXPath1
-    GT(">", 5, XPathVersion.XPath1_0, true){
+    object GT : Operator(">", 5, XPathVersion.XPath1_0, true){
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(GE, FOLLOWS)
-    },
+    }
     @NeedsXPath1
-    GE(">=", 5, XPathVersion.XPath1_0, true),
+    object GE : Operator(">=", 5, XPathVersion.XPath1_0, true)
     @NeedsXPath2
-    VAL_EQ("eq", 5, XPathVersion.XPath2_0, false) {
+    object VAL_EQ : Operator("eq", 5, XPathVersion.XPath2_0, false), ComparisonImpl {
+
+        override fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean =
+            left == right
+
+        override fun cmp(left: Double, right: Double): Boolean = left == right
+
+        override fun cmp(left: Float, right: Float): Boolean = left == right
+
+        override fun cmp(left: Boolean, right: Boolean): Boolean = left == right
+
+        override fun cmp(left: String, right: String): Boolean = left == right
 
         context(ctx: ExprEvalContext)
         @XPathInternal
@@ -121,72 +133,71 @@ enum class Operator(
             return XdmAtomic(XsdBoolean(result))
         }
 
-    },
+    }
     @NeedsXPath2
-    VAL_NEQ("ne", 5, XPathVersion.XPath2_0, false),
+    object VAL_NEQ: Operator("ne", 5, XPathVersion.XPath2_0, false)
     @NeedsXPath2
-    VAL_LT("lt", 5, XPathVersion.XPath2_0, false),
+    object VAL_LT: Operator("lt", 5, XPathVersion.XPath2_0, false)
     @NeedsXPath2
-    VAL_LE("le", 5, XPathVersion.XPath2_0, false),
+    object VAL_LE: Operator("le", 5, XPathVersion.XPath2_0, false)
     @NeedsXPath2
-    VAL_GT("gt", 5, XPathVersion.XPath2_0, false),
+    object VAL_GT: Operator("gt", 5, XPathVersion.XPath2_0, false)
     @NeedsXPath2
-    VAL_GE("ge", 5, XPathVersion.XPath2_0, false),
+    object VAL_GE: Operator("ge", 5, XPathVersion.XPath2_0, false)
     @NeedsXPath2
-    PRECEDES("<<", 5, XPathVersion.XPath2_0, true),
+    object PRECEDES: Operator("<<", 5, XPathVersion.XPath2_0, true)
     @NeedsXPath2
-    FOLLOWS(">>", 5, XPathVersion.XPath2_0, true),
+    object FOLLOWS: Operator(">>", 5, XPathVersion.XPath2_0, true)
     @NeedsXPath2
-    IS("is", 5, XPathVersion.XPath2_0, false),
+    object IS: Operator("is", 5, XPathVersion.XPath2_0, false)
 
     @NeedsXPath3_0
-    CONCAT("||", 6, XPathVersion.XPath3_0, true),
+    object CONCAT: Operator("||", 6, XPathVersion.XPath3_0, true)
     @NeedsXPath2
-    TO("to", 7, XPathVersion.XPath2_0, false),
+    object TO: Operator("to", 7, XPathVersion.XPath2_0, false)
 
     @NeedsXPath1
-    ADD("+", 8, XPathVersion.XPath1_0, true) {
-
-    },
-    @NeedsXPath1
-    SUB("-", 8, XPathVersion.XPath1_0, true),
+    object ADD: Operator("+", 8, XPathVersion.XPath1_0, true)
 
     @NeedsXPath1
-    MUL("*", 9, XPathVersion.XPath1_0, true),
+    object SUB: Operator("-", 8, XPathVersion.XPath1_0, true)
+
     @NeedsXPath1
-    DIV("div", 9, XPathVersion.XPath1_0, false),
+    object MUL: Operator("*", 9, XPathVersion.XPath1_0, true)
+    @NeedsXPath1
+    object DIV: Operator("div", 9, XPathVersion.XPath1_0, false)
     @NeedsXPath2
-    IDIV("idiv", 9, XPathVersion.XPath2_0, false),
+    object IDIV: Operator("idiv", 9, XPathVersion.XPath2_0, false)
     @NeedsXPath1
-    MOD("mod", 9, XPathVersion.XPath1_0, false),
+    object MOD: Operator("mod", 9, XPathVersion.XPath1_0, false)
 
     @NeedsXPath1
-    UNION("union", 10, XPathVersion.XPath1_0, false),
+    object UNION: Operator("union", 10, XPathVersion.XPath1_0, false)
     @NeedsXPath1
-    PIPEUNION("|", 10, XPathVersion.XPath1_0, true){
+    object PIPEUNION: Operator("|", 10, XPathVersion.XPath1_0, true){
         @OptIn(NeedsXPath3_0::class)
         override val longer: List<Operator> = listOf(CONCAT)
-    },
+    }
 
     @NeedsXPath2
-    INTERSECT("intersect", 11, XPathVersion.XPath2_0, false),
+    object INTERSECT: Operator("intersect", 11, XPathVersion.XPath2_0, false)
     @NeedsXPath2
-    EXCEPT("except", 11, XPathVersion.XPath2_0, false),
+    object EXCEPT: Operator("except", 11, XPathVersion.XPath2_0, false)
 
     // INSTANC_EOF -> 12, isDelimiting = false
     // TREAT_AS -> 13, isDelimiting = false
     // CASTABLE_AS -> 14, isDelimiting = false
     // CAST_AS -> 15, isDelimiting = false
 
-    @NeedsXPath3_1 ARROW("=>", 16, XPathVersion.XPath3_1, true),
+    @NeedsXPath3_1 object ARROW: Operator("=>", 16, XPathVersion.XPath3_1, true)
 
-    @NeedsXPath1 UNARY_MINUS("-", 17, XPathVersion.XPath1_0, true),
-    @NeedsXPath2 UNARY_PLUS("+", 17, XPathVersion.XPath2_0, true),
+    @NeedsXPath1 object UNARY_MINUS: Operator("-", 17, XPathVersion.XPath1_0, true)
+    @NeedsXPath2 object UNARY_PLUS: Operator("+", 17, XPathVersion.XPath2_0, true)
 
-    @NeedsXPath3_0 MAP("!", 18, XPathVersion.XPath3_0, true) {
+    @NeedsXPath3_0 object MAP: Operator("!", 18, XPathVersion.XPath3_0, true) {
         @OptIn(NeedsXPath3_1::class)
         override val longer: List<Operator> get() = listOf(NEQ)
-    },
+    }
 
 
     // '/', '//' (path separators) -> 19, isDelimiting = true
@@ -199,7 +210,7 @@ enum class Operator(
     context(ctx: ExprEvalContext)
     @XPathInternal
     open fun eval(left: XdmValue, right: XdmValue): XdmValue =
-        TODO("Evaluation of operator $name not yet implemented")
+        TODO("Evaluation of operator '$literal' not yet implemented")
 
     context(ctx: ExprEvalContext)
     @XPathInternal
@@ -237,27 +248,27 @@ enum class Operator(
         }
 
         val result: Boolean = when (leftVal) {
-            is XsdFloat if rightVal is XsdFloat -> operator(leftVal.value, rightVal.value)
-            is XsdDouble if rightVal is XsdDouble -> operator(leftVal.value, rightVal.value)
-            is XsdDecimal if rightVal is XsdDecimal -> operator(leftVal, rightVal)
-            is XsdNumeric<*> if rightVal is XsdNumeric<*> ->operator(leftVal.toDouble(), rightVal.toDouble())
-            is XsdBoolean if rightVal is XsdBoolean -> operator(leftVal.value, rightVal.value)
+            is XsdFloat if rightVal is XsdFloat -> operator.cmp(leftVal.value, rightVal.value)
+            is XsdDouble if rightVal is XsdDouble -> operator.cmp(leftVal.value, rightVal.value)
+            is XsdDecimal if rightVal is XsdDecimal -> operator.cmp(leftVal, rightVal)
+            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> operator.cmp(leftVal.toDouble(), rightVal.toDouble())
+            is XsdBoolean if rightVal is XsdBoolean -> operator.cmp(leftVal.value, rightVal.value)
 
-            is XsdString if rightVal is XsdString -> operator(leftVal.xmlString, rightVal.xmlString)
-            is XsdDateTime if rightVal is XsdDateTime -> operator(leftVal, rightVal)
-            is XsdDate if rightVal is XsdDate -> operator(leftVal, rightVal)
-            is XsdDuration if rightVal is XsdDuration -> operator(leftVal, rightVal)
-            is XsdGDay if rightVal is XsdGDay -> operator(leftVal, rightVal)
+            is XsdString if rightVal is XsdString -> operator.cmp(leftVal.xmlString, rightVal.xmlString)
+            is XsdDateTime if rightVal is XsdDateTime -> operator.cmp(leftVal, rightVal)
+            is XsdDate if rightVal is XsdDate -> operator.cmp(leftVal, rightVal)
+            is XsdDuration if rightVal is XsdDuration -> operator.cmp(leftVal, rightVal)
+            is XsdGDay if rightVal is XsdGDay -> operator.cmp(leftVal, rightVal)
 
-            is XsdGMonthDay if rightVal is XsdGMonthDay -> operator(leftVal, rightVal)
-            is XsdGMonth if rightVal is XsdGMonth -> operator(leftVal, rightVal)
-            is XsdGYearMonth if rightVal is XsdGYearMonth -> operator(leftVal, rightVal)
-            is XsdGYear if rightVal is XsdGYear -> operator(leftVal, rightVal)
-            is XsdHexBinary if rightVal is XsdHexBinary -> operator(leftVal, rightVal)
+            is XsdGMonthDay if rightVal is XsdGMonthDay -> operator.cmp(leftVal, rightVal)
+            is XsdGMonth if rightVal is XsdGMonth -> operator.cmp(leftVal, rightVal)
+            is XsdGYearMonth if rightVal is XsdGYearMonth -> operator.cmp(leftVal, rightVal)
+            is XsdGYear if rightVal is XsdGYear -> operator.cmp(leftVal, rightVal)
+            is XsdHexBinary if rightVal is XsdHexBinary -> operator.cmp(leftVal, rightVal)
 
-            is XsdNotation if rightVal is XsdNotation -> operator(leftVal, rightVal)
-            is XsdQName if rightVal is XsdQName -> operator(leftVal, rightVal)
-            is XsdTime if rightVal is XsdTime -> operator(leftVal, rightVal)
+            is XsdNotation if rightVal is XsdNotation -> operator.cmp(leftVal, rightVal)
+            is XsdQName if rightVal is XsdQName -> operator.cmp(leftVal, rightVal)
+            is XsdTime if rightVal is XsdTime -> operator.cmp(leftVal, rightVal)
 
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
         }
@@ -268,24 +279,74 @@ enum class Operator(
 }
 
 internal interface ComparisonImpl {
-    fun default(left: XsdAtomic, right: XsdAtomic): Boolean
-    operator fun invoke(left: XsdDecimal, right: XsdDecimal): Boolean = default(left, right)
-    operator fun invoke(left: Double, right: Double): Boolean
-    operator fun invoke(left: Float, right: Float): Boolean
-    operator fun invoke(left: Boolean, right: Boolean): Boolean
-    operator fun invoke(left: String, right: String): Boolean
-    operator fun invoke(left: XsdDateTime, right: XsdDateTime): Boolean = default(left, right)
-    operator fun invoke(left: XsdDate, right: XsdDate): Boolean = default(left, right)
-    operator fun invoke(left: XsdDuration, right: XsdDuration): Boolean = default(left, right)
-    operator fun invoke(left: XsdGDay, right: XsdGDay): Boolean = default(left, right)
-    operator fun invoke(left: XsdGMonthDay, right: XsdGMonthDay): Boolean = default(left, right)
-    operator fun invoke(left: XsdGMonth, right: XsdGMonth): Boolean = default(left, right)
-    operator fun invoke(left: XsdGYearMonth, right: XsdGYearMonth): Boolean = default(left, right)
-    operator fun invoke(left: XsdGYear, right: XsdGYear): Boolean = default(left, right)
-    operator fun invoke(left: XsdHexBinary, right: XsdHexBinary): Boolean = default(left, right)
-    operator fun invoke(left: XsdNotation, right: XsdNotation): Boolean = default(left, right)
-    operator fun invoke(left: XsdQName, right: XsdQName): Boolean = default(left, right)
-    operator fun invoke(left: XsdTime, right: XsdTime): Boolean = default(left, right)
+    context(ctx: ExprEvalContext)
+    @XPathInternal
+    fun eval(left: XdmValue, right: XdmValue): XdmValue {
+        val leftVal = when (val a = left.atomize()) {
+            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
+            is XdmSequence<*> -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Sequence as value comparison operand"
+            )
+        }
+        val rightVal = when (val a = right.atomize()) {
+            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
+            is XdmSequence<*> -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Sequence as value comparison operand"
+            )
+        }
+
+        val result: Boolean = when (leftVal) {
+            is XsdFloat if rightVal is XsdFloat -> cmp(leftVal.value, rightVal.value)
+            is XsdDouble if rightVal is XsdDouble -> cmp(leftVal.value, rightVal.value)
+            is XsdDecimal if rightVal is XsdDecimal -> cmp(leftVal, rightVal)
+            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> cmp(leftVal.toDouble(), rightVal.toDouble())
+            is XsdBoolean if rightVal is XsdBoolean -> cmp(leftVal.value, rightVal.value)
+
+            is XsdString if rightVal is XsdString -> cmp(leftVal.xmlString, rightVal.xmlString)
+            is XsdDateTime if rightVal is XsdDateTime -> cmp(leftVal, rightVal)
+            is XsdDate if rightVal is XsdDate -> cmp(leftVal, rightVal)
+            is XsdDuration if rightVal is XsdDuration -> cmp(leftVal, rightVal)
+            is XsdGDay if rightVal is XsdGDay -> cmp(leftVal, rightVal)
+
+            is XsdGMonthDay if rightVal is XsdGMonthDay -> cmp(leftVal, rightVal)
+            is XsdGMonth if rightVal is XsdGMonth -> cmp(leftVal, rightVal)
+            is XsdGYearMonth if rightVal is XsdGYearMonth -> cmp(leftVal, rightVal)
+            is XsdGYear if rightVal is XsdGYear -> cmp(leftVal, rightVal)
+            is XsdHexBinary if rightVal is XsdHexBinary -> cmp(leftVal, rightVal)
+
+            is XsdNotation if rightVal is XsdNotation -> cmp(leftVal, rightVal)
+            is XsdQName if rightVal is XsdQName -> cmp(leftVal, rightVal)
+            is XsdTime if rightVal is XsdTime -> cmp(leftVal, rightVal)
+
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
+        }
+        return XdmAtomic(XsdBoolean(result))
+    }
+
+    fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean
+    fun cmp(left: XsdDecimal, right: XsdDecimal): Boolean = defaultCmp(left, right)
+    fun cmp(left: Double, right: Double): Boolean
+    fun cmp(left: Float, right: Float): Boolean
+    fun cmp(left: Boolean, right: Boolean): Boolean
+    fun cmp(left: String, right: String): Boolean
+    fun cmp(left: XsdDateTime, right: XsdDateTime): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdDate, right: XsdDate): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdDuration, right: XsdDuration): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdGDay, right: XsdGDay): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdGMonthDay, right: XsdGMonthDay): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdGMonth, right: XsdGMonth): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdGYearMonth, right: XsdGYearMonth): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdGYear, right: XsdGYear): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdHexBinary, right: XsdHexBinary): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdNotation, right: XsdNotation): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdQName, right: XsdQName): Boolean = defaultCmp(left, right)
+    fun cmp(left: XsdTime, right: XsdTime): Boolean = defaultCmp(left, right)
 }
 
 interface ArithmeticOperator {
