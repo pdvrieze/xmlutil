@@ -266,7 +266,7 @@ internal class XQueryParser(
             expressions.add(parseExprSingle())
         } while (tryAnyOf(Operator.COMMA) != null)
 
-        return SequenceExpr(expressions)
+        return SequenceExpr(expressions.toList())
     }
 
     context(ctx: ParseContext)
@@ -299,7 +299,7 @@ internal class XQueryParser(
 
         parseRequire(tryCurrent(Keywords.RETURN), "Missing 'return' in for expression")
         val returned = parseExprSingle()
-        return ForExpr(bindings, returned)
+        return ForExpr(bindings.toList(), returned)
     }
 
     @NeedsXPath3_0
@@ -317,7 +317,7 @@ internal class XQueryParser(
 
         parseRequire(tryCurrent(Keywords.RETURN), "Missing 'return' in let expression")
         val returned = parseExprSingle()
-        return LetExpr(bindings, returned)
+        return LetExpr(bindings.toList(), returned)
     }
 
     @OptIn(NeedsXPath2::class)
@@ -344,7 +344,7 @@ internal class XQueryParser(
             exprs.add(parseBelow())
         } while (tryCurrent(operator))
 
-        return OperatorExpr(operator, exprs)
+        return OperatorExpr(operator, exprs.toList())
     }
 
     private inline fun parseOperators(vararg operators: Operator, crossinline parseBelow: () -> ExprSingle): ExprSingle {
@@ -414,7 +414,7 @@ internal class XQueryParser(
         while (tryAnyOf(Operator.UNION, Operator.PIPEUNION) != null) {
             unions.add(parseIntersectExceptExpr())
         }
-        return OperatorExpr(Operator.UNION, unions)
+        return OperatorExpr(Operator.UNION, unions.toList())
 
     }
 
@@ -533,27 +533,27 @@ internal class XQueryParser(
             exprs.add(parsePathExpr())
         } while (tryAnyOf(Operator.MAP) != null)
 
-        return MapExpr(exprs)
+        return MapExpr(exprs.toList())
     }
 
     context(ctx: ParseContext)
     private fun parsePathExpr(): ExprSingle {
         val steps = mutableListOf<PrimaryOrStep>()
         if (!peekNextToken('/')) {
-            parseRelativePathExpr(steps)
+            parseRelativePathExprTo(steps)
             return (steps.singleOrNull() as? FilterExpr)?.takeIf { it.predicates.isEmpty() }?.primaryExpr
-                ?: LocationPath(false, steps)
+                ?: LocationPath(false, steps.toList())
         }
 
         // starts with '/'
         steps.add(XPathExpressionImpl.STEP_DOC_ROOT)
 
         // TODO special leading lone slash
-        if (curPos >= str.length) return LocationPath(true, steps)
+        if (curPos >= str.length) return LocationPath(true, steps.toList())
 
         if (tryCurrent("//")) {
             steps.add(STEP_DESCENDANT_OR_SELF)
-            parseRelativePathExpr(steps)
+            parseRelativePathExprTo(steps)
         } else {
             check(tryCurrent('/'))
             skipWhitespace()
@@ -576,19 +576,19 @@ internal class XQueryParser(
                          *  - `?` unary lookup
                          */
                 '*', '@', '.', '\'', '"', '[', '?', '$', '(',
-                in '0'..'9' -> parseRelativePathExpr(steps)
+                in '0'..'9' -> parseRelativePathExprTo(steps)
 
                 // letters are step starts
-                else if isNameStartChar(c2) -> parseRelativePathExpr(steps)
+                else if isNameStartChar(c2) -> parseRelativePathExprTo(steps)
 
-                else -> return LocationPath(true, steps)
+                else -> return LocationPath(true, steps.toList())
             }
         }
-        return LocationPath(true, steps)
+        return LocationPath(true, steps.toList())
     }
 
     context(ctx: ParseContext)
-    private fun parseRelativePathExpr(steps: MutableList<PrimaryOrStep>) {
+    private fun parseRelativePathExprTo(steps: MutableList<PrimaryOrStep>) {
         steps.add(parseRequireNotNull(parseStepExpr(), "Missing step in path")) // no step
         while (tryCurrentToken('/')) {
             when {
@@ -752,7 +752,7 @@ internal class XQueryParser(
             }
             parseRequire(tryCurrentToken(']'), "Missing ']' in square array constructor")
         }
-        return ArrayConstructor.Square(exprs)
+        return ArrayConstructor.Square(exprs.toList())
     }
 
     @OptIn(NeedsXPath3_0::class)
@@ -814,7 +814,7 @@ internal class XQueryParser(
             } while (tryAnyOf(Operator.COMMA) != null)
         }
         parseRequire(tryCurrentToken('}'))
-        return MapConstructor(entries)
+        return MapConstructor(entries.toList())
     }
 
     @NeedsXPath2
@@ -830,7 +830,7 @@ internal class XQueryParser(
         } while (tryAnyOf(Operator.COMMA) != null)
         parseRequire(tryCurrentToken(')')) { "Expected ')' to finish sequence expression" }
 
-        return ParenExpr(elements.singleOrNull() ?: SequenceExpr(elements))
+        return ParenExpr(elements.singleOrNull() ?: SequenceExpr(elements.toList()))
     }
 
     /**
@@ -847,7 +847,7 @@ internal class XQueryParser(
         } while (tryAnyOf(Operator.COMMA) != null)
         parseRequire(tryCurrentToken(')')) { "Expected ')' to finish sequence expression" }
 
-        return elements
+        return elements.toList()
     }
 
     @NeedsXPath2
@@ -870,7 +870,7 @@ internal class XQueryParser(
 
         val condition = parseExprSingle()
 
-        return QuantifiedExpr(kind, bindings, condition)
+        return QuantifiedExpr(kind, bindings.toList(), condition)
     }
 
     @NeedsXPath3_0
@@ -953,7 +953,7 @@ internal class XQueryParser(
             skipWhitespace()
         } while (tryCurrent(','))
         parseRequire(tryCurrentToken(')'), "Missing closing parenthesis in parameters")
-        return args
+        return args.toList()
 
     }
 
