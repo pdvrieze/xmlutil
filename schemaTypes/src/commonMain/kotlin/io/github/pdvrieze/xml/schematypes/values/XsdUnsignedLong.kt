@@ -123,8 +123,10 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
         operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLongImpl(value)
         operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedInt(value)
 
-        operator fun invoke(value: CharSequence): XsdUnsignedLong =
-            XsdUnsignedLongImpl(value.toString().toULong())
+        operator fun invoke(value: CharSequence): XsdUnsignedLong = when (value.getOrNull(0) ?: throw NumberFormatException("Empty string is not a number")) {
+            '-' -> if (value.length == 2 && value[1]=='0') ZERO else throw NumberFormatException("Negative numbers are not allowed")
+            else -> XsdUnsignedLongImpl(value.toString().toULong())
+        }
 
     }
 

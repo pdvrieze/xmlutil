@@ -89,15 +89,20 @@ interface XsdUnsignedByte : XsdUnsignedShort {
         return uByteValue.compareTo(other.uByteValue)
     }
 
-    companion object : SimpleTypeSerializer<XsdUnsignedByte>("xsd.unsignedLong") {
     companion object : SimpleTypeSerializer<XsdUnsignedByte>("xsd.unsignedByte") {
+        val ZERO: XsdUnsignedByte = XsdUnsignedByteImpl(0u)
+
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedByte {
             return XsdUnsignedByteImpl(xmlTrimWhitespace(raw).toUByte())
         }
 
         operator fun invoke(value: UByte): XsdUnsignedByte = XsdUnsignedByteImpl(value)
 
-        operator fun invoke(value: CharSequence): XsdUnsignedByte = invoke(value.toString().toUByte())
+        operator fun invoke(value: CharSequence): XsdUnsignedByte = when (value.getOrNull(0) ?: throw NumberFormatException("Empty string is not a number")) {
+            '-' -> if (value.length == 2 && value[1]=='0') ZERO else throw NumberFormatException("Negative numbers are not allowed")
+            else -> XsdUnsignedByteImpl(value.toString().toUByte())
+        }
+
     }
 
 }

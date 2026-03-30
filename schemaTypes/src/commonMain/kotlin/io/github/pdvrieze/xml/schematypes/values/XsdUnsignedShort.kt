@@ -87,13 +87,19 @@ interface XsdUnsignedShort : XsdUnsignedInt {
     }
 
     companion object : SimpleTypeSerializer<XsdUnsignedShort>("xsd.unsignedLong") {
+        val ZERO: XsdUnsignedShort = XsdUnsignedShortImpl(0u)
+
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedShort {
             return XsdUnsignedShortImpl(xmlTrimWhitespace(raw).toUShort())
         }
 
         operator fun invoke(value: UShort): XsdUnsignedShort = XsdUnsignedShortImpl(value)
 
-        operator fun invoke(value: CharSequence): XsdUnsignedShort = XsdUnsignedShortImpl(value.toString().toUShort())
+        operator fun invoke(value: CharSequence): XsdUnsignedShort = when (value.getOrNull(0) ?: throw NumberFormatException("Empty string is not a number")) {
+            '-' -> if (value.length == 2 && value[1]=='0') ZERO else throw NumberFormatException("Negative numbers are not allowed")
+            else -> XsdUnsignedShortImpl(value.toString().toUShort())
+        }
+
     }
 
 }
