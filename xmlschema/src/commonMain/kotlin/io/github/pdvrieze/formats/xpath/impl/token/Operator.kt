@@ -89,13 +89,36 @@ enum class Operator(
 
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
-            when {
-                left.type.isSubtypeOf(BooleanType.Instance) -> {
-                    return BooleanOperators.opBooleanEqual(listOf(left, right))
-                }
-                else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
+        override fun eval(left: XdmValue, right: XdmValue): XdmValue {
+            val leftVal = when (val a = left.atomize()) {
+                is XdmSequence.Empty -> return XdmSequence.EMPTY
+                is XdmAtomic<*> -> a.value
+                is XdmSequence<*> -> throw EvaluationException(
+                    ErrorCodes.XPTY0004_TYPE_ERROR,
+                    "Sequence as value comparison operand"
+                )
             }
+            val rightVal = when (val a = right.atomize()) {
+                is XdmSequence.Empty -> return XdmSequence.EMPTY
+                is XdmAtomic<*> -> a.value
+                is XdmSequence<*> -> throw EvaluationException(
+                    ErrorCodes.XPTY0004_TYPE_ERROR,
+                    "Sequence as value comparison operand"
+                )
+            }
+
+            val result: Boolean = when (leftVal) {
+                is XsdFloat if rightVal is XsdFloat -> leftVal.value == rightVal.value
+                is XsdDouble if rightVal is XsdDouble -> leftVal.value == rightVal.value
+                is XsdDecimal if rightVal is XsdDecimal -> leftVal == rightVal
+                is XsdNumeric<*> if rightVal is XsdNumeric<*> -> leftVal.toDouble() == rightVal.toDouble()
+
+                is XsdBoolean if rightVal is XsdBoolean -> leftVal.value == rightVal.value
+
+
+                else -> TODO()
+            }
+            return XdmAtomic(XsdBoolean(result))
         }
 
     },
@@ -187,7 +210,82 @@ enum class Operator(
     fun eval(params: List<XdmValue>): XdmValue =
         params.reduce { acc, param -> eval(acc, param) }
 
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    private fun evalComparison(
+        left: XdmValue,
+        right: XdmValue,
+        operator : ComparisonImpl,
+    ): XdmAtomicOrEmpty {
+        val leftVal = when (val a = left.atomize()) {
+            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
+            is XdmSequence<*> -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Sequence as value comparison operand"
+            )
+        }
+        val rightVal = when (val a = right.atomize()) {
+            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
+            is XdmSequence<*> -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Sequence as value comparison operand"
+            )
+        }
 
+        val result: Boolean = when (leftVal) {
+            is XsdFloat if rightVal is XsdFloat -> operator(leftVal.value, rightVal.value)
+            is XsdDouble if rightVal is XsdDouble -> operator(leftVal.value, rightVal.value)
+            is XsdDecimal if rightVal is XsdDecimal -> operator(leftVal, rightVal)
+            is XsdNumeric<*> if rightVal is XsdNumeric<*> ->operator(leftVal.toDouble(), rightVal.toDouble())
+            is XsdBoolean if rightVal is XsdBoolean -> operator(leftVal.value, rightVal.value)
+
+            is XsdString if rightVal is XsdString -> operator(leftVal.xmlString, rightVal.xmlString)
+            is XsdDateTime if rightVal is XsdDateTime -> operator(leftVal, rightVal)
+            is XsdDate if rightVal is XsdDate -> operator(leftVal, rightVal)
+            is XsdDuration if rightVal is XsdDuration -> operator(leftVal, rightVal)
+            is XsdGDay if rightVal is XsdGDay -> operator(leftVal, rightVal)
+
+            is XsdGMonthDay if rightVal is XsdGMonthDay -> operator(leftVal, rightVal)
+            is XsdGMonth if rightVal is XsdGMonth -> operator(leftVal, rightVal)
+            is XsdGYearMonth if rightVal is XsdGYearMonth -> operator(leftVal, rightVal)
+            is XsdGYear if rightVal is XsdGYear -> operator(leftVal, rightVal)
+            is XsdHexBinary if rightVal is XsdHexBinary -> operator(leftVal, rightVal)
+
+            is XsdNotation if rightVal is XsdNotation -> operator(leftVal, rightVal)
+            is XsdQName if rightVal is XsdQName -> operator(leftVal, rightVal)
+            is XsdTime if rightVal is XsdTime -> operator(leftVal, rightVal)
+
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
+        }
+        return XdmAtomic(XsdBoolean(result))
+    }
+
+
+}
+
+internal interface ComparisonImpl {
+    fun default(left: XsdAtomic, right: XsdAtomic): Boolean
+    operator fun invoke(left: XsdDecimal, right: XsdDecimal): Boolean = default(left, right)
+    operator fun invoke(left: Double, right: Double): Boolean
+    operator fun invoke(left: Float, right: Float): Boolean
+    operator fun invoke(left: Boolean, right: Boolean): Boolean
+    operator fun invoke(left: String, right: String): Boolean
+    operator fun invoke(left: XsdDateTime, right: XsdDateTime): Boolean = default(left, right)
+    operator fun invoke(left: XsdDate, right: XsdDate): Boolean = default(left, right)
+    operator fun invoke(left: XsdDuration, right: XsdDuration): Boolean = default(left, right)
+    operator fun invoke(left: XsdGDay, right: XsdGDay): Boolean = default(left, right)
+    operator fun invoke(left: XsdGMonthDay, right: XsdGMonthDay): Boolean = default(left, right)
+    operator fun invoke(left: XsdGMonth, right: XsdGMonth): Boolean = default(left, right)
+    operator fun invoke(left: XsdGYearMonth, right: XsdGYearMonth): Boolean = default(left, right)
+    operator fun invoke(left: XsdGYear, right: XsdGYear): Boolean = default(left, right)
+    operator fun invoke(left: XsdHexBinary, right: XsdHexBinary): Boolean = default(left, right)
+    operator fun invoke(left: XsdNotation, right: XsdNotation): Boolean = default(left, right)
+    operator fun invoke(left: XsdQName, right: XsdQName): Boolean = default(left, right)
+    operator fun invoke(left: XsdTime, right: XsdTime): Boolean = default(left, right)
 }
 
 interface ArithmeticOperator {
