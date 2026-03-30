@@ -247,7 +247,13 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
                     base = AbstractBigUnsignedInt.parse(s)
                 }
             }
-            val sign = if (isNegative) -1 else if (base.ints.size == 1 && base.ints[0] == 0u) 0 else 1
+
+
+            val sign = when {
+                base.ints.size == 1 && base.ints[0] == 0u -> 0
+                isNegative -> -1
+                else -> 1
+            }
             return ParseResult(sign, base.ints, base.exp)
         }
     }
