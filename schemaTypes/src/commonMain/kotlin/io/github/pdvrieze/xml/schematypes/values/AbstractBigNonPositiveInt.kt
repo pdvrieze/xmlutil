@@ -266,21 +266,22 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
             }
 
             var exponentToUse = 0uL
-//            if (intsUsed > 2) {
-            for (i in 0 until intsUsed) {
-                val part = numbers[i]
-                if (part != 0u) {
-                    exponentToUse = (i * 32 + part.countTrailingZeroBits()).toULong()
-                    break
+            if (intsUsed > 2) {
+                for (i in 0 until intsUsed) {
+                    val part = numbers[i]
+                    if (part != 0u) {
+                        exponentToUse = (i * 32 + part.countTrailingZeroBits()).toULong()
+                        break
+                    }
                 }
             }
-//            }
             if (exponentToUse > 0uL) {
                 val rightShift = exponentToUse.and(0x1fu).toInt()
                 val intShift = (exponentToUse + 31u).shr(5).toInt() // add 31 to ensure a shift for at least 1 bit
                 val leftShift = 32 - rightShift
 
                 var previous: ULong = (numbers[0] shr rightShift).toULong()
+                tmp[0] = previous.toUInt()
 
                 for (i in 0 until (numbers.size - intShift)) {
                     val x: ULong = previous + (numbers[i+intShift].toULong() shl leftShift)
