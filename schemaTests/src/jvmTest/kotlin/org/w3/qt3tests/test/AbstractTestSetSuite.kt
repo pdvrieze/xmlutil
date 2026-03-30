@@ -55,10 +55,9 @@ abstract class AbstractTestSetSuite {
                 val verifyResult = a.verify(evalResult)
                 if (verifyResult is AssertionResult.Failure) {
                     if (evalResult.isFailure) throw AssertionFailedError(
-                        "Unexpected failure",
-                        evalResult.exceptionOrNull()
-                    )
-                    else throw AssertionFailedError(
+                        "Unexpected failure: ${verifyResult.error}",
+                        verifyResult.cause ?: evalResult.exceptionOrNull()
+                    ) else throw AssertionFailedError(
                         "Unexpected assertion failure for result: ${verifyResult.error}",
                         verifyResult.cause
                     )
