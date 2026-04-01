@@ -18,16 +18,27 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @OptIn(XPathInternal::class)
 sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
-    override val type: XdmFunctionType
-        get() = TODO("There is no function type type yet")
+
+    override abstract val staticType: XdmFunctionType
+
+
+    fun partialType(args: List<XdmValue?>): XdmFunctionType {
+        return XdmFunctionType(args.indices.mapNotNull { idx ->
+            if (args[idx] == null) staticType.argTypes[idx] else null
+        }, staticType.returnType)
+    }
+
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {

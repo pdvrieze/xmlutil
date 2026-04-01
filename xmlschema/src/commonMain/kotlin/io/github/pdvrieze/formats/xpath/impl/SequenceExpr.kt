@@ -21,8 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 
 @XPathInternal
 class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : AbstractExpr() {

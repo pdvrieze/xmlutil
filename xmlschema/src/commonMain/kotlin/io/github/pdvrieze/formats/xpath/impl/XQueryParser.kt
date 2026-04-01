@@ -208,7 +208,7 @@ internal class XQueryParser(
 
             NodeType.COMMENT -> NodeKindTest.CommentTest
             NodeType.TEXT -> NodeKindTest.TextTest
-            NodeType.ANY_KIND -> NodeKindTest.AnyKind
+            NodeType.ANY_NODE -> NodeKindTest.AnyNode
             NodeType.NAMESPACE_NODE -> NodeKindTest.NamepaceNodeTest
 
             NodeType.PROCESSING_INSTRUCTION -> {
@@ -593,7 +593,7 @@ internal class XQueryParser(
         while (tryCurrentToken('/')) {
             when {
                 tryCurrentToken("/") -> steps.apply {
-                    add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeKindTest.AnyKind))
+                    add(AxisStep(Axis.DESCENDANT_OR_SELF, NodeKindTest.AnyNode))
                     add(parseRequireNotNull(parseStepExpr(), "Missing step after '//' in relative path expression"))
                 }
 

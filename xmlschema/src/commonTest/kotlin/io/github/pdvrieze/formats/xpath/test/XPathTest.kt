@@ -22,8 +22,8 @@ package io.github.pdvrieze.formats.xpath.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion.*
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
@@ -161,7 +161,7 @@ class XPathTest {
             assertEquals(1, key2.value)
 
             val key1 = assertIs<LookupExpr.ParenKey>(lookup1.key)
-            val castExpr = assertIs<CastExpr>(key1.expr)
+            val castExpr = assertIs<CastExpr>(key1.params.singleOrNull())
 
             val right1 = assertIs<LiteralExpr<*>>(outer.right)
 
@@ -194,9 +194,7 @@ class XPathTest {
     fun testArrayWithEmptySequence() {
         testPath("[()]") {
             val array = assertIs<ArrayConstructor.Square>(expr)
-            val paren = assertIs<ParenExpr>(array.values.singleOrNull())
-            val seq = assertIs<SequenceExpr>(paren.expr)
-            assertEquals(0, seq.elements.size)
+            assertIs<EmptySequenceExpr>(array.values.singleOrNull())
         }
     }
 
@@ -433,7 +431,7 @@ class XPathTest {
         testPath("//olist/item") {
             assertPath {
                 assertRooted()
-                assertStep(Axis.DESCENDANT_OR_SELF, NodeType.ANY_KIND)
+                assertStep(Axis.DESCENDANT_OR_SELF, NodeType.ANY_NODE)
                 assertStep("olist")
                 assertStep("item")
             }

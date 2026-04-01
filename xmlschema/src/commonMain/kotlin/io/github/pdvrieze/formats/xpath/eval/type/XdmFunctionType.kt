@@ -18,38 +18,51 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.type
 
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmFunctionTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 
 open class XdmFunctionType(
-    val argTypes: List<XdmType>,
-    val returnType: XdmType
+    val argTypes: List<XdmSequenceTypeTest>,
+    val returnType: XdmSequenceTypeTest
 ) : XdmSingleType() {
 
-    constructor(returnType: XdmType, vararg argTypes: XdmType) : this(
+    constructor(returnType: XdmTypeTest, vararg argTypes: XdmTypeTest) : this(
         argTypes.toList(),
         returnType
     )
 
     @OptIn(XPathInternal::class)
     constructor(returnType: AnyType, vararg argTypes: AnyType) : this(
-        argTypes.map { XdmSchemaType(it) },
-        XdmSchemaType(returnType),
+        argTypes.map { XdmSchemaTypeTest(it, SINGLE) },
+        XdmSchemaTypeTest(returnType, SINGLE),
     )
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmSingleType): Boolean {
-        if (other !is XdmFunctionType) return false
-        if (argTypes.size != other.argTypes.size) return false
-        if (!returnType.isSubtypeOf(other.returnType)) return false
+    override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
+        when (expectedType) {
+            is XdmFunctionTypeTest.Any -> return true
+            !is XdmFunctionTypeTest.Typed -> return false
+            else -> {}
+        }
 
-        return other.argTypes.asSequence()
+
+        if (argTypes.size != expectedType.argTypes.size) return false
+        if (!returnType.isAssignableTo(expectedType.returnType)) return false
+
+        return expectedType.argTypes.asSequence()
             .zip(argTypes.asSequence())
-            .all { (a, b) -> b.isSubtypeOf(a) }
+            .all { (a, b) -> b.isAssignableTo(a) }
     }
 
     @XPathInternal

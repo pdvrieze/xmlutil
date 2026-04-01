@@ -18,32 +18,37 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.type
 
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmFunctionTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
 @XPathInternal
 class XdmMapType(
-    keyType: XdmSchemaType,
-    valueType: XdmSequenceType
-) : XdmFunctionType(listOf(keyType), XdmArrayType(valueType)) {
+    keyType: XdmSchemaTypeTest,
+    valueType: XdmSequenceTypeTest
+) : XdmFunctionType(listOf(keyType), valueType) {
     init {
         require(keyType.schemaType is AnySimpleType.AtomicOrUnion<*>) { "Key type must be atomic or integer" }
     }
 
-    val keyType: XdmType get() = argTypes.single()
-    val valueType: XdmType get() = returnType
+    val keyType: XdmSchemaTypeTest get() = argTypes.single() as XdmSchemaTypeTest
+    val valueType: XdmSequenceTypeTest get() = returnType
 
     context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmSingleType): Boolean {
-        return when (other) {
-            is XdmMapType -> other.keyType.isSubtypeOf(keyType) &&
-                    returnType.isSubtypeOf(other.returnType)
+    @XPathInternal
+    override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
+        val receiver = expectedType
+        return when (receiver) {
+            is XdmMapTypeTest -> receiver.keyType.isAssignableTo(keyType) &&
+                    returnType.isAssignableTo(receiver.returnType)
 
-            is XdmFunctionType -> super.isSubtypeOf(other)
-
+            is XdmFunctionTypeTest -> super.isAssignableTo(receiver)
 
             else -> false
         }

@@ -18,10 +18,17 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
@@ -33,7 +40,7 @@ import nl.adaptivity.xmlutil.dom2.*
 @OptIn(NeedsXPath2::class)
 class XdmNode(
     val node: Node,
-    override val type: XdmType = XdmSchemaType(UntypedType.Instance)
+    override val staticType: XdmSingleType = XdmSchemaType(UntypedType.Instance)
 ) : XdmSingleValue<XdmNode>() {
     val posSeq: IntArray
 
@@ -52,11 +59,14 @@ class XdmNode(
         }
     }
 
+    // TODO actually use schema types for this
+    val dynamicType: XdmSingleType get() = staticType
+
     override fun asT(): XdmNode = this
 
     context(ctx: ExprEvalContext)
     fun typedValue(): XdmValue = when (node) {
-        is Attr -> type.fromString(node.value)
+        is Attr -> staticType.fromString(node.value)
         else -> throw EvaluationException(ctx.expr, "Node has no value")
     }
 
@@ -79,10 +89,13 @@ class XdmNode(
 //        if (type.isSubtypeOf(BooleanType.Instance))
     }
 
+    @OptIn(NeedsXPath3_0::class)
     context(ctx: ExprEvalContext)
-    override fun withType(type: XdmType): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+        if (type !is XdmNodeKindTest) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast node to $type")
+        if (! type.nodeKind.matches(node)) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast $node to (${type.nodeKind})")
         // TODO do some checks
-        return XdmNode(node, type)
+        return XdmNode(node, type.toValueType(staticType).single)
     }
 
     override fun hashCode(): Int {
@@ -106,20 +119,20 @@ class XdmNode(
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmAtomicOrEmpty {
         return when (node) {
-            is Attr -> (type).fromString(node.value) as XdmAtomic<*>
+            is Attr -> (staticType).fromString(node.value) as XdmAtomic<*>
             is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))
             is Comment -> XdmAtomic(XsdString(node.getData()))
             is Text -> XdmAtomic(XsdString(node.getData()))
             is Element if (node.getAttributeNS(XMLConstants.XSI_NS_URI, "nil") == "true") ->
-                XdmSequence.empty(type)
+                XdmSequence.empty(staticType)
 
-            is Document if type.isSubtypeOf(AnyAtomicType.Instance) -> node.documentElement
-                ?.let { type.fromString(it.textContent ?:"")  as XdmAtomic<*> }
+            is Document if staticType.isAssignableTo(AnyAtomicType.Instance) -> node.documentElement
+                ?.let { staticType.fromString(it.textContent ?: "")  as XdmAtomic<*> }
                 ?: throw EvaluationException(ctx.expr, "Missing document element")
 
             is Document -> throw EvaluationException(ctx.expr, "Cannot atomize a document to non-atomic type")
-            is Element if type.isSubtypeOf(AnyAtomicType.Instance) ->
-                type.fromString(node.textContent ?: "") as XdmAtomic<*>
+            is Element if staticType.isAssignableTo(AnyAtomicType.Instance) ->
+                staticType.fromString(node.textContent ?: "") as XdmAtomic<*>
 
             is Element -> throw EvaluationException(ctx.expr, "Cannot atomize an element to non-atomic type")
             else -> throw UnsupportedOperationException("Unsupported node type: ${node.getNodetype()}")
@@ -133,7 +146,7 @@ class XdmNode(
     context(ctx: ExprEvalContext)
     @XPathInternal
     override fun normalizeToArithmetic(): XdmValue = when (node) {
-        is Attr -> type.fromString(node.value)
+        is Attr -> dynamicType.fromString(node.value)
         else -> super.normalizeToArithmetic()
     }
 
@@ -143,7 +156,7 @@ class XdmNode(
 
             posSeq.joinTo(this, ",", "[", "], ") { it.toString() }
 
-            append("type=").append(type).append(", ")
+            append("type=").append(dynamicType).append(", ")
             append("node=").append(node).append(", ")
             append("hashcode=").append(hashCode().toString(16))
             append(")")

@@ -18,17 +18,26 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
-class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), XdmAtomicOrEmpty, XdmAtomicOrSequence {
+class XdmAtomic<T: XsdAtomic>(val value: T, override val staticType: XdmSingleType = XdmSchemaType(value.schemaType)) : XdmSingleValue<XdmAtomic<T>>(), XdmAtomicOrEmpty, XdmAtomicOrSequence {
+
     override fun asT(): XdmAtomic<T> = this
 
     context(ctx: ExprEvalContext)
@@ -39,7 +48,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), Xd
         receiver.add(this)
     }
 
-    override val type: XdmType
+    val dynamicType: XdmType
         get() = XdmSchemaType(value.schemaType)
 
     override fun isValEqual(expected: XdmValue): Boolean {
@@ -76,7 +85,10 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), Xd
         when (value){
             is XsdFloat -> this as XdmAtomic<XsdFloat>
             is XsdDecimal -> XdmAtomic(XsdFloat(value.toDouble().toFloat()))
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value of type ${value.schemaType} cannot be cast to double")
+            else -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Value of type ${value.schemaType} cannot be cast to double"
+            )
         }
 
     context(ctx: ExprEvalContext)
@@ -86,7 +98,10 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), Xd
             is XsdDouble -> this as XdmAtomic<XsdDouble>
             is XsdFloat -> XdmAtomic(XsdDouble(value.value.toDouble()))
             is XsdDecimal -> XdmAtomic(XsdDouble(value.toDouble()))
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value of type ${value.schemaType} cannot be cast to double")
+            else -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Value of type ${value.schemaType} cannot be cast to double"
+            )
         }
 
     context(ctx: ExprEvalContext)
@@ -108,9 +123,15 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), Xd
 
 
     context(ctx: ExprEvalContext)
-    override fun withType(type: XdmType): XdmValue {
-        TODO("Xsd coercion not yet implemented")
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+        if (! type.isAssignableFromSingle(XdmSchemaTypeTest(value.schemaType, SequenceType.OccurrenceType.SINGLE))) {
+            throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS)
+        }
+
+        return XdmAtomic(value, type.toValueType(staticType).single)
     }
+
+
 
     @XPathInternal
     context(ctx: ExprEvalContext)
@@ -119,7 +140,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), Xd
         return when {
             value is XsdDouble -> this
 
-            !ctx.isXPath1Compat -> when (type) {
+            !ctx.isXPath1Compat -> when (staticType) {
                 UntypedAtomicType.Instance -> toXdmDouble()
                 else -> this
             }
@@ -127,7 +148,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T) : XdmSingleValue<XdmAtomic<T>>(), Xd
             this.value is XsdBoolean ||
                     this.value is XsdDecimal ||
                     this.value is XsdFloat ||
-                    this.type == UntypedAtomicType.Instance -> return Fn.number(this) as XdmAtomic<*>
+                    this.staticType == UntypedAtomicType.Instance -> Fn.number(this) as XdmAtomic<*>
 
             else -> this
         }

@@ -20,14 +20,31 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
+import io.github.pdvrieze.xml.schematypes.types.AnyType
+
 @XPathInternal
 interface ItemTypeTest {
 
     object ItemTestTest: ItemTypeTest {
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+        override fun toTypeTest(occurrence: OccurrenceType): XdmTypeTest.Any {
+            return XdmTypeTest.Any(occurrence)
+        }
+
+        context(ctx: ExprEvalContext)
+        private fun isAssignableTo(baseType: XdmSingleType): Boolean {
             return baseType == this
         }
+
+        context(ctx: ExprEvalContext)
+        fun isAssignableFrom(child: AnyType): Boolean = true
+
+        context(ctx: ExprEvalContext)
+        fun isInstance(value: XdmSingleValue<*>): Boolean = true
 
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -41,10 +58,21 @@ interface ItemTypeTest {
     fun appendToString(builder: Appendable)
 
     context(ctx: ExprEvalContext)
-    fun isSubtypeOf(baseType: ItemTypeTest): Boolean
+    fun toTypeTest(occurrence: OccurrenceType): XdmTypeTest
+
+    /*
+        context(ctx: ExprEvalContext)
+        fun isAssignableTo(baseType: XdmSingleType): Boolean
+
+        context(ctx: ExprEvalContext)
+        fun isAssignableFrom(child: AnyType): Boolean
+
+        context(ctx: ExprEvalContext)
+        fun isInstance(value: XdmSingleValue<*>): Boolean
+    */
 
     companion object {
-        val node: ItemTypeTest = NodeKindTest.AnyKind
+        val node: ItemTypeTest = NodeKindTest.AnyNode
 
         @OptIn(NeedsXPath2::class)
         val documentNode: ItemTypeTest = NodeKindTest.DocumentTest()

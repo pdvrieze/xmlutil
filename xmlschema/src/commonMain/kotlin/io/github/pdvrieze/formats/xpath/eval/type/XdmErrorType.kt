@@ -18,8 +18,12 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.type
 
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
@@ -27,12 +31,10 @@ import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 @XPathInternal
 object XdmErrorType : XdmSingleType() {
     context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmSingleType): Boolean {
-        when {
-            // 2.5.6.2 #3 Generalized atomic types
-            other is XdmSchemaType && other.schemaType is AnySimpleType.AtomicOrUnion<*> -> return true
-        }
-        return false
+    override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean = when {
+        // 2.5.6.2 #3 Generalized atomic types
+        expectedType is XdmSchemaTypeTest && expectedType.schemaType is AnySimpleType.AtomicOrUnion<*> -> true
+        else -> false
     }
 
     /*

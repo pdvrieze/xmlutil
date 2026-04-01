@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval
 
 enum class ErrorCodes(val code: String, val message: String) {
 

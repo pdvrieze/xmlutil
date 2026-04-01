@@ -45,9 +45,9 @@ interface NonPositiveIntegerType<out T : XsdNonPositiveInteger> : IntegerType<T>
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
-            FacetFractionDigits.Companion(0u),
+            FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XsdInteger.Companion(0)),
+            FacetMaxInclusive(XsdInteger(0)),
         )
 
         override fun fromString(value: CharSequence): XsdNonPositiveInteger {

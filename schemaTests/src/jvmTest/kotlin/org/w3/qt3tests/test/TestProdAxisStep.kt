@@ -20,8 +20,8 @@
 
 package org.w3.qt3tests.test
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import org.junit.jupiter.api.Named
 import org.junit.jupiter.params.ParameterizedTest

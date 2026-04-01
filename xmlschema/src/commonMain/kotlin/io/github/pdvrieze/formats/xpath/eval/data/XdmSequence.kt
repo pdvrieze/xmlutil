@@ -18,8 +18,12 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.type.XdmEmptySequenceType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSequenceType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -30,7 +34,7 @@ import kotlin.contracts.contract
 @OptIn(XPathInternal::class)
 open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     internal val elements: List<T> = emptyList(),
-    override val type: XdmType = XdmSequenceType.ANYSEQ
+    override val staticType: XdmType = XdmSequenceType.ANYSEQ
 ) : XdmAtomicOrSequence, List<T> {
     override val size: Int get() = elements.size
 
@@ -46,7 +50,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     }
 
     context(ctx: ExprEvalContext)
-    override fun withType(type: XdmType): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
         TODO("not implemented")
     }
 
@@ -94,10 +98,10 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         return elements.joinToString(prefix = "(", postfix = ")")
     }
 
-    class Empty(type: XdmType = XdmType.EmptySequenceType): XdmSequence<Nothing>(type = type), XdmAtomicOrEmpty
+    class Empty(type: XdmType = XdmEmptySequenceType): XdmSequence<Nothing>(staticType = type), XdmAtomicOrEmpty
 
     companion object {
-        val EMPTY: Empty = empty(XdmType.EmptySequenceType)
+        val EMPTY: Empty = empty(XdmEmptySequenceType)
 
         interface XdmSequenceBuilder {
             fun add(value: XdmSingleValue<*>)

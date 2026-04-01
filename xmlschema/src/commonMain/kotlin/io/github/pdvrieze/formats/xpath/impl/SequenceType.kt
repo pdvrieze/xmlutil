@@ -20,10 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
-import io.github.pdvrieze.formats.xpath.data.XdmSequenceType
-import io.github.pdvrieze.formats.xpath.data.XdmType
-import io.github.pdvrieze.formats.xpath.data.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 
 
 @OptIn(XPathInternal::class)
@@ -33,7 +32,8 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
     abstract fun appendToString(builder: Appendable)
 
     context(ctx: ExprEvalContext)
-    abstract fun eval(): XdmType
+    abstract fun eval(): XdmSequenceTypeTest
+    abstract fun isInstance(value: XdmValue): Boolean
 
     @NeedsXPath2
     object EmptySequence : SequenceType() {
@@ -42,8 +42,10 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
             builder.append("empty-sequence()")
         }
 
+        override fun isInstance(value: XdmValue): Boolean = value.size == 0
+
         context(ctx: ExprEvalContext)
-        override fun eval(): XdmType = XdmType.EmptySequenceType
+        override fun eval(): XdmSequenceTypeTest.EMPTY = XdmSequenceTypeTest.EMPTY
     }
 
     class ItemTypeSequence @NeedsXPath2 constructor(val itemType: ItemTypeTest, val occurrence: OccurrenceType = OccurrenceType.SINGLE) : SequenceType() {
@@ -53,20 +55,33 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
             builder.append(occurrence.literal)
         }
 
-        context(ctx: ExprEvalContext)
-        override fun eval(): XdmSequenceType {
-            when (itemType) {
-                is AtomicOrUnionTypeTest -> return XdmSequenceType(XdmSchemaType(itemType.eval()), occurrence)
+        override fun isInstance(value: XdmValue): Boolean {
+            when {
+                !occurrence.allowsEmpty && value.size == 0 -> return false
+                value.size == 0 -> return true
+                value.size > 1 && !occurrence.allowsMultiple -> return false
             }
 
-            return XdmSequenceType(XdmTypeTest(itemType), occurrence)
+            TODO("Check whether needed at all ")
+/*
+            for (i in 0 until value.size) {
+                if (! itemType.isInstance(value[i])) return false
+            }
+            return true
+*/
+        }
+
+        @OptIn(NeedsXPath3_1::class)
+        context(ctx: ExprEvalContext)
+        override fun eval(): XdmTypeTest {
+            return itemType.toTypeTest(occurrence)
         }
     }
 
-    enum class OccurrenceType(val literal: String, val allowsEmpty: Boolean) {
-        SINGLE("", false),
-        OPTIONAL("?", true),
-        ANY("*", true),
-        AT_LEAST_ONE("+", false);
+    enum class OccurrenceType(val literal: String, val allowsEmpty: Boolean, val allowsMultiple: Boolean) {
+        SINGLE("", false, false),
+        OPTIONAL("?", true, false),
+        ANY("*", true, true),
+        AT_LEAST_ONE("+", false, true);
     }
 }

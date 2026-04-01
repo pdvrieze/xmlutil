@@ -60,7 +60,7 @@ object ResStringType : ResPrimitiveDatatype<XsdString>, ResIStringType<XsdString
     }
 
     override fun value(maybeValue: XsdAnySimple): XsdString {
-        return maybeValue as? XsdString ?: XsdString.Companion(maybeValue.xmlString)
+        return maybeValue as? XsdString ?: XsdString(maybeValue.xmlString)
     }
 
     override fun validateValue(value: Any, version: SchemaVersion) {

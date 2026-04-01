@@ -20,7 +20,12 @@
 
 package io.github.pdvrieze.formats.xpath.functions
 
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.functions.impl.AbstractFunctionObject
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -32,14 +37,17 @@ object Xs: AbstractFunctionObject() {
 
     context(ctx: ExprEvalContext)
     fun createFromSchemaType(name: QName): BuiltinFunction<*> {
-        val type = ctx.resolveType(name) as AnyAtomicType<*>
-        return BuiltinFunctionImpl(name, listOf(XdmFunctionType(XdmType.STRING, XdmSchemaType(type)))) { args ->
+        val type = ctx.resolveTypeOrNull(name) as AnyAtomicType<*>
+
+        val signatures: List<XdmFunctionType> = listOf<XdmFunctionType>(functionType(XdmTypeTest.STRING, t(type)))
+        return BuiltinFunctionImpl(name, signatures) { args: List<XdmValue> ->
             val arg = toAnySingleAtomic(args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)
             val value = runCatching { type.fromString(arg.value.xmlString) }
-                .getOrElse {e ->
+                .getOrElse { e ->
                     when (e) {
                         is IllegalArgumentException,
                         is NumberFormatException -> throw EvaluationException(ErrorCodes.FORG0001, e)
+
                         else -> throw EvaluationException(ctx.expr, e)
                     }
                 }

@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 
 @XPathInternal

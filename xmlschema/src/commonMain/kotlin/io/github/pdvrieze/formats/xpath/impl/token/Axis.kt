@@ -21,8 +21,12 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.*
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes.XPTY0020_CONTEXT_ITEM_NOT_NODE
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.XPTY0020_CONTEXT_ITEM_NOT_NODE
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
 import io.github.pdvrieze.formats.xpath.impl.NodeTest
@@ -261,7 +265,10 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
             is XdmNode -> evalNode(context, test)
 
-            else -> throw EvaluationException(XPTY0020_CONTEXT_ITEM_NOT_NODE, "Context items for axes ($literal) must be nodes (found: ${context.type})")
+            else -> throw EvaluationException(
+                XPTY0020_CONTEXT_ITEM_NOT_NODE,
+                "Context items for axes ($literal) must be nodes (found: ${context.staticType})"
+            )
         }
     }
 

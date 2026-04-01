@@ -18,19 +18,24 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
-class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val type: XdmMapType) : XdmFunction<XdmMap>() {
+class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val staticType: XdmMapType) : XdmFunction<XdmMap>() {
     override fun asT(): XdmMap = this
 
     context(ctx: ExprEvalContext)
-    override fun withType(type: XdmType): XdmValue {
-        if (type !is XdmMapType) throw EvaluationException(ctx.expr, "Cannot cast map to $type")
-        return XdmMap(content, type)
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+        if (type !is XdmMapTypeTest) throw EvaluationException(ctx.expr, "Cannot cast map to $type")
+        return XdmMap(content, type.toValueType(staticType).single as XdmMapType)
     }
 
     override fun isValEqual(expected: XdmValue): Boolean {
@@ -45,12 +50,12 @@ class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val type: XdmMap
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>): Nothing {
-        throw EvaluationException.Companion(ErrorCodes.FOTY0013, "Cannot atomize a map")
+        throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 
     context(ctx: ExprEvalContext)
     override fun atomize(): Nothing {
-        throw EvaluationException.Companion(ErrorCodes.FOTY0013, "Cannot atomize a map")
+        throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 
     context(ctx: ExprEvalContext)

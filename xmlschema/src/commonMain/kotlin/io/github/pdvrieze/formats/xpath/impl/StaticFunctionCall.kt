@@ -21,10 +21,10 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmBuiltinFunction
-import io.github.pdvrieze.formats.xpath.data.XdmPartialApplication
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmBuiltinFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmPartialApplication
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.functions.Xs

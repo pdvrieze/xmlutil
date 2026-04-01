@@ -44,11 +44,11 @@ interface ShortType<out T : XsdShort> : IntType<T> {
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
-            FacetFractionDigits.Companion(0u),
+            FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
                 // pass null as this has an initialization loop. The value is pre-normalized.
-            FacetMaxInclusive.Companion(XsdShort.Companion(Short.MAX_VALUE)),
-            FacetMinInclusive.Companion(XsdShort.Companion(Short.MIN_VALUE)),
+            FacetMaxInclusive(XsdShort(Short.MAX_VALUE)),
+            FacetMinInclusive(XsdShort(Short.MIN_VALUE)),
         )
 
         override fun fromString(value: CharSequence): XsdShort = XsdShort(value)

@@ -21,10 +21,10 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 
 @XPathInternal
@@ -52,9 +52,9 @@ open class AxisStep(
                     }
 
                     current = when (newElems.size) {
-                        0 -> return XdmSequence.empty(current.type)
+                        0 -> return XdmSequence.empty(current.staticType)
                         1 -> newElems.single()
-                        else -> XdmSequence(newElems, current.type)
+                        else -> XdmSequence(newElems, current.staticType)
                     }
                 }
 

@@ -20,8 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.data.XdmType
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
@@ -30,17 +29,17 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 @XPathInternal
 object SequenceFunctions : AbstractFunctionObject() {
 
-    val fnEmpty = BuiltinFunctionImpl("empty", functionType(XdmType.BOOLEAN, XdmType.ITEM.any)) { args ->
+    val fnEmpty = BuiltinFunctionImpl("empty", functionType(BOOLEAN, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
         XdmAtomic(XsdBoolean(arg.size==0))
     }
 
-    val fnExists = BuiltinFunctionImpl("exists", functionType(XdmType.BOOLEAN, XdmType.ITEM.any)) { args ->
+    val fnExists = BuiltinFunctionImpl("exists", functionType(BOOLEAN, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
         XdmAtomic(XsdBoolean(arg.size>0))
     }
 
-    val fnCount = BuiltinFunctionImpl("count", functionType(XdmType.INTEGER, XdmType.ITEM.any)) { args ->
+    val fnCount = BuiltinFunctionImpl("count", functionType(INTEGER, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
         XdmAtomic(XsdInteger(arg.size))
     }

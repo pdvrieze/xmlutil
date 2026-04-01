@@ -20,14 +20,14 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 @XPathInternal
 internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): io.github.pdvrieze.formats.xpath.eval.data.XdmValue {
         return expr.eval()
     }
 

@@ -18,26 +18,13 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.FunctionItem
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.IntegerType
 
-@XPathInternal
-class XdmArrayType(
-    elemType: XdmSequenceType
-) : XdmFunctionType(listOf(XdmSchemaType(IntegerType.Instance)), elemType) {
-    context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmSingleType): Boolean {
-        return when (other) {
-            is XdmArrayType -> returnType.isSubtypeOf(other.returnType)
+class XdmPathFunction
+@OptIn(XPathInternal::class) constructor(
 
-            is XdmFunctionType -> other.argTypes.singleOrNull().let {
-                it is XdmSchemaType && it.schemaType is IntegerType<*> } &&
-                    returnType.isSubtypeOf(other.returnType)
-
-            else -> false
-        }
-    }
-}
+    private val function: FunctionItem.Inline
+)

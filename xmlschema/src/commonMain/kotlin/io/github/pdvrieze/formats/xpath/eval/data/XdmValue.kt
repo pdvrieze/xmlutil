@@ -18,8 +18,14 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmErrorType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -41,7 +47,16 @@ sealed interface XdmValue {
     }
 
     context(ctx: ExprEvalContext)
-    abstract fun withType(type: XdmType): XdmValue
+    fun treatAsNonEmpty(type: XdmTypeTest): XdmValue
+
+    context(ctx: ExprEvalContext)
+    fun treatAs(type: XdmSequenceTypeTest): XdmValue = when (type) {
+        XdmSequenceTypeTest.EMPTY -> when (size) {
+            0 -> XdmSequence.EMPTY
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot non-empty sequence to empty sequence")
+        }
+        is XdmTypeTest -> treatAsNonEmpty(type)
+    }
 
     context(ctx: ExprEvalContext)
     abstract fun evalPredicates(predicates: Iterable<Expr>): XdmValue
@@ -54,7 +69,7 @@ sealed interface XdmValue {
     context(ctx: ExprEvalContext)
     abstract fun toBoolean(): Boolean
 
-    abstract val type: XdmType
+    abstract val staticType: XdmType
 
     @XPathInternal
     context(ctx: ExprEvalContext)

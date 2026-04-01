@@ -42,11 +42,11 @@ interface ByteType<out T : XsdByte> : ShortType<T> {
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
-            FacetFractionDigits.Companion(0u),
+            FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
                 // pass null as this has an initialization loop. The value is pre-normalized.
-            FacetMaxInclusive.Companion(XsdByte.Companion(Byte.MAX_VALUE)),
-            FacetMinInclusive.Companion(XsdByte.Companion(Byte.MIN_VALUE)),
+            FacetMaxInclusive(XsdByte(Byte.MAX_VALUE)),
+            FacetMinInclusive(XsdByte(Byte.MIN_VALUE)),
         )
 
         override fun fromString(value: CharSequence): XsdByte {

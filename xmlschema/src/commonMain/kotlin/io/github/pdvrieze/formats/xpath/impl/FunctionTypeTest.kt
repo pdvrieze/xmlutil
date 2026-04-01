@@ -20,24 +20,68 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmFunctionTypeTest
+import io.github.pdvrieze.xml.schematypes.types.AnyType
+
 @OptIn(NeedsXPath3_0::class)
 @XPathInternal
 sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
+    context(ctx: ExprEvalContext)
+    private fun isAssignableFrom(child: AnyType): Boolean = false
+
+
+    context(ctx: ExprEvalContext)
+    abstract override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmFunctionTypeTest
+
+
     @NeedsXPath3_0
     object ANY: FunctionTypeTest() {
+        context(ctx: ExprEvalContext)
+        private fun isInstance(value: XdmSingleValue<*>): Boolean {
+            return value is XdmFunction<*>
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmFunctionTypeTest.Any {
+            return XdmFunctionTypeTest.Any(occurrence)
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("function(*)")
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == NodeKindTest.AnyKind) return true
+        private fun isAssignableTo(baseType: XdmSingleType): Boolean {
+            if (baseType == NodeKindTest.AnyNode) return true
             return baseType == ANY
         }
     }
 
     class Typed @NeedsXPath3_0 constructor(val returnType: SequenceType, val paramTypes: List<SequenceType>): FunctionTypeTest() {
+        context(ctx: ExprEvalContext)
+        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmFunctionTypeTest.Typed {
+            return XdmFunctionTypeTest.Typed(paramTypes.map { it.eval() }, returnType.eval(), occurrence)
+        }
+
+        context(ctx: ExprEvalContext)
+        private fun isInstance(value: XdmSingleValue<*>): Boolean {
+            if (value !is XdmFunction<*>) return false
+
+            val staticType = value.staticType
+            return when {
+                staticType.argTypes.size != paramTypes.size -> false
+                staticType.argTypes.indices.any {
+                    !paramTypes[it].eval().isAssignableTo(staticType.argTypes[it])
+                } -> false
+                //            !value.type.returnType.isAssignableTo(returnType.eval()) -> false
+                else -> true
+            }
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("function(")
@@ -49,15 +93,18 @@ sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == NodeKindTest.AnyKind || baseType == ANY) return true
+        private fun isAssignableTo(baseType: XdmSingleType): Boolean {
+            if (baseType == NodeKindTest.AnyNode || baseType == ANY) return true
+            TODO()
+/*
             if (baseType !is Typed) return false
             if (baseType.paramTypes.size != paramTypes.size) return false
-            if (!returnType.eval().isSubtypeOf(baseType.returnType.eval())) return false
+            if (!returnType.eval().isAssignableTo(baseType.returnType.eval())) return false
             for (i in paramTypes.indices) {
-                if (!baseType.paramTypes[i].eval().isSubtypeOf(paramTypes[i].eval())) return false
+                if (!baseType.paramTypes[i].eval().isAssignableTo(paramTypes[i].eval())) return false
             }
             return true
+*/
         }
     }
 }

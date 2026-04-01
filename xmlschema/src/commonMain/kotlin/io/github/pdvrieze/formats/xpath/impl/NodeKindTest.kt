@@ -20,21 +20,39 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmNode
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.formats.xpath.impl.token.QNameSpec
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isEquivalent
 import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.dom2.Comment as Comment2
+import nl.adaptivity.xmlutil.dom2.Comment as CommentNode
 
 @XPathInternal
-public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
+sealed class NodeKindTest : NodeTest(), ItemTypeTest {
     abstract val type: NodeType
+
+    val opt: XdmNodeKindTest get() = XdmNodeKindTest(this, OccurrenceType.OPTIONAL)
+    val single: XdmNodeKindTest get() = XdmNodeKindTest(this, OccurrenceType.SINGLE)
+    val any: XdmNodeKindTest get() = XdmNodeKindTest(this, OccurrenceType.ANY)
+    val atLeastOne: XdmNodeKindTest get() = XdmNodeKindTest(this, OccurrenceType.AT_LEAST_ONE)
+
+    context(ctx: ExprEvalContext)
+    override fun toTypeTest(occurrence: OccurrenceType): XdmNodeKindTest = XdmNodeKindTest(this, occurrence)
+
+    context(ctx: ExprEvalContext)
+    abstract fun matches(node: Node): Boolean
+
+    context(ctx: ExprEvalContext)
+    abstract fun isAssignableFrom(source: NodeKindTest): Boolean
 
     context(c: OutputContext)
     final override fun appendToString(builder: Appendable) {
@@ -43,6 +61,12 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
 
     @NeedsXPath2
     internal class DocumentTest(val arg: NodeKindTest? = null) : NodeKindTest() {
+        init {
+            check (arg == null || arg is ElementTest || arg is SchemaElementTest) {
+                "Only element and schema element tests are allowed as arguments to document test"
+            }
+        }
+
         override val type: NodeType get() = NodeType.DOCUMENT
 
         context(ctx: ExprEvalContext)
@@ -55,8 +79,18 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            return baseType == AnyKind || baseType is DocumentTest
+        override fun matches(node: Node): Boolean {
+            if (node !is Document) return false
+            if (arg == null) return true
+            val documentElement = node.documentElement
+            if (documentElement !is Element) return false
+            return arg.matches(documentElement)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            if (source !is DocumentTest) return false
+            return arg == null || arg == source.arg
         }
 
         override fun equals(other: Any?): Boolean {
@@ -81,12 +115,35 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.ELEMENT
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == AnyKind) return true
-            if (baseType !is ElementTest) return false
-            if (baseType.elemName == null && baseType.typeName == null) return true
-            return false
+        override fun matches(node: Node): Boolean {
+            when {
+                node !is Element -> return false
+
+                elemName != null && !elemName.eval(node.namespaceURI, node.localName) -> return false
+
+                !isOptional && node.getAttributeNS(XMLConstants.XSI_NS_URI, "nil")
+                    ?.let { XsdBoolean(it) } == XsdBoolean.TRUE
+                    -> return false
+            }
+
+            // TODO check type and optionality
+            return true
         }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            if (source !is ElementTest) return false
+            if (typeName != null) {
+                if (source.typeName != null) {
+                    val myType = ctx.resolveType(typeName)
+                    val sourceType = ctx.resolveType(typeName)
+                    return sourceType.derivesFrom(myType)
+                }
+            }
+            if (elemName != null && (source.elemName == null || ! elemName.isAssignableFrom(source.elemName))) return false
+            return true
+        }
+
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -108,10 +165,10 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
                 if (! elemName.eval(elem.namespaceURI, elem.localName)) return false
 
                 if (typeName != null) {
-                    val expectedSchemaType = ctx.resolveType(typeName)
+                    val expectedSchemaType = ctx.resolveTypeOrNull(typeName)
                         ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unknown type $typeName")
 
-                    if (! it.type.isSubtypeOf(expectedSchemaType)) return false
+                    if (! it.dynamicType.isAssignableTo(expectedSchemaType)) return false
                     if (elem.localName != typeName.localPart) return false
                 }
             }
@@ -128,9 +185,9 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
     }
 
     @NeedsXPath2
-    internal class AttributeTest private constructor(val elemName: QNameSpec?, val typeName: QName?, isOptional: Boolean, dummy: Unit) : NodeKindTest() {
-        constructor(name: QNameSpec? = null): this(name, null, false, Unit)
-        constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, isOptional, Unit)
+    internal class AttributeTest private constructor(val attrName: QNameSpec?, val typeName: QName?, dummy: Unit) : NodeKindTest() {
+        constructor(name: QNameSpec? = null): this(name, null, Unit)
+        constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, Unit)
 
         override val type: NodeType get() = NodeType.ATTRIBUTE
 
@@ -140,9 +197,29 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == AnyKind) return true
-            TODO("not implemented")
+        override fun matches(node: Node): Boolean {
+            when {
+                node !is Element -> return false
+
+                attrName != null && !attrName.eval(node.namespaceURI, node.localName) -> return false
+            }
+
+            // TODO check type and optionality
+            return true
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            if (source !is AttributeTest) return false
+            if (typeName != null) {
+                if (source.typeName != null) {
+                    val myType = ctx.resolveType(typeName)
+                    val sourceType = ctx.resolveType(typeName)
+                    return sourceType.derivesFrom(myType)
+                }
+            }
+            if (attrName != null && (source.attrName == null || ! attrName.isAssignableFrom(source.attrName))) return false
+            return true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -151,14 +228,14 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
 
             other as AttributeTest
 
-            if (elemName != other.elemName) return false
+            if (attrName != other.attrName) return false
             if (typeName != other.typeName) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            var result = elemName?.hashCode() ?: 0
+            var result = attrName?.hashCode() ?: 0
             result = 31 * result + (typeName?.hashCode() ?: 0)
             return result
         }
@@ -178,9 +255,18 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == AnyKind) return true
-            TODO("not implemented. Needs substitution group comparison")
+        override fun matches(node: Node): Boolean {
+            val type = ctx.resolveType(name)
+
+            TODO("not implemented yet")
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            val type = ctx.resolveType(name)
+            if (source !is SchemaElementTest) return false
+            val sourceType = ctx.resolveType(source.name)
+            return sourceType.derivesFrom(type)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -210,9 +296,18 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == AnyKind) return true
-            return baseType is SchemaAttributeTest && baseType.name.isEquivalent(name)
+        override fun matches(node: Node): Boolean {
+            val type = ctx.resolveType(name)
+
+            TODO("not implemented yet")
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            val type = ctx.resolveType(name)
+            if (source !is SchemaAttributeTest) return false
+            val sourceType = ctx.resolveType(source.name)
+            return sourceType.derivesFrom(type)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -247,9 +342,19 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == AnyKind) return true
-            return baseType is ProcInstrTest && (baseType.name == name)
+        override fun matches(node: Node): Boolean {
+            if (node !is ProcessingInstruction) return false
+            if (name != null && ! name.isEquivalent(QName(node.target))) return false
+            if (text != null && text != node.data) return false
+            return true
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            if (source !is ProcInstrTest) return false
+            if (name != null && (source.name == null || ! name.isEquivalent(source.name))) return false
+            if (text != null && (source.text == null || text != source.text)) return false
+            return true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -281,30 +386,38 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is XdmNode && it.node is Comment2
+            return it is XdmNode && it.node is CommentNode
 
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
-            baseType == AnyKind || baseType == CommentTest
+        override fun matches(node: Node): Boolean {
+            return node is CommentNode
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            return source == CommentTest
+        }
     }
 
     internal object TextTest : NodeKindTest() {
         override val type: NodeType get() = NodeType.TEXT
 
         context(ctx: ExprEvalContext)
-        override fun eval(
-            it: XdmValue,
-            index: Int,
-            count: Int
-        ): Boolean {
+        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
             return it is XdmNode && it.node is Text
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
-            baseType == AnyKind || baseType == TextTest
+        override fun matches(node: Node): Boolean {
+            return node is Text
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            return source == TextTest
+        }
     }
 
     @NeedsXPath3_0
@@ -317,12 +430,18 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean =
-            baseType == AnyKind || baseType == NamepaceNodeTest
+        override fun matches(node: Node): Boolean {
+            return (node is Attr) && (node.namespaceURI == XMLConstants.XMLNS_ATTRIBUTE_NS_URI)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean {
+            return source == NamepaceNodeTest
+        }
     }
 
-    internal object AnyKind : NodeKindTest() {
-        override val type: NodeType get() = NodeType.ANY_KIND
+    internal object AnyNode : NodeKindTest() {
+        override val type: NodeType get() = NodeType.ANY_NODE
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
@@ -330,9 +449,10 @@ public sealed class NodeKindTest() : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            return baseType == AnyKind
-        }
+        override fun matches(node: Node): Boolean = true
+
+        context(ctx: ExprEvalContext)
+        override fun isAssignableFrom(source: NodeKindTest): Boolean = true
     }
 
 

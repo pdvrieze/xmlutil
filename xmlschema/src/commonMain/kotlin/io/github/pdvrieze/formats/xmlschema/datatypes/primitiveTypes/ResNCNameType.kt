@@ -55,7 +55,7 @@ object ResNCNameType : ResolvedBuiltinAtomicType<XsdNCName>, ResIStringType<XsdN
     )
 
     override fun valueFromNormalized(normalized: XsdString): XsdNCName {
-        return normalized as? XsdNCName ?: XsdNCName.Companion(normalized.xmlString)
+        return normalized as? XsdNCName ?: XsdNCName(normalized.xmlString)
     }
 
     override fun value(maybeValue: XsdAnySimple): XsdNCName {

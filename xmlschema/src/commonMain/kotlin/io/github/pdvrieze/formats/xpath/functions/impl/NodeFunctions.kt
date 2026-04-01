@@ -20,7 +20,11 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
@@ -30,7 +34,7 @@ import nl.adaptivity.xmlutil.dom2.*
 @XPathInternal
 object NodeFunctions : AbstractFunctionObject() {
 
-    val fnName = BuiltinFunctionImpl("name", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+    val fnName = BuiltinFunctionImpl("name", contextFunctionTypes(STRING, NODE.opt)) { args ->
         val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
         val name = when(val n = arg.node) {
             is Element -> n.nodeName
@@ -42,7 +46,7 @@ object NodeFunctions : AbstractFunctionObject() {
     }
 
     val fnLocalName =
-        BuiltinFunctionImpl("local-name", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+        BuiltinFunctionImpl("local-name", contextFunctionTypes(STRING, NODE.opt)) { args ->
             val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
             val name = when (val n = arg.node) {
                 is Element -> n.localName
@@ -53,7 +57,7 @@ object NodeFunctions : AbstractFunctionObject() {
             XdmAtomic(XsdString(name))
         }
 
-    val fnNamespaceUri = BuiltinFunctionImpl("namespace-uri", contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
+    val fnNamespaceUri = BuiltinFunctionImpl("namespace-uri", contextFunctionTypes(STRING, NODE.opt)) { args ->
         val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
         val name = when(val n = arg.node) {
             is Element -> n.namespaceURI
@@ -63,15 +67,15 @@ object NodeFunctions : AbstractFunctionObject() {
         XdmAtomic(XsdString(name ?: ""))
     }
 
-    val fnLang = BuiltinFunctionImpl("lang", contextFunctionTypes(XdmType.BOOLEAN, XdmType.NODE, XdmType.STRING.opt)) { args ->
+    val fnLang = BuiltinFunctionImpl("lang", contextFunctionTypes(BOOLEAN, NODE, STRING.opt)) { args ->
         val testLang = when {
             args.isEmpty() -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
             else -> ((args[0] as? XdmAtomic<*>)?.value as? XsdString)?.xmlString
-                ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:string, found: ${args[0].type}")
+                ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:string, found: ${args[0].staticType}")
         }
 
         val arg1 = (argOrContext(1, args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
-        val node: Node = (arg1 as? XdmNode ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${arg1.type}")).node
+        val node: Node = (arg1 as? XdmNode ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${arg1.staticType}")).node
 
         val effectiveLang = generateSequence<Node>(node) { it.parentNode as? Element }
             .filterIsInstance<Element>()
@@ -91,17 +95,18 @@ object NodeFunctions : AbstractFunctionObject() {
 
     val fnRoot = BuiltinFunctionImpl("root",
         listOf(
-            XdmFunctionType(XdmType.NODE),
-            XdmFunctionType(XdmType.NODE.opt, XdmType.NODE.opt)
-        )) { args ->
-        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+            functionType(NODE.single),
+            functionType(NODE.opt, NODE.opt)
+        )
+    ) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
 
         val r = generateSequence(arg.node) { it.getParentNode() }.last()
         XdmNode(r)
     }
 
-    val fnPath = BuiltinFunctionImpl("path",contextFunctionTypes(XdmType.STRING, XdmType.NODE.opt)) { args ->
-        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+    val fnPath = BuiltinFunctionImpl("path", contextFunctionTypes(STRING, NODE.opt)) { args ->
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val n = arg.node
 
         val elemPath = generateSequence((n as? Element) ?: (n.parentNode as? Element)) { it.getParentNode() as? Element }
@@ -143,20 +148,20 @@ object NodeFunctions : AbstractFunctionObject() {
         XdmAtomic(XsdString(path))
     }
 
-    val fnHasChildren = BuiltinFunctionImpl("has-children",contextFunctionTypes(XdmType.BOOLEAN, XdmType.NODE.opt)) { args ->
+    val fnHasChildren = BuiltinFunctionImpl("has-children",contextFunctionTypes(BOOLEAN, NODE.opt)) { args ->
         val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
         XdmAtomic(XsdBoolean(arg.node.getChildNodes().getLength() > 0))
     }
 
-    val fnInnermost = BuiltinFunctionImpl("innermost",contextFunctionTypes(XdmType.NODE.any, XdmType.NODE.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+    val fnInnermost = BuiltinFunctionImpl("innermost",contextFunctionTypes(NODE.any, NODE.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
 
         TODO("Not yet implemented")
 
     }
 
-    val fnOutermost = BuiltinFunctionImpl("outermost",contextFunctionTypes(XdmType.NODE.any, XdmType.NODE.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+    val fnOutermost = BuiltinFunctionImpl("outermost",contextFunctionTypes(NODE.any, NODE.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
 
         TODO("Not yet implemented")
     }

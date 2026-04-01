@@ -41,6 +41,7 @@ internal sealed interface QNameSpec {
 
     context(ctx: ExprEvalContext)
     fun eval(namespaceURI: String?, localName: String): Boolean
+    fun isAssignableFrom(elemName: QNameSpec): Boolean
 
 
     @XPathInternal
@@ -48,6 +49,13 @@ internal sealed interface QNameSpec {
         abstract val namespace: String
         abstract val localName: String
         abstract val prefix: String?
+
+        override fun isAssignableFrom(elemName: QNameSpec): Boolean = when {
+            elemName !is EQName -> false
+            namespace != elemName.namespace -> false
+            localName != elemName.localName -> false
+            else -> true
+        }
     }
 
     @XPathInternal
@@ -126,6 +134,8 @@ internal sealed interface QNameSpec {
     object Any : WildCard {
         override fun asNodeTest(): NodeTest = NodeTest.AnyNameTest
 
+        override fun isAssignableFrom(elemName: QNameSpec): Boolean = true
+
         context(ctx: ExprEvalContext)
         override fun eval(namespaceURI: String?, localName: String): Boolean = true
 
@@ -141,6 +151,12 @@ internal sealed interface QNameSpec {
     class LocalNameWC(val localName: String) : WildCard {
         override fun asNodeTest(): NodeTest {
             return NodeTest.LocalNameTest(localName)
+        }
+
+        override fun isAssignableFrom(elemName: QNameSpec): Boolean = when (elemName) {
+            is EQName -> localName == elemName.localName
+            is LocalNameWC -> localName == elemName.localName
+            else -> false
         }
 
         context(ctx: ExprEvalContext)
@@ -160,6 +176,13 @@ internal sealed interface QNameSpec {
     }
 
     class Namespace(val namespace: String, val prefix: String? = null) : WildCard {
+
+        override fun isAssignableFrom(elemName: QNameSpec): Boolean = when (elemName) {
+            is EQName -> namespace == elemName.namespace
+            is Namespace -> namespace == elemName.namespace
+            else -> false
+        }
+
         context(c: OutputContext)
         @XPathInternal
         override fun appendToString(builder: Appendable) {
@@ -172,7 +195,7 @@ internal sealed interface QNameSpec {
         }
 
         override fun asNodeTest(): NodeTest {
-            return NodeTest.NSTest(XsdAnyURI.Companion(namespace), prefix?.let { XsdNCName.Companion(it) })
+            return NodeTest.NSTest(XsdAnyURI(namespace), prefix?.let { XsdNCName(it) })
         }
 
         override fun toString() = buildString {

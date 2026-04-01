@@ -21,7 +21,9 @@
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.functions.impl.BooleanFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
@@ -52,12 +54,12 @@ sealed class Operator(
 
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+        override fun eval(left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue, right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): XdmAtomic<XsdBoolean> {
             when {
-                left.type.isSubtypeOf(BooleanType.Instance) -> {
+                left.staticType.isAssignableTo(BooleanType.Instance) -> {
                     return BooleanFunctions.opBooleanEqual(listOf(left, right))
                 }
-                else -> TODO("Equality operator not yet supported for type ${left.type} and ${right.type}")
+                else -> TODO("Equality operator not yet supported for type ${left.staticType} and ${right.staticType}")
             }
         }
     }
@@ -65,7 +67,7 @@ sealed class Operator(
     object NEQ: Operator("!=", 5, XPathVersion.XPath1_0, true) {
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+        override fun eval(left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue, right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): XdmAtomic<XsdBoolean> {
             val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
             return XdmAtomic(XsdBoolean(! eval.value))
         }
@@ -101,7 +103,7 @@ sealed class Operator(
 
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmValue {
+        override fun eval(left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue, right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): io.github.pdvrieze.formats.xpath.eval.data.XdmValue {
             val leftVal = when (val a = left.atomize()) {
                 is XdmSequence.Empty -> return XdmSequence.EMPTY
                 is XdmAtomic<*> -> a.value
@@ -209,28 +211,28 @@ sealed class Operator(
 
     context(ctx: ExprEvalContext)
     @XPathInternal
-    open fun eval(left: XdmValue, right: XdmValue): XdmValue =
+    open fun eval(left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue, right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): io.github.pdvrieze.formats.xpath.eval.data.XdmValue =
         TODO("Evaluation of operator '$literal' not yet implemented")
 
     context(ctx: ExprEvalContext)
     @XPathInternal
-    fun eval(param: XdmValue): XdmValue = eval(listOf(param))
+    fun eval(param: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): io.github.pdvrieze.formats.xpath.eval.data.XdmValue = eval(listOf(param))
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun eval(params: List<XdmValue>): XdmValue =
+    fun eval(params: List<io.github.pdvrieze.formats.xpath.eval.data.XdmValue>): io.github.pdvrieze.formats.xpath.eval.data.XdmValue =
         params.reduce { acc, param -> eval(acc, param) }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
     private fun evalComparison(
-        left: XdmValue,
-        right: XdmValue,
+        left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue,
+        right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue,
         operator : ComparisonImpl,
     ): XdmAtomicOrEmpty {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.Empty -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -239,7 +241,7 @@ sealed class Operator(
         }
         val rightVal = when (val a = right.atomize()) {
             is XdmSequence.Empty -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -281,10 +283,10 @@ sealed class Operator(
 internal interface ComparisonImpl {
     context(ctx: ExprEvalContext)
     @XPathInternal
-    fun eval(left: XdmValue, right: XdmValue): XdmValue {
+    fun eval(left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue, right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): io.github.pdvrieze.formats.xpath.eval.data.XdmValue {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.Empty -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -293,7 +295,7 @@ internal interface ComparisonImpl {
         }
         val rightVal = when (val a = right.atomize()) {
             is XdmSequence.Empty -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.type is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -352,7 +354,7 @@ internal interface ComparisonImpl {
 interface ArithmeticOperator {
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun normalizeToArithmetic(value: XdmValue): XdmValue {
+    fun normalizeToArithmetic(value: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): io.github.pdvrieze.formats.xpath.eval.data.XdmValue {
         val v1 = value.atomize()
         // Handle sequences
         val v2: XdmSingleValue<*> = when (v1.size) {
@@ -361,25 +363,26 @@ interface ArithmeticOperator {
             else if ctx.isXPath1Compat -> v1[0]
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as arithmatic operand")
         }
-        if (v2 !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value type ${value.type} is not compatible with an arithmetic operator")
+        if (v2 !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value type ${value.staticType} is not compatible with an arithmetic operator")
         when {
             v2.value is XsdDouble -> return v2
             !ctx.isXPath1Compat -> {
-                if (v2.type == UntypedAtomicType.Instance) {
+                if (v2.staticType == UntypedAtomicType.Instance) {
                     return v2.toXdmDouble()
                 } else return v2
             }
+
             v2.value is XsdBoolean ||
                     v2.value is XsdDecimal ||
                     v2.value is XsdFloat ||
-                    v2.type == UntypedAtomicType.Instance -> return Fn.number(v2)
+                    v2.staticType == UntypedAtomicType.Instance -> return Fn.number(v2)
         }
         return v2
     }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun eval(left: XdmValue, right: XdmValue): XdmValue {
+    fun eval(left: io.github.pdvrieze.formats.xpath.eval.data.XdmValue, right: io.github.pdvrieze.formats.xpath.eval.data.XdmValue): io.github.pdvrieze.formats.xpath.eval.data.XdmValue {
         val l = when (val n = normalizeToArithmetic(left)) {
             is XdmAtomic<*> -> n
             XdmSequence.EMPTY -> return XdmSequence.EMPTY
@@ -406,15 +409,15 @@ interface ArithmeticOperator {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalFloat(left: Float, right: Float): XdmValue
+    fun evalFloat(left: Float, right: Float): io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalDouble(left: Double, right: Double): XdmValue
+    fun evalDouble(left: Double, right: Double): io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalInteger(left: XsdInteger, right: XsdInteger): XdmValue
+    fun evalInteger(left: XsdInteger, right: XsdInteger): io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
     @XPathInternal
     context(ctx: ExprEvalContext)

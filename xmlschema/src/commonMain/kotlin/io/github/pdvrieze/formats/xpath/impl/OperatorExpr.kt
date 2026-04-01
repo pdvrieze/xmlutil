@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.impl.token.Operator
 
 @XPathInternal
-internal class OperatorExpr constructor(operator: Operator, override val operands: List<ExprSingle>): AbstractOperatorExpr(operator) {
+internal class OperatorExpr constructor(operator: Operator, @XPathInternal public override val operands: List<ExprSingle>): AbstractOperatorExpr(operator) {
     init {
         require(operands.size > 1) { "OperatorExpr must have at least two operands" }
     }

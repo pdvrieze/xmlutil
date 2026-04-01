@@ -20,8 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.toCName
@@ -35,6 +40,14 @@ class AtomicOrUnionTypeTest(val name: QName): ItemTypeTest {
         require(name.localPart.isNotEmpty()) { "Atomic types must have non-empty local name" }
     }
 
+
+
+    context(ctx: ExprEvalContext)
+    private fun isInstance(value: XdmSingleValue<*>): Boolean {
+        if (value !is XdmAtomic<*>) return false
+        return value.staticType.isAssignableTo(eval())
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.appendQName(name)
@@ -43,11 +56,24 @@ class AtomicOrUnionTypeTest(val name: QName): ItemTypeTest {
     override fun toString(): String = name.toCName()
 
     context(ctx: ExprEvalContext)
-    fun eval(): AnyType = ctx.resolveType(name)
-        ?: throw EvaluationException(ctx.expr, "Could not resolve type ${name.toCName()}")
+    fun eval(): AnySimpleType<*> = ctx.resolveType(name) as? AnySimpleType<*>
+        ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type is not atomic or union")
 
     context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-        TODO("not implemented")
+    override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmSchemaTypeTest {
+        return XdmSchemaTypeTest(ctx.resolveType(name), occurrence)
     }
+
+    context(ctx: ExprEvalContext)
+    private fun isAssignableTo(baseType: XdmSingleType): Boolean {
+        TODO()
+/*
+        return when (baseType) {
+            is XdmSchemaType -> eval().derivesFrom(baseType.schemaType)
+            is XdmNodeKindTest -> baseType.isAssignableFrom(eval())
+            else -> return false
+        }
+*/
+    }
+
 }

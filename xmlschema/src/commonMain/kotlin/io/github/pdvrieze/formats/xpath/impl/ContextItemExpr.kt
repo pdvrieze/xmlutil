@@ -20,13 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 
 @XPathInternal
-public object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
+object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
     context(c: OutputContext)
     @XPathInternal
     override fun appendToString(builder: Appendable) {

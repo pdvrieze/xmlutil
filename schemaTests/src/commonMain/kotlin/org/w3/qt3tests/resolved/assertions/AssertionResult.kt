@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-import io.github.pdvrieze.formats.xpath.data.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 
 sealed class AssertionResult {
     object Success: AssertionResult() {

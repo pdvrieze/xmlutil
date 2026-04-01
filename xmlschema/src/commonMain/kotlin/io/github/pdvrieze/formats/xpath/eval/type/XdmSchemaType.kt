@@ -18,35 +18,41 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.type
 
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import nl.adaptivity.xmlutil.dom2.Node
 
 @XPathInternal
 class XdmSchemaType(
     val schemaType: AnyType
 ) : XdmSingleType() {
 
-    context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmSingleType): Boolean {
-        when {
-            other !is XdmSchemaType -> return false
-
-            // 2.5.6.2 #1 union type derivation
-            other.schemaType is AnySimpleType.AtomicOrUnion<*> &&
-                    schemaType.derivesFrom(other.schemaType) -> return true
-
-            // 2.5.6.2 #2 all union elements
-            schemaType is AnySimpleUnion<*> && schemaType.members.all { XdmSchemaType(it).isSubtypeOf(other) } ->
-                return true
-
+/*
+    init {
+        val n = schemaType.name
+        if (n != null) {
+            require(!n.isEquivalent(AnyType.Instance.name)) { "AnyType cannot be instantiated" }
+            require(!n.isEquivalent(AnySimpleType.Instance.name)) { "AnySimpleType cannot be instantiated" }
+            require(!n.isEquivalent(AnyAtomicType.Instance.name)) { "AnyAtomicType cannot be instantiated" }
         }
+    }
+*/
 
-        return false
+    context(ctx: ExprEvalContext)
+    override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
+        return when (expectedType) {
+            is XdmTypeTest.Any -> true
+            !is XdmSchemaTypeTest -> false
+            else -> schemaType.derivesFrom(expectedType.schemaType)
+        }
     }
 
     val isGeneralizedAtomic: Boolean by lazy {
@@ -59,7 +65,10 @@ class XdmSchemaType(
 
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmAtomic<*> {
-        if (schemaType !is AnyAtomicType<*>) throw EvaluationException(ctx.expr, "Cannot convert string to non-atomic type")
+        if (schemaType !is AnyAtomicType<*>) throw EvaluationException(
+            ctx.expr,
+            "Cannot convert string to non-atomic type"
+        )
         val xsdValue: XsdAtomic = schemaType.fromString(value)
         return XdmAtomic(xsdValue)
     }

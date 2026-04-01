@@ -44,11 +44,11 @@ interface IntType<out T : XsdInt> : LongType<T> {
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
-            FacetFractionDigits.Companion(0u),
+            FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
             // pass null as this has an initialization loop. The value is pre-normalized.
-            FacetMaxInclusive.Companion(XsdInt.Companion(Int.MAX_VALUE)),
-            FacetMinInclusive.Companion(XsdInt.Companion(Int.MIN_VALUE)),
+            FacetMaxInclusive(XsdInt(Int.MAX_VALUE)),
+            FacetMinInclusive(XsdInt(Int.MIN_VALUE)),
         )
 
         override fun fromString(value: CharSequence): XsdInt = XsdInt(value)

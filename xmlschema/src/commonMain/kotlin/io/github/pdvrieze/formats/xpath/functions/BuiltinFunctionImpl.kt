@@ -22,7 +22,11 @@
 
 package io.github.pdvrieze.formats.xpath.functions
 
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -89,21 +93,36 @@ class BuiltinFunctionImpl<R: XdmValue>(
 
 context(ctx: ExprEvalContext)
 inline fun <reified T : XdmValue> Collection<XdmValue>.singleArg(): T {
-    return (singleOrNull() ?: throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, ctx.expr)) as? T
-        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+    return (singleOrNull() ?: throw EvaluationException(
+        ErrorCodes.FOAP0001_WRONG_ARG_CNT,
+        ctx.expr
+    )) as? T
+        ?: throw EvaluationException(
+            ctx.expr,
+            "Argument not of expected type ${T::class.simpleName}"
+        )
 }
 
 context(ctx: ExprEvalContext)
 inline fun <reified T: XsdAtomic> Collection<XdmValue>.singleAtomicArg(): T {
-    val arg = singleOrNull() ?: throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, ctx.expr)
+    val arg = singleOrNull() ?: throw EvaluationException(
+        ErrorCodes.FOAP0001_WRONG_ARG_CNT,
+        ctx.expr
+    )
     return (arg as? XdmAtomic<*>)?.value as? T
-        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+        ?: throw EvaluationException(
+            ctx.expr,
+            "Argument not of expected type ${T::class.simpleName}"
+        )
 }
 
 context(ctx: ExprEvalContext)
 inline fun <reified T: XdmValue> List<XdmValue>.argN(arg: Int): T {
     return this[arg] as? T
-        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+        ?: throw EvaluationException(
+            ctx.expr,
+            "Argument not of expected type ${T::class.simpleName}"
+        )
 }
 
 context(ctx: ExprEvalContext)

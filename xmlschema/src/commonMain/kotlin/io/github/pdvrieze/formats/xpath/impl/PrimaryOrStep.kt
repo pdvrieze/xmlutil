@@ -21,7 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 @XPathInternal
 sealed class PrimaryOrStep {
@@ -53,6 +53,6 @@ sealed class PrimaryOrStep {
     }
 
     context(ctx: ExprEvalContext)
-    abstract fun eval(context: XdmValue?): XdmValue
+    abstract fun eval(context: io.github.pdvrieze.formats.xpath.eval.data.XdmValue?): XdmValue
 
 }

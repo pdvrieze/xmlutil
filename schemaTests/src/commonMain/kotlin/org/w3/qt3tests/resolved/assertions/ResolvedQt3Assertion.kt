@@ -20,7 +20,7 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 abstract class ResolvedQt3Assertion {
     fun expectedErrors(): List<ResolvedQt3AssertError> = buildList {
@@ -29,7 +29,7 @@ abstract class ResolvedQt3Assertion {
 
     internal open fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {}
 
-    abstract fun verify(evalResult: Result<XdmValue>): AssertionResult
+    abstract fun verify(evalResult: Result<io.github.pdvrieze.formats.xpath.eval.data.XdmValue>): AssertionResult
 
 }
 

@@ -18,38 +18,22 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.type
 
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.ItemTypeTest
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.types.IntegerType
 
-sealed class XdmSingleType : XdmType() {
-    @OptIn(XPathInternal::class)
-    context(ctx: ExprEvalContext)
-    final override fun isSubtypeOf(other: XdmType): Boolean {
-        return when (other) {
-            EmptySequenceType -> false
-            is XdmSequenceType -> isSubtypeOf(other.baseType) // all cardinalities allow single values
-            is XdmSingleType -> isSubtypeOf(other)
-        }
-    }
-
-    @OptIn(XPathInternal::class)
-    context(ctx: ExprEvalContext)
-    abstract fun isSubtypeOf(other: XdmSingleType): Boolean
-
-    val opt: XdmSequenceType get() = XdmSequenceType(this, OccurrenceType.OPTIONAL)
-    val atLeastOne: XdmSequenceType get() = XdmSequenceType(this, OccurrenceType.AT_LEAST_ONE)
-    val any: XdmSequenceType get() = XdmSequenceType(this, OccurrenceType.ANY)
-}
-
 @OptIn(XPathInternal::class)
-class XdmSequenceType(val baseType: XdmSingleType = ANY, val cardinality: OccurrenceType): XdmType() {
+class XdmSequenceType(val baseType: XdmSingleType, val cardinality: OccurrenceType): XdmType() {
+    override val single: XdmSingleType get() = baseType
 
     protected fun isCardinalSubtype(other: OccurrenceType): Boolean {
         return when (cardinality) {
@@ -61,9 +45,19 @@ class XdmSequenceType(val baseType: XdmSingleType = ANY, val cardinality: Occurr
     }
 
     context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmType): Boolean {
-        return other is XdmSequenceType && isCardinalSubtype(other.cardinality) && baseType.isSubtypeOf(other.baseType)
+    override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
+        return expectedType is XdmTypeTest &&
+                isCardinalSubtype(expectedType.cardinality) &&
+                baseType.isAssignableTo(expectedType)
     }
+
+    /*
+    context(ctx: ExprEvalContext)
+    override fun isAssignableTo(expectedType: XdmType): Boolean {
+        return expectedType is XdmSequenceType && isCardinalSubtype(expectedType.cardinality) && baseType.isAssignableTo(
+            expectedType.baseType)
+    }
+*/
 
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue {
@@ -71,11 +65,10 @@ class XdmSequenceType(val baseType: XdmSingleType = ANY, val cardinality: Occurr
     }
 
     companion object {
-        val ANY: XdmTypeTest = XdmTypeTest(ItemTypeTest.ItemTestTest)
-        val ANYSEQ = XdmSequenceType(ANY, OccurrenceType.ANY)
+        val UNTYPED: XdmSchemaType get() = XdmSchemaType.UNTYPED
+        val ANYSEQ = XdmSequenceType(XdmSchemaType.UNTYPED, OccurrenceType.ANY)
         internal val boolean = XdmSchemaType(BooleanType.Instance)
         internal val integer = XdmSchemaType(IntegerType.Instance)
-        internal val node = XdmTypeTest(ItemTypeTest.ItemTestTest)
 
         operator fun invoke(type: AnyType): XdmSchemaType = XdmSchemaType(type)
 

@@ -67,7 +67,7 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
         get() {
             val millis = (msecVal shr 11).uintFromBits(16)
             return when {
-                millis % 1000u == 0u -> XsdUnsignedInt.Companion(millis / 1000u)
+                millis % 1000u == 0u -> XsdUnsignedInt(millis / 1000u)
                 else -> XsdDecimalStringImpl((millis.toDouble() / 1000.0).toString())
             }
         }

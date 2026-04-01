@@ -67,7 +67,7 @@ object ResBase64BinaryType : ResPrimitiveDatatype<XsdBase64Binary>,
 
     override fun valueFromNormalized(normalized: XsdString): XsdBase64Binary {
         check(regex.matches(normalized))
-        return XsdBase64Binary.Companion(Base64.decode(normalized))
+        return XsdBase64Binary(Base64.decode(normalized))
     }
 
     override fun value(maybeValue: XsdAnySimple): XsdBase64Binary {

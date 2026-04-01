@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval
 
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
@@ -70,6 +70,11 @@ class EvaluationException : Exception {
 
     @OptIn(XPathInternal::class)
     companion object {
+
+        context(ctx: ExprEvalContext)
+        operator fun invoke(message: String?): EvaluationException {
+            return EvaluationException(ctx.expr, message)
+        }
 
         context(ctx: ExprEvalContext)
         operator fun invoke(errorCode: ErrorCodes, message: String?): EvaluationException {

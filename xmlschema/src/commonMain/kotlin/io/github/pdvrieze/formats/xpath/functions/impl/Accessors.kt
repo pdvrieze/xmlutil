@@ -20,7 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.type.XdmType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyURIType
@@ -37,14 +43,14 @@ import nl.adaptivity.xmlutil.dom2.textContent
 object Accessors : AbstractFunctionObject() {
     val fnNodeName = BuiltinFunctionImpl(
         "node-name",
-        contextFunctionTypes(t(QNameType.Instance).opt, XdmType.NODE.opt)
+        contextFunctionTypes(t(QNameType.Instance).opt, NODE.opt)
     ) { args ->
-        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.NODE)
+        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdQName(arg.node.nodeName))
     }
 
     val fnNilled = BuiltinFunctionImpl(
-        "nilled", contextFunctionTypes(XdmType.BOOLEAN.opt, XdmType.NODE.opt)
+        "nilled", contextFunctionTypes(BOOLEAN.opt, NODE.opt)
     ) { args ->
         val arg = (toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.BOOLEAN))
             .node
@@ -60,7 +66,7 @@ object Accessors : AbstractFunctionObject() {
 
     val fnString = BuiltinFunctionImpl(
         "string",
-        contextFunctionTypes(XdmType.STRING.opt, XdmType.ITEM.opt)
+        contextFunctionTypes(STRING.opt, ITEM.opt)
     ) { args ->
         val arg = toSingleArg(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
@@ -70,7 +76,7 @@ object Accessors : AbstractFunctionObject() {
                 when (val a = arg[i]) {
                     is XdmNode -> append(a.node.textContent?:"")
                     is XdmAtomic<*> -> append(a.value.xmlString)
-                    is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.type}")
+                    is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
                 }
             }
         }
@@ -80,7 +86,7 @@ object Accessors : AbstractFunctionObject() {
 
     val fnData = BuiltinFunctionImpl(
         "data",
-        contextFunctionTypes(XdmType.ATOMIC.any, XdmType.ITEM.any)
+        contextFunctionTypes(ATOMIC.any, ITEM.any)
     ) { args ->
         (toSingleArg(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
             .atomize()
@@ -88,14 +94,14 @@ object Accessors : AbstractFunctionObject() {
 
     val fnBaseUri = BuiltinFunctionImpl(
         "base-uri",
-        contextFunctionTypes(XdmSchemaType(AnyURIType.Instance).opt, XdmType.NODE.opt)
+        contextFunctionTypes(t(AnyURIType.Instance).opt, NODE.opt)
     ) { args ->
         val node = toSingleNode(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
     val fnDocumentUri = BuiltinFunctionImpl("document-uri",
-        contextFunctionTypes(XdmSchemaType(AnyURIType.Instance).opt, XdmType.NODE.opt)
+        contextFunctionTypes(AnyURIType.Instance.opt, NODE.opt)
     ) { args ->
         val node = toSingleNode(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         TODO("Needs XdmNode to properly implement DOM and not do delegation")

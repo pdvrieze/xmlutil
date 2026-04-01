@@ -18,16 +18,23 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.data
+package io.github.pdvrieze.formats.xpath.eval.data
 
 import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
-import io.github.pdvrieze.formats.xpath.data.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
-class XdmArray(val content: List<XdmValue>, override val type: XdmArrayType) : XdmFunction<XdmArray>() {
+class XdmArray(
+    val content: List<XdmValue>,
+    override val staticType: XdmArrayType
+) : XdmFunction<XdmArray>() {
     override fun asT(): XdmArray = this
+
 
     context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
@@ -35,10 +42,18 @@ class XdmArray(val content: List<XdmValue>, override val type: XdmArrayType) : X
     }
 
     context(ctx: ExprEvalContext)
-    override fun withType(type: XdmType): XdmValue {
-        if (type !is XdmArrayType) throw EvaluationException(ctx.expr, "Cannot cast array to $type")
-        //TODO check type compatibility
-        return XdmArray(content, type)
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+        val concreteType = type.toValueType(this.staticType)
+        if (concreteType !is XdmArrayType) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast array to $type")
+        val newItemTypeTest = concreteType.elemType
+
+        for (item in content) {
+            if (! item.staticType.isAssignableTo(newItemTypeTest)) {
+                throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot array element to $newItemTypeTest")
+            }
+        }
+
+        return XdmArray(content, concreteType)
     }
 
     override fun isValEqual(expected: XdmValue): Boolean {
@@ -48,7 +63,7 @@ class XdmArray(val content: List<XdmValue>, override val type: XdmArrayType) : X
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean {
-        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot convert array to boolean")
+        throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Cannot convert array to boolean")
     }
 }
 

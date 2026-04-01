@@ -21,8 +21,8 @@
 package org.w3.qt3tests.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
-import io.github.pdvrieze.formats.xpath.data.XdmNode
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.dom2.Document
 import org.junit.jupiter.api.Named

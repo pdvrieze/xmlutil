@@ -87,8 +87,8 @@ interface XsdNonNegativeInteger : XsdInteger {
             else -> invoke(rawValue.toULong())
         }
 
-        operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLong.Companion(value)
-        operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedInt.Companion(value)
+        operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLong(value)
+        operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedInt(value)
         operator fun invoke(value: Long): XsdUnsignedLong = run { require(value >= 0); XsdUnsignedLong(value.toULong()) }
         operator fun invoke(value: Int): XsdUnsignedInt = run { require(value >= 0); XsdUnsignedInt(value.toUInt()) }
 

@@ -21,7 +21,12 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSequenceType
 
 @OptIn(XPathInternal::class)
 @NeedsXPath1
@@ -51,7 +56,7 @@ internal class LocationPath(
 
                     is XdmSequence<*> -> {
                         for (m in e.elements) {
-                            if (m !is XdmNode) throw EvaluationException(
+                            if (m !is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) throw EvaluationException(
                                 ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
                             )
                         }
@@ -62,7 +67,7 @@ internal class LocationPath(
 
                     else -> throw EvaluationException(
                         ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES,
-                        "Expected node as context item, found: ${e.type}"
+                        "Expected node as context item, found: ${e.staticType}"
                     )
                 }
             }
@@ -70,11 +75,11 @@ internal class LocationPath(
             val last = steps.last()
             val result = last.eval(base)
             if (result.size == 0) {
-                return XdmSequence.empty(/* TODO last.evalType*/ base?.type ?: XdmSequenceType.ANYSEQ)
+                return XdmSequence.empty(/* TODO last.evalType*/ base?.staticType ?: XdmSequenceType.ANYSEQ)
             }
-            if (result[0] is XdmNode) {
+            if (result[0] is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) {
                 for (i in 1 until result.size) {
-                    if (result[i] !is XdmNode) {
+                    if (result[i] !is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) {
                         throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
                     }
                 }

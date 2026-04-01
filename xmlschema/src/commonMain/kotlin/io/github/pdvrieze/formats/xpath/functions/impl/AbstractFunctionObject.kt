@@ -20,10 +20,22 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
-import io.github.pdvrieze.formats.xpath.data.*
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import kotlin.reflect.typeOf
 
@@ -31,7 +43,11 @@ import kotlin.reflect.typeOf
 abstract class AbstractFunctionObject() {
 
     context(ctx: ExprEvalContext)
-    protected fun argOrContext(index: Int, args: List<XdmValue>, allowContext: Boolean = false): XdmValue? = when (args.size - index){
+    protected fun argOrContext(
+        index: Int,
+        args: List<XdmValue>,
+        allowContext: Boolean = false
+    ): XdmValue? = when (args.size - index){
         0 if allowContext -> ctx.contextItem
         1 -> args[index]
         else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
@@ -39,25 +55,28 @@ abstract class AbstractFunctionObject() {
 
     context(ctx: ExprEvalContext)
     protected fun toSingleArg(args: List<XdmValue>, allowContext: Boolean = false): XdmValue? {
-        return argOrContext(0, args)
+        return argOrContext(0, args, allowContext)
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toAnySingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): XdmAtomic<*>?{
-        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException.Companion(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
-        if (arg.size == 0) return null
-        if (arg !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${arg.type}")
-        @Suppress("UNCHECKED_CAST")
-        return arg
+    protected fun toAnySingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): XdmAtomic<*>? {
+        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+
+        return when {
+            arg.size == 0 -> null
+            arg is XdmAtomic<*> -> arg
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${arg.staticType}")
+        }
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toAnyAtomic(pos: Int, args: List<XdmValue>): XdmAtomic<*>?{
-        val arg = args.getOrNull(pos) ?: throw EvaluationException.Companion(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
-        if (arg.size == 0) return null
-        if (arg !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${arg.type}")
-        @Suppress("UNCHECKED_CAST")
-        return arg
+    protected fun toAnyAtomic(pos: Int, args: List<XdmValue>): XdmAtomic<*>? {
+        val arg = args.getOrNull(pos) ?: throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+        return when {
+            arg.size == 0 -> null
+            arg is XdmAtomic<*> -> arg
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${arg.staticType}")
+        }
     }
 
     context(ctx: ExprEvalContext)
@@ -66,7 +85,7 @@ abstract class AbstractFunctionObject() {
         return arg.value as? T
             ?: throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
-                "Expected atomic of type ${typeOf<T>()}, found: ${arg.type}"
+                "Expected atomic of type ${typeOf<T>()}, found: ${arg.staticType}"
             )
     }
 
@@ -76,53 +95,75 @@ abstract class AbstractFunctionObject() {
         return arg.value as? T
             ?: throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
-                "Expected atomic of type ${typeOf<T>()}, found: ${arg.type}"
+                "Expected atomic of type ${typeOf<T>()}, found: ${arg.staticType}"
             )
     }
 
     context(ctx: ExprEvalContext)
     protected fun toSingleNode(args: List<XdmValue>, allowContext: Boolean = false): XdmNode? {
-        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException.Companion(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return null
-        return arg as? XdmNode ?: throw EvaluationException.Companion(
+        return arg as? XdmNode ?: throw EvaluationException(
             ErrorCodes.XPTY0004_TYPE_ERROR,
-            "Expected node, found: ${arg.type}"
+            "Expected node, found: ${arg.staticType}"
         )
     }
 
 
-    protected fun functionType(returnType: XdmType, vararg argTypes: XdmType): XdmFunctionType =
+    protected fun functionType(returnType: XdmSequenceTypeTest, vararg argTypes: XdmSequenceTypeTest): XdmFunctionType =
         XdmFunctionType(argTypes.toList(), returnType)
 
+    protected fun functionType(returnType: XdmTypeTest): XdmFunctionType =
+        XdmFunctionType(emptyList(), returnType)
+
     protected fun functionType(returnType: AnyType, vararg argTypes: AnyType): XdmFunctionType =
-        XdmFunctionType(argTypes.map { XdmSchemaType(it) }, XdmSchemaType(returnType))
+        XdmFunctionType(argTypes.map { t(it) }, t(returnType))
 
-    protected fun functionType(returnType: XdmType, vararg argTypes: AnyType): XdmFunctionType =
-        XdmFunctionType(argTypes.map { XdmSchemaType(it) }, returnType)
+    protected fun functionType(returnType: XdmTypeTest, vararg argTypes: AnyType): XdmFunctionType =
+        XdmFunctionType(argTypes.map { t(it) }, returnType)
 
-    protected fun functionType(returnType: AnyType, vararg argTypes: XdmType): XdmFunctionType =
-        XdmFunctionType(argTypes.toList(), XdmSchemaType(returnType))
+    protected fun functionType(returnType: AnyType, vararg argTypes: XdmTypeTest): XdmFunctionType =
+        XdmFunctionType(argTypes.toList(), t(returnType))
 
     protected fun contextFunctionTypes(returnType: AnyType, contextParam: AnyType, vararg argTypes: AnyType): List<XdmFunctionType> = listOf(
         functionType(returnType, *argTypes),
         functionType(returnType, contextParam, *argTypes)
     )
 
-    protected fun contextFunctionTypes(returnType: XdmType, contextParam: XdmType, vararg argTypes: XdmType): List<XdmFunctionType> = listOf(
-        XdmFunctionType(returnType, *argTypes),
-        XdmFunctionType(returnType, *argTypes, contextParam)
+    protected fun contextFunctionTypes(returnType: XdmTypeTest, contextParam: XdmTypeTest, vararg argTypes: XdmTypeTest): List<XdmFunctionType> = listOf(
+        XdmFunctionType(argTypes.toList(), returnType),
+        XdmFunctionType(listOf(*argTypes, contextParam), returnType)
     )
 
-    protected fun contextFunctionTypes(returnType: XdmType, contextParam: AnyType, vararg argTypes: AnyType): List<XdmFunctionType> =listOf(
+    protected fun contextFunctionTypes(returnType: XdmTypeTest, contextParam: AnyType, vararg argTypes: AnyType): List<XdmFunctionType> =listOf(
         functionType(returnType, *argTypes),
         functionType(returnType, contextParam, *argTypes)
     )
 
-    protected fun contextFunctionTypes(returnType: AnyType, contextParam: XdmType, vararg argTypes: XdmType): List<XdmFunctionType> =listOf(
+    protected fun contextFunctionTypes(returnType: AnyType, contextParam: XdmTypeTest, vararg argTypes: XdmTypeTest): List<XdmFunctionType> =listOf(
         functionType(returnType, *argTypes),
         functionType(returnType, contextParam, *argTypes)
     )
 
-    protected fun t(type: AnyType): XdmSchemaType = XdmSchemaType(type)
+    protected fun t(type: AnyType): XdmSchemaTypeTest = XdmSchemaTypeTest(type, SINGLE)
 
+    val AnyAtomicType<*>.opt: XdmSchemaTypeTest
+        get() = XdmSchemaTypeTest(this, SequenceType.OccurrenceType.OPTIONAL)
+
+    val AnyAtomicType<*>.any: XdmSchemaTypeTest
+        get() = XdmSchemaTypeTest(this, SequenceType.OccurrenceType.ANY)
+
+    val AnyAtomicType<*>.atLeastOne: XdmSchemaTypeTest
+        get() = XdmSchemaTypeTest(this, SequenceType.OccurrenceType.AT_LEAST_ONE)
+
+
+    companion object {
+        val BOOLEAN = XdmSchemaTypeTest(BooleanType.Instance, SINGLE)
+        val STRING = XdmSchemaTypeTest(StringType.Instance, SINGLE)
+        val NODE = XdmNodeKindTest(NodeKindTest.AnyNode, SINGLE)
+        val ITEM = XdmTypeTest.ANY
+        val ATOMIC = XdmSchemaTypeTest(AnyAtomicType.Instance, SINGLE)
+        val NUMERIC = XdmSchemaTypeTest(NumericType.Instance, SINGLE)
+        val INTEGER = XdmSchemaTypeTest(IntegerType.Instance, SINGLE)
+    }
 }

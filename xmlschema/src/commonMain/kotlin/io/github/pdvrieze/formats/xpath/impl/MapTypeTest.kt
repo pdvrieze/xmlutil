@@ -20,21 +20,39 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
-import io.github.pdvrieze.formats.xpath.data.XdmTypeTest
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+import io.github.pdvrieze.formats.xpath.eval.data.XdmMap
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 
 @OptIn(NeedsXPath3_0::class, NeedsXPath3_1::class)
 @XPathInternal
 sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
+    context(ctx: ExprEvalContext)
+    private fun isAssignableFrom(child: AnyType): Boolean = false
+
+    context(ctx: ExprEvalContext)
+    abstract override fun toTypeTest(occurrence: OccurrenceType): XdmMapTypeTest
+
     @NeedsXPath3_1
     object ANY: MapTypeTest() {
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+        override fun toTypeTest(occurrence: OccurrenceType): XdmMapTypeTest.Any {
+            return XdmMapTypeTest.Any(occurrence)
+        }
+
+        context(ctx: ExprEvalContext)
+        private fun isInstance(value: XdmSingleValue<*>): Boolean = value is XdmMap
+
+        context(ctx: ExprEvalContext)
+        private fun isAssignableTo(baseType: XdmSingleType): Boolean {
             // 2.5.6.2 #29
             if (baseType == FunctionTypeTest.ANY) return true
 
             // 2.5.6.2 #30
+/*
             if (baseType is FunctionTypeTest.Typed) {
                 val paramType: SequenceType = (baseType.paramTypes.singleOrNull()) ?: return false
                 val evalType = paramType.eval() as? XdmSchemaType ?: return false
@@ -45,6 +63,7 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
                     }
                 }
             }
+*/
 
             return baseType == ANY
         }
@@ -58,8 +77,29 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
     class Typed @NeedsXPath3_1 constructor(val inputType: AtomicOrUnionTypeTest, val outputType: SequenceType) :
         MapTypeTest() {
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            if (baseType == NodeKindTest.AnyKind || baseType == ANY) return true
+        override fun toTypeTest(occurrence: OccurrenceType): XdmMapTypeTest {
+            return XdmMapTypeTest.Typed(inputType.toTypeTest(OccurrenceType.SINGLE), outputType.eval(), occurrence)
+        }
+
+        context(ctx: ExprEvalContext)
+        private fun isInstance(value: XdmSingleValue<*>): Boolean {
+            TODO()
+/*
+            return when {
+                value !is XdmMap -> false
+                ! value.type.valueType.isAssignableTo(outputType.eval()) -> false
+                else -> inputType.isAssignableFrom(value.type.keyType)
+
+//                else -> true
+            }
+*/
+        }
+
+        context(ctx: ExprEvalContext)
+        private fun isAssignableTo(baseType: XdmSingleType): Boolean {
+            TODO()
+/*
+            if (baseType == NodeKindTest.AnyNode || baseType == ANY) return true
             if (baseType is FunctionTypeTest) {
                 when (baseType) {
                     FunctionTypeTest.ANY -> return true
@@ -72,8 +112,9 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
                 }
             }
             if (baseType !is Typed) return false
-            return inputType.isSubtypeOf(baseType.inputType) &&
-                    outputType.eval().isSubtypeOf(baseType.outputType.eval())
+            return inputType.isAssignableTo(baseType.inputType) &&
+                    outputType.eval().isAssignableTo(baseType.outputType.eval())
+*/
         }
 
         context(c: OutputContext)

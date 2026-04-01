@@ -49,9 +49,10 @@ enum class NodeType(
     @NeedsXPath3_0
     NAMESPACE_NODE("namespace-node", XPathVersion.XPath3_0),
     @NeedsXPath1
-    ANY_KIND("node", XPathVersion.XPath1_0),;
+    ANY_NODE("node", XPathVersion.XPath1_0),;
 
     override val isDelimiting: Boolean get() = false
+
 
     fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
@@ -63,6 +64,12 @@ enum class NodeType(
 
     override fun toString(): String {
         return "NodeType test($literal)"
+    }
+
+    fun isAssignableTo(nodeType: NodeType): Boolean = when (nodeType) {
+        ANY_NODE -> true
+        this -> true
+        else -> false
     }
 
     enum class ExpectedContent {

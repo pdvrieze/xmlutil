@@ -44,10 +44,10 @@ interface UnsignedByteType<out T : XsdUnsignedByte> : UnsignedShortType<T> {
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
-            FacetFractionDigits.Companion(0u),
+            FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XsdUnsignedByte.Companion(UByte.MAX_VALUE)),
-            FacetMinInclusive.Companion(XsdUnsignedByte.Companion(0u)),
+            FacetMaxInclusive(XsdUnsignedByte(UByte.MAX_VALUE)),
+            FacetMinInclusive(XsdUnsignedByte(0u)),
         )
 
         override fun fromString(value: CharSequence): XsdUnsignedByte {

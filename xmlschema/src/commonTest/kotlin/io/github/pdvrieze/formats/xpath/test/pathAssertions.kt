@@ -94,12 +94,12 @@ internal class PathContext(val path: LocationPath) {
     fun assertStepSelf() {
         val step = assertIs<AxisStep>(getAxisStep())
         assertEquals(Axis.SELF, step.axis)
-        assertEquals(NodeKindTest.AnyKind, step.test)
+        assertEquals(NodeKindTest.AnyNode, step.test)
         assertEquals(0, step.predicates.size)
     }
 
     fun assertStepDescendant() {
-        assertStep(Axis.DESCENDANT_OR_SELF, NodeType.ANY_KIND)
+        assertStep(Axis.DESCENDANT_OR_SELF, NodeType.ANY_NODE)
     }
 
     fun assertStep(axis: Axis, qName: QName) {

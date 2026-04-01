@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath
 
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(with = XPathExpression.Serializer::class)
 interface XPathExpression: XQueryExpression {
-    fun eval(contextItem: XdmValue? = null): XdmValue {
+    fun eval(contextItem: io.github.pdvrieze.formats.xpath.eval.data.XdmValue? = null): XdmValue {
         @OptIn(XPathInternal::class)
         return context(EvalContext(contextItem)){ expr.eval() }
     }
@@ -57,7 +57,7 @@ interface XPathExpression: XQueryExpression {
             if (encoder is XML.XmlOutput) {
                 // TODO ensure prefixes exist encoder.target
                 val str = buildString {
-                    context(OutputContext.Companion(encoder.target)) {
+                    context(OutputContext(encoder.target)) {
                         value.expr.appendToString(this)
                     }
                 }

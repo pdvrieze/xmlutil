@@ -20,14 +20,32 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
-import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
+import io.github.pdvrieze.formats.xpath.eval.data.XdmArray
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmArrayTypeTest
+import io.github.pdvrieze.xml.schematypes.types.AnyType
 
 @XPathInternal
 sealed class ArrayTypeTest: ItemTypeTest {
+    context(ctx: ExprEvalContext)
+    private fun isAssignableFrom(child: AnyType): Boolean = false
+
+    context(ctx: ExprEvalContext)
+    abstract override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmArrayTypeTest
+
     @NeedsXPath3_1
     object ANY: ArrayTypeTest() {
+        context(ctx: ExprEvalContext)
+        private fun isInstance(value: XdmSingleValue<*>): Boolean {
+            return value is XdmArray
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmArrayTypeTest.Any {
+            return XdmArrayTypeTest.Any(occurrence)
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("array(*)")
@@ -35,10 +53,12 @@ sealed class ArrayTypeTest: ItemTypeTest {
 
         @OptIn(NeedsXPath3_0::class)
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
+        private fun isAssignableTo(baseType: XdmSingleType): Boolean {
             // 2.5.6.2 #33
             if (baseType == FunctionTypeTest.ANY) return true
 
+            TODO()
+/*
             // 2.5.6.2 #34
             if (baseType is FunctionTypeTest.Typed) {
                 val paramType: SequenceType = (baseType.paramTypes.singleOrNull()) ?: return false
@@ -47,14 +67,23 @@ sealed class ArrayTypeTest: ItemTypeTest {
             }
 
             return baseType == ANY
+*/
         }
     }
 
     class Typed @NeedsXPath3_1 constructor(val elemType: SequenceType): ArrayTypeTest() {
+        context(ctx: ExprEvalContext)
+        private fun isInstance(value: XdmSingleValue<*>): Boolean {
+            TODO()
+/*
+            return value is XdmArray &&
+                    (value.type.isAssignableTo(elemType.eval()) || value.content.all { elemType.isInstance(it) })
+*/
+        }
 
         context(ctx: ExprEvalContext)
-        override fun isSubtypeOf(baseType: ItemTypeTest): Boolean {
-            TODO("not implemented")
+        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmArrayTypeTest.Typed {
+            return XdmArrayTypeTest.Typed(elemType.eval(), occurrence)
         }
 
         context(c: OutputContext)

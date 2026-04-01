@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 @XPathInternal
 class TreatAsExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceType) : AbstractExprSingle() {
@@ -28,7 +28,10 @@ class TreatAsExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: Seq
     @XPathInternal
     override fun eval(): XdmValue {
         val origValue = expr.eval()
-        return withExprContext { origValue.withType(sequenceType.eval()) }
+
+        return withExprContext {
+            origValue.treatAs(sequenceType.eval())
+        }
     }
 
     context(c: OutputContext)

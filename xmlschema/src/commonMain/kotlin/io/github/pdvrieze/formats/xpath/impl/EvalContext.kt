@@ -20,7 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import nl.adaptivity.xmlutil.QName
@@ -34,7 +36,7 @@ import kotlin.contracts.contract
 
 @XPathInternal
 open class EvalContext(val contextItem: XdmValue?, val isXPath1Compat: Boolean = false) {
-    fun resolveType(name: QName): AnyType? {
+    fun resolveTypeOrNull(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
     }
 
@@ -67,6 +69,11 @@ class ExprEvalContext(
     isXPath1compat: Boolean = false
 ) : EvalContext(contextItem, isXPath1compat) {
 
+    @XPathInternal
+    fun resolveType(name: QName): AnyType {
+        return resolveTypeOrNull(name) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unknown type $name")
+    }
+
     override fun copy(contextItem: XdmValue?): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1Compat)
 
     fun copy(
@@ -83,3 +90,4 @@ class ExprEvalContext(
         val DUMMY = ExprEvalContext(null, ContextItemExpr)
     }
 }
+

@@ -28,6 +28,6 @@ interface ResolvedBuiltinAtomicType<out T : XsdAtomic> : ResolvedBuiltinSimpleTy
     override val baseType: ResolvedBuiltinSimpleType<*>
 
     override fun fromString(value: CharSequence): T {
-        return value(value as? XsdString ?: XsdString.Companion(value))
+        return value(value as? XsdString ?: XsdString(value))
     }
 }

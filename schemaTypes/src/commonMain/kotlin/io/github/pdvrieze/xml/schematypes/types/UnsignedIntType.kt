@@ -44,10 +44,10 @@ interface UnsignedIntType<out T : XsdUnsignedInt> : UnsignedLongType<T> {
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
-            FacetFractionDigits.Companion(0u),
+            FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
-            FacetMaxInclusive.Companion(XsdUnsignedInt.Companion(UInt.MAX_VALUE)),
-            FacetMinInclusive.Companion(XsdUnsignedInt.Companion(0u)),
+            FacetMaxInclusive(XsdUnsignedInt(UInt.MAX_VALUE)),
+            FacetMinInclusive(XsdUnsignedInt(0u)),
         )
 
         override fun fromString(value: CharSequence): XsdUnsignedInt {

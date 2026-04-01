@@ -20,21 +20,20 @@
 
 package org.w3.qt3tests.resolved.assertions
 
-import io.github.pdvrieze.formats.xpath.data.XdmSchemaType
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import nl.adaptivity.xmlutil.XMLConstants
 
 @OptIn(XPathInternal::class)
 class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<io.github.pdvrieze.formats.xpath.eval.data.XdmValue>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
         val expectedType = builtinType(type.substringAfterLast(':'), XMLConstants.XSD_NS_URI)
             ?: return AssertionResult.Failure("Unknown type $type")
 
-        val actualType = evalResult.type as? XdmSchemaType ?: return AssertionResult.Failure("Expected Schema type $expectedType, got ${evalResult.type}")
+        val actualType = evalResult.staticType as? XdmSchemaType ?: return AssertionResult.Failure("Expected Schema type $expectedType, got ${evalResult.staticType}")
 
         if (actualType.schemaType.derivesFrom(expectedType)) return AssertionResult.Success
 

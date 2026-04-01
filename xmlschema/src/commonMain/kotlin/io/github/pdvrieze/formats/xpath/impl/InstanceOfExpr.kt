@@ -20,8 +20,20 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+
 @XPathInternal
 class InstanceOfExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceType) : AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        val exprValue = expr.eval()
+        val result =  sequenceType.isInstance(exprValue)
+
+        return XdmAtomic(XsdBoolean(result))
+    }
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {

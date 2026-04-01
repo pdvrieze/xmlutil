@@ -20,8 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.functions
 
-import io.github.pdvrieze.formats.xpath.data.XdmFunctionType
-import io.github.pdvrieze.formats.xpath.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.functions.impl.*
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.localPart
 @OptIn(XPathInternal::class)
 enum class Fn(
     localName: String? = null,
-    override val functionTypes: List<XdmFunctionType>,
+    override val functionTypes: List<io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType>,
     val implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue,
 ) : Function {
     //region Accessors (2)
@@ -85,7 +85,7 @@ enum class Fn(
     constructor(builtinFunction: BuiltinFunctionImpl<*>): this(builtinFunction.functionName.localPart, builtinFunction.functionTypes, builtinFunction.evalFunction)
 
     constructor(
-        types: List<XdmFunctionType>,
+        types: List<io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType>,
         implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue,
     ): this(null, types, implementation)
 
