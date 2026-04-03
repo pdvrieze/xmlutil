@@ -93,6 +93,10 @@ kotlin {
     }
 }
 
+tasks.withType<Jar> {
+    isZip64 = true
+}
+
 addNativeTargets(includeWasm = false, includeWasi = false)
 
 tasks.named<Test>("jvmTest") {
