@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -55,6 +56,11 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
     override val size: ULong
         get() = ints.size.toULong() + ((31u + exp) shr 32)
+
+    override fun toBigDecimal(): BigDecimal {
+        val ints = if (exp==0uL) this.ints else expandExp().ints
+        return BigDecimal(sign, ints, 0)
+    }
 
     override fun get(index: ULong): UInt {
         if ((index + 1uL) * 32uL < exp) return 0u // not visible

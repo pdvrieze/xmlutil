@@ -159,7 +159,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         }
         // comparison is smart and compares MSI first
         val c = leftAbs.compareTo(other.abs())
-        if (c== 0) return ZERO
+        if (c == 0) return ZERO
         if (c < 0) return (rightAbs - leftAbs).unaryMinus()
         // The only case remaining is this one is where both are positive and left is larger than right
         val bitsNeeded = maxOf(significantBitsFromZero(), other.significantBitsFromZero())

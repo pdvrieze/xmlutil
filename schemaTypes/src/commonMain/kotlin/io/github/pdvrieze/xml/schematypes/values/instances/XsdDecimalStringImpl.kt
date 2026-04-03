@@ -21,21 +21,18 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdLong
-import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
-import kotlin.math.absoluteValue
 import kotlin.math.nextDown
 import kotlin.math.nextUp
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 internal class XsdDecimalStringImpl(override val xmlString: String) : XsdBigDecimal {
+    override val sign: Int
 
     init {
         var next = 1
+        var isZero = true
         when (xmlString[0]) {
             '-', '+' -> next = 2
             in '0'..'9' -> Unit
@@ -47,18 +44,23 @@ internal class XsdDecimalStringImpl(override val xmlString: String) : XsdBigDeci
         }
         val len = xmlString.length
         while (next < len && xmlString[next] != '.') {
-            if (xmlString[next] !in '0'..'9') { // sign
-                throw NumberFormatException("Decimals must only contain digits or a single .")
+            when (xmlString[next]) {
+                '0' -> {}
+                in '1'..'9' -> isZero = false
+                else -> throw NumberFormatException("Decimals must only contain digits or a single .")
             }
             ++next
         }
         ++next
         while (next < len) {
-            if (xmlString[next] !in '0'..'9') { // sign
-                throw NumberFormatException("Decimal digits (after dot) must only be  digits")
+            when (xmlString[next]){
+                '0' -> {}
+                in '1'..'9' -> isZero = false
+                else -> throw NumberFormatException("Decimal digits (after dot) must only be  digits")
             }
             ++next
         }
+        sign = if (isZero) 0 else if (xmlString[0] == '-') -1 else 1
     }
 
     override fun toLong(): Long {
@@ -67,6 +69,18 @@ internal class XsdDecimalStringImpl(override val xmlString: String) : XsdBigDeci
 
     override fun toInt(): Int {
         return xmlString.toInt()
+    }
+
+    override fun toBigDecimal(): BigDecimal {
+        return BigDecimal(xmlString)
+    }
+
+    override fun round(precision: Int): XsdDecimal {
+        return toBigDecimal().round(precision)
+    }
+
+    override fun roundToHalfEven(precision: Int): XsdDecimal {
+        return toBigDecimal().roundToHalfEven(precision)
     }
 
     override fun abs(): XsdDecimal = when {

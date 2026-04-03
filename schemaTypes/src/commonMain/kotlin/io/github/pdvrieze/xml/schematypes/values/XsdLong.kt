@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.LongType
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -37,7 +38,8 @@ interface XsdLong : XsdInteger {
     val longValue: Long
 
     override fun toLong(): Long = longValue
-    override fun toBigInt(): XsdInteger = BigInt(longValue)
+    override fun toBigInt(): BigInt = BigInt(longValue)
+    override fun toBigDecimal(): BigDecimal = BigDecimal(longValue)
 
     override val size: ULong get() = 2uL
     override val sign: Int get() = longValue.compareTo(0L)

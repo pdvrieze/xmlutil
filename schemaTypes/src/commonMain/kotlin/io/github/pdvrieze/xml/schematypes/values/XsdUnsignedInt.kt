@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.UnsignedIntType
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedIntImpl
 import kotlinx.serialization.Serializable
@@ -50,6 +51,8 @@ interface XsdUnsignedInt : XsdUnsignedLong {
     override fun toBigInt(): XsdNonNegativeInteger {
         return BigUnsignedInt(uIntValue)
     }
+
+    override fun toBigDecimal(): BigDecimal = BigDecimal(uIntValue)
 
     override val size: ULong get() = 1uL
 

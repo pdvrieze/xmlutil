@@ -22,7 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DecimalType
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDecimalStringImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
@@ -36,12 +36,15 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
     override val schemaType: DecimalType<XsdDecimal>
 
+    val sign: Int
+
     fun toLong(): Long
     fun toInt(): Int
     override fun toDouble(): Double = xmlString.toDouble()
-    fun toVDecimal(): XsdBigDecimal = XsdDecimalStringImpl(xmlString)
 
     operator fun compareTo(other: XsdDecimal): Int
+
+    fun toBigDecimal(): BigDecimal
 
     companion object : SimpleTypeSerializer<XsdDecimal>("xsd.decimal") {
         override fun deserialize(
@@ -54,7 +57,7 @@ interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
         operator fun invoke(value: CharSequence): XsdDecimal {
             val trimmed = xmlTrimWhitespace(value)
             val hasDecimal = '.' in trimmed
-            if (hasDecimal) return XsdDecimalStringImpl(trimmed)
+            if (hasDecimal) return BigDecimal(trimmed)
             val digitCount: Int
             val negative: Boolean
             when (trimmed.firstOrNull()) {

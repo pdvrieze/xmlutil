@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.IntType
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -38,7 +39,9 @@ interface XsdInt : XsdLong {
     override val longValue: Long get() = intValue.toLong()
     override fun toInt(): Int = intValue
 
-    override fun toBigInt(): XsdInteger = BigInt(intValue)
+    override fun toBigInt(): BigInt = BigInt(intValue)
+
+    override fun toBigDecimal(): BigDecimal = BigDecimal(intValue)
 
     override val size: ULong get() = 1uL
 

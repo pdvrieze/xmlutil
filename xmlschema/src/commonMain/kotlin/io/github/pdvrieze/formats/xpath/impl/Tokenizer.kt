@@ -132,7 +132,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         while (curPos < str.length) {
             when (str[curPos]) {
                 '.' -> when {
-                    seenPeriod || seenExp -> return DoubleLiteral(str.substring(start, curPos).toDouble())
+                    seenPeriod || seenExp -> return DecimalLiteral(str.substring(start, curPos))
                     else -> seenPeriod = true
                 }
 
@@ -158,7 +158,8 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         @OptIn(NeedsXPath2::class)
         // TODO support decimal values without reverting to doubles
         return when {
-            seenPeriod || seenExp || !isXPath2 -> DoubleLiteral(substr.toDouble())
+            seenExp || !isXPath2 -> DoubleLiteral(substr.toDouble())
+            seenPeriod -> DecimalLiteral(substr)
 
             else -> when (val l = substr.toLongOrNull()) {
                 null -> IntegerLiteral(XsdInteger(substr))

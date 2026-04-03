@@ -22,7 +22,6 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DecimalType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
@@ -30,15 +29,17 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
     val isInteger: Boolean get() = '.' !in xmlString
     override val schemaType: DecimalType<*> get() = DecimalType.Instance
 
-    override fun toVDecimal(): XsdBigDecimal = this
-
     operator fun compareTo(other: XsdBigDecimal): Int
 
-    override fun round(precision: Int): XsdInteger {
-        TODO("not implemented")
-    }
+    override fun round(precision: Int): XsdDecimal
 
-    override fun roundToHalfEven(precision: Int): XsdInteger {
-        TODO("not implemented")
+    override fun roundToHalfEven(precision: Int): XsdDecimal
+
+    companion object {
+        operator fun invoke(i: Int): XsdBigDecimal = BigDecimal(i)
+        operator fun invoke(i: UInt): XsdBigDecimal = BigDecimal(i)
+        operator fun invoke(l: Long): XsdBigDecimal = BigDecimal(l)
+        operator fun invoke(l: ULong): XsdBigDecimal = BigDecimal(l)
+        operator fun invoke(s: String): XsdBigDecimal = BigDecimal(s)
     }
 }
