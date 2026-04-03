@@ -33,6 +33,7 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.*
@@ -124,22 +125,14 @@ class XdmNode(
             is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))
             is Comment -> XdmAtomic(XsdString(node.getData()))
             is Text -> XdmAtomic(XsdString(node.getData()))
-            is Element if (node.getAttributeNS(XMLConstants.XSI_NS_URI, "nil") == "true") ->
-                XdmSequence.empty(staticType)
+            is Element if node.isNil -> XdmSequence.empty(staticType)
 
-            is Document if staticType.isAssignableTo(AnyAtomicType.Instance) -> node.documentElement
-                ?.let { staticType.fromString(it.textContent ?: "")  as XdmAtomic<*> }
-                ?: throw EvaluationException(ctx.expr, "Missing document element")
+            is Document -> Fn.string(this).atomize() as XdmAtomic<*>
 
-            is Document -> throw EvaluationException(ctx.expr, "Cannot atomize a document to non-atomic type")
             is Element if staticType.isAssignableTo(AnyAtomicType.Instance) ->
                 staticType.fromString(node.textContent ?: "") as XdmAtomic<*>
-
-            is Element -> {
-                if (dynamicType == XdmSchemaType.UNTYPED) {
-                    Fn.string(this).atomize() as XdmAtomic<*>
-                } else throw EvaluationException(ctx.expr, "Cannot atomize an element to non-atomic type")
-            }
+            is Element if dynamicType == XdmSchemaType.UNTYPED -> Fn.string(this).atomize() as XdmAtomic<*>
+            is Element -> throw EvaluationException(ErrorCodes.FOTY0012,"Cannot atomize a typed element to non-atomic type yet")
             else -> throw UnsupportedOperationException("Unsupported node type: ${node.getNodetype()}")
         }
 
@@ -205,4 +198,10 @@ class XdmNode(
     }
 
 
+}
+
+internal val Element.isNil: Boolean get() {
+    val attrValue = getAttributeNS(XMLConstants.XSI_NS_URI, "nil") ?: return false
+    if (attrValue.isEmpty()) return false
+    return XsdBoolean(attrValue).value
 }
