@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
@@ -73,6 +72,23 @@ class XdmSchemaType(
     override fun toString(): String {
         return schemaType.name.toString()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XdmSchemaType
+
+        val n = schemaType.name
+        val on = other.schemaType.name
+        if (n == null || on == null) return false
+        return n.isEquivalent(on)
+    }
+
+    override fun hashCode(): Int {
+        return schemaType.hashCode()
+    }
+
 
     companion object {
         val UNTYPED = XdmSchemaType(UntypedType.Instance)

@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
@@ -134,7 +135,11 @@ class XdmNode(
             is Element if staticType.isAssignableTo(AnyAtomicType.Instance) ->
                 staticType.fromString(node.textContent ?: "") as XdmAtomic<*>
 
-            is Element -> throw EvaluationException(ctx.expr, "Cannot atomize an element to non-atomic type")
+            is Element -> {
+                if (dynamicType == XdmSchemaType.UNTYPED) {
+                    Fn.string(this).atomize() as XdmAtomic<*>
+                } else throw EvaluationException(ctx.expr, "Cannot atomize an element to non-atomic type")
+            }
             else -> throw UnsupportedOperationException("Unsupported node type: ${node.getNodetype()}")
         }
 

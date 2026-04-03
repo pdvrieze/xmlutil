@@ -60,12 +60,14 @@ abstract class AbstractFunctionObject() {
 
     context(ctx: ExprEvalContext)
     protected fun toAnySingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): XdmAtomic<*>? {
-        val arg = toSingleArg(args, allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+        val argOrContext = toSingleArg(args, allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+
+        val atom = argOrContext.atomize()
 
         return when {
-            arg.size == 0 -> null
-            arg is XdmAtomic<*> -> arg
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${arg.staticType}")
+            atom.size == 0 -> null
+            atom is XdmAtomic<*> -> atom
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${atom.staticType} ($atom)")
         }
     }
 
