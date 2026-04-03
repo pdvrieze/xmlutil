@@ -119,7 +119,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
             when {
                 node !is Element -> return false
 
-                elemName != null && !elemName.eval(node.namespaceURI, node.localName) -> return false
+                elemName != null && !elemName.eval(node.namespaceURI, node.getLocalName()!!) -> return false
 
                 !isOptional && node.getAttributeNS(XMLConstants.XSI_NS_URI, "nil")
                     ?.let { XsdBoolean(it) } == XsdBoolean.TRUE
@@ -162,7 +162,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
             if (it !is XdmNode) return false
             val elem = it.node as? Element ?: return false
             if (elemName != null) {
-                if (! elemName.eval(elem.namespaceURI, elem.localName)) return false
+                if (! elemName.eval(elem.namespaceURI, elem.getLocalName()!!)) return false
 
                 if (typeName != null) {
                     val expectedSchemaType = ctx.resolveTypeOrNull(typeName)
@@ -201,7 +201,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
             when {
                 node !is Element -> return false
 
-                attrName != null && !attrName.eval(node.namespaceURI, node.localName) -> return false
+                attrName != null && !attrName.eval(node.namespaceURI, node.getLocalName()!!) -> return false
             }
 
             // TODO check type and optionality

@@ -66,7 +66,7 @@ abstract class ResolutionContextImpl(
                 }
             } catch (e: XmlSerialException) {
                 if (e.extLocationInfo == null) {
-                    throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
+                    throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, "($base$relativePath)", e)
                         .also { it.setFileLocation("$base$relativePath") }
                 } else {
                     e.setFileLocation("$base$relativePath")
@@ -74,7 +74,7 @@ abstract class ResolutionContextImpl(
                 }
             } catch (e: XmlException) {
                 if (e.locationInfo == null) {
-                    throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, e)
+                    throw XmlSerialException(e.rawMessage!!, xr.extLocationInfo, "($base$relativePath)", e)
                         .also { it.setFileLocation("$base$relativePath") }
                 } else {
                     e.setFileLocation("$base$relativePath")

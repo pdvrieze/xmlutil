@@ -59,6 +59,7 @@ open class EvalContext(val contextItem: XdmValue?, val isXPath1Compat: Boolean =
 @OptIn(XPathInternal::class)
 inline fun <C: EvalContext, R> C.withValueContext(value: XdmValue, function: context(C)  () -> R): R {
 
+    @Suppress("UNCHECKED_CAST")
     return context(copy(contextItem = value) as C, function)
 }
 

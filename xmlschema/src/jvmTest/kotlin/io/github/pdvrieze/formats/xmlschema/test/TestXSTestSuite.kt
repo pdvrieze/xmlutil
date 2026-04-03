@@ -22,7 +22,6 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
@@ -31,7 +30,6 @@ import io.github.pdvrieze.formats.xmlschemaTests.Resource
 import io.github.pdvrieze.formats.xmlschemaTests.getResource
 import io.github.pdvrieze.formats.xmlschemaTests.openStream
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
-import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.*
@@ -574,5 +572,3 @@ data class ElementInfo(val name: QName, var hasBeenAbsent: Boolean = false, var 
 
     constructor(descriptor: XmlDescriptor) : this(descriptor.tagName)
 }
-
-

@@ -73,7 +73,7 @@ public actual typealias PlatformElement = org.w3c.dom.Element
 public actual val PlatformElement.namespaceURI: String? get() = getNamespaceURI()
 public actual val PlatformElement.prefix: String? get() = getPrefix()
 public actual val PlatformElement.name: String get() = getNodeName()
-public actual val PlatformElement.localName: String get() = getLocalName()
+public actual val PlatformElement.localName: String get() = getLocalName()!!
 public actual val PlatformElement.attributes: PlatformNamedNodeMap get() = getAttributes()
 public actual val PlatformElement.childNodes: PlatformNodeList get() = childNodes
 

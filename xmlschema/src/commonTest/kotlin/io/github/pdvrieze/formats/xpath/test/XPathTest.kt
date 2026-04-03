@@ -235,7 +235,7 @@ class XPathTest {
 
     @Test
     fun testNoTextInSchemaElement() {
-        val e = assertThrows<IllegalArgumentException> {
+        val e = assertFailsWith<IllegalArgumentException> {
             val _ = XPathExpression("schema-element(\"quotesAreNotAllowed\")")
         }
         assertContains(e.message!!, "Expected NCName, found '\"'")

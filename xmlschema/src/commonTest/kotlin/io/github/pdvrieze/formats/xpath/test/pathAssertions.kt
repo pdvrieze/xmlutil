@@ -34,6 +34,7 @@ import nl.adaptivity.xmlutil.XmlEvent
 import kotlin.test.*
 
 @DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE)
 annotation class PathTestDsl
 
 @IgnorableReturnValue
@@ -195,8 +196,7 @@ internal class StepContext(val step: AxisStep) {
         return ExprContextImpl(step.predicates[predicateCount++])
     }
 
-    @PathTestDsl
-    inline fun assertPredicate(test: TestContext.() -> Unit) {
+    inline fun assertPredicate(test: @PathTestDsl TestContext.() -> Unit) {
         val pred = getPredicate()
         pred.test()
     }
@@ -217,13 +217,12 @@ internal inline fun ExprContext<LocationPath>.assertPath(rooted: Boolean? = null
 @OptIn(XPathInternal::class)
 @PathTestDsl
 internal class BinaryContext(private val expr: ExprContext<BinaryExpr>) {
-    @PathTestDsl
-    inline fun <reified T: Expr> assertLeft(test: ExprContext<T>.() -> Unit) {
+
+    inline fun <reified T: Expr> assertLeft(test: @PathTestDsl ExprContext<T>.() -> Unit) {
         expr.nestedContext(assertIs<T>(expr.expr.left)).apply(test)
     }
 
-    @PathTestDsl
-    inline fun <reified T: Expr> assertRight(test: ExprContext<T>.() -> Unit) {
+    inline fun <reified T: Expr> assertRight(test: @PathTestDsl ExprContext<T>.() -> Unit) {
         expr.nestedContext(assertIs<T>(expr.expr.right)).apply(test)
     }
 }

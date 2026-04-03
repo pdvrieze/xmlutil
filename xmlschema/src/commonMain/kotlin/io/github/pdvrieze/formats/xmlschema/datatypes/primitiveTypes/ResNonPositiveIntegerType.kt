@@ -63,8 +63,8 @@ object ResNonPositiveIntegerType : ResolvedBuiltinAtomicType<XsdNonPositiveInteg
         }
     }
 
-    override fun value(maybeValue: XsdAnySimple): XsdInteger {
-        return maybeValue as? XsdInteger ?: value((maybeValue as? XsdString) ?: XsdString(maybeValue.xmlString))
+    override fun value(maybeValue: XsdAnySimple): XsdNonPositiveInteger {
+        return maybeValue as? XsdNonPositiveInteger ?: value((maybeValue as? XsdString) ?: XsdString(maybeValue.xmlString))
     }
 
     override fun validateValue(value: Any, version: SchemaVersion) {

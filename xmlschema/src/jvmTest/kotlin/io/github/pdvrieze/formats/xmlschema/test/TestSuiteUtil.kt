@@ -20,12 +20,12 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschemaTests.Resource
 import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import io.github.pdvrieze.formats.xmlschemaTests.openStream
+import io.github.pdvrieze.xml.schematypes.values.toAnyUri
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader
 import nl.adaptivity.xmlutil.xmlStreaming

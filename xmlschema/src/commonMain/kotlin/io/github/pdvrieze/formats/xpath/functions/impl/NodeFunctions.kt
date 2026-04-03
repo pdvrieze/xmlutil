@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdString
+import nl.adaptivity.xmlutil.dom.localName
 import nl.adaptivity.xmlutil.dom2.*
 
 @XPathInternal
@@ -48,8 +49,8 @@ object NodeFunctions : AbstractFunctionObject() {
     val fnLocalName =
         BuiltinFunctionImpl("local-name", contextFunctionTypes(STRING, NODE.opt)) { args ->
             val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
-            val name = when (val n = arg.node) {
-                is Element -> n.localName
+            val name: String = when (val n = arg.node) {
+                is Element -> n.getLocalName()!!
                 is Attr -> n.localName ?: n.nodeName
                 is ProcessingInstruction -> n.target
                 else -> ""
