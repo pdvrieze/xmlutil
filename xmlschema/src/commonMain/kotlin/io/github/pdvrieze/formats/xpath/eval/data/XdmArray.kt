@@ -31,9 +31,11 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 @XPathInternal
 class XdmArray(
     val content: List<XdmValue>,
-    override val staticType: XdmArrayType
+    override val staticType: XdmArrayType,
+    override val dynamicType: XdmArrayType
 ) : XdmFunction<XdmArray>() {
     override fun asT(): XdmArray = this
+
 
 
     context(ctx: ExprEvalContext)
@@ -53,7 +55,7 @@ class XdmArray(
             }
         }
 
-        return XdmArray(content, concreteType)
+        return XdmArray(content, concreteType, dynamicType)
     }
 
     override fun isValEqual(expected: XdmValue): Boolean {

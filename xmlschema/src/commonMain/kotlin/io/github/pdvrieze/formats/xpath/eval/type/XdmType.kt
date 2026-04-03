@@ -54,6 +54,8 @@ sealed class XdmType {
     context(ctx: ExprEvalContext)
     abstract fun fromString(value: String): XdmValue
 
+    abstract fun toTypeTest(): XdmSequenceTypeTest
+
     abstract val single: XdmSingleType
 
     companion object {

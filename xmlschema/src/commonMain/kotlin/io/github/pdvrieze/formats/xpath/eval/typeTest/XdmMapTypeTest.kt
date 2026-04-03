@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.eval.typeTest
 import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmType
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
@@ -61,6 +62,15 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return fallbackType.cardinality(cardinality)
         }
+
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(
+            other: XdmTypeTest,
+            neededCardinality: OccurrenceType
+        ): XdmSequenceTypeTest = when (other) {
+            !is XdmMapTypeTest -> super.sharedBaseType(other, neededCardinality)
+            else -> Any(neededCardinality)
+        }
     }
 
     class Typed(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTypeTest, cardinality: OccurrenceType) :
@@ -73,6 +83,24 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return XdmMapType(keyType, valueType).cardinality(cardinality)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(
+            other: XdmTypeTest,
+            neededCardinality: OccurrenceType
+        ): XdmSequenceTypeTest {
+            if (other !is XdmMapTypeTest) return super.sharedBaseType(other, neededCardinality)
+            if (other is Any) return Any(neededCardinality)
+
+            val sharedKeyType = when {
+                keyType.isAssignableFrom(other.keyType) -> other.keyType
+                other.keyType.isAssignableFrom(keyType) -> keyType
+                else -> return Any(neededCardinality)
+            }
+
+            val sharedValueType = valueType.sharedBaseType(other.valueType)
+            return Typed(sharedKeyType, sharedValueType, neededCardinality)
         }
     }
 }

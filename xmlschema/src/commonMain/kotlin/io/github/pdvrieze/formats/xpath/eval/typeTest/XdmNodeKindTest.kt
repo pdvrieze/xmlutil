@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmNodeType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmType
@@ -43,6 +45,28 @@ class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) :
     override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean {
         if (source !is XdmNodeKindTest) return false
         return nodeKind.isAssignableFrom(source.nodeKind)
+    }
+
+    context(ctx: ExprEvalContext)
+    @XPathInternal
+    override fun sharedBaseType(
+        other: XdmTypeTest,
+        neededCardinality: OccurrenceType
+    ): XdmSequenceTypeTest {
+        if (other !is XdmNodeKindTest) return Any(neededCardinality)
+        val neededNodeKind = when {
+            nodeKind.isAssignableFrom(other.nodeKind) -> nodeKind
+            other.nodeKind.isAssignableFrom(nodeKind) -> other.nodeKind
+            else -> NodeKindTest.AnyNode
+        }
+        return XdmNodeKindTest(neededNodeKind, neededCardinality)
+    }
+
+    context(ctx: ExprEvalContext)
+    @XPathInternal
+    override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+        if (value !is XdmNode) return false
+        return nodeKind.matches(value.node)
     }
 
     override fun toValueType(fallbackType: XdmSingleType): XdmType {

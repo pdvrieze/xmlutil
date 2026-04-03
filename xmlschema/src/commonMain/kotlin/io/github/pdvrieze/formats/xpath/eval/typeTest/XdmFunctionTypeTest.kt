@@ -20,10 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -52,6 +55,20 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
             else -> false
         }
 
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(other: XdmTypeTest, neededCardinality: SequenceType.OccurrenceType): XdmSequenceTypeTest {
+            return when (other) {
+                !is XdmFunctionTypeTest -> XdmTypeTest.Any(neededCardinality)
+                else -> Any(neededCardinality)
+            }
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+            return value is XdmFunction<*>
+        }
+
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return fallbackType.cardinality(cardinality)
         }
@@ -69,6 +86,49 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return XdmFunctionType(argTypes, returnType).cardinality(cardinality)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(
+            other: XdmTypeTest,
+            neededCardinality: OccurrenceType
+        ): XdmSequenceTypeTest {
+            if (other is Any) return Any(neededCardinality)
+            else if (other !is Typed) return XdmTypeTest.Any(neededCardinality)
+            if (argTypes.size != other.argTypes.size) return Any(neededCardinality)
+            var leftWorks: Boolean = true
+            var rightWorks: Boolean = true
+            for (i in argTypes.indices) {
+                if (leftWorks && !other.argTypes[i].isAssignableFrom(argTypes[i])) {
+                    leftWorks = false
+                    if (!rightWorks) return Any(neededCardinality)
+                }
+                if (rightWorks && !argTypes[i].isAssignableFrom(other.argTypes[i])) {
+                    rightWorks = false
+                    if (!leftWorks) return Any(neededCardinality)
+                }
+            }
+
+            val sharedReturnType = returnType.sharedBaseType(other.returnType)
+            return when {
+                leftWorks -> Typed(argTypes, sharedReturnType, neededCardinality)
+                rightWorks -> Typed(other.argTypes, sharedReturnType, neededCardinality)
+                else -> Any(neededCardinality) // this should be superfluous
+            }
+
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+            if (value !is XdmFunction<*>) return false
+
+/*
+            value.
+            return isAssignableFromSingle(value.staticType)
+            return value
+*/
+            TODO("not implemented")
         }
 
         context(ctxt: ExprEvalContext)

@@ -26,6 +26,9 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
+import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 
@@ -38,17 +41,24 @@ class XdmNodeType(val nodeType: NodeType) : XdmSingleType() {
             is XdmNodeKindTest -> TODO("Node type needs a more precise check")
             else -> false
         }
-        TODO("not implemented")
     }
-    /*
+
     @XPathInternal
-    context(ctx: ExprEvalContext)
-    override fun isAssignableTo(receiver: XdmSingleType): Boolean = when (receiver) {
-        ANY -> return true
-        is XdmNodeType -> nodeType.isAssignableTo(receiver.nodeType)
-        else -> false
+    override fun toTypeTest(occurrence: OccurrenceType): XdmNodeKindTest {
+        return XdmNodeKindTest(NodeKindTest.of(nodeType), occurrence)
     }
-*/
+
+    @XPathInternal
+    override fun toTypeTest(): XdmNodeKindTest = toTypeTest(OccurrenceType.SINGLE)
+    /*
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isAssignableTo(receiver: XdmSingleType): Boolean = when (receiver) {
+            ANY -> return true
+            is XdmNodeType -> nodeType.isAssignableTo(receiver.nodeType)
+            else -> false
+        }
+    */
 
     @XPathInternal
     context(ctx: ExprEvalContext)

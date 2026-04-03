@@ -83,5 +83,15 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
         OPTIONAL("?", true, false),
         ANY("*", true, true),
         AT_LEAST_ONE("+", false, true);
+
+        fun union(other: OccurrenceType): OccurrenceType = when(this) {
+            SINGLE -> other
+            OPTIONAL -> when (other) {
+                SINGLE, OPTIONAL -> OPTIONAL
+                AT_LEAST_ONE, ANY -> ANY
+            }
+            ANY -> ANY
+            AT_LEAST_ONE -> if (other.allowsEmpty) ANY else AT_LEAST_ONE
+        }
     }
 }

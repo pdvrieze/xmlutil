@@ -26,6 +26,8 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
@@ -35,16 +37,11 @@ class XdmSchemaType(
     val schemaType: AnyType
 ) : XdmSingleType() {
 
-/*
-    init {
-        val n = schemaType.name
-        if (n != null) {
-            require(!n.isEquivalent(AnyType.Instance.name)) { "AnyType cannot be instantiated" }
-            require(!n.isEquivalent(AnySimpleType.Instance.name)) { "AnySimpleType cannot be instantiated" }
-            require(!n.isEquivalent(AnyAtomicType.Instance.name)) { "AnyAtomicType cannot be instantiated" }
-        }
+    override fun toTypeTest(occurrence: OccurrenceType): XdmSchemaTypeTest {
+        return XdmSchemaTypeTest(schemaType, occurrence)
     }
-*/
+
+    override fun toTypeTest(): XdmSchemaTypeTest = toTypeTest(OccurrenceType.SINGLE)
 
     context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {

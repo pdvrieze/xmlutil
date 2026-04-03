@@ -22,20 +22,32 @@ package io.github.pdvrieze.formats.xpath.eval.data
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
 @XPathInternal
-class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val staticType: XdmMapType) : XdmFunction<XdmMap>() {
+class XdmMap private constructor(
+    val content: Map<XdmAtomic<*>, XdmValue>,
+    override val staticType: XdmMapType,
+    private val _dynamicType: Lazy<XdmMapType>,
+) : XdmFunction<XdmMap>() {
     override fun asT(): XdmMap = this
+
+    override val dynamicType: XdmFunctionType
+        get() = _dynamicType.value
 
     context(ctx: ExprEvalContext)
     override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
         if (type !is XdmMapTypeTest) throw EvaluationException(ctx.expr, "Cannot cast map to $type")
-        return XdmMap(content, type.toValueType(staticType).single as XdmMapType)
+        return XdmMap(content, type.toValueType(staticType).single as XdmMapType, _dynamicType)
     }
 
     override fun isValEqual(expected: XdmValue): Boolean {
@@ -71,5 +83,44 @@ class XdmMap(val content: Map<XdmAtomic<*>, XdmValue>, override val staticType: 
     context(ctx: ExprEvalContext)
     override fun normalizeToArithmetic(): XdmValue {
         throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Maps are not compatible with an arithmetic operator")
+    }
+
+    companion object {
+        context(ctx: ExprEvalContext)
+        operator fun invoke(
+            content: Map<XdmAtomic<*>, XdmValue>,
+            staticType: XdmMapType,
+        ): XdmMap = XdmMap(content, staticType, lazy { dynamicMapType(content) })
+
+        context(ctx: ExprEvalContext)
+        fun dynamicMapType(content: Map<XdmAtomic<*>, XdmValue>): XdmMapType {
+            if (content.isEmpty()) {
+                return XdmMapType(XdmSchemaTypeTest.ANY_ATOMIC, XdmTypeTest.ANY.any)
+            }
+
+            val it = content.entries.iterator()
+
+            var keyBaseSchemaType: AnySimpleType<*>
+            var valueBaseType: XdmSequenceTypeTest
+            it.next().let { (k, v) ->
+                keyBaseSchemaType = k.dynamicType.schemaType as AnySimpleType<*>
+                valueBaseType = v.staticType.toTypeTest()
+            }
+
+            while (it.hasNext()) {
+                val (k, v) = it.next()
+                val ks = k.dynamicType.schemaType
+                val vt = v.staticType.toTypeTest()
+                while (! ks.derivesFrom(keyBaseSchemaType)) {
+                    keyBaseSchemaType = keyBaseSchemaType.baseType as AnySimpleType<*> // cast must work as all types must derive from AnySimple
+                }
+                while (! valueBaseType.isAssignableFrom(vt)) {
+                    valueBaseType = valueBaseType.sharedBaseType(vt)
+                }
+
+            }
+
+            return XdmMapType(XdmSchemaTypeTest(keyBaseSchemaType, SINGLE), valueBaseType)
+        }
     }
 }

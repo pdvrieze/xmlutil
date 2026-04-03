@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyType
@@ -46,6 +47,14 @@ open class XdmFunctionType(
         argTypes.map { XdmSchemaTypeTest(it, SINGLE) },
         XdmSchemaTypeTest(returnType, SINGLE),
     )
+
+    @XPathInternal
+    override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmFunctionTypeTest {
+        return XdmFunctionTypeTest.Typed(argTypes, returnType, occurrence)
+    }
+
+    @XPathInternal
+    override fun toTypeTest(): XdmFunctionTypeTest = toTypeTest(SINGLE)
 
     @XPathInternal
     context(ctx: ExprEvalContext)

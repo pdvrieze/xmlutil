@@ -31,12 +31,18 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
 
     override abstract val staticType: XdmFunctionType
+    abstract override val dynamicType: XdmFunctionType
 
-
-    fun partialType(args: List<XdmValue?>): XdmFunctionType {
+    internal fun partialStaticType(args: List<XdmValue?>): XdmFunctionType {
         return XdmFunctionType(args.indices.mapNotNull { idx ->
             if (args[idx] == null) staticType.argTypes[idx] else null
         }, staticType.returnType)
+    }
+
+    internal fun partialDynType(args: List<XdmValue?>): XdmFunctionType {
+        return XdmFunctionType(args.indices.mapNotNull { idx ->
+            if (args[idx] == null) dynamicType.argTypes[idx] else null
+        }, dynamicType.returnType)
     }
 
 

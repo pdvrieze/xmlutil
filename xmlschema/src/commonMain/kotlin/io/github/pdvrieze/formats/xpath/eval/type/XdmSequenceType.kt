@@ -44,6 +44,10 @@ class XdmSequenceType(val baseType: XdmSingleType, val cardinality: OccurrenceTy
         }
     }
 
+    override fun toTypeTest(): XdmSequenceTypeTest {
+        return baseType.toTypeTest(cardinality)
+    }
+
     context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         return expectedType is XdmTypeTest &&

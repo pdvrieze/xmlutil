@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmEmptySequenceType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSequenceType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
@@ -30,6 +33,24 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.StringType
 
 sealed class XdmSequenceTypeTest {
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    open fun isAssignableFrom(source: XdmSequenceTypeTest): Boolean = source.isAssignableTo(this)
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    abstract fun isAssignableTo(receiver: XdmSequenceTypeTest): Boolean
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    abstract fun isInstance(value: XdmValue): Boolean
+
+    abstract fun toValueType(fallbackType: XdmSingleType): XdmType
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    abstract fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest
+
     object EMPTY : XdmSequenceTypeTest() {
         @XPathInternal
         context(ctx: ExprEvalContext)
@@ -39,21 +60,30 @@ sealed class XdmSequenceTypeTest {
         }
 
         override fun toValueType(fallbackType: XdmSingleType): XdmEmptySequenceType = XdmEmptySequenceType
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest {
+            return when (other) {
+                is EMPTY -> EMPTY
+                is XdmTypeTest -> when (other.cardinality) {
+                    OccurrenceType.SINGLE,
+                    OccurrenceType.OPTIONAL -> XdmTypeTest.Any(OccurrenceType.OPTIONAL)
+
+                    OccurrenceType.ANY,
+                    OccurrenceType.AT_LEAST_ONE -> XdmTypeTest.Any(OccurrenceType.ANY)
+                }
+            }
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isInstance(value: XdmValue): Boolean = value.size == 0
     }
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    open fun isAssignableFrom(source: XdmSequenceTypeTest): Boolean = source.isAssignableTo(this)
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    abstract fun isAssignableTo(receiver: XdmSequenceTypeTest): Boolean
-
-    abstract fun toValueType(fallbackType: XdmSingleType): XdmType
 }
 
 
-sealed class XdmTypeTest(val cardinality: OccurrenceType): XdmSequenceTypeTest() {
+sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest() {
 
     @XPathInternal
     context(ctxt: ExprEvalContext)
@@ -62,6 +92,17 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType): XdmSequenceTypeTest()
     @XPathInternal
     context(ctxt: ExprEvalContext)
     open fun isAssignableToSingle(receiver: XdmTypeTest): Boolean = receiver.isAssignableFromSingle(this)
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest = when (other){
+        EMPTY -> EMPTY.sharedBaseType(this)
+        is XdmTypeTest -> sharedBaseType(other, cardinality.union(other.cardinality))
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    abstract fun sharedBaseType(other: XdmTypeTest, neededCardinality: OccurrenceType): XdmSequenceTypeTest
 
     @XPathInternal
     context(ctx: ExprEvalContext)
@@ -94,6 +135,22 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType): XdmSequenceTypeTest()
         return isAssignableToSingle(receiver)
     }
 
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    abstract fun isSingleInstance(value: XdmSingleValue<*>): Boolean
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun isInstance(value: XdmValue): Boolean {
+        return when (value) {
+            is XdmSequence.Empty -> cardinality.allowsEmpty
+            is XdmSequence<*> if (value.size > 1) -> (cardinality.allowsMultiple) &&
+                    value.all { isSingleInstance(it) }
+
+            else -> isSingleInstance(value as XdmSingleValue<*>) // The cast should always succceed
+        }
+    }
+
     object ANY {
         val single: Any = Any(OccurrenceType.SINGLE)
         val opt: Any = Any(OccurrenceType.OPTIONAL)
@@ -107,6 +164,10 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType): XdmSequenceTypeTest()
         override val any: Any get() = Any(OccurrenceType.ANY)
         override val atLeastOne: Any get() = Any(OccurrenceType.AT_LEAST_ONE)
 
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean = true
+
         context(ctxt: ExprEvalContext)
         @XPathInternal
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
@@ -116,6 +177,12 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType): XdmSequenceTypeTest()
         @XPathInternal
         context(ctxt: ExprEvalContext)
         override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean = true
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(other: XdmTypeTest, neededCardinality: OccurrenceType): Any {
+            return Any(neededCardinality)
+        }
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return when (cardinality) {

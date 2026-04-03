@@ -30,7 +30,7 @@ class InstanceOfExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: 
     @XPathInternal
     override fun eval(): XdmValue {
         val exprValue = expr.eval()
-        val result =  sequenceType.isInstance(exprValue)
+        val result =  ctx.withExprContext(this) { sequenceType.eval().isInstance(exprValue) }
 
         return XdmAtomic(XsdBoolean(result))
     }

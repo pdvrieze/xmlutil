@@ -60,7 +60,7 @@ class XdmNode(
     }
 
     // TODO actually use schema types for this
-    val dynamicType: XdmSingleType get() = staticType
+    override val dynamicType: XdmSingleType get() = staticType
 
     override fun asT(): XdmNode = this
 

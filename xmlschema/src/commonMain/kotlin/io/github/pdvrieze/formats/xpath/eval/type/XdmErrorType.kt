@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
@@ -37,13 +38,17 @@ object XdmErrorType : XdmSingleType() {
         else -> false
     }
 
-    /*
-    context(ctx: ExprEvalContext)
-    override fun isSubtypeOf(other: XdmType): Boolean = when {
-        cardinality.allowsEmpty -> EmptySequence.isSubtypeOf(other)
-        else -> true
+    override fun toTypeTest(occurrence: SequenceType.OccurrenceType): Nothing {
+        TODO("not implemented")
     }
-*/
+
+    /*
+        context(ctx: ExprEvalContext)
+        override fun isSubtypeOf(other: XdmType): Boolean = when {
+            cardinality.allowsEmpty -> EmptySequence.isSubtypeOf(other)
+            else -> true
+        }
+    */
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue {
         throw EvaluationException(ctx.expr, "Errors cannot be created from strings")

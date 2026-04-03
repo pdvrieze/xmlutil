@@ -35,7 +35,7 @@ class XdmBuiltinFunction(
 ): XdmFunction<XdmBuiltinFunction>() {
     override fun asT(): XdmBuiltinFunction = this
 
-    val dynamicType: XdmFunctionType
+    override val dynamicType: XdmFunctionType
         get() = function.functionTypes.single()
 
     context(ctx: ExprEvalContext)

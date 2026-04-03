@@ -48,7 +48,7 @@ class XdmAtomic<T: XsdAtomic>(val value: T, override val staticType: XdmSingleTy
         receiver.add(this)
     }
 
-    val dynamicType: XdmType
+    override val dynamicType: XdmSchemaType
         get() = XdmSchemaType(value.schemaType)
 
     override fun isValEqual(expected: XdmValue): Boolean {

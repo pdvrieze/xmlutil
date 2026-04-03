@@ -455,5 +455,20 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override fun isAssignableFrom(source: NodeKindTest): Boolean = true
     }
 
+    companion object {
+        @OptIn(NeedsXPath2::class, NeedsXPath3_0::class)
+        fun of(type: NodeType): NodeKindTest = when (type) {
+            NodeType.ELEMENT -> ElementTest()
+            NodeType.ATTRIBUTE -> AttributeTest()
+            NodeType.TEXT -> TextTest
+            NodeType.PROCESSING_INSTRUCTION -> ProcInstrTest()
+            NodeType.COMMENT -> CommentTest
+            NodeType.DOCUMENT -> DocumentTest()
+            NodeType.NAMESPACE_NODE -> NamepaceNodeTest
+            NodeType.ANY_NODE -> AnyNode
+            NodeType.SCHEMA_ELEMENT -> TODO("The static type needs more depth")
+            NodeType.SCHEMA_ATTRIBUTE -> TODO("The static type needs more depth")
+        }
+    }
 
 }

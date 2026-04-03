@@ -38,6 +38,8 @@ object XdmEmptySequenceType : XdmType() {
     override val single: XdmSingleType
         get() = throw UnsupportedOperationException("EmptySequence is not a single type")
 
+    override fun toTypeTest(): XdmSequenceTypeTest = XdmSequenceTypeTest.EMPTY
+
     override fun toString(): String = "EmptySequence()"
 
     @XPathInternal

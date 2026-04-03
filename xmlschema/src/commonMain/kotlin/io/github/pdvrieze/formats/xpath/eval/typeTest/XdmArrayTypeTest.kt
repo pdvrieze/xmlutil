@@ -63,6 +63,17 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
             return fallbackType.cardinality(cardinality)
         }
 
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(
+            other: XdmTypeTest,
+            neededCardinality: OccurrenceType
+        ): XdmSequenceTypeTest {
+            return when (other) {
+                !is XdmArrayTypeTest -> super.sharedBaseType(other, neededCardinality)
+                else -> Any(neededCardinality)
+            }
+        }
+
         context(ctxt: ExprEvalContext)
         @XPathInternal
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
@@ -78,6 +89,18 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return XdmArrayType(itemType).cardinality(cardinality)
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(
+            other: XdmTypeTest,
+            neededCardinality: OccurrenceType
+        ): XdmSequenceTypeTest {
+            if (other !is XdmArrayTypeTest) return super.sharedBaseType(other, neededCardinality)
+            else if (other is Any) return Any(neededCardinality)
+
+            val sharedItemType = itemType.sharedBaseType(other.itemType)
+            return Typed(sharedItemType, neededCardinality)
         }
 
         context(ctxt: ExprEvalContext)

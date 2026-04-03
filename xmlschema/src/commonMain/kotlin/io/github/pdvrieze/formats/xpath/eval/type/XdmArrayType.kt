@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.eval.type
 
 import io.github.pdvrieze.formats.xpath.eval.typeTest.*
+import io.github.pdvrieze.formats.xpath.impl.ArrayTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -34,6 +35,12 @@ class XdmArrayType(
     elemType
 ) {
     val elemType: XdmSequenceTypeTest get() = returnType
+
+    override fun toTypeTest(occurrence: OccurrenceType): XdmArrayTypeTest.Typed {
+        return XdmArrayTypeTest.Typed(elemType, occurrence)
+    }
+
+    override fun toTypeTest(): XdmArrayTypeTest.Typed = toTypeTest(OccurrenceType.SINGLE)
 
     context(ctx: ExprEvalContext)
     @XPathInternal

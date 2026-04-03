@@ -34,12 +34,12 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 class XdmPartialApplication(
     val function: XdmFunction<*>,
     val args: List<XdmValue?>,
-    override val staticType: XdmFunctionType = function.partialType(args)
+    override val staticType: XdmFunctionType = function.partialStaticType(args)
 ) : XdmFunction<XdmPartialApplication>() {
     override fun asT(): XdmPartialApplication = this
 
-    val dynamicType: XdmFunctionType
-        get() = function.partialType(args)
+    override val dynamicType: XdmFunctionType
+        get() = function.partialDynType(args)
 
     private val paramIdxToOrigIdxMap = IntArray(staticType.argTypes.size)
 

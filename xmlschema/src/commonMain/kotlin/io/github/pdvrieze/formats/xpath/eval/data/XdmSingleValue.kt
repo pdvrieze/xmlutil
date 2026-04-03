@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -28,6 +29,8 @@ import io.github.pdvrieze.formats.xpath.impl.evalPredicates
 @XPathInternal
 sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmValue {
     final override val size: Int get() = 1
+
+    abstract val dynamicType: XdmSingleType
 
     abstract fun asT(): T
 
