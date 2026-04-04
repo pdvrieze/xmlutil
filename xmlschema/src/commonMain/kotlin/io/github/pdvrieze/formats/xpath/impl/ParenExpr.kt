@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): io.github.pdvrieze.formats.xpath.eval.data.XdmValue {
+    override fun eval(): XdmValue {
         return expr.eval()
     }
 

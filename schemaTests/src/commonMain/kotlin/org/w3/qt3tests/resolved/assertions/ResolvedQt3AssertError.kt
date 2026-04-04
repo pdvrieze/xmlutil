@@ -21,13 +21,14 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 class ResolvedQt3AssertError(val code: String?): ResolvedQt3Assertion() {
     override fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {
         accumulator.add(this)
     }
 
-    override fun verify(evalResult: Result<io.github.pdvrieze.formats.xpath.eval.data.XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
         val evalResult = evalResult.exceptionOrNull() ?: return AssertionResult.Failure("Expected error($code), but got $evalResult")
         return when {
             evalResult !is EvaluationException -> AssertionResult.Failure("Expected EvaluationException($code), but got $evalResult")

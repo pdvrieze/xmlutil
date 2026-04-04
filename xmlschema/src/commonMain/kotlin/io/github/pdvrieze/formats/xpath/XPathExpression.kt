@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(with = XPathExpression.Serializer::class)
 interface XPathExpression: XQueryExpression {
-    fun eval(contextItem: io.github.pdvrieze.formats.xpath.eval.data.XdmValue? = null): XdmValue {
+    fun eval(contextItem: XdmValue? = null): XdmValue {
         @OptIn(XPathInternal::class)
         return context(EvalContext(contextItem)){ expr.eval() }
     }

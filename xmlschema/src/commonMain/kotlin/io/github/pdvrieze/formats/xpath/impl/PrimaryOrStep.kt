@@ -53,6 +53,6 @@ sealed class PrimaryOrStep {
     }
 
     context(ctx: ExprEvalContext)
-    abstract fun eval(context: io.github.pdvrieze.formats.xpath.eval.data.XdmValue?): XdmValue
+    abstract fun eval(context: XdmValue?): XdmValue
 
 }

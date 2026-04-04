@@ -22,7 +22,6 @@
 
 package nl.adaptivity.xmlutil.benchmark
 
-import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import kotlinx.benchmark.*
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlException

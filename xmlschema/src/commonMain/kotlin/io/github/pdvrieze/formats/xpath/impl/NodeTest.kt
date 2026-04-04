@@ -32,7 +32,7 @@ import nl.adaptivity.xmlutil.namespaceURI
 @XPathInternal
 @NeedsXPath1
 sealed class NodeTest {
-    sealed class NameTest() : NodeTest()
+    sealed class NameTest : NodeTest()
 
     sealed class NameOrLiteral {
         context(c: OutputContext)
@@ -64,7 +64,7 @@ sealed class NodeTest {
     class ProcessingInstructionTest(val literal: NameOrLiteral? = null) : NodeTest() {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
-            val pi = ((it as? io.github.pdvrieze.formats.xpath.eval.data.XdmNode)?.node as? ProcessingInstruction) ?: return false
+            val pi = ((it as? XdmNode)?.node as? ProcessingInstruction) ?: return false
             return when (literal) {
                 null -> true
                 is NameOrLiteral.LiteralTest -> literal.literal == pi.data
@@ -102,7 +102,7 @@ sealed class NodeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is io.github.pdvrieze.formats.xpath.eval.data.XdmNode && (it.node as? Element)?.localName == localName
+            return it is XdmNode && (it.node as? Element)?.localName == localName
         }
 
         context(c: OutputContext)
@@ -128,7 +128,7 @@ sealed class NodeTest {
     class QNameTest(val qName: QName) : NameTest() {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
-            if (it !is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) return false
+            if (it !is XdmNode) return false
             return when (val n = it.node) {
                 is Attr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
                 is Element -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
@@ -162,7 +162,7 @@ sealed class NodeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is io.github.pdvrieze.formats.xpath.eval.data.XdmNode && (it.node as? Element).let {
+            return it is XdmNode && (it.node as? Element).let {
                 it?.namespaceURI == namespace.xmlString && it.prefix == prefix?.xmlString
             }
         }

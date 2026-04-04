@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests
+package io.github.pdvrieze.formats.xmlschemaTests
 
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.newReader

@@ -27,7 +27,7 @@ class ResolvedQt3AnyOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3A
         for (a in assertions) a.expectedErrors(accumulator)
     }
 
-    override fun verify(evalResult: Result<io.github.pdvrieze.formats.xpath.eval.data.XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
         val failures = assertions
             .mapNotNull { it.verify(evalResult) as? AssertionResult.Failure }
         return when {

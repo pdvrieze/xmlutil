@@ -20,6 +20,7 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
 class ResolvedQt3AssertXML(
@@ -27,7 +28,7 @@ class ResolvedQt3AssertXML(
     val file: XsdAnyURI?,
     val ignorePrefixes: Boolean
 ): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<io.github.pdvrieze.formats.xpath.eval.data.XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         TODO("not implemented")
     }
