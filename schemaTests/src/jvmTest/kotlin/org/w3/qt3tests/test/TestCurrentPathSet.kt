@@ -18,26 +18,35 @@
  * permissions and limitations under the License.
  */
 
-package org.w3.qt3tests.resolved.assertions
+package org.w3.qt3tests.test
 
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import org.junit.jupiter.api.Named
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
+import kotlin.test.Test
 
 @OptIn(XPathInternal::class)
-class ResolvedQt3AssertTrue : ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
-        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
-        val assertResult = context(ExprEvalContext.DUMMY) {
-            try { evalResult.toBoolean() } catch (e: EvaluationException) {
-                return AssertionResult.Failure(e)
-            }
-        }
-        return when {
-            assertResult -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected true, got '${evalResult}' failed")
-        }
+class TestCurrentPathSet : AbstractTestSetSuite() {
 
+    @Test
+    fun testCurrent() {
+        val evalValue = testEvalTestCaseImpl(getTestCase("fn-booleanint1args-1"))
     }
+
+    @ParameterizedTest
+    @MethodSource("getTestCases")
+    fun testEvalTestCase(testCase: ResolvedQt3TestCase) {
+        testEvalTestCaseImpl(testCase)
+    }
+
+    companion object : CompanionBase("fn-boolean") {
+        @JvmStatic
+        override fun getTestCases(): List<Named<ResolvedQt3TestCase>> {
+            return getTestCases(testSetName)
+        }
+    }
+
 }
+
