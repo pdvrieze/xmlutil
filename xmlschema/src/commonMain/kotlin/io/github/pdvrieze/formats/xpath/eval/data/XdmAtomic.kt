@@ -77,7 +77,7 @@ class XdmAtomic<out T : XsdAtomic>(
         is XsdString -> value.isNotEmpty()
         is XsdFloat -> value.value != 0.0f && !value.value.isNaN()
         is XsdDouble -> value.value != 0.0 && !value.value.isNaN()
-        is XsdInteger -> value != XsdInteger.ZERO
+        is XsdDecimal -> value.sign != 0
         else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast to boolean")
     }
 
