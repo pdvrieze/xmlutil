@@ -40,7 +40,7 @@ interface EntityType<out T : XsdEntity> : NCNameType<T> {
         get() = Instance.constrainingFacets
 
     object Instance: EntityType<XsdEntity>, BuiltinType {
-        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "dateTime", "xs")
+        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "ENTITY", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
