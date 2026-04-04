@@ -426,6 +426,9 @@ class BigDecimal internal constructor(
             sign < other.sign -> -1
             sign > other.sign -> 1
 
+            // Optimization when this BigDecimal could be a BigInt.
+            decimalPositions == 0L && other !is BigDecimal -> BigInt(sign, ints, 0uL).compareTo(other)
+
             else -> compareTo(other.toBigDecimal())
         }
     }
