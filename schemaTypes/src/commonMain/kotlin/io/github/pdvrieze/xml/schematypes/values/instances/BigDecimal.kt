@@ -34,6 +34,15 @@ class BigDecimal internal constructor(
     internal val decimalPositions: Long
 ) : XsdBigDecimal {
 
+    init {
+        when {
+            ints.size == 1 && ints[0] == 0u -> require(sign == 0) { "Zero value must have a 0 sign" }
+            sign == 0 ->
+                throw IllegalArgumentException("Zero sign must have a single int")
+            else -> require(sign != 0) { "Non-zero values must not have a 0 sign" }
+        }
+    }
+
     val self: BigDecimal get() = this
 
     private constructor(parseResult: ParseResult) : this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
@@ -689,6 +698,9 @@ class BigDecimal internal constructor(
             while (lastByteToKeep > 0 && numbers[lastByteToKeep] == 0u) lastByteToKeep -= 1
 
             val array = if (lastByteToKeep + 1 == numbers.size) numbers else numbers.copyOf(lastByteToKeep + 1)
+
+            // Make sure that the sign field is accurate.
+            if (array.size == 1 && array[0] == 0u) sign = 0
 
             return ParseResult(sign, array, decimalDigits)
         }
