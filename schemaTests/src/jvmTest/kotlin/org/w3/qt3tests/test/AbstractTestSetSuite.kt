@@ -24,6 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.dom2.Document
 import org.junit.jupiter.api.Named
 import org.opentest4j.AssertionFailedError
@@ -36,19 +37,13 @@ abstract class AbstractTestSetSuite {
     @IgnorableReturnValue
     protected fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue> {
         val environment = testCase.environment?.getOrThrow()
-        val contextDoc: Document? = environment?.run {
-            val s = sources.filter { it.role == "." }
-            if (s.isEmpty()) {
-                null
-            } else {
-                s.single().content
-            }
-        }
+        val contextDoc: Document? = environment?.getDocumentOrNull()
 
         val context = contextDoc?.let { XdmNode(it.documentElement!!) }
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
-        val evalResult = runCatching { testExpression.eval(context) }
+        val nsContext = environment?.getNsContext() ?: SimpleNamespaceContext()
+        val evalResult = runCatching { testExpression.eval(context, nsContext) }
 
         if (testCase.result != null) {
             for (a in testCase.result.assertions) {

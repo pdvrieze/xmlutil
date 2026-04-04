@@ -20,6 +20,9 @@
 
 package org.w3.qt3tests.resolved
 
+import nl.adaptivity.xmlutil.NamespaceContext
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.dom2.Document
 import org.w3.qt3tests.*
 
 class ResolvedQt3Environment(
@@ -38,5 +41,13 @@ class ResolvedQt3Environment(
 ) {
     init {
         require(name == null || name.isNotBlank()) { "Names can not be blank" }
+    }
+
+    fun getDocumentOrNull(): Document? {
+        return sources.singleOrNull { it.role == "." }?.content
+    }
+
+    fun getNsContext(): NamespaceContext {
+        return SimpleNamespaceContext(namespaces.associate { it.prefix to it.uri })
     }
 }
