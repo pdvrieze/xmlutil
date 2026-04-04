@@ -25,7 +25,6 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmBoolean
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.BooleanType
@@ -91,10 +90,11 @@ object BooleanFunctions: AbstractFunctionObject() {
         }
 
     val fnNot: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
-        "boolean",
+        "not",
         listOf(functionType(BooleanType.Instance, ITEM.any))
     ) { args ->
-            val r = toSingleArg(args)?.toBoolean() ?: false
-            XdmAtomic(XsdBoolean(!r))
-        }
+        // empty sequence has the false value
+        val r = toSingleArg(args)?.toBoolean() ?: false
+        XdmAtomic(XsdBoolean(!r))
+    }
 }
