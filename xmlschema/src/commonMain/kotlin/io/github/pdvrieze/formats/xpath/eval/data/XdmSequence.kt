@@ -104,7 +104,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     }
 
     class Empty(type: XdmType = XdmEmptySequenceType) : XdmSequence<Nothing>(staticType = type),
-        XdmAtomicOrEmpty<Nothing>
+        XdmAtomicOrEmpty<Nothing>, XdmSingleOrEmpty<Nothing>
 
     companion object {
         val EMPTY: Empty = empty(XdmEmptySequenceType)
@@ -156,6 +156,11 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 }
 
 @OptIn(XPathInternal::class)
-sealed interface XdmAtomicOrEmpty<out E : XdmSingleValue<E>> : XdmAtomicOrSequence<E>
+sealed interface XdmAtomicOrEmpty<out E : XdmSingleValue<E>> : XdmAtomicOrSequence<E>, XdmSingleOrEmpty<E>
+
 @OptIn(XPathInternal::class)
 sealed interface XdmAtomicOrSequence<out E : XdmSingleValue<E>> : XdmValue
+
+@OptIn(XPathInternal::class)
+sealed interface XdmSingleOrEmpty<out E : XdmSingleValue<E>> : XdmValue
+

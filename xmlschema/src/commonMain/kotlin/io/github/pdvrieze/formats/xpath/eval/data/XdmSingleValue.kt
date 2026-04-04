@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.formats.xpath.impl.evalPredicates
 
 @XPathInternal
-sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmValue {
+sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
     final override val size: Int get() = 1
 
     abstract val dynamicType: XdmSingleType
