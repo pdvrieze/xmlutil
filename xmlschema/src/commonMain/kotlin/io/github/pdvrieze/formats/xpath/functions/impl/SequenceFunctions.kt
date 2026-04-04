@@ -21,7 +21,13 @@
 package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrEmpty
+import io.github.pdvrieze.formats.xpath.eval.data.XdmBoolean
+import io.github.pdvrieze.formats.xpath.eval.data.XdmInteger
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
@@ -29,17 +35,25 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 @XPathInternal
 object SequenceFunctions : AbstractFunctionObject() {
 
-    val fnEmpty = BuiltinFunctionImpl("empty", functionType(BOOLEAN, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
+    val fnEmpty: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl("empty", functionType(BOOLEAN, ITEM.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdBoolean(arg.size==0))
     }
 
-    val fnExists = BuiltinFunctionImpl("exists", functionType(BOOLEAN, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
+    val fnExists: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl("exists", functionType(BOOLEAN, ITEM.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdBoolean(arg.size>0))
     }
 
-    val fnCount = BuiltinFunctionImpl("count", functionType(INTEGER, ITEM.any)) { args ->
+    val fnReverse: BuiltinFunctionImpl<XdmValue> = BuiltinFunctionImpl("reverse", functionType(ITEM.any, ITEM.any)) { args ->
+        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (arg.size==1) return@BuiltinFunctionImpl arg[0]
+
+        val reversed = (arg.size-1 downTo 0).map { arg[it] }
+        XdmSequence(reversed)
+    }
+
+    val fnCount: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmInteger>> = BuiltinFunctionImpl("count", functionType(INTEGER, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
         XdmAtomic(XsdInteger(arg.size))
     }

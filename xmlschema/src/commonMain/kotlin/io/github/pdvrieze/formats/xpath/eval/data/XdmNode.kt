@@ -33,6 +33,7 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
@@ -113,13 +114,13 @@ class XdmNode(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
         val a = atomize()
         if (a is XdmAtomic<*>) receiver.add(a)
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmAtomicOrEmpty {
+    override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
         return when (node) {
             is Attr -> (staticType).fromString(node.value) as XdmAtomic<*>
             is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))

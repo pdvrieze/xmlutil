@@ -18,31 +18,35 @@
  * permissions and limitations under the License.
  */
 
-@file:OptIn(NeedsXPath2::class)
-
 package io.github.pdvrieze.formats.xpath.functions
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.QName
 
-@XPathInternal
-interface BuiltinFunction<out R : XdmValue> : XFunction<R> {
-    override val functionTypes: List<XdmFunctionType>
+interface XFunction<out R : XdmValue> {
+    val functionName: QName
 
+    val functionTypes: List<XdmFunctionType>
+
+    @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun invoke(vararg args: XdmValue): R = invoke(args.toList())
-
-    context(ctx: ExprEvalContext)
-    override operator fun invoke(args: List<XdmValue>): R
-
-    companion object {
-        const val FN_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions"
-        const val MAP_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions/map"
-        const val ARRAY_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions/array"
-        const val MATH_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions/math"
+    fun getReturnType(): XdmSequenceTypeTest {
+        return functionTypes.asSequence()
+            .map { it.returnType }
+            .reduce { acc, type -> acc.sharedBaseType(type) }
     }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    operator fun invoke(vararg args: XdmValue): R = invoke(args.toList())
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    operator fun invoke(args: List<XdmValue>): R
+
 }
 

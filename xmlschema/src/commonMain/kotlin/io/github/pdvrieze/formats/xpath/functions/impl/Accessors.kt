@@ -23,14 +23,20 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrEmpty
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmBoolean
 import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmQName
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.type.XdmType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.types.QNameType
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
@@ -41,7 +47,7 @@ import nl.adaptivity.xmlutil.dom2.textContent
 
 @XPathInternal
 object Accessors : AbstractFunctionObject() {
-    val fnNodeName = BuiltinFunctionImpl(
+    val fnNodeName: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmQName>> = BuiltinFunctionImpl(
         "node-name",
         contextFunctionTypes(t(QNameType.Instance).opt, NODE.opt)
     ) { args ->
@@ -49,7 +55,7 @@ object Accessors : AbstractFunctionObject() {
         XdmAtomic(XsdQName(arg.node.nodeName))
     }
 
-    val fnNilled = BuiltinFunctionImpl(
+    val fnNilled: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl(
         "nilled", contextFunctionTypes(BOOLEAN.opt, NODE.opt)
     ) { args ->
         val arg = (toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.BOOLEAN))
@@ -64,7 +70,7 @@ object Accessors : AbstractFunctionObject() {
 
     }
 
-    val fnString = BuiltinFunctionImpl(
+    val fnString: BuiltinFunctionImpl<XdmAtomic<XsdString>> = BuiltinFunctionImpl(
         "string",
         contextFunctionTypes(STRING.opt, ITEM.opt)
     ) { args ->
@@ -84,7 +90,7 @@ object Accessors : AbstractFunctionObject() {
         XdmAtomic(XsdString(s))
     }
 
-    val fnData = BuiltinFunctionImpl(
+    val fnData: BuiltinFunctionImpl<XdmAtomicOrSequence<XdmAtomic<*>>> = BuiltinFunctionImpl(
         "data",
         contextFunctionTypes(ATOMIC.any, ITEM.any)
     ) { args ->
@@ -92,7 +98,7 @@ object Accessors : AbstractFunctionObject() {
             .atomize()
     }
 
-    val fnBaseUri = BuiltinFunctionImpl(
+    val fnBaseUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl(
         "base-uri",
         contextFunctionTypes(t(AnyURIType.Instance).opt, NODE.opt)
     ) { args ->
@@ -100,7 +106,7 @@ object Accessors : AbstractFunctionObject() {
         TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
-    val fnDocumentUri = BuiltinFunctionImpl("document-uri",
+    val fnDocumentUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl("document-uri",
         contextFunctionTypes(AnyURIType.Instance.opt, NODE.opt)
     ) { args ->
         val node = toSingleNode(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)

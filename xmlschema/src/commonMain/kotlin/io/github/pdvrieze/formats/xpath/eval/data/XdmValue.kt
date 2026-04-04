@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @OptIn(XPathInternal::class)
 sealed interface XdmValue {
@@ -37,12 +38,13 @@ sealed interface XdmValue {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>)
+    fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>)
 
     context(ctx: ExprEvalContext)
-    fun atomize(): XdmAtomicOrSequence {
+    fun atomize(): XdmAtomicOrSequence<XdmAtomic<*>> {
         val newElems = mutableListOf<XdmAtomic<*>>()
         atomizeTo(newElems)
+
         return newElems.singleOrNull() ?: XdmSequence(newElems)
     }
 
@@ -59,12 +61,12 @@ sealed interface XdmValue {
     }
 
     context(ctx: ExprEvalContext)
-    abstract fun evalPredicates(predicates: Iterable<Expr>): XdmValue
+    fun evalPredicates(predicates: Iterable<Expr>): XdmValue
 
     /**
      * Implement the VAL_EQ operator
      */
-    abstract fun isValEqual(expected: XdmValue): Boolean
+    fun isValEqual(expected: XdmValue): Boolean
 
     context(ctx: ExprEvalContext)
     abstract fun toBoolean(): Boolean

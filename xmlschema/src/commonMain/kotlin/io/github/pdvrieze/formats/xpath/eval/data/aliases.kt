@@ -18,26 +18,16 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.formats.xpath.functions
+package io.github.pdvrieze.formats.xpath.eval.data
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import nl.adaptivity.xmlutil.QName
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-interface Function {
-    val functionName: QName
-
-    val functionTypes: List<XdmFunctionType>
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    operator fun invoke(vararg args: XdmValue): XdmValue = invoke(args.toList())
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    operator fun invoke(args: List<XdmValue>): XdmValue
-
-}
-
+typealias XdmString = XdmAtomic<XsdString>
+typealias XdmQName = XdmAtomic<XsdQName>
+typealias XdmBoolean = XdmAtomic<XsdBoolean>
+typealias XdmNumeric = XdmAtomic<XsdNumeric<*>>
+typealias XdmInteger = XdmAtomic<XsdInteger>

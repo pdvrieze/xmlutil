@@ -32,9 +32,9 @@ import nl.adaptivity.xmlutil.localPart
 @OptIn(XPathInternal::class)
 enum class Fn(
     localName: String? = null,
-    override val functionTypes: List<io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType>,
+    override val functionTypes: List<XdmFunctionType>,
     val implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue,
-) : Function {
+) : XFunction<XdmValue> {
     //region Accessors (2)
     nodeName(Accessors.fnNodeName),
     nilled(Accessors.fnNilled),
@@ -61,6 +61,11 @@ enum class Fn(
     number(NumericFunctions.fnNumber),
     //endregion
 
+    //region String functions (5)
+    concat(StringFunctions.fnConcat),
+    stringJoin(StringFunctions.fnStringJoin),
+    //endregion
+
     //region Node Operations (13)
     Name(NodeFunctions.fnName),
     localName(NodeFunctions.fnLocalName),
@@ -76,16 +81,17 @@ enum class Fn(
     //region Sequence operations (14)
     empty(SequenceFunctions.fnEmpty),
     exists(SequenceFunctions.fnExists),
+    reverse(SequenceFunctions.fnReverse),
     Count(SequenceFunctions.fnCount),
     //endregion
     ;
 
     override val functionName: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, localName ?: name)
 
-    constructor(builtinFunction: BuiltinFunctionImpl<*>): this(builtinFunction.functionName.localPart, builtinFunction.functionTypes, builtinFunction.evalFunction)
+    constructor(builtinFunction: BuiltinFunctionImpl<XdmValue>): this(builtinFunction.functionName.localPart, builtinFunction.functionTypes, builtinFunction.evalFunction)
 
     constructor(
-        types: List<io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType>,
+        types: List<XdmFunctionType>,
         implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue,
     ): this(null, types, implementation)
 

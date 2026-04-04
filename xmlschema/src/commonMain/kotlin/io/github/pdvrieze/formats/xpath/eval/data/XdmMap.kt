@@ -32,6 +32,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @XPathInternal
 class XdmMap private constructor(
@@ -61,12 +62,12 @@ class XdmMap private constructor(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>): Nothing {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>): Nothing {
         throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): Nothing {
+    override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
         throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 

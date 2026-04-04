@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -35,7 +36,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-class BuiltinFunctionImpl<R: XdmValue>(
+class BuiltinFunctionImpl<out R: XdmValue>(
     override val functionName: QName,
     override val functionTypes: List<XdmFunctionType>,
     val evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
@@ -75,7 +76,7 @@ class BuiltinFunctionImpl<R: XdmValue>(
         evalFunction
     )
 
-/*
+    /*
     constructor(
         returnType: AnyType,
         vararg argumentTypes: AnyType,

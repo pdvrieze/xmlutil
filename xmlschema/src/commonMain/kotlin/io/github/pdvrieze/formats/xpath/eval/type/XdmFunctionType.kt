@@ -34,7 +34,8 @@ import io.github.pdvrieze.xml.schematypes.types.AnyType
 
 open class XdmFunctionType(
     val argTypes: List<XdmSequenceTypeTest>,
-    val returnType: XdmSequenceTypeTest
+    val returnType: XdmSequenceTypeTest,
+    val isVarArg: Boolean = false
 ) : XdmSingleType() {
 
     constructor(returnType: XdmTypeTest, vararg argTypes: XdmTypeTest) : this(

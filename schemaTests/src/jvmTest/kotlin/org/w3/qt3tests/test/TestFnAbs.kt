@@ -39,7 +39,7 @@ class TestFnAbs : AbstractTestSetSuite() {
 
     @Test
     fun testCurrent() {
-        val evalValue = testEvalTestCaseImpl(getTestCase("K2-ABSFunc-35"))
+        val evalValue = testEvalTestCaseImpl(getTestCase("cbcl-abs-001"))
     }
 
     @ParameterizedTest

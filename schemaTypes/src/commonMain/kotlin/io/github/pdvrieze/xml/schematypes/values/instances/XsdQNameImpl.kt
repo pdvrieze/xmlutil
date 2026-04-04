@@ -22,6 +22,9 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.QNameType
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.localPart
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
+import io.github.pdvrieze.xml.schematypes.values.prefix
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
@@ -36,4 +39,16 @@ class XsdQNameImpl(
     constructor(localPart: String) : this("", localPart)
 
     override fun toQName(): QName = this
+
+    override fun toString(): String {
+        // use XPath 4 notation that includes prefix
+        return buildString {
+            if (namespaceURI.isNotEmpty()) {
+                append("Q{$namespaceURI}")
+                if (prefix.isNotEmpty()) append(prefix).append(':')
+            }
+            append(localPart)
+        }
+    }
+
 }

@@ -23,9 +23,12 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrEmpty
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNumeric
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.functions.singleArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -35,32 +38,47 @@ import io.github.pdvrieze.xml.schematypes.values.*
 @XPathInternal
 object NumericFunctions: AbstractFunctionObject() {
 
-    val fnAbs = BuiltinFunctionImpl("abs", functionType(NUMERIC.opt, NUMERIC.opt)) { args ->
+    val fnAbs: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+        "abs",
+        functionType(NUMERIC.opt, NUMERIC.opt)
+    ) { args ->
         val n = toSingleAtomic<XsdNumeric<*>>(args, false) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmAtomic(n.abs() as XsdAtomic)
+        XdmAtomic(n.abs())
     }
 
-    val fnCeiling = BuiltinFunctionImpl("ceiling", functionType(NUMERIC.opt, NUMERIC.opt)) { args ->
+    val fnCeiling: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+        "ceiling",
+        functionType(NUMERIC.opt, NUMERIC.opt)
+    ) { args ->
         val n = toSingleAtomic<XsdNumeric<*>>(args, false) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmAtomic(n.ceiling() as XsdAtomic)
+        XdmAtomic(n.ceiling())
     }
 
-    val fnFloor = BuiltinFunctionImpl("floor", functionType(NUMERIC.opt, NUMERIC.opt)) { args ->
+    val fnFloor: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+        "floor",
+        functionType(NUMERIC.opt, NUMERIC.opt)
+    ) { args ->
         val n = toSingleAtomic<XsdNumeric<*>>(args, false) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmAtomic(n.floor() as XsdAtomic)
+        XdmAtomic(n.floor())
     }
 
-    val fnRound = BuiltinFunctionImpl("round", functionType(NUMERIC.opt, NUMERIC.opt)) { args ->
+    val fnRound: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+        "round",
+        functionType(NUMERIC.opt, NUMERIC.opt)
+    ) { args ->
         val value = toAtomic<XsdNumeric<*>>(0, args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val r = when (args.size) {
             1 -> value.round()
             2 -> value.round(toAtomic<XsdInteger>(1, args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR))
             else -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         }
-        XdmAtomic(r as XsdAtomic)
+        XdmAtomic(r)
     }
 
-    val fnRoundHalfToEven = BuiltinFunctionImpl("round-half-to-even", functionType(NUMERIC.opt, NUMERIC.opt)) { args ->
+    val fnRoundHalfToEven: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+        "round-half-to-even",
+        functionType(NUMERIC.opt, NUMERIC.opt)
+    ) { args ->
         val value = toAtomic<XsdNumeric<*>>(0, args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val r = when (args.size) {
             1 -> value.roundToHalfEven()
@@ -70,10 +88,13 @@ object NumericFunctions: AbstractFunctionObject() {
 
             else -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         }
-        XdmAtomic(r as XsdAtomic)
+        XdmAtomic(r)
     }
 
-    val fnNumber = BuiltinFunctionImpl("number", contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)) { args ->
+    val fnNumber: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+        "number",
+        contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)
+    ) { args ->
         val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextItem else args.singleArg<XdmValue>()
         if (arg !is XdmAtomic<*>) return@BuiltinFunctionImpl XdmAtomic.NaN
 

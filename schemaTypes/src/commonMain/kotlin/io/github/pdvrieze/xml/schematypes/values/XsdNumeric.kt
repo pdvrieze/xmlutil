@@ -20,12 +20,13 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.NumericType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
-interface XsdNumeric<out T: XsdNumeric<T>>: XsdAnySimple {
-    override val schemaType: NumericType<T>
+interface XsdNumeric<out T: XsdNumeric<T>>: XsdAtomic {
+    override val schemaType: AnyAtomicType<XsdAtomic>
 
     fun toDouble(): Double
 

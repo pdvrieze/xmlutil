@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @OptIn(XPathInternal::class)
 sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
@@ -47,7 +48,7 @@ sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
 
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
         throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a function")
     }
 

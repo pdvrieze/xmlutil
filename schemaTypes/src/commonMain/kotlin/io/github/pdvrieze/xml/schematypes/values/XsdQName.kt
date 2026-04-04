@@ -83,7 +83,6 @@ interface XsdQName: XsdAtomic {
                 getNamespaceURI() == other.getNamespaceURI()
     }
 
-
     companion object: XmlSerializer<XsdQName> {
         operator fun invoke(namespaceUri: String, localPart: String, prefix: String = ""): XsdQName =
             XsdQNameImpl(namespaceUri, localPart, prefix)

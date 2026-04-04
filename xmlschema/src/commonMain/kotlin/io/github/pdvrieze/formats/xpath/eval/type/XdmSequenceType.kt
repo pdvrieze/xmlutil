@@ -68,6 +68,11 @@ class XdmSequenceType(val baseType: XdmSingleType, val cardinality: OccurrenceTy
         throw EvaluationException(ctx.expr, "Sequences cannot be created from strings")
     }
 
+    override fun toString(): String = buildString{
+        append(baseType.toString())
+        append(cardinality.literal)
+    }
+
     companion object {
         val UNTYPED: XdmSchemaType get() = XdmSchemaType.UNTYPED
         val ANYSEQ = XdmSequenceType(XdmSchemaType.UNTYPED, OccurrenceType.ANY)

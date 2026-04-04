@@ -23,7 +23,9 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmBoolean
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.BooleanType
@@ -31,16 +33,22 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @XPathInternal
 object BooleanFunctions: AbstractFunctionObject() {
-    val fnTrue = BuiltinFunctionImpl("true", BooleanType.Instance) { args ->
+    val fnTrue: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+        "true",
+        BooleanType.Instance
+    ) { args ->
         if (args.isNotEmpty()) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         XdmAtomic(XsdBoolean.TRUE)
     }
-    val fnFalse = BuiltinFunctionImpl("false", BooleanType.Instance) { args ->
+    val fnFalse: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+        "false",
+        BooleanType.Instance
+    ) { args ->
         if (args.isNotEmpty()) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         XdmAtomic(XsdBoolean.FALSE)
     }
 
-    val opBooleanEqual = BuiltinFunctionImpl("op:boolean-equal", BooleanType.Instance, BooleanType.Instance, BooleanType.Instance) { args ->
+    val opBooleanEqual: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl("op:boolean-equal", BooleanType.Instance, BooleanType.Instance, BooleanType.Instance) { args ->
         if (args.size!=2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val left = args.atomicArgN<XsdBoolean>(0).value
         val right = args.atomicArgN<XsdBoolean>(1).value
@@ -48,7 +56,12 @@ object BooleanFunctions: AbstractFunctionObject() {
         XdmAtomic(XsdBoolean(left == right))
     }
 
-    val opBooleanLessThan = BuiltinFunctionImpl("op:boolean-less-than", BooleanType.Instance, BooleanType.Instance, BooleanType.Instance) { args ->
+    val opBooleanLessThan: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+        "op:boolean-less-than",
+        BooleanType.Instance,
+        BooleanType.Instance,
+        BooleanType.Instance
+    ) { args ->
         if (args.size!=2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val left = args.atomicArgN<XsdBoolean>(0).value
         val right = args.atomicArgN<XsdBoolean>(1).value
@@ -56,7 +69,12 @@ object BooleanFunctions: AbstractFunctionObject() {
         XdmAtomic(XsdBoolean(!left && right))
     }
 
-    val opBooleanGreaterThan = BuiltinFunctionImpl("op:boolean-greater-than", BooleanType.Instance, BooleanType.Instance, BooleanType.Instance) { args ->
+    val opBooleanGreaterThan: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+        "op:boolean-greater-than",
+        BooleanType.Instance,
+        BooleanType.Instance,
+        BooleanType.Instance
+    ) { args ->
         if (args.size != 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val left = args.atomicArgN<XsdBoolean>(0).value
         val right = args.atomicArgN<XsdBoolean>(1).value
@@ -64,13 +82,19 @@ object BooleanFunctions: AbstractFunctionObject() {
         XdmAtomic(XsdBoolean(left && !right))
     }
 
-    val fnBoolean = BuiltinFunctionImpl("boolean", listOf(functionType(BooleanType.Instance, ITEM.any))) { args ->
-        val r = toSingleArg(args)?.toBoolean() ?: false
-        XdmAtomic(XsdBoolean(r))
-    }
+    val fnBoolean: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+        "boolean",
+        listOf(functionType(BooleanType.Instance, ITEM.any))
+    ) { args ->
+            val r = toSingleArg(args)?.toBoolean() ?: false
+            XdmAtomic(XsdBoolean(r))
+        }
 
-    val fnNot = BuiltinFunctionImpl("boolean", listOf(functionType(BooleanType.Instance, ITEM.any))) { args ->
-        val r = toSingleArg(args)?.toBoolean() ?: false
-        XdmAtomic(XsdBoolean(! r))
-    }
+    val fnNot: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+        "boolean",
+        listOf(functionType(BooleanType.Instance, ITEM.any))
+    ) { args ->
+            val r = toSingleArg(args)?.toBoolean() ?: false
+            XdmAtomic(XsdBoolean(!r))
+        }
 }

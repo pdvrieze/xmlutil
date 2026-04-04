@@ -24,15 +24,15 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
-import io.github.pdvrieze.formats.xpath.functions.Function
+import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
 class XdmBuiltinFunction(
-    private val function: Function,
+    private val function: XFunction<XdmValue>,
     override val staticType: XdmFunctionType = function.functionTypes.single()
-): XdmFunction<XdmBuiltinFunction>() {
+) : XdmFunction<XdmBuiltinFunction>() {
     override fun asT(): XdmBuiltinFunction = this
 
     override val dynamicType: XdmFunctionType

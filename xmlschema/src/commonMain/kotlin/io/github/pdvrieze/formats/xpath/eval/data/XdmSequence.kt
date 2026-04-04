@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -35,7 +36,7 @@ import kotlin.contracts.contract
 open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     internal val elements: List<T> = emptyList(),
     override val staticType: XdmType = XdmSequenceType.ANYSEQ
-) : XdmAtomicOrSequence, List<T> {
+) : XdmAtomicOrSequence<T>, List<T> {
     override val size: Int get() = elements.size
 
     override fun get(index: Int): T {
@@ -70,7 +71,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<*>>) {
+    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
         for (e in elements) {
             e.atomizeTo(receiver)
         }
@@ -98,7 +99,8 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         return elements.joinToString(prefix = "(", postfix = ")")
     }
 
-    class Empty(type: XdmType = XdmEmptySequenceType): XdmSequence<Nothing>(staticType = type), XdmAtomicOrEmpty
+    class Empty(type: XdmType = XdmEmptySequenceType) : XdmSequence<Nothing>(staticType = type),
+        XdmAtomicOrEmpty<Nothing>
 
     companion object {
         val EMPTY: Empty = empty(XdmEmptySequenceType)
@@ -149,5 +151,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     }
 }
 
-sealed interface XdmAtomicOrEmpty: XdmAtomicOrSequence
-sealed interface XdmAtomicOrSequence: XdmValue
+@OptIn(XPathInternal::class)
+sealed interface XdmAtomicOrEmpty<out E : XdmSingleValue<E>> : XdmAtomicOrSequence<E>
+@OptIn(XPathInternal::class)
+sealed interface XdmAtomicOrSequence<out E : XdmSingleValue<E>> : XdmValue

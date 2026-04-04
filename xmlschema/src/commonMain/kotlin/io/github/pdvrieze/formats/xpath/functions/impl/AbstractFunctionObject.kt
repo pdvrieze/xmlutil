@@ -112,6 +112,18 @@ abstract class AbstractFunctionObject() {
     }
 
 
+    protected fun flexFunctionType(returnType: XdmSequenceTypeTest, vararg argTypes: XdmSequenceTypeTest): XdmFunctionType =
+        XdmFunctionType(argTypes.toList(), returnType, true)
+
+    protected fun flexFunctionType(returnType: AnyType, vararg argTypes: AnyType): XdmFunctionType =
+        XdmFunctionType(argTypes.map { t(it) }, t(returnType), true)
+
+    protected fun flexFunctionType(returnType: XdmTypeTest, vararg argTypes: AnyType): XdmFunctionType =
+        XdmFunctionType(argTypes.map { t(it) }, returnType, true)
+
+    protected fun flexFunctionType(returnType: AnyType, vararg argTypes: XdmTypeTest): XdmFunctionType =
+        XdmFunctionType(argTypes.toList(), t(returnType), true)
+
     protected fun functionType(returnType: XdmSequenceTypeTest, vararg argTypes: XdmSequenceTypeTest): XdmFunctionType =
         XdmFunctionType(argTypes.toList(), returnType)
 
