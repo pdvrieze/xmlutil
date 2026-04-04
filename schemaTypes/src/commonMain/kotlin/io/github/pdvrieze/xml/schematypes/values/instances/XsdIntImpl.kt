@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.IntType
-import io.github.pdvrieze.xml.schematypes.values.XsdInt
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.absoluteValue
 
 internal class XsdIntImpl(override val intValue: Int) : XsdInt {
@@ -58,7 +55,7 @@ internal class XsdIntImpl(override val intValue: Int) : XsdInt {
         this === other -> true
         other is XsdInt -> intValue == other.intValue
         other is XsdUnsignedInt -> intValue >=0 && intValue.toUInt() == other.toUInt()
-        other is XsdInteger -> other == this
+        other is XsdDecimal -> other == this
         else -> false
     }
 

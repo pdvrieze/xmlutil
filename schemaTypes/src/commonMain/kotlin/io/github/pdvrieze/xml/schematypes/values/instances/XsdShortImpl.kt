@@ -56,7 +56,7 @@ internal class XsdShortImpl(override val shortValue: Short) : XsdShort {
         this === other -> true
         other is XsdInt -> intValue == other.intValue
         other is XsdUnsignedInt -> intValue >=0 && intValue.toUInt() == other.toUInt()
-        other is XsdInteger -> other == this
+        other is XsdDecimal -> other == this
         else -> false
     }
 

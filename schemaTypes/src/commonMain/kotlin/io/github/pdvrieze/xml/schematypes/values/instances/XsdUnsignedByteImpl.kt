@@ -21,8 +21,8 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.UnsignedByteType
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedByte
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -43,7 +43,7 @@ internal class XsdUnsignedByteImpl(override val uByteValue: UByte) : XsdUnsigned
     override fun equals(other: Any?): Boolean = when (other) {
         is XsdUnsignedInt -> uIntValue == other.uIntValue
         is XsdInt -> other.intValue>=0 && other.intValue.toUInt() == uIntValue
-        is XsdInteger -> other == this
+        is XsdDecimal -> other == this
         else -> false
     }
 

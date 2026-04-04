@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.LongType
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdLong
-import io.github.pdvrieze.xml.schematypes.values.XsdNonNegativeInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.absoluteValue
 
 internal class XsdLongImpl(override val longValue: Long) : XsdLong {
@@ -63,7 +60,7 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
         this === other -> true
         other is XsdLong -> longValue == other.longValue
         other is XsdUnsignedLong -> longValue >=0 && longValue.toULong() == other.toULong()
-        other is XsdInteger -> other == this
+        other is XsdDecimal -> other == this
         else -> false
     }
 
