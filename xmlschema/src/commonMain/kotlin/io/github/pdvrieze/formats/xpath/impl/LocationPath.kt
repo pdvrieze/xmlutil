@@ -56,7 +56,7 @@ internal class LocationPath(
 
                     is XdmSequence<*> -> {
                         for (m in e.elements) {
-                            if (m !is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) throw EvaluationException(
+                            if (m !is XdmNode) throw EvaluationException(
                                 ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
                             )
                         }
@@ -77,9 +77,9 @@ internal class LocationPath(
             if (result.size == 0) {
                 return XdmSequence.empty(/* TODO last.evalType*/ base?.staticType ?: XdmSequenceType.ANYSEQ)
             }
-            if (result[0] is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) {
+            if (result[0] is XdmNode) {
                 for (i in 1 until result.size) {
-                    if (result[i] !is io.github.pdvrieze.formats.xpath.eval.data.XdmNode) {
+                    if (result[i] !is XdmNode) {
                         throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
                     }
                 }

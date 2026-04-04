@@ -28,31 +28,36 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 @NeedsXPath1
 internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
     context(ctx: ExprEvalContext)
-    override fun eval(context: io.github.pdvrieze.formats.xpath.eval.data.XdmValue?): XdmValue {
+    override fun eval(context: XdmValue?): XdmValue {
         val base = context(EvalContext(context, ctx.isXPath1Compat)) { primaryExpr.eval() }
         if (predicates.isEmpty()) return base
 
 
         var current = base
         for (predicate in predicates) {
-            when (current) {
-                is XdmSequence<*> -> {
-                    val newElems = current.filter {
-                        ctx.withValueContext(it) { predicate.eval() }.toBoolean()
+            if (predicate is LongLiteral) {
+                val sequenceIdx = predicate.value.toInt() - 1
+                if (sequenceIdx >= current.size) return XdmSequence.EMPTY
+                current = current[sequenceIdx]
+            } else {
+                when (current) {
+                    is XdmSequence<*> -> {
+                        val newElems = current.filter {
+                            ctx.withValueContext(it) { predicate.eval() }.toBoolean()
+                        }
+
+                        when (newElems.size) {
+                            0 -> return XdmSequence.empty(current.staticType)
+                            1 -> current = newElems.single()
+                            else -> current = XdmSequence(newElems, current.staticType)
+                        }
                     }
 
-                    when (newElems.size) {
-                        0 -> return XdmSequence.empty(current.staticType)
-                        1 -> current = newElems.single()
-                        else -> current = XdmSequence(newElems, current.staticType)
+                    else -> ctx.withValueContext(current) {
+                        if (!predicate.eval().toBoolean()) return XdmSequence.empty(current.staticType)
                     }
                 }
-
-                else -> ctx.withValueContext(current) {
-                    if (! predicate.eval().toBoolean()) return XdmSequence.empty(current.staticType)
-                }
-            }
-        }
+            }        }
         return current
     }
 
