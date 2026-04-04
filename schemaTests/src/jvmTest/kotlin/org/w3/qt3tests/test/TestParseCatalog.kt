@@ -174,7 +174,7 @@ class TestParseCatalog {
         val resolutionContext = ResolutionContextImpl.Catalog("/xpath/fn/", xml)
 
         val testSet = context(resolutionContext) {
-            resolutionContext.parseFile(org.w3.qt3tests.Qt3TestSet.serializer(), "apply.xml")
+            resolutionContext.parseFile(Qt3TestSet.serializer(), "apply.xml")
         }
         println(testSet)
     }
@@ -187,7 +187,11 @@ class TestParseCatalog {
         }
     }
 
-    class TestSetSpec(val resolutionContext: ResolutionContext, val testSet: Qt3TestSetReference)
+    class TestSetSpec(val resolutionContext: ResolutionContext, val testSet: Qt3TestSetReference) {
+        fun resolve(): ResolvedQt3TestSet = context(resolutionContext) {
+            testSet.resolve()
+        }
+    }
 
     companion object {
 
@@ -216,7 +220,6 @@ class TestParseCatalog {
             return catalog.testSets.map {
                 Named.of(it.name, TestSetSpec(ctx, it))
             }
-
         }
 
         private fun createResolutionContext(base: String = "/xpath/"): ResolutionContextImpl.Catalog {

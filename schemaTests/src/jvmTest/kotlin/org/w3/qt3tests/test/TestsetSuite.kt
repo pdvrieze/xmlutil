@@ -30,7 +30,7 @@ import org.junit.jupiter.params.ParameterizedClass
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
-import kotlin.test.Test
+import org.w3.qt3tests.resolved.ResolvedQt3TestSet
 
 @ParameterizedClass
 @MethodSource("suite")
@@ -39,12 +39,7 @@ import kotlin.test.Test
 class TestsetSuite : AbstractTestSetSuite() {
 
     @Parameter
-    lateinit var testSet: TestParseCatalog.TestSetSpec
-
-    @Test
-    fun testResolve() {
-        val _ = context(testSet.resolutionContext) { testSet.testSet.resolve() }
-    }
+    lateinit var testSet: ResolvedQt3TestSet
 
     @ParameterizedTest
     @MethodSource("tests")
@@ -53,7 +48,6 @@ class TestsetSuite : AbstractTestSetSuite() {
     }
 
     fun tests(): List<Named<ResolvedQt3TestCase>> {
-        val testSet = context(testSet.resolutionContext) { testSet.testSet.resolve() }
         return testSet.testCases.asSequence()
             .filter {
                 it.test.expr.getOrNull() is XPathExpression
@@ -65,8 +59,14 @@ class TestsetSuite : AbstractTestSetSuite() {
 
     companion object {
         @JvmStatic
-        fun suite(): List<Named<TestParseCatalog.TestSetSpec>> {
-            return TestParseCatalog.getTestSetSpecs()
+        fun suite(): List<Named<ResolvedQt3TestSet>> {
+            return TestParseCatalog.getTestSetSpecs().mapNotNull {
+                val testSet = it.payload.resolve()
+                when {
+                    testSet.testCases.none { it.test.expr.getOrNull() is XPathExpression } -> null
+                    else -> Named.named(it.name, testSet)
+                }
+            }
         }
     }
 }
