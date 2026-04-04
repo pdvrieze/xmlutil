@@ -32,7 +32,7 @@ class ResolvedQt3AssertError(val code: String?): ResolvedQt3Assertion() {
         val evalResult = evalResult.exceptionOrNull() ?: return AssertionResult.Failure("Expected error($code), but got $evalResult")
         return when {
             evalResult !is EvaluationException -> AssertionResult.Failure("Expected EvaluationException($code), but got $evalResult")
-            evalResult.errorCode?.code == code -> AssertionResult.Success
+            code == "*" || evalResult.errorCode?.code == code -> AssertionResult.Success
             else -> AssertionResult.Failure("Expected error code $code, got ${evalResult.errorCode?.code}")
         }
     }
