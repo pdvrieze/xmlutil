@@ -78,7 +78,8 @@ class XdmAtomic<out T : XsdAtomic>(
         is XsdFloat -> value.value != 0.0f && !value.value.isNaN()
         is XsdDouble -> value.value != 0.0 && !value.value.isNaN()
         is XsdDecimal -> value.sign != 0
-        else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast to boolean")
+        else if (value.schemaType == UntypedAtomicType.Instance) -> value.xmlString.isNotEmpty()
+        else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast ${value.schemaType} to boolean")
     }
 
     context(ctx: ExprEvalContext)
