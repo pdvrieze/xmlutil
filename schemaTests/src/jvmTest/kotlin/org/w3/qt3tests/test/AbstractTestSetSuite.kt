@@ -69,7 +69,9 @@ abstract class AbstractTestSetSuite {
 
     abstract class CompanionBase(val testSetName: String) {
         fun getTestCase(name: String): ResolvedQt3TestCase {
-            return getTestCases(testSetName).single { it.name == name }.payload
+            val cases = getTestCases(testSetName).filter { it.name == name }
+            require(cases.size == 1) { "Unexpected test count (#${cases.size}) for name '$name' in '$testSetName'" }
+            return cases.single().payload
         }
 
         abstract fun getTestCases(): List<Named<ResolvedQt3TestCase>>
