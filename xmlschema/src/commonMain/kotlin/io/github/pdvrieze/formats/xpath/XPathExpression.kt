@@ -34,9 +34,9 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(with = XPathExpression.Serializer::class)
 interface XPathExpression: XQueryExpression {
-    fun eval(contextItem: XdmValue? = null): XdmValue {
+    fun eval(contextItem: XdmValue? = null, namespaceContext: NamespaceContext = SimpleNamespaceContext()): XdmValue {
         @OptIn(XPathInternal::class)
-        return context(EvalContext(contextItem)){ expr.eval() }
+        return context(EvalContext(namespaceContext, contextItem)){ expr.eval() }
     }
 
     override val xmlString: String

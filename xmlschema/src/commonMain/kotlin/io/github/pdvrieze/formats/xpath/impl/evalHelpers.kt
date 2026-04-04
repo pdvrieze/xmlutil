@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 @XPathInternal
 context(ctx: ExprEvalContext)
 internal fun Iterable<Expr>.evalPredicates(contextValue: XdmValue): Boolean = all { predicate ->
-    context(EvalContext(contextValue, ctx.isXPath1Compat)) {
+    context(ctx.copyNoExpr( contextValue)) {
         predicate.eval()
     }.toBoolean()
 }

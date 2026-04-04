@@ -25,17 +25,15 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
-import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @XPathInternal
 open class EvalContext(
+    val namepaceContext: NamespaceContext,
     val contextItem: XdmValue?,
     val isXPath1Compat: Boolean = false,
     val variables: Map<String, Map<String, XdmValue>> = emptyMap()
@@ -48,19 +46,26 @@ open class EvalContext(
         xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
 
-    open fun copy(contextItem: XdmValue? = this.contextItem): EvalContext = EvalContext(contextItem)
+    open fun copy(contextItem: XdmValue? = this.contextItem): EvalContext =
+        EvalContext(namepaceContext, contextItem, isXPath1Compat, variables)
+
+    fun copyNoExpr(
+        contextItem: XdmValue? = this.contextItem,
+        namepaceContext: NamespaceContext = this.namepaceContext,
+        isXPath1Compat: Boolean = this.isXPath1Compat
+    ): EvalContext = EvalContext(namepaceContext, contextItem, isXPath1Compat, variables)
 
     @OptIn(ExperimentalContracts::class)
     inline fun <R> withExprContext(expr: Expr, block: context(ExprEvalContext) ()-> R): R {
         contract {
             callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
-        return block(ExprEvalContext(contextItem, expr))
+        return block(ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables))
     }
 
     open fun newVarScope(varName: QName, value: XdmValue): EvalContext {
         val newVars = newVarMap(varName, value)
-        return EvalContext(contextItem, isXPath1Compat, newVars)
+        return EvalContext(namepaceContext, contextItem, isXPath1Compat, newVars)
     }
 
     protected fun newVarMap(varName: QName, value: XdmValue): MutableMap<String, Map<String, XdmValue>> {
@@ -83,27 +88,30 @@ inline fun <C: EvalContext, R> C.withValueContext(value: XdmValue, function: con
 
 @XPathInternal
 class ExprEvalContext(
+    namespaceContext: NamespaceContext,
     contextItem: XdmValue?,
     val expr: Expr,
     isXPath1compat: Boolean = false,
     variables: Map<String, Map<String, XdmValue>> = emptyMap(),
-) : EvalContext(contextItem, isXPath1compat, variables) {
+) : EvalContext(namespaceContext, contextItem, isXPath1compat, variables) {
 
     @XPathInternal
     fun resolveType(name: QName): AnyType {
         return resolveTypeOrNull(name) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unknown type $name")
     }
 
-    override fun copy(contextItem: XdmValue?): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1Compat)
+    override fun copy(contextItem: XdmValue?): ExprEvalContext =
+        ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables)
 
     fun copy(
+        namespaceContext: NamespaceContext = this.namepaceContext,
         contextItem: XdmValue? = this.contextItem,
         expr: Expr = this.expr,
         isXPath1compat: Boolean = this.isXPath1Compat
-    ): ExprEvalContext = ExprEvalContext(contextItem, expr, isXPath1compat)
+    ): ExprEvalContext = ExprEvalContext(namespaceContext, contextItem, expr, isXPath1compat)
 
     inline fun <R> withValueContext(value: XdmValue, function: context(ExprEvalContext)  () -> R): R {
-        return context(ExprEvalContext(value, expr, isXPath1Compat), function)
+        return context(ExprEvalContext(namepaceContext, value, expr, isXPath1Compat), function)
     }
 
     override fun newVarScope(
@@ -111,11 +119,11 @@ class ExprEvalContext(
         value: XdmValue
     ): ExprEvalContext {
         val newVars = newVarMap(varName, value)
-        return ExprEvalContext(contextItem, expr, isXPath1Compat, newVars)
+        return ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, newVars)
     }
 
     companion object {
-        val DUMMY = ExprEvalContext(null, ContextItemExpr)
+        val DUMMY = ExprEvalContext(SimpleNamespaceContext(),null, ContextItemExpr)
     }
 }
 
