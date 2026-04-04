@@ -68,7 +68,7 @@ class BigNonPositiveInt internal constructor(ints: UIntArray, exp: ULong) :
     fun normalize(): BigNonPositiveInt = createOptimizedInstance(ints, exp)
 
     override val sign: Int
-        get() = if (ints.isEmpty() && ints[0] == 0u) 0 else -1
+        get() = if (ints.size == 1 && ints[0] == 0u) 0 else -1
 
     override fun unaryMinus(): BigUnsignedInt {
         return BigUnsignedInt(ints, exp)
