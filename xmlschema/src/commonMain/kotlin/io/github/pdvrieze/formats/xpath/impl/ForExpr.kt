@@ -20,12 +20,42 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): AbstractExprSingle() {
     init {
         require(bindings.isNotEmpty()) { "Must have at least one binding" }
+    }
+
+    private fun evalImpl(evalContext: EvalContext, bindingIdx: Int, receiver: MutableList<XdmSingleValue<*>>) {
+        if (bindingIdx >= bindings.size) {
+            val evalResult = context(evalContext) { returnExp.eval() }
+            when (evalResult) {
+                is XdmSequence<*> -> receiver.addAll(evalResult.elements)
+                is XdmSingleValue<*> -> receiver.add(evalResult)
+            }
+            return
+        }
+        val binding = bindings[bindingIdx]
+        val varName = binding.varName
+        val collection = context(evalContext) { binding.collection.eval() }
+        for (element in collection) {
+            val newEvalContext = evalContext.newVarScope(varName, element)
+            evalImpl(newEvalContext, bindingIdx + 1, receiver)
+        }
+    }
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        val result = mutableListOf<XdmSingleValue<*>>()
+        evalImpl(ctx, 0, result)
+
+        return result.singleOrNull() ?: XdmSequence(result)
     }
 
     context(c: OutputContext)

@@ -21,12 +21,24 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.localPart
+import nl.adaptivity.xmlutil.namespaceURI
 
 @OptIn(XPathInternal::class)
 @XPathInternal
 @NeedsXPath1
 internal class VariableRef(val varName: QName): AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        return ctx.variables[varName.namespaceURI]?.get(varName.localPart)
+            ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, this, "Undeclared variable: $varName")
+    }
+
     override fun collectUnsupportedExprs(
         xPathVersion: XPathVersion,
         isXQuery: Boolean,

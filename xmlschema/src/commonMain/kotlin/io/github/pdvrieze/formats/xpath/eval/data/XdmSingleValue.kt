@@ -45,4 +45,5 @@ sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmValue {
         else -> XdmSequence.empty(staticType)
     }
 
+    override fun iterator(): Iterator<XdmSingleValue<*>> = listOf(this).iterator()
 }

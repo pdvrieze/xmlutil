@@ -20,8 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+
 @XPathInternal
 data class IfExpr @NeedsXPath2 constructor(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue {
+        val testResult = testExpr.eval().let { ctx.withExprContext(this) { it.toBoolean() }}
+        return if (testResult) thenExpr.eval() else elseExpr.eval()
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append("if(")

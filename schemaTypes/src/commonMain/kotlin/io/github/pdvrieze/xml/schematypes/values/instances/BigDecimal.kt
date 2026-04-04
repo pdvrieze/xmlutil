@@ -38,7 +38,7 @@ class BigDecimal internal constructor(
 
     private constructor(parseResult: ParseResult) : this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
 
-    constructor(value: String): this(parse(value))
+    constructor(value: CharSequence): this(parse(value))
 
     constructor(value: UInt): this(
         sign = if (value == 0u) 0 else 1,

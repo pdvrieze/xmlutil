@@ -89,6 +89,10 @@ sealed interface XdmValue {
         }.normalizeToArithmetic()
     }
 
+    operator fun iterator(): Iterator<XdmSingleValue<*>> = iterator {
+        for (i in 0 until size) yield(get(i))
+    }
+
 }
 
 @XPathInternal

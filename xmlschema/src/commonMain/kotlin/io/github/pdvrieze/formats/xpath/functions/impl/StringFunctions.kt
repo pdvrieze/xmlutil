@@ -26,9 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmString
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.functions.argN
-import io.github.pdvrieze.formats.xpath.functions.singleArg
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
@@ -43,7 +41,7 @@ object StringFunctions : AbstractFunctionObject() {
 
     val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) { args ->
         if (args.size > 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "String-join takes 1 or 2 arguments")
-        val seq = args.singleArg<XdmSequence<XdmAtomic<*>>>()
+        val seq = args.argN<XdmSequence<XdmAtomic<*>>>(0)
         val separator = if (args.size == 2) args.argN<XdmString>(1).value else ""
         val join = seq.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString(separator)
         XdmAtomic(XsdString(join))
