@@ -105,7 +105,8 @@ enum class Fn(
     }
 
     companion object {
-        private val functionMap = entries.associateBy { it.functionName.localPart }
+        private val functionMap = entries.groupBy { it.functionName.localPart }
+            .mapValues { (k, v) -> v.singleOrNull() ?: error("Multiple functions with name $k") }
 
         fun of(localName: String): Fn? = functionMap[localName]
     }
