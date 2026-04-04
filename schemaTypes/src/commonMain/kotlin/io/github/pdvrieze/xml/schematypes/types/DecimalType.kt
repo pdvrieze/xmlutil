@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
@@ -48,7 +49,7 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
         )
 
         override fun fromString(value: CharSequence): XsdDecimal {
-            return XsdDecimal(value)
+            return BigDecimal(value)
         }
     }
 
