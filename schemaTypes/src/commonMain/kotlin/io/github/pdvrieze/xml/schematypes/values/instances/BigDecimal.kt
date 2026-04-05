@@ -198,7 +198,7 @@ class BigDecimal internal constructor(
 
 
     operator fun div(divider: BigDecimal): BigDecimal {
-        TODO()
+        return divRem(divider).quotient
     }
 
 
@@ -226,6 +226,8 @@ class BigDecimal internal constructor(
 
         return BigDecimal(sign, newElems, decimalPositions)
     }
+
+    override fun plus(other: XsdDecimal): XsdDecimal = plus(other.toBigDecimal())
 
     operator fun plus(other: BigDecimal): BigDecimal {
         when {
@@ -264,6 +266,8 @@ class BigDecimal internal constructor(
         }
         return createOptimizedInstance(sign, newInts, decimalPositions)
     }
+
+    override fun minus(other: XsdDecimal): XsdDecimal = minus(other.toBigDecimal())
 
     operator fun minus(other: BigDecimal): BigDecimal {
         when {
@@ -319,6 +323,8 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(newSign, newInts, decimalPositions)
     }
 
+    override fun times(other: XsdDecimal): XsdDecimal = times(other.toBigDecimal())
+
     operator fun times(other: BigDecimal): BigDecimal {
         @Suppress("UNCHECKED_CAST")
         if (other.ints.size> ints.size) return other.times(self)
@@ -346,7 +352,7 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(sign * other.sign, newInts, newDecimalPositions)
     }
 
-    operator fun times(other: UInt): BigDecimal {
+    override operator fun times(other: UInt): BigDecimal {
         val newInts = UIntArray(size.toInt() + 1)
 
         var carry = 0u
@@ -610,22 +616,22 @@ class BigDecimal internal constructor(
         val ONE = BigDecimal(1, uintArrayOf(1u), 0)
         val MINUSONE = BigDecimal(-1, uintArrayOf(1u), 0)
 
-        operator fun invoke(value: Int): BigDecimal = when {
+        operator fun invoke(value: Int, decimalPositions: Long = 0L): BigDecimal = when {
             value < 0 -> {
                 val absValue = abs(value)
-                BigDecimal(-1, uintArrayOf(absValue.toUInt()), 0)
+                BigDecimal(-1, uintArrayOf(absValue.toUInt()), decimalPositions)
             }
             value == 0 -> ZERO
-            else -> BigDecimal(1, uintArrayOf(value.toUInt()), 0)
+            else -> BigDecimal(1, uintArrayOf(value.toUInt()), decimalPositions)
         }
 
-        operator fun invoke(value: Long): BigDecimal = when {
+        operator fun invoke(value: Long, decimalPositions: Long = 0L): BigDecimal = when {
             value < 0L -> {
                 val absValue = abs(value)
-                BigDecimal(-1, uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt()), 0)
+                BigDecimal(-1, uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt()), decimalPositions)
             }
             value == 0L -> ZERO
-            else -> BigDecimal(1, uintArrayOf(value.toUInt(), (value shr 32).toUInt()), 0)
+            else -> BigDecimal(1, uintArrayOf(value.toUInt(), (value shr 32).toUInt()), decimalPositions)
         }
 
         private fun parse(s: CharSequence): ParseResult {

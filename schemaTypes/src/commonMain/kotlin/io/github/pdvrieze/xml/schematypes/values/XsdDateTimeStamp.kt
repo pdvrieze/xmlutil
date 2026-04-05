@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,46 +23,45 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeStampImpl
+import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @ExperimentalXmlUtilApi
 @OptIn(ExperimentalTime::class)
-@Serializable(XsdDateTime.Companion::class)
-interface XsdDateTime : IXsdDateTime {
-    override val schemaType: DateTimeType<XsdDateTime>
+@Serializable(XsdDateTimeStamp.Companion::class)
+interface XsdDateTimeStamp : XsdDateTime {
+    override val timezoneOffset: Int
 
-    override val year: Int
-    override val month: UInt
-    override val day: UInt
-    override val hour: UInt
-    override val minute: UInt
-    override val second: XsdDecimal
+    override val schemaType: DateTimeType<XsdDateTimeStamp>
+    companion object: SimpleTypeSerializer<XsdDateTimeStamp>("xsd.dateTime") {
 
-    fun toDate(): XsdDate = XsdDate(year, month, day, timezoneOffset)
-    fun toTime(): XsdTime = XsdTime(hour, minute, second, timezoneOffset)
+        operator fun invoke(instant: Instant, timezone: TimeZone= TimeZone.UTC): XsdDateTimeStamp {
+            return XsdDateTimeStampImpl(instant, timezone)
+        }
 
-    companion object: SimpleTypeSerializer<XsdDateTime>("xsd.dateTime") {
-
-        operator fun invoke(str: CharSequence): XsdDateTime = XsdDateTimeImpl(str)
+        operator fun invoke(str: CharSequence): XsdDateTimeStamp = XsdDateTimeStampImpl(str)
 
         operator fun invoke(
             year: Int,
-            month: UInt,
-            day: UInt,
-            hour: UInt,
-            minute: UInt,
+            month: Int,
+            day: Int,
+            hour: Int,
+            minute: Int,
             second: XsdDecimal,
-            timezoneOffset: Int? = null
-        ): XsdDateTime {
-            return XsdDateTimeImpl(year, month, day, hour, minute, second, timezoneOffset)
+            timezoneOffset: Int
+        ): XsdDateTimeStampImpl {
+            return XsdDateTimeStampImpl(year, month, day, hour, minute, second, timezoneOffset)
         }
 
-        override fun deserialize(raw: String, input: XmlReader?): XsdDateTime {
+
+        override fun deserialize(raw: String, input: XmlReader?): XsdDateTimeStamp {
             return invoke(raw)
         }
     }
-}
 
+}

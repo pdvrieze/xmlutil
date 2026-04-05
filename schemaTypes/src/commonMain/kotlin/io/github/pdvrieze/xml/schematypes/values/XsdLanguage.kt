@@ -35,6 +35,7 @@ interface XsdLanguage: XsdToken {
 
     companion object : SimpleTypeSerializer<XsdLanguage>("xsd.language") {
 
+        operator fun invoke(rawId: String): XsdLanguage = XsdLanguageImpl(rawId)
 
         override fun deserialize(raw: String, input: XmlReader?): XsdLanguage {
             return invoke(raw)

@@ -206,11 +206,26 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         }
     }
 
+    override fun plus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> plus(other)
+        else -> other.plus(this)
+    }
+
     override operator fun plus(other: XsdInteger): XsdInteger =
         BigInt(this).plus(other)
 
+    override fun minus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> minus(other)
+        else -> plus(other.unaryMinus())
+    }
+
     override operator fun minus(other: XsdInteger): XsdInteger =
         BigInt(this).minus(other)
+
+    override fun times(other: XsdDecimal): XsdDecimal = when (other){
+        is XsdInteger -> BigInt(this).times(other)
+        else -> other.times(this)
+    }
 
     operator fun times(other: T): T {
         @Suppress("UNCHECKED_CAST")
@@ -239,7 +254,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return createOptimizedInstance(sign * other.sign, newInts, newExp)
     }
 
-    operator fun times(other: UInt): T {
+    override operator fun times(other: UInt): T {
         val newInts = UIntArray(size.toInt() + 1)
 
         var carry = 0u

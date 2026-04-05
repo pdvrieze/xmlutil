@@ -44,6 +44,10 @@ interface XsdDate : IXsdDateTime {
             return XsdDateImpl(year, month, day, timezoneOffset)
         }
 
+        operator fun invoke(year: Int, month: UInt, day: UInt, timezoneOffset: Int? = null): XsdDate {
+            return XsdDateImpl(year, month, day, timezoneOffset)
+        }
+
         override fun deserialize(
             raw: String,
             input: XmlReader?

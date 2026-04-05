@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
@@ -126,3 +127,4 @@ open class XsdDateTimeImpl(
 
     }
 }
+

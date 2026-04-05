@@ -34,7 +34,11 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(with = XPathExpression.Serializer::class)
 interface XPathExpression: XQueryExpression {
-    fun eval(contextItem: XdmValue<*>? = null, namespaceContext: NamespaceContext = SimpleNamespaceContext()): XdmValue<*> {
+    fun eval(contextValue: XdmValue<*>? = null, namespaceContext: NamespaceContext = SimpleNamespaceContext()): XdmValue<*> {
+        return eval(contextValue?.let { ContextItem(it, 1, 1) }, namespaceContext)
+    }
+
+    fun eval(contextItem: ContextItem? = null, namespaceContext: NamespaceContext = SimpleNamespaceContext()): XdmValue<*> {
         @OptIn(XPathInternal::class)
         return context(EvalContext(namespaceContext, contextItem)){ expr.eval() }
     }

@@ -117,6 +117,11 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     }
 
+    override fun plus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> plus(other)
+        else -> other.plus(this)
+    }
+
     override fun plus(other: XsdInteger): BigInt = when {
         sign == 0 -> BigInt(other)
 
@@ -142,6 +147,11 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     }
 
     override fun unaryMinus(): XsdInteger = BigInt(-sign, ints, exp)
+
+    override fun minus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> minus(other)
+        else -> plus(other.unaryMinus())
+    }
 
     override fun minus(other: XsdInteger): XsdInteger {
         when {
@@ -181,6 +191,11 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         assert(borrow == 0L) { "Sign inversion" }
         // note that recursive calls will sign flip this if needed
         return createOptimizedInstance(1, result, 0uL)
+    }
+
+    override fun times(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> times(BigInt(other))
+        else -> other.times(this) // must be a decimal, let decimal implement it
     }
 
     override fun compareTo(other: XsdInteger): Int {

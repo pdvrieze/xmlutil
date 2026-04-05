@@ -56,6 +56,11 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
         return uLongValue.countTrailingZeroBits().toULong()
     }
 
+    override fun plus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> plus(other)
+        else -> other.plus(this)
+    }
+
     override fun plus(other: XsdInteger): XsdInteger = when (other) {
         is XsdUnsignedLong -> XsdUnsignedLongImpl(uLongValue + other.uLongValue)
         is XsdLong -> XsdLong(uLongValue.toLong() + other.longValue)
@@ -64,6 +69,11 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     override fun significantBitsFromZero(): ULong {
         return (64 - uLongValue.countLeadingZeroBits()).toULong()
+    }
+
+    override fun minus(other: XsdDecimal): XsdDecimal = when (other){
+        is XsdInteger -> minus(other)
+        else -> other.plus(unaryMinus())
     }
 
     override fun minus(other: XsdInteger): XsdInteger = when (other) {
@@ -95,6 +105,11 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     override fun plus(other: ULong): XsdNonNegativeInteger {
         return XsdUnsignedLongImpl(uLongValue + other)
+    }
+
+    override fun times(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdNonNegativeInteger -> times(other)
+        else -> other.times(this)
     }
 
     override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger {

@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -58,6 +59,17 @@ class BuiltinFunctionImpl<out R: XdmValue<*>>(
         name: QName,
         returnType: AnyType,
         vararg argumentTypes: AnyType,
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+    ) : this(
+        name,
+        listOf(XdmFunctionType(returnType, *argumentTypes)),
+        evalFunction
+    )
+
+    constructor(
+        name: QName,
+        returnType: XdmTypeTest,
+        vararg argumentTypes: XdmTypeTest,
         evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
     ) : this(
         name,

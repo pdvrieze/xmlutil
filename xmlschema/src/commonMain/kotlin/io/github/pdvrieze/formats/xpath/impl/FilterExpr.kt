@@ -29,7 +29,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr> = emptyList()): PrimaryOrStep() {
     context(ctx: ExprEvalContext)
     override fun eval(context: XdmValue<*>?): XdmValue<*> {
-        val base = context(ctx.copyNoExpr(context)) { primaryExpr.eval() }
+        val base = context(ctx.copyNoExpr(context?.let { ContextItem(it, 1, 1) })) { primaryExpr.eval() }
         if (predicates.isEmpty()) return base
 
 
@@ -42,8 +42,8 @@ internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr
             } else {
                 when (current) {
                     is XdmSequence<*> -> {
-                        val newElems = current.filter {
-                            ctx.withValueContext(it) { predicate.eval() }.toBoolean()
+                        val newElems = current.filterIndexed {index, value ->
+                            ctx.withValueContext(value, index, current.size) { predicate.eval() }.toBoolean()
                         }
 
                         when (newElems.size) {
@@ -53,11 +53,12 @@ internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr
                         }
                     }
 
-                    else -> ctx.withValueContext(current) {
+                    else -> ctx.withValueContext(current, 1, 1) {
                         if (!predicate.eval().toBoolean()) return XdmSequence.empty(current.staticType)
                     }
                 }
-            }        }
+            }
+        }
         return current
     }
 

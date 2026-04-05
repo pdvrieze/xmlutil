@@ -61,6 +61,7 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
         is XdmTypeTest -> treatAsNonEmpty(type)
     }
 
+    // XXX Fundamentally broken
     context(ctx: ExprEvalContext)
     fun evalPredicates(predicates: Iterable<Expr>): XdmValue<*>
 

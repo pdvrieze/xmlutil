@@ -39,8 +39,6 @@ import io.github.pdvrieze.xml.schematypes.values.XsdTime
 @XPathInternal
 object DateTimeFunctions : AbstractFunctionObject() {
 
-    fun toMaybeTimeArg(): Unit = TODO()
-
     val fnTimezoneFromTime = BuiltinFunctionImpl(
         "timezone-from-time",
         functionType(DayTimeDurationType.Instance.opt, TimeType.Instance.opt)
@@ -49,14 +47,6 @@ object DateTimeFunctions : AbstractFunctionObject() {
         val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val offset = time.timezoneOffset ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdDayTimeDuration.ofMinutes(offset))
-    }
-
-    val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) { args ->
-        if (args.size > 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "String-join takes 1 or 2 arguments")
-        val seq = args.argN<XdmSequence<XdmAtomic<*>>>(0)
-        val separator = if (args.size == 2) args.argN<XdmString>(1).value else ""
-        val join = seq.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString(separator)
-        XdmAtomic(XsdString(join))
     }
 
 }

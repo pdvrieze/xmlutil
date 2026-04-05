@@ -22,8 +22,6 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.IntegerType
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdDecimalStringImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import kotlinx.serialization.Serializable
@@ -88,8 +86,8 @@ interface XsdInteger : XsdDecimal {
     override fun roundToHalfEven(precision: Int): XsdInteger = this
 
     override fun compareTo(other: XsdDecimal): Int = when (other) {
-        is XsdBigDecimal -> XsdDecimalStringImpl(xmlString).compareTo(other)
-        else -> compareTo(other as XsdInteger)
+        is XsdInteger -> compareTo(other)
+        else -> -other.compareTo(this)
     }
 
     operator fun compareTo(other: XsdInteger): Int

@@ -47,8 +47,8 @@ open class AxisStep(
         for (predicate in predicates) {
             when (current) {
                 is XdmSequence<*> -> {
-                    val newElems = current.filter {
-                        ctx.withValueContext(it) { predicate.eval() }.toBoolean()
+                    val newElems = current.filterIndexed { index, value ->
+                        ctx.withValueContext(value, index, current.size) { predicate.eval() }.toBoolean()
                     }
 
                     current = when (newElems.size) {
@@ -58,7 +58,7 @@ open class AxisStep(
                     }
                 }
 
-                else -> ctx.withValueContext(current) {
+                else -> ctx.withValueContext(current, 1, 1) {
                     if (!predicate.eval().toBoolean()) return XdmSequence.EMPTY
                 }
             }

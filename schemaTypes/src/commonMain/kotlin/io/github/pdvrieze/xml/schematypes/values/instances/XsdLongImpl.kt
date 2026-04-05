@@ -37,14 +37,26 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
 
     override fun unaryMinus(): XsdLong = XsdLongImpl(-longValue)
 
+    override fun plus(other: Long): XsdLong {
+        return XsdLong(longValue + other)
+    }
+
     override fun plus(other: XsdInteger): XsdInteger = when (other) {
         is XsdLong -> XsdLongImpl(longValue + other.longValue)
         else -> other.plus(this)
     }
 
+    override fun minus(other: Long): XsdLong {
+        return XsdLong(longValue - other)
+    }
+
     override fun minus(other: XsdInteger): XsdInteger = when (other) {
         is XsdLong -> XsdLongImpl(longValue - other.longValue)
         else -> other.unaryMinus().plus(this)
+    }
+
+    override fun times(other: Long): XsdLong {
+        return XsdLong(longValue * other)
     }
 
     override fun abs(): XsdUnsignedLong {

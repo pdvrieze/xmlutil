@@ -23,10 +23,11 @@ package io.github.pdvrieze.xml.schematypes.types
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DateTimeStampType<out T : XsdDateTime> : DateTimeType<T> {
+interface DateTimeStampType<out T : XsdDateTimeStamp> : DateTimeType<T> {
     override val baseType: DateTimeType<*> get() = DateTimeType.Instance
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
@@ -39,7 +40,7 @@ interface DateTimeStampType<out T : XsdDateTime> : DateTimeType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: DateTimeStampType<XsdDateTime>, BuiltinType {
+    object Instance: DateTimeStampType<XsdDateTimeStamp>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "dateTimeStamp", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
@@ -47,7 +48,7 @@ interface DateTimeStampType<out T : XsdDateTime> : DateTimeType<T> {
             FacetExplicitTimezone.REQUIRED,
         )
 
-        override fun fromString(value: CharSequence): XsdDateTime = XsdDateTime(value)
+        override fun fromString(value: CharSequence): XsdDateTimeStamp = XsdDateTimeStamp(value)
     }
 
 }

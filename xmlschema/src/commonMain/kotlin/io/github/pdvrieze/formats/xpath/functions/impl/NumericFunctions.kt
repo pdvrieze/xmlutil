@@ -90,7 +90,7 @@ object NumericFunctions: AbstractFunctionObject() {
         "number",
         contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)
     ) { args ->
-        val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextItem else args.singleArg<XdmValue<*>>()
+        val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextValue else args.singleArg<XdmValue<*>>()
         if (arg !is XdmAtomic<*>) return@BuiltinFunctionImpl XdmAtomic.NaN
 
         @Suppress("UNCHECKED_CAST")

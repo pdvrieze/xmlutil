@@ -45,6 +45,8 @@ interface XsdTime : IXsdDateTime {
         operator fun invoke(str: CharSequence): XsdTime = XsdTimeImpl(str)
         operator fun invoke(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int?): XsdTime =
             XsdTimeImpl(hours, minutes, millis, timezoneOffset)
+        operator fun invoke(hours: UInt, minutes: UInt, seconds: XsdDecimal, timezoneOffset: Int?): XsdTime =
+            XsdTimeImpl(hours, minutes, (seconds*1000).toUInt(), timezoneOffset)
 
         operator fun invoke(hours: UInt, minutes: UInt, millis: UInt): XsdTime =
             XsdTimeImpl(hours, minutes, millis)

@@ -48,7 +48,7 @@ abstract class AbstractFunctionObject() {
         args: List<XdmValue<*>>,
         allowContext: Boolean = false
     ): XdmValue<*>? = when (args.size - index){
-        0 if allowContext -> ctx.contextItem
+        0 if allowContext -> ctx.contextValue
         1 -> args[index]
         else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
     }

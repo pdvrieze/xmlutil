@@ -32,13 +32,18 @@ import kotlin.jvm.JvmInline
 @JvmInline
 @XmlUtilInternal
 value class XsdDateImpl(val dateVal: ULong) : XsdDate {
-    constructor(year: Int, month: Int, day: Int) : this(
+    constructor(year: Int, month: Int, day: Int) : this(year, month.toUInt(), day.toUInt())
+
+    constructor(year: Int, month: UInt, day: UInt, overloadMarker: Unit = Unit) : this(
         day.toLBits(5) or
                 month.toLBits(4, 5) or
                 year.toLBits(41, 9)
     )
 
-    constructor(year: Int, month: Int, day: Int, timezoneOffset: Int?) : this(
+    constructor(year: Int, month: Int, day: Int, timezoneOffset: Int?) :
+            this(year, month.toUInt(), day.toUInt(), timezoneOffset)
+
+    constructor(year: Int, month: UInt, day: UInt, timezoneOffset: Int?, overloadMarker: Unit = Unit) : this(
         day.toLBits(5) or
                 month.toLBits(4, 5) or
                 year.toLBits(41, 9) or

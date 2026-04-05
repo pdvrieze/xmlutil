@@ -125,7 +125,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
     }
 
     override fun plus(other: XsdInteger): XsdInteger {
-        return super.plus(other)
+        return super<AbstractBigNonPositiveInt>.plus(other)
     }
 
     override fun compareTo(other: XsdNegativeInteger): Int {

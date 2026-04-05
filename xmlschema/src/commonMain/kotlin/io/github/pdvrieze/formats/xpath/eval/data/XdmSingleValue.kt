@@ -21,10 +21,7 @@
 package io.github.pdvrieze.formats.xpath.eval.data
 
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
-import io.github.pdvrieze.formats.xpath.impl.Expr
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.formats.xpath.impl.evalPredicates
+import io.github.pdvrieze.formats.xpath.impl.*
 
 @XPathInternal
 sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
@@ -41,7 +38,7 @@ sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
 
     context(ctx: ExprEvalContext)
     final override fun evalPredicates(predicates: Iterable<Expr>): XdmValue<*> = when {
-        predicates.evalPredicates(this) -> this
+        predicates.evalPredicates(ContextItem(this, 1, 1)) -> this
         else -> XdmSequence.empty(staticType)
     }
 

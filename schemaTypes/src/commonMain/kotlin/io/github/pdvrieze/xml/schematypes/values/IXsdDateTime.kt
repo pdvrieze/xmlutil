@@ -55,7 +55,6 @@ interface IXsdDateTime: XsdAtomic {
      */
     val timezoneOffset: Int?
 
-
     fun yearFrag(): String = year?.let{ // it must pad to at least 4 digits
         if(it<0) "-${(-it).toString().padStart(4, '0')}" else it.toString().padStart(4, '0')
     } ?: ""

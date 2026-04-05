@@ -46,6 +46,45 @@ interface XsdLong : XsdInteger {
 
     override fun unaryMinus(): XsdLong
 
+    override fun plus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdLong -> plus(other)
+        is XsdUnsignedLong -> plus(other)
+        else -> other.plus(this)
+    }
+
+    override fun plus(other: Long): XsdLong =
+        XsdLong(longValue + other)
+    fun plus(other: XsdLong): XsdLong = plus(other.longValue)
+    override fun plus(other: Int): XsdLong = plus(other.toLong())
+    override fun plus(other: UInt): XsdLong = plus(other.toLong())
+    override fun plus(other: ULong): XsdLong = plus(other.toLong())
+    fun plus(other: XsdUnsignedLong): XsdLong = plus(other.uLongValue)
+
+    override fun minus(other: Long): XsdLong =
+        XsdLong(longValue - other)
+    fun minus(other: XsdLong): XsdLong = minus(other.longValue)
+    override fun minus(other: Int): XsdLong = minus(other.toLong())
+    override fun minus(other: UInt): XsdLong = minus(other.toLong())
+    override fun minus(other: ULong): XsdLong = minus(other.toLong())
+    fun minus(other: XsdUnsignedLong): XsdLong = minus(other.uLongValue)
+
+    override fun times(other: Long): XsdLong =
+        XsdLong(longValue * other)
+
+    override fun times(other: Int): XsdLong = times(other.toLong())
+    override fun times(other: UInt): XsdLong = times(other.toLong())
+    override fun times(other: ULong): XsdLong = times(other.toLong())
+
+    override fun minus(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdLong -> minus(other)
+        is XsdUnsignedLong -> minus(other)
+        else -> other.unaryMinus().plus(this)
+    }
+
+    override fun times(other: XsdDecimal): XsdDecimal {
+        TODO("not implemented")
+    }
+
     override fun abs(): XsdUnsignedLong
 
     override fun get(index: Int): UInt {

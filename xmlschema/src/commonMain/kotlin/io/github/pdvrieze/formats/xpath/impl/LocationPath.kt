@@ -47,7 +47,7 @@ internal class LocationPath(
     @XPathInternal
     override fun eval(): XdmValue<*> {
         withExprContext {
-            val base = steps.dropLast(1).fold(ctx.contextItem) { c, step ->
+            val base: XdmValue<*>? = steps.dropLast(1).fold(ctx.contextValue) { c, step ->
                 when (val e = step.eval(c)) {
                     XdmSequence.EMPTY -> throw EvaluationException(
                         ErrorCodes.XPST0005_INVALID_EMPTY_SEQ,
@@ -69,7 +69,7 @@ internal class LocationPath(
                         ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES,
                         "Expected node as context item, found: ${e.staticType}"
                     )
-                }
+                } as XdmValue<*>?
             }
 
             val last = steps.last()

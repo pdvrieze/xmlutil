@@ -34,10 +34,11 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.DateTimeStampType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-object ResDateTimeStampType : ResolvedBuiltinAtomicType<XsdDateTime>,
-    DateTimeStampType<XsdDateTime> {
+object ResDateTimeStampType : ResolvedBuiltinAtomicType<XsdDateTimeStamp>,
+    DateTimeStampType<XsdDateTimeStamp> {
     override val baseType: ResDateTimeType get() = ResDateTimeType
 
     override val mdlFacets: FacetList = FacetList(
@@ -54,14 +55,14 @@ object ResDateTimeStampType : ResolvedBuiltinAtomicType<XsdDateTime>,
         numeric = false,
     )
 
-    override fun valueFromNormalized(normalized: XsdString): XsdDateTime {
-        return ResDateTimeType.value(normalized).also {
+    override fun valueFromNormalized(normalized: XsdString): XsdDateTimeStamp {
+        return ResDateTimeStampType.value(normalized).also {
             requireNotNull(it.timezoneOffset) { "DateTimestamps must have a timestamp" }
         }
     }
 
-    override fun value(maybeValue: XsdAnySimple): XsdDateTime {
-        return (maybeValue as? XsdDateTime)?.also {
+    override fun value(maybeValue: XsdAnySimple): XsdDateTimeStamp {
+        return (maybeValue as? XsdDateTimeStamp)?.also {
             requireNotNull(it.timezoneOffset) { "DateTimestamps must have a timestamp" }
         } ?: value((maybeValue as? XsdString) ?: XsdString(maybeValue.xmlString))
     }

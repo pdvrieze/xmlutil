@@ -42,6 +42,10 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
         require(millis < 60000u) { "Millis out of range: $millis" }
     }
 
+    constructor(hours: UInt, minutes: UInt, seconds: XsdDecimal) : this(
+        hours, minutes, millis = ((seconds* XsdUnsignedInt(1000u)).toUInt())
+    )
+
     constructor(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int?) : this(
         hours.toLBits(5) or
                 minutes.toLBits(6, 5) or
@@ -68,7 +72,7 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
             val millis = (msecVal shr 11).uintFromBits(16)
             return when {
                 millis % 1000u == 0u -> XsdUnsignedInt(millis / 1000u)
-                else -> XsdDecimalStringImpl((millis.toDouble() / 1000.0).toString())
+                else -> BigDecimal(millis.toLong(), 3L)
             }
         }
 

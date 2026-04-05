@@ -49,6 +49,26 @@ interface XsdInt : XsdLong {
 
     override fun abs(): XsdUnsignedInt
 
+    override fun plus(other: Int): XsdInt = XsdInt(intValue + other)
+
+    override fun plus(other: UInt): XsdInt = XsdInt(intValue + other.toInt())
+
+    override fun minus(other: Int): XsdInt {
+        return XsdInt(intValue - other)
+    }
+
+    override fun minus(other: UInt): XsdInt {
+        return XsdInt(intValue - other.toInt())
+    }
+
+    override fun times(other: Int): XsdInt {
+        return XsdInt(intValue * other)
+    }
+
+    override fun times(other: UInt): XsdInt {
+        return XsdInt(intValue - other.toInt())
+    }
+
     override fun get(index: Int): UInt {
         if (index != 0) throw IndexOutOfBoundsException("Index $index out of bounds")
         return intValue.absoluteValue.toUInt()

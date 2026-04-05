@@ -23,7 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DecimalType
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdDecimalStringImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import kotlinx.serialization.Serializable
@@ -40,10 +40,32 @@ interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
 
     fun toLong(): Long
     fun toInt(): Int
+    fun toUInt(): UInt = toLong().toUInt()
+
     override fun toDouble(): Double = xmlString.toDouble()
 
     operator fun compareTo(other: XsdDecimal): Int
+    operator fun plus(other: XsdDecimal): XsdDecimal
 
+    operator fun minus(other: XsdDecimal): XsdDecimal
+    operator fun times(other: XsdDecimal): XsdDecimal
+
+    operator fun plus(other: Int): XsdDecimal = plus(XsdInt(other))
+    operator fun plus(other: Long): XsdDecimal = plus(XsdLong(other))
+    operator fun plus(other: UInt): XsdDecimal = plus(XsdUnsignedInt(other))
+    operator fun plus(other: ULong): XsdDecimal = plus(XsdUnsignedLong(other))
+
+    operator fun minus(other: Int): XsdDecimal = minus(XsdInt(other))
+    operator fun minus(other: Long): XsdDecimal = minus(XsdLong(other))
+    operator fun minus(other: UInt): XsdDecimal = minus(XsdUnsignedInt(other))
+    operator fun minus(other: ULong): XsdDecimal = minus(XsdUnsignedLong(other))
+
+    operator fun times(other: Int): XsdDecimal = times(XsdInt(other))
+    operator fun times(other: Long): XsdDecimal = times(XsdLong(other))
+    operator fun times(other: UInt): XsdDecimal = times(XsdUnsignedInt(other))
+    operator fun times(other: ULong): XsdDecimal = times(XsdUnsignedLong(other))
+    
+    
     fun toBigDecimal(): BigDecimal
 
     companion object : SimpleTypeSerializer<XsdDecimal>("xsd.decimal") {
@@ -94,9 +116,9 @@ interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
                     val firstChar = if (negative) trimmed[1] else trimmed[0]
                     if (firstChar <= '8') return XsdLongImpl(trimmed.toLong())
                     trimmed.toLongOrNull()?.let { return XsdLongImpl(it)}
-                    return XsdDecimalStringImpl(trimmed)
+                    return XsdBigDecimal(trimmed)
                 }
-                else -> return XsdDecimalStringImpl(trimmed)
+                else -> return XsdBigDecimal(trimmed)
             }
 
         }

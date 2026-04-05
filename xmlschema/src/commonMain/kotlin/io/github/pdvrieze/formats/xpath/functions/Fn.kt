@@ -94,6 +94,18 @@ enum class Fn(
     unordered(SequenceFunctions.fnUnordered),
     Count(SequenceFunctions.fnCount),
     //endregion
+
+    //region Context functions (15)
+    position(ContextFunctions.fnPosition),
+    last(ContextFunctions.fnLast),
+    currentDateTime(ContextFunctions.fnCurrentDateTime),
+    currentDate(ContextFunctions.fnCurrentDate),
+    currentTime(ContextFunctions.fnCurrentTime),
+    implicitTimezone(ContextFunctions.fnImplicitTimezone),
+    defaultCollation(ContextFunctions.fnDefaultCollation),
+    defaultLanguage(ContextFunctions.fnDefaultLanguage),
+    staticBaseUri(ContextFunctions.fnStaticBaseUri),
+    //endregion
     ;
 
     override val functionName: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, localName ?: name)
