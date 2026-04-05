@@ -29,7 +29,6 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -42,7 +41,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     init {
         when (staticType) {
             XdmEmptySequenceType -> check(elements.isEmpty())
-            else -> require(elements.size > 1) { "Sequence must have at least two elements" }
+            else -> require(elements.size > 1) { "Sequence must have at least two elements. Found: ${elements.size} -> $elements" }
         }
     }
 
@@ -76,14 +75,15 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         return flatMap { it.evalPredicates(predicates) }
     }
 
-    fun flatMap(transform: (T) -> XdmValue<*>): XdmValue<*> {
+    fun <R: XdmSingleValue<R>> flatMap(transform: (T) -> XdmValue<R>): XdmValue<R> {
         return build {
             for (e in elements) add(transform(e))
         }
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
+    @XPathInternal
+    override fun atomizeTo(receiver: XdmSequenceBuilder<XdmAtomic<*>>) {
         for (e in elements) {
             e.atomizeTo(receiver)
         }
@@ -114,48 +114,48 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     object EMPTY : XdmSequence<Nothing>(staticType = XdmEmptySequenceType),
         XdmAtomicOrEmpty<Nothing>, XdmSingleOrEmpty<Nothing>
 
+    interface XdmSequenceBuilder<in T : XdmSingleValue<@UnsafeVariance T>> {
+        fun add(value: T)
+
+        fun addAll(values: Iterable<T>)
+
+        fun add(value: XdmSequence<T>) = addAll(value.elements)
+
+        fun add(value: XdmValue<T>) = when (value) {
+            is XdmSequence<T> -> add(value)
+            is XdmSingleValue<T> -> add(value.asT())
+        }
+    }
+
+    internal class XdmSequenceBuilderImpl<T: XdmSingleValue<T>> : XdmSequenceBuilder<T> {
+        private val elements = mutableListOf<T>()
+        override fun add(value: T) {
+            elements.add(value)
+        }
+
+        override fun addAll(values: Iterable<T>) {
+            elements.addAll(values)
+        }
+
+        fun build(type: XdmSequenceType): XdmValue<T> {
+            return when (elements.size) {
+                0 -> EMPTY
+                1 -> elements.single().asT()
+                else -> XdmSequence(elements, type)
+            }
+        }
+    }
+
     companion object {
 
-        interface XdmSequenceBuilder {
-            fun add(value: XdmSingleValue<*>)
-
-            fun addAll(values: Iterable<XdmSingleValue<*>>)
-
-            fun add(value: XdmSequence<*>) = addAll(value.elements)
-
-            fun add(value: XdmValue<*>) = when (value) {
-                is XdmSequence<*> -> add(value)
-                is XdmSingleValue<*> -> add(value)
-            }
-        }
-
-        internal class XdmSequenceBuilderImpl : XdmSequenceBuilder {
-            private val elements = mutableListOf<XdmSingleValue<*>>()
-            override fun add(value: XdmSingleValue<*>) {
-                elements.add(value)
-            }
-
-            override fun addAll(values: Iterable<XdmSingleValue<*>>) {
-                elements.addAll(values)
-            }
-
-            fun build(type: XdmSequenceType): XdmValue<*> {
-                return when (elements.size) {
-                    0 -> EMPTY
-                    1 -> elements.single()
-                    else -> XdmSequence(elements, type)
-                }
-            }
-        }
-
         @OptIn(ExperimentalContracts::class)
-        internal inline fun build(
+        internal inline fun <T: XdmSingleValue<T>> build(
             type: XdmSequenceType = XdmSequenceType.ANYSEQ,
-            builderAction: XdmSequenceBuilder.() -> Unit
-        ): XdmValue<*> {
+            builderAction: XdmSequenceBuilder<T>.() -> Unit
+        ): XdmValue<T> {
             contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
 
-            return XdmSequenceBuilderImpl().apply(builderAction).build(type)
+            return XdmSequenceBuilderImpl<T>().apply(builderAction).build(type)
         }
 
     }

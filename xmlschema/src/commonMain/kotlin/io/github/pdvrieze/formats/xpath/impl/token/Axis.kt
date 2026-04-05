@@ -247,7 +247,7 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
     fun eval(context: XdmValue<*>, test: NodeTest): XdmValue<*> {
         return when (context) {
             is XdmSequence<*> -> {
-                XdmSequence.build {
+                XdmSequence.build<XdmSingleValue<*>> {
                     val seen = HashSet<XdmValue<*>>()
                     for (e in context.elements) {
                         when (val value = eval(e, test)) {
@@ -280,7 +280,7 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
     context(ctx: ExprEvalContext)
     fun evalNode(context: XdmNode, test: NodeTest): XdmValue<*> {
         val axisElementSequence = elementSequence(context)
-        return XdmSequence.build {
+        return XdmSequence.build<XdmSingleValue<*>> {
             for ((idx, elem) in axisElementSequence) {
                 if (test.eval(elem, idx, axisElementSequence.size)) {
                     add(elem)

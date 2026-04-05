@@ -114,9 +114,8 @@ class XdmNode(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
-        val a = atomize()
-        if (a is XdmAtomic<*>) receiver.add(a)
+    override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
+        receiver.add(atomize())
     }
 
     context(ctx: ExprEvalContext)

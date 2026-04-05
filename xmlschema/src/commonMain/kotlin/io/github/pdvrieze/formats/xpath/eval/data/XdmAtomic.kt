@@ -46,7 +46,8 @@ class XdmAtomic<out T : XsdAtomic>(
     override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> = this
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
+    @XPathInternal
+    override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
         receiver.add(this)
     }
 

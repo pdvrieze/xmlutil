@@ -48,10 +48,7 @@ internal class LocationPath(
         withExprContext {
             val base: XdmValue<*>? = steps.dropLast(1).fold(ctx.contextValue) { c, step ->
                 when (val e = step.eval(c)) {
-                    XdmSequence.EMPTY -> throw EvaluationException(
-                        ErrorCodes.XPST0005_INVALID_EMPTY_SEQ,
-                        "Missing context for path evaluation"
-                    )
+                    XdmSequence.EMPTY -> return XdmSequence.EMPTY
 
                     is XdmSequence<*> -> {
                         for (m in e.elements) {

@@ -38,14 +38,13 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>)
+    fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<in XdmAtomic<XsdAtomic>>)
 
     context(ctx: ExprEvalContext)
-    fun atomize(): XdmAtomicOrSequence<XdmAtomic<*>> {
-        val newElems = mutableListOf<XdmAtomic<*>>()
-        atomizeTo(newElems)
-
-        return newElems.singleOrNull() ?: XdmSequence(newElems)
+    fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
+        return XdmSequence.build<XdmAtomic<XsdAtomic>> {
+            atomizeTo(this@build)
+        } as XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>
     }
 
     @XPathInternal
@@ -71,9 +70,9 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
     fun isValEqual(expected: XdmValue<*>): Boolean
 
     context(ctx: ExprEvalContext)
-    abstract fun toBoolean(): Boolean
+    fun toBoolean(): Boolean
 
-    abstract val staticType: XdmType
+    val staticType: XdmType
 
     @XPathInternal
     context(ctx: ExprEvalContext)

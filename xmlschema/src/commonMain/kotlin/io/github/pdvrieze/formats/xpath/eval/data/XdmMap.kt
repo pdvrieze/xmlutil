@@ -62,7 +62,7 @@ class XdmMap private constructor(
     }
 
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>): Nothing {
+    override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
         throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a map")
     }
 

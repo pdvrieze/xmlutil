@@ -68,31 +68,32 @@ class EvaluationException : Exception {
         this.errorCode = errorCode
     }
 
+    @Suppress("NOTHING_TO_INLINE")
     @OptIn(XPathInternal::class)
     companion object {
 
         context(ctx: ExprEvalContext)
-        operator fun invoke(message: String?): EvaluationException {
+        inline operator fun invoke(message: String?): EvaluationException {
             return EvaluationException(ctx.expr, message)
         }
 
         context(ctx: ExprEvalContext)
-        operator fun invoke(errorCode: ErrorCodes, message: String?): EvaluationException {
+        inline operator fun invoke(errorCode: ErrorCodes, message: String?): EvaluationException {
             return EvaluationException(errorCode, ctx.expr, message)
         }
 
         context(ctx: ExprEvalContext)
-        operator fun invoke(errorCode: ErrorCodes, message: String?, cause: Throwable?): EvaluationException {
+        inline operator fun invoke(errorCode: ErrorCodes, message: String?, cause: Throwable?): EvaluationException {
             return EvaluationException(errorCode, ctx.expr, message, cause)
         }
 
         context(ctx: ExprEvalContext)
-        operator fun invoke(errorCode: ErrorCodes, cause: Throwable?): EvaluationException {
+        inline operator fun invoke(errorCode: ErrorCodes, cause: Throwable?): EvaluationException {
             return EvaluationException(errorCode, ctx.expr, cause)
         }
 
         context(ctx: ExprEvalContext)
-        operator fun invoke(errorCode: ErrorCodes): EvaluationException {
+        inline operator fun invoke(errorCode: ErrorCodes): EvaluationException {
             return EvaluationException(errorCode, ctx.expr)
         }
 

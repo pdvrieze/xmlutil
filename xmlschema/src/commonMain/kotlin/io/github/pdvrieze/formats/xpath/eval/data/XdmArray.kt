@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @XPathInternal
 class XdmArray(
@@ -38,9 +37,9 @@ class XdmArray(
     override fun asT(): XdmArray = this
 
 
-
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: MutableList<in XdmAtomic<XsdAtomic>>) {
+    @XPathInternal
+    override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
         for (c in content) c.atomizeTo(receiver)
     }
 
