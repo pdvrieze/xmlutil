@@ -194,8 +194,12 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     }
 
     override fun times(other: XsdDecimal): XsdDecimal = when (other) {
-        is XsdInteger -> times(BigInt(other))
+        is XsdInteger -> times(other)
         else -> other.times(this) // must be a decimal, let decimal implement it
+    }
+
+    override fun times(other: XsdInteger): XsdInteger {
+        return times(BigInt(other))
     }
 
     override fun compareTo(other: XsdInteger): Int {

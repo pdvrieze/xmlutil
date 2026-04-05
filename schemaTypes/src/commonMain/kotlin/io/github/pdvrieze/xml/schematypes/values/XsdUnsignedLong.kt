@@ -111,6 +111,12 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
         is XsdNonNegativeInteger -> times(other)
         else -> other.times(this)
     }
+    override fun times(other: XsdInteger): XsdInteger = when (other) {
+        is XsdLong -> times(other.toLong())
+        is XsdUnsignedLong -> times(other.toULong())
+        else -> other.times(this)
+    }
+
 
     override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger {
         return XsdUnsignedLong(toULong() * other.toULong())

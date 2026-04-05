@@ -69,6 +69,12 @@ interface XsdInteger : XsdDecimal {
 
     operator fun minus(other: XsdInteger): XsdInteger
 
+    operator fun times(other: XsdInteger): XsdInteger
+    override fun times(other: Int): XsdInteger = times(XsdInteger(other))
+    override fun times(other: Long): XsdInteger = times(XsdInteger(other))
+    override fun times(other: UInt): XsdInteger = times(XsdInteger(other))
+    override fun times(other: ULong): XsdInteger = times(XsdInteger(other))
+
     override fun abs(): XsdNonNegativeInteger
 
     override operator fun unaryMinus(): XsdInteger

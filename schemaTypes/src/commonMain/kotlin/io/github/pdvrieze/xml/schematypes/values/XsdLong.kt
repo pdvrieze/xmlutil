@@ -68,6 +68,12 @@ interface XsdLong : XsdInteger {
     override fun minus(other: ULong): XsdLong = minus(other.toLong())
     fun minus(other: XsdUnsignedLong): XsdLong = minus(other.uLongValue)
 
+    override fun times(other: XsdInteger): XsdInteger = when (other) {
+        is XsdLong -> times(other.toLong())
+        is XsdUnsignedLong -> times(other.toLong())
+        else -> other.times(this)
+    }
+
     override fun times(other: Long): XsdLong =
         XsdLong(longValue * other)
 

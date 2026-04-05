@@ -165,7 +165,47 @@ sealed class Operator(
     object SUB: Operator("-", 8, XPathVersion.XPath1_0, true)
 
     @NeedsXPath1
-    object MUL: Operator("*", 9, XPathVersion.XPath1_0, true)
+    object MUL: ArithmeticOperator("*", 9, XPathVersion.XPath1_0, true) {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun operatorMapping(
+            leftType: AnyAtomicType<*>,
+            rightType: AnyAtomicType<*>
+        ): AnyAtomicType<*> {
+            if (leftType == rightType) return leftType
+            if (ctx.isXPath1Compat) return DoubleType.Instance
+            // note that we need to check due to subtypes
+            return when (leftType) {
+                is YearMonthDurationType if rightType is NumericType<*> -> YearMonthDurationType.Instance
+                is NumericType<*> if rightType is YearMonthDurationType -> YearMonthDurationType.Instance
+                is DayTimeDurationType if rightType is NumericType<*> -> DayTimeDurationType.Instance
+                is NumericType<*> if rightType is DayTimeDurationType -> DayTimeDurationType.Instance
+
+                is IntegerType if (rightType is IntegerType) -> IntegerType.Instance
+                is DecimalType if (rightType is DecimalType) -> DecimalType.Instance
+                is FloatType if (rightType is FloatType) -> FloatType.Instance
+                else -> DoubleType.Instance
+            }
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalFloat(left: Float, right: Float): Float = left * right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDouble(left: Double, right: Double): Double = left * right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
+            left * right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left * right
+    }
+
     @NeedsXPath1
     object DIV: Operator("div", 9, XPathVersion.XPath1_0, false)
     @NeedsXPath2
@@ -350,7 +390,12 @@ internal interface ComparisonImpl {
     fun cmp(left: XsdTime, right: XsdTime): Boolean = defaultCmp(left, right)
 }
 
-interface ArithmeticOperator {
+abstract class ArithmeticOperator(
+    literal: String,
+    priority: Int,
+    minVersion: XPathVersion = XPathVersion.XPath3_1,
+    isDelimiting: Boolean
+) : Operator(literal, priority, minVersion, isDelimiting) {
     @XPathInternal
     context(ctx: ExprEvalContext)
     fun normalizeToArithmetic(value: XdmValue<*>): XdmValue<*> {
@@ -381,7 +426,7 @@ interface ArithmeticOperator {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
         val l = when (val n = normalizeToArithmetic(left)) {
             is XdmAtomic<*> -> n
             XdmSequence.EMPTY -> return XdmSequence.EMPTY
@@ -393,34 +438,43 @@ interface ArithmeticOperator {
             else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
         }
         val requiredType = operatorMapping(l.value.schemaType, r.value.schemaType)
-        return when (requiredType) {
-            is DoubleType<*> -> evalDouble(l.toXdmDouble().value.value, r.toXdmDouble().value.value)
-            is FloatType<*> -> evalFloat(l.toXdmFloat().value.value, r.toXdmFloat().value.value)
+        val value = when (requiredType) {
+            is DoubleType<*> -> XsdDouble(evalDouble(l.toXdmDouble().value.value, r.toXdmDouble().value.value))
+            is FloatType<*> -> XsdFloat(evalFloat(l.toXdmFloat().value.value, r.toXdmFloat().value.value))
             is IntegerType<*> -> evalInteger(l.toXdmInteger().value, r.toXdmInteger().value)
             is DecimalType<*> -> evalDecimal(l.toXdmDecimal().value, r.toXdmDecimal().value)
+            is YearMonthDurationType<*>,
+            is DayTimeDurationType<*> -> evalCustom(l, r)
             else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
         }
+        return XdmAtomic(value)
     }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun operatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*>
+    abstract fun operatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*>
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalFloat(left: Float, right: Float): XdmValue<*>
+    abstract fun evalFloat(left: Float, right: Float): Float
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalDouble(left: Double, right: Double): XdmValue<*>
+    abstract fun evalDouble(left: Double, right: Double): Double
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalInteger(left: XsdInteger, right: XsdInteger): XdmValue<*>
+    abstract fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XdmValue<*>
+    abstract fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    open fun evalCustom(left: XdmValue<*>, right: XdmValue<*>): XsdAtomic {
+        TODO("Custom evaluation of operator '$literal' not yet implemented")
+    }
 
 //    fun evalNormalized(left: XdmAtomic<*>, right: XdmValue<*>)
 }

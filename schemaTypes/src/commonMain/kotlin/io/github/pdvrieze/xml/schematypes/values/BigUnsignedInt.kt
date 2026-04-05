@@ -109,6 +109,11 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         return unsignedDivRem(divider)
     }
 
+    override fun times(other: XsdInteger): XsdInteger = when (other) {
+        is XsdNonNegativeInteger -> times(other)
+        else -> BigInt(other).times(this)
+    }
+
     override operator fun times(other: XsdNonNegativeInteger): BigUnsignedInt {
         return times(other as? BigUnsignedInt ?: BigUnsignedInt(other))
     }

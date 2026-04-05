@@ -105,6 +105,11 @@ class BigNonPositiveInt internal constructor(ints: UIntArray, exp: ULong) :
         return PosDivRem(absDivRem.quotient.asBigUnsignedInt(), BigNonPositiveInt(absDivRem.remainder.ints, absDivRem.remainder.exp))
     }
 
+    override fun times(other: XsdInteger): XsdInteger = when (other) {
+        is XsdNonPositiveInteger -> times(other)
+        else -> BigInt(other).times(this)
+    }
+
     override fun times(other: XsdNonPositiveInteger): XsdNonNegativeInteger {
         when {
             sign == 0 || other.sign == 0 -> return BigUnsignedInt.ZERO

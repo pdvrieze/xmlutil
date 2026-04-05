@@ -106,6 +106,12 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
         return PosDivRem(absDivRem.quotient.asBigUnsignedInt(), BigNonPositiveInt(absDivRem.remainder.ints, absDivRem.remainder.exp))
     }
 
+    override fun times(other: XsdInteger): XsdInteger = when (other) {
+        is XsdNegativeInteger -> times(other)
+        is XsdNonPositiveInteger -> times(other)
+        else -> BigInt(other).times(this)
+    }
+
     /** Note that neither value is zero, and both are negative, so the result must be positive */
     override fun times(other: XsdNegativeInteger): XsdPositiveInteger {
         val t = times(other as XsdNonPositiveInteger)

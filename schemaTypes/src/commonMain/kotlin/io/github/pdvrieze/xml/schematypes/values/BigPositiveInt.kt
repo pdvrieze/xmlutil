@@ -67,7 +67,7 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     }
 
     override val sign: Int
-        get() = if (ints.isEmpty() && ints[0] == 0u) 0 else 1
+        get() = 1 //if (ints.size == 1 && ints[0] == 0u) 0 else 1
 
     override fun unaryMinus(): BigNegativeInt {
         return BigNegativeInt(ints, exp)
@@ -97,7 +97,14 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         return UIntDivRem(unsignedDivRem(divider))
     }
 
+    override fun times(other: XsdInteger): XsdInteger = when (other) {
+        is XsdPositiveInteger -> times(other)
+        is XsdNonNegativeInteger -> times(other)
+        else -> BigInt(other).times(this)
+    }
+
     override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger {
+        if (other.sign == 0) return BigUnsignedInt.ZERO
         return when (other) {
             is BigPositiveInt -> times(other)
             else -> other.times(this)
