@@ -57,7 +57,7 @@ interface XsdPositiveInteger : XsdNonNegativeInteger {
             invoke(rawValue = charSequence.toString())
 
         operator fun invoke(rawValue: String): XsdPositiveInteger = when {
-            rawValue == "0" -> throw IllegalArgumentException("Positive integers may not be zero")
+            rawValue == "0" -> throw NumberFormatException("Positive integers may not be zero")
             rawValue == "1" -> ONE
             rawValue.length > MAXLONG.length -> BigPositiveInt(rawValue)
 

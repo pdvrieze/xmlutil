@@ -295,7 +295,8 @@ object Xs: AbstractFunctionObject() {
 
                 else -> arg as XdmAtomic<*>
             }
-            if (arg.value.schemaType.derivesFrom(returnSchemaType)) {
+            // Must be the same type, not a derived one.
+            if (arg.value.schemaType.name isEquivalent returnSchemaType.name) {
                 @Suppress("UNCHECKED_CAST")
                 return arg as XR
             }
@@ -309,7 +310,11 @@ object Xs: AbstractFunctionObject() {
 
         context(ctx: ExprEvalContext)
         open fun constructXsd(arg: XdmAtomic<*>): R {
-            return returnSchemaType.fromString(arg.value.xmlString)
+            try {
+                return returnSchemaType.castFrom(arg.value)
+            } catch (e: NumberFormatException) {
+                throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a ${returnSchemaType.name}", e)
+            }
         }
 
         context(ctx: ExprEvalContext)

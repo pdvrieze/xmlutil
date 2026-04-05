@@ -29,7 +29,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
 
     init {
         require(ints.isNotEmpty()) { "At least one integer must be present" }
-        require(ints[0] != 0u) { "The value is negative. Zero is not valid value" }
+        if (ints[0] ==0u) throw NumberFormatException("Negative may not contain the value zero")
     }
 
     constructor(value: Int, exp: ULong = 0uL) : this(

@@ -109,8 +109,7 @@ internal inline fun <reified T : XdmValue<*>> List<XdmValue<*>>.singleArg(): T {
     checkArgCount(1)
     return get(0) as? T
         ?: throw EvaluationException(
-            ctx.expr,
-            "Argument not of expected type ${T::class.simpleName}"
+            "Argument not of expected type ${T::class.simpleName}, found: '${get(0)}'"
         )
 }
 

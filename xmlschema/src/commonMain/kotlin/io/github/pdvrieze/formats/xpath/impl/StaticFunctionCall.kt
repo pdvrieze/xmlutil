@@ -21,13 +21,16 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmBuiltinFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmPartialApplication
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.functions.Xs
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.localPart
@@ -61,7 +64,20 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
             }
             return XdmPartialApplication(XdmBuiltinFunction(function), partialArgs)
         }
-        val evalArgs = args.map { (it as ExprSingle).eval() }
+        val functionType = function.functionTypes.singleOrNull { it.isVarArg || it.argTypes.size == args.size }
+            ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, this, "Function with name ${name} has no matching signature")
+
+        val evalArgs = args.mapIndexed { index, arg ->
+            val expectedType = functionType.argTypes[index]
+            val evalResult = (arg as ExprSingle).eval()
+            ctx.withExprContext(this) {
+                when {
+                    expectedType.isInstance(evalResult) -> evalResult
+                    expectedType is XdmSchemaTypeTest && expectedType.schemaType is AnyAtomicType<*> -> evalResult.atomize()
+                    else -> evalResult // TODO Support proper type checking
+                }
+            }
+        }
 
         return withExprContext { function.invoke(evalArgs) }
     }

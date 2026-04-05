@@ -139,3 +139,11 @@ interface XsdQName: XsdAtomic {
 val XsdQName.prefix get() = getPrefix()
 val XsdQName.localPart get() = getLocalPart()
 val XsdQName.namespaceURI get() = getNamespaceURI()
+
+infix fun QName?.isEquivalent(other: QName?): Boolean {
+    return this != null && other != null && namespaceURI == other.namespaceURI && localPart == other.localPart
+}
+
+infix fun XsdQName?.isEquivalent(other: XsdQName?): Boolean {
+    return this != null && other != null && namespaceURI == other.namespaceURI && localPart == other.localPart
+}
