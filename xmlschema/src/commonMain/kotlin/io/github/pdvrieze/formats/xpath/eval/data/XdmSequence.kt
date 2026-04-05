@@ -56,7 +56,8 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 
     context(ctx: ExprEvalContext)
     override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
-        TODO("not implemented")
+        // TODO actually perform checks
+        return XdmSequence(elements, type.toValueType(staticType.single))
     }
 
     override fun isValEqual(expected: XdmValue<*>): Boolean {
