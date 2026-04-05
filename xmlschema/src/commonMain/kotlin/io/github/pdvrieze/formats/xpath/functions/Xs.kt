@@ -344,14 +344,10 @@ object Xs: AbstractFunctionObject() {
 
         context(ctx: ExprEvalContext)
         override fun invoke(arg: XdmAtomic<*>): XdmAtomicOrSequence<XdmAtomic<E>> {
-            val values = arg.value.xmlString.splitToSequence(' ')
-                .filter { it.isNotEmpty() }
-                .mapTo(ArrayList()) { XdmAtomic(invoke(it)) }
-
-            return when (values.size) {
-                0 -> XdmSequence.EMPTY
-                1 -> values.single()
-                else -> XdmSequence(values)
+            return XdmSequence.buildAtomic {
+                arg.value.xmlString.splitToSequence(' ')
+                    .filter { it.isNotEmpty() }
+                    .forEach { this.add(XdmAtomic(invoke(it))) }
             }
         }
 

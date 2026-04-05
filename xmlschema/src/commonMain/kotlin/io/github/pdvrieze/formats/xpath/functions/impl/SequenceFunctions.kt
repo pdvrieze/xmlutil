@@ -53,38 +53,41 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     internal val fnTail = BuiltinFunctionImpl("tail", functionType(ITEM.any, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         if (arg !is XdmSequence<*> || arg.size<=1) return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmSequence(arg.drop(1))
+        XdmSequence.buildSingle(arg.staticType) {
+            addAll(arg.asSequence().drop(1))
+        }
     }
 
-    internal val fnInsertBefore = BuiltinFunctionImpl("insert-before", functionType(ITEM.any, ITEM.any, INTEGER, ITEM.any)) { args ->
-        if (args.size != 3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
-        val target = args[0]
-        val position = ((toAtomic<XsdInteger>(1, args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
-            .coerceIn(0, target.size)
-        val inserts = args[2]
+    internal val fnInsertBefore =
+        BuiltinFunctionImpl("insert-before", functionType(ITEM.any, ITEM.any, INTEGER, ITEM.any)) { args ->
+            if (args.size != 3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+            val target = args[0]
+            val position =
+                ((toAtomic<XsdInteger>(1, args)
+                    ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() - 1)
+                    .coerceIn(0, target.size)
+            val inserts = args[2]
 
-        if (target.size == 0) return@BuiltinFunctionImpl inserts
-        else if (inserts.size == 0) return@BuiltinFunctionImpl target
+            if (target.size == 0) return@BuiltinFunctionImpl inserts
+            else if (inserts.size == 0) return@BuiltinFunctionImpl target
 
-        val elements = buildList {
-            for (i in 0 until position) {
-                add(target[i])
-            }
-            addAll(inserts)
-            for (i in position until target.size) {
-                add(target[i])
+            XdmSequence.buildSingle(target.staticType) {
+                for (i in 0 until position) {
+                    this.add(target[i])
+                }
+                addAll(inserts)
+                for (i in position until target.size) {
+                    this.add(target[i])
+                }
             }
         }
-
-        XdmSequence(elements)
-    }
 
     internal val fnRemove = BuiltinFunctionImpl("remove", functionType(ITEM.any, ITEM.any, INTEGER)) { args ->
         if (args.size != 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val target = args[0]
         val position = ((toAtomic<XsdInteger>(1, args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
         if (position < 0 || position>=target.size) return@BuiltinFunctionImpl target
-        val newElements = buildList {
+        XdmSequence.buildSingle(target.staticType) {
             for (i in 0 until position) {
                 add(target[i])
             }
@@ -92,15 +95,15 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                 add(target[i])
             }
         }
-        newElements.singleOrNull() ?: XdmSequence(newElements)
     }
 
     internal val fnReverse = BuiltinFunctionImpl("reverse", functionType(ITEM.any, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         if (arg.size==1) return@BuiltinFunctionImpl arg[0]
 
-        val reversed = (arg.size-1 downTo 0).map { arg[it] }
-        XdmSequence(reversed)
+        XdmSequence.buildSingle(arg.staticType) {
+            for(n in arg.size-1 downTo 0) { add(arg[n]) }
+        }
     }
 
     internal val fnSubsequence = BuiltinFunctionImpl("subsequence", listOf(
@@ -127,16 +130,10 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             endLoc = sourceSeq.size
         }
 
-        val newElements = buildList {
+        XdmSequence.buildSingle {
             for (i in startingLoc until endLoc) {
                 add(sourceSeq[i])
             }
-        }
-
-        when (newElements.size) {
-            0 -> XdmSequence.EMPTY
-            1 -> newElements.single()
-            else -> XdmSequence(newElements)
         }
     }
 

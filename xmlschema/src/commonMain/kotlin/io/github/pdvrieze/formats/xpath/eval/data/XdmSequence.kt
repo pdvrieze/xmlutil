@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -119,6 +120,8 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 
         fun addAll(values: Iterable<T>)
 
+        fun addAll(values: Sequence<T>)
+
         fun add(value: XdmSequence<T>) = addAll(value.elements)
 
         fun add(value: XdmValue<T>) = when (value) {
@@ -137,7 +140,11 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
             elements.addAll(values)
         }
 
-        fun build(type: XdmSequenceType): XdmValue<T> {
+        override fun addAll(values: Sequence<T>) {
+            elements.addAll(values)
+        }
+
+        fun build(type: XdmType): XdmValue<T> {
             return when (elements.size) {
                 0 -> EMPTY
                 1 -> elements.single().asT()
@@ -149,8 +156,28 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     companion object {
 
         @OptIn(ExperimentalContracts::class)
+        internal inline fun buildSingle(
+            type: XdmType = XdmSequenceType.ANYSEQ,
+            builderAction: XdmSequenceBuilder<XdmSingleValue<*>>.() -> Unit
+        ): XdmValue<XdmSingleValue<*>> {
+            contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+
+            return XdmSequenceBuilderImpl<XdmSingleValue<*>>().apply(builderAction).build(type)
+        }
+
+        @OptIn(ExperimentalContracts::class)
+        internal inline fun <T: XsdAtomic> buildAtomic(
+            type: XdmType = XdmSequenceType.ANYSEQ,
+            builderAction: XdmSequenceBuilder<XdmAtomic<T>>.() -> Unit
+        ): XdmAtomicOrSequence<XdmAtomic<T>> {
+            contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+
+            return XdmSequenceBuilderImpl<XdmAtomic<T>>().apply(builderAction).build(type) as XdmAtomicOrSequence<XdmAtomic<T>>
+        }
+
+        @OptIn(ExperimentalContracts::class)
         internal inline fun <T: XdmSingleValue<T>> build(
-            type: XdmSequenceType = XdmSequenceType.ANYSEQ,
+            type: XdmType = XdmSequenceType.ANYSEQ,
             builderAction: XdmSequenceBuilder<T>.() -> Unit
         ): XdmValue<T> {
             contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
