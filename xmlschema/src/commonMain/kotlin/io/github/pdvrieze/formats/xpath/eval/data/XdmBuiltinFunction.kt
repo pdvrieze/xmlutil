@@ -30,7 +30,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
 class XdmBuiltinFunction(
-    private val function: XFunction<XdmValue>,
+    private val function: XFunction<XdmValue<*>>,
     override val staticType: XdmFunctionType = function.functionTypes.single()
 ) : XdmFunction<XdmBuiltinFunction>() {
     override fun asT(): XdmBuiltinFunction = this
@@ -39,17 +39,17 @@ class XdmBuiltinFunction(
         get() = function.functionTypes.single()
 
     context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
         TODO("Function casting not yet implemented")
     }
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         return expected is XdmBuiltinFunction && expected.function == function
     }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun normalizeToArithmetic(): XdmValue {
+    override fun normalizeToArithmetic(): XdmValue<*> {
         throw EvaluationException(
             ErrorCodes.XPTY0004_TYPE_ERROR,
             "Built in functions are not compatible with an arithmetic operator"

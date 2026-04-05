@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.XMLConstants
 
 @OptIn(XPathInternal::class)
 class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
         val expectedType = builtinType(type.substringAfterLast(':'), XMLConstants.XSD_NS_URI)

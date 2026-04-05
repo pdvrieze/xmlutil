@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
@@ -76,7 +75,7 @@ sealed class XdmSingleType : XdmType() {
 
         @XPathInternal
         context(ctx: ExprEvalContext)
-        override fun fromString(value: String): XdmValue {
+        override fun fromString(value: String): XdmValue<*> {
             TODO("not implemented")
         }
 

@@ -33,8 +33,8 @@ import nl.adaptivity.xmlutil.localPart
 enum class Fn(
     localName: String? = null,
     override val functionTypes: List<XdmFunctionType>,
-    val implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue,
-) : XFunction<XdmValue> {
+    val implementation: context(ExprEvalContext) (List<XdmValue<*>>) -> XdmValue<*>,
+) : XFunction<XdmValue<*>> {
     //region Accessors (2)
     nodeName(Accessors.fnNodeName),
     nilled(Accessors.fnNilled),
@@ -81,26 +81,32 @@ enum class Fn(
     //region Sequence operations (14)
     empty(SequenceFunctions.fnEmpty),
     exists(SequenceFunctions.fnExists),
+    head(SequenceFunctions.fnHead),
+    tail(SequenceFunctions.fnTail),
+    insertBefore(SequenceFunctions.fnInsertBefore),
+    remove(SequenceFunctions.fnRemove),
     reverse(SequenceFunctions.fnReverse),
+    subsequence(SequenceFunctions.fnSubsequence),
+    unordered(SequenceFunctions.fnUnordered),
     Count(SequenceFunctions.fnCount),
     //endregion
     ;
 
     override val functionName: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, localName ?: name)
 
-    constructor(builtinFunction: BuiltinFunctionImpl<XdmValue>): this(builtinFunction.functionName.localPart, builtinFunction.functionTypes, builtinFunction.evalFunction)
+    constructor(builtinFunction: BuiltinFunctionImpl<XdmValue<*>>): this(builtinFunction.functionName.localPart, builtinFunction.functionTypes, builtinFunction.evalFunction)
 
     constructor(
         types: List<XdmFunctionType>,
-        implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue,
+        implementation: context(ExprEvalContext) (List<XdmValue<*>>) -> XdmValue<*>,
     ): this(null, types, implementation)
 
-    constructor(type: XdmFunctionType, implementation: context(ExprEvalContext) (List<XdmValue>) -> XdmValue):
+    constructor(type: XdmFunctionType, implementation: context(ExprEvalContext) (List<XdmValue<*>>) -> XdmValue<*>):
             this(null, listOf(type), implementation)
 
     context(ctx: ExprEvalContext)
     @XPathInternal
-    override fun invoke(args: List<XdmValue>): XdmValue {
+    override fun invoke(args: List<XdmValue<*>>): XdmValue<*> {
         return implementation(args)
     }
 

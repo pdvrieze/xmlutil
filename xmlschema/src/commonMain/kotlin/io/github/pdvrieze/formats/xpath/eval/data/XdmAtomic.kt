@@ -53,7 +53,7 @@ class XdmAtomic<out T : XsdAtomic>(
     override val dynamicType: XdmSchemaType
         get() = XdmSchemaType(value.schemaType)
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         if (expected !is XdmAtomic<*>) return false
         val expectedValue = expected.value
 
@@ -126,7 +126,7 @@ class XdmAtomic<out T : XsdAtomic>(
 
 
     context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
         if (! type.isAssignableFromSingle(XdmSchemaTypeTest(value.schemaType, SequenceType.OccurrenceType.SINGLE))) {
             throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS)
         }

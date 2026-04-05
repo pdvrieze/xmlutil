@@ -54,7 +54,7 @@ sealed class Operator(
 
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
             when {
                 left.staticType.isAssignableTo(BooleanType.Instance) -> {
                     return BooleanFunctions.opBooleanEqual(listOf(left, right))
@@ -67,7 +67,7 @@ sealed class Operator(
     object NEQ: Operator("!=", 5, XPathVersion.XPath1_0, true) {
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmAtomic<XsdBoolean> {
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
             val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
             return XdmAtomic(XsdBoolean(! eval.value))
         }
@@ -103,7 +103,7 @@ sealed class Operator(
 
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun eval(left: XdmValue, right: XdmValue): XdmAtomicOrEmpty<XdmBoolean> {
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
             val leftVal = when (val a = left.atomize()) {
                 is XdmSequence.Empty -> return XdmSequence.EMPTY
                 is XdmAtomic<*> -> a.value
@@ -210,23 +210,23 @@ sealed class Operator(
 
     context(ctx: ExprEvalContext)
     @XPathInternal
-    open fun eval(left: XdmValue, right: XdmValue): XdmValue =
+    open fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> =
         TODO("Evaluation of operator '$literal' not yet implemented")
 
     context(ctx: ExprEvalContext)
     @XPathInternal
-    fun eval(param: XdmValue): XdmValue = eval(listOf(param))
+    fun eval(param: XdmValue<*>): XdmValue<*> = eval(listOf(param))
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun eval(params: List<XdmValue>): XdmValue =
+    fun eval(params: List<XdmValue<*>>): XdmValue<*> =
         params.reduce { acc, param -> eval(acc, param) }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
     private fun evalComparison(
-        left: XdmValue,
-        right: XdmValue,
+        left: XdmValue<*>,
+        right: XdmValue<*>,
         operator : ComparisonImpl,
     ): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
@@ -282,7 +282,7 @@ sealed class Operator(
 internal interface ComparisonImpl {
     context(ctx: ExprEvalContext)
     @XPathInternal
-    fun eval(left: XdmValue, right: XdmValue): XdmAtomicOrEmpty<XdmBoolean> {
+    fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.Empty -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
@@ -353,7 +353,7 @@ internal interface ComparisonImpl {
 interface ArithmeticOperator {
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun normalizeToArithmetic(value: XdmValue): XdmValue {
+    fun normalizeToArithmetic(value: XdmValue<*>): XdmValue<*> {
         val v1 = value.atomize()
         // Handle sequences
         val v2: XdmSingleValue<*> = when (v1.size) {
@@ -381,7 +381,7 @@ interface ArithmeticOperator {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun eval(left: XdmValue, right: XdmValue): XdmValue {
+    fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
         val l = when (val n = normalizeToArithmetic(left)) {
             is XdmAtomic<*> -> n
             XdmSequence.EMPTY -> return XdmSequence.EMPTY
@@ -408,19 +408,19 @@ interface ArithmeticOperator {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalFloat(left: Float, right: Float): XdmValue
+    fun evalFloat(left: Float, right: Float): XdmValue<*>
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalDouble(left: Double, right: Double): XdmValue
+    fun evalDouble(left: Double, right: Double): XdmValue<*>
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalInteger(left: XsdInteger, right: XsdInteger): XdmValue
+    fun evalInteger(left: XsdInteger, right: XsdInteger): XdmValue<*>
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XdmValue
+    fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XdmValue<*>
 
 //    fun evalNormalized(left: XdmAtomic<*>, right: XdmValue<*>)
 }

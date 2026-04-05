@@ -30,7 +30,7 @@ internal class BinaryExpr(operator: Operator, val left: ExprSingle, val right: E
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         val l = left.eval()
         val r = right.eval()
         return withExprContext { operator.eval(l, r) }

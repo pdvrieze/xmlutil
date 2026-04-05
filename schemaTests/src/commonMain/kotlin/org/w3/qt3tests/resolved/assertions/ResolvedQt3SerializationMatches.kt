@@ -28,7 +28,7 @@ class ResolvedQt3SerializationMatches(
     val file: XsdAnyURI?,
     val flags: String?
 ) : ResolvedQt3Assertion(){
-    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         TODO("not implemented")
     }

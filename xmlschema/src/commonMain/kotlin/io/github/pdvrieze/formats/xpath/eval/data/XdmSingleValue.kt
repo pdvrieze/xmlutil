@@ -40,10 +40,10 @@ sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
     }
 
     context(ctx: ExprEvalContext)
-    final override fun evalPredicates(predicates: Iterable<Expr>): XdmValue = when {
+    final override fun evalPredicates(predicates: Iterable<Expr>): XdmValue<*> = when {
         predicates.evalPredicates(this) -> this
         else -> XdmSequence.empty(staticType)
     }
 
-    override fun iterator(): Iterator<XdmSingleValue<*>> = listOf(this).iterator()
+    override fun iterator(): Iterator<T> = listOf(asT()).iterator()
 }

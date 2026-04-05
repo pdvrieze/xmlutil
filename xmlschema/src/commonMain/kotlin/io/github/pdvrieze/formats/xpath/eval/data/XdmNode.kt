@@ -68,7 +68,7 @@ class XdmNode(
     override fun asT(): XdmNode = this
 
     context(ctx: ExprEvalContext)
-    fun typedValue(): XdmValue = when (node) {
+    fun typedValue(): XdmValue<*> = when (node) {
         is Attr -> staticType.fromString(node.value)
         else -> throw EvaluationException(ctx.expr, "Node has no value")
     }
@@ -94,7 +94,7 @@ class XdmNode(
 
     @OptIn(NeedsXPath3_0::class)
     context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
         if (type !is XdmNodeKindTest) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast node to $type")
         if (! type.nodeKind.matches(node)) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast $node to (${type.nodeKind})")
         // TODO do some checks
@@ -109,7 +109,7 @@ class XdmNode(
         return node == (other as? XdmNode)?.node
     }
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         return equals(expected)
     }
 
@@ -144,7 +144,7 @@ class XdmNode(
 
     context(ctx: ExprEvalContext)
     @XPathInternal
-    override fun normalizeToArithmetic(): XdmValue = when (node) {
+    override fun normalizeToArithmetic(): XdmValue<*> = when (node) {
         is Attr -> dynamicType.fromString(node.value)
         else -> super.normalizeToArithmetic()
     }

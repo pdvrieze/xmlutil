@@ -32,7 +32,7 @@ class TestCurrentPathSet : AbstractTestSetSuite() {
 
     @Test
     fun testCurrent() {
-        val evalValue = testEvalTestCaseImpl(getTestCase("fn-booleanint1args-1"))
+        val evalValue = testEvalTestCaseImpl(getTestCase("K-SeqBooleanFunc-6"))
     }
 
     @ParameterizedTest

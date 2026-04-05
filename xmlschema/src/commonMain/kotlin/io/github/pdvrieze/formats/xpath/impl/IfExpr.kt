@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 data class IfExpr @NeedsXPath2 constructor(val testExpr: Expr, val thenExpr: Expr, val elseExpr: Expr) : AbstractExprSingle() {
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         val testResult = testExpr.eval().let { ctx.withExprContext(this) { it.toBoolean() }}
         return if (testResult) thenExpr.eval() else elseExpr.eval()
     }

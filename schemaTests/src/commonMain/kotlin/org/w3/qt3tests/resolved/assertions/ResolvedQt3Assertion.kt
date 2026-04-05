@@ -29,7 +29,7 @@ abstract class ResolvedQt3Assertion {
 
     internal open fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {}
 
-    abstract fun verify(evalResult: Result<XdmValue>): AssertionResult
+    abstract fun verify(evalResult: Result<XdmValue<*>>): AssertionResult
 
 }
 

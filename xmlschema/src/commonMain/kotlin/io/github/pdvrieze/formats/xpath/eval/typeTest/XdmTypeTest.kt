@@ -43,7 +43,7 @@ sealed class XdmSequenceTypeTest {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    abstract fun isInstance(value: XdmValue): Boolean
+    abstract fun isInstance(value: XdmValue<*>): Boolean
 
     abstract fun toValueType(fallbackType: XdmSingleType): XdmType
 
@@ -78,7 +78,7 @@ sealed class XdmSequenceTypeTest {
 
         @XPathInternal
         context(ctx: ExprEvalContext)
-        override fun isInstance(value: XdmValue): Boolean = value.size == 0
+        override fun isInstance(value: XdmValue<*>): Boolean = value.size == 0
     }
 }
 
@@ -141,7 +141,7 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun isInstance(value: XdmValue): Boolean {
+    override fun isInstance(value: XdmValue<*>): Boolean {
         return when (value) {
             is XdmSequence.Empty -> cardinality.allowsEmpty
             is XdmSequence<*> if (value.size > 1) -> (cardinality.allowsMultiple) &&

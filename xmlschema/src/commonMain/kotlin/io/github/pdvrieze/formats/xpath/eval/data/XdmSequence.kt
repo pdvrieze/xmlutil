@@ -55,20 +55,20 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     }
 
     context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
         TODO("not implemented")
     }
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         return expected is XdmSequence<*> && elements == expected.elements
     }
 
     context(ctx: ExprEvalContext)
-    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue {
+    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue<*> {
         return flatMap { it.evalPredicates(predicates) }
     }
 
-    fun flatMap(transform: (T) -> XdmValue): XdmValue {
+    fun flatMap(transform: (T) -> XdmValue<*>): XdmValue<*> {
         return build {
             for (e in elements) add(transform(e))
         }
@@ -116,7 +116,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 
             fun add(value: XdmSequence<*>) = addAll(value.elements)
 
-            fun add(value: XdmValue) = when (value) {
+            fun add(value: XdmValue<*>) = when (value) {
                 is XdmSequence<*> -> add(value)
                 is XdmSingleValue<*> -> add(value)
             }
@@ -132,7 +132,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
                 elements.addAll(values)
             }
 
-            fun build(type: XdmSequenceType): XdmValue {
+            fun build(type: XdmSequenceType): XdmValue<*> {
                 return when (elements.size) {
                     0 -> empty(type)
                     1 -> elements.single()
@@ -145,7 +145,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         internal inline fun build(
             type: XdmSequenceType = XdmSequenceType.ANYSEQ,
             builderAction: XdmSequenceBuilder.() -> Unit
-        ): XdmValue {
+        ): XdmValue<*> {
             contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
 
             return XdmSequenceBuilderImpl().apply(builderAction).build(type)
@@ -159,8 +159,8 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 sealed interface XdmAtomicOrEmpty<out E : XdmSingleValue<E>> : XdmAtomicOrSequence<E>, XdmSingleOrEmpty<E>
 
 @OptIn(XPathInternal::class)
-sealed interface XdmAtomicOrSequence<out E : XdmSingleValue<E>> : XdmValue
+sealed interface XdmAtomicOrSequence<out E : XdmSingleValue<E>> : XdmValue<E>
 
 @OptIn(XPathInternal::class)
-sealed interface XdmSingleOrEmpty<out E : XdmSingleValue<E>> : XdmValue
+sealed interface XdmSingleOrEmpty<out E : XdmSingleValue<E>> : XdmValue<E>
 

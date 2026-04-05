@@ -103,7 +103,7 @@ object NodeFunctions : AbstractFunctionObject() {
 
     }
 
-    val fnRoot: BuiltinFunctionImpl<XdmValue> = BuiltinFunctionImpl("root",
+    val fnRoot: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl("root",
         listOf(
             functionType(NODE.single),
             functionType(NODE.opt, NODE.opt)
@@ -170,7 +170,7 @@ object NodeFunctions : AbstractFunctionObject() {
         XdmAtomic(XsdBoolean(arg.node.getChildNodes().getLength() > 0))
     }
 
-    val fnInnermost: BuiltinFunctionImpl<XdmValue> = BuiltinFunctionImpl(
+    val fnInnermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl(
         "innermost",
         contextFunctionTypes(NODE.any, NODE.any)
     ) { args ->
@@ -180,7 +180,7 @@ object NodeFunctions : AbstractFunctionObject() {
 
     }
 
-    val fnOutermost: BuiltinFunctionImpl<XdmValue> = BuiltinFunctionImpl(
+    val fnOutermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl(
         "outermost",
         contextFunctionTypes(NODE.any, NODE.any)
     ) { args ->

@@ -38,7 +38,7 @@ open class AxisStep(
     constructor(axis: Axis, test: NodeTest) : this(axis, test, emptyList())
 
     context(ctx: ExprEvalContext)
-    override fun eval(context: XdmValue?): XdmValue {
+    override fun eval(context: XdmValue<*>?): XdmValue<*> {
         if (context == null) throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, "Missing context for path evaluation")
 
         var current = axis.eval(context, test)

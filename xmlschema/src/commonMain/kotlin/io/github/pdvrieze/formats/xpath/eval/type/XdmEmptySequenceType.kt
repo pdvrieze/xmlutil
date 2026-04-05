@@ -44,7 +44,7 @@ object XdmEmptySequenceType : XdmType() {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun fromString(value: String): XdmValue {
+    override fun fromString(value: String): XdmValue<*> {
         var state: Int = 0
         for (c in value) {
             when (c) {

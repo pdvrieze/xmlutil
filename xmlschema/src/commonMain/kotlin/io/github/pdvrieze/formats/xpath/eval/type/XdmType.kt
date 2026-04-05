@@ -52,7 +52,7 @@ sealed class XdmType {
         isAssignableTo(XdmSchemaTypeTest(expectedType, cardinality))
 
     context(ctx: ExprEvalContext)
-    abstract fun fromString(value: String): XdmValue
+    abstract fun fromString(value: String): XdmValue<*>
 
     abstract fun toTypeTest(): XdmSequenceTypeTest
 

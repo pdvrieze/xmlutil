@@ -28,7 +28,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 class InstanceOfExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceType) : AbstractExprSingle() {
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         val exprValue = expr.eval()
         val result =  ctx.withExprContext(this) { sequenceType.eval().isInstance(exprValue) }
 

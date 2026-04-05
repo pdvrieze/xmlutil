@@ -63,7 +63,7 @@ sealed class NodeTest {
 
     class ProcessingInstructionTest(val literal: NameOrLiteral? = null) : NodeTest() {
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             val pi = ((it as? XdmNode)?.node as? ProcessingInstruction) ?: return false
             return when (literal) {
                 null -> true
@@ -98,7 +98,7 @@ sealed class NodeTest {
     class LocalNameTest(val localName: String) : NameTest() {
         context(ctx: ExprEvalContext)
         override fun eval(
-            it: XdmValue,
+            it: XdmValue<*>,
             index: Int,
             count: Int
         ): Boolean {
@@ -127,7 +127,7 @@ sealed class NodeTest {
 
     class QNameTest(val qName: QName) : NameTest() {
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             return when (val n = it.node) {
                 is Attr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
@@ -158,7 +158,7 @@ sealed class NodeTest {
     class NSTest(val namespace: XsdAnyURI, val prefix: XsdNCName? = null) : NameTest() {
         context(ctx: ExprEvalContext)
         override fun eval(
-            it: XdmValue,
+            it: XdmValue<*>,
             index: Int,
             count: Int
         ): Boolean {
@@ -217,7 +217,7 @@ sealed class NodeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             return when (it) {
                 is XdmNode -> when (it.node) {
                     is Attr,
@@ -240,7 +240,7 @@ sealed class NodeTest {
     }
 
     context(ctx: ExprEvalContext)
-    abstract fun eval(it: XdmValue, index: Int, count: Int): Boolean/* {
+    abstract fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean/* {
         TODO("not implemented for ${this::class.simpleName}")
     }*/
 

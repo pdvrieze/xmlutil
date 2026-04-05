@@ -35,12 +35,12 @@ object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         return ctx.contextItem ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, this, "No context item")
     }
 
     context(ctx: ExprEvalContext)
-    override fun eval(context: XdmValue?): XdmValue {
+    override fun eval(context: XdmValue<*>?): XdmValue<*> {
         return context ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, "No context provided")
     }
 }

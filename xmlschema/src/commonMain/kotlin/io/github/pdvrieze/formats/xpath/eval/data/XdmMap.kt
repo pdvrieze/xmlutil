@@ -36,7 +36,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @XPathInternal
 class XdmMap private constructor(
-    val content: Map<XdmAtomic<*>, XdmValue>,
+    val content: Map<XdmAtomic<*>, XdmValue<*>>,
     override val staticType: XdmMapType,
     private val _dynamicType: Lazy<XdmMapType>,
 ) : XdmFunction<XdmMap>() {
@@ -46,12 +46,12 @@ class XdmMap private constructor(
         get() = _dynamicType.value
 
     context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
         if (type !is XdmMapTypeTest) throw EvaluationException(ctx.expr, "Cannot cast map to $type")
         return XdmMap(content, type.toValueType(staticType).single as XdmMapType, _dynamicType)
     }
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         if (expected !is XdmMap) return false
         if (expected.content.size != content.size) return false
 
@@ -82,19 +82,19 @@ class XdmMap private constructor(
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun normalizeToArithmetic(): XdmValue {
+    override fun normalizeToArithmetic(): XdmValue<*> {
         throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Maps are not compatible with an arithmetic operator")
     }
 
     companion object {
         context(ctx: ExprEvalContext)
         operator fun invoke(
-            content: Map<XdmAtomic<*>, XdmValue>,
+            content: Map<XdmAtomic<*>, XdmValue<*>>,
             staticType: XdmMapType,
         ): XdmMap = XdmMap(content, staticType, lazy { dynamicMapType(content) })
 
         context(ctx: ExprEvalContext)
-        fun dynamicMapType(content: Map<XdmAtomic<*>, XdmValue>): XdmMapType {
+        fun dynamicMapType(content: Map<XdmAtomic<*>, XdmValue<*>>): XdmMapType {
             if (content.isEmpty()) {
                 return XdmMapType(XdmSchemaTypeTest.ANY_ATOMIC, XdmTypeTest.ANY.any)
             }

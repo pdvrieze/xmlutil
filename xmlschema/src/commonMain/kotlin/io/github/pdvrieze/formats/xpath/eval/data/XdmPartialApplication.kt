@@ -33,7 +33,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 @OptIn(XPathInternal::class)
 class XdmPartialApplication(
     val function: XdmFunction<*>,
-    val args: List<XdmValue?>,
+    val args: List<XdmValue<*>?>,
     override val staticType: XdmFunctionType = function.partialStaticType(args)
 ) : XdmFunction<XdmPartialApplication>() {
     override fun asT(): XdmPartialApplication = this
@@ -51,7 +51,7 @@ class XdmPartialApplication(
         }
     }
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         return this == expected
     }
 
@@ -77,7 +77,7 @@ class XdmPartialApplication(
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun normalizeToArithmetic(): XdmValue {
+    override fun normalizeToArithmetic(): XdmValue<*> {
         throw EvaluationException(
             ErrorCodes.XPTY0004_TYPE_ERROR,
             "Partial function applications not compatible with an arithmetic operator"

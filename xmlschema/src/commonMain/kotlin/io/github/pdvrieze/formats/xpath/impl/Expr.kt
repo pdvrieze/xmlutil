@@ -39,7 +39,7 @@ sealed interface Expr: PrintableExpr {
 
     @XPathInternal
     context(ctx: EvalContext)
-    fun eval(): XdmValue = TODO("Evaluation of ${this::class.simpleName} is not yet supported")
+    fun eval(): XdmValue<*> = TODO("Evaluation of ${this::class.simpleName} is not yet supported")
 
 }
 

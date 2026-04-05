@@ -35,7 +35,7 @@ import org.w3.qt3tests.resolved.assertions.AssertionResult
 abstract class AbstractTestSetSuite {
 
     @IgnorableReturnValue
-    protected fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue> {
+    protected fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue<*>> {
         val environment = testCase.environment?.getOrThrow()
         val contextDoc: Document? = environment?.getDocumentOrNull()
 

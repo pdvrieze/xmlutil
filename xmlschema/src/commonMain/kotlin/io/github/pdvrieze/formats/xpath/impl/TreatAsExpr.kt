@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 class TreatAsExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceType) : AbstractExprSingle() {
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         val origValue = expr.eval()
 
         return withExprContext {

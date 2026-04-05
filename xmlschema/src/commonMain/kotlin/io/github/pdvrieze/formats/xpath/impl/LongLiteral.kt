@@ -33,7 +33,7 @@ internal class LongLiteral @NeedsXPath2 constructor(override val value: Long) : 
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         return XdmAtomic(XsdLong(value))
     }
 

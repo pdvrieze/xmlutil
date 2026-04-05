@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -36,29 +35,29 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
-class BuiltinFunctionImpl<out R: XdmValue>(
+class BuiltinFunctionImpl<out R: XdmValue<*>>(
     override val functionName: QName,
     override val functionTypes: List<XdmFunctionType>,
-    val evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
+    val evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
 ): BuiltinFunction<R> {
 
     constructor(
         functionName: String,
         functionTypes: List<XdmFunctionType>,
-        evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
     ): this(QName(FN_NAMESPACE, functionName), functionTypes, evalFunction)
 
     constructor(
         functionName: String,
         functionType: XdmFunctionType,
-        evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
     ): this(QName(FN_NAMESPACE, functionName), listOf(functionType), evalFunction)
 
     constructor(
         name: QName,
         returnType: AnyType,
         vararg argumentTypes: AnyType,
-        evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
     ) : this(
         name,
         listOf(XdmFunctionType(returnType, *argumentTypes)),
@@ -69,7 +68,7 @@ class BuiltinFunctionImpl<out R: XdmValue>(
         name: String,
         returnType: AnyType,
         vararg argumentTypes: AnyType,
-        evalFunction: context(ExprEvalContext) (List<XdmValue>) -> R
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
     ) : this(
         name,
         listOf(XdmFunctionType(returnType, *argumentTypes)),
@@ -89,11 +88,11 @@ class BuiltinFunctionImpl<out R: XdmValue>(
 */
 
     context(ctx: ExprEvalContext)
-    override fun invoke(args: List<XdmValue>): R = evalFunction(args)
+    override fun invoke(args: List<XdmValue<*>>): R = evalFunction(args)
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T : XdmValue> Collection<XdmValue>.singleArg(): T {
+inline fun <reified T : XdmValue<*>> Collection<XdmValue<*>>.singleArg(): T {
     return (singleOrNull() ?: throw EvaluationException(
         ErrorCodes.FOAP0001_WRONG_ARG_CNT,
         ctx.expr
@@ -105,7 +104,7 @@ inline fun <reified T : XdmValue> Collection<XdmValue>.singleArg(): T {
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XsdAtomic> Collection<XdmValue>.singleAtomicArg(): T {
+inline fun <reified T: XsdAtomic> Collection<XdmValue<*>>.singleAtomicArg(): T {
     val arg = singleOrNull() ?: throw EvaluationException(
         ErrorCodes.FOAP0001_WRONG_ARG_CNT,
         ctx.expr
@@ -118,7 +117,7 @@ inline fun <reified T: XsdAtomic> Collection<XdmValue>.singleAtomicArg(): T {
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XdmValue> List<XdmValue>.argN(arg: Int): T {
+inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T {
     return this[arg] as? T
         ?: throw EvaluationException(
             ctx.expr,
@@ -127,7 +126,7 @@ inline fun <reified T: XdmValue> List<XdmValue>.argN(arg: Int): T {
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XsdAtomic> List<XdmValue>.atomicArgN(arg: Int): T {
+inline fun <reified T: XsdAtomic> List<XdmValue<*>>.atomicArgN(arg: Int): T {
     return (this[arg] as? XdmAtomic<*>)?.value as? T
         ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
 }

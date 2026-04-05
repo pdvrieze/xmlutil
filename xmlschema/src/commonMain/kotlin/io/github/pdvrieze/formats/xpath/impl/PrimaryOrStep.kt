@@ -53,6 +53,6 @@ sealed class PrimaryOrStep {
     }
 
     context(ctx: ExprEvalContext)
-    abstract fun eval(context: XdmValue?): XdmValue
+    abstract fun eval(context: XdmValue<*>?): XdmValue<*>
 
 }

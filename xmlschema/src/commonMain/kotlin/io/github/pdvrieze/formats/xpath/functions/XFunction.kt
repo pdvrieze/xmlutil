@@ -27,7 +27,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.QName
 
-interface XFunction<out R : XdmValue> {
+interface XFunction<out R : XdmValue<*>> {
     val functionName: QName
 
     val functionTypes: List<XdmFunctionType>
@@ -42,11 +42,11 @@ interface XFunction<out R : XdmValue> {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    operator fun invoke(vararg args: XdmValue): R = invoke(args.toList())
+    operator fun invoke(vararg args: XdmValue<*>): R = invoke(args.toList())
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    operator fun invoke(args: List<XdmValue>): R
+    operator fun invoke(args: List<XdmValue<*>>): R
 
 }
 

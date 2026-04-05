@@ -70,7 +70,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.DOCUMENT
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             val n = it.node
             if (n !is Document) return false
@@ -158,7 +158,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             val elem = it.node as? Element ?: return false
             if (elemName != null) {
@@ -192,7 +192,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.ATTRIBUTE
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             return it is XdmNode && it.node is Attr
         }
 
@@ -248,7 +248,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.SCHEMA_ELEMENT
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             val n = it.node as? Element ?: return false
             TODO("Schema element matching not complete")
@@ -289,7 +289,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.SCHEMA_ATTRIBUTE
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             val n = it.node as? Attr ?: return false
             TODO("Schema element matching not complete")
@@ -333,7 +333,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.PROCESSING_INSTRUCTION
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             if (it !is XdmNode) return false
             val n = it.node as? ProcessingInstruction ?: return false
             if (name != null && ! name.isEquivalent(QName(n.target))) return false
@@ -382,7 +382,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.COMMENT
         context(ctx: ExprEvalContext)
         override fun eval(
-            it: XdmValue,
+            it: XdmValue<*>,
             index: Int,
             count: Int
         ): Boolean {
@@ -405,7 +405,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.TEXT
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             return it is XdmNode && it.node is Text
         }
 
@@ -425,7 +425,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.NAMESPACE_NODE
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             throw EvaluationException(ErrorCodes.XQST0134_NS_AXIS_NOT_SUPPORTED, "Namespace node test not supported")
         }
 
@@ -444,7 +444,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
         override val type: NodeType get() = NodeType.ANY_NODE
 
         context(ctx: ExprEvalContext)
-        override fun eval(it: XdmValue, index: Int, count: Int): Boolean {
+        override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             return it is XdmNode
         }
 

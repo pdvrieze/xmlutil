@@ -70,7 +70,7 @@ sealed class UnaryExpr: AbstractExprSingle() {
 
         context(ctx: EvalContext)
         @XPathInternal
-        override fun eval(): XdmValue {
+        override fun eval(): XdmValue<*> {
             when (val e = expr.eval()) {
                 is XdmSequence.Empty -> return XdmSequence.EMPTY
                 !is XdmAtomic<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, this, "Expected atomic number, found ${e.staticType}")

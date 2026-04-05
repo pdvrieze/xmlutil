@@ -22,13 +22,8 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrEmpty
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNumeric
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.functions.singleArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -95,7 +90,7 @@ object NumericFunctions: AbstractFunctionObject() {
         "number",
         contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)
     ) { args ->
-        val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextItem else args.singleArg<XdmValue>()
+        val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextItem else args.singleArg<XdmValue<*>>()
         if (arg !is XdmAtomic<*>) return@BuiltinFunctionImpl XdmAtomic.NaN
 
         @Suppress("UNCHECKED_CAST")

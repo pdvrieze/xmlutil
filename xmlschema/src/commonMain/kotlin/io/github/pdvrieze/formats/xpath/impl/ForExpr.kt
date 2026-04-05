@@ -51,7 +51,7 @@ class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnEx
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         val result = mutableListOf<XdmSingleValue<*>>()
         evalImpl(ctx, 0, result)
 

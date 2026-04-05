@@ -33,7 +33,7 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
 
     context(ctx: ExprEvalContext)
     abstract fun eval(): XdmSequenceTypeTest
-    abstract fun isInstance(value: XdmValue): Boolean
+    abstract fun isInstance(value: XdmValue<*>): Boolean
 
     @NeedsXPath2
     object EmptySequence : SequenceType() {
@@ -42,7 +42,7 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
             builder.append("empty-sequence()")
         }
 
-        override fun isInstance(value: XdmValue): Boolean = value.size == 0
+        override fun isInstance(value: XdmValue<*>): Boolean = value.size == 0
 
         context(ctx: ExprEvalContext)
         override fun eval(): XdmSequenceTypeTest.EMPTY = XdmSequenceTypeTest.EMPTY
@@ -55,7 +55,7 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
             builder.append(occurrence.literal)
         }
 
-        override fun isInstance(value: XdmValue): Boolean {
+        override fun isInstance(value: XdmValue<*>): Boolean {
             when {
                 !occurrence.allowsEmpty && value.size == 0 -> return false
                 value.size == 0 -> return true

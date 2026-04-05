@@ -50,7 +50,7 @@ object XdmErrorType : XdmSingleType() {
         }
     */
     context(ctx: ExprEvalContext)
-    override fun fromString(value: String): XdmValue {
+    override fun fromString(value: String): XdmValue<*> {
         throw EvaluationException(ctx.expr, "Errors cannot be created from strings")
     }
 

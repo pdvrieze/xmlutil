@@ -45,7 +45,7 @@ internal class LocationPath(
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         withExprContext {
             val base = steps.dropLast(1).fold(ctx.contextItem) { c, step ->
                 when (val e = step.eval(c)) {

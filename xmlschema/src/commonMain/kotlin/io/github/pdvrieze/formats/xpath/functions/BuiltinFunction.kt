@@ -29,14 +29,14 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @XPathInternal
-interface BuiltinFunction<out R : XdmValue> : XFunction<R> {
+interface BuiltinFunction<out R : XdmValue<*>> : XFunction<R> {
     override val functionTypes: List<XdmFunctionType>
 
     context(ctx: ExprEvalContext)
-    override fun invoke(vararg args: XdmValue): R = invoke(args.toList())
+    override fun invoke(vararg args: XdmValue<*>): R = invoke(args.toList())
 
     context(ctx: ExprEvalContext)
-    override operator fun invoke(args: List<XdmValue>): R
+    override operator fun invoke(args: List<XdmValue<*>>): R
 
     companion object {
         const val FN_NAMESPACE: String = "http://www.w3.org/2005/xpath-functions"

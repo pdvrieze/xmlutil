@@ -45,21 +45,21 @@ abstract class AbstractFunctionObject() {
     context(ctx: ExprEvalContext)
     protected fun argOrContext(
         index: Int,
-        args: List<XdmValue>,
+        args: List<XdmValue<*>>,
         allowContext: Boolean = false
-    ): XdmValue? = when (args.size - index){
+    ): XdmValue<*>? = when (args.size - index){
         0 if allowContext -> ctx.contextItem
         1 -> args[index]
         else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toSingleArg(args: List<XdmValue>, allowContext: Boolean = false): XdmValue? {
+    protected fun toSingleArg(args: List<XdmValue<*>>, allowContext: Boolean = false): XdmValue<*>? {
         return argOrContext(0, args, allowContext)
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toAnySingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): XdmAtomic<*>? {
+    protected fun toAnySingleAtomic(args: List<XdmValue<*>>, allowContext: Boolean = false): XdmAtomic<*>? {
         val argOrContext = toSingleArg(args, allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
 
         val atom = argOrContext.atomize()
@@ -72,7 +72,7 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toAnyAtomic(pos: Int, args: List<XdmValue>): XdmAtomic<*>? {
+    protected fun toAnyAtomic(pos: Int, args: List<XdmValue<*>>): XdmAtomic<*>? {
         val arg = args.getOrNull(pos) ?: throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         return when {
             arg.size == 0 -> null
@@ -82,7 +82,7 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected inline fun <reified T: XsdAnySimple> toSingleAtomic(args: List<XdmValue>, allowContext: Boolean = false): T? {
+    protected inline fun <reified T: XsdAnySimple> toSingleAtomic(args: List<XdmValue<*>>, allowContext: Boolean = false): T? {
         val arg = toAnySingleAtomic(args, allowContext) ?: return null
         return arg.value as? T
             ?: throw EvaluationException(
@@ -92,7 +92,7 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected inline fun <reified T: XsdAnySimple> toAtomic(pos: Int, args: List<XdmValue>): T? {
+    protected inline fun <reified T: XsdAnySimple> toAtomic(pos: Int, args: List<XdmValue<*>>): T? {
         val arg = toAnyAtomic(pos, args) ?: return null
         return arg.value as? T
             ?: throw EvaluationException(
@@ -102,7 +102,7 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected fun toSingleNode(args: List<XdmValue>, allowContext: Boolean = false): XdmNode? {
+    protected fun toSingleNode(args: List<XdmValue<*>>, allowContext: Boolean = false): XdmNode? {
         val arg = toSingleArg(args, allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return null
         return arg as? XdmNode ?: throw EvaluationException(
@@ -179,5 +179,6 @@ abstract class AbstractFunctionObject() {
         val ATOMIC = XdmSchemaTypeTest(AnyAtomicType.Instance, SINGLE)
         val NUMERIC = XdmSchemaTypeTest(NumericType.Instance, SINGLE)
         val INTEGER = XdmSchemaTypeTest(IntegerType.Instance, SINGLE)
+        val DOUBLE = XdmSchemaTypeTest(DoubleType.Instance, SINGLE)
     }
 }

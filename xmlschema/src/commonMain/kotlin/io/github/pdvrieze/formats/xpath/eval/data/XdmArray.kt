@@ -31,7 +31,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @XPathInternal
 class XdmArray(
-    val content: List<XdmValue>,
+    val content: List<XdmValue<*>>,
     override val staticType: XdmArrayType,
     override val dynamicType: XdmArrayType
 ) : XdmFunction<XdmArray>() {
@@ -45,7 +45,7 @@ class XdmArray(
     }
 
     context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue {
+    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
         val concreteType = type.toValueType(this.staticType)
         if (concreteType !is XdmArrayType) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast array to $type")
         val newItemTypeTest = concreteType.elemType
@@ -59,7 +59,7 @@ class XdmArray(
         return XdmArray(content, concreteType, dynamicType)
     }
 
-    override fun isValEqual(expected: XdmValue): Boolean {
+    override fun isValEqual(expected: XdmValue<*>): Boolean {
         return expected is XdmArray &&
                 content.isContentEqual(expected.content)
     }

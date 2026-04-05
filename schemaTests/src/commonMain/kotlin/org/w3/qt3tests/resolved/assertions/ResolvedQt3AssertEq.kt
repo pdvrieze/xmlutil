@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 class ResolvedQt3AssertEq(val xPathExpression: XPathExpression): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         val expected = xPathExpression.eval(evalResult)
 

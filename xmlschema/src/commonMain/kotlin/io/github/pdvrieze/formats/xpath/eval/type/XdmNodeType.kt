@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
-import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.formats.xpath.impl.token.NodeType
@@ -62,7 +61,7 @@ class XdmNodeType(val nodeType: NodeType) : XdmSingleType() {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun fromString(value: String): XdmValue {
+    override fun fromString(value: String): XdmValue<*> {
         TODO("not implemented")
     }
 

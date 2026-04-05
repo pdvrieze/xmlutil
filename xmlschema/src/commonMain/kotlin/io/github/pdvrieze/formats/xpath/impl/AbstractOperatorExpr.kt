@@ -29,7 +29,7 @@ internal abstract class AbstractOperatorExpr(val operator: Operator): AbstractEx
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmValue {
+    override fun eval(): XdmValue<*> {
         return operands.asSequence()
             .map { it.eval() }
             .reduce { left, right -> withExprContext { operator.eval(left, right) } }
