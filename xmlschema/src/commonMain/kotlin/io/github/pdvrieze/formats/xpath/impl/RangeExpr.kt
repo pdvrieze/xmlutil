@@ -20,8 +20,23 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
+
 @OptIn(XPathInternal::class)
 class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : AbstractExprSingle() {
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue<*> {
+        val start = ((from.eval() as XdmAtomic<*>).value as XsdDecimal).toInt()
+        val end = ((to.eval() as XdmAtomic<*>).value as XsdDecimal).toInt()
+
+        return XdmSequence((start..end).map { XdmAtomic(XsdInt(it)) })
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         from.appendToString(builder)
