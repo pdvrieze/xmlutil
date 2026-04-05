@@ -92,7 +92,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                 add(target[i])
             }
         }
-        XdmSequence(newElements)
+        newElements.singleOrNull() ?: XdmSequence(newElements)
     }
 
     internal val fnReverse = BuiltinFunctionImpl("reverse", functionType(ITEM.any, ITEM.any)) { args ->

@@ -288,7 +288,7 @@ object Xs: AbstractFunctionObject() {
         context(ctx: ExprEvalContext)
         final override fun invoke(args: List<XdmValue<*>>): XR {
             val arg = when (val arg = args.singleArg<XdmAtomicOrEmpty<*>>()) {
-                is XdmSequence.Empty -> {
+                is XdmSequence.EMPTY -> {
                     @Suppress("UNCHECKED_CAST")
                     return XdmSequence.EMPTY as XR
                 }

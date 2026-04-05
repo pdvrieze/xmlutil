@@ -123,7 +123,7 @@ internal fun List<XdmValue<*>>.checkArgCount(expected: Int) {
 context(ctx: ExprEvalContext)
 internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.atomicArgOrEmpty(idx: Int): T? {
     val arg: XdmAtomic<*> = when (val a = get(idx)) {
-        is XdmSequence.Empty -> return null
+        is XdmSequence.EMPTY -> return null
         is XdmAtomic<*> -> a
         is XdmSequence<*> -> when (a.size) {
             0 -> return null

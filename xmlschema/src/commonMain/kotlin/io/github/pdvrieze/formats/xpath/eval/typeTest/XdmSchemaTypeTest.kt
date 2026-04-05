@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
@@ -33,22 +31,8 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.types.AnyType
-import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
-import io.github.pdvrieze.xml.schematypes.types.UntypedType
-import io.github.pdvrieze.xml.schematypes.values.localPart
-import io.github.pdvrieze.xml.schematypes.values.namespaceURI
-import nl.adaptivity.xmlutil.XMLConstants
 
 class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : XdmTypeTest(cardinality) {
-    init {
-        val n = schemaType.name
-        if (n != null) {
-            if (n.namespaceURI == XMLConstants.XSD_NS_URI) {
-                require(n.localPart!= "untyped") { "UntypedType cannot be referenced" }
-                require(n.localPart != "untypedAtomic") { "UntypedAtomicType cannot be referenced" }
-            }
-        }
-    }
 
     @XPathInternal
     context(ctxt: ExprEvalContext)

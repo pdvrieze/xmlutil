@@ -126,7 +126,7 @@ class XdmNode(
             is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))
             is Comment -> XdmAtomic(XsdString(node.getData()))
             is Text -> XdmAtomic(XsdString(node.getData()))
-            is Element if node.isNil -> XdmSequence.empty(staticType)
+            is Element if node.isNil -> XdmSequence.EMPTY
 
             is Document -> Fn.string(this).atomize() as XdmAtomic<*>
 

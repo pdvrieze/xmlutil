@@ -105,7 +105,7 @@ sealed class Operator(
         @XPathInternal
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
             val leftVal = when (val a = left.atomize()) {
-                is XdmSequence.Empty -> return XdmSequence.EMPTY
+                is XdmSequence.EMPTY -> return a
                 is XdmAtomic<*> -> a.value
                 is XdmSequence<*> -> throw EvaluationException(
                     ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -113,7 +113,7 @@ sealed class Operator(
                 )
             }
             val rightVal = when (val a = right.atomize()) {
-                is XdmSequence.Empty -> return XdmSequence.EMPTY
+                is XdmSequence.EMPTY -> return XdmSequence.EMPTY
                 is XdmAtomic<*> -> a.value
                 is XdmSequence<*> -> throw EvaluationException(
                     ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -270,7 +270,7 @@ sealed class Operator(
         operator : ComparisonImpl,
     ): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
-            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
@@ -279,7 +279,7 @@ sealed class Operator(
             )
         }
         val rightVal = when (val a = right.atomize()) {
-            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
@@ -324,7 +324,7 @@ internal interface ComparisonImpl {
     @XPathInternal
     fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
-            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
@@ -333,7 +333,7 @@ internal interface ComparisonImpl {
             )
         }
         val rightVal = when (val a = right.atomize()) {
-            is XdmSequence.Empty -> return XdmSequence.EMPTY
+            is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(

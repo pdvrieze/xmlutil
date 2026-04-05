@@ -47,14 +47,14 @@ internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr
                         }
 
                         when (newElems.size) {
-                            0 -> return XdmSequence.empty(current.staticType)
+                            0 -> return XdmSequence.EMPTY
                             1 -> current = newElems.single()
                             else -> current = XdmSequence(newElems, current.staticType)
                         }
                     }
 
                     else -> ctx.withValueContext(current, 1, 1) {
-                        if (!predicate.eval().toBoolean()) return XdmSequence.empty(current.staticType)
+                        if (!predicate.eval().toBoolean()) return XdmSequence.EMPTY
                     }
                 }
             }

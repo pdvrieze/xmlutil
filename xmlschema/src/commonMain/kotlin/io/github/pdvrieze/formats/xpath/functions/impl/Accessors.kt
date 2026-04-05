@@ -22,17 +22,8 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrEmpty
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
-import io.github.pdvrieze.formats.xpath.eval.data.XdmBoolean
-import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
-import io.github.pdvrieze.formats.xpath.eval.data.XdmQName
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.eval.type.XdmType
+import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.types.QNameType
@@ -58,7 +49,7 @@ object Accessors : AbstractFunctionObject() {
     val fnNilled: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl(
         "nilled", contextFunctionTypes(BOOLEAN.opt, NODE.opt)
     ) { args ->
-        val arg = (toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.empty(XdmType.BOOLEAN))
+        val arg = (toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY)
             .node
         XdmAtomic(
             XsdBoolean(

@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.eval.type.XdmSequenceType
 
 @OptIn(XPathInternal::class)
 @NeedsXPath1
@@ -75,7 +74,7 @@ internal class LocationPath(
             val last = steps.last()
             val result = last.eval(base)
             if (result.size == 0) {
-                return XdmSequence.empty(/* TODO last.evalType*/ base?.staticType ?: XdmSequenceType.ANYSEQ)
+                return XdmSequence.EMPTY
             }
             if (result[0] is XdmNode) {
                 for (i in 1 until result.size) {

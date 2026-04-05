@@ -39,6 +39,13 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     internal val elements: List<T> = emptyList(),
     override val staticType: XdmType = XdmSequenceType.ANYSEQ
 ) : XdmAtomicOrSequence<T>, List<T> {
+    init {
+        when (staticType) {
+            XdmEmptySequenceType -> check(elements.isEmpty())
+            else -> require(elements.size > 1) { "Sequence must have at least two elements" }
+        }
+    }
+
     override val size: Int get() = elements.size
 
     override fun get(index: Int): T {
@@ -104,11 +111,10 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         return elements.joinToString(prefix = "(", postfix = ")")
     }
 
-    class Empty(type: XdmType = XdmEmptySequenceType) : XdmSequence<Nothing>(staticType = type),
+    object EMPTY : XdmSequence<Nothing>(staticType = XdmEmptySequenceType),
         XdmAtomicOrEmpty<Nothing>, XdmSingleOrEmpty<Nothing>
 
     companion object {
-        val EMPTY: Empty = empty(XdmEmptySequenceType)
 
         interface XdmSequenceBuilder {
             fun add(value: XdmSingleValue<*>)
@@ -135,7 +141,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 
             fun build(type: XdmSequenceType): XdmValue<*> {
                 return when (elements.size) {
-                    0 -> empty(type)
+                    0 -> EMPTY
                     1 -> elements.single()
                     else -> XdmSequence(elements, type)
                 }
@@ -152,7 +158,6 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
             return XdmSequenceBuilderImpl().apply(builderAction).build(type)
         }
 
-        fun empty(type: XdmType): Empty = Empty(type)
     }
 }
 

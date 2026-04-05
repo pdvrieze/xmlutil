@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 @XPathInternal
 class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : AbstractExpr() {
@@ -51,7 +52,7 @@ class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : Abstra
 
     context(ctx: EvalContext)
     @XPathInternal
-    override fun eval(): XdmSequence<XdmSingleValue<*>> {
+    override fun eval(): XdmValue<*> {
         val elems = buildList {
             for (e in elements) {
                 when (val r = e.eval()) {
@@ -61,7 +62,7 @@ class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : Abstra
             }
         }
 
-        return XdmSequence(elems)
+        return elems.singleOrNull() ?: XdmSequence(elems)
     }
 
     context(c: OutputContext)

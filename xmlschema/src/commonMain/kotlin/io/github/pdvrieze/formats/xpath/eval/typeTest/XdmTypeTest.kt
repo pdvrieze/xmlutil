@@ -143,10 +143,9 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
     context(ctx: ExprEvalContext)
     override fun isInstance(value: XdmValue<*>): Boolean {
         return when (value) {
-            is XdmSequence.Empty -> cardinality.allowsEmpty
+            is XdmSequence.EMPTY -> cardinality.allowsEmpty
             is XdmSequence<*> if (value.size > 1) -> (cardinality.allowsMultiple) &&
                     value.all { isSingleInstance(it) }
-
             else -> isSingleInstance(value as XdmSingleValue<*>) // The cast should always succceed
         }
     }
