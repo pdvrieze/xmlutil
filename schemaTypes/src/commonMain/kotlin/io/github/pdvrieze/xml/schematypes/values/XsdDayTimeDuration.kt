@@ -48,5 +48,9 @@ interface XsdDayTimeDuration : XsdDuration {
         override fun deserialize(raw: String, input: XmlReader?): XsdDayTimeDuration {
             return invoke(raw)
         }
+
+        fun ofMinutes(offset: Int): XsdDayTimeDuration {
+            return XsdDayTimeDurationImpl(offset * 60_0000L)
+        }
     }
 }

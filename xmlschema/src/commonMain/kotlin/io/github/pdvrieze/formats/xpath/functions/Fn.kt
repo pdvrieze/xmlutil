@@ -66,6 +66,10 @@ enum class Fn(
     stringJoin(StringFunctions.fnStringJoin),
     //endregion
 
+    //region Date/Time functions (9)
+    timezoneFromTime(DateTimeFunctions.fnTimezoneFromTime),
+    //endregion
+
     //region Node Operations (13)
     Name(NodeFunctions.fnName),
     localName(NodeFunctions.fnLocalName),

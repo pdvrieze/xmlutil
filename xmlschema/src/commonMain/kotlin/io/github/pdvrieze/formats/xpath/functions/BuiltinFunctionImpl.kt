@@ -25,6 +25,7 @@ package io.github.pdvrieze.formats.xpath.functions
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
@@ -92,11 +93,9 @@ class BuiltinFunctionImpl<out R: XdmValue<*>>(
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T : XdmValue<*>> Collection<XdmValue<*>>.singleArg(): T {
-    return (singleOrNull() ?: throw EvaluationException(
-        ErrorCodes.FOAP0001_WRONG_ARG_CNT,
-        ctx.expr
-    )) as? T
+internal inline fun <reified T : XdmValue<*>> List<XdmValue<*>>.singleArg(): T {
+    checkArgCount(1)
+    return get(0) as? T
         ?: throw EvaluationException(
             ctx.expr,
             "Argument not of expected type ${T::class.simpleName}"
@@ -104,29 +103,42 @@ inline fun <reified T : XdmValue<*>> Collection<XdmValue<*>>.singleArg(): T {
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XsdAtomic> Collection<XdmValue<*>>.singleAtomicArg(): T {
-    val arg = singleOrNull() ?: throw EvaluationException(
-        ErrorCodes.FOAP0001_WRONG_ARG_CNT,
-        ctx.expr
-    )
-    return (arg as? XdmAtomic<*>)?.value as? T
-        ?: throw EvaluationException(
-            ctx.expr,
-            "Argument not of expected type ${T::class.simpleName}"
-        )
+internal fun List<XdmValue<*>>.checkArgCount(expected: Int) {
+    if (size != expected)
+        throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Expected $expected arguments, found ${size}")
+}
+
+
+context(ctx: ExprEvalContext)
+internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.atomicArgOrEmpty(idx: Int): T? {
+    val arg: XdmAtomic<*> = when (val a = get(idx)) {
+        is XdmSequence.Empty -> return null
+        is XdmAtomic<*> -> a
+        is XdmSequence<*> -> when (a.size) {
+            0 -> return null
+            1 -> a[0] as? XdmAtomic<*> ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found sequence: ${a[0].staticType}")
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found sequence: ${a.staticType}")
+        }
+        else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic, found: ${a.staticType}")
+    }
+    if (arg.value !is T) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic of type ${T::class.simpleName}, found: ${arg.staticType}")
+    return arg.value
+}
+
+
+context(ctx: ExprEvalContext)
+internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.singleAtomicArg(): T {
+    checkArgCount(1)
+    return atomicArgN(0)
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T {
+internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T {
     return this[arg] as? T
-        ?: throw EvaluationException(
-            ctx.expr,
-            "Argument not of expected type ${T::class.simpleName}"
-        )
+        ?: throw EvaluationException("Argument not of expected type ${T::class.simpleName}")
 }
 
 context(ctx: ExprEvalContext)
-inline fun <reified T: XsdAtomic> List<XdmValue<*>>.atomicArgN(arg: Int): T {
-    return (this[arg] as? XdmAtomic<*>)?.value as? T
-        ?: throw EvaluationException(ctx.expr, "Argument not of expected type ${T::class.simpleName}")
+internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.atomicArgN(arg: Int): T {
+    return atomicArgOrEmpty<T>(arg) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Argument ${arg+1} is empty sequence, but should be atomic")
 }
