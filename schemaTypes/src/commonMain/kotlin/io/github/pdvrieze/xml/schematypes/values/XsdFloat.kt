@@ -56,7 +56,14 @@ interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
             Float.POSITIVE_INFINITY -> "INF"
             Float.NEGATIVE_INFINITY -> "-INF"
             else if (value.isNaN()) -> "NaN"
-            else -> value.toString()
+            else -> buildString {
+                append(value)
+                // drop trailing zeros per the spec
+                if (this.endsWith(".0")) {
+                    this.deleteRange(length -2, length)
+                }
+            }
+
         }
 
     override val schemaType: FloatType<XsdFloat>

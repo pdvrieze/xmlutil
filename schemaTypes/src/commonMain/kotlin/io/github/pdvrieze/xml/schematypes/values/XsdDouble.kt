@@ -53,7 +53,13 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
             Double.POSITIVE_INFINITY -> "INF"
             Double.NEGATIVE_INFINITY -> "-INF"
             else if (value.isNaN()) -> "NaN"
-            else -> value.toString()
+            else -> buildString {
+                append(value)
+                // drop trailing zeros per the spec
+                if (this.endsWith(".0")) {
+                    this.deleteRange(length -2, length)
+                }
+            }
         }
 
     companion object : SimpleTypeSerializer<XsdDouble>("xsd.double") {
