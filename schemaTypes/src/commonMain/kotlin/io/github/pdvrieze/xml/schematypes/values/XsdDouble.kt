@@ -29,10 +29,24 @@ import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdDouble.Companion::class)
-interface XsdDouble: XsdAtomic, XsdNumeric<XsdDouble> {
+interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
     override val schemaType: DoubleType<XsdDouble>
 
     val value: Double
+
+    operator fun plus(other: XsdDouble): XsdDouble = XsdDoubleImpl(value + other.value)
+    operator fun minus(other: XsdDouble): XsdDouble = XsdDoubleImpl(value - other.value)
+    operator fun times(other: XsdDouble): XsdDouble = XsdDoubleImpl(value * other.value)
+    operator fun div(other: XsdDouble): XsdDouble = XsdDoubleImpl(value / other.value)
+    operator fun rem(other: XsdDouble): XsdDouble = XsdDoubleImpl(value % other.value)
+
+    override fun compareTo(other: XsdNumeric<*>): Int {
+        return when (other) {
+            is XsdDouble -> value.compareTo(other.toDouble())
+            is XsdFloat -> value.compareTo(other.toDouble())
+            is XsdDecimal -> value.compareTo(other.toDouble())
+        }
+    }
 
     override val xmlString: String
         get() = when (value) {

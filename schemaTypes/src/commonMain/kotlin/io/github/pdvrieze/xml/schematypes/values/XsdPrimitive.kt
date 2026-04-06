@@ -18,8 +18,15 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.types
+package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.types.PrimitiveType
 
-interface XXXBuiltinSimpleType<out T : XsdAnySimple> : AnySimpleType<T>, BuiltinType
+interface XsdPrimitive : XsdAtomic {
+    fun compareTo(other: XsdPrimitive, collation: Collation): Int
+
+    override val schemaType: PrimitiveType<XsdPrimitive>
+}
+
+

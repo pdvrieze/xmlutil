@@ -33,4 +33,6 @@ class XsdNotationImpl(
     override val schemaType: NotationType<*> get() = NotationType.Instance
 
     constructor(localPart: String) : this("", localPart)
+
+
 }

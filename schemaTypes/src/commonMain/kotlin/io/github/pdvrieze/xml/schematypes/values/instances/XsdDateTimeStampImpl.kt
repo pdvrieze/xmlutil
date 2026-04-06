@@ -57,7 +57,6 @@ class XsdDateTimeStampImpl(
     override val xmlString: String
         get() = "${yearFrag()}-${monthFrag()}-${dayFrag()}T${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
 
-
     companion object {
         internal operator fun invoke(
             year: Int,

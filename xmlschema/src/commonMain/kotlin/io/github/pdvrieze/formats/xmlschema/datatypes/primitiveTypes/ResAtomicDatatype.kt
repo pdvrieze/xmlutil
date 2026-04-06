@@ -27,10 +27,10 @@ import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-interface ResAtomicDatatype<out T: XsdAtomic> : ResolvedBuiltinSimpleType<T>, ResolvedSimpleType.Model,
+interface ResAtomicDatatype<out T: XsdPrimitive> : ResolvedBuiltinSimpleType<T>, ResolvedSimpleType.Model,
     ResolvedSimpleType<T>, AnyAtomicType<T> {
     override val isSpecial: Boolean get() = false
 

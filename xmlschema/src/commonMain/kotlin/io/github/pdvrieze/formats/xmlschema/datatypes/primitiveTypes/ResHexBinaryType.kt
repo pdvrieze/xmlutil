@@ -29,14 +29,12 @@ import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.FacetCardinality
 import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdByteArray
-import io.github.pdvrieze.xml.schematypes.values.XsdHexBinary
-import io.github.pdvrieze.xml.schematypes.values.XsdString
+import io.github.pdvrieze.xml.schematypes.values.*
 
 object ResHexBinaryType : ResPrimitiveDatatype<XsdHexBinary>, HexBinaryType<XsdHexBinary> {
 
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
+    override val name: XsdQName get() = super.name!!
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),

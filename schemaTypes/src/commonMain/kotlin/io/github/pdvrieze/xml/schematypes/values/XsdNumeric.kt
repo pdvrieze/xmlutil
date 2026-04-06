@@ -20,13 +20,13 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.NumericType
+import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.types.PrimitiveType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
 @ExperimentalXmlUtilApi
-interface XsdNumeric<out T: XsdNumeric<T>>: XsdAtomic {
-    override val schemaType: AnyAtomicType<XsdAtomic>
+sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
+    override val schemaType: PrimitiveType<XsdPrimitive>
 
     fun toDouble(): Double
 
@@ -42,4 +42,14 @@ interface XsdNumeric<out T: XsdNumeric<T>>: XsdAtomic {
     fun roundToHalfEven(): T
     fun roundToHalfEven(precision: XsdInteger): T = roundToHalfEven(precision.toInt())
     fun roundToHalfEven(precision: Int): T
+
+    operator fun compareTo(other: XsdNumeric<*>): Int
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        return when (other) {
+            is XsdNumeric<*> -> compareTo(other)
+            else -> throw IllegalArgumentException("Cannot compare decimal to ${other.schemaType}")
+        }
+    }
+
 }

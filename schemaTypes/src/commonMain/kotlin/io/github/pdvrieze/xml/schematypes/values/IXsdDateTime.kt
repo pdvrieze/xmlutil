@@ -21,10 +21,14 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 import kotlin.time.Instant
+import kotlin.time.toDuration
 
 /**
  * Interface that is shared among the date/time types to clarify that XSDateTime is an
@@ -93,5 +97,7 @@ interface IXsdDateTime: XsdAtomic {
     operator fun compareTo(other: IXsdDateTime): Int {
         return instant().compareTo(other.instant())
     }
+
+    fun ensureTimezone(fallbackTimezone: TimeZone): IXsdDateTime
 
 }

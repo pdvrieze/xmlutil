@@ -196,7 +196,6 @@ class BigDecimal internal constructor(
         return ints[index]
     }
 
-
     operator fun div(divider: BigDecimal): BigDecimal {
         return divRem(divider).quotient
     }
@@ -503,6 +502,10 @@ class BigDecimal internal constructor(
         }
     }
 
+    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem {
+        return divRem(other.toBigDecimal())
+    }
+
     fun divRem(divider: BigDecimal): DivRem { // will (initially) expand exponents
         if (divider.sign == 0) throw ArithmeticException("Division by zero")
         else if (sign == 0) return DivRem(this, ZERO)
@@ -595,7 +598,7 @@ class BigDecimal internal constructor(
     data class DivRem(
         override val quotient: BigDecimal,
         override val remainder: BigDecimal
-    ) : IDivRem<BigDecimal>
+    ) : IDivRem<BigDecimal>, XsdDecimal.DivRem
 
     data class UIntDivRem(
         override val quotient: BigDecimal,
@@ -636,8 +639,6 @@ class BigDecimal internal constructor(
 
         private fun parse(s: CharSequence): ParseResult {
             if (s.isEmpty()) throw NumberFormatException("Empty string")
-            val isNegative: Boolean
-            val base: AbstractBigUnsignedInt.ParseResult
 
             var normalised = s.trim()
             if (normalised.isEmpty()) throw NumberFormatException("Empty string")

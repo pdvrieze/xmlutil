@@ -27,7 +27,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
+interface DecimalType<out T: XsdDecimal> : PrimitiveType<T>, NumericType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.TOTAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -35,6 +35,7 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
+    override val primitiveType: PrimitiveTypeInstance<XsdDecimal> get() = Instance
 
     override val members: Collection<DecimalType<T>> get() = emptyList()
 
@@ -42,10 +43,10 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
         get() = Instance.constrainingFacets
 
     override fun isBaseOf(maybeSubType: AnyType): Boolean {
-        return super<AnyAtomicType>.isBaseOf(maybeSubType)
+        return super<PrimitiveType>.isBaseOf(maybeSubType)
     }
 
-    object Instance: DecimalType<XsdDecimal>, PrimitiveDatatype<XsdDecimal>, BuiltinType {
+    object Instance: DecimalType<XsdDecimal>, PrimitiveTypeInstance<XsdDecimal>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "decimal", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

@@ -24,14 +24,18 @@ import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.types.DateType
+import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdDate
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
 
 @JvmInline
 @XmlUtilInternal
-value class XsdDateImpl(val dateVal: ULong) : XsdDate {
+value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
     constructor(year: Int, month: Int, day: Int) : this(year, month.toUInt(), day.toUInt())
 
     constructor(year: Int, month: UInt, day: UInt, overloadMarker: Unit = Unit) : this(
@@ -49,7 +53,7 @@ value class XsdDateImpl(val dateVal: ULong) : XsdDate {
                 year.toLBits(41, 9) or
                 when (timezoneOffset) {
                     null -> 0uL
-                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 50)
+                    else -> TZ_BIT or timezoneOffset.toLBits(13, 50)
                 }
     )
 
@@ -60,7 +64,7 @@ value class XsdDateImpl(val dateVal: ULong) : XsdDate {
     override val year: Int get() = (dateVal shr 9).intFromBits(41)
 
     override val timezoneOffset: Int? get() = when {
-        dateVal and 0x80000000_00000000uL == 0uL -> null
+        dateVal and TZ_BIT == 0uL -> null
         else -> (dateVal shr 50).intFromBits(13)
     }
 
@@ -68,11 +72,23 @@ value class XsdDateImpl(val dateVal: ULong) : XsdDate {
         get() = "${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${
             day.toString().padStart(2, '0')
         }"
+
     override val schemaType: DateType<XsdDate> get() = DateType.Instance
 
     override fun toString(): String = xmlString
 
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDate = when {
+        dateVal and 0x80000000_00000000uL == 0uL -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdDateImpl(dateVal.toLBits(50) or newOffset.toLBits(13, 50) or TZ_BIT)
+        }
+        else -> this
+    }
+
     companion object {
+
+        private val TZ_BIT: ULong =1uL shl 63
+
         operator fun invoke(str: CharSequence) : XsdDate {
             val normalized = xmlCollapseWhitespace(str)
             val monthIdx = normalized.indexOf('-', 1) // sign can be start

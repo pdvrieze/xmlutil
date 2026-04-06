@@ -23,7 +23,10 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.types.GYearType
+import io.github.pdvrieze.xml.schematypes.values.XsdGMonthDay
 import io.github.pdvrieze.xml.schematypes.values.XsdGYear
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
@@ -51,10 +54,21 @@ value class XsdGYearImpl(val yearVal: UInt) : XsdGYear {
         }
 
 
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGYear = when {
+        yearVal and TZ_MARKER == 0u -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdGYearImpl(yearVal.toIBits(18) or newOffset.toIBits(13, 18) or TZ_MARKER)
+        }
+
+        else -> this
+    }
+
     override val xmlString: String get() = "${yearFrag()}${timeZoneFrag()}"
     override val schemaType: GYearType<*> get() = GYearType.Instance
 
     companion object {
+        val TZ_MARKER = 1u shl 31
+
         operator fun invoke(str: CharSequence): XsdGYearImpl {
             val s = xmlCollapseWhitespace(str)
             val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it >= 0) it + 1 else s.length }

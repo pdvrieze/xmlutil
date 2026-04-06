@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdBooleanImpl
 import kotlinx.serialization.KSerializer
@@ -34,9 +35,14 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @Serializable(XsdBoolean.Companion::class)
 @ExperimentalXmlUtilApi
-interface XsdBoolean : XsdAtomic {
+interface XsdBoolean : XsdPrimitive {
     override val schemaType: BooleanType<XsdBoolean>
     val value: Boolean
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        require(other is XsdBoolean) { "Cannot compare $this with $other" }
+        return (if(value) 1 else 0).compareTo(if(other.value) 1 else 0)
+    }
 
     companion object : KSerializer<XsdBoolean> {
         val TRUE: XsdBoolean = XsdBooleanImpl(true)

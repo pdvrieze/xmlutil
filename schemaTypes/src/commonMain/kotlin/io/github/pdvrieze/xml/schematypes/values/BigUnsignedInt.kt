@@ -92,6 +92,17 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         else -> divRem(BigUnsignedInt(divider)).quotient
     }
 
+    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
+        is XsdNonNegativeInteger -> divRem(other)
+        is XsdInteger -> toBigInt().divRem(other)
+        else -> toBigDecimal().divRem(other)
+    }
+
+    override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
+        is XsdNonNegativeInteger -> divRem(divider)
+        else -> toBigInt().divRem(divider)
+    }
+
     override fun divRem(divider: XsdNonNegativeInteger): PosDivRem {
         return when (divider) {
             is AbstractBigUnsignedInt<*> -> unsignedDivRem(divider.asBigUnsignedInt())

@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdGMonthDay
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface GMonthDayType<out T : XsdGMonthDay> : AnyAtomicType<T> {
+interface GMonthDayType<out T : XsdGMonthDay> : PrimitiveType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -34,11 +34,12 @@ interface GMonthDayType<out T : XsdGMonthDay> : AnyAtomicType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
     override val name: XsdQName? get() = Instance.name
+    override val primitiveType: PrimitiveTypeInstance<XsdGMonthDay> get() = Instance
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance : GMonthDayType<XsdGMonthDay>, PrimitiveDatatype<XsdGMonthDay>, BuiltinType {
+    object Instance : GMonthDayType<XsdGMonthDay>, PrimitiveTypeInstance<XsdGMonthDay>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gMonthDay", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

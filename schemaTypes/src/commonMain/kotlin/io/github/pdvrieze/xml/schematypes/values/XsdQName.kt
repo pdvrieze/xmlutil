@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.QNameType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -36,7 +37,7 @@ import nl.adaptivity.xmlutil.*
 // This implementation inherits QName to keep it easy.
 @ExperimentalXmlUtilApi
 @Serializable(XsdQName.Companion::class)
-interface XsdQName: XsdAtomic {
+interface XsdQName: XsdPrimitive {
 
     override val schemaType: QNameType<XsdQName>
 
@@ -81,6 +82,13 @@ interface XsdQName: XsdAtomic {
     infix fun isEquivalent(other: XsdQName): Boolean {
         return getLocalPart() == other.getLocalPart() &&
                 getNamespaceURI() == other.getNamespaceURI()
+    }
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        if (other !is XsdQName) throw IllegalArgumentException("Cannot compare $this with $other")
+        val nsCompare = getNamespaceURI().compareTo(other.getNamespaceURI())
+        if (nsCompare != 0) return nsCompare
+        return getLocalPart().compareTo(other.getLocalPart())
     }
 
     companion object: XmlSerializer<XsdQName> {

@@ -33,10 +33,13 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetCardinality
 import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.StringType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 object ResStringType : ResPrimitiveDatatype<XsdString>, ResIStringType<XsdString>, StringType<XsdString> {
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
+    override val name: XsdQName get() = super.name!!
+
     override val simpleDerivation: ResolvedSimpleRestrictionBase
         get() = ResSimpleBuiltinRestriction(
             baseType,

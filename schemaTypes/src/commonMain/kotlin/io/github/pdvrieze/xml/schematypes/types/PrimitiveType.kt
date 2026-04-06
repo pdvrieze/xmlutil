@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,10 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.values
+package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.PrimitiveType
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
 
-@ExperimentalXmlUtilApi
-interface XsdAtomic : XsdAnySimple {
-    override val schemaType: AnyAtomicType<XsdAtomic>
+interface PrimitiveType<out T: XsdPrimitive> : AnyAtomicType<T> {
+    val primitiveType: PrimitiveTypeInstance<*>
 }
-

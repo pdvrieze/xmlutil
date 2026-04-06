@@ -22,7 +22,6 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeStampImpl
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
@@ -38,6 +37,9 @@ interface XsdDateTimeStamp : XsdDateTime {
     override val timezoneOffset: Int
 
     override val schemaType: DateTimeType<XsdDateTimeStamp>
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp = this
+
     companion object: SimpleTypeSerializer<XsdDateTimeStamp>("xsd.dateTime") {
 
         operator fun invoke(instant: Instant, timezone: TimeZone= TimeZone.UTC): XsdDateTimeStamp {

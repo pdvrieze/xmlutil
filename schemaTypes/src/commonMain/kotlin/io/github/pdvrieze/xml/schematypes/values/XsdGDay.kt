@@ -20,15 +20,17 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.GDayType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGDayImpl
+import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
 @Serializable(XsdGDay.Companion::class)
-interface XsdGDay : IXsdDateTime {
+interface XsdGDay : IXsdDateTime, XsdPrimitive {
 
     override val schemaType: GDayType<XsdGDay>
 
@@ -39,6 +41,13 @@ interface XsdGDay : IXsdDateTime {
     override val hour: Nothing? get() = null
     override val minute: Nothing? get() = null
     override val second: Nothing? get() = null
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
+        is XsdGDay -> compareTo(other)
+        else -> throw IllegalArgumentException("Cannot compare $this with $other")
+    }
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGDay
 
     companion object: SimpleTypeSerializer<XsdGDay>("xsd.gDay") {
         operator fun invoke(raw: CharSequence): XsdGDay = XsdGDayImpl(raw.toString().toInt())

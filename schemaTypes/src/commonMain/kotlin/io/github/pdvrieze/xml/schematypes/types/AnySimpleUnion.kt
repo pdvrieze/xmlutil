@@ -26,4 +26,17 @@ interface AnySimpleUnion<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T> 
     fun isPureUnion(): Boolean
 
     val members: Collection<AnySimpleType<T>>
+
+    /**
+     * Implements a base check. If there are no members then use the parent implementation
+     * that does not handle unions. This allows union member types to be used as base types
+     * without them having to override this method while they can still inherit the union base.
+     *
+     * @see NumericType
+     */
+    override fun isBaseOf(maybeSubType: AnyType): Boolean = when (members.size) {
+        0 -> super.isBaseOf(maybeSubType)
+        else -> NumericType.Instance.members.any { it.isBaseOf(maybeSubType) }
+    }
+
 }

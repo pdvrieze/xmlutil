@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdParsedUri
@@ -31,12 +32,17 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdAnyURI.Companion::class)
-interface XsdAnyURI : XsdAtomic, CharSequence {
+interface XsdAnyURI : XsdPrimitive, CharSequence {
     override val schemaType: AnyURIType<XsdAnyURI>
 
     val value: String get() = xmlString
 
     operator fun component1(): String = value
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        require(other is XsdAnyURI) { "Cannot compare $this with $other" }
+        return collation.compare(value, other.value)
+    }
 
     companion object Companion : SimpleTypeSerializer<XsdAnyURI>("xsd.anyURI") {
         operator fun invoke(value: String) = value.toAnyUri()

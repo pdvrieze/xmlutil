@@ -79,9 +79,39 @@ interface XsdUnsignedInt : XsdUnsignedLong {
         return XsdUnsignedIntImpl(uIntValue + other.toUInt())
     }
 
-    override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger {
-        return XsdUnsignedLong(toULong() * other.toULong())
+    override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger = when (other) {
+        is XsdUnsignedInt -> XsdUnsignedIntImpl(uIntValue * other.uIntValue)
+        else -> other.times(this)
     }
+
+    override operator fun times(other: XsdUnsignedLong): XsdUnsignedLong = when (other) {
+        is XsdUnsignedInt -> times(other.uIntValue) as XsdUnsignedLong
+        else -> other.times(this)
+    }
+
+    override operator fun times(other: UInt): XsdUnsignedInt = XsdUnsignedIntImpl(uIntValue * other)
+    operator fun times(other: XsdUnsignedInt): XsdUnsignedInt = times(other.uIntValue)
+
+    override fun div(divider: XsdUnsignedLong): XsdUnsignedLong = when (divider) {
+        is XsdUnsignedInt -> div(divider)
+        else -> super.div(divider)
+    }
+
+    operator fun div(divider: XsdUnsignedInt): XsdUnsignedInt = XsdUnsignedIntImpl(uIntValue / divider.uIntValue)
+
+    override fun divRem(divider: XsdUnsignedLong): XsdUnsignedLong.DivRem = when (divider) {
+        is XsdUnsignedInt -> divRem(divider)
+        else -> XsdUnsignedLong(uLongValue).divRem(divider)
+    }
+
+    fun divRem(divider: XsdUnsignedInt): DivRem = DivRem(uIntValue / divider.uIntValue, uIntValue % divider.uIntValue)
+
+    override fun rem(divider: XsdUnsignedLong): XsdUnsignedLong = when (divider) {
+        is XsdUnsignedInt -> rem(divider)
+        else -> super.rem(divider)
+    }
+
+    operator fun rem(divider: XsdUnsignedInt): XsdUnsignedInt = XsdUnsignedIntImpl(uIntValue % divider.uIntValue)
 
     override fun abs(): XsdUnsignedInt = this
 
@@ -109,6 +139,15 @@ interface XsdUnsignedInt : XsdUnsignedLong {
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other !is XsdUnsignedInt) return -other.compareTo(this)
         return uIntValue.compareTo(other.uIntValue)
+    }
+
+    data class DivRem(override val quotient: XsdUnsignedInt, override val remainder: XsdUnsignedInt) :
+        XsdUnsignedLong.DivRem {
+
+        constructor(quotient: UInt, remainder: UInt): this(
+            XsdUnsignedIntImpl(quotient),
+            XsdUnsignedIntImpl(remainder)
+        )
     }
 
     companion object : SimpleTypeSerializer<XsdUnsignedInt>("xsd.unsignedInt") {

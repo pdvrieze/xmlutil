@@ -20,11 +20,15 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.types.GDayType
 import io.github.pdvrieze.xml.schematypes.values.XsdGDay
+import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import kotlin.jvm.JvmInline
 
@@ -36,7 +40,7 @@ value class XsdGDayImpl(val dayVal: UInt) : XsdGDay {
         day.toIBits(6) or
                 when (timezoneOffset) {
                     null -> 0u
-                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                    else -> TZ_MARKER or timezoneOffset.toIBits(13, 18)
                 }
     )
 
@@ -48,13 +52,26 @@ value class XsdGDayImpl(val dayVal: UInt) : XsdGDay {
 
     override val day: UInt get() = dayVal.uintFromBits(6)
     override val timezoneOffset: Int? get() = when {
-            dayVal and 0x80000000u == 0u -> null
+            dayVal and TZ_MARKER == 0u -> null
             else -> (dayVal shr 18).intFromBits(13)
         }
 
     override val xmlString: String get() = "---${dayFrag()}${timeZoneFrag()}"
     override val schemaType: GDayType<*> get() = GDayType.Instance
 
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGDay = when {
+        dayVal and TZ_MARKER == 0u -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdGDayImpl(dayVal.toIBits(18) or newOffset.toIBits(13, 18) or TZ_MARKER)
+        }
+
+        else -> this
+    }
+
     override fun toString(): String = xmlString
+
+    companion object {
+        private val TZ_MARKER = 1u shl 32
+    }
 
 }

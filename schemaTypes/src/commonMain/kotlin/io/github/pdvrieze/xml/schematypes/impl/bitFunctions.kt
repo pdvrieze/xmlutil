@@ -27,6 +27,12 @@ internal fun Int.toLBits(bitCount: Int): ULong {
     return (ulValue and (1uL shl (bitCount - 1)) - 1uL) or ((ulValue shr 63) shl (bitCount - 1))
 }
 
+internal fun ULong.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
+
+internal fun ULong.toLBits(bitCount: Int): ULong {
+    return (this and (1uL shl (bitCount - 1)) - 1uL) or ((this shr 63) shl (bitCount - 1))
+}
+
 internal fun Int.toIBits(bitCount: Int, shift: Int): UInt = toIBits(bitCount) shl shift
 
 internal fun Int.toIBits(bitCount: Int): UInt {

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdHexBinaryImpl
@@ -29,8 +30,12 @@ import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdHexBinary.Companion::class)
-interface XsdHexBinary : XsdByteArray {
+interface XsdHexBinary : XsdByteArray, XsdPrimitive {
     override val schemaType: HexBinaryType<XsdHexBinary>
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        return super.compareTo(other, collation)
+    }
 
     companion object : SimpleTypeSerializer<XsdHexBinary>("xsd.hexBinary") {
 

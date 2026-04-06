@@ -102,6 +102,10 @@ enum class Fn(
     exactlyOne(SequenceFunctions.fnExactlyOne),
 
     Count(SequenceFunctions.fnCount),
+    avg(SequenceFunctions.fnAvg),
+    max(SequenceFunctions.fnMax),
+    min(SequenceFunctions.fnMin),
+    sum(SequenceFunctions.fnSum),
     //endregion
 
     //region Context functions (15)

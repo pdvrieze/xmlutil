@@ -102,7 +102,17 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     override fun div(divider: BigInt): BigInt = divRem(divider).quotient
 
-    override fun divRem(divider: BigInt): AbstractBigInteger.DivRem<BigInt, BigInt> {
+    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
+        is XsdInteger -> divRem(other.toBigInt())
+        else -> toBigDecimal().divRem(other)
+    }
+
+    override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
+        is BigInt -> divRem(divider)
+        else -> toBigInt().divRem(divider.toBigInt())
+    }
+
+    override fun divRem(divider: BigInt): DivRem {
         val nonzeroSign = when {
             divider.sign < 0 -> -sign
             divider.sign == 0 -> throw ArithmeticException("Division by zero")
@@ -232,7 +242,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     class DivRem(
         override val quotient: BigInt,
         override val remainder: BigInt
-    ): AbstractBigInteger.DivRem<BigInt, BigInt>
+    ): AbstractBigInteger.DivRem<BigInt, BigInt>, XsdInteger.DivRem
 
     private class ParseResult(val sign: Int, val ints: UIntArray, val exp: ULong)
 

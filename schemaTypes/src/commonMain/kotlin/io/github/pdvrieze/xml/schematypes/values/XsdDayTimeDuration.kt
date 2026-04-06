@@ -35,6 +35,15 @@ interface XsdDayTimeDuration : XsdDuration {
 
     override val months: Long get() = 0L
 
+    operator fun plus(other: XsdDayTimeDuration): XsdDayTimeDuration
+    operator fun minus(other: XsdDayTimeDuration): XsdDayTimeDuration
+    operator fun times(other: XsdDouble): XsdDayTimeDuration = times(other.value)
+    operator fun times(other: Double): XsdDayTimeDuration
+    operator fun div(other: XsdDayTimeDuration): XsdDecimal
+    operator fun div(other: XsdDouble): XsdDayTimeDuration = div(other.value)
+    operator fun div(other: Double): XsdDayTimeDuration
+
+
     companion object : SimpleTypeSerializer<XsdDayTimeDuration>("xsd.dayTimeDuration") {
 
         operator fun invoke(str: CharSequence): XsdDayTimeDuration {

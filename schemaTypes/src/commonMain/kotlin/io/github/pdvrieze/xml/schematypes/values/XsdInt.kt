@@ -71,6 +71,29 @@ interface XsdInt : XsdLong {
         return XsdInt(intValue - other.toInt())
     }
 
+    override fun div(other: XsdLong): XsdLong = when (other) {
+        is XsdInt -> div(other)
+        else -> XsdLong(longValue / other.longValue)
+    }
+
+    operator fun div(other: XsdInt): XsdInt = XsdInt(intValue / other.intValue)
+
+    override fun rem(other: XsdLong): XsdLong = when (other) {
+        is XsdInt -> rem(other)
+        else -> XsdLong(longValue % other.longValue)
+    }
+
+    operator fun rem(other: XsdInt): XsdInt = XsdInt(intValue % other.intValue)
+
+    override fun divRem(other: XsdLong): XsdLong.DivRem = when (other) {
+        is XsdInt -> divRem(other)
+        else -> XsdLong(longValue).divRem(other)
+    }
+
+    fun divRem(other: XsdInt): DivRem {
+        return DivRem(intValue / other.intValue, intValue % other.intValue)
+    }
+
     override fun get(index: Int): UInt {
         if (index != 0) throw IndexOutOfBoundsException("Index $index out of bounds")
         return intValue.absoluteValue.toUInt()
@@ -90,6 +113,12 @@ interface XsdInt : XsdLong {
         return 32u - intValue.countLeadingZeroBits().toULong()
     }
 
+    data class DivRem(
+        override val quotient: XsdInt,
+        override val remainder: XsdInt
+    ) : XsdLong.DivRem {
+        constructor(quotient: Int, remainder: Int): this(XsdInt(quotient), XsdInt(remainder))
+    }
 
     companion object : SimpleTypeSerializer<XsdInt>("xsd.int") {
         operator fun invoke(value: Int): XsdInt = XsdIntImpl(value)

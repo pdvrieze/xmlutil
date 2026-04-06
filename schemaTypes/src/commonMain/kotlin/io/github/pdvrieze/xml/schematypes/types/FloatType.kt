@@ -22,11 +22,14 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdFloat
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
+interface FloatType<out T : XsdFloat> : PrimitiveType<T>, NumericType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.BOUNDED
@@ -34,15 +37,17 @@ interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
+    override val primitiveType: PrimitiveTypeInstance<XsdFloat> get() = Instance
+
     override val members: Collection<FloatType<T>> get() = emptyList()
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
     override fun isBaseOf(maybeSubType: AnyType): Boolean {
-        return super<AnyAtomicType>.isBaseOf(maybeSubType)
+        return super<PrimitiveType>.isBaseOf(maybeSubType)
     }
 
-    object Instance : FloatType<XsdFloat>, PrimitiveDatatype<XsdFloat>, BuiltinType {
+    object Instance : FloatType<XsdFloat>, PrimitiveTypeInstance<XsdFloat>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "float", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
@@ -51,6 +56,13 @@ interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
 
         override fun fromString(value: CharSequence): XsdFloat {
             return XsdFloat(value)
+        }
+
+        override fun castFrom(other: XsdAtomic): XsdFloat = when (other) {
+            is XsdFloat -> other
+            is XsdDouble -> XsdFloat(other.value.toFloat())
+            is XsdDecimal -> XsdFloat(other.toFloat())
+            else -> fromString(other.xmlString)
         }
     }
 

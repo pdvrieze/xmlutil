@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdBase64BinaryImpl
@@ -30,8 +31,12 @@ import kotlin.io.encoding.Base64
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdBase64Binary.Companion::class)
-interface XsdBase64Binary : XsdByteArray {
+interface XsdBase64Binary : XsdByteArray, XsdPrimitive {
     override val schemaType: Base64BinaryType<XsdBase64Binary>
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        return super.compareTo(other, collation)
+    }
 
     companion object : SimpleTypeSerializer<XsdBase64Binary>("xsd.base64Binary") {
 

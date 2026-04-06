@@ -33,6 +33,10 @@ internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsigned
 
     override fun unaryMinus(): XsdLong = XsdLong(-uLongValue.toLong())
 
+    override fun divRem(divider: XsdUnsignedLong): XsdUnsignedLong.DivRem {
+        return DivRem(uLongValue / divider.uLongValue, uLongValue % divider.uLongValue)
+    }
+
     override fun toString(): String {
         return "${uLongValue}u"
     }
@@ -46,6 +50,10 @@ internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsigned
         is XsdLong -> other.longValue>=0 && other.longValue.toULong() == uLongValue
         is XsdDecimal -> other == this
         else -> false
+    }
+
+    data class DivRem(override val quotient: XsdUnsignedLong, override val remainder: XsdUnsignedLong): XsdUnsignedLong.DivRem {
+        constructor(quotient: ULong, remainder: ULong): this(XsdUnsignedLongImpl(quotient), XsdUnsignedLongImpl(remainder))
     }
 
 }

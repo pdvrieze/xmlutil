@@ -67,7 +67,7 @@ class ResolvedMaxExclusive(
     override fun toString(): String = "-$value)"
 
     companion object {
-        operator fun invoke(rawPart: XSMaxExclusive, primitiveDatatype: ResPrimitiveDatatype<XsdAtomic>): ResolvedMaxExclusive {
+        operator fun invoke(rawPart: XSMaxExclusive, primitiveDatatype: ResPrimitiveDatatype<XsdPrimitive>): ResolvedMaxExclusive {
             return ResolvedMaxExclusive(rawPart, primitiveDatatype.mdlPrimitiveTypeDefinition.value(rawPart.value))
         }
 

@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface BooleanType<out T : XsdBoolean> : AnyAtomicType<T> {
+interface BooleanType<out T : XsdBoolean> : PrimitiveType<T> {
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
     override val cardinality: FacetCardinality get() = FacetCardinality.FINITE
@@ -34,10 +34,12 @@ interface BooleanType<out T : XsdBoolean> : AnyAtomicType<T> {
 
     override val name: XsdQName? get() = Instance.name
 
+    override val primitiveType: PrimitiveTypeInstance<XsdBoolean> get() = Instance
+
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: BooleanType<XsdBoolean>, PrimitiveDatatype<XsdBoolean>, BuiltinType {
+    object Instance: BooleanType<XsdBoolean>, PrimitiveTypeInstance<XsdBoolean>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "boolean", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

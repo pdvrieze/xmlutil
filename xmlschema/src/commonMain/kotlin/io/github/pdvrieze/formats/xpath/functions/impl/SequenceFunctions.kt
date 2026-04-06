@@ -23,17 +23,19 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.functions.argN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.maybeCollation
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
-import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.types.DoubleType
+import io.github.pdvrieze.xml.schematypes.types.FloatType
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.round
 
 @XPathInternal
@@ -233,9 +235,168 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         "count",
         functionType(INTEGER, ITEM.any)
     ) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
-        XdmAtomic(XsdInteger(arg.size))
+        XdmAtomic(XsdInteger(args[0].size))
     }
+
+    context(ctx: ExprEvalContext)
+    private fun seqSum(arg: XdmValue<XdmAtomic<*>>): XsdAtomic {
+        val doubleCoerced = arg.map {
+            when (it.staticType) {
+                XdmSchemaType.UNTYPED_ATOMIC -> XsdDouble(it.value.xmlString)
+
+                else -> it.value
+            }
+        }
+        val head = doubleCoerced.first()
+        val tail = doubleCoerced.asSequence().drop(1)
+
+        return when (head) {
+            is XsdDouble -> tail
+                .map { it as? XsdDouble ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                }.fold(head) { acc, d -> acc + d }
+
+            is XsdFloat -> tail
+                .map { it as? XsdFloat ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                }.fold(head) { acc, d -> acc + d }
+
+            is XsdDecimal -> tail
+                .map { it as? XsdDecimal ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                }.fold(head) { acc, d -> acc + d }
+
+            is XsdYearMonthDuration -> tail
+                .map { it as? XsdYearMonthDuration ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                }.fold(head) { acc, d -> acc + d }
+
+            is XsdDayTimeDuration -> tail
+                .map { it as? XsdDayTimeDuration ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                }.fold(head) { acc, d -> acc + d }
+
+            else -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${head.schemaType}")
+        }
+
+    }
+
+
+    internal val fnAvg = BuiltinFunctionImpl("avg", functionType(ATOMIC.opt, ATOMIC.any)) { args ->
+        val arg = args[0]
+        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+
+        val sum = seqSum(arg as XdmAtomic<XsdAtomic>)
+        val avg = when (sum) {
+            is XsdDouble -> XsdDouble(sum.value / arg.size)
+            is XsdFloat -> XsdFloat(sum.value / arg.size)
+            is XsdDecimal -> sum / XsdInt(arg.size)
+            is XsdYearMonthDuration -> sum / XsdDouble(arg.size.toDouble())
+            is XsdDayTimeDuration -> sum / XsdDouble(arg.size.toDouble())
+            else -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${sum.schemaType}")
+        }
+        XdmAtomic(avg)
+    }
+
+    context(context: ExprEvalContext)
+    private fun getComparisonSequence(arg: XdmAtomicOrSequence<*>): List<XsdPrimitive> {
+        @Suppress("UNCHECKED_CAST")
+        val seq = arg.map {
+            when ((it as XdmAtomic<*>).staticType) {
+                XdmSchemaType.UNTYPED_ATOMIC -> XsdDouble(it.value.xmlString)
+
+                // This is needed for comparison as the specification says to use the local timezone
+                else if (it.value is IXsdDateTime) ->
+                    it.value.ensureTimezone(contextOf<ExprEvalContext>().defaultTimeZone)
+
+                else -> it.value
+            } as XsdPrimitive
+        }
+
+        val usedTypes = seq.mapTo(HashSet()) { it.schemaType.primitiveType.name.localPart }
+
+        val actualValues = when {
+            usedTypes.size == 1 -> seq
+
+            "string" in usedTypes && "anyURI" in usedTypes -> {
+                if (usedTypes.size != 2) {
+                    throw EvaluationException(
+                        ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                        "Max with unsupported types: ${usedTypes.joinToString()}"
+                    )
+                }
+                seq.map { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
+            }
+
+            "double" in usedTypes -> {
+                if ((usedTypes - setOf("decimal", "float", "double")).isNotEmpty()) {
+                    throw EvaluationException(
+                        ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                        "Max with unsupported types: ${usedTypes.joinToString()}"
+                    )
+                }
+                seq.map { DoubleType.Instance.castFrom(it as XsdNumeric<*>) }
+            }
+
+            arrayOf("decimal", "float").any { it in usedTypes } -> {
+                if ((usedTypes - setOf("decimal", "float", "double")).isNotEmpty()) {
+                    throw EvaluationException(
+                        ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                        "Max with unsupported types: ${usedTypes.joinToString()}"
+                    )
+                }
+                seq.map { FloatType.Instance.castFrom(it as XsdNumeric<*>) }
+            }
+
+            else -> throw EvaluationException(
+                ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                "Max with unsupported types: ${usedTypes.joinToString()}"
+            )
+        }
+        return actualValues
+    }
+
+    internal val fnMax = BuiltinFunctionImpl<XdmAtomicOrSequence<*>>("max", listOf(
+        functionType(ATOMIC.opt, ATOMIC.any),
+        functionType(ATOMIC.opt, ATOMIC.any, STRING),
+    )) { args ->
+        val arg = args[0] as XdmAtomicOrSequence<*>
+        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val collation = args.maybeCollation(1) ?: contextOf<ExprEvalContext>().defaultCollation
+
+        val actualValues = getComparisonSequence(arg)
+
+
+        val max = actualValues.reduce { left, right ->
+            if (left.compareTo(right, collation) > 0) left else right
+        }
+        XdmAtomic(max)
+    }
+
+    internal val fnMin = BuiltinFunctionImpl<XdmAtomicOrSequence<*>>("min", listOf(
+        functionType(ATOMIC.opt, ATOMIC.any),
+        functionType(ATOMIC.opt, ATOMIC.any, STRING),
+    )) { args ->
+        val arg = args[0] as XdmAtomicOrSequence<*>
+        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val collation = args.maybeCollation(1) ?: contextOf<ExprEvalContext>().defaultCollation
+
+        val actualValues = getComparisonSequence(arg)
+
+
+        val min = actualValues.reduce { left, right ->
+            if (left.compareTo(right, collation) < 0) left else right
+        }
+        XdmAtomic(min)
+    }
+
+    internal val fnSum = BuiltinFunctionImpl("sum", listOf(
+        functionType(ATOMIC.single, ATOMIC.any),
+        functionType(ATOMIC.opt, ATOMIC.any, ATOMIC.opt),
+    )) { args ->
+        val arg = args[0]
+        val zero = args.getOrNull(1)
+        if (arg.size == 0) return@BuiltinFunctionImpl zero ?: XdmAtomic(XsdInt(0))
+
+        XdmAtomic(seqSum(arg as XdmAtomic<XsdAtomic>))
+    }
+
+
     //endregion
 
     //region 14.5 Functions on node identifiers

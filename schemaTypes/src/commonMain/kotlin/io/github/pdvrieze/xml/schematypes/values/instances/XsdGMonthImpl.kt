@@ -25,6 +25,8 @@ import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.types.GMonthType
 import io.github.pdvrieze.xml.schematypes.values.XsdGMonth
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
 
@@ -36,7 +38,7 @@ value class XsdGMonthImpl private constructor(val monthVal: UInt) : XsdGMonth {
         month.toIBits(5) or
                 when (timezoneOffset) {
                     null -> 0u
-                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                    else -> TZ_MARKER or timezoneOffset.toIBits(13, 18)
                 }
     )
 
@@ -49,8 +51,17 @@ value class XsdGMonthImpl private constructor(val monthVal: UInt) : XsdGMonth {
     override val month: UInt get() = monthVal.uintFromBits(5)
 
     override val timezoneOffset: Int? get() = when {
-        monthVal and 0x80000000u == 0u -> null
+        monthVal and TZ_MARKER == 0u -> null
         else -> (monthVal shr 18).intFromBits(13)
+    }
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGMonth = when {
+        monthVal and TZ_MARKER == 0u -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdGMonthImpl(monthVal.toIBits(18) or newOffset.toIBits(13, 18) or TZ_MARKER)
+        }
+
+        else -> this
     }
 
 
@@ -58,5 +69,9 @@ value class XsdGMonthImpl private constructor(val monthVal: UInt) : XsdGMonth {
     override val schemaType: GMonthType<*> get() = GMonthType.Instance
 
     override fun toString(): String = xmlString
+
+    companion object {
+        private val TZ_MARKER = 1u shl 32
+    }
 
 }

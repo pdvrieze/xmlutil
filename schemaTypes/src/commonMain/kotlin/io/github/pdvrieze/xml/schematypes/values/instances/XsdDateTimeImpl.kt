@@ -21,9 +21,15 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
+import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import kotlinx.datetime.FixedOffsetTimeZone
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.asTimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
@@ -64,7 +70,13 @@ open class XsdDateTimeImpl(
         else ->
             "${yearFrag()}-${monthFrag()}-${dayFrag()}T${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
     }
+
     override val schemaType: DateTimeType<XsdDateTime> get() = DateTimeType.Instance
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp = when (timezoneOffset) {
+        null -> XsdDateTimeStampImpl(instant(), fallbackTimezone)
+        else -> XsdDateTimeStampImpl(instant(), UtcOffset(minutes = timezoneOffset).asTimeZone())
+    }
 
     companion object {
         internal fun timezoneFragValue(tz: CharSequence): Int? {

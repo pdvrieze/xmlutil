@@ -21,10 +21,10 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.ResAtomicDatatype
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-interface ResolvedBuiltinAtomicType<out T : XsdAtomic> : ResolvedBuiltinSimpleType<T>, ResAtomicDatatype<T> {
+interface ResolvedBuiltinAtomicType<out T : XsdPrimitive> : ResolvedBuiltinSimpleType<T>, ResAtomicDatatype<T> {
     override val baseType: ResolvedBuiltinSimpleType<*>
 
     override fun fromString(value: CharSequence): T {

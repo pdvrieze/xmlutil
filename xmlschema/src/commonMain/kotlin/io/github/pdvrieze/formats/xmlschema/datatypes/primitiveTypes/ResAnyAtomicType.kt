@@ -30,13 +30,10 @@ import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
 import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
-import io.github.pdvrieze.xml.schematypes.values.XsdString
+import io.github.pdvrieze.xml.schematypes.values.*
 
-object ResAnyAtomicType : ResolvedBuiltinAtomicType<XsdAtomic>,
-    AnyAtomicType<XsdAtomic> {
+object ResAnyAtomicType : ResolvedBuiltinAtomicType<XsdPrimitive>,
+    AnyAtomicType<XsdPrimitive> {
     override val isSpecial: Boolean get() = true
     override val baseType: ResAnySimpleType get() = ResAnySimpleType
 
@@ -63,7 +60,7 @@ object ResAnyAtomicType : ResolvedBuiltinAtomicType<XsdAtomic>,
         return maybeValue as? XsdAtomic ?: XsdString(maybeValue.xmlString)
     }
 
-    override fun valueFromNormalized(normalized: XsdString): XsdAtomic {
+    override fun valueFromNormalized(normalized: XsdString): Nothing {
         TODO("not implemented")
     }
 

@@ -89,9 +89,34 @@ interface XsdLong : XsdInteger {
         else -> other.unaryMinus().plus(this)
     }
 
-    override fun times(other: XsdDecimal): XsdDecimal {
-        TODO("not implemented")
+    override fun times(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdLong -> times(other)
+        else -> super.times(other)
     }
+
+    override fun div(other: XsdInteger): XsdInteger = when (other) {
+        is XsdLong -> div(other)
+        is XsdUnsignedLong -> div(XsdLong(other.toLong()))
+        else -> return super.div(other)
+    }
+
+    operator fun div(other: XsdLong): XsdLong
+
+    override fun rem(divider: XsdInteger): XsdInteger = when (divider) {
+        is XsdLong -> rem(divider)
+        is XsdUnsignedLong -> rem(XsdLong(divider.toLong()))
+        else -> return super.rem(divider)
+    }
+
+    operator fun rem(other: XsdLong): XsdLong
+
+    override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider){
+        is XsdLong -> divRem(divider)
+        is XsdUnsignedLong -> divRem(XsdLong(divider.toLong()))
+        else -> divider.divRem(this)
+    }
+    fun divRem(other: XsdLong): DivRem
+
 
     override fun abs(): XsdUnsignedLong
 
@@ -118,6 +143,14 @@ interface XsdLong : XsdInteger {
     override fun significantBitsFromZero(): ULong {
         return 64u - longValue.countLeadingZeroBits().toULong()
     }
+
+    interface DivRem : XsdInteger.DivRem {
+        override val quotient: XsdLong
+        override val remainder: XsdLong
+    }
+
+    @XmlUtilInternal
+    data class LongDivRem(override val quotient: XsdLong, override val remainder: XsdLong) : DivRem
 
     companion object : SimpleTypeSerializer<XsdLong>("xsd.long") {
         operator fun invoke(value: Long): XsdLong = XsdLongImpl(value)

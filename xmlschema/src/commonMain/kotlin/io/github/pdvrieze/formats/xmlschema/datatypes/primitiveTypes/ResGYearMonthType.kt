@@ -33,12 +33,14 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.GYearMonthType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdGYearMonth
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 object ResGYearMonthType : ResPrimitiveDatatype<XsdGYearMonth>, ResFiniteDateType<XsdGYearMonth>,
     GYearMonthType<XsdGYearMonth> {
 
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
+    override val name: XsdQName get() = super.name!!
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),

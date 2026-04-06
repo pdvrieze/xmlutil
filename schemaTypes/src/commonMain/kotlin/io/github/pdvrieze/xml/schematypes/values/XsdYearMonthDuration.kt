@@ -36,6 +36,14 @@ interface XsdYearMonthDuration : XsdDuration {
     override val millis: Long get() = 0L
     override val seconds: Double get() = 0.0
 
+    operator fun plus(other: XsdYearMonthDuration): XsdYearMonthDuration
+    operator fun minus(other: XsdYearMonthDuration): XsdYearMonthDuration
+    operator fun times(other: XsdDouble): XsdYearMonthDuration = times(other.value)
+    operator fun times(other: Double): XsdYearMonthDuration
+    operator fun div(other: XsdYearMonthDuration): XsdDecimal
+    operator fun div(other: XsdDouble): XsdYearMonthDuration = div(other.value)
+    operator fun div(other: Double): XsdYearMonthDuration
+
     companion object : SimpleTypeSerializer<XsdYearMonthDuration>("xsd.dateTimeDuration") {
 
         operator fun invoke(str: CharSequence): XsdYearMonthDuration {

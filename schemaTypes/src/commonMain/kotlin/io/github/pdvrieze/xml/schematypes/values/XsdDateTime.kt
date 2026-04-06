@@ -20,9 +20,11 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
+import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -31,7 +33,7 @@ import kotlin.time.ExperimentalTime
 @ExperimentalXmlUtilApi
 @OptIn(ExperimentalTime::class)
 @Serializable(XsdDateTime.Companion::class)
-interface XsdDateTime : IXsdDateTime {
+interface XsdDateTime : IXsdDateTime, XsdPrimitive {
     override val schemaType: DateTimeType<XsdDateTime>
 
     override val year: Int
@@ -41,8 +43,17 @@ interface XsdDateTime : IXsdDateTime {
     override val minute: UInt
     override val second: XsdDecimal
 
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        return when (other) {
+            is IXsdDateTime -> compareTo(other)
+            else -> throw IllegalArgumentException("Cannot compare $this with $other")
+        }
+    }
+
     fun toDate(): XsdDate = XsdDate(year, month, day, timezoneOffset)
     fun toTime(): XsdTime = XsdTime(hour, minute, second, timezoneOffset)
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp
 
     companion object: SimpleTypeSerializer<XsdDateTime>("xsd.dateTime") {
 

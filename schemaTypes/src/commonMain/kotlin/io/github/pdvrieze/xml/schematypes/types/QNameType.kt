@@ -22,11 +22,10 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdNotation
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface QNameType<out T : XsdQName> : AnyAtomicType<T> {
+interface QNameType<out T : XsdQName> : PrimitiveType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.FALSE
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -34,11 +33,12 @@ interface QNameType<out T : XsdQName> : AnyAtomicType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
     override val name: XsdQName? get() = Instance.name
+    override val primitiveType: PrimitiveTypeInstance<XsdQName> get() = Instance
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: QNameType<XsdQName>, PrimitiveDatatype<XsdQName>, BuiltinType {
+    object Instance: QNameType<XsdQName>, PrimitiveTypeInstance<XsdQName>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "QName", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

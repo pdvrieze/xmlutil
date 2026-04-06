@@ -31,11 +31,13 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.DecimalType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 object ResDecimalType : ResPrimitiveDatatype<XsdDecimal>,
     IResolvedDecimalType<XsdDecimal>, DecimalType<XsdDecimal> {
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
+    override val name: XsdQName get() = super.name!!
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),

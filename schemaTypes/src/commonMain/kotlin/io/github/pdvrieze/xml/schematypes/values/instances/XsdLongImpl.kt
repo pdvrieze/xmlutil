@@ -59,6 +59,20 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
         return XsdLong(longValue * other)
     }
 
+    override fun div(other: XsdLong): XsdLong {
+        return XsdLong(longValue / other.longValue)
+    }
+
+    override fun rem(other: XsdLong): XsdLong {
+        return XsdLong(longValue.rem(other.longValue))
+    }
+
+    override fun divRem(other: XsdLong): XsdLong.DivRem {
+        val quotient = longValue / other.longValue
+        val rem = longValue - (quotient*other.longValue)
+        return DivRem(quotient, rem)
+    }
+
     override fun abs(): XsdUnsignedLong {
         return XsdUnsignedLong(longValue.absoluteValue.toULong())
     }
@@ -78,6 +92,10 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
 
     override fun hashCode(): Int {
         return longValue.hashCode()
+    }
+
+    data class DivRem(override val quotient: XsdLong, override val remainder: XsdLong) : XsdLong.DivRem {
+        constructor(quotient: Long, remainder: Long): this(XsdLong(quotient), XsdLong(remainder))
     }
 
 }

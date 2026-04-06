@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,14 +18,10 @@
  * permissions and limitations under the License.
  */
 
-package io.github.pdvrieze.xml.schematypes.values
+package io.github.pdvrieze.xml.schematypes
 
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
-import io.github.pdvrieze.xml.schematypes.types.PrimitiveType
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+interface Collation : Comparator<String> {
+    val uri: String
 
-@ExperimentalXmlUtilApi
-interface XsdAtomic : XsdAnySimple {
-    override val schemaType: AnyAtomicType<XsdAtomic>
+    fun equals(left: String, right: String): Boolean = compare(left, right) == 0
 }
-

@@ -34,8 +34,22 @@ import kotlin.math.round as kmRound
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdFloat.Companion::class)
-interface XsdFloat: XsdAtomic, XsdNumeric<XsdFloat> {
+interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
     val value: Float
+
+    operator fun plus(other: XsdFloat): XsdFloat = XsdFloatImpl(value + other.value)
+    operator fun minus(other: XsdFloat): XsdFloat = XsdFloatImpl(value - other.value)
+    operator fun times(other: XsdFloat): XsdFloat = XsdFloatImpl(value * other.value)
+    operator fun div(other: XsdFloat): XsdFloat = XsdFloatImpl(value / other.value)
+    operator fun rem(other: XsdFloat): XsdFloat = XsdFloatImpl(value % other.value)
+
+    override fun compareTo(other: XsdNumeric<*>): Int {
+        return when (other) {
+            is XsdDouble -> value.toDouble().compareTo(other.toDouble())
+            is XsdFloat -> value.compareTo(other.value)
+            is XsdDecimal -> value.toDouble().compareTo(other.toDouble())
+        }
+    }
 
     override val xmlString: String
         get() = when (value) {

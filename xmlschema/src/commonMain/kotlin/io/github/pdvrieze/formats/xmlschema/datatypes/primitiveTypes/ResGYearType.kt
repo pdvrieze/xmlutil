@@ -33,10 +33,12 @@ import io.github.pdvrieze.xml.schematypes.facets.FacetOrdered
 import io.github.pdvrieze.xml.schematypes.types.GYearType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdGYear
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
 object ResGYearType : ResPrimitiveDatatype<XsdGYear>, ResFiniteDateType<XsdGYear>, GYearType<XsdGYear> {
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
+    override val name: XsdQName get() = super.name!!
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),

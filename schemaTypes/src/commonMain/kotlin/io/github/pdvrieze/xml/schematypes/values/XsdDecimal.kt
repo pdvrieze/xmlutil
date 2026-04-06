@@ -33,7 +33,7 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdDecimal.Companion::class)
-interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
+interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     override val schemaType: DecimalType<XsdDecimal>
 
     val sign: Int
@@ -65,9 +65,28 @@ interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
     operator fun times(other: Long): XsdDecimal = times(XsdLong(other))
     operator fun times(other: UInt): XsdDecimal = times(XsdUnsignedInt(other))
     operator fun times(other: ULong): XsdDecimal = times(XsdUnsignedLong(other))
-    
-    
+
+    fun divRem(other: XsdDecimal): DivRem
+    operator fun div(other: XsdDecimal): XsdDecimal = divRem(other).quotient
+    operator fun rem(other: XsdDecimal): XsdDecimal = divRem(other).remainder
+
+    override fun compareTo(other: XsdNumeric<*>): Int {
+        return when (other) {
+            is XsdDouble -> toDouble().compareTo(other.toDouble())
+            is XsdFloat -> toDouble().compareTo(other.toDouble())
+            is XsdDecimal -> compareTo(other)
+        }
+    }
+
     fun toBigDecimal(): BigDecimal
+
+    interface DivRem {
+        val quotient: XsdDecimal
+        val remainder: XsdDecimal
+
+        operator fun component1(): XsdDecimal = quotient
+        operator fun component2(): XsdDecimal = remainder
+    }
 
     companion object : SimpleTypeSerializer<XsdDecimal>("xsd.decimal") {
         override fun deserialize(

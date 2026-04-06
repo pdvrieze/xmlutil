@@ -36,6 +36,7 @@ import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
 
 object ResQNameType : ResPrimitiveDatatype<XsdQName>, QNameType<XsdQName> {
     override val baseType: ResAnyAtomicType get() = ResAnyAtomicType
+    override val name: XsdQName get() = super.name!!
 
     override val mdlFacets: FacetList = FacetList(
         whiteSpace = ResolvedWhiteSpace(XSWhiteSpace(WhitespaceValue.COLLAPSE, true)),

@@ -26,7 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdGYear
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
-interface GYearType<out T : XsdGYear> : AnyAtomicType<T> {
+interface GYearType<out T : XsdGYear> : PrimitiveType<T> {
 
     override val ordered: FacetOrdered get() = FacetOrdered.PARTIAL
     override val bounded: FacetBounded get() = FacetBounded.UNBOUNDED
@@ -34,11 +34,12 @@ interface GYearType<out T : XsdGYear> : AnyAtomicType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.FALSE
 
     override val name: XsdQName? get() = Instance.name
+    override val primitiveType: PrimitiveTypeInstance<XsdGYear> get() = Instance
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
-    object Instance: GYearType<XsdGYear>, PrimitiveDatatype<XsdGYear>, BuiltinType {
+    object Instance: GYearType<XsdGYear>, PrimitiveTypeInstance<XsdGYear>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gYear", "xs")
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(

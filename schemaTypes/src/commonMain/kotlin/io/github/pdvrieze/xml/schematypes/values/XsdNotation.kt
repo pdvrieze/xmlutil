@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.NotationType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdNotationImpl
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -35,7 +36,7 @@ import nl.adaptivity.xmlutil.*
 
 // This implementation inherits QName to keep it easy.
 @Serializable(XsdNotation.Companion::class)
-interface XsdNotation: XsdAtomic {
+interface XsdNotation: XsdPrimitive {
 
     override val schemaType: NotationType<XsdNotation>
 
@@ -53,6 +54,13 @@ interface XsdNotation: XsdAtomic {
      * Retrieve the namespace URI for this QName.
      */
     fun getNamespaceURI(): String
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        if (other !is XsdNotation) throw IllegalArgumentException("Cannot compare $this with $other")
+        val nsCompare = getNamespaceURI().compareTo(other.getNamespaceURI())
+        if (nsCompare != 0) return nsCompare
+        return getLocalPart().compareTo(other.getLocalPart())
+    }
 
     override val xmlString: String
         get() {

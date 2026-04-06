@@ -209,7 +209,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         return 0
     }
 
-    interface PosDivRem : AbstractBigInteger.PosDivRem<BigUnsignedInt> {}
+    interface PosDivRem : AbstractBigInteger.PosDivRem<BigUnsignedInt>, XsdInteger.DivRem {}
 
     companion object {
 

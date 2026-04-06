@@ -20,16 +20,18 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.GYearMonthType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGYearMonthImpl
+import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdGYearMonth.Companion::class)
-interface XsdGYearMonth : IXsdDateTime {
+interface XsdGYearMonth : IXsdDateTime, XsdPrimitive {
 
     override val schemaType: GYearMonthType<XsdGYearMonth>
 
@@ -40,6 +42,13 @@ interface XsdGYearMonth : IXsdDateTime {
     override val hour: Nothing? get() = null
     override val minute: Nothing? get() = null
     override val second: Nothing? get() = null
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
+        is XsdGMonth -> compareTo(other)
+        else -> throw IllegalArgumentException("Cannot compare $this with $other")
+    }
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGYearMonth
 
     companion object : SimpleTypeSerializer<XsdGYearMonth>("xsd.gYearMonth") {
         operator fun invoke(str: CharSequence): XsdGYearMonth = XsdGYearMonthImpl(str)

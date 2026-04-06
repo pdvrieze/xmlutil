@@ -25,6 +25,8 @@ import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.types.GYearMonthType
 import io.github.pdvrieze.xml.schematypes.values.XsdGYearMonth
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
@@ -59,12 +61,24 @@ value class XsdGYearMonthImpl(val monthYear: ULong) : XsdGYearMonth {
         else -> (monthYear shr 50).intFromBits(13)
     }
 
+
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGYearMonth = when {
+        monthYear and TZ_MARKER == 0uL -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdGYearMonthImpl(monthYear.toLBits(50) or newOffset.toLBits(13, 50) or TZ_MARKER)
+        }
+
+        else -> this
+    }
+
     override val xmlString: String get() = "${yearFrag()}-${monthFrag()}${timeZoneFrag()}"
     override val schemaType: GYearMonthType<*> get() = GYearMonthType.Instance
 
     override fun toString(): String = xmlString
 
     companion object {
+        val TZ_MARKER = 1uL shl 63
+
         operator fun invoke(str: CharSequence): XsdGYearMonth {
             val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.toInt() }
             return XsdGYearMonthImpl(year, month.toUInt())

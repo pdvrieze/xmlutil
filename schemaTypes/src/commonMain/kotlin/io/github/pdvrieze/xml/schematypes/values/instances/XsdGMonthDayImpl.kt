@@ -25,6 +25,8 @@ import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.types.GMonthDayType
 import io.github.pdvrieze.xml.schematypes.values.XsdGMonthDay
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
@@ -42,7 +44,7 @@ value class XsdGMonthDayImpl(val monthdayVal: UInt) : XsdGMonthDay {
                 month.toIBits(4, 5) or
                 when (timezoneOffset) {
                     null -> 0u
-                    else -> (1u shl 31) or timezoneOffset.toIBits(13, 18)
+                    else -> TZ_MARKER or timezoneOffset.toIBits(13, 18)
                 }
     )
 
@@ -65,12 +67,24 @@ value class XsdGMonthDayImpl(val monthdayVal: UInt) : XsdGMonthDay {
         else -> (monthdayVal shr 18).intFromBits(13)
     }
 
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGMonthDay = when {
+        monthdayVal and TZ_MARKER == 0u -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdGMonthDayImpl(monthdayVal.toIBits(18) or newOffset.toIBits(13, 18) or TZ_MARKER)
+        }
+
+        else -> this
+    }
+
     override val xmlString: String get() = "--${monthFrag()}-${dayFrag()}"
     override val schemaType: GMonthDayType<*> get() = GMonthDayType.Instance
 
     override fun toString(): String = xmlString
 
+
     companion object {
+        private val TZ_MARKER = 1u shl 32
+
         operator fun invoke(str: CharSequence) : XsdGMonthDayImpl {
             val normalized = xmlCollapseWhitespace(str)
             require(normalized.startsWith("--"))

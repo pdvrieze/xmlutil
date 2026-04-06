@@ -20,11 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval
 
-interface Collation: Comparator<String> {
-    val uri: String
-
-    fun equals(left: String, right: String): Boolean = compare(left, right) == 0
-}
+import io.github.pdvrieze.xml.schematypes.Collation
 
 enum class Collations(override val uri: String): Collation {
     CODEPOINT("http://www.w3.org/2005/xpath-functions/collation/codepoint") {

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
@@ -28,6 +29,15 @@ interface XsdByteArray : XsdAtomic, List<Byte> {
     override val schemaType: AnyAtomicType<XsdByteArray>
 
     val value: ByteArray
+
+    fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        require(other is XsdByteArray) { "Cannot compare $this with $other" }
+        for (i in 0 until minOf(value.size, other.value.size)) {
+            val diff = value[i].compareTo(other.value[i])
+            if (diff != 0) return diff
+        }
+        return value.size.compareTo(other.value.size)
+    }
 
 }
 

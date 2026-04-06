@@ -20,11 +20,11 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
@@ -59,6 +59,7 @@ open class EvalContext(
     val currentTimeStamp: XsdDateTimeStamp get() = deterministicState.currentDateTimeStamp
     val baseUri: XsdAnyURI? get() = deterministicState.baseURI
     val defaultCollation: Collation get() = Collations.CODEPOINT
+    val defaultTimeZone: TimeZone get() = deterministicState.defaultTimeZone
 
     fun resolveTypeOrNull(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
@@ -109,9 +110,13 @@ open class EvalContext(
     class DeterministicState(
         val baseURI: XsdAnyURI? = null,
     ) {
-        val currentDateTimeStamp by lazy {
-            XsdDateTimeStamp(Clock.System.now(), TimeZone.currentSystemDefault())
+        private val _timeData by lazy {
+            val tz = TimeZone.currentSystemDefault()
+            tz to XsdDateTimeStamp(Clock.System.now(), tz)
         }
+
+        val currentDateTimeStamp get() = _timeData.second
+        val defaultTimeZone get() = _timeData.first
     }
 
 }

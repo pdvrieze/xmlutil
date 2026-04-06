@@ -53,7 +53,7 @@ interface UntypedAtomicType : AnyAtomicType<XsdAtomic> {
     }
 
     private class XsdUntyped(override val xmlString: String): XsdAtomic {
-        override val schemaType: AnyAtomicType<XsdAtomic>
+        override val schemaType: Instance
             get() = Instance
     }
 

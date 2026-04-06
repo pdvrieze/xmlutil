@@ -24,10 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.ResSimpleBuiltinRestrictio
 import io.github.pdvrieze.formats.xmlschema.resolved.BuiltinSchemaXmlschema
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedBuiltinAtomicType
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSimpleRestrictionBase
-import io.github.pdvrieze.xml.schematypes.types.PrimitiveDatatype
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.types.PrimitiveTypeInstance
+import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
 
-sealed interface ResPrimitiveDatatype<out T: XsdAtomic> : ResolvedBuiltinAtomicType<T>, ResAtomicDatatype<T>, PrimitiveDatatype<T> {
+sealed interface ResPrimitiveDatatype<out T: XsdPrimitive> : ResolvedBuiltinAtomicType<T>, ResAtomicDatatype<T>, PrimitiveTypeInstance<T> {
 
     override val baseType: ResAnyAtomicType
         get() = ResAnyAtomicType

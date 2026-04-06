@@ -70,10 +70,35 @@ interface XsdInteger : XsdDecimal {
     operator fun minus(other: XsdInteger): XsdInteger
 
     operator fun times(other: XsdInteger): XsdInteger
+
+    override fun times(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> times(other)
+        else -> toBigDecimal().times(other)
+    }
     override fun times(other: Int): XsdInteger = times(XsdInteger(other))
     override fun times(other: Long): XsdInteger = times(XsdInteger(other))
     override fun times(other: UInt): XsdInteger = times(XsdInteger(other))
     override fun times(other: ULong): XsdInteger = times(XsdInteger(other))
+
+    operator fun div(other: XsdInteger): XsdInteger = divRem(other).quotient
+    override fun div(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> div(other)
+        else -> divRem(other).quotient
+    }
+
+    fun rem(divider: XsdInteger): XsdInteger = divRem(divider).remainder
+
+    override fun rem(other: XsdDecimal): XsdDecimal = when (other) {
+        is XsdInteger -> rem(other)
+        else -> divRem(other).remainder
+    }
+
+    fun divRem(divider: XsdInteger): DivRem
+
+    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
+        is XsdInteger -> divRem(other)
+        else -> toBigDecimal().divRem(other)
+    }
 
     override fun abs(): XsdNonNegativeInteger
 
@@ -97,6 +122,11 @@ interface XsdInteger : XsdDecimal {
     }
 
     operator fun compareTo(other: XsdInteger): Int
+
+    interface DivRem: XsdDecimal.DivRem {
+        override val quotient: XsdInteger
+        override val remainder: XsdInteger
+    }
 
     companion object : SimpleTypeSerializer<XsdInteger>("xsd.integer") {
         val ZERO: XsdInteger = BigInt(0)

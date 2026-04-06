@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DurationType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDurationImpl
@@ -29,7 +30,7 @@ import nl.adaptivity.xmlutil.XmlReader
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdDuration.Companion::class)
-interface XsdDuration : XsdAtomic {
+interface XsdDuration : XsdPrimitive {
     // TODO implement DayTimeDuration and YearMonthDuration
     override val schemaType: DurationType<XsdDuration>
 
@@ -40,6 +41,11 @@ interface XsdDuration : XsdAtomic {
     operator fun compareTo(other: XsdDuration): Int = when(val m = months.compareTo(other.months)) {
         0 -> seconds.compareTo(other.seconds)
         else -> m
+    }
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        if (other !is XsdDuration) throw IllegalArgumentException("Cannot compare $this with $other")
+        return compareTo(other)
     }
 
     companion object : SimpleTypeSerializer<XsdDuration>("xsd.duration") {

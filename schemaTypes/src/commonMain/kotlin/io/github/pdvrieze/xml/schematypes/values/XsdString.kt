@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.isNCName
 import io.github.pdvrieze.xml.schematypes.types.StringType
@@ -31,7 +32,7 @@ import nl.adaptivity.xmlutil.*
 
 @ExperimentalXmlUtilApi
 @Serializable(XsdString.Companion::class)
-interface XsdString : XsdAtomic, CharSequence {
+interface XsdString : XsdPrimitive, CharSequence {
 
     override val schemaType: StringType<XsdString>
 
@@ -46,6 +47,11 @@ interface XsdString : XsdAtomic, CharSequence {
     fun toUInt(): UInt = xmlCollapseWhitespace(xmlString).toUInt()
     fun toDouble(): Double = xmlCollapseWhitespace(xmlString).toDouble()
     fun toFloat(): Float = xmlCollapseWhitespace(xmlString).toFloat()
+
+    override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
+        if (other !is XsdString) throw IllegalArgumentException("Cannot compare strings with $other")
+        return collation.compare(xmlString, other.xmlString)
+    }
 
     @OptIn(XmlUtilInternal::class)
     companion object : SimpleTypeSerializer<XsdString>("xsd.string") {

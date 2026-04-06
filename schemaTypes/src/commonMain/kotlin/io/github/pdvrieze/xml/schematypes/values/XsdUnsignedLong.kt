@@ -121,10 +121,36 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
         else -> other.times(this)
     }
 
+    operator fun times(other: XsdUnsignedLong): XsdUnsignedLong = XsdUnsignedLong(uLongValue * other.uLongValue)
 
-    override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger {
-        return XsdUnsignedLong(toULong() * other.toULong())
+    override fun times(other: XsdNonNegativeInteger): XsdNonNegativeInteger = when (other) {
+        is XsdUnsignedLong -> times(other)
+        else -> XsdNonNegativeInteger(uLongValue).times(other)
     }
+
+    override fun div(other: XsdInteger): XsdInteger = when (other) {
+        is XsdUnsignedLong -> div(other)
+        is XsdLong -> XsdLong(toLong()) / other
+        else -> super.div(other)
+    }
+
+    operator fun div(divider: XsdUnsignedLong): XsdUnsignedLong = XsdUnsignedLong(uLongValue / divider.uLongValue)
+
+    override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
+        is XsdUnsignedLong -> divRem(divider)
+        is XsdLong -> XsdLong(toLong()).divRem(divider)
+        else -> toBigInt().divRem(divider)
+    }
+
+    fun divRem(divider: XsdUnsignedLong): DivRem
+
+    override fun rem(divider: XsdInteger): XsdInteger = when (divider) {
+        is XsdUnsignedLong -> rem(divider)
+        is XsdLong -> XsdLong(toLong()).rem(divider)
+        else -> super.rem(divider)
+    }
+
+    operator fun rem(divider: XsdUnsignedLong): XsdUnsignedLong = XsdUnsignedLong(uLongValue % divider.uLongValue)
 
     override val sign: Int get() = if (uLongValue == 0uL) 0 else 1
 
@@ -134,6 +160,11 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other !is XsdUnsignedLong) return -other.compareTo(this)
         return uLongValue.compareTo(other.uLongValue)
+    }
+
+    interface DivRem: XsdInteger.DivRem {
+        override val quotient: XsdUnsignedLong
+        override val remainder: XsdUnsignedLong
     }
 
     companion object : SimpleTypeSerializer<XsdUnsignedLong>("xsd.unsignedLong") {

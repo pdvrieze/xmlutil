@@ -27,6 +27,8 @@ import io.github.pdvrieze.xml.schematypes.types.TimeType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdTime
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.jvm.JvmInline
 
@@ -82,12 +84,23 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
             else -> (msecVal shr 27).intFromBits(13)
         }
 
+    override fun ensureTimezone(fallbackTimezone: TimeZone): XsdTime = when {
+        msecVal and TZ_MARKER == 0uL -> {
+            val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
+            XsdTimeImpl(msecVal.toLBits(27) or newOffset.toLBits(13, 27) or TZ_MARKER)
+        }
+
+        else -> this
+    }
+
     override val xmlString: String get() = "${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
     override val schemaType: TimeType<*> get() = TimeType.Instance
 
     override fun toString(): String = xmlString
 
     companion object {
+        val TZ_MARKER = 1uL shl 63
+
         operator fun invoke(representation: CharSequence): XsdTimeImpl {
             require(representation.length >= 8)
             val hours = representation.substring(0, 2).toUInt()

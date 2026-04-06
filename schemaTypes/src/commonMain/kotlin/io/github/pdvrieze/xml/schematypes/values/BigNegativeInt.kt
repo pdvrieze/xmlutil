@@ -96,6 +96,16 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
         return NegDivRem(q, r)
     }
 
+    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
+        is XsdInteger -> divRem(other)
+        else -> toBigDecimal().divRem(other)
+    }
+
+    override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
+        is XsdNonPositiveInteger -> divRem(divider)
+        else -> toBigInt().divRem(divider)
+    }
+
     override fun divRem(divider: XsdNonPositiveInteger): PosDivRem {
         val absDivRem = abs().divRem(divider.abs())
         return PosDivRem(absDivRem.quotient.asBigUnsignedInt(), BigNonPositiveInt(absDivRem.remainder.ints, absDivRem.remainder.exp))
@@ -146,7 +156,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
     data class PosDivRem(
         override val quotient: BigUnsignedInt,
         override val remainder: BigNonPositiveInt
-    ) : DivRem<BigUnsignedInt, BigNonPositiveInt> {
+    ) : DivRem<BigUnsignedInt, BigNonPositiveInt>, XsdInteger.DivRem {
         constructor(orig: BigUnsignedInt.PosDivRem) : this(
             orig.quotient,
             orig.remainder.unaryMinus()
@@ -156,7 +166,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
     data class NegDivRem(
         override val quotient: BigNonPositiveInt,
         override val remainder: BigNonPositiveInt
-    ) : DivRem<BigNonPositiveInt, BigNonPositiveInt>
+    ) : DivRem<BigNonPositiveInt, BigNonPositiveInt>, XsdInteger.DivRem
 
     companion object {
 

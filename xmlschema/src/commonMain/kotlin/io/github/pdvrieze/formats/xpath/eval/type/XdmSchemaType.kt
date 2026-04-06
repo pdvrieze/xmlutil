@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.isEquivalent
 
 @XPathInternal
 class XdmSchemaType(
@@ -79,10 +80,7 @@ class XdmSchemaType(
 
         other as XdmSchemaType
 
-        val n = schemaType.name
-        val on = other.schemaType.name
-        if (n == null || on == null) return false
-        return n.isEquivalent(on)
+        return schemaType.name.isEquivalent(other.schemaType.name)
     }
 
     override fun hashCode(): Int {
