@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.AbstractBigUnsignedInt
 import io.github.pdvrieze.xml.schematypes.values.BigInt
 import io.github.pdvrieze.xml.schematypes.values.BigUnsignedInt
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
@@ -469,21 +468,26 @@ class BigDecimal internal constructor(
         get() = buildString {appendTo(this) }
 
     internal fun appendTo(appendable: Appendable) {
-        if (decimalPositions == 0L) BigInt(sign, ints, 0uL).appendTo(appendable)
-        val baseString = BigInt(sign, ints, 0uL).toString()
-
-        (appendable as? StringBuilder)?.ensureCapacity((baseString.length + if (decimalPositions<0) decimalPositions+1 else 0).toInt())
-
-        when {
-            decimalPositions < 0 -> appendable
-                .append(baseString).append('.')
-                .append(RepeatSequence(' ', -decimalPositions.toInt()))
+        when (decimalPositions) {
+            0L -> BigInt(sign, ints, 0uL).appendTo(appendable)
 
             else -> {
-                val split = baseString.length - decimalPositions.toInt()
-                appendable.appendRange(baseString, 0, split)
-                appendable.append('.')
-                appendable.appendRange(baseString, split, baseString.length)
+                val baseString = BigInt(sign, ints, 0uL).toString()
+
+                (appendable as? StringBuilder)?.ensureCapacity((baseString.length + if (decimalPositions < 0) decimalPositions + 1 else 0).toInt())
+
+                when {
+                    decimalPositions < 0 -> appendable
+                        .append(baseString).append('.')
+                        .append(RepeatSequence(' ', -decimalPositions.toInt()))
+
+                    else -> {
+                        val split = baseString.length - decimalPositions.toInt()
+                        appendable.appendRange(baseString, 0, split)
+                        appendable.append('.')
+                        appendable.appendRange(baseString, split, baseString.length)
+                    }
+                }
             }
         }
     }
