@@ -56,9 +56,9 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
         else -> get(0)
     }
 
-    override fun toInt(): Int = toUInt().toInt()
+    override fun toInt(): Int = -(toUInt().toInt())
 
-    override fun toLong(): Long = toULong().toLong()
+    override fun toLong(): Long = -(toULong().toLong())
 
     operator fun div(divider: UInt): BigNonPositiveInt = divRem(divider).quotient
 
