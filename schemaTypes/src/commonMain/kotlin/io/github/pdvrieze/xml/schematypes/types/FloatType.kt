@@ -38,6 +38,10 @@ interface FloatType<out T : XsdFloat> : AnyAtomicType<T>, NumericType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
+    override fun isBaseOf(maybeSubType: AnyType): Boolean {
+        return super<AnyAtomicType>.isBaseOf(maybeSubType)
+    }
+
     object Instance : FloatType<XsdFloat>, PrimitiveDatatype<XsdFloat>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "float", "xs")
 

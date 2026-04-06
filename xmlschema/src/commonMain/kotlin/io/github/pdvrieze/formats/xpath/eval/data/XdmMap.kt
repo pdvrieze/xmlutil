@@ -96,7 +96,7 @@ class XdmMap private constructor(
         context(ctx: ExprEvalContext)
         fun dynamicMapType(content: Map<XdmAtomic<*>, XdmValue<*>>): XdmMapType {
             if (content.isEmpty()) {
-                return XdmMapType(XdmSchemaTypeTest.ANY_ATOMIC, XdmTypeTest.ANY.any)
+                return XdmMapType(XdmSchemaTypeTest.ANY_ATOMIC, XdmTypeTest.ANY_ITEM.any)
             }
 
             val it = content.entries.iterator()

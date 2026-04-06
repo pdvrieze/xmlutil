@@ -61,7 +61,7 @@ open class XdmFunctionType(
     context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         when (expectedType) {
-            is XdmFunctionTypeTest.Any -> return true
+            is XdmFunctionTypeTest.AnyFunction -> return true
             !is XdmFunctionTypeTest.Typed -> return false
             else -> {}
         }

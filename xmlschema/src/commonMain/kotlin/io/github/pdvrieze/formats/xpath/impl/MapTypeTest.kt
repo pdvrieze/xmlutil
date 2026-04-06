@@ -39,8 +39,8 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
     @NeedsXPath3_1
     object ANY: MapTypeTest() {
         context(ctx: ExprEvalContext)
-        override fun toTypeTest(occurrence: OccurrenceType): XdmMapTypeTest.Any {
-            return XdmMapTypeTest.Any(occurrence)
+        override fun toTypeTest(occurrence: OccurrenceType): XdmMapTypeTest.AnyMap {
+            return XdmMapTypeTest.AnyMap(occurrence)
         }
 
         context(ctx: ExprEvalContext)

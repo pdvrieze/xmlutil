@@ -45,9 +45,9 @@ class XdmSchemaType(
     context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         return when (expectedType) {
-            is XdmTypeTest.Any -> true
+            is XdmTypeTest.AnyItem -> true
             !is XdmSchemaTypeTest -> false
-            else -> schemaType.derivesFrom(expectedType.schemaType)
+            else -> expectedType.schemaType.isBaseOf(schemaType)
         }
     }
 

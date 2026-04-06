@@ -63,6 +63,9 @@ interface NumericType<out T: XsdNumeric<*>> : AnySimpleUnion<T> {
             DecimalType.Instance, FloatType.Instance, DoubleType.Instance,
         )
 
+        override fun isBaseOf(maybeSubType: AnyType): Boolean {
+            return members.any { it.isBaseOf(maybeSubType) }
+        }
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)

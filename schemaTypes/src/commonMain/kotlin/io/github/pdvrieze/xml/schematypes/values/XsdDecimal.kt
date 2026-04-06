@@ -43,6 +43,7 @@ interface XsdDecimal : XsdAtomic, XsdNumeric<XsdDecimal> {
     fun toUInt(): UInt = toLong().toUInt()
 
     override fun toDouble(): Double = xmlString.toDouble()
+    fun toFloat(): Float = toDouble().toFloat()
 
     operator fun compareTo(other: XsdDecimal): Int
     operator fun plus(other: XsdDecimal): XsdDecimal

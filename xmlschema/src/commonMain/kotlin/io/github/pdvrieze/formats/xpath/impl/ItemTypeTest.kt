@@ -31,8 +31,8 @@ interface ItemTypeTest {
 
     object ItemTestTest: ItemTypeTest {
         context(ctx: ExprEvalContext)
-        override fun toTypeTest(occurrence: OccurrenceType): XdmTypeTest.Any {
-            return XdmTypeTest.Any(occurrence)
+        override fun toTypeTest(occurrence: OccurrenceType): XdmTypeTest.AnyItem {
+            return XdmTypeTest.AnyItem(occurrence)
         }
 
         context(ctx: ExprEvalContext)

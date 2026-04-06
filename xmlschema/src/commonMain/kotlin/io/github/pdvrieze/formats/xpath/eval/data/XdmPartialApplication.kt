@@ -60,8 +60,8 @@ class XdmPartialApplication(
         when (type) {
             is XdmArrayTypeTest,
             is XdmMapTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot cast partial application to $type")
-            is XdmTypeTest.Any,
-            is XdmFunctionTypeTest.Any -> return XdmPartialApplication(function, args, dynamicType)
+            is XdmTypeTest.AnyItem,
+            is XdmFunctionTypeTest.AnyFunction -> return XdmPartialApplication(function, args, dynamicType)
             is XdmFunctionTypeTest.Typed -> if (type.argTypes.size != args.size) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot cast partial application to $type - invalid argument count")
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot cast partial application to $type")
         }

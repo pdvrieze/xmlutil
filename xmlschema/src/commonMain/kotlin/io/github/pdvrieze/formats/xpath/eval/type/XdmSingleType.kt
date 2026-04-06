@@ -64,14 +64,14 @@ sealed class XdmSingleType : XdmType() {
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
-            return XdmTypeTest.ANY.single.isAssignableTo(expectedType)
+            return XdmTypeTest.ANY_ITEM.single.isAssignableTo(expectedType)
         }
 
-        override fun toTypeTest(occurrence: OccurrenceType): XdmTypeTest.Any {
-            return XdmTypeTest.Any(occurrence)
+        override fun toTypeTest(occurrence: OccurrenceType): XdmTypeTest.AnyItem {
+            return XdmTypeTest.AnyItem(occurrence)
         }
 
-        override fun toTypeTest(): XdmTypeTest.Any = toTypeTest(OccurrenceType.SINGLE)
+        override fun toTypeTest(): XdmTypeTest.AnyItem = toTypeTest(OccurrenceType.SINGLE)
 
         @XPathInternal
         context(ctx: ExprEvalContext)

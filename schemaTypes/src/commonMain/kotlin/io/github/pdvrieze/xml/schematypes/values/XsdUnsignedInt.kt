@@ -48,6 +48,10 @@ interface XsdUnsignedInt : XsdUnsignedLong {
 
     override fun toULong(): ULong = uIntValue.toULong()
 
+    override fun toDouble(): Double = uIntValue.toDouble()
+
+    override fun toFloat(): Float = uIntValue.toFloat()
+
     override fun toBigInt(): XsdNonNegativeInteger {
         return BigUnsignedInt(uIntValue)
     }

@@ -42,6 +42,10 @@ interface DoubleType<out T: XsdDouble> : AnyAtomicType<T>, NumericType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
+    override fun isBaseOf(maybeSubType: AnyType): Boolean {
+        return super<AnyAtomicType>.isBaseOf(maybeSubType)
+    }
+
     object Instance: DoubleType<XsdDouble>,PrimitiveDatatype<XsdDouble>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "double", "xs")
 

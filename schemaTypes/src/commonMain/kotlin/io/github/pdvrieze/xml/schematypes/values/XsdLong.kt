@@ -40,6 +40,8 @@ interface XsdLong : XsdInteger {
     override fun toLong(): Long = longValue
     override fun toBigInt(): BigInt = BigInt(longValue)
     override fun toBigDecimal(): BigDecimal = BigDecimal(longValue)
+    override fun toDouble(): Double = longValue.toDouble()
+    override fun toFloat(): Float = longValue.toFloat()
 
     override val size: ULong get() = 2uL
     override val sign: Int get() = longValue.compareTo(0L)

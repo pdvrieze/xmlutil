@@ -36,7 +36,7 @@ class XdmNodeType(val nodeType: NodeType) : XdmSingleType() {
     context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         return when (expectedType) {
-            is XdmTypeTest.Any -> true
+            is XdmTypeTest.AnyItem -> true
             is XdmNodeKindTest -> TODO("Node type needs a more precise check")
             else -> false
         }

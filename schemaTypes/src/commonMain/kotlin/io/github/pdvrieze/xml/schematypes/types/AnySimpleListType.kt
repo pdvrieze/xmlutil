@@ -25,12 +25,18 @@ import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimpleList
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.isEquivalent
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 interface AnySimpleListType<out T: XsdAnySimple, out E: XsdAnySimple> : AnySimpleType<T> {
     override val baseType: AnySimpleType<*>
 
     val itemType: AnySimpleType<E>
+
+    override fun isBaseOf(maybeSubType: AnyType): Boolean {
+        if (maybeSubType !is AnySimpleListType<*, *>) return false
+        return itemType.name.isEquivalent(maybeSubType.itemType.name)
+    }
 
     @XmlUtilInternal
     open class Instance<out T: XsdAnySimple, out E: XsdAnySimple>(

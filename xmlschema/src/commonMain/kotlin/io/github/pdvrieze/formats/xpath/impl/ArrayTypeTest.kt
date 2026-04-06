@@ -35,15 +35,15 @@ sealed class ArrayTypeTest: ItemTypeTest {
     abstract override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmArrayTypeTest
 
     @NeedsXPath3_1
-    object ANY: ArrayTypeTest() {
+    object ANY_ARRAY: ArrayTypeTest() {
         context(ctx: ExprEvalContext)
         private fun isInstance(value: XdmSingleValue<*>): Boolean {
             return value is XdmArray
         }
 
         context(ctx: ExprEvalContext)
-        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmArrayTypeTest.Any {
-            return XdmArrayTypeTest.Any(occurrence)
+        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmArrayTypeTest.AnyArray {
+            return XdmArrayTypeTest.AnyArray(occurrence)
         }
 
         context(c: OutputContext)

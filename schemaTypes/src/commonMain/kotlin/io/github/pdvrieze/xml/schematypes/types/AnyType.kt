@@ -21,20 +21,21 @@
 package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.isEquivalent
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnyType {
     fun derivesFrom(expectedBaseType: AnyType): Boolean {
-        val expectedName = expectedBaseType.name ?: return false
-        var t = this
+        return expectedBaseType.isBaseOf(this)
+    }
+
+    fun isBaseOf(maybeSubType: AnyType): Boolean {
+        var t = maybeSubType
         do {
-            val tn = t.name
-            if (tn != null) {
-                if (tn.isEquivalent(expectedName)) return true
-                if (tn.isEquivalent(Instance.name)) return false
-            }
+            if (t == this || t.name isEquivalent name) return true
             t = t.baseType
-        } while (true)
+        } while (!(t.name isEquivalent Instance.name))
+        return false
     }
 
     val name: XsdQName?
@@ -46,7 +47,7 @@ interface AnyType {
         override val baseType: AnyType get() = this
 
         override fun derivesFrom(expectedBaseType: AnyType): Boolean {
-            return expectedBaseType.name?.isEquivalent(name) ?: false
+            return expectedBaseType.name isEquivalent name
         }
 
         override fun toString(): String = "xs:any"

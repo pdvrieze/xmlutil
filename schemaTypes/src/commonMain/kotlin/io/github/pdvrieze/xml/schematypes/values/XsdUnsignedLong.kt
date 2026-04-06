@@ -40,6 +40,10 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     override fun unaryMinus(): XsdLong
 
+    override fun toDouble(): Double = uLongValue.toDouble()
+
+    override fun toFloat(): Float = uLongValue.toFloat()
+
     override fun toLong(): Long = uLongValue.toLong()
 
     override fun toInt(): Int = uLongValue.toInt()

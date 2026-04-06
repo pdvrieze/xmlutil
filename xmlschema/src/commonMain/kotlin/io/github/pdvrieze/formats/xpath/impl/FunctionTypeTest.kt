@@ -45,8 +45,8 @@ sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
         }
 
         context(ctx: ExprEvalContext)
-        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmFunctionTypeTest.Any {
-            return XdmFunctionTypeTest.Any(occurrence)
+        override fun toTypeTest(occurrence: SequenceType.OccurrenceType): XdmFunctionTypeTest.AnyFunction {
+            return XdmFunctionTypeTest.AnyFunction(occurrence)
         }
 
         context(c: OutputContext)

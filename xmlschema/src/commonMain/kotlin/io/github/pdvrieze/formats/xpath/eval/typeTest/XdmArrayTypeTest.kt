@@ -41,18 +41,18 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
         return super.toValueType(fallbackType)
     }
 
-    object ANY {
-        val single: Any = Any(OccurrenceType.SINGLE)
-        val opt: Any = Any(OccurrenceType.OPTIONAL)
-        val any: Any = Any(OccurrenceType.ANY)
-        val atLeastOne: Any = Any(OccurrenceType.AT_LEAST_ONE)
+    object ANY_ARRAY {
+        val single: AnyArray = AnyArray(OccurrenceType.SINGLE)
+        val opt: AnyArray = AnyArray(OccurrenceType.OPTIONAL)
+        val any: AnyArray = AnyArray(OccurrenceType.ANY)
+        val atLeastOne: AnyArray = AnyArray(OccurrenceType.AT_LEAST_ONE)
     }
 
-    class Any(cardinality: OccurrenceType) : XdmArrayTypeTest(XdmTypeTest.ANY.any, cardinality) {
-        override val opt: Any get() = Any(OccurrenceType.OPTIONAL)
-        override val single: Any get() = Any(OccurrenceType.SINGLE)
-        override val any: Any get() = Any(OccurrenceType.ANY)
-        override val atLeastOne: Any get() = Any(OccurrenceType.AT_LEAST_ONE)
+    class AnyArray(cardinality: OccurrenceType) : XdmArrayTypeTest(XdmTypeTest.ANY_ITEM.any, cardinality) {
+        override val opt: AnyArray get() = AnyArray(OccurrenceType.OPTIONAL)
+        override val single: AnyArray get() = AnyArray(OccurrenceType.SINGLE)
+        override val any: AnyArray get() = AnyArray(OccurrenceType.ANY)
+        override val atLeastOne: AnyArray get() = AnyArray(OccurrenceType.AT_LEAST_ONE)
 
         context(ctxt: ExprEvalContext)
         override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean {
@@ -70,14 +70,14 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
         ): XdmSequenceTypeTest {
             return when (other) {
                 !is XdmArrayTypeTest -> super.sharedBaseType(other, neededCardinality)
-                else -> Any(neededCardinality)
+                else -> AnyArray(neededCardinality)
             }
         }
 
         context(ctxt: ExprEvalContext)
         @XPathInternal
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
-            return receiver is Any || receiver is XdmTypeTest.Any
+            return receiver is AnyArray || receiver is XdmTypeTest.AnyItem
         }
     }
 
@@ -97,7 +97,7 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
             neededCardinality: OccurrenceType
         ): XdmSequenceTypeTest {
             if (other !is XdmArrayTypeTest) return super.sharedBaseType(other, neededCardinality)
-            else if (other is Any) return Any(neededCardinality)
+            else if (other is AnyArray) return AnyArray(neededCardinality)
 
             val sharedItemType = itemType.sharedBaseType(other.itemType)
             return Typed(sharedItemType, neededCardinality)

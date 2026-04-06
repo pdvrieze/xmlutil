@@ -54,7 +54,7 @@ class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : 
                 neededCardinality
             )
 
-            other !is XdmSchemaTypeTest -> return Any(neededCardinality)
+            other !is XdmSchemaTypeTest -> return AnyItem(neededCardinality)
         }
 
         var neededType = schemaType
@@ -80,6 +80,28 @@ class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : 
     override val single: XdmSchemaTypeTest get() = XdmSchemaTypeTest(schemaType, OccurrenceType.SINGLE)
     override val any: XdmSchemaTypeTest get() = XdmSchemaTypeTest(schemaType, OccurrenceType.ANY)
     override val atLeastOne: XdmSchemaTypeTest get() = XdmSchemaTypeTest(schemaType, OccurrenceType.AT_LEAST_ONE)
+
+    override fun toString(): String = buildString {
+        append(schemaType.name)
+        if (cardinality != OccurrenceType.SINGLE) append(cardinality.literal)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XdmSchemaTypeTest
+
+        return schemaType == other.schemaType
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + schemaType.hashCode()
+        return result
+    }
+
 
     companion object {
         val ANY_ATOMIC = XdmSchemaTypeTest(AnyAtomicType.Instance, OccurrenceType.SINGLE)

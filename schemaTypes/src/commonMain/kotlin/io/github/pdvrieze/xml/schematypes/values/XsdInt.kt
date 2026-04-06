@@ -42,6 +42,8 @@ interface XsdInt : XsdLong {
     override fun toBigInt(): BigInt = BigInt(intValue)
 
     override fun toBigDecimal(): BigDecimal = BigDecimal(intValue)
+    override fun toDouble(): Double = intValue.toDouble()
+    override fun toFloat(): Float = intValue.toFloat()
 
     override val size: ULong get() = 1uL
 

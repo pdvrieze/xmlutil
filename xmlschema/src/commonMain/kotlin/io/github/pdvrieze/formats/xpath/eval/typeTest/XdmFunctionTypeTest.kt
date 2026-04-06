@@ -34,18 +34,18 @@ import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 
 @XPathInternal
 sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(cardinality) {
-    object ANY{
-        val single: Any = Any(SINGLE)
-        val opt: Any = Any(OccurrenceType.OPTIONAL)
-        val any: Any = Any(OccurrenceType.ANY)
-        val atLeastOne: Any = Any(OccurrenceType.AT_LEAST_ONE)
+    object ANY_FUNCTION{
+        val single: AnyFunction = AnyFunction(SINGLE)
+        val opt: AnyFunction = AnyFunction(OccurrenceType.OPTIONAL)
+        val any: AnyFunction = AnyFunction(OccurrenceType.ANY)
+        val atLeastOne: AnyFunction = AnyFunction(OccurrenceType.AT_LEAST_ONE)
     }
 
-    class Any(cardinality: OccurrenceType): XdmFunctionTypeTest(cardinality) {
-        override val opt: Any get() = Any(OccurrenceType.OPTIONAL)
-        override val single: Any get() = Any(OccurrenceType.SINGLE)
-        override val any: Any get() = Any(OccurrenceType.ANY)
-        override val atLeastOne: Any get() = Any(OccurrenceType.AT_LEAST_ONE)
+    class AnyFunction(cardinality: OccurrenceType): XdmFunctionTypeTest(cardinality) {
+        override val opt: AnyFunction get() = AnyFunction(OccurrenceType.OPTIONAL)
+        override val single: AnyFunction get() = AnyFunction(OccurrenceType.SINGLE)
+        override val any: AnyFunction get() = AnyFunction(OccurrenceType.ANY)
+        override val atLeastOne: AnyFunction get() = AnyFunction(OccurrenceType.AT_LEAST_ONE)
 
         context(ctxt: ExprEvalContext)
         override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean = when (source){
@@ -58,8 +58,8 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
         context(ctx: ExprEvalContext)
         override fun sharedBaseType(other: XdmTypeTest, neededCardinality: SequenceType.OccurrenceType): XdmSequenceTypeTest {
             return when (other) {
-                !is XdmFunctionTypeTest -> XdmTypeTest.Any(neededCardinality)
-                else -> Any(neededCardinality)
+                !is XdmFunctionTypeTest -> XdmTypeTest.AnyItem(neededCardinality)
+                else -> AnyFunction(neededCardinality)
             }
         }
 
@@ -93,19 +93,19 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
             other: XdmTypeTest,
             neededCardinality: OccurrenceType
         ): XdmSequenceTypeTest {
-            if (other is Any) return Any(neededCardinality)
-            else if (other !is Typed) return XdmTypeTest.Any(neededCardinality)
-            if (argTypes.size != other.argTypes.size) return Any(neededCardinality)
+            if (other is AnyFunction) return AnyFunction(neededCardinality)
+            else if (other !is Typed) return XdmTypeTest.AnyItem(neededCardinality)
+            if (argTypes.size != other.argTypes.size) return AnyFunction(neededCardinality)
             var leftWorks: Boolean = true
             var rightWorks: Boolean = true
             for (i in argTypes.indices) {
                 if (leftWorks && !other.argTypes[i].isAssignableFrom(argTypes[i])) {
                     leftWorks = false
-                    if (!rightWorks) return Any(neededCardinality)
+                    if (!rightWorks) return AnyFunction(neededCardinality)
                 }
                 if (rightWorks && !argTypes[i].isAssignableFrom(other.argTypes[i])) {
                     rightWorks = false
-                    if (!leftWorks) return Any(neededCardinality)
+                    if (!leftWorks) return AnyFunction(neededCardinality)
                 }
             }
 
@@ -113,7 +113,7 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
             return when {
                 leftWorks -> Typed(argTypes, sharedReturnType, neededCardinality)
                 rightWorks -> Typed(other.argTypes, sharedReturnType, neededCardinality)
-                else -> Any(neededCardinality) // this should be superfluous
+                else -> AnyFunction(neededCardinality) // this should be superfluous
             }
 
         }

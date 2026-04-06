@@ -41,6 +41,10 @@ interface DecimalType<out T: XsdDecimal> : AnyAtomicType<T>, NumericType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
+    override fun isBaseOf(maybeSubType: AnyType): Boolean {
+        return super<AnyAtomicType>.isBaseOf(maybeSubType)
+    }
+
     object Instance: DecimalType<XsdDecimal>, PrimitiveDatatype<XsdDecimal>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "decimal", "xs")
 

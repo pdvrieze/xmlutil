@@ -68,10 +68,10 @@ sealed class XdmSequenceTypeTest {
                 is EMPTY -> EMPTY
                 is XdmTypeTest -> when (other.cardinality) {
                     OccurrenceType.SINGLE,
-                    OccurrenceType.OPTIONAL -> XdmTypeTest.Any(OccurrenceType.OPTIONAL)
+                    OccurrenceType.OPTIONAL -> XdmTypeTest.AnyItem(OccurrenceType.OPTIONAL)
 
                     OccurrenceType.ANY,
-                    OccurrenceType.AT_LEAST_ONE -> XdmTypeTest.Any(OccurrenceType.ANY)
+                    OccurrenceType.AT_LEAST_ONE -> XdmTypeTest.AnyItem(OccurrenceType.ANY)
                 }
             }
         }
@@ -150,18 +150,31 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
         }
     }
 
-    object ANY {
-        val single: Any = Any(OccurrenceType.SINGLE)
-        val opt: Any = Any(OccurrenceType.OPTIONAL)
-        val any: Any = Any(OccurrenceType.ANY)
-        val atLeastOne: Any = Any(OccurrenceType.AT_LEAST_ONE)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XdmTypeTest
+
+        return cardinality == other.cardinality
     }
 
-    class Any(cardinality: OccurrenceType): XdmTypeTest(cardinality) {
-        override val opt: Any get() = Any(OccurrenceType.OPTIONAL)
-        override val single: Any get() = Any(OccurrenceType.SINGLE)
-        override val any: Any get() = Any(OccurrenceType.ANY)
-        override val atLeastOne: Any get() = Any(OccurrenceType.AT_LEAST_ONE)
+    override fun hashCode(): Int {
+        return cardinality.hashCode()
+    }
+
+    object ANY_ITEM {
+        val single: AnyItem = AnyItem(OccurrenceType.SINGLE)
+        val opt: AnyItem = AnyItem(OccurrenceType.OPTIONAL)
+        val any: AnyItem = AnyItem(OccurrenceType.ANY)
+        val atLeastOne: AnyItem = AnyItem(OccurrenceType.AT_LEAST_ONE)
+    }
+
+    class AnyItem(cardinality: OccurrenceType): XdmTypeTest(cardinality) {
+        override val opt: AnyItem get() = AnyItem(OccurrenceType.OPTIONAL)
+        override val single: AnyItem get() = AnyItem(OccurrenceType.SINGLE)
+        override val any: AnyItem get() = AnyItem(OccurrenceType.ANY)
+        override val atLeastOne: AnyItem get() = AnyItem(OccurrenceType.AT_LEAST_ONE)
 
         context(ctx: ExprEvalContext)
         @XPathInternal
@@ -170,7 +183,7 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
         context(ctxt: ExprEvalContext)
         @XPathInternal
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
-            return receiver is Any
+            return receiver is AnyItem
         }
 
         @XPathInternal
@@ -179,8 +192,8 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
 
         @XPathInternal
         context(ctx: ExprEvalContext)
-        override fun sharedBaseType(other: XdmTypeTest, neededCardinality: OccurrenceType): Any {
-            return Any(neededCardinality)
+        override fun sharedBaseType(other: XdmTypeTest, neededCardinality: OccurrenceType): AnyItem {
+            return AnyItem(neededCardinality)
         }
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {

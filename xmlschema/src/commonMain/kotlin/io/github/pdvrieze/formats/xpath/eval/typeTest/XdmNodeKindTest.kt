@@ -53,7 +53,7 @@ class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) :
         other: XdmTypeTest,
         neededCardinality: OccurrenceType
     ): XdmSequenceTypeTest {
-        if (other !is XdmNodeKindTest) return Any(neededCardinality)
+        if (other !is XdmNodeKindTest) return AnyItem(neededCardinality)
         val neededNodeKind = when {
             nodeKind.isAssignableFrom(other.nodeKind) -> nodeKind
             other.nodeKind.isAssignableFrom(nodeKind) -> other.nodeKind

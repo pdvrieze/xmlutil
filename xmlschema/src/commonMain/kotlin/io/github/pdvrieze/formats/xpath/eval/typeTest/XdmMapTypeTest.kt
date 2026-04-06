@@ -42,22 +42,22 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
     val valueType: XdmSequenceTypeTest get() = returnType
 
     object ANY{
-        val single: Any = Any(OccurrenceType.SINGLE)
-        val opt: Any = Any(OccurrenceType.OPTIONAL)
-        val any: Any = Any(OccurrenceType.ANY)
-        val atLeastOne: Any = Any(OccurrenceType.AT_LEAST_ONE)
+        val single: AnyMap = AnyMap(OccurrenceType.SINGLE)
+        val opt: AnyMap = AnyMap(OccurrenceType.OPTIONAL)
+        val any: AnyMap = AnyMap(OccurrenceType.ANY)
+        val atLeastOne: AnyMap = AnyMap(OccurrenceType.AT_LEAST_ONE)
     }
 
-    class Any(cardinality: OccurrenceType) : XdmMapTypeTest(
+    class AnyMap(cardinality: OccurrenceType) : XdmMapTypeTest(
         XdmSchemaTypeTest(AnySimpleType.Instance, OccurrenceType.SINGLE),
-        XdmTypeTest.ANY.any,
+        XdmTypeTest.ANY_ITEM.any,
         cardinality
     ) {
 
-        override val opt: Any get() = Any(OccurrenceType.OPTIONAL)
-        override val single: Any get() = Any(OccurrenceType.SINGLE)
-        override val any: Any get() = Any(OccurrenceType.ANY)
-        override val atLeastOne: Any get() = Any(OccurrenceType.AT_LEAST_ONE)
+        override val opt: AnyMap get() = AnyMap(OccurrenceType.OPTIONAL)
+        override val single: AnyMap get() = AnyMap(OccurrenceType.SINGLE)
+        override val any: AnyMap get() = AnyMap(OccurrenceType.ANY)
+        override val atLeastOne: AnyMap get() = AnyMap(OccurrenceType.AT_LEAST_ONE)
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return fallbackType.cardinality(cardinality)
@@ -69,7 +69,7 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
             neededCardinality: OccurrenceType
         ): XdmSequenceTypeTest = when (other) {
             !is XdmMapTypeTest -> super.sharedBaseType(other, neededCardinality)
-            else -> Any(neededCardinality)
+            else -> AnyMap(neededCardinality)
         }
     }
 
@@ -91,12 +91,12 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
             neededCardinality: OccurrenceType
         ): XdmSequenceTypeTest {
             if (other !is XdmMapTypeTest) return super.sharedBaseType(other, neededCardinality)
-            if (other is Any) return Any(neededCardinality)
+            if (other is AnyMap) return AnyMap(neededCardinality)
 
             val sharedKeyType = when {
                 keyType.isAssignableFrom(other.keyType) -> other.keyType
                 other.keyType.isAssignableFrom(keyType) -> keyType
-                else -> return Any(neededCardinality)
+                else -> return AnyMap(neededCardinality)
             }
 
             val sharedValueType = valueType.sharedBaseType(other.valueType)

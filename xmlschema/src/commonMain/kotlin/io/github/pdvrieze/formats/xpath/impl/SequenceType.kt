@@ -79,10 +79,21 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
     }
 
     enum class OccurrenceType(val literal: String, val allowsEmpty: Boolean, val allowsMultiple: Boolean) {
-        SINGLE("", false, false),
-        OPTIONAL("?", true, false),
-        ANY("*", true, true),
-        AT_LEAST_ONE("+", false, true);
+        SINGLE("", false, false) {
+            override fun matches(count: Int) = count == 1
+        },
+        OPTIONAL("?", true, false) {
+            override fun matches(count: Int) = count in 0..1
+        },
+        ANY("*", true, true) {
+            override fun matches(count: Int) = true
+        },
+        AT_LEAST_ONE("+", false, true) {
+            override fun matches(count: Int) = count > 0
+        },
+        ;
+
+        abstract fun matches(count: Int): Boolean
 
         fun union(other: OccurrenceType): OccurrenceType = when(this) {
             SINGLE -> other

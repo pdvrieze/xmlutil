@@ -175,7 +175,7 @@ abstract class AbstractFunctionObject() {
         val BOOLEAN = XdmSchemaTypeTest(BooleanType.Instance, SINGLE)
         val STRING = XdmSchemaTypeTest(StringType.Instance, SINGLE)
         val NODE = XdmNodeKindTest(NodeKindTest.AnyNode, SINGLE)
-        val ITEM = XdmTypeTest.ANY
+        val ITEM = XdmTypeTest.ANY_ITEM
         val ATOMIC = XdmSchemaTypeTest(AnyAtomicType.Instance, SINGLE)
         val NUMERIC = XdmSchemaTypeTest(NumericType.Instance, SINGLE)
         val INTEGER = XdmSchemaTypeTest(IntegerType.Instance, SINGLE)
