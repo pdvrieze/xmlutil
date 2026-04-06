@@ -41,7 +41,7 @@ class TestCurrentPathSet : AbstractTestSetSuite() {
         testEvalTestCaseImpl(testCase)
     }
 
-    companion object : CompanionBase("fn-boolean") {
+    companion object : CompanionBase("fn-deep-equal") {
         @JvmStatic
         override fun getTestCases(): List<Named<ResolvedQt3TestCase>> {
             return getTestCases(testSetName)

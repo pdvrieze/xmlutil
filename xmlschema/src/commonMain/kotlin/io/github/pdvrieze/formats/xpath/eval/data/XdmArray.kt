@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.eval.data
 
 import io.github.pdvrieze.formats.xmlschema.types.isContentEqual
+import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
@@ -58,9 +59,19 @@ class XdmArray(
         return XdmArray(content, concreteType, dynamicType)
     }
 
-    override fun isValEqual(expected: XdmValue<*>): Boolean {
+    override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return expected is XdmArray &&
                 content.isContentEqual(expected.content)
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(
+        other: XdmValue<*>,
+        collation: Collation?
+    ): Boolean {
+        if (other !is XdmArray) return false
+        if (content.size != other.content.size) return false
+        return (0 until content.size).all { content[it].isDeepEqual(other.content[it], collation) }
     }
 
     context(ctx: ExprEvalContext)

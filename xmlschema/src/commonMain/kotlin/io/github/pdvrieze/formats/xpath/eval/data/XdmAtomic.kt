@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -54,21 +55,31 @@ class XdmAtomic<out T : XsdAtomic>(
     override val dynamicType: XdmSchemaType
         get() = XdmSchemaType(value.schemaType)
 
-    override fun isValEqual(expected: XdmValue<*>): Boolean {
+    override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         if (expected !is XdmAtomic<*>) return false
         val expectedValue = expected.value
 
-        when (value) {
-            is XsdQName -> return expectedValue is XsdQName && value.isEquivalent(expectedValue)
-            is XsdDouble if (expectedValue is XsdNumeric<*>) -> return value.value == expectedValue.toDouble()
-            is XsdFloat if (expectedValue is XsdNumeric<*>) -> return value.toDouble() == expectedValue.toDouble()
-            is XsdDecimal -> when (expectedValue) {
+        return when (value) {
+            is XsdQName -> expectedValue is XsdQName && value.isEquivalent(expectedValue)
+            is XsdDouble if (expectedValue is XsdNumeric<*>) -> value.value == expectedValue.toDouble()
+            is XsdFloat if (expectedValue is XsdNumeric<*>) -> value.toDouble() == expectedValue.toDouble()
+            is XsdDecimal if (expectedValue is XsdNumeric<*>) -> when (expectedValue) {
                 is XsdDouble,
-                is XsdFloat -> return value.toDouble() == expectedValue.toDouble()
-                is XsdDecimal -> return value == expectedValue
+                is XsdFloat -> value.toDouble() == expectedValue.toDouble()
+                is XsdDecimal -> value == expectedValue
+                else -> value.toDouble() == expectedValue.toDouble()
             }
+            else if(collation != null) -> collation.compare(value.xmlString, expectedValue.xmlString) == 0
+            else -> value.xmlString == expectedValue.xmlString
         }
-        return value.xmlString == expectedValue.xmlString
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(
+        other: XdmValue<*>,
+        collation: Collation?
+    ): Boolean {
+        return isValEqual(other, collation)
     }
 
     context(ctx: ExprEvalContext)

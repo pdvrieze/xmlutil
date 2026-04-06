@@ -22,6 +22,8 @@
 
 package io.github.pdvrieze.formats.xpath.functions
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
+import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
@@ -34,6 +36,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -147,6 +150,18 @@ context(ctx: ExprEvalContext)
 internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T {
     return this[arg] as? T
         ?: throw EvaluationException("Argument not of expected type ${T::class.simpleName}")
+}
+
+context(ctx: ExprEvalContext)
+internal fun List<XdmValue<*>>.maybeCollation(pos: Int): Collation? {
+    return when {
+        pos < size -> {
+            val cName = atomicArgN<XsdString>(pos).xmlString
+            Collations.entries.firstOrNull { it.uri == cName }
+                ?: throw EvaluationException(ErrorCodes.FOCH0002, "Unsupported collation: $cName")
+        }
+        else -> null
+    }
 }
 
 context(ctx: ExprEvalContext)

@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
@@ -38,6 +39,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XPathInternal
 @OptIn(NeedsXPath2::class)
@@ -109,8 +111,124 @@ class XdmNode(
         return node == (other as? XdmNode)?.node
     }
 
-    override fun isValEqual(expected: XdmValue<*>): Boolean {
+    override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return equals(expected)
+    }
+
+    context(ctx: ExprEvalContext)
+    fun isNodeEqual(leftNode: Node, rightNode: Node, collation: Collation): Boolean {
+        val node = leftNode
+        when (node) {
+            is Document ->
+                return collation.equals(node.textContent ?: return false, rightNode.textContent ?: return false)
+            is Element -> {
+                val otherNode = rightNode as? Element ?: return false
+                // Do type checks
+
+                return isElemEqual(leftNode, otherNode, collation)
+            }
+            is Attr -> {
+                if (rightNode !is Attr) return false
+                return node.namespaceURI == rightNode.namespaceURI && node.localName == rightNode.localName && collation.equals(
+                    node.value,
+                    rightNode.value
+                )
+            }
+            is ProcessingInstruction -> {
+                val o = rightNode as? ProcessingInstruction ?: return false
+                return node.target == o.target && collation.equals(node.getData(), o.getData())
+            }
+            is Comment -> {
+                val o = rightNode as? Comment ?: return false
+                return collation.equals(node.getData(), o.getData())
+            }
+            is Text -> {
+                val o = rightNode as? Text ?: return false
+                return collation.equals(node.getData(), o.getData())
+            }
+            else -> return false
+        }
+
+    }
+
+    // TODO should be typed
+    context(ctx: ExprEvalContext)
+    fun isElemEqual(leftElem: Element, rightElem: Element, collation: Collation): Boolean {
+        when {
+            leftElem.namespaceURI != rightElem.namespaceURI -> return false
+            leftElem.localName != rightElem.localName -> return false
+            leftElem.attributes.size != rightElem.attributes.size -> return false
+            leftElem.attributes.any { a -> !
+                collation.equals(a.value, rightElem.getAttributeNS(a.namespaceURI, a.name)?: return false)
+            }   -> return false
+        }
+
+        val leftIt = leftElem.childNodes.iterator()
+        val rightIt = rightElem.childNodes.iterator()
+        // Compare ignoring whitespace
+        do {
+            var lChild: Node?
+            do {
+                lChild = if (leftIt.hasNext()) leftIt.next() else null
+            } while (lChild is Text && lChild.textContent.let { it != null && isXmlWhitespace(it) })
+
+            var rChild: Node?
+            do {
+                rChild = if (rightIt.hasNext()) rightIt.next() else null
+            } while (rChild is Text && rChild.textContent.let { it != null && isXmlWhitespace(it) } && (rightIt.hasNext()))
+
+            if (lChild != null) {
+                if (rChild == null) return false
+                if (! isNodeEqual(lChild, rChild, collation)) return false
+            } else {
+                if (rChild != null) return false
+            }
+        } while (lChild != null && rChild != null)
+
+        if (leftIt.hasNext() || rightIt.hasNext()) return false
+        return true
+
+
+
+
+    }
+
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(
+        other: XdmValue<*>,
+        collation: Collation?
+    ): Boolean {
+        if (other !is XdmNode) return false
+        if (node.nodeType != other.node.nodeType) return false
+        val c: Collation = collation ?: ctx.defaultCollation
+        when (node) {
+            is Document ->
+                return c.equals(node.textContent ?: return false, other.node.textContent ?: return false)
+            is Element -> {
+                val otherNode = other.node as? Element ?: return false
+                // Do type checks
+
+                return isElemEqual(node, otherNode, c)
+            }
+            is Attr -> {
+                val o = other.node as? Attr ?: return false
+                return node.namespaceURI == o.namespaceURI && node.localName == o.localName && c.equals(node.value, o.value)
+            }
+            is ProcessingInstruction -> {
+                val o = other.node as? ProcessingInstruction ?: return false
+                return node.target == o.target && c.equals(node.getData(), o.getData())
+            }
+            is Comment -> {
+                val o = other.node as? Comment ?: return false
+                return c.equals(node.getData(), o.getData())
+            }
+            is Text -> {
+                val o = other.node as? Text ?: return false
+                return c.equals(node.getData(), o.getData())
+            }
+            else -> return false
+        }
     }
 
     context(ctx: ExprEvalContext)

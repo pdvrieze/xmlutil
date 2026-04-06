@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmEmptySequenceType
@@ -67,8 +68,17 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         return XdmSequence(elements, type.toValueType(staticType.single))
     }
 
-    override fun isValEqual(expected: XdmValue<*>): Boolean {
+    override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return expected is XdmSequence<*> && elements == expected.elements
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(
+        other: XdmValue<*>,
+        collation: Collation?
+    ): Boolean {
+        if (size != other.size) return false
+        return 0.until(size).all { i -> elements[i].isDeepEqual(other[i], collation) }
     }
 
     context(ctx: ExprEvalContext)
@@ -111,6 +121,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     override fun toString(): String {
         return elements.joinToString(prefix = "(", postfix = ")")
     }
+
 
     object EMPTY : XdmSequence<Nothing>(staticType = XdmEmptySequenceType),
         XdmAtomicOrEmpty<Nothing>, XdmSingleOrEmpty<Nothing>
@@ -183,6 +194,12 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
             contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
 
             return XdmSequenceBuilderImpl<T>().apply(builderAction).build(type)
+        }
+
+        fun <T : XdmSingleValue<T>> fromList(result: List<T>): XdmValue<T> = when (result.size) {
+            0 -> EMPTY
+            1 -> result.single().asT()
+            else -> XdmSequence(result)
         }
 
     }

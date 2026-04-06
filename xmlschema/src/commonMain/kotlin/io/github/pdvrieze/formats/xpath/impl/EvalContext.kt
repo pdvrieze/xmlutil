@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
+import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
@@ -56,6 +58,7 @@ open class EvalContext(
     val contextValue get() = contextItem?.value
     val currentTimeStamp: XsdDateTimeStamp get() = deterministicState.currentDateTimeStamp
     val baseUri: XsdAnyURI? get() = deterministicState.baseURI
+    val defaultCollation: Collation get() = Collations.CODEPOINT
 
     fun resolveTypeOrNull(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)

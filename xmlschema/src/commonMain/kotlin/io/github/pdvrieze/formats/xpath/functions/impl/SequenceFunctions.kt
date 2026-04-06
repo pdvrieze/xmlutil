@@ -24,8 +24,13 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.argN
+import io.github.pdvrieze.formats.xpath.functions.atomicArgN
+import io.github.pdvrieze.formats.xpath.functions.maybeCollation
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
@@ -34,6 +39,7 @@ import kotlin.math.round
 @XPathInternal
 internal object SequenceFunctions : AbstractFunctionObject() {
 
+    //region 14.1 General Functions and Operators on Sequences
     internal val fnEmpty = BuiltinFunctionImpl("empty", functionType(BOOLEAN, ITEM.any)) { args ->
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdBoolean(arg.size==0))
@@ -143,7 +149,74 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     internal val fnUnordered = BuiltinFunctionImpl("unordered", functionType(ITEM.any, ITEM.any)) { args ->
         toSingleArg(args) ?: XdmSequence.EMPTY
     }
+    //endregion
 
+    //region 14.2 Sequence comparison functions
+    val fnDistincValues = BuiltinFunctionImpl("distinct-values", listOf(
+        functionType(ATOMIC.any, ATOMIC.any),
+        functionType(ATOMIC.any, ATOMIC.any, STRING),
+    )) { args ->
+        val arg = args.argN<XdmValue<XdmAtomic<*>>>(0)
+        val collation = args.maybeCollation(1)
+
+        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+
+        val distinct = HashSet<XdmAtomic<*>>()
+        for(arg in args) { distinct.add(arg as XdmAtomic<*>) }
+
+        val result = when (collation) {
+            null -> distinct.toList()
+            else -> distinct.sortedWith { l, r -> collation.compare(l.value.xmlString, r.value.xmlString) }
+        }
+
+        XdmSequence.fromList(result)
+    }
+
+    val fnIndexOf = BuiltinFunctionImpl("index-of", listOf(
+        functionType(INTEGER, ATOMIC.any, ATOMIC),
+        functionType(INTEGER, ATOMIC.any, ATOMIC, STRING),
+    )) { args ->
+        val seq = args.argN<XdmValue<XdmAtomic<*>>>(0) as XdmValue<XdmAtomic<*>>
+        val search = args.atomicArgN<XsdAtomic>(1)
+        val collation = args.maybeCollation(2)
+
+        XdmSequence.buildAtomic {
+            for (arg in seq) {
+                val isEqual = when (collation) {
+                    null -> arg.value == search
+                    else -> collation.compare(arg.value.xmlString, search.xmlString) == 0
+                }
+                if (isEqual) this.add(arg)
+            }
+        }
+    }
+    val fnDeepEqual = BuiltinFunctionImpl("deep-equal", listOf(
+        functionType(BOOLEAN, ITEM.any, ITEM.any),
+        functionType(BOOLEAN, ITEM.any, ITEM.any, STRING),
+    )) { args ->
+        val param1 = args.argN<XdmValue<*>>(0)
+        val param2 = args.argN<XdmValue<*>>(1)
+        val collation = args.maybeCollation(2)
+
+        when {
+            param1.size != param2.size -> return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
+            param1.size == 0 -> return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.TRUE)
+        }
+
+        for (i in 0 until param1.size) {
+            val elem1 = param1[i]
+            val elem2 = param1[i]
+            if (! elem1.isDeepEqual(elem2, collation)) return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
+        }
+
+        XdmAtomic(XsdBoolean.TRUE)
+    }
+    //endregion
+
+    //region 14.3 Sequence cardinality testing functions
+    //endregion
+
+    //region 14.4 Sequence aggregate functions
     internal val fnCount = BuiltinFunctionImpl(
         "count",
         functionType(INTEGER, ITEM.any)
@@ -151,6 +224,15 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInteger(0))
         XdmAtomic(XsdInteger(arg.size))
     }
+    //endregion
 
+    //region 14.5 Functions on node identifiers
+    //endregion
+
+    //region 14.6 Functions giving access to external information
+    //endregion
+
+    //region 14.7 Parsing and serializing
+    //endregion
 
 }

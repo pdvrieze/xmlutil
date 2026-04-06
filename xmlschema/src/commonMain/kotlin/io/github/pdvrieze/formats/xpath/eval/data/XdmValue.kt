@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmErrorType
@@ -65,7 +66,10 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
     /**
      * Implement the VAL_EQ operator
      */
-    fun isValEqual(expected: XdmValue<*>): Boolean
+    fun isValEqual(expected: XdmValue<*>, collation: Collation? = null): Boolean
+
+    context(ctx: ExprEvalContext)
+    fun isDeepEqual(other: XdmValue<*>, collation: Collation?): Boolean
 
     context(ctx: ExprEvalContext)
     fun toBoolean(): Boolean

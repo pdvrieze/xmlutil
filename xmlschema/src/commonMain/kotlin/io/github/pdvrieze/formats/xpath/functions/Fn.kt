@@ -92,6 +92,9 @@ enum class Fn(
     reverse(SequenceFunctions.fnReverse),
     subsequence(SequenceFunctions.fnSubsequence),
     unordered(SequenceFunctions.fnUnordered),
+    distinctValues(SequenceFunctions.fnDistincValues),
+    indexOf(SequenceFunctions.fnIndexOf),
+    deepEqual(SequenceFunctions.fnDeepEqual),
     Count(SequenceFunctions.fnCount),
     //endregion
 

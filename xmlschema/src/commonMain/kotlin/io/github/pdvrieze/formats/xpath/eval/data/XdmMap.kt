@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
+import io.github.pdvrieze.formats.xpath.eval.Collation
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
@@ -51,12 +52,27 @@ class XdmMap private constructor(
         return XdmMap(content, type.toValueType(staticType).single as XdmMapType, _dynamicType)
     }
 
-    override fun isValEqual(expected: XdmValue<*>): Boolean {
+    override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         if (expected !is XdmMap) return false
         if (expected.content.size != content.size) return false
 
         for ((k, v) in content) {
             if (expected.content[k] != v) return false
+        }
+        return true
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(
+        other: XdmValue<*>,
+        collation: Collation?
+    ): Boolean {
+        if (other !is XdmMap) return false
+        if (other.content.size != content.size) return false
+
+        for ((k, v) in content) {
+            val otherVal = other.content[k] ?: return false
+            if (!v.isDeepEqual(otherVal, collation)) return false
         }
         return true
     }

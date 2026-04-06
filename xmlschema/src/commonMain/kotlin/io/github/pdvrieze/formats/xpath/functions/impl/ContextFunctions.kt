@@ -28,12 +28,7 @@ import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.functions.checkArgCount
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.AnyURIType
-import io.github.pdvrieze.xml.schematypes.types.DateTimeStampType
-import io.github.pdvrieze.xml.schematypes.types.DateType
-import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
-import io.github.pdvrieze.xml.schematypes.types.LanguageType
-import io.github.pdvrieze.xml.schematypes.types.TimeType
+import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdDayTimeDuration
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
@@ -83,9 +78,7 @@ object ContextFunctions : AbstractFunctionObject() {
 
     /** Returns the value of the default collation property from the static context.*/
     val fnDefaultCollation = BuiltinFunctionImpl("default-collation", functionType(STRING)) { args ->
-        args.checkArgCount(0)
-        // TODO support more than codepoint collations at some point
-        XdmAtomic(XsdString("http://www.w3.org/2005/xpath-functions/collation/codepoint"))
+        XdmAtomic(XsdString(contextOf<ExprEvalContext>().defaultCollation.uri))
     }
 
     /** Returns the value of the default language property from the dynamic context.*/
