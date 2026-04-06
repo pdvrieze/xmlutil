@@ -214,6 +214,18 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 14.3 Sequence cardinality testing functions
+    internal val fnZeroOrOne = BuiltinFunctionImpl("zero-or-one", functionType(ITEM.opt, ITEM.any)) { args ->
+        args[0].also { if (it.size > 1) throw EvaluationException(ErrorCodes.FORG0003) }
+    }
+
+    internal val fnOneOrMore = BuiltinFunctionImpl("one-or-more", functionType(ITEM.atLeastOne, ITEM.any)) { args ->
+        args[0].also { if (it.size == 0) throw EvaluationException(ErrorCodes.FORG0004) }
+    }
+
+    internal val fnExactlyOne = BuiltinFunctionImpl("exactly-one", functionType(ITEM.single, ITEM.any)) { args ->
+        args[0].also { if (it.size != 1) throw EvaluationException(ErrorCodes.FORG0005) }
+    }
+
     //endregion
 
     //region 14.4 Sequence aggregate functions
