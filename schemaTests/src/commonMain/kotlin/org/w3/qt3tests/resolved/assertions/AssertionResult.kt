@@ -27,7 +27,7 @@ sealed class AssertionResult {
         override fun toString(): String = "Success"
     }
 
-    class Failure(val error: String, val cause: Throwable? = null) : AssertionResult() {
+    class Failure(val error: String, val cause: Throwable/*? = null*/) : AssertionResult() {
         constructor(error: EvaluationException): this(error.message ?: error.errorCode?.message ?: "Unknown error", error)
         constructor(error: Throwable): this(error.message ?: "Unknown error", error)
 

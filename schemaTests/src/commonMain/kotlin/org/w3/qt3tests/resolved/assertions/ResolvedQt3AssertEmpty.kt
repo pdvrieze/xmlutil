@@ -26,7 +26,7 @@ class ResolvedQt3AssertEmpty : ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         return when {
-            evalResult.size != 0 -> AssertionResult.Failure("expected empty, got ${evalResult.size} items")
+            evalResult.size != 0 -> AssertionResult.Failure("expected empty, got ${evalResult.size} items", AssertionError("Assertion failure"))
             else -> AssertionResult.Success
         }
     }

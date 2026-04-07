@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -55,7 +56,7 @@ class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnEx
         val result = mutableListOf<XdmSingleValue<*>>()
         evalImpl(ctx, 0, result)
 
-        return result.singleOrNull() ?: XdmSequence(result)
+        return XdmSequence.fromList(result)
     }
 
     context(c: OutputContext)

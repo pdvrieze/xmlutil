@@ -44,6 +44,11 @@ enum class Fn(
     documentUri(Accessors.fnDocumentUri),
     //endregion
 
+    //region Errors and diagnostics (3)
+    error(ErrorDiagnosticFunctions.fnError),
+    trace(ErrorDiagnosticFunctions.fnTrace),
+    //endregion
+
     //region Boolean functions (7)
     True(BooleanFunctions.fnTrue),
     False(BooleanFunctions.fnFalse),

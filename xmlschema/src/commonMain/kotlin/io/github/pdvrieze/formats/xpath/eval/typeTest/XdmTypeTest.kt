@@ -51,10 +51,33 @@ sealed class XdmSequenceTypeTest {
     context(ctx: ExprEvalContext)
     abstract fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest
 
+    object NONE : XdmSequenceTypeTest() {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun isAssignableTo(receiver: XdmSequenceTypeTest): Boolean {
+            return true
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isInstance(value: XdmValue<*>): Boolean = false
+
+        override fun toValueType(fallbackType: XdmSingleType): XdmType {
+            throw UnsupportedOperationException("None cannot be the type of any value")
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest {
+            return other // none is the bottom type
+        }
+    }
+
     object EMPTY : XdmSequenceTypeTest() {
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun isAssignableTo(receiver: XdmSequenceTypeTest): Boolean = when (receiver) {
+            is NONE -> false
             is EMPTY -> true
             is XdmTypeTest -> receiver.cardinality.allowsEmpty
         }
@@ -65,7 +88,7 @@ sealed class XdmSequenceTypeTest {
         context(ctx: ExprEvalContext)
         override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest {
             return when (other) {
-                is EMPTY -> EMPTY
+                is NONE, is EMPTY -> EMPTY
                 is XdmTypeTest -> when (other.cardinality) {
                     OccurrenceType.SINGLE,
                     OccurrenceType.OPTIONAL -> XdmTypeTest.AnyItem(OccurrenceType.OPTIONAL)
@@ -95,7 +118,8 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest = when (other){
+    override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest = when (other) {
+        NONE -> this
         EMPTY -> EMPTY.sharedBaseType(this)
         is XdmTypeTest -> sharedBaseType(other, cardinality.union(other.cardinality))
     }
@@ -108,6 +132,7 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
     context(ctx: ExprEvalContext)
     override fun isAssignableFrom(source: XdmSequenceTypeTest): Boolean {
         val r = when (source) {
+            NONE -> true
             EMPTY -> return cardinality.allowsEmpty
             is XdmTypeTest -> when (cardinality) {
                 OccurrenceType.SINGLE -> source.cardinality == OccurrenceType.SINGLE

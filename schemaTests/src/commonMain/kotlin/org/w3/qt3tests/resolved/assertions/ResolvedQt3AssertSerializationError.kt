@@ -24,7 +24,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 class ResolvedQt3AssertSerializationError(val assertion: String, val code: String?): ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
-        val evalResult = evalResult.exceptionOrNull() ?: return AssertionResult.Failure("Expected error, but got $evalResult")
+        val evalResult = evalResult.exceptionOrNull() ?: return AssertionResult.Failure("Expected error, but got $evalResult", AssertionError("Assertion failure"))
         TODO("not implemented")
     }
 }

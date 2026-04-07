@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.eval
 
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.namespaceURI
+
 enum class ErrorCodes(val code: String, val message: String) {
 
     /**
@@ -580,4 +583,16 @@ enum class ErrorCodes(val code: String, val message: String) {
      * characters.
      */
     FOXT0006("FOXT0006", "XSLT output contains non-accepted characters"),
+    ;
+
+    val qName: XsdQName get() = XsdQName(NAMESPACE, code)
+
+    companion object {
+        const val NAMESPACE="http://www.w3.org/2005/xqt-errors"
+
+        fun lookup(qName: XsdQName): ErrorCodes? = when {
+            qName.namespaceURI != NAMESPACE -> null
+            else -> entries.firstOrNull { it.qName == qName }
+        }
+    }
 }

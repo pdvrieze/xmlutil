@@ -180,5 +180,6 @@ abstract class AbstractFunctionObject() {
         val NUMERIC = XdmSchemaTypeTest(NumericType.Instance, SINGLE)
         val INTEGER = XdmSchemaTypeTest(IntegerType.Instance, SINGLE)
         val DOUBLE = XdmSchemaTypeTest(DoubleType.Instance, SINGLE)
+        val QNAME = XdmSchemaTypeTest(QNameType.Instance, SINGLE)
     }
 }

@@ -26,7 +26,7 @@ class ResolvedQt3Not(val assertion: ResolvedQt3Assertion): ResolvedQt3Assertion(
     override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
         val base = assertion.verify(evalResult)
         return when (base) {
-            is AssertionResult.Success -> AssertionResult.Failure("Expected failure, got success")
+            is AssertionResult.Success -> AssertionResult.Failure("Expected failure, got success", AssertionError("Assertion failure"))
             is AssertionResult.Failure -> AssertionResult.Success
         }
     }

@@ -32,6 +32,10 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
     internal val exp: ULong
 ) : XsdInteger {
 
+    init {
+        if (ints.size ==2) require(ints[1] != 0u) { "The second int must not be zero" }
+    }
+
     abstract val self:T
 
     override fun countTrailingZeroBits(): ULong {

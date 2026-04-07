@@ -51,7 +51,7 @@ abstract class AbstractTestSetSuite {
                 if (verifyResult is AssertionResult.Failure) {
                     if (evalResult.isFailure) throw AssertionFailedError(
                         "Unexpected failure: ${verifyResult.error}",
-                        verifyResult.cause ?: evalResult.exceptionOrNull()
+                        verifyResult.cause
                     ) else throw AssertionFailedError(
                         "Unexpected assertion failure for result: ${verifyResult.error}",
                         verifyResult.cause

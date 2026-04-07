@@ -21,7 +21,6 @@
 package io.github.pdvrieze.formats.xpath.eval.type
 
 import io.github.pdvrieze.formats.xpath.eval.typeTest.*
-import io.github.pdvrieze.formats.xpath.impl.ArrayTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal

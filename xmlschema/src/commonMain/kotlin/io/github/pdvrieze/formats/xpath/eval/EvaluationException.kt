@@ -20,11 +20,13 @@
 
 package io.github.pdvrieze.formats.xpath.eval
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdQName
 
-class EvaluationException : Exception {
+open class EvaluationException : Exception {
     val expr: Expr
     val errorCode: ErrorCodes?
 
@@ -51,6 +53,11 @@ class EvaluationException : Exception {
     constructor(errorCode: ErrorCodes, expr: Expr, message: String?) : super(message ?: errorCode.message) {
         this.expr = expr
         this.errorCode = errorCode
+    }
+
+    constructor(qName: XsdQName, expr: Expr, message: String) : super(message) {
+        this.expr = expr
+        this.errorCode = ErrorCodes.lookup(qName)
     }
 
     constructor(errorCode: ErrorCodes, expr: Expr, message: String?, cause: Throwable?) : super(message ?: errorCode.message, cause) {
@@ -97,6 +104,23 @@ class EvaluationException : Exception {
             return EvaluationException(errorCode, ctx.expr)
         }
 
+    }
+
+}
+
+class UserEvaluationException: EvaluationException {
+    val qName: XsdQName
+    val context: XdmValue<*>?
+
+    constructor(qName: XsdQName, expr: Expr, description: String, context: XdmValue<*>? = null) :
+            super(qName, expr, description) {
+        this.qName = qName
+        this.context = context
+    }
+
+    constructor(errorCode: ErrorCodes, expr: Expr, description: String, context: XdmValue<*>? = null) : super(errorCode, expr, description) {
+        this.qName = errorCode.qName
+        this.context = context
     }
 
 }

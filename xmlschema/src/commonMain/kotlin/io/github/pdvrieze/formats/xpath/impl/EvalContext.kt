@@ -21,8 +21,6 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.eval.Collations
-import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyType
@@ -60,6 +58,9 @@ open class EvalContext(
     val baseUri: XsdAnyURI? get() = deterministicState.baseURI
     val defaultCollation: Collation get() = Collations.CODEPOINT
     val defaultTimeZone: TimeZone get() = deterministicState.defaultTimeZone
+
+    fun trace(label: String?, value: String) =
+        deterministicState.addTrace(Trace(label, value))
 
     fun resolveTypeOrNull(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
@@ -107,9 +108,19 @@ open class EvalContext(
         return newVars
     }
 
+    data class Trace(val label: String?, val value: String)
+
     class DeterministicState(
         val baseURI: XsdAnyURI? = null,
     ) {
+        private val _traces: MutableList<Trace> = mutableListOf()
+
+        val traces: List<Trace> get() = _traces
+
+        fun addTrace(trace: Trace) {
+            _traces.add(trace)
+        }
+
         private val _timeData by lazy {
             val tz = TimeZone.currentSystemDefault()
             tz to XsdDateTimeStamp(Clock.System.now(), tz)
@@ -136,53 +147,4 @@ inline fun <C: EvalContext, R> C.withValueContext(value: XdmValue<*>, pos: Int, 
 }
 
 class ContextItem(val value: XdmValue<*>, val position: Int, val last: Int)
-
-@XPathInternal
-class ExprEvalContext(
-    namespaceContext: NamespaceContext,
-    contextItem: ContextItem?,
-    val expr: Expr,
-    isXPath1compat: Boolean = false,
-    variables: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
-    deterministicState: DeterministicState
-) : EvalContext(namespaceContext, contextItem, isXPath1compat, variables, deterministicState) {
-
-    @XPathInternal
-    fun resolveType(name: QName): AnyType {
-        return resolveTypeOrNull(name) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unknown type $name")
-    }
-
-    override fun copy(contextItem: ContextItem?): ExprEvalContext =
-        ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables, deterministicState)
-
-    fun copy(
-        namespaceContext: NamespaceContext = this.namepaceContext,
-        contextItem: ContextItem? = this.contextItem,
-        expr: Expr = this.expr,
-        isXPath1compat: Boolean = this.isXPath1Compat,
-        variables: Map<String, Map<String, XdmValue<*>>> = this.variables,
-    ): ExprEvalContext = ExprEvalContext(namespaceContext, contextItem, expr, isXPath1compat, variables, deterministicState)
-
-    inline fun <R> withValueContext(value: ContextItem, function: context(ExprEvalContext)  () -> R): R {
-        return context(this.copy(contextItem = value), function)
-    }
-
-    inline fun <R> withValueContext(value: XdmValue<*>, pos: Int, size: Int, function: context(ExprEvalContext)  () -> R): R {
-        val contextItem = ContextItem(value, pos, size)
-        return context(copy(contextItem), function)
-    }
-
-    override fun newVarScope(
-        varName: QName,
-        value: XdmValue<*>
-    ): ExprEvalContext {
-        val newVars = newVarMap(varName, value)
-        return copy(variables = newVars)
-    }
-
-    companion object {
-        val DUMMY =
-            ExprEvalContext(SimpleNamespaceContext(), null, ContextItemExpr, deterministicState = DeterministicState())
-    }
-}
 

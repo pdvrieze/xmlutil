@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.BigUnsignedInt
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalUnsignedTypes::class)
 class BigDecimal internal constructor(
@@ -40,6 +41,7 @@ class BigDecimal internal constructor(
                 throw IllegalArgumentException("Zero sign must have a single int")
             else -> require(sign != 0) { "Non-zero values must not have a 0 sign" }
         }
+        require(ints.size !=2 || ints[1]!=0u) { "The second int must not be zero" }
     }
 
     val self: BigDecimal get() = this
@@ -54,9 +56,12 @@ class BigDecimal internal constructor(
         decimalPositions = 0L
     )
 
-    constructor(value: ULong): this(
+    constructor(value: ULong) : this(
         sign = if (value == 0uL) 0 else 1,
-        ints = uintArrayOf(value.toUInt(), (value shr 32).toUInt()),
+        ints = when {
+            value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
+            else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
+        },
         decimalPositions = 0L
     )
 
@@ -519,12 +524,18 @@ class BigDecimal internal constructor(
         val d = BigUnsignedInt(divider.ints, 0uL)
         val unsignedDivRem = v.unsignedDivRem(d)
 
-        val newSign = if (sign == divider.sign) 1 else -1
+        val newSign = when {
+            unsignedDivRem.quotient.sign == 0 -> 0
+            sign == divider.sign -> 1
+            else -> -1
+        }
         val newDecimalPositions = decimalPositions - divider.decimalPositions
         val quotient = BigDecimal(newSign, unsignedDivRem.quotient.ints, newDecimalPositions)
-        val remainder = BigDecimal(sign, unsignedDivRem.remainder.ints, decimalPositions)
 
-        return BigDecimal.DivRem(quotient, remainder)
+        val remainderSign = if (unsignedDivRem.remainder.sign == 0) 0 else sign
+        val remainder = BigDecimal(remainderSign, unsignedDivRem.remainder.ints, decimalPositions)
+
+        return DivRem(quotient, remainder)
     }
 
     /**
@@ -632,13 +643,17 @@ class BigDecimal internal constructor(
             else -> BigDecimal(1, uintArrayOf(value.toUInt()), decimalPositions)
         }
 
-        operator fun invoke(value: Long, decimalPositions: Long = 0L): BigDecimal = when {
-            value < 0L -> {
-                val absValue = abs(value)
-                BigDecimal(-1, uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt()), decimalPositions)
+        operator fun invoke(value: Long, decimalPositions: Long = 0L): BigDecimal {
+            if (value == 0L) return ZERO
+            val absValue = value.absoluteValue.toULong()
+            val array = when {
+                absValue <= UInt.MAX_VALUE -> uintArrayOf(absValue.toUInt())
+                else -> uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt())
             }
-            value == 0L -> ZERO
-            else -> BigDecimal(1, uintArrayOf(value.toUInt(), (value shr 32).toUInt()), decimalPositions)
+            return when {
+                value < 0L -> BigDecimal(-1, array, decimalPositions)
+                else -> BigDecimal(1, array, decimalPositions)
+            }
         }
 
         private fun parse(s: CharSequence): ParseResult {

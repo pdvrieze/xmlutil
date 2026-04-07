@@ -29,11 +29,11 @@ class ResolvedQt3AssertError(val code: String?): ResolvedQt3Assertion() {
     }
 
     override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
-        val evalResult = evalResult.exceptionOrNull() ?: return AssertionResult.Failure("Expected error($code), but got $evalResult")
+        val evalResult = evalResult.exceptionOrNull() ?: return AssertionResult.Failure("Expected error($code), but got $evalResult", AssertionError("Assertion failure"))
         return when {
-            evalResult !is EvaluationException -> AssertionResult.Failure("Expected EvaluationException($code), but got $evalResult")
+            evalResult !is EvaluationException -> AssertionResult.Failure("Expected EvaluationException($code), but got $evalResult", AssertionError("Assertion failure"))
             code == "*" || evalResult.errorCode?.code == code -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected error code $code, got ${evalResult.errorCode?.code}")
+            else -> AssertionResult.Failure("Expected error code $code, got ${evalResult.errorCode?.code}", AssertionError("Assertion failure"))
         }
     }
 }

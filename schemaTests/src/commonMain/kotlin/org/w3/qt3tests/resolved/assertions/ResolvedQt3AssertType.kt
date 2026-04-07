@@ -32,13 +32,13 @@ class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
         val expectedType = builtinType(type.substringAfterLast(':'), XMLConstants.XSD_NS_URI)
-            ?: return AssertionResult.Failure("Unknown type $type")
+            ?: return AssertionResult.Failure("Unknown type $type", AssertionError("Assertion failure"))
 
-        val actualType = evalResult.staticType as? XdmSchemaType ?: return AssertionResult.Failure("Expected Schema type $expectedType, got ${evalResult.staticType}")
+        val actualType = evalResult.staticType as? XdmSchemaType ?: return AssertionResult.Failure("Expected Schema type $expectedType, got ${evalResult.staticType}", AssertionError("Assertion failure"))
 
         if (actualType.schemaType.derivesFrom(expectedType)) return AssertionResult.Success
 
-        return AssertionResult.Failure("Expected Schema type $expectedType, got ${actualType.schemaType}")
+        return AssertionResult.Failure("Expected Schema type $expectedType, got ${actualType.schemaType}", AssertionError("Assertion failure"))
     }
 
 }

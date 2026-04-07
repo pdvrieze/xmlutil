@@ -50,6 +50,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
     context(ctx: ExprEvalContext)
     private fun promoteArgumentSequence(arg: XdmValue<*>, type: XdmSequenceTypeTest): XdmValue<*> {
         when (type) {
+            is XdmSequenceTypeTest.NONE -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "None cannot be instantiated")
             is XdmSequenceTypeTest.EMPTY -> when(arg.size) {
                 0 -> return XdmSequence.EMPTY
                 else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected empty sequence, but got ${arg.size} items")

@@ -58,12 +58,15 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     override fun newInstance(value: Long): BigInt {
         if (value == 0L) return ZERO
-        if (value < 0L) {
-            val unsigned = (-value).toULong()
-            return BigInt(-1, uintArrayOf(unsigned.toUInt(), (unsigned shr 32).toUInt()), 0uL)
-        } else {
-            val unsigned = value.toULong()
-            return BigInt(1, uintArrayOf(unsigned.toUInt(), (unsigned shr 32).toUInt()), 0uL)
+        val unsigned = value.absoluteValue.toULong()
+        val arrayValue = when {
+            unsigned <= UInt.MAX_VALUE -> uintArrayOf(unsigned.toUInt())
+            else -> uintArrayOf(unsigned.toUInt(), (unsigned shr 32).toUInt())
+        }
+
+        return when {
+            value < 0L -> BigInt(-1, arrayValue, 0uL)
+            else -> BigInt(1, arrayValue, 0uL)
         }
     }
 

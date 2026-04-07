@@ -36,7 +36,7 @@ class ResolvedQt3AssertTrue : ResolvedQt3Assertion() {
         }
         return when {
             assertResult -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected true, got '${evalResult}' failed")
+            else -> AssertionResult.Failure("Expected true, got '${evalResult}' failed", AssertionError("Assertion failure"))
         }
 
     }

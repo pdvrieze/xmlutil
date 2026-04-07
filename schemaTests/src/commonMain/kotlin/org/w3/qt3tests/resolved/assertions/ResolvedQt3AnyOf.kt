@@ -31,7 +31,7 @@ class ResolvedQt3AnyOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3A
         val failures = assertions
             .mapNotNull { it.verify(evalResult) as? AssertionResult.Failure }
         return when {
-            failures.size== assertions.size -> AssertionResult.Failure("no passing assertion ${failures.joinToString { it.error }}")
+            failures.size== assertions.size -> AssertionResult.Failure("no passing assertion ${failures.joinToString { it.error }}", AssertionError("Assertion failure"))
             else -> AssertionResult.Success
         }
     }

@@ -22,17 +22,22 @@ package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
+@OptIn(XPathInternal::class)
 class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
         val r = evalResult.getOrElse { return AssertionResult.Failure(it) }
+        var stringValue = context(ExprEvalContext.DUMMY) { Accessors.fnString(r) }.value.xmlString
+        if (normalizeSpace) stringValue = xmlCollapseWhitespace(stringValue)
 
-        if (r !is XdmAtomic<*>) return AssertionResult.Failure("Expected atomic value, got ${evalResult::class.simpleName}")
-
-        val evalString = r.value.xmlString
+        val evalString = stringValue
         return when (expected) {
             evalString -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected '$expected', got '$evalString'")
+            else -> AssertionResult.Failure("Expected '$expected', got '$evalString'", AssertionError("Assertion failure"))
         }
     }
 

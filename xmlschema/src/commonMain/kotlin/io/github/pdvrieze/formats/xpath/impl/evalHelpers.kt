@@ -20,8 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-
 
 @XPathInternal
 context(ctx: ExprEvalContext)

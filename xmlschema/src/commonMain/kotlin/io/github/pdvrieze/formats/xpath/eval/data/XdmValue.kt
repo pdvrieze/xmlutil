@@ -52,6 +52,7 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
 
     context(ctx: ExprEvalContext)
     fun treatAs(type: XdmSequenceTypeTest): XdmValue<*> = when (type) {
+        XdmSequenceTypeTest.NONE -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot cast to none")
         XdmSequenceTypeTest.EMPTY -> when (size) {
             0 -> XdmSequence.EMPTY
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot non-empty sequence to empty sequence")

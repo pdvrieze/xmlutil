@@ -27,7 +27,7 @@ class ResolvedQt3AssertCount(val count: Int): ResolvedQt3Assertion() {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         return when {
             evalResult.size == count -> AssertionResult.Success
-            else -> AssertionResult.Failure("expected $count items, got ${evalResult.size}")
+            else -> AssertionResult.Failure("expected $count items, got ${evalResult.size}", AssertionError("Assertion failure"))
         }
     }
 }

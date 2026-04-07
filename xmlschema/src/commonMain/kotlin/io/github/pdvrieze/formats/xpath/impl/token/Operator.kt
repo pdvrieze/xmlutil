@@ -55,11 +55,11 @@ sealed class Operator(
         context(ctx: ExprEvalContext)
         @XPathInternal
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
-            when {
-                left.staticType.isAssignableTo(BooleanType.Instance) -> {
-                    return BooleanFunctions.opBooleanEqual(listOf(left, right))
-                }
-                else -> TODO("Equality operator not yet supported for type ${left.staticType} and ${right.staticType}")
+            return when {
+                left.staticType.isAssignableTo(BooleanType.Instance) ->
+                    BooleanFunctions.opBooleanEqual(listOf(left, right))
+
+                else -> XdmBoolean(XsdBoolean(left.isValEqual(right)))
             }
         }
     }
@@ -168,12 +168,10 @@ sealed class Operator(
     object MUL: ArithmeticOperator("*", 9, XPathVersion.XPath1_0, true) {
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun operatorMapping(
+        override fun disjointOperatorMapping(
             leftType: AnyAtomicType<*>,
             rightType: AnyAtomicType<*>
         ): AnyAtomicType<*> {
-            if (leftType == rightType) return leftType
-            if (ctx.isXPath1Compat) return DoubleType.Instance
             // note that we need to check due to subtypes
             return when (leftType) {
                 is YearMonthDurationType if rightType is NumericType<*> -> YearMonthDurationType.Instance
@@ -181,10 +179,7 @@ sealed class Operator(
                 is DayTimeDurationType if rightType is NumericType<*> -> DayTimeDurationType.Instance
                 is NumericType<*> if rightType is DayTimeDurationType -> DayTimeDurationType.Instance
 
-                is IntegerType if (rightType is IntegerType) -> IntegerType.Instance
-                is DecimalType if (rightType is DecimalType) -> DecimalType.Instance
-                is FloatType if (rightType is FloatType) -> FloatType.Instance
-                else -> DoubleType.Instance
+                else -> super.disjointOperatorMapping(leftType, rightType)
             }
         }
 
@@ -207,7 +202,58 @@ sealed class Operator(
     }
 
     @NeedsXPath1
-    object DIV: Operator("div", 9, XPathVersion.XPath1_0, false)
+    object DIV: ArithmeticOperator("div", 9, XPathVersion.XPath1_0, false) {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun operatorMapping(lType: AnyAtomicType<XsdAtomic>, rType: AnyAtomicType<XsdAtomic>): AnyAtomicType<XsdAtomic> {
+            //override integer returns
+            return when (val t = super.operatorMapping(lType, rType)) {
+                is IntegerType<*> -> return DecimalType.Instance
+                else -> t
+            }
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun disjointOperatorMapping(
+            leftType: AnyAtomicType<*>,
+            rightType: AnyAtomicType<*>
+        ): AnyAtomicType<*> {
+            if (leftType == rightType) return leftType
+            if (ctx.isXPath1Compat) return DoubleType.Instance
+            // note that we need to check due to subtypes
+            return when (leftType) {
+                is YearMonthDurationType if rightType is NumericType<*> -> YearMonthDurationType.Instance
+                is YearMonthDurationType if rightType is YearMonthDurationType -> DecimalType.Instance
+                is DayTimeDurationType if rightType is NumericType<*> -> DayTimeDurationType.Instance
+                is DayTimeDurationType if rightType is DayTimeDurationType -> DecimalType.Instance
+                is IntegerType if (rightType is IntegerType) -> DecimalType.Instance
+                else -> super.disjointOperatorMapping(leftType, rightType)
+            }
+        }
+
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalFloat(left: Float, right: Float): Float {
+            return left/right
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDouble(left: Double, right: Double): Double {
+            return left/right
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDecimal(
+            left: XsdDecimal,
+            right: XsdDecimal
+        ): XsdDecimal {
+            return left.toBigDecimal() / right.toBigDecimal()
+        }
+    }
     @NeedsXPath2
     object IDIV: Operator("idiv", 9, XPathVersion.XPath2_0, false)
     @NeedsXPath1
@@ -437,7 +483,9 @@ abstract class ArithmeticOperator(
             XdmSequence.EMPTY -> return XdmSequence.EMPTY
             else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
         }
-        val requiredType = operatorMapping(l.value.schemaType, r.value.schemaType)
+        val lType = l.value.schemaType
+        val rType = r.value.schemaType
+        val requiredType = operatorMapping(lType, rType)
         val value = when (requiredType) {
             is DoubleType<*> -> XsdDouble(evalDouble(l.toXdmDouble().value.value, r.toXdmDouble().value.value))
             is FloatType<*> -> XsdFloat(evalFloat(l.toXdmFloat().value.value, r.toXdmFloat().value.value))
@@ -450,25 +498,50 @@ abstract class ArithmeticOperator(
         return XdmAtomic(value)
     }
 
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    abstract fun operatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*>
+    context(ctx: ExprEvalContext) @XPathInternal
+    protected open fun operatorMapping(
+        lType: AnyAtomicType<XsdAtomic>,
+        rType: AnyAtomicType<XsdAtomic>
+    ): AnyAtomicType<XsdAtomic> = when {
+        lType.name isEquivalent rType.name -> lType
+        lType.isBaseOf(rType) -> lType
+        rType.isBaseOf(lType) -> rType
+        ctx.isXPath1Compat && lType is NumericType<*> && rType is NumericType<*> -> DoubleType.Instance
+
+        else -> disjointOperatorMapping(lType, rType)
+    }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    abstract fun evalFloat(left: Float, right: Float): Float
+    protected open fun disjointOperatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*> {
+        return when {
+            leftType is DoubleType || rightType is DoubleType -> DoubleType.Instance
+            leftType is FloatType || rightType is FloatType -> FloatType.Instance
+            leftType is IntegerType && rightType is IntegerType -> IntegerType.Instance
+            leftType is DecimalType || rightType is DecimalType -> DecimalType.Instance
+            else -> DoubleType.Instance
+        }
+    }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    abstract fun evalDouble(left: Double, right: Double): Double
+    open fun evalFloat(left: Float, right: Float): Float =
+        TODO("Operation ${literal} is not defined on floats")
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    abstract fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger
+    open fun evalDouble(left: Double, right: Double): Double =
+        TODO("Operation ${literal} is not defined on doubles")
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    abstract fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal
+    open fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
+        TODO("Operation ${literal} is not defined on xsd:integer")
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    open fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal =
+        TODO("Operation ${literal} is not defined on xsd:decimal")
 
     @XPathInternal
     context(ctx: ExprEvalContext)

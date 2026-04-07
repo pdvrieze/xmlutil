@@ -34,7 +34,7 @@ class ResolvedQt3Assert(val assertion: XPathExpression) : ResolvedQt3Assertion()
         }
         return when (assertResult) {
             true -> AssertionResult.Success
-            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed")
+            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed", AssertionError("Assertion failure"))
         }
     }
 }
