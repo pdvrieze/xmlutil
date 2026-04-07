@@ -45,6 +45,16 @@ interface XsdTime : IXsdDateTime, XsdPrimitive {
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdTime
 
+    operator fun plus(duration: XsdDuration): XsdTime {
+        return XsdDateTime(XsdDate(1972,12,31), XsdTime(0u, 0u, 0u))
+            .plus(duration).toTime()
+    }
+
+    operator fun minus(duration: XsdDuration): XsdTime {
+        return XsdDateTime(XsdDate(1972,12,31), XsdTime(0u, 0u, 0u))
+            .minus(duration).toTime()
+    }
+
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
         is XsdTime -> compareTo(other)
         else -> throw IllegalArgumentException("Cannot compare $this with $other")

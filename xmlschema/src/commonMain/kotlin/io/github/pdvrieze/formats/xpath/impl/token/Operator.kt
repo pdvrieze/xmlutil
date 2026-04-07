@@ -159,10 +159,98 @@ sealed class Operator(
     object TO: Operator("to", 7, XPathVersion.XPath2_0, false)
 
     @NeedsXPath1
-    object ADD: Operator("+", 8, XPathVersion.XPath1_0, true)
+    object ADD: ArithmeticOperator("+", 8, XPathVersion.XPath1_0, true) {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun disjointOperatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*> {
+            return when (leftType) {
+                is DateType<*> if (rightType is DurationType<*>) -> DateType.Instance
+                is DurationType<*> if (rightType is DateType<*>) -> DateType.Instance
+                is TimeType<*> if (rightType is DayTimeDurationType<*>) -> TimeType.Instance
+                is DayTimeDurationType<*> if (rightType is TimeType<*>) -> TimeType.Instance
+                is DateTimeType<*> if (rightType is DurationType<*>) -> DateTimeType.Instance
+                is DurationType<*> if (rightType is DateTimeType<*>) -> DateTimeType.Instance
+
+                else -> super.disjointOperatorMapping(leftType, rightType)
+            }
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalFloat(left: Float, right: Float): Float = left + right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDouble(left: Double, right: Double): Double = left + right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
+            left + right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left + right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic = when {
+            left is XsdTime -> left + (right as XsdDayTimeDuration)
+            left is XsdDate -> left + (right as XsdDuration)
+            left is XsdDateTime -> left + (right as XsdDuration)
+            right is XsdTime -> right + (left as XsdDayTimeDuration)
+            right is XsdDate -> right + (left as XsdDuration)
+            right is XsdDateTime -> right + (left as XsdDuration)
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType} + ${right.schemaType}")
+        }
+    }
 
     @NeedsXPath1
-    object SUB: Operator("-", 8, XPathVersion.XPath1_0, true)
+    object SUB: ArithmeticOperator("-", 8, XPathVersion.XPath1_0, true) {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun disjointOperatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*> {
+            return when (leftType) {
+                is DateType<*> if (rightType is DurationType<*>) -> DateType.Instance
+                is DurationType<*> if (rightType is DateType<*>) -> DateType.Instance
+                is TimeType<*> if (rightType is DayTimeDurationType<*>) -> TimeType.Instance
+                is DayTimeDurationType<*> if (rightType is TimeType<*>) -> TimeType.Instance
+                is DateTimeType<*> if (rightType is DurationType<*>) -> DateTimeType.Instance
+                is DurationType<*> if (rightType is DateTimeType<*>) -> DateTimeType.Instance
+
+                else -> super.disjointOperatorMapping(leftType, rightType)
+            }
+        }
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalFloat(left: Float, right: Float): Float = left - right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDouble(left: Double, right: Double): Double = left - right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
+            left - right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left - right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic = when {
+            left is XsdTime -> left - (right as XsdDayTimeDuration)
+            left is XsdDate -> left - (right as XsdDuration)
+            left is XsdDateTime -> left - (right as XsdDuration)
+            right is XsdTime -> right - (left as XsdDayTimeDuration)
+            right is XsdDate -> right - (left as XsdDuration)
+            right is XsdDateTime -> right - (left as XsdDuration)
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType} - ${right.schemaType}")
+        }
+    }
 
     @NeedsXPath1
     object MUL: ArithmeticOperator("*", 9, XPathVersion.XPath1_0, true) {
@@ -492,7 +580,7 @@ abstract class ArithmeticOperator(
             is IntegerType<*> -> evalInteger(l.toXdmInteger().value, r.toXdmInteger().value)
             is DecimalType<*> -> evalDecimal(l.toXdmDecimal().value, r.toXdmDecimal().value)
             is YearMonthDurationType<*>,
-            is DayTimeDurationType<*> -> evalCustom(l, r)
+            is DayTimeDurationType<*> -> evalCustom(l.value, r.value)
             else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
         }
         return XdmAtomic(value)
@@ -545,7 +633,7 @@ abstract class ArithmeticOperator(
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    open fun evalCustom(left: XdmValue<*>, right: XdmValue<*>): XsdAtomic {
+    open fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic {
         TODO("Custom evaluation of operator '$literal' not yet implemented")
     }
 

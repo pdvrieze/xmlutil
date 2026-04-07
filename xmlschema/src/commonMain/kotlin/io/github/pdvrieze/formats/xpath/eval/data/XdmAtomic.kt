@@ -43,6 +43,8 @@ class XdmAtomic<out T : XsdAtomic>(
 
     override fun asT(): XdmAtomic<T> = this
 
+    operator fun component1(): T = value
+
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> = this
 

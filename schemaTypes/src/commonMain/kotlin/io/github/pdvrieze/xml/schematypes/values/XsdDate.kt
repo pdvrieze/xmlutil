@@ -33,6 +33,9 @@ import nl.adaptivity.xmlutil.XmlReader
 @Serializable(XsdDate.Companion::class)
 interface XsdDate : IXsdDateTime, XsdPrimitive {
     override val schemaType: DateType<XsdDate>
+    override val year: Int
+    override val month: UInt
+    override val day: UInt
 
     override val hour: Nothing? get() = null
     override val minute: Nothing? get() = null
@@ -46,6 +49,16 @@ interface XsdDate : IXsdDateTime, XsdPrimitive {
     }
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDate
+
+    operator fun plus(duration: XsdDuration): XsdDate {
+        return XsdDateTime(this, XsdTime(0u, 0u, 0u))
+            .plus(duration).toDate()
+    }
+
+    operator fun minus(duration: XsdDuration): XsdDate {
+        return XsdDateTime(this, XsdTime(0u, 0u, 0u))
+            .minus(duration).toDate()
+    }
 
     companion object: SimpleTypeSerializer<XsdDate>("xsd.date") {
 

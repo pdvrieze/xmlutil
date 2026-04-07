@@ -38,6 +38,7 @@ interface XsdInteger : XsdDecimal {
     override fun toInt(): Int
     fun toBigInt(): XsdInteger
 
+    override fun roundToInteger(): XsdInteger = this
 
     /** The conceptual size in 32-bit values from 0. */
     val size: ULong

@@ -20,15 +20,10 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.toInstant
+import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
+import kotlin.math.absoluteValue
 import kotlin.time.Instant
-import kotlin.time.toDuration
 
 /**
  * Interface that is shared among the date/time types to clarify that XSDateTime is an
@@ -63,10 +58,10 @@ interface IXsdDateTime: XsdAtomic {
         if(it<0) "-${(-it).toString().padStart(4, '0')}" else it.toString().padStart(4, '0')
     } ?: ""
 
-    fun monthFrag(): String = month?.toString() ?: ""
-    fun dayFrag(): String = day?.toString() ?: ""
-    fun hourFrag(): String = hour?.toString() ?: ""
-    fun minuteFrag(): String = minute?.toString() ?: ""
+    fun monthFrag(): String = month?.toString()?.padStart(2, '0') ?: ""
+    fun dayFrag(): String = day?.toString()?.padStart(2, '0') ?: ""
+    fun hourFrag(): String = hour?.toString()?.padStart(2, '0') ?: ""
+    fun minuteFrag(): String = minute?.toString()?.padStart(2, '0') ?: ""
     fun secondFrag(): String =
         (second as? XsdInteger)?.run { toInt().toString() } ?: second?.run { toDouble().toString() } ?: ""
 
@@ -75,8 +70,9 @@ interface IXsdDateTime: XsdAtomic {
         0 -> "Z"
         else -> {
             val sign = if (it >= 0) '+' else '-'
-            val hours = (it / 60).toString().padStart(2, '0')
-            val minutes = (it % 60).toString().padStart(2, '0')
+            val abs = it.absoluteValue
+            val hours = (abs / 60).toString().padStart(2, '0')
+            val minutes = (abs % 60).toString().padStart(2, '0')
             "$sign$hours:$minutes"
         }
     }
@@ -90,9 +86,12 @@ interface IXsdDateTime: XsdAtomic {
             minute?.toInt() ?: 0,
             second?.toDouble()?.toInt() ?: 0
         )
-        val zoneOffset = timezoneOffset?.let { UtcOffset(seconds = it * 60) } ?: UtcOffset.ZERO
-        return dateTime.toInstant(zoneOffset)
+
+        return dateTime.toInstant(timeZone ?: TimeZone.UTC)
     }
+
+    val timeZone: TimeZone?
+        get() = timezoneOffset?.let { UtcOffset(minutes = it).asTimeZone() }
 
     operator fun compareTo(other: IXsdDateTime): Int {
         return instant().compareTo(other.instant())

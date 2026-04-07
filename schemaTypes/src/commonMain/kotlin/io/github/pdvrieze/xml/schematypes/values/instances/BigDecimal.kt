@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.values.BigInt
-import io.github.pdvrieze.xml.schematypes.values.BigUnsignedInt
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -122,6 +120,19 @@ class BigDecimal internal constructor(
 
     override fun round(precision: Int): BigDecimal {
         return roundImpl(precision, false)
+    }
+
+    override fun roundToInteger(): XsdInteger {
+        val dec = round(0)
+        check(dec.decimalPositions == 0L)
+        return when (dec.ints.size) {
+            1 -> XsdInt(dec.toInt())
+            2 -> XsdLong.Companion(dec.toLong())
+            else -> {
+                val unOpt = BigInt(dec.sign, dec.ints, 0uL)
+                if (unOpt.countTrailingZeroBits() > 48uL) unOpt.normalize() else unOpt
+            }
+        }
     }
 
     private fun roundImpl(precision: Int, halfEven: Boolean): BigDecimal {

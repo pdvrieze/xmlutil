@@ -24,9 +24,7 @@ import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.types.DateType
-import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdDate
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -71,7 +69,7 @@ value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
     override val xmlString: String
         get() = "${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${
             day.toString().padStart(2, '0')
-        }"
+        }${timeZoneFrag()}"
 
     override val schemaType: DateType<XsdDate> get() = DateType.Instance
 

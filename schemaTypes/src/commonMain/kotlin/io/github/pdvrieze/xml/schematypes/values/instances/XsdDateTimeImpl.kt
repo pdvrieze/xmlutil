@@ -21,17 +21,11 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
-import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import kotlinx.datetime.FixedOffsetTimeZone
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.asTimeZone
-import kotlinx.datetime.offsetAt
+import io.github.pdvrieze.xml.schematypes.values.*
+import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
+import kotlin.time.Instant
 
 @XmlUtilInternal
 open class XsdDateTimeImpl(
@@ -43,6 +37,35 @@ open class XsdDateTimeImpl(
     final override val second: XsdDecimal,
     final override val timezoneOffset: Int? = null,
 ) : XsdDateTime {
+
+    private constructor(dateTime: LocalDateTime, timezoneOffset: Int?): this(
+        year = dateTime.year,
+        month = dateTime.month.number.toUInt(),
+        day = dateTime.day.toUInt(),
+        hour = dateTime.hour.toUInt(),
+        minute = dateTime.minute.toUInt(),
+        second = XsdInt(dateTime.second),
+        timezoneOffset = timezoneOffset,
+    )
+
+    constructor(instant: Instant, timezone: TimeZone?) : this(
+        instant.toLocalDateTime(timezone ?: TimeZone.UTC),
+        timezone?.offsetAt(instant)?.totalSeconds?.let { it / 60 }
+    )
+
+    constructor(date: XsdDate, time: XsdTime) : this(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+        time.second,
+        when {
+            date.timezoneOffset == null -> time.timezoneOffset
+            time.timezoneOffset == null || date.timezoneOffset == time.timezoneOffset -> date.timezoneOffset
+            else -> throw IllegalArgumentException("Inconsistent timezone offsets: ${date.timezoneOffset} and ${time.timezoneOffset}")
+        }
+    )
 
     init {
         when (month) {
@@ -59,7 +82,7 @@ open class XsdDateTimeImpl(
         require(hour in 0u..23u) { "Hour value $hour !in 0..23" }
         require(minute in 0u..59u) { "Minute value $minute !in 0..59" }
         require(second.toDouble() in 0.0..<60.0) { "Second value !in 0.0..<60.0" }
-        require(timezoneOffset == null || timezoneOffset in -840..840) { "Timezone offset must be in -840..840 or null" }
+        require(timezoneOffset == null || timezoneOffset in -840..840) { "Timezone offset must be in -840..840 or null, was: $timezoneOffset" }
     }
 
     override val xmlString: String

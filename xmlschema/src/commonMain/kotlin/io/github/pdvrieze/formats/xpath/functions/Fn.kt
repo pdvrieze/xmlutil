@@ -72,7 +72,27 @@ enum class Fn(
     //endregion
 
     //region Date/Time functions (9)
+    dateTime(DateTimeFunctions.fnDateTime),
+    yearFromDateTime(DateTimeFunctions.fnYearFromDateTime),
+    monthFromDateTime(DateTimeFunctions.fnMonthFromDateTime),
+    dayFromDateTime(DateTimeFunctions.fnDayFromDateTime),
+    hoursFromDateTime(DateTimeFunctions.fnHoursFromDateTime),
+    minutesFromDateTime(DateTimeFunctions.fnMinutesFromDateTime),
+    secondsFromDateTime(DateTimeFunctions.fnSecondsFromDateTime),
+    timezoneFromDateTime(DateTimeFunctions.fnTimezoneFromDateTime),
+    yearFromDate(DateTimeFunctions.fnYearFromDate),
+    monthFromDate(DateTimeFunctions.fnMonthFromDate),
+    dayFromDate(DateTimeFunctions.fnDayFromDate),
+    timezoneFromDate(DateTimeFunctions.fnTimezoneFromDate),
+    hoursFromTime(DateTimeFunctions.fnHoursFromTime),
+    minutesFromTime(DateTimeFunctions.fnMinutesFromTime),
+    secondsFromTime(DateTimeFunctions.fnSecondsFromTime),
     timezoneFromTime(DateTimeFunctions.fnTimezoneFromTime),
+
+    adjustDateTimeToTimezone(DateTimeFunctions.fnAdjustDateTimeToTimezone),
+    adjustDateToTimezone(DateTimeFunctions.fnAdjustDateToTimezone),
+    adjustTimeToTimezone(DateTimeFunctions.fnAdjustTimeToTimezone),
+
     //endregion
 
     //region Node Operations (13)

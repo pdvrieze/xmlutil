@@ -43,6 +43,10 @@ sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
     fun roundToHalfEven(precision: XsdInteger): T = roundToHalfEven(precision.toInt())
     fun roundToHalfEven(precision: Int): T
 
+    fun roundToInteger(): XsdInteger {
+        return XsdInteger(xmlString.substringBefore('.'))
+    }
+
     operator fun compareTo(other: XsdNumeric<*>): Int
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int {

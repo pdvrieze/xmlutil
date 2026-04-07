@@ -28,7 +28,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
+import kotlin.math.absoluteValue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @ExperimentalXmlUtilApi
 @OptIn(ExperimentalTime::class)
@@ -55,6 +58,42 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp
 
+    operator fun plus(duration: XsdDuration): XsdDateTime {
+        val newBase = when (val monthsToAdd = duration.months) {
+            0L -> instant()
+            else -> {
+                // todo check validity for dates below 0
+                val fullMonths = year * 12 + month.toInt() + monthsToAdd
+                val newYear = (fullMonths/12L).toInt()
+                val newMonth = (fullMonths.absoluteValue % 12).toUInt()
+                XsdDateTimeImpl(newYear, newMonth, day, hour, minute, second, timezoneOffset).instant()
+            }
+        }
+        val newInstant = when (val millisToAdd = duration.millis) {
+            0L -> newBase
+            else -> newBase + millisToAdd.milliseconds
+        }
+        return XsdDateTimeImpl(newInstant, timeZone)
+    }
+
+    operator fun minus(duration: XsdDuration): XsdDateTime {
+        val newBase = when (val monthsToSubtract = duration.months) {
+            0L -> instant()
+            else -> {
+                // todo check validity for dates below 0
+                val fullMonths = year * 12 + month.toInt() - monthsToSubtract
+                val newYear = (fullMonths/12L).toInt()
+                val newMonth = (fullMonths.absoluteValue % 12).toUInt()
+                XsdDateTimeImpl(newYear, newMonth, day, hour, minute, second, timezoneOffset).instant()
+            }
+        }
+        val newInstant = when (val millisToSubtract = duration.millis) {
+            0L -> newBase
+            else -> newBase - millisToSubtract.milliseconds
+        }
+        return XsdDateTimeImpl(newInstant, timeZone)
+    }
+
     companion object: SimpleTypeSerializer<XsdDateTime>("xsd.dateTime") {
 
         operator fun invoke(str: CharSequence): XsdDateTime = XsdDateTimeImpl(str)
@@ -69,6 +108,14 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
             timezoneOffset: Int? = null
         ): XsdDateTime {
             return XsdDateTimeImpl(year, month, day, hour, minute, second, timezoneOffset)
+        }
+
+        operator fun invoke(instant: Instant, timezone: TimeZone?) : XsdDateTime {
+            return XsdDateTimeImpl(instant, timezone)
+        }
+
+        operator fun invoke(date: XsdDate, time: XsdTime): XsdDateTime {
+            return XsdDateTimeImpl(date, time)
         }
 
         override fun deserialize(raw: String, input: XmlReader?): XsdDateTime {
