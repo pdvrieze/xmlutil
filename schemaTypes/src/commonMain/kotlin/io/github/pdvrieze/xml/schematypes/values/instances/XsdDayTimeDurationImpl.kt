@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.values.XsdDayTimeDuration
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 
 class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
@@ -67,18 +68,13 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
 
     override val xmlString: String
         get() = buildString {
-            val aMonths: ULong
-            val aMillis: ULong
-            if (months < 0) {
+            val aMillis: ULong = millis.absoluteValue.toULong()
+            if (months < 0 || millis < 0) {
                 append('-')
-                aMonths = (-months).toULong()
-                aMillis = (-millis).toULong()
-            } else {
-                aMonths = months.toULong()
-                aMillis = millis.toULong()
             }
+
             append('P')
-            val d = aMillis / (24u * 3600_000u)
+            val d = aMillis / (24uL * 3600_000uL)
             val h = (aMillis / 3600_000u) % 24u
             val mi = (aMillis / 60_000u) % 60u
             val ms = aMillis % 60_000u
