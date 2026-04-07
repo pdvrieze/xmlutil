@@ -95,7 +95,7 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
                 }
 
             } else if (months == 0L && millis == 0L) {
-                append("0D") // no days as zero value
+                append("T0S") // no days as zero value
             }
         }
 
