@@ -55,6 +55,12 @@ interface XsdTime : IXsdDateTime, XsdPrimitive {
             .minus(duration).toTime()
     }
 
+    operator fun minus(other: XsdTime): XsdDayTimeDuration {
+        val diff = (instant()-other.instant())
+        return XsdDayTimeDuration(diff.inWholeMilliseconds)
+    }
+
+
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
         is XsdTime -> compareTo(other)
         else -> throw IllegalArgumentException("Cannot compare $this with $other")

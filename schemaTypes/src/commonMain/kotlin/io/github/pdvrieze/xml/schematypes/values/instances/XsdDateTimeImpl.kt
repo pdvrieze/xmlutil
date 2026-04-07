@@ -94,6 +94,8 @@ open class XsdDateTimeImpl(
             "${yearFrag()}-${monthFrag()}-${dayFrag()}T${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
     }
 
+    override fun toString(): String = xmlString
+
     override val schemaType: DateTimeType<XsdDateTime> get() = DateTimeType.Instance
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp = when (timezoneOffset) {

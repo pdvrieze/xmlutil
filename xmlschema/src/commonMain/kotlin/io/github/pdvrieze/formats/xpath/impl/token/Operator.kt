@@ -241,14 +241,27 @@ sealed class Operator(
 
         context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic = when {
-            left is XsdTime -> left - (right as XsdDayTimeDuration)
-            left is XsdDate -> left - (right as XsdDuration)
-            left is XsdDateTime -> left - (right as XsdDuration)
-            right is XsdTime -> right - (left as XsdDayTimeDuration)
-            right is XsdDate -> right - (left as XsdDuration)
-            right is XsdDateTime -> right - (left as XsdDuration)
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType} - ${right.schemaType}")
+        override fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic {
+            when {
+                left is XsdTime -> when (right) {
+                    is XsdDayTimeDuration -> return left - right
+                    is XsdTime -> return left - right
+                }
+
+                left is XsdDate -> when (right){
+                    is XsdDate -> return left - right
+                    is XsdDuration -> return left - right
+
+                }
+                left is XsdDateTime -> when (right) {
+                    is XsdDuration -> return left - right
+                }
+
+                left is XsdDayTimeDuration && right is XsdDayTimeDuration -> return left - right
+
+                left is XsdYearMonthDuration && right is XsdYearMonthDuration -> return left - right
+            }
+            throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType} - ${right.schemaType}")
         }
     }
 
@@ -579,9 +592,7 @@ abstract class ArithmeticOperator(
             is FloatType<*> -> XsdFloat(evalFloat(l.toXdmFloat().value.value, r.toXdmFloat().value.value))
             is IntegerType<*> -> evalInteger(l.toXdmInteger().value, r.toXdmInteger().value)
             is DecimalType<*> -> evalDecimal(l.toXdmDecimal().value, r.toXdmDecimal().value)
-            is YearMonthDurationType<*>,
-            is DayTimeDurationType<*> -> evalCustom(l.value, r.value)
-            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
+            else -> evalCustom(l.value, r.value)
         }
         return XdmAtomic(value)
     }

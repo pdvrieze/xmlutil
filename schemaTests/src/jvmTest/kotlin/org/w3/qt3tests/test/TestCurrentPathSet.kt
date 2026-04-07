@@ -32,7 +32,7 @@ class TestCurrentPathSet : AbstractTestSetSuite() {
 
     @Test
     fun testCurrent() {
-        val evalValue = testEvalTestCaseImpl(getTestCase("K-SeqBooleanFunc-6"))
+        val evalValue = testEvalTestCaseImpl(getTestCase("fn-adjust-date-to-timezone-9"))
     }
 
     @ParameterizedTest
@@ -41,7 +41,7 @@ class TestCurrentPathSet : AbstractTestSetSuite() {
         testEvalTestCaseImpl(testCase)
     }
 
-    companion object : CompanionBase("fn-deep-equal") {
+    companion object : CompanionBase("fn-adjust-date-to-timezone") {
         @JvmStatic
         override fun getTestCases(): List<Named<ResolvedQt3TestCase>> {
             return getTestCases(testSetName)

@@ -94,6 +94,11 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
         return XsdDateTimeImpl(newInstant, timeZone)
     }
 
+    operator fun minus(other: XsdDateTime): XsdDayTimeDuration {
+        val diff = (instant()-other.instant())
+        return XsdDayTimeDuration(diff.inWholeMilliseconds)
+    }
+
     companion object: SimpleTypeSerializer<XsdDateTime>("xsd.dateTime") {
 
         operator fun invoke(str: CharSequence): XsdDateTime = XsdDateTimeImpl(str)
