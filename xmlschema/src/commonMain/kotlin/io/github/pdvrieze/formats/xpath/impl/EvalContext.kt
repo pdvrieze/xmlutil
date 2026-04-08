@@ -27,6 +27,7 @@ import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
+import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
 import kotlinx.datetime.TimeZone
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom2.Document
@@ -59,15 +60,17 @@ open class EvalContext(
     val defaultCollation: Collation get() = Collations.CODEPOINT
     val defaultTimeZone: TimeZone get() = deterministicState.defaultTimeZone
 
+    val defaultLanguage: XsdLanguage get() = deterministicState.defaultLanguage
+
+    val outputDocument: Document by lazy {
+        xmlStreaming.genericDomImplementation.createDocument(null, null, null)
+    }
+
     fun trace(label: String?, value: String) =
         deterministicState.addTrace(Trace(label, value))
 
     fun resolveTypeOrNull(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
-    }
-
-    val outputDocument: Document by lazy {
-        xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
 
     open fun copy(contextValue: XdmValue<*>, contextPos: Int, contextSize: Int): EvalContext {
@@ -128,6 +131,7 @@ open class EvalContext(
 
         val currentDateTimeStamp get() = _timeData.second
         val defaultTimeZone get() = _timeData.first
+        val defaultLanguage: XsdLanguage = XsdLanguage("EN")
     }
 
 }

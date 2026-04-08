@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgOrEmpty
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -241,6 +242,29 @@ object DateTimeFunctions : AbstractFunctionObject() {
 
             else -> XdmAtomic(XsdDateTime(XsdDateTime(XsdDateTime(XsdDate(1972, 12, 31), time).instant(), null).instant(), timezone))
         }
+    }
+    //endregion
+
+    //region Date time formatting 9.8
+    val fnFormatDateTime = BuiltinFunctionImpl("format-dateTime", listOf(
+        functionType(STRING.opt, DateTimeType.Instance.opt, STRING),
+        functionType(STRING.opt, DateTimeType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
+    )) { args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val picture = args.atomicArgN<XsdString>(1).xmlString
+        val language: XsdLanguage?
+        val calendar: String?
+        val place: String?
+        if (args.size==5) {
+            language = args.atomicArgOrEmpty<XsdLanguage>(2)
+            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
+            place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
+        } else {
+            language = null
+            calendar = null
+            place = null
+        }
+        XdmAtomic(XsdString(dateTime.format(picture, language ?: contextOf<ExprEvalContext>().defaultLanguage, calendar, place)))
     }
     //endregion
 }

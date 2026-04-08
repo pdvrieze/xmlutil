@@ -64,6 +64,9 @@ enum class Fn(
     roundToHalfEven(NumericFunctions.fnRoundHalfToEven),
 
     number(NumericFunctions.fnNumber),
+
+    formatInteger(NumericFunctions.fnFormatInteger),
+
     //endregion
 
     //region String functions (5)

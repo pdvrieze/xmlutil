@@ -34,13 +34,21 @@ import nl.adaptivity.xmlutil.serialization.XML
 
 @Serializable(with = XPathExpression.Serializer::class)
 interface XPathExpression: XQueryExpression {
-    fun eval(contextValue: XdmValue<*>? = null, namespaceContext: NamespaceContext = SimpleNamespaceContext()): XdmValue<*> {
-        return eval(contextValue?.let { ContextItem(it, 1, 1) }, namespaceContext)
+    fun eval(
+        contextValue: XdmValue<*>? = null,
+        namespaceContext: NamespaceContext = SimpleNamespaceContext(),
+        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap()
+    ): XdmValue<*> {
+        return eval(contextValue?.let { ContextItem(it, 1, 1) }, namespaceContext, vars)
     }
 
-    fun eval(contextItem: ContextItem? = null, namespaceContext: NamespaceContext = SimpleNamespaceContext()): XdmValue<*> {
+    fun eval(
+        contextItem: ContextItem? = null,
+        namespaceContext: NamespaceContext = SimpleNamespaceContext(),
+        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap()
+    ): XdmValue<*> {
         @OptIn(XPathInternal::class)
-        return context(EvalContext(namespaceContext, contextItem)){ expr.eval() }
+        return context(EvalContext(namespaceContext, contextItem, variables = vars)){ expr.eval() }
     }
 
     override val xmlString: String
@@ -99,9 +107,10 @@ interface XPathExpression: XQueryExpression {
             namespaceContext: NamespaceContext = SimpleNamespaceContext(),
             ver: XPathVersion = XPathVersion.XPath3_1,
             posInfo: XmlReader.LocationInfo? = null,
+            isXQuery: Boolean = false
         ): XPathExpression {
             val parser = XQueryParser(xmlTrimWhitespace(path), namespaceContext, ver, posInfo)
-            return context(XQueryParser.ParseContext(false)) {
+            return context(XQueryParser.ParseContext(isXQuery)) {
                 XPathExpressionImpl(path, parser.parseXPathExpr(), ver)
             }
         }

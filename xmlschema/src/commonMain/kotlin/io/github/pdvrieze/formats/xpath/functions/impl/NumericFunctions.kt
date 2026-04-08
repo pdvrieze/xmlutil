@@ -24,15 +24,19 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.atomicArgN
+import io.github.pdvrieze.formats.xpath.functions.atomicArgOrEmpty
 import io.github.pdvrieze.formats.xpath.functions.singleArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.formatters.IntegerFormatter
 
 @XPathInternal
 object NumericFunctions: AbstractFunctionObject() {
 
+    //region functions on numeric values 4.4
     val fnAbs: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
         "abs",
         functionType(NUMERIC.opt, NUMERIC.opt)
@@ -85,7 +89,9 @@ object NumericFunctions: AbstractFunctionObject() {
         }
         XdmAtomic(r)
     }
+    //endregion
 
+    //region Parsing numbers
     val fnNumber: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
         "number",
         contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)
@@ -101,5 +107,25 @@ object NumericFunctions: AbstractFunctionObject() {
             else -> XdmAtomic(XsdDouble(value.xmlString.toDoubleOrNull() ?: Double.NaN))
         }
     }
+    //endregion
 
+    //region Formatting integers 4.5
+    val fnFormatInteger = BuiltinFunctionImpl("format-integer", listOf(
+        functionType(STRING.opt, INTEGER.opt, STRING),
+        functionType(STRING.opt, INTEGER.opt, STRING, STRING.opt),
+    )) { args ->
+        val ctx = contextOf<ExprEvalContext>()
+        val value = args.atomicArgOrEmpty<XsdInteger>(0) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val picture = args.atomicArgN<XsdString>(1).xmlString
+        val language: XsdLanguage = (if (args.size==2) null else args.atomicArgOrEmpty<XsdLanguage>(2))
+            ?: ctx.defaultLanguage
+
+        val formatter = try {
+            IntegerFormatter(picture, language)
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FODF1310, "Invalid picture for format-integer: '$picture'", e)
+        }
+        XdmAtomic(XsdString(formatter.format(value)))
+    }
+    //endregion
 }

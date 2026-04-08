@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.values.formatters.DateTimeFormatter
 import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import kotlin.math.absoluteValue
@@ -98,5 +99,11 @@ interface IXsdDateTime: XsdAtomic {
     }
 
     fun ensureTimezone(fallbackTimezone: TimeZone): IXsdDateTime
+
+
+    fun format(picture: String, language: XsdLanguage, calendar: String? = null, place: String? = null): String {
+        val format = DateTimeFormatter(picture)
+        TODO("Formatter does not yet format")
+    }
 
 }

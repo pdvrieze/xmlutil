@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
-import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.functions.impl.BooleanFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.*
@@ -42,10 +41,18 @@ sealed class Operator(
     // FOR|LET|SOME|EVERY|IF -> 2, isDelimiting = false
 
     @NeedsXPath1
-    object OR: Operator("or", 3, XPathVersion.XPath1_0, false)
+    object OR: LogicOperator("or", 3, XPathVersion.XPath1_0, false) {
+        override fun invoke(left: Boolean, right: Boolean): Boolean {
+            return left || right
+        }
+    }
 
     @NeedsXPath1
-    object AND: Operator("and", 4, XPathVersion.XPath1_0, false)
+    object AND: LogicOperator("and", 4, XPathVersion.XPath1_0, false) {
+        override fun invoke(left: Boolean, right: Boolean): Boolean {
+            return left && right
+        }
+    }
 
     @NeedsXPath1
     object EQ: Operator("=", 5, XPathVersion.XPath1_0, true) {
@@ -74,9 +81,21 @@ sealed class Operator(
     }
 
     @NeedsXPath1
-    object LT: Operator("<", 5, XPathVersion.XPath1_0, true) {
+    object LT: ComparisonOperator("<", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(LE, PRECEDES)
+        override fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean {
+            TODO("not implemented")
+        }
+
+        override fun numericCompare(cmp: Int): Boolean = cmp < 0
+
+        override fun cmp(left: Double, right: Double): Boolean = left < right
+        override fun cmp(left: Float, right: Float): Boolean = left < right
+        override fun cmp(left: Boolean, right: Boolean): Boolean = left < right
+        override fun cmp(left: String, right: String): Boolean = left < right
+
+
     }
     @NeedsXPath1
     object LE : Operator("<=", 5, XPathVersion.XPath1_0, true)
@@ -88,10 +107,12 @@ sealed class Operator(
     @NeedsXPath1
     object GE : Operator(">=", 5, XPathVersion.XPath1_0, true)
     @NeedsXPath2
-    object VAL_EQ : Operator("eq", 5, XPathVersion.XPath2_0, false), ComparisonImpl {
+    object VAL_EQ : ComparisonOperator("eq", 5, XPathVersion.XPath2_0, false) {
 
         override fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean =
             left == right
+
+        override fun numericCompare(cmp: Int): Boolean = cmp == 0
 
         override fun cmp(left: Double, right: Double): Boolean = left == right
 
@@ -129,8 +150,7 @@ sealed class Operator(
 
                 is XsdBoolean if rightVal is XsdBoolean -> leftVal.value == rightVal.value
 
-
-                else -> TODO()
+                else -> return XdmAtomic(XsdBoolean(leftVal.equals(rightVal)))
             }
             return XdmAtomic(XsdBoolean(result))
         }
@@ -414,7 +434,7 @@ sealed class Operator(
     private fun evalComparison(
         left: XdmValue<*>,
         right: XdmValue<*>,
-        operator : ComparisonImpl,
+        operator : ComparisonOperator,
     ): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
@@ -466,10 +486,15 @@ sealed class Operator(
 
 }
 
-internal interface ComparisonImpl {
+abstract class ComparisonOperator(
+    literal: String,
+    priority: Int,
+    minVersion: XPathVersion = XPathVersion.XPath3_1,
+    isDelimiting: Boolean,
+) : Operator(literal, priority, minVersion, isDelimiting) {
     context(ctx: ExprEvalContext)
     @XPathInternal
-    fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
+    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
@@ -493,7 +518,7 @@ internal interface ComparisonImpl {
             is XsdFloat if rightVal is XsdFloat -> cmp(leftVal.value, rightVal.value)
             is XsdDouble if rightVal is XsdDouble -> cmp(leftVal.value, rightVal.value)
             is XsdDecimal if rightVal is XsdDecimal -> cmp(leftVal, rightVal)
-            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> cmp(leftVal.toDouble(), rightVal.toDouble())
+            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> numericCompare(numericCompare(leftVal, rightVal))
             is XsdBoolean if rightVal is XsdBoolean -> cmp(leftVal.value, rightVal.value)
 
             is XsdString if rightVal is XsdString -> cmp(leftVal.xmlString, rightVal.xmlString)
@@ -517,136 +542,30 @@ internal interface ComparisonImpl {
         return XdmAtomic(XsdBoolean(result))
     }
 
-    fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean
-    fun cmp(left: XsdDecimal, right: XsdDecimal): Boolean = defaultCmp(left, right)
-    fun cmp(left: Double, right: Double): Boolean
-    fun cmp(left: Float, right: Float): Boolean
-    fun cmp(left: Boolean, right: Boolean): Boolean
-    fun cmp(left: String, right: String): Boolean
-    fun cmp(left: XsdDateTime, right: XsdDateTime): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdDate, right: XsdDate): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdDuration, right: XsdDuration): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdGDay, right: XsdGDay): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdGMonthDay, right: XsdGMonthDay): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdGMonth, right: XsdGMonth): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdGYearMonth, right: XsdGYearMonth): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdGYear, right: XsdGYear): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdHexBinary, right: XsdHexBinary): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdNotation, right: XsdNotation): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdQName, right: XsdQName): Boolean = defaultCmp(left, right)
-    fun cmp(left: XsdTime, right: XsdTime): Boolean = defaultCmp(left, right)
+    abstract fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean
+    abstract fun numericCompare(cmp: Int) : Boolean
+    open fun numericCompare(left: XsdNumeric<*>, right: XsdNumeric<*>): Int = left.compareTo(right)
+
+    open fun cmp(left: XsdInteger, right: XsdInteger): Boolean = cmpNumbers(left, right)
+    open fun cmp(left: XsdDecimal, right: XsdDecimal): Boolean = cmpNumbers(left, right)
+    open fun cmp(left: XsdFloat, right: XsdFloat): Boolean = cmpNumbers(left, right)
+    open fun cmpNumbers(left: XsdNumeric<*>, right: XsdNumeric<*>): Boolean = cmpNumbers(left, right)
+    abstract fun cmp(left: Double, right: Double): Boolean
+    abstract fun cmp(left: Float, right: Float): Boolean
+    abstract fun cmp(left: Boolean, right: Boolean): Boolean
+    abstract fun cmp(left: String, right: String): Boolean
+    open fun <T: IXsdDateTime> cmpDateTime(left: T, right: T): Boolean = defaultCmp(left, right)
+    open fun cmp(left: XsdDateTime, right: XsdDateTime): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdDate, right: XsdDate): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdDuration, right: XsdDuration): Boolean = defaultCmp(left, right)
+    open fun cmp(left: XsdGDay, right: XsdGDay): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdGMonthDay, right: XsdGMonthDay): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdGMonth, right: XsdGMonth): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdGYearMonth, right: XsdGYearMonth): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdGYear, right: XsdGYear): Boolean = cmpDateTime(left, right)
+    open fun cmp(left: XsdHexBinary, right: XsdHexBinary): Boolean = defaultCmp(left, right)
+    open fun cmp(left: XsdNotation, right: XsdNotation): Boolean = defaultCmp(left, right)
+    open fun cmp(left: XsdQName, right: XsdQName): Boolean = defaultCmp(left, right)
+    open fun cmp(left: XsdTime, right: XsdTime): Boolean = cmpDateTime(left, right)
 }
 
-abstract class ArithmeticOperator(
-    literal: String,
-    priority: Int,
-    minVersion: XPathVersion = XPathVersion.XPath3_1,
-    isDelimiting: Boolean
-) : Operator(literal, priority, minVersion, isDelimiting) {
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    fun normalizeToArithmetic(value: XdmValue<*>): XdmValue<*> {
-        val v1 = value.atomize()
-        // Handle sequences
-        val v2: XdmSingleValue<*> = when (v1.size) {
-            0 -> return if (ctx.isXPath1Compat) XdmAtomic.NaN else XdmSequence.EMPTY
-            1 -> v1[0]
-            else if ctx.isXPath1Compat -> v1[0]
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as arithmatic operand")
-        }
-        if (v2 !is XdmAtomic<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Value type ${value.staticType} is not compatible with an arithmetic operator")
-        when {
-            v2.value is XsdDouble -> return v2
-            !ctx.isXPath1Compat -> {
-                if (v2.staticType == UntypedAtomicType.Instance) {
-                    return v2.toXdmDouble()
-                } else return v2
-            }
-
-            v2.value is XsdBoolean ||
-                    v2.value is XsdDecimal ||
-                    v2.value is XsdFloat ||
-                    v2.staticType == UntypedAtomicType.Instance -> return Fn.number(v2)
-        }
-        return v2
-    }
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
-        val l = when (val n = normalizeToArithmetic(left)) {
-            is XdmAtomic<*> -> n
-            XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
-        }
-        val r = when (val n = normalizeToArithmetic(right)) {
-            is XdmAtomic<*> -> n
-            XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
-        }
-        val lType = l.value.schemaType
-        val rType = r.value.schemaType
-        val requiredType = operatorMapping(lType, rType)
-        val value = when (requiredType) {
-            is DoubleType<*> -> XsdDouble(evalDouble(l.toXdmDouble().value.value, r.toXdmDouble().value.value))
-            is FloatType<*> -> XsdFloat(evalFloat(l.toXdmFloat().value.value, r.toXdmFloat().value.value))
-            is IntegerType<*> -> evalInteger(l.toXdmInteger().value, r.toXdmInteger().value)
-            is DecimalType<*> -> evalDecimal(l.toXdmDecimal().value, r.toXdmDecimal().value)
-            else -> evalCustom(l.value, r.value)
-        }
-        return XdmAtomic(value)
-    }
-
-    context(ctx: ExprEvalContext) @XPathInternal
-    protected open fun operatorMapping(
-        lType: AnyAtomicType<XsdAtomic>,
-        rType: AnyAtomicType<XsdAtomic>
-    ): AnyAtomicType<XsdAtomic> = when {
-        lType.name isEquivalent rType.name -> lType
-        lType.isBaseOf(rType) -> lType
-        rType.isBaseOf(lType) -> rType
-        ctx.isXPath1Compat && lType is NumericType<*> && rType is NumericType<*> -> DoubleType.Instance
-
-        else -> disjointOperatorMapping(lType, rType)
-    }
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    protected open fun disjointOperatorMapping(leftType: AnyAtomicType<*>, rightType: AnyAtomicType<*>): AnyAtomicType<*> {
-        return when {
-            leftType is DoubleType || rightType is DoubleType -> DoubleType.Instance
-            leftType is FloatType || rightType is FloatType -> FloatType.Instance
-            leftType is IntegerType && rightType is IntegerType -> IntegerType.Instance
-            leftType is DecimalType || rightType is DecimalType -> DecimalType.Instance
-            else -> DoubleType.Instance
-        }
-    }
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    open fun evalFloat(left: Float, right: Float): Float =
-        TODO("Operation ${literal} is not defined on floats")
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    open fun evalDouble(left: Double, right: Double): Double =
-        TODO("Operation ${literal} is not defined on doubles")
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    open fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
-        TODO("Operation ${literal} is not defined on xsd:integer")
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    open fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal =
-        TODO("Operation ${literal} is not defined on xsd:decimal")
-
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    open fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic {
-        TODO("Custom evaluation of operator '$literal' not yet implemented")
-    }
-
-//    fun evalNormalized(left: XdmAtomic<*>, right: XdmValue<*>)
-}
