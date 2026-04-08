@@ -24,7 +24,9 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -55,6 +57,7 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
 
     fun toDate(): XsdDate = XsdDate(year, month, day, timezoneOffset)
     fun toTime(): XsdTime = XsdTime(hour, minute, second, timezoneOffset)
+    fun toLocalDateTime(fallbackTimezone: TimeZone = TimeZone.UTC): LocalDateTime = instant().toLocalDateTime(timeZone ?: fallbackTimezone)
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp
 

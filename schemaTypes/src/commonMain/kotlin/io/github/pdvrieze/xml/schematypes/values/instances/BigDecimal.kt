@@ -484,6 +484,10 @@ class BigDecimal internal constructor(
         get() = buildString {appendTo(this) }
 
     internal fun appendTo(appendable: Appendable) {
+        if (sign == 0) {
+            appendable.append('0')
+            return
+        }
         when (decimalPositions) {
             0L -> BigInt(sign, ints, 0uL).appendTo(appendable)
 
@@ -529,6 +533,9 @@ class BigDecimal internal constructor(
     fun divRem(divider: BigDecimal): DivRem { // will (initially) expand exponents
         if (divider.sign == 0) throw ArithmeticException("Division by zero")
         else if (sign == 0) return DivRem(this, ZERO)
+
+        // Extend decimal positions to avoid losing digits in the remainder.
+        if (decimalPositions > divider.decimalPositions) return divRem(divider.expandWithEffectiveDecimalPositions(decimalPositions))
 
         // use BigUnsignedInts to actually perform the division
         val v = BigUnsignedInt(ints, 0uL)

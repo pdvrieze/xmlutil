@@ -67,15 +67,12 @@ object Accessors : AbstractFunctionObject() {
     ) { args ->
         val arg = toSingleArg(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        if (arg.size > 1) error("Can only convert a sequence of 1 item to a string")
 
-        val s = buildString {
-            for (i in 0 until arg.size) {
-                when (val a = arg[i]) {
-                    is XdmNode -> append(a.node.textContent?:"")
-                    is XdmAtomic<*> -> append(a.value.xmlString)
-                    is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
-                }
-            }
+        val s = when (val a = arg[0]) {
+            is XdmNode -> a.node.textContent ?: ""
+            is XdmAtomic<*> -> a.value.xmlString
+            is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
         }
 
         XdmAtomic(XsdString(s))

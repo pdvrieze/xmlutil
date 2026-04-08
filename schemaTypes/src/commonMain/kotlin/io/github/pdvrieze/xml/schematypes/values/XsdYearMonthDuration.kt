@@ -38,6 +38,7 @@ interface XsdYearMonthDuration : XsdDuration {
 
     operator fun plus(other: XsdYearMonthDuration): XsdYearMonthDuration
     operator fun minus(other: XsdYearMonthDuration): XsdYearMonthDuration
+    operator fun times(other: XsdNumeric<*>): XsdYearMonthDuration
     operator fun times(other: XsdDouble): XsdYearMonthDuration = times(other.value)
     operator fun times(other: Double): XsdYearMonthDuration
     operator fun div(other: XsdYearMonthDuration): XsdDecimal

@@ -43,8 +43,24 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
     fun formatTo(receiver: Appendable, value: XsdInteger): Unit =
         format.formatTo(receiver, value, modifier)
 
-    companion object {
+    /** Get the minimum width of this format in digits. */
+    val minDigits: Int get() = format.minDigits
+    /** Get the amount of specified optional digits. If not valid has the value `-1` */
+    val optionalDigitCount: Int get() = format.optionalDigitCount
+    val totalDigitCount: Int get() {
+        var r = minDigits
+        val o = format.optionalDigitCount
+        if (o >= 0) r += o
+        return r
+    }
 
+    val digitFamily: Int get() = (format as? DecimalDigitPatternFormatter)?.digitFamily ?: '0'.code
+
+    override fun toString(): String {
+        return format.toString() + (modifier?.let { ";$it" } ?: "")
+    }
+
+    companion object {
 
         fun Int.toDigitFamily(): Int? = when (this) {
             in '0'.code.. '9'.code -> '0'.code
@@ -208,6 +224,9 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
     }
 
     private abstract class FormatterImpl {
+        open val minDigits: Int get() = 1
+        open val optionalDigitCount: Int get() = -1
+
         open fun format(int: XsdInteger, modifier: Modifier?): String = buildString { formatTo(this, int, modifier) }
         abstract fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?)
     }
@@ -233,6 +252,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             }
         }
 
+        override fun toString(): String = "A"
     }
 
     private object LowerLetterFormatter : FormatterImpl() {
@@ -245,6 +265,8 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             CapitalLetterFormatter.formatTo(b, int, modifier)
             receiver.append(b.toString().lowercase())
         }
+
+        override fun toString(): String = "a"
     }
 
     private abstract class RomanFormatter(val capital: Boolean) : FormatterImpl() {
@@ -265,6 +287,8 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
                 }
             }
         }
+
+        override fun toString(): String = if (capital) "I" else "i"
     }
 
     private object CapitalLetterRomanFormatter : RomanFormatter(true)
@@ -278,6 +302,8 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             receiver.append(buildString { super.formatTo(this, int, modifier) }.lowercase())
         }
+
+        override fun toString(): String = "w"
     }
 
     private open class TitleCaseWordFormatter() : FormatterImpl() {
@@ -287,6 +313,8 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
 
             receiver.append(EnglishValues[int.toInt()])
         }
+
+        override fun toString(): String = "Ww"
 
         companion object {
             private val EnglishValues = arrayOf(
@@ -303,17 +331,35 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             receiver.append(buildString { super.formatTo(this, int, modifier) }.uppercase())
         }
+
+        override fun toString(): String = "W"
     }
 
     private object SimpleFormatter: FormatterImpl() {
         override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             receiver.append(int.xmlString)
         }
+
+        override fun toString(): String = "1"
     }
 
     private class DecimalDigitPatternFormatter(val pattern: List<IntFormatElem>, val digitFamily: Int) : FormatterImpl() {
 
-        val neededDigits = pattern.asSequence().filterIsInstance<ReqDigits>().sumOf { it.length }
+        override val minDigits: Int
+        override val optionalDigitCount: Int
+
+        init {
+            var d = 0
+            var o = 0
+            for (p in pattern) {
+                when (p) {
+                    is ReqDigits -> d += p.length
+                    is OptDigits -> o += p.length
+                }
+            }
+            minDigits = d
+            optionalDigitCount = o
+        }
 
         val regularGroupingLength: Int
 
@@ -379,10 +425,10 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             val extraDigits: Int
             if(str[0] == '-') {
                 startPos = 1
-                extraDigits = neededDigits - str.length + 1
+                extraDigits = minDigits - str.length + 1
             } else {
                 startPos = 0
-                extraDigits = neededDigits - str.length
+                extraDigits = minDigits - str.length
             }
             val base = when {
                 extraDigits<=0 && digitFamily == '0'.code -> str
@@ -414,6 +460,9 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             }
         }
 
+        override fun toString(): String {
+            return pattern.joinToString(separator = "") { it.toString() }
+        }
     }
 
     private abstract class IntFormatElem {
@@ -436,8 +485,16 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
 
     private sealed class Modifier(val variant: String?, val isAlphabetic: Boolean)
 
-    private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic)
-    private class OrdinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic)
+    private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic) {
+        override fun toString(): String {
+            return "c${variant ?: ""}${if (isAlphabetic) "a" else "t"}"
+        }
+    }
+    private class OrdinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic) {
+        override fun toString(): String {
+            return "o${variant ?: ""}${if (isAlphabetic) "a" else "t"}"
+        }
+    }
 
 }
 

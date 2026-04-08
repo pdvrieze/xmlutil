@@ -320,6 +320,20 @@ sealed class Operator(
         context(ctx: ExprEvalContext)
         @XPathInternal
         override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left * right
+
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun evalCustom(
+            left: XsdAtomic,
+            right: XsdAtomic
+        ): XsdAtomic = when {
+            left is XsdDayTimeDuration && right is XsdNumeric<*> -> left * right
+            left is XsdNumeric<*> && right is XsdDayTimeDuration -> right * left
+            left is XsdYearMonthDuration && right is XsdNumeric<*> -> left * right
+            left is XsdNumeric<*> && right is XsdYearMonthDuration -> right * left
+
+            else -> super.evalCustom(left, right)
+        }
     }
 
     @NeedsXPath1

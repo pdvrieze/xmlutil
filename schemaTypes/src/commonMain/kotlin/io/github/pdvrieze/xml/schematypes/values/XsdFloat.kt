@@ -36,12 +36,18 @@ import kotlin.math.round as kmRound
 @Serializable(XsdFloat.Companion::class)
 interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
     val value: Float
+    override fun toLong(): Long = value.toLong()
 
     operator fun plus(other: XsdFloat): XsdFloat = XsdFloatImpl(value + other.value)
     operator fun minus(other: XsdFloat): XsdFloat = XsdFloatImpl(value - other.value)
     operator fun times(other: XsdFloat): XsdFloat = XsdFloatImpl(value * other.value)
     operator fun div(other: XsdFloat): XsdFloat = XsdFloatImpl(value / other.value)
     operator fun rem(other: XsdFloat): XsdFloat = XsdFloatImpl(value % other.value)
+
+    override fun times(other: XsdNumeric<*>): XsdNumeric<*> = when (other) {
+        is XsdFloat -> XsdFloatImpl(value * other.value)
+        else -> XsdFloat((value * other.toDouble()).toFloat())
+    }
 
     override fun compareTo(other: XsdNumeric<*>): Int {
         return when (other) {

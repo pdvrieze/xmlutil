@@ -22,6 +22,8 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.YearMonthDurationType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import io.github.pdvrieze.xml.schematypes.values.XsdYearMonthDuration
 import kotlin.math.roundToLong
 
@@ -35,6 +37,10 @@ class XsdYearMonthDurationImpl(override val months: Long) : XsdYearMonthDuration
 
     override fun times(other: Double): XsdYearMonthDuration {
         return XsdYearMonthDurationImpl((months * other).roundToLong())
+    }
+
+    override fun times(other: XsdNumeric<*>): XsdYearMonthDuration {
+        return XsdYearMonthDurationImpl(other.times(XsdLong(months)).toLong())
     }
 
     override fun div(other: XsdYearMonthDuration): XsdDecimal {

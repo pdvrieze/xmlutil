@@ -29,6 +29,7 @@ sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
     override val schemaType: PrimitiveType<XsdPrimitive>
 
     fun toDouble(): Double
+    fun toLong(): Long
 
     fun abs(): T
 
@@ -46,6 +47,8 @@ sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
     fun roundToInteger(): XsdInteger {
         return XsdInteger(xmlString.substringBefore('.'))
     }
+
+    operator fun times(other: XsdNumeric<*>): XsdNumeric<*>
 
     operator fun compareTo(other: XsdNumeric<*>): Int
 

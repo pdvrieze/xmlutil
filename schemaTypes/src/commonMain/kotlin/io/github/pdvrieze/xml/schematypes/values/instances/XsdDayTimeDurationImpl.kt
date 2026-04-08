@@ -23,6 +23,8 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.values.XsdDayTimeDuration
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 
@@ -36,6 +38,10 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
 
     override fun times(other: Double): XsdDayTimeDuration {
         return XsdDayTimeDurationImpl((millis * other).roundToLong())
+    }
+
+    override fun times(other: XsdNumeric<*>): XsdDayTimeDuration {
+        return XsdDayTimeDurationImpl((other * XsdLong(millis)).toLong())
     }
 
     override fun div(other: XsdDayTimeDuration): XsdDecimal {

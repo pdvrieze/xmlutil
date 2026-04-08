@@ -64,7 +64,12 @@ interface IXsdDateTime: XsdAtomic {
     fun hourFrag(): String = hour?.toString()?.padStart(2, '0') ?: ""
     fun minuteFrag(): String = minute?.toString()?.padStart(2, '0') ?: ""
     fun secondFrag(): String =
-        (second as? XsdInteger)?.run { toInt().toString() } ?: second?.run { toDouble().toString() } ?: ""
+        (second as? XsdInteger)?.run { toInt().toString().padStart(2, '0') } ?: second?.run { toDouble().toString().let { s ->
+            s.padStart(
+            2 + s.length - s.indexOf('.'),
+            '0'
+        )
+        } } ?: ""
 
     fun timeZoneFrag(): String = when (val it = timezoneOffset) {
         null -> ""
@@ -102,7 +107,8 @@ interface IXsdDateTime: XsdAtomic {
 
 
     fun format(picture: String, language: XsdLanguage, calendar: String? = null, place: String? = null): String {
-        val format = DateTimeFormatter(picture)
+        val formatter = DateTimeFormatter(picture, language, calendar, place)
+        return formatter.format(this)
         TODO("Formatter does not yet format")
     }
 

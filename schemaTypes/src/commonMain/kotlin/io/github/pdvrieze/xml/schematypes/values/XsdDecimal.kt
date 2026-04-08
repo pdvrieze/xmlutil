@@ -38,7 +38,7 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
 
     val sign: Int
 
-    fun toLong(): Long
+    override fun toLong(): Long
     fun toInt(): Int
     fun toUInt(): UInt = toLong().toUInt()
 
@@ -65,6 +65,11 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     operator fun times(other: Long): XsdDecimal = times(XsdLong(other))
     operator fun times(other: UInt): XsdDecimal = times(XsdUnsignedInt(other))
     operator fun times(other: ULong): XsdDecimal = times(XsdUnsignedLong(other))
+
+    override fun times(other: XsdNumeric<*>): XsdNumeric<*> = when (other) {
+        is XsdDecimal -> this.times(other)
+        else -> other.times(this)
+    }
 
     fun divRem(other: XsdDecimal): DivRem
     operator fun div(other: XsdDecimal): XsdDecimal = divRem(other).quotient

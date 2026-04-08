@@ -156,7 +156,7 @@ abstract class ArithmeticOperator(
     @XPathInternal
     context(ctx: ExprEvalContext)
     open fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic {
-        TODO("Custom evaluation of operator '$literal' not yet implemented")
+        TODO("Custom evaluation of operator '$literal' not yet implemented for types ${left.schemaType.name} and ${right.schemaType.name}")
     }
 
 //    fun evalNormalized(left: XdmAtomic<*>, right: XdmValue<*>)

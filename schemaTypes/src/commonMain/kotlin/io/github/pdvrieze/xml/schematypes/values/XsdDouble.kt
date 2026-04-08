@@ -33,12 +33,18 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
     override val schemaType: DoubleType<XsdDouble>
 
     val value: Double
+    override fun toLong(): Long = value.toLong()
 
     operator fun plus(other: XsdDouble): XsdDouble = XsdDoubleImpl(value + other.value)
     operator fun minus(other: XsdDouble): XsdDouble = XsdDoubleImpl(value - other.value)
     operator fun times(other: XsdDouble): XsdDouble = XsdDoubleImpl(value * other.value)
     operator fun div(other: XsdDouble): XsdDouble = XsdDoubleImpl(value / other.value)
     operator fun rem(other: XsdDouble): XsdDouble = XsdDoubleImpl(value % other.value)
+
+    override fun times(other: XsdNumeric<*>): XsdNumeric<*> = when (other) {
+        is XsdDouble -> XsdDouble(value * other.value)
+        else -> XsdDouble(value * other.toDouble())
+    }
 
     override fun compareTo(other: XsdNumeric<*>): Int {
         return when (other) {

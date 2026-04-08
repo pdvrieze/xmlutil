@@ -96,6 +96,8 @@ enum class Fn(
     adjustDateToTimezone(DateTimeFunctions.fnAdjustDateToTimezone),
     adjustTimeToTimezone(DateTimeFunctions.fnAdjustTimeToTimezone),
 
+    formatDateTime(DateTimeFunctions.fnFormatDateTime),
+
     //endregion
 
     //region Node Operations (13)

@@ -34,9 +34,11 @@ interface XsdDayTimeDuration : XsdDuration {
     override val schemaType: DayTimeDurationType<XsdDayTimeDuration>
 
     override val months: Long get() = 0L
+    val days: Int get() = (millis / (24 * 60 * 60 * 1000).toLong()).toInt()
 
     operator fun plus(other: XsdDayTimeDuration): XsdDayTimeDuration
     operator fun minus(other: XsdDayTimeDuration): XsdDayTimeDuration
+    operator fun times(other: XsdNumeric<*>): XsdDayTimeDuration
     operator fun times(other: XsdDouble): XsdDayTimeDuration = times(other.value)
     operator fun times(other: Double): XsdDayTimeDuration
     operator fun div(other: XsdDayTimeDuration): XsdDecimal
