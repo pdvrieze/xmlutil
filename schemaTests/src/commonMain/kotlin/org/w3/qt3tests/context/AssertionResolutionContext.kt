@@ -32,6 +32,6 @@ interface AssertionResolutionContext {
     val environment: ResolvedQt3Environment?
     val specDep: Qt3SpecDependency?
 
-    val minRequiredXPath: XPathVersion
+    val minRequiredXPath: XPathVersion?
     val minRequiredXQuery: XQueryVersion?
 }

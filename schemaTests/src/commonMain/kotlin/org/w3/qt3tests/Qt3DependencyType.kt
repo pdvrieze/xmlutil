@@ -43,8 +43,8 @@ enum class Qt3DependencyType {
     LIMITS,
     @SerialName("spec")
     SPEC {
-        override fun createDependency(value: String?, satisfied: Boolean): Qt3SpecDependency {
-            val specs= requireNotNull(value) {"Missing value"}
+        override fun createDependency(value: String, satisfied: Boolean): Qt3SpecDependency {
+            val specs=value
                 .splitToSequence(' ')
                 .map { Qt3SpecDependency.Spec.from(it) }
                 .toList()
@@ -62,6 +62,6 @@ enum class Qt3DependencyType {
     @SerialName("xsd-version")
     XSD_VERSION, ;
 
-    open fun createDependency(value: String?, satisfied: Boolean): Qt3Dependency =
+    open fun createDependency(value: String, satisfied: Boolean): Qt3Dependency =
         Qt3Dependency.Generic(this, value, satisfied)
 }

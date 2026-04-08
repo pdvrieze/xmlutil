@@ -48,10 +48,13 @@ class AssertionResolutionContextImpl(
 
     override val idMap: MutableMap<String, Any> = mutableMapOf()
 
-    override val minRequiredXPath: XPathVersion =
-        specDep?.run {
-            supportedXPath().minByOrNull { it.ordinal }
-    } ?: XPathVersion.XPath3_1
+    override val minRequiredXPath: XPathVersion? =
+        specDep.let {
+            when (it) {
+                null -> XPathVersion.XPath3_1 // Consider XPath 1.0
+                else -> it.supportedXPath().minByOrNull { it.ordinal }
+            }
+    }
 
     override val minRequiredXQuery: XQueryVersion? = specDep?.run {
         supportedXQuery().minByOrNull { it.ordinal }

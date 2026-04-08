@@ -39,6 +39,12 @@ class ResolvedQt3TestCase(
     val covers30: List<XsdNCName>? = emptyList(),
 ) {
     fun tryVerify() {
+
+        val specDep = dependencies.asSequence().filterIsInstance<Qt3SpecDependency>().firstOrNull()
+        if (specDep != null) {
+            if (specDep.xpathVersions().isEmpty()) return
+        }
+
         val errorAssertions = buildList {
             if (result != null) {
                 for(r in result.assertions) r.expectedErrors(this)

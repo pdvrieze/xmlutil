@@ -28,6 +28,9 @@ import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.dom2.Document
 import org.junit.jupiter.api.Named
 import org.opentest4j.AssertionFailedError
+import org.w3.qt3tests.Qt3Dependency
+import org.w3.qt3tests.Qt3DependencyType
+import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 import org.w3.qt3tests.resolved.assertions.AssertionResult
 
@@ -84,10 +87,49 @@ abstract class AbstractTestSetSuite {
                     .filter {
                         it.test.expr.getOrNull() is XPathExpression
                     }
-                    .filter { "namespace-axis" !in it.neededFeatures() }
+                    .filter {it.dependencies.all { d ->  supportsDependency(d) } }
+//                    .filter { "namespace-axis" !in it.neededFeatures() }
                     .map { Named.named(it.name, it) }
                     .toList()
             }
+        }
+
+        fun supportsDependency(dep: Qt3Dependency) : Boolean {
+            // spec dependencies are already handled
+            when (dep) {
+                is Qt3Dependency.Generic -> {
+                    return when (dep.type) {
+                        Qt3DependencyType.CALENDAR -> !dep.satisfied
+                        Qt3DependencyType.COLLECTION_STABILITY -> !dep.satisfied
+                        Qt3DependencyType.DEFAULT_LANGUAGE -> !dep.satisfied
+                        Qt3DependencyType.DIRECTORY_AS_COLLECTION_URI -> !dep.satisfied
+                        Qt3DependencyType.FEATURE -> when (dep.value) {
+                            "namespace-axis" -> !dep.satisfied
+                            else -> !dep.satisfied //
+                        }
+
+                        Qt3DependencyType.FORMAT_INTEGER_SEQUENCE -> !dep.satisfied
+                        Qt3DependencyType.LANGUAGE -> when {
+                            dep.value.lowercase().startsWith("en") -> dep.satisfied
+                            else -> !dep.satisfied
+                        }
+
+                        Qt3DependencyType.LIMITS -> dep.satisfied
+                        Qt3DependencyType.SPEC -> error("Should not be a spec dependency")
+                        Qt3DependencyType.SCHEMAAWARE -> !dep.satisfied
+                        Qt3DependencyType.UNICODE_NORMALIZATION_FORM -> !dep.satisfied
+                        Qt3DependencyType.UNICODE_VERSION -> !dep.satisfied
+                        Qt3DependencyType.XML_VERSION -> dep.satisfied
+                        Qt3DependencyType.XSD_VERSION -> dep.satisfied
+                    }
+                }
+
+                is Qt3SpecDependency -> {
+                    if (dep.xpathVersions().isNotEmpty()) return dep.satisfied
+                    else return !dep.satisfied
+                }
+            }
+            return true
         }
 
     }

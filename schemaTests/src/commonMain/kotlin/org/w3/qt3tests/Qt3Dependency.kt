@@ -66,8 +66,8 @@ sealed class Qt3Dependency(
     abstract override val value: String?
 
     class Generic(
-        override val type: Qt3DependencyType?,
-        override val value: String?,
+        override val type: Qt3DependencyType,
+        override val value: String,
         satisfied: Boolean
     ) : Qt3Dependency(satisfied)
 
@@ -105,7 +105,7 @@ sealed class Qt3Dependency(
                     }
                 }
             }
-            return type?.createDependency(value, satisfied) ?: return Generic(type, value, satisfied)
+            return type?.createDependency(value!!, satisfied) ?: Generic(type!!, value!!, satisfied)
         }
     }
 }

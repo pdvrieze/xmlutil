@@ -21,6 +21,7 @@
 package org.w3.qt3tests
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -68,7 +69,7 @@ class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo
     context(ctx: AssertionResolutionContext)
     override fun resolveXQuery(): Result<XQueryExpression> {
         return runCatching {
-            XPathExpression(expr, ctx.namespaceContext, ctx.minRequiredXPath, locationInfo)
+            XPathExpression(expr, ctx.namespaceContext, ctx.minRequiredXPath ?: XPathVersion.XPath3_1, locationInfo)
         }
     }
 
@@ -78,7 +79,7 @@ class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo
             XPathExpression(
                 path = expr,
                 namespaceContext = ctx.namespaceContext,
-                ver = ctx.minRequiredXPath,
+                ver = ctx.minRequiredXPath ?: XPathVersion.XPath3_1,
                 posInfo = locationInfo
             )
         }
