@@ -33,6 +33,7 @@ import org.w3.qt3tests.Qt3DependencyType
 import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 import org.w3.qt3tests.resolved.assertions.AssertionResult
+import javax.xml.namespace.NamespaceContext
 
 @OptIn(XPathInternal::class)
 abstract class AbstractTestSetSuite {
@@ -44,9 +45,27 @@ abstract class AbstractTestSetSuite {
 
         val context = contextDoc?.let { XdmNode(it.documentElement!!) }
 
+        var nsContext: NamespaceContext = SimpleNamespaceContext()
+        val vars = mutableMapOf<String, MutableMap<String, XdmValue<*>>>()
+        if (environment != null) {
+            nsContext = environment.getNsContext()
+
+            for (param in environment.params) {
+                val select = param.select ?: continue
+                val value = XPathExpression(select).eval(context, nsContext, vars)
+                val nsUri = param.name.namespaceURI
+                if (param.name.prefix.isEmpty()) {
+                    (vars.getOrPut("") { mutableMapOf() })[param.name.localPart] = value
+                }
+                if (nsUri.isNotEmpty() || param.name.prefix.isNotEmpty()) {
+                    (vars.getOrPut(nsUri) { mutableMapOf() })[param.name.localPart] = value
+                }
+            }
+        }
+
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
-        val nsContext = environment?.getNsContext() ?: SimpleNamespaceContext()
-        val evalResult = runCatching { testExpression.eval(context, nsContext) }
+
+        val evalResult = runCatching { testExpression.eval(context, nsContext, vars) }
 
         if (testCase.result != null) {
             for (a in testCase.result.assertions) {
@@ -135,7 +154,6 @@ abstract class AbstractTestSetSuite {
                     else return !dep.satisfied
                 }
             }
-            return true
         }
 
     }

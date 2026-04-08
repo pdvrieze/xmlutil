@@ -31,13 +31,21 @@ import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val r = evalResult.getOrElse { return AssertionResult.Failure(it) }
-        var stringValue = context(ExprEvalContext.DUMMY) { Accessors.fnString(r) }.value.xmlString
-        if (normalizeSpace) stringValue = xmlCollapseWhitespace(stringValue)
+        var stringValue = context(ExprEvalContext.DUMMY) {
+            r.joinToString( " ") { Accessors.fnString(it).value.xmlString }
+        }
+        val normExpected: String
+        if (normalizeSpace) {
+            normExpected = xmlCollapseWhitespace(expected)
+            stringValue = xmlCollapseWhitespace(stringValue)
+        } else {
+            normExpected = expected
+        }
 
-        val evalString = stringValue
-        return when (expected) {
-            evalString -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected '$expected', got '$evalString'", AssertionError("Assertion failure"))
+
+        return when {
+            normExpected == stringValue -> AssertionResult.Success
+            else -> AssertionResult.Failure("Expected '$normExpected', got '$stringValue'", AssertionError("Assertion failure"))
         }
     }
 
