@@ -77,8 +77,10 @@ open class UnresolvedXQueryExprImpl(
 
         return runCatching {
             when {
-                // if not null, xquery is required
-                minQuery != null -> stubXQueryExpression(expr, ctx.namespaceContext, minQuery, locationInfo)
+                // if not null, xquery is required, but try XPath expression anyway
+                minQuery != null -> runCatching { XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo) }
+                    .getOrElse { stubXQueryExpression(expr, ctx.namespaceContext, minQuery, locationInfo) }
+
                 else -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
             }
         }
