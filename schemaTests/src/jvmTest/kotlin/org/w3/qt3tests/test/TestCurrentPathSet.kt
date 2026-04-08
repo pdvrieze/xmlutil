@@ -32,7 +32,7 @@ class TestCurrentPathSet : AbstractTestSetSuite() {
 
     @Test
     fun testCurrent() {
-        val evalValue = testEvalTestCaseImpl(getTestCase("format-integer-073"))
+        val evalValue = testEvalTestCaseImpl(getTestCase("format-integer-038"))
     }
 
     @ParameterizedTest

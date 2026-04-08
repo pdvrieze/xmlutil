@@ -33,16 +33,15 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
 
     constructor(picture: String, language: XsdLanguage) : this(parsePicture(picture, language))
 
-    fun format(value: Int): String = buildString { formatTo(this, XsdInt(value)) }
+    fun format(value: Int): String = format.format(XsdInt(value), modifier)
 
-    fun format(value: XsdInteger): String = buildString { formatTo(this, value) }
+    fun format(value: XsdInteger): String = format.format(value, modifier)
 
-    fun formatTo(receiver: Appendable, value: Int): Unit {
-        format.formatTo(receiver, XsdInt(value))
-        if (modifier is OrdinalModifier) throw UnsupportedOperationException("Ordinal modifier not supported for integers")
-    }
+    fun formatTo(receiver: Appendable, value: Int): Unit =
+        format.formatTo(receiver, XsdInt(value), modifier)
 
-    fun formatTo(receiver: Appendable, value: XsdInteger): Unit = format.formatTo(receiver, value)
+    fun formatTo(receiver: Appendable, value: XsdInteger): Unit =
+        format.formatTo(receiver, value, modifier)
 
     companion object {
 
@@ -209,8 +208,8 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
     }
 
     private abstract class FormatterImpl {
-        open fun format(int: XsdInteger): String = buildString { formatTo(this, int) }
-        abstract fun formatTo(receiver: Appendable, int: XsdInteger)
+        open fun format(int: XsdInteger, modifier: Modifier?): String = buildString { formatTo(this, int, modifier) }
+        abstract fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?)
     }
 
     private object CapitalLetterFormatter : FormatterImpl() {
@@ -224,7 +223,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             }
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             require(int.sign != 0) { "Value must be positive" }
             if (int.sign < 0) {
                 receiver.append('-')
@@ -237,13 +236,13 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
     }
 
     private object LowerLetterFormatter : FormatterImpl() {
-        override fun format(int: XsdInteger): String {
-            return CapitalLetterFormatter.format(int).lowercase()
+        override fun format(int: XsdInteger, modifier: Modifier?): String {
+            return CapitalLetterFormatter.format(int, modifier).lowercase()
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             val b = StringBuilder()
-            CapitalLetterFormatter.formatTo(b, int)
+            CapitalLetterFormatter.formatTo(b, int, modifier)
             receiver.append(b.toString().lowercase())
         }
     }
@@ -253,7 +252,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         val capitalSymbols = arrayOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
         val lowerSymbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
 
-        final override fun formatTo(receiver: Appendable, int: XsdInteger) {
+        final override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             val symbols = if (capital) capitalSymbols else lowerSymbols
 
             if (int.sign < 0 || int > XsdInt(3999)) throw IllegalArgumentException("Value must be between -100000 and 100000")
@@ -272,18 +271,18 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
     private object LowerLetterRomanFormatter : RomanFormatter(false)
 
     private class LowerWordFormatter : TitleCaseWordFormatter() {
-        override fun format(int: XsdInteger): String {
-            return super.format(int).lowercase()
+        override fun format(int: XsdInteger, modifier: Modifier?): String {
+            return super.format(int, modifier).lowercase()
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
-            receiver.append(buildString { super.formatTo(this, int) }.lowercase())
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
+            receiver.append(buildString { super.formatTo(this, int, modifier) }.lowercase())
         }
     }
 
     private open class TitleCaseWordFormatter() : FormatterImpl() {
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             if(int.sign < 0 || int >= XsdInt(EnglishValues.size)) throw UnsupportedOperationException("Only values between 0 and ${EnglishValues.size-1} are supported for title case word formatter")
 
             receiver.append(EnglishValues[int.toInt()])
@@ -297,17 +296,17 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         }
     }
     private class UpperWordFormatter : TitleCaseWordFormatter() {
-        override fun format(int: XsdInteger): String {
-            return super.format(int).uppercase()
+        override fun format(int: XsdInteger, modifier: Modifier?): String {
+            return super.format(int, modifier).uppercase()
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
-            receiver.append(buildString { super.formatTo(this, int) }.uppercase())
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
+            receiver.append(buildString { super.formatTo(this, int, modifier) }.uppercase())
         }
     }
 
     private object SimpleFormatter: FormatterImpl() {
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             receiver.append(int.xmlString)
         }
     }
@@ -374,7 +373,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             }
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
             val str = int.xmlString
             val startPos: Int
             val extraDigits: Int
