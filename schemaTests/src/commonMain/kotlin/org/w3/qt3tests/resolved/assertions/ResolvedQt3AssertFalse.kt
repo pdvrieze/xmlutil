@@ -24,10 +24,11 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 @OptIn(XPathInternal::class)
 class ResolvedQt3AssertFalse: ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         val assertResult = context(ExprEvalContext.DUMMY) {
             try { evalResult.toBoolean() } catch (e: EvaluationException) {

@@ -50,7 +50,7 @@ abstract class AbstractTestSetSuite {
 
         if (testCase.result != null) {
             for (a in testCase.result.assertions) {
-                val verifyResult = a.verify(evalResult)
+                val verifyResult = a.verify(evalResult, testCase)
                 if (verifyResult is AssertionResult.Failure) {
                     if (evalResult.isFailure) throw AssertionFailedError(
                         "Unexpected failure: ${verifyResult.error}",
@@ -88,7 +88,6 @@ abstract class AbstractTestSetSuite {
                         it.test.expr.getOrNull() is XPathExpression
                     }
                     .filter {it.dependencies.all { d ->  supportsDependency(d) } }
-//                    .filter { "namespace-axis" !in it.neededFeatures() }
                     .map { Named.named(it.name, it) }
                     .toList()
             }

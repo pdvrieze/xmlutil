@@ -22,15 +22,28 @@ package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.ContextItem
+import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 @OptIn(XPathInternal::class)
 class ResolvedQt3Assert(val assertion: XPathExpression) : ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
+        val nsContext = testCase.environment?.getOrThrow()?.getNsContext() ?: SimpleNamespaceContext()
+        val vars = mapOf("" to mapOf(
+            "result" to evalResult,
+        ))
+
+        val context = EvalContext(nsContext, ContextItem(evalResult, 1, 1), variables = vars)
+
+        val assertionRaw = assertion.eval(evalResult, nsContext, vars)
+
         val assertResult = context(ExprEvalContext.DUMMY) {
-            assertion.eval(evalResult).toBoolean()
+            assertionRaw.toBoolean()
         }
         return when (assertResult) {
             true -> AssertionResult.Success

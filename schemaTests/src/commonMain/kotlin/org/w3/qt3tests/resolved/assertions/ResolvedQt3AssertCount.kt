@@ -21,9 +21,10 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 class ResolvedQt3AssertCount(val count: Int): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         return when {
             evalResult.size == count -> AssertionResult.Success

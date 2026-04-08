@@ -22,9 +22,10 @@ package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 class ResolvedQt3AssertPermutation(val xPathExpression: XPathExpression) : ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
         TODO("not implemented")
     }

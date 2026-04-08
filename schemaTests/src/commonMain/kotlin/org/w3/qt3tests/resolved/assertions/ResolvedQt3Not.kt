@@ -21,10 +21,11 @@
 package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 class ResolvedQt3Not(val assertion: ResolvedQt3Assertion): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
-        val base = assertion.verify(evalResult)
+    override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
+        val base = assertion.verify(evalResult, testCase)
         return when (base) {
             is AssertionResult.Success -> AssertionResult.Failure("Expected failure, got success", AssertionError("Assertion failure"))
             is AssertionResult.Failure -> AssertionResult.Success

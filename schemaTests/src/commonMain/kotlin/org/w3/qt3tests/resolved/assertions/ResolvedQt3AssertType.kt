@@ -25,10 +25,11 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.builtinType
 import nl.adaptivity.xmlutil.XMLConstants
+import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 @OptIn(XPathInternal::class)
 class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
-    override fun verify(evalResult: Result<XdmValue<*>>): AssertionResult {
+    override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
         val expectedType = builtinType(type.substringAfterLast(':'), XMLConstants.XSD_NS_URI)
