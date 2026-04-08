@@ -20,6 +20,7 @@
 
 package org.w3.qt3tests.test
 
+import io.github.pdvrieze.formats.xmlschemaTests.getResource
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
@@ -41,6 +42,7 @@ import org.w3.qt3tests.Qt3TestSet
 import org.w3.qt3tests.Qt3TestSetReference
 import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3TestSet
+import org.w3.xml.xmschematestsuite.override.CompactOverride
 import kotlin.test.Test
 
 class TestParseCatalog {
@@ -194,6 +196,12 @@ class TestParseCatalog {
     }
 
     companion object {
+
+        val overrides: CompactOverride by lazy {
+            getResource("/xpathOverride.xml").withXmlReader { reader ->
+                XML.v1.decodeFromReader(CompactOverride.serializer(), reader)
+            }
+        }
 
         fun getTestSetSpec(name: String): TestSetSpec {
             return getTestSetSpecs().first {

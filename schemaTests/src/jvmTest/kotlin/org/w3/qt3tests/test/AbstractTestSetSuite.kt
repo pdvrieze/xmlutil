@@ -81,13 +81,20 @@ abstract class AbstractTestSetSuite {
 
         @JvmStatic
         fun getTestCases(testSetName: String): List<Named<ResolvedQt3TestCase>> {
+            val overrides = TestParseCatalog.overrides
             return testCases.getOrPut(testSetName) {
                 val testSet = TestParseCatalog.parseTestSetImpl(TestParseCatalog.getTestSetSpec(testSetName))
                 testSet.testCases.asSequence()
                     .filter {
                         it.test.expr.getOrNull() is XPathExpression
                     }
-                    .filter {it.dependencies.all { d ->  supportsDependency(d) } }
+                    .filter { tc ->
+                        overrides.overrides.none { o ->
+                            val p = o.path
+                            p.testSet == testSetName && p.group == null || p.group == tc.name || p.test == tc.name
+                        }
+                    }
+                    .filter { it.dependencies.all { d ->  supportsDependency(d) } }
                     .map { Named.named(it.name, it) }
                     .toList()
             }
