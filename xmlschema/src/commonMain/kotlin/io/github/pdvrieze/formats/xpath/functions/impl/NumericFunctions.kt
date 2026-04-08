@@ -117,7 +117,7 @@ object NumericFunctions: AbstractFunctionObject() {
         val ctx = contextOf<ExprEvalContext>()
         val value = args.atomicArgOrEmpty<XsdInteger>(0) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
         val picture = args.atomicArgN<XsdString>(1).xmlString
-        val language: XsdLanguage = (if (args.size==2) null else args.atomicArgOrEmpty<XsdLanguage>(2))
+        val language: XsdLanguage = (if (args.size==2) null else args.atomicArgOrEmpty<XsdString>(2))?.let { XsdLanguage(it.xmlString) }
             ?: ctx.defaultLanguage
 
         val formatter = try {

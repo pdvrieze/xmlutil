@@ -31,7 +31,7 @@ class ResolvedQt3AssertEq(val xPathExpression: XPathExpression): ResolvedQt3Asse
 
         return when {
             evalResult.isValEqual(expected) -> AssertionResult.Success
-            else -> AssertionResult.Failure("Values are not equal: expected $expected != actual $evalResult", AssertionError("Assertion failure"))
+            else -> AssertionResult.Failure("Values are not equal: expected '$expected' != actual '$evalResult'", AssertionError("Assertion failure"))
         }
 
     }

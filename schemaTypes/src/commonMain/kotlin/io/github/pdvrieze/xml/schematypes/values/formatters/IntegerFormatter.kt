@@ -24,28 +24,34 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
+import nl.adaptivity.xmlutil.core.internal.appendCodepoint
+import nl.adaptivity.xmlutil.core.internal.codepointAt
 
-class IntegerFormatter private constructor(private val format: FormatterImpl, modifier: Modifier?) {
+class IntegerFormatter private constructor(private val format: FormatterImpl, private val modifier: Modifier?) {
 
     private constructor(r: Pair<FormatterImpl, Modifier?>): this(r.first, r.second)
 
     constructor(picture: String, language: XsdLanguage) : this(parsePicture(picture, language))
 
-    fun format(value: Int): String = format.format(XsdInt(value))
+    fun format(value: Int): String = buildString { formatTo(this, XsdInt(value)) }
 
-    fun format(value: XsdInteger): String = format.format(value)
+    fun format(value: XsdInteger): String = buildString { formatTo(this, value) }
 
-    fun formatTo(value: Int, receiver: Appendable): Unit = format.formatTo(XsdInt(value), receiver)
+    fun formatTo(receiver: Appendable, value: Int): Unit {
+        format.formatTo(receiver, XsdInt(value))
+        if (modifier is OrdinalModifier) throw UnsupportedOperationException("Ordinal modifier not supported for integers")
+    }
 
-    fun formatTo(value: XsdInteger, receiver: Appendable): Unit = format.formatTo(value, receiver)
+    fun formatTo(receiver: Appendable, value: XsdInteger): Unit = format.formatTo(receiver, value)
 
     companion object {
 
 
-        fun Char.toDigitFamily(): Char = when (this) {
-            in '0'.. '9' -> '0'
-            in '\u0660'.. '\u0669' -> '\u0660' // Arabic-Indic
-            else -> this
+        fun Int.toDigitFamily(): Int? = when (this) {
+            in '0'.code.. '9'.code -> '0'.code
+            in 0x660..0x669 -> 0x0660 // Arabic-Indic
+            in 0x104a0 .. 0x104a9 -> 0x104a0
+            else -> null
         }
 
         private fun parseModifier(modifier: String): Modifier? {
@@ -93,45 +99,48 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             val result = mutableListOf<IntFormatElem>()
             var i = 0
 
-            var seenDigit: Char = '\u0000'
+            var seenDigit: Int = -1
 
             while (i < primary.length) {
-                val cp = primary
-                when (val c = primary[i]) {
-                    '#' -> {
-                        require(seenDigit == '\u0000') { "Picture must optional digits must precede mandatory digits" }
+                val c = primary[i]
+                if (c.isHighSurrogate()) check(i + 1 < primary.length) {
+                    "High surrogate must be followed by low surrogate"
+                }
+                val cp = primary.codepointAt(i)
+                val cpDigitFamily = cp.toDigitFamily()
+                when (cp) {
+                    '#'.code -> {
+                        require(seenDigit < 0) { "Picture must optional digits must precede mandatory digits" }
                         var j = i + 1
                         while (j < primary.length && primary[j] == '#') j++
                         result.add(OptDigits(j - i))
                         i = j
                     }
 
-                    else if c.isDigit() -> {
-                        val newFamily = c.toDigitFamily()
-                        if (seenDigit == '\u0000') seenDigit = newFamily
-                        else if (newFamily != seenDigit) throw IllegalArgumentException("Digits of different families in picture")
+                    else if cpDigitFamily != null -> {
+                        if (seenDigit < 0) seenDigit = cpDigitFamily
+                        else if (cpDigitFamily != seenDigit) throw IllegalArgumentException("Digits of different families in picture")
 
-                        var j = i+1
+                        var count = 1 // manual counting needed to deal with surrogates
+                        var j = primary.nextCharPos(i)
                         while (j < primary.length && primary[j].isDigit()) {
-                            if (primary[j].toDigitFamily() != seenDigit) throw IllegalArgumentException("Digits of different families in picture")
-                            j++
+                            count += 1
+                            if (primary.codepointAt(j)
+                                    .toDigitFamily() != seenDigit
+                            ) throw IllegalArgumentException("Digits of different families in picture")
+                            j = primary.nextCharPos(j)
                         }
-                        result.add(ReqDigits(j-i))
+                        result.add(ReqDigits(count))
                         i = j
                     }
 
-                    else if ! c.isLetter() -> {
+                    else if !c.isLetter() -> {
                         // early return to handle format-integer-38 if following groups
                         val prev = result.lastOrNull()// ?: return SimpleFormatter to modifier
                         //
-                        require( prev !is GroupingSeparator) { "Grouping separators must not follow each other" }
-                        if (c.isHighSurrogate()) {
-                            result.add(GroupingSeparator(primary.substring(i, i+2)))
-                            i+=2
-                        } else {
-                            result.add(GroupingSeparator(primary.substring(i, i+1)))
-                            i += 1
-                        }
+                        require(prev !is GroupingSeparator) { "Grouping separators must not follow each other" }
+                        result.add(GroupingSeparator(cp))
+                        i = primary.nextCharPos(i)
                     }
 
                     else if (i == 0) -> when (c) {
@@ -150,16 +159,19 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
                             require(primary.length == 1)
                             return CapitalLetterRomanFormatter to modifier
                         }
+
                         'i' -> {
                             require(primary.length == 1)
                             return LowerLetterRomanFormatter to modifier
                         }
+
                         'w' -> {
                             require(primary.length == 1)
                             return LowerWordFormatter() to modifier
                         }
+
                         'W' -> when {
-                            primary.length == 2 && primary[1]=='w' -> return TitleCaseWordFormatter() to modifier
+                            primary.length == 2 && primary[1] == 'w' -> return TitleCaseWordFormatter() to modifier
                             else -> {
                                 require(primary.length == 1)
                                 return UpperWordFormatter() to modifier
@@ -169,6 +181,10 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
                         else -> return SimpleFormatter to modifier // requires fallback to "simple" formatter
                     }
 
+                    'c'.code, 'o'.code, '('.code -> {
+                        if (semiIdx < 0) throw IllegalArgumentException("Modifier without ; separator")
+                        else return SimpleFormatter to modifier
+                    }
 
                     else -> return SimpleFormatter to modifier // requires fallback to "simple" formatter
                 }
@@ -180,11 +196,11 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             require(result.last() !is GroupingSeparator) { "Picture must not end with grouping separator" }
 
             // This is a "recoverable" error by https://www.w3.org/Bugs/Public/show_bug.cgi?id=19004
-            if (seenDigit == '\u0000') return SimpleFormatter to modifier
+            if (seenDigit < 0) return SimpleFormatter to modifier
 
-            if (seenDigit == '0') { // this case can be optimized to a simple formatter
+            if (seenDigit == '0'.code) { // this case can be optimized to a simple formatter
                 result.singleOrNull()?.let {
-                    if (it is ReqDigits && it.length==1) return SimpleFormatter to modifier
+                    if (it is ReqDigits && it.length == 1) return SimpleFormatter to modifier
                 }
             }
 
@@ -193,8 +209,8 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
     }
 
     private abstract class FormatterImpl {
-        open fun format(int: XsdInteger): String = buildString { formatTo(int, this) }
-        abstract fun formatTo(int: XsdInteger, receiver: Appendable)
+        open fun format(int: XsdInteger): String = buildString { formatTo(this, int) }
+        abstract fun formatTo(receiver: Appendable, int: XsdInteger)
     }
 
     private object CapitalLetterFormatter : FormatterImpl() {
@@ -208,7 +224,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             }
         }
 
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
             require(int.sign != 0) { "Value must be positive" }
             if (int.sign < 0) {
                 receiver.append('-')
@@ -225,9 +241,9 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             return CapitalLetterFormatter.format(int).lowercase()
         }
 
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
             val b = StringBuilder()
-            CapitalLetterFormatter.formatTo(int,b)
+            CapitalLetterFormatter.formatTo(b, int)
             receiver.append(b.toString().lowercase())
         }
     }
@@ -237,7 +253,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
         val capitalSymbols = arrayOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
         val lowerSymbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
 
-        final override fun formatTo(int: XsdInteger, receiver: Appendable) {
+        final override fun formatTo(receiver: Appendable, int: XsdInteger) {
             val symbols = if (capital) capitalSymbols else lowerSymbols
 
             if (int.sign < 0 || int > XsdInt(3999)) throw IllegalArgumentException("Value must be between -100000 and 100000")
@@ -260,15 +276,16 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             return super.format(int).lowercase()
         }
 
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
-            receiver.append(buildString { super.formatTo(int, this) }.lowercase())
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+            receiver.append(buildString { super.formatTo(this, int) }.lowercase())
         }
     }
 
     private open class TitleCaseWordFormatter() : FormatterImpl() {
 
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
-            require(int.sign >=0 && int < XsdInt(EnglishValues.size))
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+            if(int.sign < 0 || int >= XsdInt(EnglishValues.size)) throw UnsupportedOperationException("Only values between 0 and ${EnglishValues.size-1} are supported for title case word formatter")
+
             receiver.append(EnglishValues[int.toInt()])
         }
 
@@ -284,23 +301,19 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             return super.format(int).uppercase()
         }
 
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
-            receiver.append(buildString { super.formatTo(int, this) }.uppercase())
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
+            receiver.append(buildString { super.formatTo(this, int) }.uppercase())
         }
     }
 
     private object SimpleFormatter: FormatterImpl() {
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
             receiver.append(int.xmlString)
         }
     }
 
-    private class DecimalDigitPatternFormatter(val pattern: List<IntFormatElem>, digit: Char) : FormatterImpl() {
-        val digitFamily = when (digit) {
-            in '0'.. '9' -> '0'
-            in '\u0660'.. '\u0669' -> '\u0660' // Arabic-Indic
-            else -> '0'
-        }
+    private class DecimalDigitPatternFormatter(val pattern: List<IntFormatElem>, val digitFamily: Int) : FormatterImpl() {
+
         val neededDigits = pattern.asSequence().filterIsInstance<ReqDigits>().sumOf { it.length }
 
         val regularGroupingLength: Int
@@ -309,20 +322,26 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             var seenLenBeforeGroup = -1
             var i = pattern.lastIndex
             var lenBeforeGroup = 0
-            var groupMarker: String = ""
+            var groupMarker: Int = -1
             inner@do {
                 when (val elem = pattern[i]) {
                     is ReqDigits,
-                    is OptDigits -> lenBeforeGroup += elem.length
+                    is OptDigits -> {
+                        lenBeforeGroup += elem.length
+                        if (seenLenBeforeGroup >= 0 && lenBeforeGroup > seenLenBeforeGroup) {
+                            seenLenBeforeGroup = -1
+                            break
+                        }
+                    }
 
                     is GroupingSeparator if seenLenBeforeGroup < 0 -> {
                         seenLenBeforeGroup = lenBeforeGroup
-                        groupMarker = elem.content
+                        groupMarker = elem.cp
                         lenBeforeGroup = 0
                     }
 
                     is GroupingSeparator -> {
-                        if (lenBeforeGroup != seenLenBeforeGroup || groupMarker != elem.content) {
+                        if (lenBeforeGroup != seenLenBeforeGroup || groupMarker != elem.cp) {
                             seenLenBeforeGroup = -1 // not regular
                             break
                         }
@@ -343,19 +362,19 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
             when (val patternElem = pattern[patternPos]) {
                 is ReqDigits,
                 is OptDigits -> { // can be handled together as we already have the needed length
-                    val len = patternElem.length
+                    val len = if (digitFamily >= 0x10000) patternElem.length shl 2 else patternElem.length
                     if (stringPos > len) formatHelper(digitSource, stringPos-len, patternPos-1, appendable)
                     appendable.appendRange(digitSource, (stringPos - len).coerceAtLeast(0), stringPos)
                 }
 
                 is GroupingSeparator -> {
                     formatHelper(digitSource, stringPos, patternPos - 1, appendable)
-                    appendable.append(patternElem.content)
+                    appendable.appendCodepoint(patternElem.cp)
                 }
             }
         }
 
-        override fun formatTo(int: XsdInteger, receiver: Appendable) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger) {
             val str = int.xmlString
             val startPos: Int
             val extraDigits: Int
@@ -367,28 +386,29 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
                 extraDigits = neededDigits - str.length
             }
             val base = when {
-                extraDigits<=0 && digitFamily == '0' -> str
+                extraDigits<=0 && digitFamily == '0'.code -> str
                 else -> StringBuilder().apply {
                     if (startPos > 0) receiver.append(str[0])
                     repeat(extraDigits) {
-                        append(digitFamily)
+                        appendCodepoint(digitFamily)
                     }
                     when (digitFamily) {
-                        '0' -> appendRange(str, startPos, str.length)
+                        '0'.code -> appendRange(str, startPos, str.length)
                         else -> for (i in startPos until str.length) {
-                            append((str[i].code - '0'.code + digitFamily.code).toChar())
+                            appendCodepoint((str[i].code - '0'.code + digitFamily))
                         }
                     }
                 }
             }
 
             if (regularGroupingLength > 0) {
-                val group = pattern.asSequence().filterIsInstance<GroupingSeparator>().first().content
-                val offset = base.length % regularGroupingLength
+                val utf16GroupLength = if (digitFamily >=0x10000) regularGroupingLength shl 1 else regularGroupingLength
+                val groupMarkerCp = pattern.asSequence().filterIsInstance<GroupingSeparator>().first().cp
+                val offset = ((base.length -1) % utf16GroupLength) + 1
                 receiver.appendRange(base, 0, offset)
-                for (s in offset until base.length step regularGroupingLength) {
-                    receiver.append(group)
-                    receiver.appendRange(base, s, s+regularGroupingLength)
+                for (s in offset until base.length step utf16GroupLength) {
+                    receiver.appendCodepoint(groupMarkerCp)
+                    receiver.appendRange(base, s, s+utf16GroupLength)
                 }
             } else {
                 formatHelper(base, base.length, pattern.lastIndex, receiver)
@@ -408,9 +428,11 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
         override fun toString(): String = "0".repeat(length)
     }
 
-    private class GroupingSeparator(val content: String) : IntFormatElem() {
+    private class GroupingSeparator(val cp: Int) : IntFormatElem() {
         override val length: Int get() = 1
-        override fun toString(): String = "'$content'"
+        override fun toString(): String = buildString {
+            append('\'').appendCodepoint(cp).append('\'')
+        }
     }
 
     private sealed class Modifier(val variant: String?, val isAlphabetic: Boolean)
@@ -418,4 +440,9 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, mo
     private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic)
     private class OrdinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic)
 
+}
+
+internal fun CharSequence.nextCharPos(pos: Int): Int = when {
+    get(pos).isHighSurrogate() -> pos + 2
+    else -> pos + 1
 }
