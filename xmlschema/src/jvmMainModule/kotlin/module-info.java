@@ -5,7 +5,6 @@ module io.github.pdvrieze.xmlutil.xmlschema {
     requires java.xml;
 
     exports io.github.pdvrieze.formats.xmlschema.datatypes;
-    exports io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances;
     exports io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes;
     exports io.github.pdvrieze.formats.xmlschema.datatypes.serialization;
     exports io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets;
