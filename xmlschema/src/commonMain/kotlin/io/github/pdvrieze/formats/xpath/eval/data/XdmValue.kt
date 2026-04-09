@@ -39,7 +39,7 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<in XdmAtomic<XsdAtomic>>)
+    fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<XsdAtomic>>)
 
     context(ctx: ExprEvalContext)
     fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {

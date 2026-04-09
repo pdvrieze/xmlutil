@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.benchmark
 
+import io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import kotlinx.benchmark.*
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.XmlException
@@ -56,7 +57,7 @@ open class Parsing {
     @BenchmarkMode(Mode.Throughput)
     @Measurement(time = 2500, timeUnit = TimeUnit.MICROSECONDS)
     fun parseSuite(bh: Blackhole) {
-        javaClass.getResource("/xsts/suite.xml").withXmlReader { r ->
+        javaClass.getResource("/xsts/suite.xml")!!.withXmlReader { r ->
             while(r.hasNext()) bh.consume(r.next())
         }
     }

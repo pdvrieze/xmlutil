@@ -72,6 +72,13 @@ enum class Fn(
     //region String functions (5)
     concat(StringFunctions.fnConcat),
     stringJoin(StringFunctions.fnStringJoin),
+    substring(StringFunctions.fnSubstring),
+    stringLength(StringFunctions.fnStringLength),
+    normalizeSpace(StringFunctions.fnNormalizeSpace),
+    normalizeUnicode(StringFunctions.fnNormalizeUnicode),
+    upperCase(StringFunctions.fnUpperCase),
+    lowerCase(StringFunctions.fnLowerCase),
+    translate(StringFunctions.fnTranslate),
     //endregion
 
     //region Date/Time functions (9)

@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.benchmark.util
 
+import io.github.pdvrieze.formats.xmlschemaTests.resolve
+import io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.defaultPolicy

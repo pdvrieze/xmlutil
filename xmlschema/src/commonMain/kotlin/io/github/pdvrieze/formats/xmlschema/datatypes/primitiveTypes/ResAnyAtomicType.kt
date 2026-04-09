@@ -32,8 +32,8 @@ import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
 
-object ResAnyAtomicType : ResolvedBuiltinAtomicType<XsdPrimitive>,
-    AnyAtomicType<XsdPrimitive> {
+object ResAnyAtomicType : ResolvedBuiltinAtomicType<XsdAtomic>,
+    AnyAtomicType<XsdAtomic> {
     override val isSpecial: Boolean get() = true
     override val baseType: ResAnySimpleType get() = ResAnySimpleType
 

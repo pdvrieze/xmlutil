@@ -85,7 +85,7 @@ object BooleanFunctions: AbstractFunctionObject() {
         "boolean",
         listOf(functionType(BooleanType.Instance, ITEM.any))
     ) { args ->
-            val r = toSingleArg(args)?.toBoolean() ?: false
+            val r = args.argOrContext()?.toBoolean() ?: false
             XdmAtomic(XsdBoolean(r))
         }
 
@@ -94,7 +94,7 @@ object BooleanFunctions: AbstractFunctionObject() {
         listOf(functionType(BooleanType.Instance, ITEM.any))
     ) { args ->
         // empty sequence has the false value
-        val r = toSingleArg(args)?.toBoolean() ?: false
+        val r = args.argOrContext()?.toBoolean() ?: false
         XdmAtomic(XsdBoolean(!r))
     }
 }

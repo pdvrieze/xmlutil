@@ -35,7 +35,7 @@ import nl.adaptivity.xmlutil.serialization.XML
 @Serializable(with = XPathExpression.Serializer::class)
 interface XPathExpression: XQueryExpression {
     fun eval(
-        contextValue: XdmValue<*>? = null,
+        contextValue: XdmValue<*>?,
         namespaceContext: NamespaceContext = SimpleNamespaceContext(),
         vars: Map<String, Map<String, XdmValue<*>>> = emptyMap()
     ): XdmValue<*> {

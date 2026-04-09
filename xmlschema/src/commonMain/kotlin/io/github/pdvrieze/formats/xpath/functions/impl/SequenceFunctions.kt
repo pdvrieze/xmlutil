@@ -43,23 +43,23 @@ internal object SequenceFunctions : AbstractFunctionObject() {
 
     //region 14.1 General Functions and Operators on Sequences
     internal val fnEmpty = BuiltinFunctionImpl("empty", functionType(BOOLEAN, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdBoolean(arg.size==0))
     }
 
     internal val fnExists = BuiltinFunctionImpl("exists", functionType(BOOLEAN, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdBoolean(arg.size>0))
     }
 
     internal val fnHead = BuiltinFunctionImpl("head", functionType(ITEM.opt, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         if (arg.size==0) return@BuiltinFunctionImpl XdmSequence.EMPTY
         arg[0]
     }
 
     internal val fnTail = BuiltinFunctionImpl("tail", functionType(ITEM.any, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         if (arg !is XdmSequence<*> || arg.size<=1) return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmSequence.buildSingle(arg.staticType) {
             addAll(arg.asSequence().drop(1))
@@ -71,7 +71,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             if (args.size != 3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
             val target = args[0]
             val position =
-                ((toAtomic<XsdInteger>(1, args)
+                ((args.toAtomic<XsdInteger>(1)
                     ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() - 1)
                     .coerceIn(0, target.size)
             val inserts = args[2]
@@ -93,7 +93,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     internal val fnRemove = BuiltinFunctionImpl("remove", functionType(ITEM.any, ITEM.any, INTEGER)) { args ->
         if (args.size != 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val target = args[0]
-        val position = ((toAtomic<XsdInteger>(1, args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
+        val position = ((args.toAtomic<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
         if (position < 0 || position>=target.size) return@BuiltinFunctionImpl target
         XdmSequence.buildSingle(target.staticType) {
             for (i in 0 until position) {
@@ -106,7 +106,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     }
 
     internal val fnReverse = BuiltinFunctionImpl("reverse", functionType(ITEM.any, ITEM.any)) { args ->
-        val arg = toSingleArg(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         if (arg.size==1) return@BuiltinFunctionImpl arg[0]
 
         XdmSequence.buildSingle(arg.staticType) {
@@ -120,7 +120,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     ) { args ->
         if (args.size !in 2..3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val sourceSeq = args[0]
-        val startingLocD = (toAtomic<XsdDouble>(1, args) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).value
+        val startingLocD = (args.toAtomic<XsdDouble>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).value
         val endLocD = args.getOrNull(2)?.let {
             ((it as? XdmAtomic<*>)?.value as? XsdDouble)?.value ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:double, found: ${it.staticType}")
         }
@@ -149,7 +149,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
      * Returns the same sequence as the argument. This function is only relevant for optimization.
      */
     internal val fnUnordered = BuiltinFunctionImpl("unordered", functionType(ITEM.any, ITEM.any)) { args ->
-        toSingleArg(args) ?: XdmSequence.EMPTY
+        args.argOrContext() ?: XdmSequence.EMPTY
     }
     //endregion
 

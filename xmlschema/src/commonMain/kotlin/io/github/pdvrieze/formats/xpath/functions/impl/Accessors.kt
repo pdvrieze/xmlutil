@@ -42,14 +42,14 @@ object Accessors : AbstractFunctionObject() {
         "node-name",
         contextFunctionTypes(t(QNameType.Instance).opt, NODE.opt)
     ) { args ->
-        val arg = toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmAtomic(XsdQName(arg.node.nodeName))
     }
 
     val fnNilled: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl(
         "nilled", contextFunctionTypes(BOOLEAN.opt, NODE.opt)
     ) { args ->
-        val arg = (toSingleNode(args) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY)
+        val arg = (args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY)
             .node
         XdmAtomic(
             XsdBoolean(
@@ -65,7 +65,7 @@ object Accessors : AbstractFunctionObject() {
         "string",
         contextFunctionTypes(STRING.opt, ITEM.opt)
     ) { args ->
-        val arg = toSingleArg(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+        val arg = args.argOrContext() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
         if (arg.size > 1) error("Can only convert a sequence of 1 item to a string")
 
@@ -82,7 +82,7 @@ object Accessors : AbstractFunctionObject() {
         "data",
         contextFunctionTypes(ATOMIC.any, ITEM.any)
     ) { args ->
-        (toSingleArg(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
+        (args.argOrContext() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
             .atomize()
     }
 
@@ -90,14 +90,14 @@ object Accessors : AbstractFunctionObject() {
         "base-uri",
         contextFunctionTypes(t(AnyURIType.Instance).opt, NODE.opt)
     ) { args ->
-        val node = toSingleNode(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+        val node = args.toSingleNode() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
     val fnDocumentUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl("document-uri",
         contextFunctionTypes(AnyURIType.Instance.opt, NODE.opt)
     ) { args ->
-        val node = toSingleNode(args) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+        val node = args.toSingleNode() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 

@@ -27,10 +27,11 @@ import io.github.pdvrieze.formats.xmlschema.types.FundamentalFacets
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
-interface ResAtomicDatatype<out T: XsdPrimitive> : ResolvedBuiltinSimpleType<T>, ResolvedSimpleType.Model,
+interface ResAtomicDatatype<out T: XsdAtomic> : ResolvedBuiltinSimpleType<T>, ResolvedSimpleType.Model,
     ResolvedSimpleType<T>, AnyAtomicType<T> {
     override val isSpecial: Boolean get() = false
 
@@ -40,7 +41,7 @@ interface ResAtomicDatatype<out T: XsdPrimitive> : ResolvedBuiltinSimpleType<T>,
     abstract override val mdlFacets: FacetList
     abstract override val mdlFundamentalFacets: FundamentalFacets
     override val mdlVariety: ResolvedSimpleType.Variety get() = ResolvedSimpleType.Variety.ATOMIC
-    override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<T>? get() = null
+    override val mdlPrimitiveTypeDefinition: ResPrimitiveDatatype<XsdPrimitive>? get() = null
 
     override val mdlItemTypeDefinition: ResolvedSimpleType<*>? get() = null
     override val mdlMemberTypeDefinitions: List<ResolvedSimpleType<*>> get() = emptyList()

@@ -24,12 +24,21 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmString
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.functions.argN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
+import io.github.pdvrieze.formats.xpath.functions.atomicArgOrEmpty
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdString
+import nl.adaptivity.xmlutil.core.internal.appendCodepoint
+import nl.adaptivity.xmlutil.core.internal.codepointAt
+import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
+import kotlin.math.roundToInt
 
 @XPathInternal
 object StringFunctions : AbstractFunctionObject() {
@@ -46,6 +55,113 @@ object StringFunctions : AbstractFunctionObject() {
         val separator = if (args.size == 2) args.atomicArgN<XsdString>(1) else ""
         val join = seq.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString(separator)
         XdmAtomic(XsdString(join))
+    }
+
+    val fnSubstring = BuiltinFunctionImpl("substring", listOf(
+        functionType(STRING, STRING.opt, DOUBLE, DOUBLE),
+        functionType(STRING, STRING.opt, DOUBLE),
+    )) { args ->
+        val sourceString = args.atomicArgOrEmpty<XsdString>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val start = args.atomicArgN<XsdDouble>(1).value.roundToInt() - 1
+        val length = if (args.size == 2) Int.MAX_VALUE else args.atomicArgN<XsdDouble>(2).value.roundToInt()
+
+        var result = buildString {
+            var sourcePos: Int = 0
+            var charCount = 0
+            while (sourcePos < sourceString.length && charCount < start) {
+                sourcePos += sourceString.nextCodePointPos(sourcePos)
+                charCount += 1
+            }
+            charCount = 0
+            while (sourcePos < sourceString.length && charCount < length) {
+                appendCodepoint(sourceString.codepointAt(sourcePos))
+                sourcePos = sourceString.nextCodePointPos(sourcePos)
+                charCount += 1
+            }
+        }
+
+        XdmAtomic(XsdString(result))
+    }
+
+    val fnStringLength = BuiltinFunctionImpl("string-length", contextFunctionTypes(INTEGER, STRING.opt)) { args ->
+        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInt(0))
+
+        XdmAtomic(XsdInt(arg.xmlString.length))
+    }
+
+    val fnNormalizeSpace = BuiltinFunctionImpl("normalize-space", contextFunctionTypes(STRING, STRING.opt)) { args ->
+        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+
+        XdmAtomic(XsdString(xmlCollapseWhitespace(arg.xmlString)))
+    }
+
+    val fnNormalizeUnicode = BuiltinFunctionImpl("normalize-unicode", listOf(
+        functionType(STRING, STRING.opt, STRING),
+        functionType(STRING, STRING.opt),
+    )) { args ->
+        // val _ = XdmAtomic(XsdString(""))
+        TODO("Unicode normalization not yet supported")
+    }
+
+    val fnUpperCase = BuiltinFunctionImpl("upper-case", functionType(STRING, STRING.opt)) { args ->
+        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+
+        XdmAtomic(XsdString(arg.xmlString.uppercase()))
+    }
+
+    val fnLowerCase = BuiltinFunctionImpl("lower-case", functionType(STRING, STRING.opt)) { args ->
+        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+
+        XdmAtomic(XsdString(arg.xmlString.lowercase()))
+    }
+
+    private fun Appendable.translateCodepoints(arg: String, mapArray: IntArray, transArray: IntArray) {
+        var pos = 0
+        while (pos < arg.length) {
+            val cp = arg.codepointAt(pos)
+            val idx = mapArray.indexOf(cp)
+            if (idx >=0) {
+                appendCodepoint(transArray[idx])
+            } else {
+                appendCodepoint(cp)
+            }
+
+            pos += arg.nextCodePointPos(pos)
+        }
+    }
+
+    private fun String.getCodepointArray(): IntArray {
+        val len = this.count { !it.isLowSurrogate() } // skip low surrogates to get character length
+        val result = IntArray(len)
+        var pos = 0
+        var charPos = 0
+        while (pos < length) {
+            result[charPos++] = codepointAt(pos)
+            pos = nextCodePointPos(pos)
+        }
+        return result
+    }
+
+    val fnTranslate = BuiltinFunctionImpl("translate", functionType(STRING, STRING.opt, STRING, STRING)) { args ->
+        val arg = args.toAtomic<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val mapString = args.atomicArgN<XsdString>(1).xmlString
+        val transString = args.atomicArgN<XsdString>(1).xmlString
+
+        val result = buildString {
+            if (mapString.any { it.isSurrogate() } || transString.any { it.isSurrogate() }) {
+                translateCodepoints(arg, mapString.getCodepointArray(), transString.getCodepointArray())
+            } else {
+                // note we can ignore codepoints as they cannot need translation
+                for (c in arg) {
+                    val repIdx = mapString.indexOf(c)
+                    if (repIdx >= 0) append(transString[repIdx])
+                    else append(c)
+                }
+            }
+        }
+
+        XdmAtomic(XsdString(result))
+
     }
 
 }
