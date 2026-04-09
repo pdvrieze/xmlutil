@@ -126,7 +126,8 @@ open class XsdDateTimeImpl(
             val s = xmlCollapseWhitespace(str)
             val tIndex = s.indexOf('T')
             require(tIndex >= 0)
-            val (year, month, day) = s.substring(0, tIndex).split('-').map { it.toInt() }
+            val digitOffset = if (s.startsWith('-')) 1 else 0
+            val (year, month, day) = s.substring(digitOffset, tIndex).split('-').map { it.toInt() }
             val hour = s.substring(tIndex + 1, tIndex + 3).toUInt()
             if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separtor between hours and minutes")
             val minutes = s.substring(tIndex + 4, tIndex + 6).toUInt()
@@ -138,7 +139,7 @@ open class XsdDateTimeImpl(
 
             return when (secEnd) {
                 null -> XsdDateTimeImpl(
-                    year,
+                    if (digitOffset > 0) -year else year,
                     month.toUInt(),
                     day.toUInt(),
                     hour,
