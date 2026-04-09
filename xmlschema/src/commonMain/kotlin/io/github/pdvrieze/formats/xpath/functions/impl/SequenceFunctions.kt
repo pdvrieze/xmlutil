@@ -278,10 +278,11 @@ internal object SequenceFunctions : AbstractFunctionObject() {
 
 
     internal val fnAvg = BuiltinFunctionImpl("avg", functionType(ATOMIC.opt, ATOMIC.any)) { args ->
-        val arg = args[0]
+        @Suppress("UNCHECKED_CAST")
+        val arg = args[0] as XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>
         if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
 
-        val sum = seqSum(arg as XdmAtomic<XsdAtomic>)
+        val sum = seqSum(arg)
         val avg = when (sum) {
             is XsdDouble -> XsdDouble(sum.value / arg.size)
             is XsdFloat -> XsdFloat(sum.value / arg.size)
