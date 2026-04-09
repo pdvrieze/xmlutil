@@ -91,7 +91,7 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected inline fun <reified T: XsdAnySimple> List<XdmValue<*>>.toAtomic(pos: Int): T? {
+    protected inline fun <reified T: XsdAnySimple> List<XdmValue<*>>.atomicOrEmpty(pos: Int): T? {
         val arg = this.toAnyAtomic(pos) ?: return null
         return arg.value as? T
             ?: throw EvaluationException(

@@ -79,6 +79,8 @@ enum class Fn(
     upperCase(StringFunctions.fnUpperCase),
     lowerCase(StringFunctions.fnLowerCase),
     translate(StringFunctions.fnTranslate),
+
+    matches(StringFunctions.fnMatches),
     //endregion
 
     //region Date/Time functions (9)

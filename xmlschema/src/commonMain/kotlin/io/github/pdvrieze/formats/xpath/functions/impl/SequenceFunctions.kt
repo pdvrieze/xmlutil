@@ -71,7 +71,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             if (args.size != 3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
             val target = args[0]
             val position =
-                ((args.toAtomic<XsdInteger>(1)
+                ((args.atomicOrEmpty<XsdInteger>(1)
                     ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() - 1)
                     .coerceIn(0, target.size)
             val inserts = args[2]
@@ -93,7 +93,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     internal val fnRemove = BuiltinFunctionImpl("remove", functionType(ITEM.any, ITEM.any, INTEGER)) { args ->
         if (args.size != 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val target = args[0]
-        val position = ((args.toAtomic<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
+        val position = ((args.atomicOrEmpty<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
         if (position < 0 || position>=target.size) return@BuiltinFunctionImpl target
         XdmSequence.buildSingle(target.staticType) {
             for (i in 0 until position) {
@@ -120,7 +120,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     ) { args ->
         if (args.size !in 2..3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val sourceSeq = args[0]
-        val startingLocD = (args.toAtomic<XsdDouble>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).value
+        val startingLocD = (args.atomicOrEmpty<XsdDouble>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).value
         val endLocD = args.getOrNull(2)?.let {
             ((it as? XdmAtomic<*>)?.value as? XsdDouble)?.value ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:double, found: ${it.staticType}")
         }

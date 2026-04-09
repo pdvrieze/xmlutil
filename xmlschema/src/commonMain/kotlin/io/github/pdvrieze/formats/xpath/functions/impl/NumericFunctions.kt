@@ -65,10 +65,10 @@ object NumericFunctions: AbstractFunctionObject() {
         "round",
         functionType(NUMERIC.opt, NUMERIC.opt)
     ) { args ->
-        val value = args.toAtomic<XsdNumeric<*>>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val value = args.atomicOrEmpty<XsdNumeric<*>>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val r = when (args.size) {
             1 -> value.round()
-            2 -> value.round(args.toAtomic<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR))
+            2 -> value.round(args.atomicOrEmpty<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR))
             else -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         }
         XdmAtomic(r)
@@ -78,11 +78,11 @@ object NumericFunctions: AbstractFunctionObject() {
         "round-half-to-even",
         functionType(NUMERIC.opt, NUMERIC.opt)
     ) { args ->
-        val value = args.toAtomic<XsdNumeric<*>>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val value = args.atomicOrEmpty<XsdNumeric<*>>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val r = when (args.size) {
             1 -> value.roundToHalfEven()
             2 -> value.roundToHalfEven(
-                args.toAtomic<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)
+                args.atomicOrEmpty<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)
             )
 
             else -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)

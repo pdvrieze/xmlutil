@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
+import io.github.pdvrieze.formats.xmlschema.regex.XRegex
+import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
@@ -31,6 +33,7 @@ import io.github.pdvrieze.formats.xpath.functions.argN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgOrEmpty
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdString
@@ -43,6 +46,7 @@ import kotlin.math.roundToInt
 @XPathInternal
 object StringFunctions : AbstractFunctionObject() {
 
+    //region functions on string values 5.4
     val fnConcat: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("concat", flexFunctionType(STRING, ATOMIC.opt, ATOMIC.opt)) { args ->
         if (args.size < 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Concat requires at least two arguments")
         val concat = args.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString("")
@@ -143,7 +147,7 @@ object StringFunctions : AbstractFunctionObject() {
     }
 
     val fnTranslate = BuiltinFunctionImpl("translate", functionType(STRING, STRING.opt, STRING, STRING)) { args ->
-        val arg = args.toAtomic<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val arg = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
         val mapString = args.atomicArgN<XsdString>(1).xmlString
         val transString = args.atomicArgN<XsdString>(1).xmlString
 
@@ -161,7 +165,25 @@ object StringFunctions : AbstractFunctionObject() {
         }
 
         XdmAtomic(XsdString(result))
-
     }
+    //endregion
 
+    //region Functions on substring matching 5.5
+    //endregion
+
+    //region String functions using regex 5.6
+    val fnMatches = BuiltinFunctionImpl("matches", listOf(
+        functionType(BOOLEAN, STRING.opt, STRING, STRING),
+        functionType(BOOLEAN, STRING.opt, STRING),
+    )) { args ->
+        val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val pattern = args.atomicArgN<XsdString>(1).xmlString
+        val flags = if (args.size >2) args.atomicArgN<XsdString>(2).xmlString else ""
+
+        val regex = XRegex(pattern, SchemaVersion.V1_1)
+        // TODO support flags
+        val result = regex.matches(input)
+        XdmAtomic(XsdBoolean(result))
+    }
+    //endregion
 }

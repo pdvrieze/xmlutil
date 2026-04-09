@@ -59,7 +59,7 @@ public operator fun MatchGroupCollection.get(name: String): MatchGroup? {
  *
  * Note that in the future, the behavior of regular expression matching and replacement functions can be altered to match JVM implementation behavior where differences exist.
  */
-public class XRegex internal constructor(internal val nativePattern: XPattern) {
+public class XRegex internal constructor(internal val parsedPattern: XPattern) {
 
     internal enum class Mode {
         FIND, MATCH
@@ -70,9 +70,9 @@ public class XRegex internal constructor(internal val nativePattern: XPattern) {
 
     /** The pattern string of this regular expression. */
     val pattern: String
-        get() = nativePattern.pattern
+        get() = parsedPattern.pattern
 
-    private val startNode = nativePattern.startNode
+    private val startNode = parsedPattern.startNode
 
     companion object {
 
@@ -186,7 +186,7 @@ public class XRegex internal constructor(internal val nativePattern: XPattern) {
     /**
      * Returns the string representation of this regular expression, namely the [pattern] of this regular expression.
      */
-    override fun toString(): String = nativePattern.toString()
+    override fun toString(): String = parsedPattern.toString()
 }
 
 // The same code from K/JS regex.kt
