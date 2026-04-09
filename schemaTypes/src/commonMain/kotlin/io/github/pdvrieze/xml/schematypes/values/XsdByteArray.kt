@@ -39,5 +39,13 @@ interface XsdByteArray : XsdAtomic, List<Byte> {
         return value.size.compareTo(other.value.size)
     }
 
+    fun compareTo(other: XsdByteArray): Int {
+        for (i in 0 until minOf(value.size, other.value.size)) {
+            val diff = value[i].compareTo(other.value[i])
+            if (diff != 0) return diff
+        }
+        return value.size.compareTo(other.value.size)
+    }
+
 }
 
