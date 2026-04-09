@@ -30,36 +30,44 @@ value class WidthModifier private constructor(val data: ULong) {
         require(maxWidth >= minWidth && maxWidth>0) { "max width ($maxWidth) may not be less than min width ($minWidth) " }
     }
 
+    constructor(): this (ULong.MAX_VALUE)
+
     constructor(str: String): this(parse(str))
+    val isSpecified: Boolean get() = data != ULong.MAX_VALUE
+    val isMaxSpecified: Boolean get() = (maxWidth and Int.MAX_VALUE) != Int.MAX_VALUE
 
-    val minWidth: Int get() = (data shr 32).toInt()
-    val maxWidth: Int get() = data.toInt()
-
-    @Deprecated("Use maxWidth")
-    val maxWidth2: Int get() = if (maxWidth == Int.MAX_VALUE) -1 else maxWidth
+    val minWidth: Int get() = (data shr 32).toUInt().let { if (it == UInt.MAX_VALUE) 0 else it.toInt() }
+    val maxWidth: Int get() = data.toInt() and Int.MAX_VALUE
 
     override fun toString(): String {
-        return when {
-            maxWidth < Int.MAX_VALUE -> "$minWidth-$maxWidth"
-            else -> "$minWidth"
+        return when (data.toUInt()) {
+            0xFFFF_FFFFu -> "<unspecified>"
+            0x7FFF_FFFFu -> minWidth.toString()
+            0xFFFF_FFFEu -> when ((data shr 32).toUInt()) {
+                0xFFFF_FFFFu -> "*-*"
+                else -> "$minWidth-*"
+            }
+            else -> "$minWidth-$maxWidth"
         }
     }
 
     companion object {
         private fun parse(str: String): ULong {
             val idx = str.indexOf('-')
+            // note that for '*' we use intMax -1 as the max width meaning that MAX_VALUE can be used as unspecified
+            // but this value should never be reached either so it works as infinity
             return when {
                 idx >= 0 -> {
                     val minString = str.substring(0, idx)
                     val min = if (minString=="*") 0uL else minString.toULong()
                     val maxString = str.substring(idx + 1)
-                    val max = if (maxString == "*") Int.MAX_VALUE.toULong() else maxString.toULong()
+                    val max = if (maxString == "*") (Int.MAX_VALUE - 1).toULong() else maxString.toULong()
                     require(max>=min && max>0uL) { "max width ($max) may not be less than min width ($min) "}
 
                     min.shl(32) or max
                 }
 
-                str =="*" -> Int.MAX_VALUE.toULong()
+                str =="*" -> (Int.MAX_VALUE - 1).toULong()
                 else -> str.toULong() shl 32 or Int.MAX_VALUE.toULong()
             }
         }

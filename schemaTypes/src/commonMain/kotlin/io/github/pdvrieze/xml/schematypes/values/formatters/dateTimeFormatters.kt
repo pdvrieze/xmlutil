@@ -101,7 +101,7 @@ class DateTimeFormatter private constructor(
 
         private fun parseMarker(marker: String, lang: XsdLanguage, calendar: String?): DateTimePartFormatter {
             val widthModIdx = marker.lastIndexOf(',')
-            val widthModifier = if (widthModIdx >= 0) WidthModifier(marker.substring(widthModIdx + 1)) else WidthModifier(0)
+            val widthModifier = if (widthModIdx >= 0) WidthModifier(marker.substring(widthModIdx + 1)) else WidthModifier()
             val markerContent = when {
                 widthModIdx >= 0 -> marker.substring(1, widthModIdx)
                 else -> marker.substring(1)
@@ -168,15 +168,12 @@ private abstract class NumericFormatter(val intFormat: IntegerFormatter, widthMo
     protected open fun getXsdValue(dateTime: IXsdDateTime): XsdInteger? = getValue(dateTime)?.let { XsdLong(it) }
 
     private fun adjustWithFormatter(widthModifier: WidthModifier, formatter: IntegerFormatter, minDigits: Int): WidthModifier {
-        val newMin: Int
-        if (widthModifier.maxWidth < Int.MAX_VALUE) {
-            return widthModifier
-        }
-        newMin = widthModifier.minWidth
+        if (widthModifier.isMaxSpecified) return widthModifier
+
         val fTotalDigits = formatter.totalDigitCount
         return when {
-            fTotalDigits >= minDigits -> WidthModifier(newMin, fTotalDigits)
-            else -> WidthModifier(newMin)
+            fTotalDigits >= minDigits -> WidthModifier(widthModifier.minWidth, fTotalDigits)
+            else -> WidthModifier(widthModifier.minWidth)
         }
     }
 
@@ -197,7 +194,7 @@ private abstract class NumericFormatter(val intFormat: IntegerFormatter, widthMo
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val elemValue = getXsdValue(dateTime) ?: throw IllegalArgumentException("Format requires a value not provided")
-        if (widthModifier.minWidth > 0 && intFormat.format is IntegerFormatter.RomanFormatter) {
+        if (widthModifier.isSpecified && intFormat.format is IntegerFormatter.RomanFormatter) {
             val str = intFormat.format(elemValue)
             dest.append(str)
             repeat(maxOf(0, widthModifier.minWidth - str.length)) { dest.append(' ') }
@@ -207,7 +204,7 @@ private abstract class NumericFormatter(val intFormat: IntegerFormatter, widthMo
     }
 }
 
-private class TextFormatter(val text: String) : DateTimePartFormatter(WidthModifier(0)) {
+private class TextFormatter(val text: String) : DateTimePartFormatter(WidthModifier()) {
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         dest.append(text)
     }
@@ -353,7 +350,7 @@ private class Hour12InDayFormatter(format: IntegerFormatter, widthModifier: Widt
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.hour?.let { (((it+11u) % 12u)+ 1u).toLong() }
 }
 
-private class AmPmMarkerFormatter(val lang: XsdLanguage) : DateTimePartFormatter(WidthModifier(0)) {
+private class AmPmMarkerFormatter(val lang: XsdLanguage) : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this(lang)
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
@@ -392,7 +389,7 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
         val fractionText = seconds.rem(XsdInt(1)).xmlString.substringAfterLast('.', "0")
         val fractionDigitReversed = XsdInteger(fractionText.reversed())
         val formatedReversed = intFormat.format(fractionDigitReversed) // do not use length modifier, it breaks things
-        val max = if (widthModifier.maxWidth < Int.MAX_VALUE) widthModifier.maxWidth else intFormat.totalDigitCount
+        val max = if (widthModifier.isMaxSpecified) widthModifier.maxWidth else intFormat.totalDigitCount
 
         // TODO: this does not deal with surrogate pairs or markers
         val start = maxOf(formatedReversed.length - max, 0)
@@ -404,7 +401,9 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
 
     companion object {
         private fun adjustMarker(marker:String, widthModifier: WidthModifier, lang: XsdLanguage): IntegerFormatter {
-            if (widthModifier.minWidth <=1 && marker.length == 1) return IntegerFormatter(marker, lang)
+            if ((!widthModifier.isSpecified || widthModifier.minWidth <= 1) && marker.length == 1) {
+                return IntegerFormatter(marker, lang)
+            }
             val minDigits = widthModifier.minWidth
             val maxDigits = widthModifier.maxWidth
             val adjustedMarker = StringBuilder()
@@ -442,22 +441,22 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
     }
 }
 
-private class TimeZoneFormatter() : DateTimePartFormatter(WidthModifier(0)) {
+private class TimeZoneFormatter() : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this()
 
 }
 
-private class TimeZonePrefixedFormatter() : DateTimePartFormatter(WidthModifier(0)) {
+private class TimeZonePrefixedFormatter() : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this()
 
 }
 
-private class CalendarNameFormatter() : DateTimePartFormatter(WidthModifier(0)) {
+private class CalendarNameFormatter() : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this()
 
 }
 
-private class EraFormatter() : DateTimePartFormatter(WidthModifier(0)) {
+private class EraFormatter() : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this()
 
 }

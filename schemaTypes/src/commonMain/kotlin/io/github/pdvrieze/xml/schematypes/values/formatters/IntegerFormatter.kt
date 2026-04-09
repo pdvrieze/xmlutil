@@ -34,17 +34,17 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
 
     constructor(picture: String, language: XsdLanguage) : this(parsePicture(picture, language))
 
-    fun format(value: Int, widthModifier: WidthModifier = WidthModifier(0)): String =
+    fun format(value: Int, widthModifier: WidthModifier = WidthModifier()): String =
         format.format(XsdInt(value), modifier, widthModifier)
 
-    fun format(value: XsdInteger, widthModifier: WidthModifier = WidthModifier(0)): String =
+    fun format(value: XsdInteger, widthModifier: WidthModifier = WidthModifier()): String =
         format.format(value, modifier, widthModifier)
 
-    fun formatTo(receiver: Appendable, value: Int, widthModifier: WidthModifier = WidthModifier(0)) {
+    fun formatTo(receiver: Appendable, value: Int, widthModifier: WidthModifier = WidthModifier()) {
         format.formatTo(receiver, XsdInt(value), modifier, widthModifier)
     }
 
-    fun formatTo(receiver: Appendable, value: XsdInteger, widthModifier: WidthModifier = WidthModifier(0)) {
+    fun formatTo(receiver: Appendable, value: XsdInteger, widthModifier: WidthModifier = WidthModifier()) {
         format.formatTo(receiver, value, modifier, widthModifier)
     }
 
@@ -261,14 +261,14 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                 receiver.append('0')
                 return
             }
-            val realMin = if(widthModifier.minWidth == 0) minDigits else widthModifier.minWidth
+            val realMin = if (widthModifier.isSpecified) widthModifier.minWidth else minDigits
             // note that recursion works on one step to zero as 'A' is 1, not 0 and there is no zero digit
 
             if (int.sign < 0) {
                 receiver.append('-')
-                recurseTo(int.abs()- XsdInt.ONE, receiver, realMin, widthModifier.maxWidth)
+                recurseTo(int.abs() - XsdInt.ONE, receiver, realMin, widthModifier.maxWidth)
             } else {
-                recurseTo(int-XsdInt.ONE, receiver, realMin, widthModifier.maxWidth)
+                recurseTo(int - XsdInt.ONE, receiver, realMin, widthModifier.maxWidth)
             }
         }
 
@@ -303,7 +303,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                 3 -> n = n % 1000
                 // other cases don't require clipping
             }
-            val realMin = if (widthModifier.minWidth == 0) minDigits else widthModifier.minWidth
+            val realMin = if (widthModifier.isSpecified) widthModifier.minWidth else minDigits
 
             var totalChars = 0
             for (i in values.indices) {
@@ -476,7 +476,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             val str = int.xmlString
             val signEnd: Int
             val extraDigits: Int
-            val realMin = if (widthModifier.minWidth==0) minDigits else widthModifier.minWidth
+            val realMin = if (widthModifier.isSpecified) widthModifier.minWidth else minDigits
             if(str[0] == '-') {
                 signEnd = 1
                 extraDigits = realMin - str.length + 1
