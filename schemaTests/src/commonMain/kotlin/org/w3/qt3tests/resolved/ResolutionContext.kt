@@ -44,6 +44,7 @@ interface CatalogResolutionContext: ResolutionContext {
 
 interface TestSetResolutionContext: ResolutionContext {
     val setDependencies: List<Qt3Dependency>
+    val doVerify: Boolean
 }
 
 inline fun <R> ResolutionContext.subContext(file: String, block: context(CatalogResolutionContext)  () -> R): R {

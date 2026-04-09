@@ -31,12 +31,19 @@ import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.CatalogResolutionContext
 import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
+import org.w3.qt3tests.resolved.TestSetResolutionContext
 
 class AssertionResolutionContextImpl(
     private val orig: ResolutionContext,
     override val environment: ResolvedQt3Environment?,
     override val specDep: Qt3SpecDependency?,
+    override val doVerify: Boolean
 ) : ResolutionContext, AssertionResolutionContext {
+
+    constructor(orig: TestSetResolutionContext, environment: ResolvedQt3Environment?, specDep: Qt3SpecDependency?) :
+        this(orig, environment, specDep, orig.doVerify)
+
+
     override val base: String get() = orig.base
 
     override val xml: XML get() = orig.xml

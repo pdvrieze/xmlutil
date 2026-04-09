@@ -39,16 +39,23 @@ abstract class ResolutionContextImpl(
     override val xml: XML,
     override val knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
     override val idMap: MutableMap<String, Any> = HashMap(),
+    val doVerify: Boolean,
 ): ResolutionContext {
 
     override fun subContext(file: String): CatalogResolutionContext {
         val i = file.lastIndexOf('/')
         val newBase = when {
-            i < 0 -> return this as? CatalogResolutionContext ?: Catalog(base, xml, knownEnvironments, idMap)
+            i < 0 -> return this as? CatalogResolutionContext ?: CatalogContext(
+                base,
+                xml,
+                knownEnvironments,
+                idMap,
+                doVerify
+            )
             else -> "$base${file.substring(0, i + 1)}"
         }
         // copy the maps to make names hierarchical (not ordered global across files)
-        return Catalog(newBase, xml, HashMap(knownEnvironments), HashMap(idMap))
+        return CatalogContext(newBase, xml, HashMap(knownEnvironments), HashMap(idMap), doVerify)
     }
 
 
@@ -104,25 +111,27 @@ abstract class ResolutionContextImpl(
         }
     }
 
-    class Catalog(
-        base: String,
-        xml: XML,
-        knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
-        idMap: MutableMap<String, Any> = HashMap()
-    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap), CatalogResolutionContext {
-
-
-
-        override fun testSetContext(dependencies: List<Qt3Dependency>): TestSetResolutionContext {
-            return TestSet(base, xml, knownEnvironments, idMap, dependencies)
-        }
-    }
-
-    class TestSet(
+    class CatalogContext(
         base: String,
         xml: XML,
         knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
         idMap: MutableMap<String, Any> = HashMap(),
-        override val setDependencies: List<Qt3Dependency>
-    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap), TestSetResolutionContext
+        doVerify: Boolean = true
+    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap, doVerify), CatalogResolutionContext {
+
+
+
+        override fun testSetContext(dependencies: List<Qt3Dependency>): TestSetResolutionContext {
+            return TestSetContext(base, xml, knownEnvironments, idMap, dependencies, doVerify)
+        }
+    }
+
+    class TestSetContext(
+        base: String,
+        xml: XML,
+        knownEnvironments: MutableMap<String, ResolvedQt3Environment> = HashMap(),
+        idMap: MutableMap<String, Any> = HashMap(),
+        override val setDependencies: List<Qt3Dependency>,
+        doVerify: Boolean
+    ) : ResolutionContextImpl(base, xml, knownEnvironments, idMap, doVerify), TestSetResolutionContext
 }

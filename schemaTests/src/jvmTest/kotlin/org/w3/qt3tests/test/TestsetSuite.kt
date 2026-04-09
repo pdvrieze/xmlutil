@@ -60,7 +60,7 @@ class TestsetSuite : AbstractTestSetSuite() {
     companion object {
         @JvmStatic
         fun suite(): List<Named<ResolvedQt3TestSet>> {
-            return TestParseCatalog.getTestSetSpecs().mapNotNull {
+            return TestParseCatalog.getTestSetSpecs(false).mapNotNull {
                 val testSet = it.payload.resolve()
                 when {
                     testSet.testCases.none { it.test.expr.getOrNull() is XPathExpression } -> null

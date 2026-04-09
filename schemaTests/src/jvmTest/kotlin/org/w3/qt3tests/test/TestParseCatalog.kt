@@ -54,7 +54,7 @@ class TestParseCatalog {
             xml.decodeFromReader<Qt3TestSet>(reader)
         }
 
-        val resolutionContext = ResolutionContextImpl.Catalog("/xpath/fn/", xml)
+        val resolutionContext = ResolutionContextImpl.CatalogContext("/xpath/fn/", xml, doVerify = true)
         context(resolutionContext) {
             val _= testSet.resolve()
         }
@@ -173,7 +173,7 @@ class TestParseCatalog {
     @Test
     fun testParseApply() {
         val xml = XML.v1{}
-        val resolutionContext = ResolutionContextImpl.Catalog("/xpath/fn/", xml)
+        val resolutionContext = ResolutionContextImpl.CatalogContext("/xpath/fn/", xml)
 
         val testSet = context(resolutionContext) {
             resolutionContext.parseFile(Qt3TestSet.serializer(), "apply.xml")
@@ -204,7 +204,7 @@ class TestParseCatalog {
         }
 
         fun getTestSetSpec(name: String): TestSetSpec {
-            return getTestSetSpecs().first {
+            return getTestSetSpecs(false).first {
                 it.name == name
             }.payload
         }
@@ -216,8 +216,8 @@ class TestParseCatalog {
         }
 
         @JvmStatic
-        fun getTestSetSpecs(): List<Named<TestSetSpec>> {
-            val ctx = createResolutionContext("/xpath/")
+        fun getTestSetSpecs(doVerify: Boolean = true): List<Named<TestSetSpec>> {
+            val ctx = createResolutionContext(doVerify = doVerify)
             val catalog = ctx.parseFile(Qt3Catalog.serializer(), "catalog.xml")
 
             val resolvedEnvironments = context(ctx) {
@@ -230,7 +230,7 @@ class TestParseCatalog {
             }
         }
 
-        private fun createResolutionContext(base: String = "/xpath/"): ResolutionContextImpl.Catalog {
+        private fun createResolutionContext(base: String = "/xpath/", doVerify: Boolean = true): ResolutionContextImpl.CatalogContext {
             val xml = XML.v1 {
                 policy {
                     unknownChildHandler = object : UnknownChildHandler {
@@ -260,7 +260,7 @@ class TestParseCatalog {
                     }
                 }
             }
-            return ResolutionContextImpl.Catalog(base, xml)
+            return ResolutionContextImpl.CatalogContext(base, xml, doVerify = doVerify)
         }
 
     }

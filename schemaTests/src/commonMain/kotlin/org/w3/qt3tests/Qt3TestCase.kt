@@ -91,7 +91,7 @@ class Qt3TestCase(
                 covers,
                 covers30,
             )
-            resolvedTestCase.tryVerify()
+            if (ctx.doVerify) resolvedTestCase.tryVerify()
 
             return resolvedTestCase
         }
