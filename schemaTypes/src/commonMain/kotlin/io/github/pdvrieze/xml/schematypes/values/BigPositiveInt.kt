@@ -80,13 +80,13 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     }
 
     override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
-        is XsdInteger -> toBigInt().divRem(other)
+        is XsdInteger -> BigInt(this).divRem(other)
         else -> toBigDecimal().divRem(other)
     }
 
     override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
         is XsdNonNegativeInteger -> divRem(divider)
-        else -> toBigInt().divRem(divider)
+        else -> BigInt(this).divRem(divider)
     }
 
     override fun divRem(divider: XsdNonNegativeInteger): PosDivRem {

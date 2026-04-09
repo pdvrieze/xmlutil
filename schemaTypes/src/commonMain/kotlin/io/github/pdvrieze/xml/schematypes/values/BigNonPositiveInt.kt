@@ -92,7 +92,7 @@ class BigNonPositiveInt internal constructor(ints: UIntArray, exp: ULong) :
     override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
         is XsdNonNegativeInteger -> divRem(divider)
         is XsdNonPositiveInteger -> divRem(divider)
-        else -> toBigInt().divRem(divider)
+        else -> BigInt(this).divRem(divider)
     }
 
     override fun divRem(divider: UInt): IntDivRem {
