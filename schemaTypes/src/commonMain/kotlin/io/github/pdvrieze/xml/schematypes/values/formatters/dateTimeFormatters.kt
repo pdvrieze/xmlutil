@@ -259,7 +259,7 @@ private class YearFormatter(format: IntegerFormatter, widthModifier: WidthModifi
         formatWithClipping(dest, dateTime, 2)
     }
 
-    override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.year?.toLong()
+    override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.year?.toLong()?.absoluteValue
     override fun toString(): String {
         return "Y$intFormat"
     }
@@ -562,7 +562,11 @@ private class EraFormatter() : DateTimePartFormatter(WidthModifier()) {
         dest: Appendable,
         dateTime: IXsdDateTime
     ) {
-        TODO("not implemented")
+        val y = requireNotNull(dateTime.year) { "Era formatter requires year, but not provided" }
+        when {
+            y >= 0 -> dest.append("A.D.")
+            else -> dest.append("B.C.")
+        }
     }
 }
 
