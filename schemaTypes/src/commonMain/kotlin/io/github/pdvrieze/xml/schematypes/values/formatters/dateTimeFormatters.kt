@@ -26,6 +26,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
+import kotlin.math.absoluteValue
 
 
 class DateTimeFormatter private constructor(
@@ -38,7 +39,8 @@ class DateTimeFormatter private constructor(
     constructor(picture: String, language: XsdLanguage, calendar: String? = null, place: String? = null) : this(parsePicture(
         picture,
         language,
-        calendar
+        calendar,
+        place
     ), language, calendar, place)
 
     fun format(dateTime: IXsdDateTime): String {
@@ -50,7 +52,7 @@ class DateTimeFormatter private constructor(
     }
 
     companion object {
-        private fun parsePicture(picture: String, language: XsdLanguage, calendar: String?): List<DateTimePartFormatter> {
+        private fun parsePicture(picture: String, language: XsdLanguage, calendar: String?, place: String?): List<DateTimePartFormatter> {
             val parts = mutableListOf<DateTimePartFormatter>()
             var i = 0
             while (i < picture.length) {
@@ -70,7 +72,7 @@ class DateTimeFormatter private constructor(
                             if (idx > i) { parts.add(TextFormatter(picture.substring(i, idx))) }
                             val markerEnd = picture.indexOf(']', idx + 1)
                             if (markerEnd == -1) throw IllegalArgumentException("Unclosed bracket")
-                            parts.add(parseMarker(picture.substring(idx + 1, markerEnd), language, calendar))
+                            parts.add(parseMarker(picture.substring(idx + 1, markerEnd), language, calendar, place))
                             i = markerEnd + 1
                         }
                     }
@@ -99,7 +101,7 @@ class DateTimeFormatter private constructor(
             }
         }
 
-        private fun parseMarker(marker: String, lang: XsdLanguage, calendar: String?): DateTimePartFormatter {
+        private fun parseMarker(marker: String, lang: XsdLanguage, calendar: String?, place: String?): DateTimePartFormatter {
             val widthModIdx = marker.lastIndexOf(',')
             val widthModifier = if (widthModIdx >= 0) WidthModifier(marker.substring(widthModIdx + 1)) else WidthModifier()
             val markerContent = when {
@@ -130,12 +132,50 @@ class DateTimeFormatter private constructor(
                 'm' -> MinuteInHourFormatter(markerContent ?: "01", lang, widthModifier)
                 's' -> SecondInMinuteFormatter(markerContent ?: "01", widthModifier, lang)
                 'f' -> FractionalSecondsFormatter(markerContent ?: "1", widthModifier, lang)
-                'Z' -> TimeZoneFormatter(markerContent ?: "01:01", lang)
-                'z' -> TimeZonePrefixedFormatter(markerContent ?: "01:01", lang)
+                'Z' -> parseTimezoneMarker(false, markerContent ?: "01:01", widthModifier, lang, place)
+                'z' -> parseTimezoneMarker(true, markerContent ?: "01:01", widthModifier, lang, place)
                 'C' -> CalendarNameFormatter(markerContent ?: "n", lang)
                 'E' -> EraFormatter(markerContent ?: "n", lang)
                 else -> error("Unknown marker $marker")
             }
+        }
+
+        private fun parseTimezoneMarker(
+            prefixed: Boolean,
+            markerContent: String,
+            widthModifier: WidthModifier,
+            lang: XsdLanguage,
+            place: String?
+        ): TimeZoneFormatter {
+            var variants = if (prefixed) TimeZoneFormatter.VAR_PREFIXED else 0u
+            val format: IntegerFormatter
+            when {
+                markerContent.length <= 2 && markerContent.all { it.isDigit() } -> {
+                    format = IntegerFormatter(markerContent, lang)
+                    variants = variants or TimeZoneFormatter.VAR_HOURS_ONLY
+                }
+
+                markerContent.endsWith('t') -> {
+                    format = IntegerFormatter(markerContent.dropLast(1), lang)
+                    variants = variants or TimeZoneFormatter.VAR_ZULU
+                }
+
+                markerContent == "Z" -> {
+                    format = IntegerFormatter("01:01", lang)
+                    variants = variants or TimeZoneFormatter.VAR_MILTIME
+                }
+
+                markerContent == "N" -> {
+                    format = IntegerFormatter("01:01", lang)
+                    variants = variants or TimeZoneFormatter.VAR_NAME
+                }
+
+                else -> format = IntegerFormatter(markerContent, lang)
+            }
+
+            val newWidthModifier = if (!widthModifier.isSpecified) widthModifier else WidthModifier(widthModifier.minWidth)
+
+            return TimeZoneFormatter(format, newWidthModifier, variants, lang, place)
         }
     }
 
@@ -144,9 +184,9 @@ class DateTimeFormatter private constructor(
 
 private abstract class DateTimePartFormatter protected constructor(val widthModifier: WidthModifier) {
 
-    open fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
+    abstract fun formatTo(dest: Appendable, dateTime: IXsdDateTime)/* {
         TODO("Not yet implemented")
-    }
+    }*/
 
     protected fun toLocalDateTime(dateTime: IXsdDateTime, fallbackTimezone: TimeZone = TimeZone.UTC): LocalDateTime? = when (dateTime) {
         is XsdDate -> XsdDateTime(dateTime, XsdTime(1u, 1u, 0u)).toLocalDateTime(fallbackTimezone)
@@ -389,7 +429,7 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
         val fractionText = seconds.rem(XsdInt(1)).xmlString.substringAfterLast('.', "0")
         val fractionDigitReversed = XsdInteger(fractionText.reversed())
         val formatedReversed = intFormat.format(fractionDigitReversed) // do not use length modifier, it breaks things
-        val max = if (widthModifier.isMaxSpecified) widthModifier.maxWidth else intFormat.totalDigitCount
+        val max = if (widthModifier.isSpecified) widthModifier.maxWidth else intFormat.totalDigitCount
 
         // TODO: this does not deal with surrogate pairs or markers
         val start = maxOf(formatedReversed.length - max, 0)
@@ -441,24 +481,89 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
     }
 }
 
-private class TimeZoneFormatter() : DateTimePartFormatter(WidthModifier()) {
-    constructor(markerContent: String, lang: XsdLanguage): this()
+private class TimeZoneFormatter(
+    private val format: IntegerFormatter,
+    widthModifier: WidthModifier,
+    private val variants: UInt,
+    private val lang: XsdLanguage,
+    private val place: String?
+) : DateTimePartFormatter(widthModifier) {
 
+    override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
+        val offset = dateTime.timezoneOffset ?: run {
+            if (variants and VAR_MILTIME != 0u) dest.append('J')
+            return
+        }
+
+        if (variants and VAR_PREFIXED != 0u) dest.append("GMT")
+
+        val abs = offset.absoluteValue
+        val hours = abs / 60
+        val minutes = abs % 60
+        when (offset) {
+            0 if (variants and (VAR_ZULU or VAR_MILTIME) != 0u) -> dest.append('Z')
+
+            else if minutes == 0 && (variants and VAR_MILTIME != 0u) ->{
+                dest.append(MILTIME_HOURS[hours + 12])
+            }
+
+            else -> {
+                dest.append(if (offset >= 0) '+' else '-')
+                when {
+                    variants and VAR_HOURS_ONLY != 0u -> {
+                        if (hours < 10 && widthModifier.minWidth > 1) dest.append('0')
+                        format.formatTo(dest, hours)
+                        if (minutes != 0) {
+                            dest.append(':')
+                            if (minutes < 10) dest.append('0')
+                            dest.append(minutes.toString())
+                        }
+                    }
+
+                    else -> {
+                        val combined = hours * 100 + minutes
+                        format.formatTo(dest, combined, widthModifier)
+                    }
+
+                }
+            }
+        }
+    }
+
+    companion object {
+        // just a simple lookup starting at -12
+        private val MILTIME_HOURS = arrayOf('Y', 'X', 'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O',
+            'N', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M')
+
+        val VAR_HOURS_ONLY: UInt = 1u shl 0
+        val VAR_ZULU: UInt = 1u shl 1
+        val VAR_MILTIME: UInt = 1u shl 2
+        val VAR_NAME: UInt = 1u shl 3
+        val VAR_PREFIXED: UInt = 1u shl 4
+    }
 }
 
-private class TimeZonePrefixedFormatter() : DateTimePartFormatter(WidthModifier()) {
-    constructor(markerContent: String, lang: XsdLanguage): this()
-
-}
 
 private class CalendarNameFormatter() : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this()
 
+    override fun formatTo(
+        dest: Appendable,
+        dateTime: IXsdDateTime
+    ) {
+        TODO("not implemented")
+    }
 }
 
 private class EraFormatter() : DateTimePartFormatter(WidthModifier()) {
     constructor(markerContent: String, lang: XsdLanguage): this()
 
+    override fun formatTo(
+        dest: Appendable,
+        dateTime: IXsdDateTime
+    ) {
+        TODO("not implemented")
+    }
 }
 
 enum class Case {
