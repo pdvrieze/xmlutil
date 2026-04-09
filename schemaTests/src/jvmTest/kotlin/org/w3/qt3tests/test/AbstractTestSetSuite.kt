@@ -124,7 +124,10 @@ abstract class AbstractTestSetSuite {
             when (dep) {
                 is Qt3Dependency.Generic -> {
                     return when (dep.type) {
-                        Qt3DependencyType.CALENDAR -> !dep.satisfied
+                        Qt3DependencyType.CALENDAR -> when (dep.value){
+                            "ISO", "AD" -> dep.satisfied
+                            else -> !dep.satisfied
+                        }
                         Qt3DependencyType.COLLECTION_STABILITY -> !dep.satisfied
                         Qt3DependencyType.DEFAULT_LANGUAGE -> !dep.satisfied
                         Qt3DependencyType.DIRECTORY_AS_COLLECTION_URI -> !dep.satisfied
