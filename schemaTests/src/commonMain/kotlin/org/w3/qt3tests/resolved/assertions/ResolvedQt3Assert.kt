@@ -32,22 +32,22 @@ import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 @OptIn(XPathInternal::class)
 class ResolvedQt3Assert(val assertion: XPathExpression) : ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
-        val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
+        val e = evalResult.getOrElse { return AssertionResult.Failure(it) }
         val nsContext = testCase.environment?.getOrThrow()?.getNsContext() ?: SimpleNamespaceContext()
         val vars = mapOf("" to mapOf(
-            "result" to evalResult,
+            "result" to e,
         ))
 
-        val context = EvalContext(nsContext, ContextItem(evalResult, 1, 1), variables = vars)
+        val ctx = EvalContext(nsContext, ContextItem(e, 1, 1), variables = vars)
 
-        val assertionRaw = assertion.eval(evalResult, nsContext, vars)
+        val assertionRaw = context(ctx) { assertion.eval(e, nsContext, vars) }
 
         val assertResult = context(ExprEvalContext.DUMMY) {
             assertionRaw.toBoolean()
         }
         return when (assertResult) {
             true -> AssertionResult.Success
-            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed", AssertionError("Assertion failure"))
+            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed for result: ${e}", AssertionError("Assertion failure"))
         }
     }
 }

@@ -31,8 +31,18 @@ class ResolvedQt3AllOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3A
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val failures = assertions
             .mapNotNull { it.verify(evalResult, testCase) as? AssertionResult.Failure }
+
         return when {
-            failures.isNotEmpty() -> AssertionResult.Failure(failures.joinToString { it.error }, AssertionError("Assertion failure"))
+            failures.isNotEmpty() -> {
+                val f = failures.iterator()
+                val exception = AssertionError("Not all assertions passed", f.next().cause)
+                while (f.hasNext()) { exception.addSuppressed(f.next().cause) }
+
+                AssertionResult.Failure(
+                    failures.joinToString { it.error },
+                    AssertionError("Assertion failure", exception)
+                )
+            }
             else -> AssertionResult.Success
         }
     }
