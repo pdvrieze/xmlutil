@@ -196,8 +196,8 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
         var borrow: Long = 0L
         for (i in 0 until result.size) {
-            val a = get(0).toLong() - borrow
-            val b = other.get(0).toLong()
+            val a = get(i).toLong() - borrow
+            val b = other.get(i).toLong()
             if (a>=b) {
                 result[i] = (a - b).toUInt()
                 borrow = 0L

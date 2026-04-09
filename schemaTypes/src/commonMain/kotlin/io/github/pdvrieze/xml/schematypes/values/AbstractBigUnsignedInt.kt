@@ -185,8 +185,6 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
     }
 
     override fun compareTo(other: XsdNonNegativeInteger): Int {
-        if (other is BigUnsignedInt) return compareTo(other as AbstractBigInteger<*>)
-
         // Use counted significant bits. This catches most cases and is fairly cheap
         // It also handles the case of spurious leading zero integers.
         val s = significantBitsFromZero()
