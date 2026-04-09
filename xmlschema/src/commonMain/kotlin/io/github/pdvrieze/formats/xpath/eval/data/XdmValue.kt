@@ -33,9 +33,19 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 @OptIn(XPathInternal::class)
-sealed interface XdmValue<out T : XdmSingleValue<*>> : Iterable<T> {
-    val size: Int get() = 1
+sealed interface XdmValue<out T : XdmSingleValue<*>> : Collection<T> {
+    override val size: Int get() = 1
     operator fun get(index: Int): T
+
+    override fun isEmpty(): Boolean = size == 0
+
+    override fun contains(element: @UnsafeVariance T): Boolean {
+        return any { it == element }
+    }
+
+    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean {
+        return elements.all { contains(it) }
+    }
 
     @XPathInternal
     context(ctx: ExprEvalContext)

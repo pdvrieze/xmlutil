@@ -124,7 +124,18 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
 
 
     object EMPTY : XdmSequence<Nothing>(staticType = XdmEmptySequenceType),
-        XdmAtomicOrEmpty<Nothing>, XdmSingleOrEmpty<Nothing>
+        XdmAtomicOrEmpty<Nothing>, XdmSingleOrEmpty<Nothing> {
+
+        override fun isEmpty(): Boolean = true
+
+        override fun contains(element: Nothing): Boolean {
+            return false
+        }
+
+        override fun containsAll(elements: Collection<Nothing>): Boolean {
+            return elements.isEmpty()
+        }
+    }
 
     interface XdmSequenceBuilder<in T : XdmSingleValue<@UnsafeVariance T>> {
         fun add(value: T)

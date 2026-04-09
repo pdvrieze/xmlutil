@@ -27,6 +27,16 @@ import io.github.pdvrieze.formats.xpath.impl.*
 sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
     final override val size: Int get() = 1
 
+    override fun isEmpty(): Boolean = false
+
+    override fun contains(element: @UnsafeVariance T): Boolean {
+        return this == element
+    }
+
+    override fun containsAll(elements: Collection<@UnsafeVariance T>): Boolean {
+        return elements.all { this == it }
+    }
+
     abstract val dynamicType: XdmSingleType
 
     abstract fun asT(): T
