@@ -128,7 +128,12 @@ class DateTimeFormatter private constructor(
                 'w' -> WeekInMonthFormatter(markerContent ?: "1", widthModifier, lang)
                 'H' -> Hour24InDayFormatter(markerContent ?: "1", widthModifier, lang)
                 'h' -> Hour12InDayFormatter(markerContent ?: "1", widthModifier, lang)
-                'P' -> AmPmMarkerFormatter(markerContent ?: "n", lang)
+                'P' -> when (markerContent) {
+                    "n" -> AmPmMarkerFormatter(Case.LOWER, lang)
+                    "Nn" -> AmPmMarkerFormatter(Case.TITLE, lang)
+                    "N" -> AmPmMarkerFormatter(Case.UPPER, lang)
+                    else -> AmPmMarkerFormatter(Case.LOWER, lang)
+                }
                 'm' -> MinuteInHourFormatter(markerContent ?: "01", lang, widthModifier)
                 's' -> SecondInMinuteFormatter(markerContent ?: "01", widthModifier, lang)
                 'f' -> FractionalSecondsFormatter(markerContent ?: "1", widthModifier, lang)
@@ -390,12 +395,16 @@ private class Hour12InDayFormatter(format: IntegerFormatter, widthModifier: Widt
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.hour?.let { (((it+11u) % 12u)+ 1u).toLong() }
 }
 
-private class AmPmMarkerFormatter(val lang: XsdLanguage) : DateTimePartFormatter(WidthModifier()) {
-    constructor(markerContent: String, lang: XsdLanguage): this(lang)
+private class AmPmMarkerFormatter(val case: Case, val lang: XsdLanguage) : DateTimePartFormatter(WidthModifier()) {
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val hour = requireNotNull(dateTime.hour) { "Format requires hour, but not provided" }
-        if ((hour % 24u) < 12u) dest.append("AM") else dest.append("PM")
+        val marker = when (case) {
+            Case.UPPER -> if ((hour % 24u) < 12u) "AM" else "PM"
+            Case.LOWER -> if ((hour % 24u) < 12u) "am" else "pm"
+            Case.TITLE -> if ((hour % 24u) < 12u) "Am" else "Pm"
+        }
+        dest.append(marker)
     }
 }
 
