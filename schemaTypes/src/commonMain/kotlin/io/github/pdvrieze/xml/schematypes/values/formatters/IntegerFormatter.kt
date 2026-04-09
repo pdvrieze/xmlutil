@@ -385,7 +385,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
 
                 (baseString.length - startPos) > widthModifier.maxWidth -> {
                     receiver.appendRange(baseString, 0, startPos)
-                    receiver.appendRange(baseString, startPos, startPos + widthModifier.maxWidth)
+                    receiver.appendRange(baseString, baseString.length - widthModifier.maxWidth, baseString.length)
 
                 }
 
