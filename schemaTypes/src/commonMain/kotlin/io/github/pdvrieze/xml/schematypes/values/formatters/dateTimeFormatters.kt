@@ -21,7 +21,9 @@
 package io.github.pdvrieze.xml.schematypes.values.formatters
 
 import io.github.pdvrieze.xml.schematypes.values.*
-import kotlinx.datetime.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
 
@@ -311,24 +313,7 @@ private class WeekInYearFormatter(format: IntegerFormatter, widthModifier: Width
     )
 
     override fun getValue(dateTime: IXsdDateTime): Long? {
-        val date = toLocalDate(dateTime) ?: return null
-        val refDay = LocalDate(date.year, 1, 11)
-        // Use week 2 not to deal with previous years
-        val firstDayOfWeek2 = refDay.minus(refDay.dayOfWeek.isoDayNumber -1, DateTimeUnit.DAY)
-        var differenceInDays = date.dayOfYear + 7 - firstDayOfWeek2.dayOfYear
-
-        if (differenceInDays < 0) { // Have to deal with previous year here to determine 52 or 53 weeks
-            val rd2 = LocalDate(date.year - 1, 1, 11)
-            val lastDayOfYear = LocalDate(date.year -1 , 12, 31)
-            differenceInDays = lastDayOfYear.dayOfYear - rd2.minus(rd2.dayOfWeek.isoDayNumber -1, DateTimeUnit.DAY).dayOfYear + 7
-        }
-
-        // move up (and down) to handle with div rounding to zero
-        val diffToWeeks = ((differenceInDays + 7) / 7) - 1
-
-        val result = diffToWeeks + 1 //add one as weeks start at 1 not 0
-
-        return result.toLong()
+        return dateTime.weekOfYear()?.toLong()
     }
 }
 
@@ -342,10 +327,7 @@ private class WeekInMonthFormatter(format: IntegerFormatter, widthModifier: Widt
     )
 
     override fun getValue(dateTime: IXsdDateTime): Long? {
-        val date = toLocalDate(dateTime) ?: return null
-        val firstDayOfMonth = LocalDate(date.year, date.month, 1)
-        val firstDayOfWeek = firstDayOfMonth.dayOfWeek.isoDayNumber
-        return (((date.day + firstDayOfWeek - 1) / 7) + 1).toLong()
+        return dateTime.weekOfMonth()?.toLong()
     }
 }
 

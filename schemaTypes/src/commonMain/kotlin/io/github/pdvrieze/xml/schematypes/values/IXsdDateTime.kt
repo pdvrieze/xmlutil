@@ -111,4 +111,45 @@ interface IXsdDateTime: XsdAtomic {
         return formatter.format(this)
     }
 
+    fun weekOfMonth(): Int? {
+        val date = year?.let {
+            LocalDate(it, month?.toInt() ?: 1, day?.toInt() ?: 1)
+        } ?: return null
+
+        val refDay = LocalDate(date.year, date.month.number, 11)
+        var differenceInDays = date.dayOfYear + 7 - (refDay.dayOfYear - (refDay.dayOfWeek.isoDayNumber - 1))
+        if (differenceInDays < 0) {
+            val refDay2 = when (date.month.number) { //just manually handle year wrapping
+                1 -> LocalDate(date.year - 1, 12, 11)
+                else -> LocalDate(date.year, date.month.number - 1, 11)
+            }
+            val weekEarly = date.minus(7, DateTimeUnit.DAY)
+            differenceInDays = weekEarly.dayOfYear + 14 - (refDay2.dayOfYear - (refDay2.dayOfWeek.isoDayNumber - 1))
+        }
+
+        // move up (and down) to handle with div rounding to zero (as weeks start with 1 adding 7 before diff is the same as adding 1 after)
+        return ((differenceInDays + 7) / 7)
+    }
+
+    fun weekOfYear(): Int? {
+        val date = year?.let {
+            LocalDate(it, month?.toInt() ?: 1, day?.toInt() ?: 1)
+        } ?: return null
+
+        // Use week 2 not to deal with previous years
+        val refDay = LocalDate(date.year, 1, 11)
+        // compensate for week 2 by adding 7, then also compensate for the day number
+        // this is more complex (nested subtractions) to provide logical clarity
+        var differenceInDays = date.dayOfYear + 7 - (refDay.dayOfYear - (refDay.dayOfWeek.isoDayNumber - 1))
+
+        if (differenceInDays < 0) { // Have to deal with previous year here to determine 52 or 53 weeks
+            val rd2 = LocalDate(date.year - 1, 1, 11)
+            val lastDayOfYear = LocalDate(date.year -1 , 12, 31)
+            differenceInDays = lastDayOfYear.dayOfYear - rd2.minus(rd2.dayOfWeek.isoDayNumber -1, DateTimeUnit.DAY).dayOfYear + 7
+        }
+
+        // move up (and down) to handle with div rounding to zero (as weeks start with 1 adding 7 before diff is the same as adding 1 after)
+        return ((differenceInDays + 7) / 7)
+    }
+
 }

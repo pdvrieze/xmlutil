@@ -48,6 +48,9 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
     override val minute: UInt
     override val second: XsdDecimal
 
+    override fun weekOfYear(): Int = super.weekOfYear()!!
+    override fun weekOfMonth(): Int = super.weekOfMonth()!!
+
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
         return when (other) {
             is IXsdDateTime -> compareTo(other)
