@@ -136,7 +136,7 @@ class DateTimeFormatter private constructor(
                 'z' -> parseTimezoneMarker(true, markerContent ?: "01:01", widthModifier, lang, place)
                 'C' -> CalendarNameFormatter(markerContent ?: "n", lang)
                 'E' -> EraFormatter(markerContent ?: "n", lang)
-                else -> error("Unknown marker $marker")
+                else -> throw IllegalArgumentException("Unknown marker $marker")
             }
         }
 

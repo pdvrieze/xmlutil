@@ -34,6 +34,7 @@ import io.github.pdvrieze.xml.schematypes.types.DateType
 import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.types.TimeType
 import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.formatters.DateTimeFormatter
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.asTimeZone
 
@@ -250,13 +251,14 @@ object DateTimeFunctions : AbstractFunctionObject() {
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING),
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
     )) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        // use IXsdDateTime to allow using this for the date/time versions.
+        val dateTime = args.atomicArgOrEmpty<IXsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage?
         val calendar: String?
         val place: String?
         if (args.size==5) {
-            language = args.atomicArgOrEmpty<XsdLanguage>(2)
+            language = args.atomicArgOrEmpty<XsdString>(2)?.let { XsdLanguage(it.xmlString) }
             calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
             place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
         } else {
@@ -264,7 +266,18 @@ object DateTimeFunctions : AbstractFunctionObject() {
             calendar = null
             place = null
         }
-        XdmAtomic(XsdString(dateTime.format(picture, language ?: contextOf<ExprEvalContext>().defaultLanguage, calendar, place)))
+        val formatter = try {
+            DateTimeFormatter(picture, language ?: contextOf<ExprEvalContext>().defaultLanguage, calendar, place)
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FOFD1340, "Invalid picture for format-dateTime: '$picture'", e)
+        }
+
+        val formatted = try {
+            formatter.format(dateTime)
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FOFD1350, "Picture and datetime mismatch", e)
+        }
+        XdmAtomic(XsdString(formatted))
     }
     //endregion
 }
