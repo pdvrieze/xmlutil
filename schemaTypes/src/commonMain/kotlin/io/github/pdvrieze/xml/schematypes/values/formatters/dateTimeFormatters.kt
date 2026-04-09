@@ -104,8 +104,8 @@ class DateTimeFormatter private constructor(
             val widthModifier = if (widthModIdx >= 0) WidthModifier(marker.substring(widthModIdx + 1)) else WidthModifier(0)
             val markerContent = when {
                 widthModIdx >= 0 -> marker.substring(1, widthModIdx)
-                else -> marker.substring(1).takeIf { it.isNotEmpty() }
-            }
+                else -> marker.substring(1)
+            }.takeIf { it.isNotEmpty() }
             return when (marker[0]) {
                 'Y' -> YearFormatter(markerContent ?: "1", widthModifier, lang)
                 'M' -> when (markerContent) {
