@@ -26,6 +26,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
+import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 
 @ExperimentalXmlUtilApi
 class IntegerFormatter private constructor(internal val format: FormatterImpl, private val modifier: Modifier?) {
@@ -142,13 +143,13 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                         else if (cpDigitFamily != seenDigit) throw IllegalArgumentException("Digits of different families in picture")
 
                         var count = 1 // manual counting needed to deal with surrogates
-                        var j = primary.nextCharPos(i)
+                        var j = primary.nextCodePointPos(i)
                         while (j < primary.length && primary[j].isDigit()) {
                             count += 1
                             if (primary.codepointAt(j)
                                     .toDigitFamily() != seenDigit
                             ) throw IllegalArgumentException("Digits of different families in picture")
-                            j = primary.nextCharPos(j)
+                            j = primary.nextCodePointPos(j)
                         }
                         result.add(ReqDigits(count))
                         i = j
@@ -160,7 +161,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                         //
                         require(prev !is GroupingSeparator) { "Grouping separators must not follow each other" }
                         result.add(GroupingSeparator(cp))
-                        i = primary.nextCharPos(i)
+                        i = primary.nextCodePointPos(i)
                     }
 
                     else if (i == 0) -> when (c) {
@@ -552,9 +553,4 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
         }
     }
 
-}
-
-internal fun CharSequence.nextCharPos(pos: Int): Int = when {
-    get(pos).isHighSurrogate() -> pos + 2
-    else -> pos + 1
 }

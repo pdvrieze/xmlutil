@@ -20,8 +20,27 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import nl.adaptivity.xmlutil.QName
+
 @XPathInternal
 class LetExpr @NeedsXPath3_0 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): AbstractExprSingle() {
+
+    context(ctx: EvalContext)
+    @XPathInternal
+    override fun eval(): XdmValue<*> {
+        var effectiveCtx = ctx
+        for (binding in bindings) {
+            val value = context(effectiveCtx) {
+                binding.expr.eval()
+            }
+            effectiveCtx = effectiveCtx.newVarScope(binding.varName, value)
+        }
+        return context(effectiveCtx) {
+            returnExp.eval()
+        }
+    }
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append("let ")
@@ -54,10 +73,10 @@ class LetExpr @NeedsXPath3_0 constructor(val bindings: List<Binding>, val return
     }
 
 
-    class Binding(val varName: String, val expr: ExprSingle) {
+    class Binding(val varName: QName, val expr: ExprSingle) {
         context(c: OutputContext)
         fun appendToString(builder: Appendable) {
-            builder.append('$').append(varName).append(" := ")
+            builder.append('$').appendQName(varName).append(" := ")
             expr.appendToString(builder)
         }
 

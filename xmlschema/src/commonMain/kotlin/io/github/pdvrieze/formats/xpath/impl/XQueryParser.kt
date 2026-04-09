@@ -309,7 +309,7 @@ internal class XQueryParser(
         val bindings = mutableListOf<LetExpr.Binding>()
         do {
             parseRequire(tryCurrentToken('$'))
-            val varName = parseNCName().name
+            val varName = parseEQNameTokenUndelim().toQName()
             parseRequire(tryCurrentToken(":="))
             val rValueExpr = parseExprSingle()
             bindings.add(LetExpr.Binding(varName, rValueExpr))
