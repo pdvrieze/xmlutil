@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:OptIn(XPathInternal::class)
+
 package io.github.pdvrieze.formats.xpath.impl.token
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
@@ -25,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.impl.BooleanFunctions
+import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
@@ -84,42 +87,58 @@ sealed class Operator(
     object LT: ComparisonOperator("<", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(LE, PRECEDES)
-        override fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean {
-            TODO("not implemented")
-        }
 
+        context(ctx: ExprEvalContext)
         override fun numericCompare(cmp: Int): Boolean = cmp < 0
+    }
 
-        override fun cmp(left: Double, right: Double): Boolean = left < right
-        override fun cmp(left: Float, right: Float): Boolean = left < right
-        override fun cmp(left: Boolean, right: Boolean): Boolean = left < right
-        override fun cmp(left: String, right: String): Boolean = left < right
-
-
+    @NeedsXPath1
+    object LE : ComparisonOperator("<=", 5, XPathVersion.XPath1_0, true) {
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp <= 0
     }
     @NeedsXPath1
-    object LE : Operator("<=", 5, XPathVersion.XPath1_0, true)
-    @NeedsXPath1
-    object GT : Operator(">", 5, XPathVersion.XPath1_0, true){
+    object GT : ComparisonOperator(">", 5, XPathVersion.XPath1_0, true){
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(GE, FOLLOWS)
+
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp > 0
     }
     @NeedsXPath1
-    object GE : Operator(">=", 5, XPathVersion.XPath1_0, true)
+    object GE : ComparisonOperator(">=", 5, XPathVersion.XPath1_0, true) {
+
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp >= 0
+    }
+
     @NeedsXPath2
     object VAL_EQ : ComparisonOperator("eq", 5, XPathVersion.XPath2_0, false) {
 
-        override fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean =
-            left == right
-
+        context(ctx: ExprEvalContext)
         override fun numericCompare(cmp: Int): Boolean = cmp == 0
 
+        context(ctx: ExprEvalContext)
+        override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
+            return leftVal.equals(rightVal)
+        }
+/*
+
+        context(ctx: ExprEvalContext)
+        override fun cmpNumbers(left: XsdNumeric<*>, right: XsdNumeric<*>): Boolean {
+            return left == right
+        }
+
+        context(ctx: ExprEvalContext)
         override fun cmp(left: Double, right: Double): Boolean = left == right
 
+        context(ctx: ExprEvalContext)
         override fun cmp(left: Float, right: Float): Boolean = left == right
 
+        context(ctx: ExprEvalContext)
         override fun cmp(left: Boolean, right: Boolean): Boolean = left == right
 
+        context(ctx: ExprEvalContext)
         override fun cmp(left: String, right: String): Boolean = left == right
 
         context(ctx: ExprEvalContext)
@@ -154,18 +173,53 @@ sealed class Operator(
             }
             return XdmAtomic(XsdBoolean(result))
         }
+*/
 
     }
     @NeedsXPath2
-    object VAL_NEQ: Operator("ne", 5, XPathVersion.XPath2_0, false)
+    object VAL_NEQ: Operator("ne", 5, XPathVersion.XPath2_0, false) {
+        context(ctx: ExprEvalContext)
+        @XPathInternal
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+            val isEq = (VAL_EQ.eval(left, right) as? XdmAtomic<XsdBoolean>)?.value ?: return XdmSequence.EMPTY
+            return XdmBoolean(XsdBoolean(!isEq.value))
+        }
+    }
     @NeedsXPath2
-    object VAL_LT: Operator("lt", 5, XPathVersion.XPath2_0, false)
+    object VAL_LT: ComparisonOperator("lt", 5, XPathVersion.XPath2_0, false) {
+                @OptIn(NeedsXPath2::class)
+        override val longer: List<Operator> get() = listOf(LE, PRECEDES)
+
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp < 0
+
+    }
     @NeedsXPath2
-    object VAL_LE: Operator("le", 5, XPathVersion.XPath2_0, false)
+    object VAL_LE: ComparisonOperator("le", 5, XPathVersion.XPath2_0, false) {
+                @OptIn(NeedsXPath2::class)
+        override val longer: List<Operator> get() = listOf(LE, PRECEDES)
+
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp <= 0
+
+    }
     @NeedsXPath2
-    object VAL_GT: Operator("gt", 5, XPathVersion.XPath2_0, false)
+    object VAL_GT: ComparisonOperator("gt", 5, XPathVersion.XPath2_0, false) {
+                @OptIn(NeedsXPath2::class)
+        override val longer: List<Operator> get() = listOf(LE, PRECEDES)
+
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp > 0
+
+    }
     @NeedsXPath2
-    object VAL_GE: Operator("ge", 5, XPathVersion.XPath2_0, false)
+    object VAL_GE: ComparisonOperator("ge", 5, XPathVersion.XPath2_0, false) {
+                @OptIn(NeedsXPath2::class)
+        override val longer: List<Operator> get() = listOf(LE, PRECEDES)
+
+        context(ctx: ExprEvalContext)
+        override fun numericCompare(cmp: Int): Boolean = cmp >= 0
+    }
     @NeedsXPath2
     object PRECEDES: Operator("<<", 5, XPathVersion.XPath2_0, true)
     @NeedsXPath2
@@ -429,8 +483,8 @@ sealed class Operator(
 
     open val longer: List<Operator> get() = emptyList()
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     open fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> =
         TODO("Evaluation of operator '$literal' not yet implemented")
 
@@ -471,9 +525,9 @@ sealed class Operator(
 
         val result: Boolean = when (leftVal) {
             is XsdFloat if rightVal is XsdFloat -> operator.cmp(leftVal.value, rightVal.value)
-            is XsdDouble if rightVal is XsdDouble -> operator.cmp(leftVal.value, rightVal.value)
+            is XsdDouble if rightVal is XsdDouble -> operator.cmp(leftVal.value, rightVal.value,)
             is XsdDecimal if rightVal is XsdDecimal -> operator.cmp(leftVal, rightVal)
-            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> operator.cmp(leftVal.toDouble(), rightVal.toDouble())
+            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> operator.cmp(leftVal.toDouble(), rightVal.toDouble(),)
             is XsdBoolean if rightVal is XsdBoolean -> operator.cmp(leftVal.value, rightVal.value)
 
             is XsdString if rightVal is XsdString -> operator.cmp(leftVal.xmlString, rightVal.xmlString)
@@ -498,6 +552,44 @@ sealed class Operator(
     }
 
 
+}
+
+abstract class SequenceComparisonOperator(
+    private val base: Operator,
+    literal: String,
+    priority: Int,
+    minVersion: XPathVersion = XPathVersion.XPath3_1,
+    isDelimiting: Boolean,
+    val isInequality: Boolean = false,
+) : Operator(literal, priority, minVersion, isDelimiting) {
+    context(ctx: ExprEvalContext)
+    @XPathInternal
+    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+        if (left is XdmAtomic<*> && left.value is XsdBoolean) {
+            val rightBool = XsdBoolean(right.toBoolean())
+            return base.eval(left, XdmAtomic(rightBool))
+        } else if (right is XdmAtomic<*> && right.value is XsdBoolean) {
+            val leftBool = XsdBoolean(left.toBoolean())
+            return base.eval(XdmAtomic(leftBool), right)
+        }
+
+        var leftAtoms: Collection<XdmAtomic<XsdAtomic>> = left.atomize()
+        var rightAtoms: Collection<XdmAtomic<XsdAtomic>> = right.atomize()
+
+        if (isInequality) {
+            leftAtoms = leftAtoms.map { NumericFunctions.fnNumber(it) }
+            rightAtoms = rightAtoms.map { NumericFunctions.fnNumber(it) }
+        }
+
+
+        if (leftAtoms.isEmpty() || rightAtoms.isEmpty()) return XdmSequence.EMPTY
+
+        if (left !is XdmAtomic<*> || right !is XdmAtomic<*>) {
+            throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as value comparison operand")
+        }
+
+        return base.eval(left, right)
+    }
 }
 
 abstract class ComparisonOperator(
@@ -528,6 +620,11 @@ abstract class ComparisonOperator(
             )
         }
 
+        return XdmAtomic(XsdBoolean(cmpAtomic(leftVal, rightVal)))
+    }
+
+    context(ctx: ExprEvalContext)
+    open protected fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
         val result: Boolean = when (leftVal) {
             is XsdFloat if rightVal is XsdFloat -> cmp(leftVal.value, rightVal.value)
             is XsdDouble if rightVal is XsdDouble -> cmp(leftVal.value, rightVal.value)
@@ -553,33 +650,98 @@ abstract class ComparisonOperator(
 
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
         }
-        return XdmAtomic(XsdBoolean(result))
+        return result
     }
 
-    abstract fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Boolean
+    context(ctx: ExprEvalContext)
+    open fun defaultCmp(left: XsdAtomic, right: XsdAtomic): Int {
+        return when (left) {
+            is XsdDate if (right is XsdDate) -> left.compareTo(right)
+            is XsdDateTime if (right is XsdDateTime) -> left.compareTo(right)
+            is XsdTime if (right is XsdTime) -> left.compareTo(right)
+            is XsdDayTimeDuration if (right is XsdDayTimeDuration) -> left.compareTo(right)
+            is XsdYearMonthDuration if (right is XsdYearMonthDuration) -> left.compareTo(right)
+            is XsdByteArray if (right is XsdByteArray) -> left.compareTo(right)
+
+            else -> throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Comparison of '$left' and '$right' is not supported"
+            )
+
+        }
+    }
+
+
+    context(ctx: ExprEvalContext)
+    open fun defaultCmpXXX(left: XsdAtomic, right: XsdAtomic): Boolean = numericCompare(defaultCmp(left, right))
+
+    context(ctx: ExprEvalContext)
     abstract fun numericCompare(cmp: Int) : Boolean
+
+    context(ctx: ExprEvalContext)
     open fun numericCompare(left: XsdNumeric<*>, right: XsdNumeric<*>): Int = left.compareTo(right)
 
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdInteger, right: XsdInteger): Boolean = cmpNumbers(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdDecimal, right: XsdDecimal): Boolean = cmpNumbers(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdFloat, right: XsdFloat): Boolean = cmpNumbers(left, right)
-    open fun cmpNumbers(left: XsdNumeric<*>, right: XsdNumeric<*>): Boolean = cmpNumbers(left, right)
-    abstract fun cmp(left: Double, right: Double): Boolean
-    abstract fun cmp(left: Float, right: Float): Boolean
-    abstract fun cmp(left: Boolean, right: Boolean): Boolean
-    abstract fun cmp(left: String, right: String): Boolean
-    open fun <T: IXsdDateTime> cmpDateTime(left: T, right: T): Boolean = defaultCmp(left, right)
+
+    context(ctx: ExprEvalContext)
+    open fun cmpNumbers(left: XsdNumeric<*>, right: XsdNumeric<*>): Boolean = numericCompare(numericCompare(left, right))
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: Double, right: Double): Boolean = numericCompare(left.compareTo(right))
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: Float, right: Float): Boolean = numericCompare(left.compareTo(right))
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: Boolean, right: Boolean): Boolean = numericCompare(left.compareTo(right))
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: String, right: String): Boolean = numericCompare(left.compareTo(right))
+
+    context(ctx: ExprEvalContext)
+    open fun <T : IXsdDateTime> cmpDateTime(left: T, right: T): Boolean = numericCompare(defaultCmp(left, right))
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdDateTime, right: XsdDateTime): Boolean = cmpDateTime(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdDate, right: XsdDate): Boolean = cmpDateTime(left, right)
-    open fun cmp(left: XsdDuration, right: XsdDuration): Boolean = defaultCmp(left, right)
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: XsdDuration, right: XsdDuration): Boolean = defaultCmpXXX(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdGDay, right: XsdGDay): Boolean = cmpDateTime(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdGMonthDay, right: XsdGMonthDay): Boolean = cmpDateTime(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdGMonth, right: XsdGMonth): Boolean = cmpDateTime(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdGYearMonth, right: XsdGYearMonth): Boolean = cmpDateTime(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdGYear, right: XsdGYear): Boolean = cmpDateTime(left, right)
-    open fun cmp(left: XsdHexBinary, right: XsdHexBinary): Boolean = defaultCmp(left, right)
-    open fun cmp(left: XsdNotation, right: XsdNotation): Boolean = defaultCmp(left, right)
-    open fun cmp(left: XsdQName, right: XsdQName): Boolean = defaultCmp(left, right)
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: XsdHexBinary, right: XsdHexBinary): Boolean = defaultCmpXXX(left, right)
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: XsdNotation, right: XsdNotation): Boolean = defaultCmpXXX(left, right)
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: XsdQName, right: XsdQName): Boolean = defaultCmpXXX(left, right)
+
+    context(ctx: ExprEvalContext)
     open fun cmp(left: XsdTime, right: XsdTime): Boolean = cmpDateTime(left, right)
 }
 
