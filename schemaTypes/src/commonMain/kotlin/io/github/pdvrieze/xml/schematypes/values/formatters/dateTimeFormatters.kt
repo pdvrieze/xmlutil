@@ -202,7 +202,7 @@ private abstract class NumericFormatter(val intFormat: IntegerFormatter, widthMo
             dest.append(str)
             repeat(maxOf(0, widthModifier.minWidth - str.length)) { dest.append(' ') }
         } else {
-            intFormat.formatTo(dest, elemValue, WidthModifier(0))
+            intFormat.formatTo(dest, elemValue, widthModifier)
         }
     }
 }
