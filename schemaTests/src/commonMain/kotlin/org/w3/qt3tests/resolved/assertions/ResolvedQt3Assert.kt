@@ -22,8 +22,6 @@ package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.impl.ContextItem
-import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
@@ -38,16 +36,14 @@ class ResolvedQt3Assert(val assertion: XPathExpression) : ResolvedQt3Assertion()
             "result" to e,
         ))
 
-        val ctx = EvalContext(nsContext, ContextItem(e, 1, 1), variables = vars)
-
-        val assertionRaw = context(ctx) { assertion.eval(e, nsContext, vars) }
+        val assertionRaw = assertion.eval(e, nsContext, vars)
 
         val assertResult = context(ExprEvalContext.DUMMY) {
             assertionRaw.toBoolean()
         }
         return when (assertResult) {
             true -> AssertionResult.Success
-            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed for result: ${e}", AssertionError("Assertion failure"))
+            else -> AssertionResult.Failure("assertion '${assertion.xmlString}' failed for result: '${e}'", AssertionError("Assertion failure"))
         }
     }
 }

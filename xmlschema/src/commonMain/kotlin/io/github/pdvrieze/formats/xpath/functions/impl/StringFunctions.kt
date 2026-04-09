@@ -182,7 +182,7 @@ object StringFunctions : AbstractFunctionObject() {
 
         val regex = XRegex(pattern, SchemaVersion.V1_1)
         // TODO support flags
-        val result = regex.matches(input)
+        val result = regex.containsMatchIn(input)
         XdmAtomic(XsdBoolean(result))
     }
     //endregion

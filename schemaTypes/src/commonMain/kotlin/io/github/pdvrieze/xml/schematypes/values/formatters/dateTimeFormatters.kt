@@ -45,6 +45,14 @@ class DateTimeFormatter private constructor(
 
     fun format(dateTime: IXsdDateTime): String {
         return buildString {
+            if (!language.xmlString.let { it.isEmpty() || it.startsWith("en", ignoreCase = true) }) {
+                append("Language: en; ")
+            }
+            when (calendar) {
+                null, "ISO", "AD" -> {}
+                else -> append("Calendar: AD; ")
+            }
+
             for (part in parts) {
                 part.formatTo(this, dateTime)
             }
