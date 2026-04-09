@@ -29,8 +29,12 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     AbstractBigInteger<BigInt>(ints, exp) {
     init {
         require(ints.isNotEmpty()) { "At least one integer must be present" }
-        if (sign != 0 || ints.size > 1 || exp != 0uL) {
-            require(ints.any { it != 0u }) { "Zero values must be represented as a single int" }
+        if (ints.all { it == 0u }) {
+            require(ints.size == 1) { "Zero must be a single int"}
+            require(sign == 0) { "The value is zero, but the sign is not 0" }
+            require(exp == 0uL) { "The value is zero, but the exponent is not 0" }
+        } else {
+            require(sign != 0) { "The value is non-zero, but the sign is 0" }
         }
         require(sign in -1..1) { "Invalid sign" }
     }
@@ -123,9 +127,10 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         }
         val base = unsignedDivRem(divider)
         val finalSign = if (base.quotient.sign == 0) 0 else nonzeroSign
+        val remSign = if (base.remainder.sign == 0) 0 else sign
         return DivRem(
             quotient = BigInt(finalSign, base.quotient.ints, base.quotient.exp),
-            remainder = BigInt(sign, base.remainder.ints, base.remainder.exp),
+            remainder = BigInt(remSign, base.remainder.ints, base.remainder.exp),
         )
 
     }
