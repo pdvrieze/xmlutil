@@ -69,9 +69,9 @@ class BigPositiveInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     override val sign: Int
         get() = 1 //if (ints.size == 1 && ints[0] == 0u) 0 else 1
 
-    override fun unaryMinus(): BigNegativeInt {
-        return BigNegativeInt(ints, exp)
-    }
+    override fun unaryMinus(): BigNegativeInt = BigNegativeInt(ints, exp)
+
+    override fun unaryPlus(): BigPositiveInt = this
 
     override fun plus(other: XsdNonNegativeInteger): BigPositiveInt {
         if (other.sign == 0) return this // handles the zero case for which conversion does not work

@@ -34,6 +34,7 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
 
     val value: Double
     override fun toLong(): Long = value.toLong()
+    override fun toInt(): Int = value.toInt()
 
     operator fun plus(other: XsdDouble): XsdDouble = XsdDoubleImpl(value + other.value)
     operator fun minus(other: XsdDouble): XsdDouble = XsdDoubleImpl(value - other.value)

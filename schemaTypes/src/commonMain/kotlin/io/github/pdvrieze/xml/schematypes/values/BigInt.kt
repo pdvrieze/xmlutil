@@ -160,6 +160,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     }
 
     override fun unaryMinus(): XsdInteger = BigInt(-sign, ints, exp)
+    override fun unaryPlus(): XsdInteger = this
 
     override fun minus(other: XsdDecimal): XsdDecimal = when (other) {
         is XsdInteger -> minus(other)

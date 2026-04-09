@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdFloat
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.math.absoluteValue
 
@@ -36,6 +37,7 @@ class XsdFloatImpl(override val value: Float): XsdFloat {
     override fun abs(): XsdFloat = XsdFloatImpl(value.absoluteValue)
 
     override fun unaryMinus(): XsdFloat = XsdFloatImpl(-value)
+    override fun unaryPlus(): XsdFloat = this
 
     override fun toString(): String = xmlString
 

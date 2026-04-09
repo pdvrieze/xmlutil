@@ -92,7 +92,7 @@ object NumericFunctions: AbstractFunctionObject() {
     //endregion
 
     //region Parsing numbers
-    val fnNumber: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+    val fnNumber: BuiltinFunctionImpl<XdmAtomic<XsdNumeric<*>>> = BuiltinFunctionImpl(
         "number",
         contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)
     ) { args ->

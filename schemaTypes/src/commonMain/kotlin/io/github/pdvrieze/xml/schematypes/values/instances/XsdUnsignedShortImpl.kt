@@ -32,6 +32,8 @@ internal class XsdUnsignedShortImpl(override val uShortValue: UShort) : XsdUnsig
     override val xmlString: String get() = uIntValue.toString()
     override val schemaType: UnsignedShortType<*> get() = UnsignedShortType.Instance
 
+    override fun unaryPlus(): XsdUnsignedShort = this
+
     override fun toString(): String {
         return "${uShortValue}u"
     }

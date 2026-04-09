@@ -81,9 +81,8 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         return plus(BigUnsignedInt(other))
     }
 
-    override fun unaryMinus(): BigNonPositiveInt {
-        return BigNonPositiveInt(ints, exp)
-    }
+    override fun unaryMinus(): BigNonPositiveInt = BigNonPositiveInt(ints, exp)
+    override fun unaryPlus(): BigUnsignedInt = this
 
     override fun div(divider: XsdNonNegativeInteger): BigUnsignedInt = when (divider) {
         is AbstractBigUnsignedInt<*> -> divRem(divider.asBigUnsignedInt()).quotient

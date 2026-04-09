@@ -25,14 +25,15 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 
 @OptIn(XPathInternal::class)
 class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : AbstractExprSingle() {
     context(ctx: EvalContext)
     @XPathInternal
     override fun eval(): XdmValue<*> {
-        val start = ((from.eval() as XdmAtomic<*>).value as XsdDecimal).toInt()
-        val end = ((to.eval() as XdmAtomic<*>).value as XsdDecimal).toInt()
+        val start = ((from.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
+        val end = ((to.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
 
         return XdmSequence((start..end).map { XdmAtomic(XsdInt(it)) })
     }

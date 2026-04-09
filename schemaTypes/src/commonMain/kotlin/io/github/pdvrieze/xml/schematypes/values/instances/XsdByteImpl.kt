@@ -34,7 +34,8 @@ internal class XsdByteImpl(override val byteValue: Byte) : XsdByte {
         return XsdUnsignedByte(byteValue.toInt().absoluteValue.toUByte())
     }
 
-    override fun unaryMinus(): XsdShort = XsdByteImpl((-byteValue).toByte())
+    override fun unaryMinus(): XsdByte = XsdByteImpl((-byteValue).toByte())
+    override fun unaryPlus(): XsdByte = this
 
     override fun plus(other: XsdInteger): XsdInteger = when (other) {
         is XsdByte -> XsdByteImpl((byteValue + other.byteValue).toByte())

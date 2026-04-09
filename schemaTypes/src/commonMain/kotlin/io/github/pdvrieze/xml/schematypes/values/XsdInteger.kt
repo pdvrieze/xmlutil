@@ -38,6 +38,16 @@ interface XsdInteger : XsdDecimal {
     override fun toInt(): Int
     fun toBigInt(): XsdInteger
 
+    override fun toDouble(): Double = when (size) {
+        1uL, 2uL -> toLong().toDouble()
+        else -> xmlString.toDouble()
+    }
+
+    override fun toFloat(): Float = when (size) {
+        1uL, 2uL -> toLong().toFloat()
+        else -> xmlString.toFloat()
+    }
+
     override fun roundToInteger(): XsdInteger = this
 
     /** The conceptual size in 32-bit values from 0. */

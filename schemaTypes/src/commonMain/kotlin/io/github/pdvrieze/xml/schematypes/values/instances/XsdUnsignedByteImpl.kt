@@ -32,6 +32,8 @@ internal class XsdUnsignedByteImpl(override val uByteValue: UByte) : XsdUnsigned
     override val xmlString: String get() = uByteValue.toString()
     override val schemaType: UnsignedByteType<*> get() = UnsignedByteType.Instance
 
+    override fun unaryPlus(): XsdUnsignedByte = this
+
     override fun toString(): String {
         return "${uByteValue}u"
     }

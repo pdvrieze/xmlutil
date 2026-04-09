@@ -37,6 +37,7 @@ import kotlin.math.round as kmRound
 interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
     val value: Float
     override fun toLong(): Long = value.toLong()
+    override fun toFloat(): Float = value
 
     operator fun plus(other: XsdFloat): XsdFloat = XsdFloatImpl(value + other.value)
     operator fun minus(other: XsdFloat): XsdFloat = XsdFloatImpl(value - other.value)

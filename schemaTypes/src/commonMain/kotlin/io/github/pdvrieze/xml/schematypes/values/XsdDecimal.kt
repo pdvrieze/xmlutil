@@ -39,11 +39,10 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     val sign: Int
 
     override fun toLong(): Long
-    fun toInt(): Int
+    override fun toInt(): Int
     fun toUInt(): UInt = toLong().toUInt()
 
     override fun toDouble(): Double = xmlString.toDouble()
-    fun toFloat(): Float = toDouble().toFloat()
 
     operator fun compareTo(other: XsdDecimal): Int
     operator fun plus(other: XsdDecimal): XsdDecimal

@@ -70,9 +70,8 @@ class BigNonPositiveInt internal constructor(ints: UIntArray, exp: ULong) :
     override val sign: Int
         get() = if (ints.size == 1 && ints[0] == 0u) 0 else -1
 
-    override fun unaryMinus(): BigUnsignedInt {
-        return BigUnsignedInt(ints, exp)
-    }
+    override fun unaryMinus(): BigUnsignedInt = BigUnsignedInt(ints, exp)
+    override fun unaryPlus(): BigNonPositiveInt = this
 
     fun div(divider: XsdNonNegativeInteger): BigNonPositiveInt {
         val unsignedQuotient = abs().div(divider)

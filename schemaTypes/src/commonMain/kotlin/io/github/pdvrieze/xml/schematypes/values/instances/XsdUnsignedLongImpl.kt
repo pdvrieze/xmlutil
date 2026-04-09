@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
@@ -32,6 +33,7 @@ internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsigned
     override val schemaType: UnsignedLongType<*> get() = UnsignedLongType.Instance
 
     override fun unaryMinus(): XsdLong = XsdLong(-uLongValue.toLong())
+    override fun unaryPlus(): XsdUnsignedLong = this
 
     override fun divRem(divider: XsdUnsignedLong): XsdUnsignedLong.DivRem {
         return DivRem(uLongValue / divider.uLongValue, uLongValue % divider.uLongValue)

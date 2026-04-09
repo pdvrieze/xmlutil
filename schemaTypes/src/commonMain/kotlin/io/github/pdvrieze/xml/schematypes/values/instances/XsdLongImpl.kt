@@ -36,6 +36,7 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
     override fun toString(): String = xmlString
 
     override fun unaryMinus(): XsdLong = XsdLongImpl(-longValue)
+    override fun unaryPlus(): XsdLong = this
 
     override fun plus(other: Long): XsdLong {
         return XsdLong(longValue + other)

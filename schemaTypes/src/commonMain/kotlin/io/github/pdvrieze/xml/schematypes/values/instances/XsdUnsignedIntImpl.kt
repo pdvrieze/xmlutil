@@ -31,6 +31,8 @@ internal class XsdUnsignedIntImpl(override val uIntValue: UInt) : XsdUnsignedInt
     override val xmlString: String get() = uIntValue.toString()
     override val schemaType: UnsignedIntType<*> get() = UnsignedIntType.Instance
 
+    override fun unaryPlus(): XsdUnsignedInt = this
+
     override fun toString(): String {
         return "${uIntValue}u"
     }

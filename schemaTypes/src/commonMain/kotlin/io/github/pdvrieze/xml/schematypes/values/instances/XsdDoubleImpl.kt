@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.math.absoluteValue
 import kotlin.math.nextDown
@@ -41,6 +42,7 @@ class XsdDoubleImpl(override val value: Double): XsdDouble {
     override fun abs(): XsdDouble = XsdDoubleImpl(value.absoluteValue)
 
     override fun unaryMinus(): XsdDouble = XsdDoubleImpl(-value)
+    override fun unaryPlus(): XsdDouble = this
 
     override fun ceiling(): XsdDouble {
         return XsdDouble(value.nextUp())

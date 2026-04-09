@@ -29,11 +29,14 @@ sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
     override val schemaType: PrimitiveType<XsdPrimitive>
 
     fun toDouble(): Double
+    fun toFloat(): Float = toDouble().toFloat()
     fun toLong(): Long
+    fun toInt() = toLong().toInt()
 
     fun abs(): T
 
     operator fun unaryMinus(): T
+    operator fun unaryPlus(): T
 
     fun ceiling(): T
     fun floor(): T

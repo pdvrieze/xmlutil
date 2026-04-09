@@ -33,6 +33,7 @@ internal class XsdIntImpl(override val intValue: Int) : XsdInt {
     }
 
     override fun unaryMinus(): XsdInt = XsdIntImpl(-intValue)
+    override fun unaryPlus(): XsdInt = this
 
     override fun plus(other: XsdInteger): XsdInteger = when (other) {
         is XsdInt -> XsdIntImpl(intValue + other.intValue)

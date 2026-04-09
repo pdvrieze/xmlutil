@@ -202,6 +202,7 @@ class BigDecimal internal constructor(
         get() = ints.size.toULong()
 
     override fun unaryMinus(): BigDecimal = BigDecimal(-sign, ints, decimalPositions)
+    override fun unaryPlus(): BigDecimal = this
 
     operator fun get(index: ULong): UInt {
         return ints[index.toInt()]

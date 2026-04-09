@@ -74,9 +74,9 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
 
     override val sign: Int get() = -1
 
-    override fun unaryMinus(): BigPositiveInt {
-        return BigPositiveInt(ints, exp)
-    }
+    override fun unaryMinus(): BigPositiveInt = BigPositiveInt(ints, exp)
+
+    override fun unaryPlus(): BigNegativeInt = this
 
     override fun div(divider: BigNegativeInt): BigUnsignedInt {
         return divRem(divider).quotient
