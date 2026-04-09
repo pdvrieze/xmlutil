@@ -432,6 +432,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
     /** Implementation of the division algorithm that ignores all signs. */
     protected fun unsignedDivRem(divider: UInt): UnsignedDivRemUInt { // will (initially) expand exponents
         if (divider == 0u) throw ArithmeticException("Division by zero")
+        if (sign == 0) return UnsignedDivRemUInt(BigUnsignedInt.ZERO, 0u)
 
         val leadingZeroBits = ints.last().countLeadingZeroBits().toUInt()
         val intsToAdd = ((exp + 31u - leadingZeroBits) shr 5).toInt()
