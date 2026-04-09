@@ -24,24 +24,30 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
 
-class IntegerFormatter private constructor(private val format: FormatterImpl, private val modifier: Modifier?) {
+@ExperimentalXmlUtilApi
+class IntegerFormatter private constructor(internal val format: FormatterImpl, private val modifier: Modifier?) {
 
     private constructor(r: Pair<FormatterImpl, Modifier?>): this(r.first, r.second)
 
     constructor(picture: String, language: XsdLanguage) : this(parsePicture(picture, language))
 
-    fun format(value: Int): String = format.format(XsdInt(value), modifier)
+    fun format(value: Int, widthModifier: WidthModifier = WidthModifier(0)): String =
+        format.format(XsdInt(value), modifier, widthModifier)
 
-    fun format(value: XsdInteger): String = format.format(value, modifier)
+    fun format(value: XsdInteger, widthModifier: WidthModifier = WidthModifier(0)): String =
+        format.format(value, modifier, widthModifier)
 
-    fun formatTo(receiver: Appendable, value: Int): Unit =
-        format.formatTo(receiver, XsdInt(value), modifier)
+    fun formatTo(receiver: Appendable, value: Int, widthModifier: WidthModifier = WidthModifier(0)) {
+        format.formatTo(receiver, XsdInt(value), modifier, widthModifier)
+    }
 
-    fun formatTo(receiver: Appendable, value: XsdInteger): Unit =
-        format.formatTo(receiver, value, modifier)
+    fun formatTo(receiver: Appendable, value: XsdInteger, widthModifier: WidthModifier = WidthModifier(0)) {
+        format.formatTo(receiver, value, modifier, widthModifier)
+    }
 
     /** Get the minimum width of this format in digits. */
     val minDigits: Int get() = format.minDigits
@@ -223,68 +229,87 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         }
     }
 
-    private abstract class FormatterImpl {
+    internal abstract class FormatterImpl {
         open val minDigits: Int get() = 1
         open val optionalDigitCount: Int get() = -1
 
-        open fun format(int: XsdInteger, modifier: Modifier?): String = buildString { formatTo(this, int, modifier) }
-        abstract fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?)
+        open fun format(int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier): String = buildString { formatTo(
+            this,
+            int,
+            modifier,
+            widthModifier
+        ) }
+        abstract fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier)
     }
 
-    private object CapitalLetterFormatter : FormatterImpl() {
-        val divider = XsdUnsignedInt(26u)
+    private abstract class LetterFormatter(val firstLetterCp: Int, range: UInt = 26u) : FormatterImpl() {
+        val divider = XsdUnsignedInt(range)
 
-        private fun recurseTo(int: XsdInteger, appendable: Appendable) {
+        private fun recurseTo(int: XsdInteger, appendable: Appendable, minDigits: Int, maxDigits: Int) {
             if (int.sign > 0) {
                 val divRem = int.divRem(divider)
-                recurseTo(divRem.quotient, appendable)
-                appendable.append(('A'.code - 1 + divRem.remainder.toInt()).toChar())
+                recurseTo(divRem.quotient, appendable, minDigits, maxDigits)
+                appendable.appendCodepoint(firstLetterCp - 1 + divRem.remainder.toInt())
             }
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
             require(int.sign != 0) { "Value must be positive" }
+            val realMin = if(widthModifier.minWidth == 0) minDigits else widthModifier.minWidth
             if (int.sign < 0) {
                 receiver.append('-')
-                recurseTo(int.abs(), receiver)
+                recurseTo(int.abs(), receiver, realMin, widthModifier.maxWidth)
             } else {
-                recurseTo(int, receiver)
+                recurseTo(int, receiver, realMin, widthModifier.maxWidth)
             }
         }
 
+    }
+
+    private object CapitalLetterFormatter : LetterFormatter('A'.code) {
         override fun toString(): String = "A"
     }
 
-    private object LowerLetterFormatter : FormatterImpl() {
-        override fun format(int: XsdInteger, modifier: Modifier?): String {
-            return CapitalLetterFormatter.format(int, modifier).lowercase()
-        }
-
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
-            val b = StringBuilder()
-            CapitalLetterFormatter.formatTo(b, int, modifier)
-            receiver.append(b.toString().lowercase())
-        }
-
+    private object LowerLetterFormatter : LetterFormatter('a'.code) {
         override fun toString(): String = "a"
     }
 
-    private abstract class RomanFormatter(val capital: Boolean) : FormatterImpl() {
+    internal abstract class RomanFormatter(val capital: Boolean) : FormatterImpl() {
         val values = intArrayOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
         val capitalSymbols = arrayOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
         val lowerSymbols = arrayOf("m", "cm", "d", "cd", "c", "xc", "l", "xl", "x", "ix", "v", "iv", "i")
 
-        final override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
+        final override fun formatTo(
+            receiver: Appendable,
+            int: XsdInteger,
+            modifier: Modifier?,
+            widthModifier: WidthModifier
+        ) {
             val symbols = if (capital) capitalSymbols else lowerSymbols
 
             if (int.sign < 0 || int > XsdInt(3999)) throw IllegalArgumentException("Value must be between -100000 and 100000")
-
             var n = int.toInt()
+            when (widthModifier.maxWidth) {
+                1 -> n = n % 10
+                2 -> n = n % 100
+                3 -> n = n % 1000
+                // other cases don't require clipping
+            }
+            val realMin = if (widthModifier.minWidth == 0) minDigits else widthModifier.minWidth
+
+            var totalChars = 0
             for (i in values.indices) {
                 while (n >= values[i]) {
                     n -= values[i]
-                    receiver.append(symbols[i])
+                    val symbol = symbols[i]
+                    totalChars += symbol.length
+                    receiver.append(symbol)
                 }
+            }
+
+            // append spaces to minimum length
+            if (realMin > totalChars) {
+                repeat(realMin - totalChars) { receiver.append(' ') }
             }
         }
 
@@ -295,12 +320,12 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
     private object LowerLetterRomanFormatter : RomanFormatter(false)
 
     private class LowerWordFormatter : TitleCaseWordFormatter() {
-        override fun format(int: XsdInteger, modifier: Modifier?): String {
-            return super.format(int, modifier).lowercase()
+        override fun format(int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier): String {
+            return super.format(int, modifier, widthModifier).lowercase()
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
-            receiver.append(buildString { super.formatTo(this, int, modifier) }.lowercase())
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
+            receiver.append(buildString { super.formatTo(this, int, modifier, widthModifier) }.lowercase())
         }
 
         override fun toString(): String = "w"
@@ -308,7 +333,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
 
     private open class TitleCaseWordFormatter() : FormatterImpl() {
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
             if(int.sign < 0 || int >= XsdInt(EnglishValues.size)) throw UnsupportedOperationException("Only values between 0 and ${EnglishValues.size-1} are supported for title case word formatter")
 
             receiver.append(EnglishValues[int.toInt()])
@@ -324,20 +349,40 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         }
     }
     private class UpperWordFormatter : TitleCaseWordFormatter() {
-        override fun format(int: XsdInteger, modifier: Modifier?): String {
-            return super.format(int, modifier).uppercase()
+        override fun format(int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier): String {
+            return super.format(int, modifier, widthModifier).uppercase()
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
-            receiver.append(buildString { super.formatTo(this, int, modifier) }.uppercase())
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
+            receiver.append(buildString { super.formatTo(this, int, modifier, widthModifier) }.uppercase())
         }
 
         override fun toString(): String = "W"
     }
 
     private object SimpleFormatter: FormatterImpl() {
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
-            receiver.append(int.xmlString)
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
+            val baseString = int.xmlString
+
+            val startPos = when (baseString.getOrElse(0, { '0' })) {
+                '-' -> 1
+                else -> 0
+            }
+            when {
+                (baseString.length-startPos) < widthModifier.minWidth -> {
+                    receiver.appendRange(baseString, 0, startPos)
+                    repeat(widthModifier.minWidth - baseString.length - startPos) { receiver.append('0') }
+                    receiver.appendRange(baseString, startPos, baseString.length)
+                }
+
+                (baseString.length - startPos) > widthModifier.maxWidth -> {
+                    receiver.appendRange(baseString, 0, startPos)
+                    receiver.appendRange(baseString, startPos, startPos + widthModifier.maxWidth)
+
+                }
+
+                else -> receiver.append(baseString)
+            }
         }
 
         override fun toString(): String = "1"
@@ -419,21 +464,24 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
             }
         }
 
-        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?) {
+        override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
             val str = int.xmlString
-            val startPos: Int
+            val signEnd: Int
             val extraDigits: Int
+            val realMin = if (widthModifier.minWidth==0) minDigits else widthModifier.minWidth
             if(str[0] == '-') {
-                startPos = 1
-                extraDigits = minDigits - str.length + 1
+                signEnd = 1
+                extraDigits = realMin - str.length + 1
             } else {
-                startPos = 0
-                extraDigits = minDigits - str.length
+                signEnd = 0
+                extraDigits = realMin - str.length
             }
+            val startPos = signEnd + maxOf(0, str.length - widthModifier.maxWidth)
+
             val base = when {
-                extraDigits<=0 && digitFamily == '0'.code -> str
+                extraDigits <= 0 && startPos == signEnd && digitFamily == '0'.code -> str
                 else -> StringBuilder().apply {
-                    if (startPos > 0) receiver.append(str[0])
+                    if (signEnd > 0) receiver.append(str[0])
                     repeat(extraDigits) {
                         appendCodepoint(digitFamily)
                     }
@@ -483,7 +531,7 @@ class IntegerFormatter private constructor(private val format: FormatterImpl, pr
         }
     }
 
-    private sealed class Modifier(val variant: String?, val isAlphabetic: Boolean)
+    internal sealed class Modifier(val variant: String?, val isAlphabetic: Boolean)
 
     private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic) {
         override fun toString(): String {

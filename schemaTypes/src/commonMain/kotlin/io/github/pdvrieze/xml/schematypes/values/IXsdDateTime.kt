@@ -109,7 +109,6 @@ interface IXsdDateTime: XsdAtomic {
     fun format(picture: String, language: XsdLanguage, calendar: String? = null, place: String? = null): String {
         val formatter = DateTimeFormatter(picture, language, calendar, place)
         return formatter.format(this)
-        TODO("Formatter does not yet format")
     }
 
 }

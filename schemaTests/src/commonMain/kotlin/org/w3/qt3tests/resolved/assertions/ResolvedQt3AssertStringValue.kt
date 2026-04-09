@@ -20,10 +20,12 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
+import io.github.pdvrieze.formats.xpath.functions.impl.StringFunctions
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
@@ -32,7 +34,7 @@ class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boo
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val r = evalResult.getOrElse { return AssertionResult.Failure(it) }
         var stringValue = context(ExprEvalContext.DUMMY) {
-            r.joinToString( " ") { Accessors.fnString(it).value.xmlString }
+            StringFunctions.fnStringJoin(r, XdmAtomic(XsdString(" "))).value.xmlString
         }
         val normExpected: String
         if (normalizeSpace) {

@@ -66,9 +66,9 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
             0L -> instant()
             else -> {
                 // todo check validity for dates below 0
-                val fullMonths = year * 12 + month.toInt() + monthsToAdd
+                val fullMonths = year * 12 + month.toInt() - 1 + monthsToAdd
                 val newYear = (fullMonths/12L).toInt()
-                val newMonth = (fullMonths.absoluteValue % 12).toUInt()
+                val newMonth = ((fullMonths.absoluteValue % 12) + 1).toUInt()
                 XsdDateTimeImpl(newYear, newMonth, day, hour, minute, second, timezoneOffset).instant()
             }
         }
