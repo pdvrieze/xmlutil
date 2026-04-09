@@ -22,13 +22,26 @@ package org.w3.qt3tests.resolved.assertions
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
+@OptIn(XPathInternal::class)
 class ResolvedQt3AssertDeepEq(val assertion: XPathExpression): ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
-        TODO("Requires fn:deep-equal, not implemented yet")
+        val expected = assertion.eval(evalResult)
+
+        return context(ExprEvalContext.DUMMY) {
+            when {
+                evalResult.isDeepEqual(expected, null) -> AssertionResult.Success
+                else -> AssertionResult.Failure(
+                    "Values are not equal: expected '$expected' != actual '$evalResult'",
+                    AssertionError("Assertion failure")
+                )
+            }
+        }
     }
 
 }
