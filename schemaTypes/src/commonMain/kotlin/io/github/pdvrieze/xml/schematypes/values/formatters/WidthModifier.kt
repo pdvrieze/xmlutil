@@ -60,7 +60,7 @@ value class WidthModifier private constructor(val data: ULong) {
                 }
 
                 str =="*" -> Int.MAX_VALUE.toULong()
-                else -> str.toULong() shl 32
+                else -> str.toULong() shl 32 or Int.MAX_VALUE.toULong()
             }
         }
     }
