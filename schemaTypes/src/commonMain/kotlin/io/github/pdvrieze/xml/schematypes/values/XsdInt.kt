@@ -121,6 +121,9 @@ interface XsdInt : XsdLong {
     }
 
     companion object : SimpleTypeSerializer<XsdInt>("xsd.int") {
+        val ZERO = XsdInt(0)
+        val ONE = XsdInt(1)
+
         operator fun invoke(value: Int): XsdInt = XsdIntImpl(value)
 
         operator fun invoke(value: CharSequence): XsdInt = XsdIntImpl(value.toString().toInt())

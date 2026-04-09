@@ -23,7 +23,6 @@ package io.github.pdvrieze.xml.schematypes.values.formatters
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
-import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
@@ -243,24 +242,33 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
     }
 
     private abstract class LetterFormatter(val firstLetterCp: Int, range: UInt = 26u) : FormatterImpl() {
-        val divider = XsdUnsignedInt(range)
+        val divider = XsdInt(range.toInt())
+        val adj: XsdInt = XsdInt(-1/* - divider.intValue*/)
 
         private fun recurseTo(int: XsdInteger, appendable: Appendable, minDigits: Int, maxDigits: Int) {
-            if (int.sign > 0) {
-                val divRem = int.divRem(divider)
-                recurseTo(divRem.quotient, appendable, minDigits, maxDigits)
-                appendable.appendCodepoint(firstLetterCp - 1 + divRem.remainder.toInt())
+            val divRem = int.divRem(divider)
+            if (divRem.quotient.sign > 0) {
+                recurseTo(divRem.quotient - XsdInt.ONE, appendable, minDigits, maxDigits)
             }
+
+            val remainder = divRem.remainder.toInt().mod(divider.intValue)
+
+            appendable.appendCodepoint(firstLetterCp + remainder)
         }
 
         override fun formatTo(receiver: Appendable, int: XsdInteger, modifier: Modifier?, widthModifier: WidthModifier) {
-            require(int.sign != 0) { "Value must be positive" }
+            if (int.sign == 0) {
+                receiver.append('0')
+                return
+            }
             val realMin = if(widthModifier.minWidth == 0) minDigits else widthModifier.minWidth
+            // note that recursion works on one step to zero as 'A' is 1, not 0 and there is no zero digit
+
             if (int.sign < 0) {
                 receiver.append('-')
-                recurseTo(int.abs(), receiver, realMin, widthModifier.maxWidth)
+                recurseTo(int.abs()- XsdInt.ONE, receiver, realMin, widthModifier.maxWidth)
             } else {
-                recurseTo(int, receiver, realMin, widthModifier.maxWidth)
+                recurseTo(int-XsdInt.ONE, receiver, realMin, widthModifier.maxWidth)
             }
         }
 
