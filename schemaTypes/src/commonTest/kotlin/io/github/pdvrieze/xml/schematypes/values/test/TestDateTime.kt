@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.test
 
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -39,6 +40,13 @@ class TestDateTime {
         assertEquals(42, localTime.second)
         assertEquals(123456789, localTime.nanosecond)
     }
+
+    @Test
+    fun testDateTimeNanos() {
+        val time = XsdDateTime(2000, 1u, 1u, 1u, 1u, BigDecimal(12, 9))
+        assertEquals("2000-01-01T01:01:00.000000012", time.xmlString)
+    }
+
     @Test
     fun testDateTime() {
         val time1 = XsdDateTime("2021-01-01T12:00:00.123456789+01:00")

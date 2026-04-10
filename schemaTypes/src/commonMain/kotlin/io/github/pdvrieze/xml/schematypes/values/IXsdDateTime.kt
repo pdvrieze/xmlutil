@@ -66,7 +66,7 @@ interface IXsdDateTime: XsdAtomic {
     fun hourFrag(): String = hour?.toString()?.padStart(2, '0') ?: ""
     fun minuteFrag(): String = minute?.toString()?.padStart(2, '0') ?: ""
     fun secondFrag(): String =
-        (second as? XsdInteger)?.run { toInt().toString().padStart(2, '0') } ?: second?.run { toDouble().toString().let { s ->
+        (second as? XsdInteger)?.run { toInt().toString().padStart(2, '0') } ?: second?.run { xmlString.let { s ->
             s.padStart(
             2 + s.length - s.indexOf('.'),
             '0'
@@ -163,7 +163,7 @@ interface IXsdDateTime: XsdAtomic {
         @XmlUtilInternal
         internal fun XsdDecimal.splitToSecondsAndNanos(): ULong {
             return when (this) {
-                is XsdInteger -> toULong()
+                is XsdInteger -> toULong() shl 32
                 is BigDecimal if (isInteger) -> toULong() shl 32
                 else -> {
                     val (sec, rem) = toBigDecimal().divRem(1u)
