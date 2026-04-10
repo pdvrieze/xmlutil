@@ -158,14 +158,7 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         newInts[ints.size] = m.toUInt()
         assert(m.shr(32).toUInt() == 0u)
 
-        var newSize = ints.size
-        while (newSize > 1 && newInts[newSize-1] == 0u) newSize--
-
-        val optInts = when (newSize) {
-            newInts.size -> newInts
-            else -> newInts.copyOf(newSize)
-        }
-
+        val optInts = newInts.trimTrailingZeros()
 
         return when (targetExp) {
             exp -> BigUnsignedInt(optInts, exp)

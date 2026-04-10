@@ -40,7 +40,7 @@ open class XsdDateTimeImpl(
     final override val timezoneOffset: Int? = null,
 ) : XsdDateTime {
 
-    private constructor(dateTime: LocalDateTime, timezoneOffset: Int?): this(
+    private constructor(dateTime: LocalDateTime, timezoneOffset: Int?) : this(
         year = dateTime.year,
         month = dateTime.month.number.toUInt(),
         day = dateTime.day.toUInt(),
@@ -49,7 +49,7 @@ open class XsdDateTimeImpl(
         second = dateTime.nanosecond.let {// retain nano seconds
             when {
                 it % 1_000_000_000 == 0 -> XsdInt(dateTime.second)
-                else -> BigDecimal(it, 9)+ XsdInt(dateTime.second)
+                else -> BigDecimal(it, 9) + XsdInt(dateTime.second)
             }
         },
         timezoneOffset = timezoneOffset,

@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.test
 
 import io.github.pdvrieze.xml.schematypes.values.BigInt
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -33,6 +34,13 @@ class TestBigDecimal {
         assertEquals(1234567890, bigInt.toLong())
         assertEquals(1234567890, bigInt.toInt())
         assertEquals("1234567890", bigInt.xmlString)
+    }
+
+    @Test
+    fun testAddLong() {
+        val nanos = BigDecimal(563464971, 9)
+        val sum = nanos + XsdInt(26)
+        assertEquals("26.563464971", sum.xmlString)
     }
 
     @Test
