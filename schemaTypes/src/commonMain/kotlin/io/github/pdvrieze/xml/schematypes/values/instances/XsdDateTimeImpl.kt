@@ -143,8 +143,8 @@ open class XsdDateTimeImpl(
             val tIndex = s.indexOf('T')
             require(tIndex >= 0)
             val digitOffset = if (s.startsWith('-')) 1 else 0
-            val (year, month, day) = s.substring(digitOffset, tIndex).split('-').map { it.toInt() }
-            val hour = s.substring(tIndex + 1, tIndex + 3).toUInt()
+            var (year, month, day) = s.substring(digitOffset, tIndex).split('-').map { it.toInt() }
+            var hour = s.substring(tIndex + 1, tIndex + 3).toUInt()
             if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separtor between hours and minutes")
             val minutes = s.substring(tIndex + 4, tIndex + 6).toUInt()
             if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separtor between minutes and seconds")
@@ -153,29 +153,33 @@ open class XsdDateTimeImpl(
             }
             val seconds = XsdDecimal(s.substring(tIndex + 7, secEnd ?: s.length))
 
-            return when (secEnd) {
-                null -> XsdDateTimeImpl(
-                    if (digitOffset > 0) -year else year,
-                    month.toUInt(),
-                    day.toUInt(),
-                    hour,
-                    minutes,
-                    seconds
-                )
+            val tzOffset = secEnd?.let { timezoneFragValue(s.substring(it)) }
 
-                else -> {
-                    val timezoneOffset = timezoneFragValue(s.substring(secEnd))
-                    XsdDateTimeImpl(
-                        year,
-                        month.toUInt(),
-                        day.toUInt(),
-                        hour,
-                        minutes,
-                        seconds,
-                        timezoneOffset
-                    )
-                }
+            if (hour == 24u) { // special case for 24:00:00 (needs next day)
+                requireRange( minutes==0u && seconds== XsdUnsignedInt(0u)) { "Invalid time 24:$minutes:$seconds" }
+
+                // let LocalDateTime handle this (overflow in dates is a mess)
+                val tz = ((tzOffset?.let { UtcOffset(minutes = it) }) ?: UtcOffset.ZERO).asTimeZone()
+                val dateTime = LocalDateTime(year, month, day, 23, minutes.toInt(), seconds.toInt())
+                    .toInstant(tz)
+                    .plus(1, DateTimeUnit.HOUR)
+                    .toLocalDateTime(tz)
+
+                year = dateTime.year
+                month = dateTime.month.number
+                day = dateTime.day
+                hour = dateTime.hour.toUInt()
             }
+
+            return XsdDateTimeImpl(
+                if (digitOffset > 0) -year else year,
+                month.toUInt(),
+                day.toUInt(),
+                hour,
+                minutes,
+                seconds,
+                tzOffset
+            )
 
         }
 

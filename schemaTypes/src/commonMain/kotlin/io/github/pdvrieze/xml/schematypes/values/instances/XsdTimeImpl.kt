@@ -137,11 +137,21 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
             val hours = representation.substring(0, 2).toUInt()
             require(representation[2] == ':')
             val minutes = representation.substring(3, 5).toUInt()
+            requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
             require(representation[5] == ':')
             val secEnd = (6..<representation.length)
                 .firstOrNull { val c = representation[it]; c != '.' && c !in '0'..'9' }
                 ?: representation.length
             val millis = (representation.substring(6, secEnd).toDouble() * 1000.0).toUInt()
+            requireRange(millis < 60000u) { "Millis out of range: ${representation.substring(6, secEnd)}" }
+
+            requireRange(hours in 0u..24u) { "Hour out of range: $hours" }
+            if (hours == 24u) {
+                requireRange(minutes == 0u && millis == 0u) {
+                    "24:00:00 is the largest time that can be represented (got: $representation)"
+                }
+            }
+
 
             return when {
                 secEnd < representation.length -> {
