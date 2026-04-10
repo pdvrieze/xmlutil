@@ -72,7 +72,7 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
         return divRem(divider).quotient
     }
 
-    abstract fun divRem(divider: UInt): DivRem<BigNonPositiveInt, Int>
+    abstract override fun divRem(divider: UInt): IntDivRem<BigNonPositiveInt, BigNonPositiveInt>
 
     override operator fun plus(other: XsdNonPositiveInteger): XsdNonPositiveInteger {
         if (other is BigNonPositiveInt) { return plus(other) }

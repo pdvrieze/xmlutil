@@ -93,10 +93,15 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         else -> divRem(BigUnsignedInt(divider)).quotient
     }
 
-    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
-        is XsdNonNegativeInteger -> divRem(other)
-        is XsdInteger -> toBigInt().divRem(other)
-        else -> toBigDecimal().divRem(other)
+    fun div(divider: UInt, targetExp: ULong): BigUnsignedInt {
+        return divRem(divider, targetExp).quotient
+    }
+
+    override fun divRem(divider: XsdDecimal): XsdDecimal.DivRem = when (divider) {
+        is XsdNonNegativeInteger -> divRem(divider)
+        is XsdUnsignedInt -> divRem(divider.toUInt()).toDivRem()
+        is XsdInteger -> toBigInt().divRem(divider)
+        else -> toBigDecimal().divRem(divider)
     }
 
     override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
@@ -117,8 +122,16 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         return unsignedDivRem(divider)
     }
 
+    override fun divRem(divider: ULong): PosDivRem {
+        return unsignedDivRem(BigUnsignedInt(divider))
+    }
+
     override fun divRem(divider: UInt): UIntDivRem {
         return unsignedDivRem(divider)
+    }
+
+    fun divRem(divider: UInt, targetExp: ULong): UIntDivRem {
+        return unsignedDivRem(divider, targetExp.toLong())
     }
 
     override fun times(other: XsdInteger): XsdInteger = when (other) {
@@ -145,18 +158,29 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
         newInts[ints.size] = m.toUInt()
         assert(m.shr(32).toUInt() == 0u)
 
+        var newSize = ints.size
+        while (newSize > 1 && newInts[newSize-1] == 0u) newSize--
+
+        val optInts = when (newSize) {
+            newInts.size -> newInts
+            else -> newInts.copyOf(newSize)
+        }
+
+
         return when (targetExp) {
-            exp -> BigUnsignedInt(newInts, exp)
-            else -> BigUnsignedInt(newInts, exp).expandWithEffectiveExp(targetExp)
+            exp -> BigUnsignedInt(optInts, exp)
+            else -> BigUnsignedInt(optInts, exp).expandWithEffectiveExp(targetExp)
         }
     }
 
-    data class UIntDivRem(
+    class UIntDivRem(
         override val quotient: BigUnsignedInt,
-        override val remainder: UInt
-    ) : DivRem<BigUnsignedInt, UInt> {
+        override val uintRemainder: UInt
+    ) : DivRem<BigUnsignedInt, BigUnsignedInt>, AbstractBigUnsignedInt.UIntDivRem {
+        override val remainder: BigUnsignedInt get() = BigUnsignedInt(uintRemainder)
+
         fun toDivRem(): PosDivRem {
-            return PosDivRem(quotient, BigUnsignedInt(remainder))
+            return PosDivRem(quotient, BigUnsignedInt(uintRemainder))
         }
     }
 

@@ -85,7 +85,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         return divRem(divider).quotient
     }
 
-    abstract fun divRem(divider: UInt): DivRem<BigUnsignedInt, UInt>
+    abstract override fun divRem(divider: UInt): PosDivRem
 
     operator fun plus(other: T): T {
         val newExponent = minOf(countTrailingZeroBits(), other.countTrailingZeroBits())
@@ -207,7 +207,12 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
         return 0
     }
 
-    interface PosDivRem : AbstractBigInteger.PosDivRem<BigUnsignedInt>, XsdInteger.DivRem {}
+    interface UIntDivRem: PosDivRem, AbstractBigInteger.UIntDivRem<BigUnsignedInt, BigUnsignedInt> {
+    }
+
+    interface PosDivRem : AbstractBigInteger.PosDivRem, IntDivRem<BigUnsignedInt, BigUnsignedInt> {
+
+    }
 
     companion object {
 

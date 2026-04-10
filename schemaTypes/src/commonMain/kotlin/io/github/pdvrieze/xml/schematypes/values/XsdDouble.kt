@@ -42,9 +42,9 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
     operator fun div(other: XsdDouble): XsdDouble = XsdDoubleImpl(value / other.value)
     operator fun rem(other: XsdDouble): XsdDouble = XsdDoubleImpl(value % other.value)
 
-    override fun times(other: XsdNumeric<*>): XsdNumeric<*> = when (other) {
-        is XsdDouble -> XsdDouble(value * other.value)
-        else -> XsdDouble(value * other.toDouble())
+    override fun times(multiplier: XsdNumeric<*>): XsdNumeric<*> = when (multiplier) {
+        is XsdDouble -> XsdDouble(value * multiplier.value)
+        else -> XsdDouble(value * multiplier.toDouble())
     }
 
     override fun compareTo(other: XsdNumeric<*>): Int {

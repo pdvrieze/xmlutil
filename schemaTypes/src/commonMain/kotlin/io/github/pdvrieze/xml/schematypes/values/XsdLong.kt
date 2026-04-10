@@ -76,12 +76,12 @@ interface XsdLong : XsdInteger {
         else -> other.times(this)
     }
 
-    override fun times(other: Long): XsdLong =
-        XsdLong(longValue * other)
+    override fun times(multiplier: Long): XsdLong =
+        XsdLong(longValue * multiplier)
 
-    override fun times(other: Int): XsdLong = times(other.toLong())
-    override fun times(other: UInt): XsdLong = times(other.toLong())
-    override fun times(other: ULong): XsdLong = times(other.toLong())
+    override fun times(multiplier: Int): XsdLong = times(multiplier.toLong())
+    override fun times(multiplier: UInt): XsdLong = times(multiplier.toLong())
+    override fun times(multiplier: ULong): XsdLong = times(multiplier.toLong())
 
     override fun minus(other: XsdDecimal): XsdDecimal = when (other) {
         is XsdLong -> minus(other)

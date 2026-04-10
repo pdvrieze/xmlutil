@@ -51,7 +51,7 @@ sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
         return XsdInteger(xmlString.substringBefore('.'))
     }
 
-    operator fun times(other: XsdNumeric<*>): XsdNumeric<*>
+    operator fun times(multiplier: XsdNumeric<*>): XsdNumeric<*>
 
     operator fun compareTo(other: XsdNumeric<*>): Int
 

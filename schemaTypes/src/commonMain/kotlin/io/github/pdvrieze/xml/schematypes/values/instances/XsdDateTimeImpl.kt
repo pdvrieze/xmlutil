@@ -46,7 +46,12 @@ open class XsdDateTimeImpl(
         day = dateTime.day.toUInt(),
         hour = dateTime.hour.toUInt(),
         minute = dateTime.minute.toUInt(),
-        second = XsdInt(dateTime.second),
+        second = dateTime.nanosecond.let {// retain nano seconds
+            when {
+                it % 1_000_000_000 == 0 -> XsdInt(dateTime.second)
+                else -> BigDecimal(it, 9)+ XsdInt(dateTime.second)
+            }
+        },
         timezoneOffset = timezoneOffset,
     )
 
@@ -149,18 +154,24 @@ open class XsdDateTimeImpl(
             val minutes = s.substring(tIndex + 4, tIndex + 6).toUInt()
             if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separtor between minutes and seconds")
             val secEnd = ((tIndex + 7)..<s.length).firstOrNull {
-                s[it] != '.' && s[it] !in '0'..'9'
+                s[it] !in '0'..'9'
             }
-            val seconds = XsdDecimal(s.substring(tIndex + 7, secEnd ?: s.length))
+            val seconds = s.substring(tIndex + 7, secEnd ?: s.length).toInt()
+            var nanoEnd = secEnd
+            val nanos = if (secEnd == null || s.getOrNull(secEnd) != '.') 0 else {
+                nanoEnd = ((secEnd + 1)..<s.length).firstOrNull { s[it] !in '0'..'9' }
+                val nanoStr = s.substring(secEnd + 1, nanoEnd ?: s.length)
+                nanoStr.padStart(9, '0').toInt()
+            }
 
-            val tzOffset = secEnd?.let { timezoneFragValue(s.substring(it)) }
+            val tzOffset = nanoEnd?.let { timezoneFragValue(s.substring(it)) }
 
             if (hour == 24u) { // special case for 24:00:00 (needs next day)
-                requireRange( minutes==0u && seconds== XsdUnsignedInt(0u)) { "Invalid time 24:$minutes:$seconds" }
+                requireRange( minutes==0u && seconds== 0) { "Invalid time 24:$minutes:$seconds" }
 
                 // let LocalDateTime handle this (overflow in dates is a mess)
                 val tz = ((tzOffset?.let { UtcOffset(minutes = it) }) ?: UtcOffset.ZERO).asTimeZone()
-                val dateTime = LocalDateTime(year, month, day, 23, minutes.toInt(), seconds.toInt())
+                val dateTime = LocalDateTime(year, month, day, 23, minutes.toInt(), seconds, nanos)
                     .toInstant(tz)
                     .plus(1, DateTimeUnit.HOUR)
                     .toLocalDateTime(tz)
@@ -171,13 +182,18 @@ open class XsdDateTimeImpl(
                 hour = dateTime.hour.toUInt()
             }
 
+            val secDec = when (nanos) {
+                0 -> XsdInt(seconds)
+                else -> BigDecimal(seconds.toLong()*1_000_000_000 + nanos, 9)
+            }
+
             return XsdDateTimeImpl(
                 if (digitOffset > 0) -year else year,
                 month.toUInt(),
                 day.toUInt(),
                 hour,
                 minutes,
-                seconds,
+                secDec,
                 tzOffset
             )
 

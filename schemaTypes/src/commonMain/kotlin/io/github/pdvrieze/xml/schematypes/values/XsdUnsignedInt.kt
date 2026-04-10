@@ -89,7 +89,7 @@ interface XsdUnsignedInt : XsdUnsignedLong {
         else -> other.times(this)
     }
 
-    override operator fun times(other: UInt): XsdUnsignedInt = XsdUnsignedIntImpl(uIntValue * other)
+    override operator fun times(multiplier: UInt): XsdUnsignedInt = XsdUnsignedIntImpl(uIntValue * multiplier)
     operator fun times(other: XsdUnsignedInt): XsdUnsignedInt = times(other.uIntValue)
 
     override fun div(divider: XsdUnsignedLong): XsdUnsignedLong = when (divider) {

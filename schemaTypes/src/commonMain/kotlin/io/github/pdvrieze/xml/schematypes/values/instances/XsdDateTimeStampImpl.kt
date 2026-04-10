@@ -22,7 +22,11 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DateTimeStampType
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
-import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime.Companion.splitToSecondsAndNanos
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.time.Instant
@@ -60,6 +64,8 @@ class XsdDateTimeStampImpl(
         return instant().hashCode()
     }
 
+    override fun toString(): String = xmlString
+
 
     companion object {
         internal operator fun invoke(
@@ -84,7 +90,8 @@ class XsdDateTimeStampImpl(
             second: XsdDecimal,
             timezone: TimeZone
         ): XsdDateTimeStampImpl {
-            val localDateTime = LocalDateTime(year, month, day, hour, minute, second.toInt())
+            val t = second.splitToSecondsAndNanos()
+            val localDateTime = LocalDateTime(year, month, day, hour, minute, (t shr 32).toInt(), t.toInt())
             val instant = localDateTime.toInstant(timezone)
             return XsdDateTimeStampImpl(instant, timezone)
         }
@@ -111,12 +118,9 @@ class XsdDateTimeStampImpl(
             second: XsdDecimal,
             timezone: TimeZone
         ): XsdDateTimeStampImpl {
-            val nanos: Int = when {
-                second is XsdInteger -> 0
-                second is XsdBigDecimal && second.isInteger -> 0
-                else -> (second * 1_000_000_000).toInt().rem(1_000_000_000)
-            }
-            val localDateTime = LocalDateTime(year, month.toInt(), day.toInt(), hour.toInt(), minute.toInt(), second.toInt(), nanos)
+            val t = second.splitToSecondsAndNanos()
+            val localDateTime = LocalDateTime(year, month.toInt(), day.toInt(), hour.toInt(), minute.toInt(), (t shr 32).toInt(), t.toInt())
+
             val instant = localDateTime.toInstant(timezone)
             return XsdDateTimeStampImpl(instant, timezone)
         }
@@ -128,12 +132,16 @@ class XsdDateTimeStampImpl(
             require(tIndex >= 0)
             val (year, month, day) = s.substring(0, tIndex).split('-').map { it.toInt() }
             val hour = s.substring(tIndex + 1, tIndex + 3).toInt()
-            if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separtor between hours and minutes")
+            if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separator between hours and minutes")
             val minutes = s.substring(tIndex + 4, tIndex + 6).toInt()
-            if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separtor between minutes and seconds")
+            if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separator between minutes and seconds")
             val secEnd = ((tIndex + 7)..<s.length).first {
                 s[it] != '.' && s[it] !in '0'..'9'
             }
+//            if (s[secEnd] == '.') {
+//
+//            }
+
             val seconds = XsdDecimal(s.substring(tIndex + 7, secEnd))
 
             val timezoneOffset = requireNotNull(XsdDateTimeImpl.timezoneFragValue(s.substring(secEnd))) {

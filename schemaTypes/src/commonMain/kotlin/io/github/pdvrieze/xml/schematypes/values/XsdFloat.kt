@@ -45,9 +45,9 @@ interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
     operator fun div(other: XsdFloat): XsdFloat = XsdFloatImpl(value / other.value)
     operator fun rem(other: XsdFloat): XsdFloat = XsdFloatImpl(value % other.value)
 
-    override fun times(other: XsdNumeric<*>): XsdNumeric<*> = when (other) {
-        is XsdFloat -> XsdFloatImpl(value * other.value)
-        else -> XsdFloat((value * other.toDouble()).toFloat())
+    override fun times(multiplier: XsdNumeric<*>): XsdNumeric<*> = when (multiplier) {
+        is XsdFloat -> XsdFloatImpl(value * multiplier.value)
+        else -> XsdFloat((value * multiplier.toDouble()).toFloat())
     }
 
     override fun compareTo(other: XsdNumeric<*>): Int {

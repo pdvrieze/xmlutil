@@ -109,14 +109,18 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     override fun div(divider: BigInt): BigInt = divRem(divider).quotient
 
-    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
-        is XsdInteger -> divRem(other.toBigInt())
-        else -> toBigDecimal().divRem(other)
+    override fun divRem(divider: XsdDecimal): XsdDecimal.DivRem = when (divider) {
+        is XsdInteger -> divRem(divider.toBigInt())
+        else -> toBigDecimal().divRem(divider)
     }
 
     override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider) {
         is BigInt -> divRem(divider)
-        else -> toBigInt().divRem(divider.toBigInt())
+        else -> divRem(divider.toBigInt())
+    }
+
+    override fun divRem(divider: UInt): DivRem {
+        return divRem(BigInt(if (divider == 0u) 0 else 1, uintArrayOf(divider), 0uL))
     }
 
     override fun divRem(divider: BigInt): DivRem {
@@ -194,7 +198,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         val bitsNeeded = maxOf(significantBitsFromZero(), other.significantBitsFromZero())
         val result = UIntArray(((bitsNeeded + 31u) shr 5).toInt())
 
-        var borrow: Long = 0L
+        var borrow = 0L
         for (i in 0 until result.size) {
             val a = get(i).toLong() - borrow
             val b = other.get(i).toLong()
@@ -251,7 +255,7 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     class DivRem(
         override val quotient: BigInt,
         override val remainder: BigInt
-    ): AbstractBigInteger.DivRem<BigInt, BigInt>, XsdInteger.DivRem
+    ): AbstractBigInteger.DivRem<BigInt, BigInt>, XsdInteger.DivRem, IntDivRem<BigInt, BigInt>
 
     private class ParseResult(val sign: Int, val ints: UIntArray, val exp: ULong)
 

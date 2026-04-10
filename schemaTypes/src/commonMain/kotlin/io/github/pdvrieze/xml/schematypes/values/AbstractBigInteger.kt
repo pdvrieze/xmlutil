@@ -206,12 +206,14 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             }
             newElems[newElems.size - 1] = elems[mostSigBit.shr(5).toInt()].shr(bitShift)
 
-            var newSize = newElems.size
-            while (newSize > 1 && newElems[newSize-1] == 0u) newSize -= 1
-
-            val newArray = if (newSize!=newElems.size) newElems.copyOf(newSize) else newElems
-            return newInstance(sign, newArray, newExp)
+            return newInstance(sign, newElems.trimTrailingZeros(), newExp)
         }
+    }
+
+    protected fun UIntArray.trimTrailingZeros(): UIntArray {
+        var newSize = size
+        while (newSize > 1 && this[newSize-1] == 0u) newSize -= 1
+        return if (newSize != size) copyOfRange(0, newSize) else this
     }
 
     override fun plus(other: XsdDecimal): XsdDecimal = when (other) {
@@ -262,12 +264,12 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return createOptimizedInstance(sign * other.sign, newInts, newExp)
     }
 
-    override operator fun times(other: UInt): T {
+    override operator fun times(multiplier: UInt): T {
         val newInts = UIntArray(size.toInt() + 1)
 
         var carry = 0u
         for (idx in ints.indices) {
-            val m = ints[idx].toULong() * other.toULong() + carry + newInts[idx]
+            val m = ints[idx].toULong() * multiplier.toULong() + carry + newInts[idx]
             newInts[idx] = m.toUInt()
             carry = m.shr(32).toUInt()
         }
@@ -428,13 +430,13 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
                 if (sign < 0) appendable.append('-')
                 val d = unsignedDivRem(1_000_000_000u)
                 d.quotient.appendTo(appendable)
-                appendable.append(d.remainder.toString().padStart(9, '0'))
+                appendable.append(d.uintRemainder.toString().padStart(9, '0'))
             }
         }
     }
 
     /** Implementation of the division algorithm that ignores all signs. */
-    protected fun unsignedDivRem(divider: UInt): UnsignedDivRemUInt { // will (initially) expand exponents
+    protected fun unsignedDivRem(divider: UInt, targetExp: Long = -1L): UnsignedDivRemUInt { // will (initially) expand exponents
         if (divider == 0u) throw ArithmeticException("Division by zero")
         if (sign == 0) return UnsignedDivRemUInt(BigUnsignedInt.ZERO, 0u)
 
@@ -446,7 +448,13 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
                 val u = if (exp>=32uL) 0u else get(0)
                 val div: UInt = u.div(divider)
                 val rem: UInt = u - (div * divider)
-                return UnsignedDivRemUInt(BigUnsignedInt(div), rem)
+
+                val rq = when (targetExp) {
+                    -1L, 0L -> BigUnsignedInt(div)
+                    else -> BigUnsignedInt(div).expandWithEffectiveExp(targetExp.toULong())
+                }
+
+                return UnsignedDivRemUInt(rq, rem)
             }
 
             2 -> {
@@ -461,7 +469,12 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
                 }
                 val div: ULong = u.div(divider.toULong())
                 val rem: UInt = (u - (div * divider)).toUInt()
-                return UnsignedDivRemUInt(BigUnsignedInt(div), rem)
+                val rq = when (targetExp) {
+                    -1L, 0L -> BigUnsignedInt(div)
+                    else -> BigUnsignedInt(div).expandWithEffectiveExp(targetExp.toULong())
+                }
+
+                return UnsignedDivRemUInt(rq, rem)
             }
         }
 
@@ -481,10 +494,18 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             rem = baseInt - (div * divider)
         }
 
-        return UnsignedDivRemUInt(BigUnsignedInt(newInts, 0uL).normalize(), rem.toUInt())
+        val rq = when (targetExp) {
+            -1L -> BigUnsignedInt(newInts.trimTrailingZeros(), 0uL).normalize()
+            0L -> BigUnsignedInt(newInts.trimTrailingZeros(), 0uL)
+            else -> BigUnsignedInt(newInts, 0uL).expandWithEffectiveExp(targetExp.toULong())
+        }
+
+        return UnsignedDivRemUInt(rq, rem.toUInt())
     }
 
-    abstract fun divRem(divider: T): DivRem<AbstractBigInteger<*>, Any>
+    abstract override fun divRem(divider: UInt): IntDivRem<*, *>
+
+    abstract fun divRem(divider: T): DivRem<AbstractBigInteger<*>, AbstractBigInteger<*>>
 
     fun unsignedDivRem(divider: T): UnsignedDivRem { // will (initially) expand exponents
         // Deal with single element division separately
@@ -598,6 +619,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
      * @return If a "borrow" was needed
      */
     private fun multiplySubtractInPlace(target: UIntArray, a: UIntArray, multiplier: UInt, leftOffset: Int): Boolean {
+        if (multiplier == 0u) return false
         var carry = 0u
         var borrow = 0u
         for (i in 0 until a.size) {
@@ -607,7 +629,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             carry = mFull.shr(32).toUInt()
             val m = mFull and 0xffff_ffffuL
             val t = target[ti] - borrow
-            if (t<m) {
+            if (t < m) {
                 borrow = ((m-t) shr 32).toUInt()
                 target[ti] = (0xffff_ffff_0000_0000uL+t-borrow).toUInt()
             } else {
@@ -619,7 +641,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
         if (toReduce == 0u) return false
 
-        val t = target[a.size + leftOffset + 1]
+        val tPos = a.size + leftOffset + 1
+        val t = if (tPos<target.size) target[tPos] else 0u
         if (t >= toReduce) {
             target[a.size + leftOffset] = t - toReduce
             return false
@@ -657,22 +680,25 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         append(')')
     }
 
-    interface PosDivRem<out R>: DivRem<BigUnsignedInt, R> {
+    interface PosDivRem : DivRem<BigUnsignedInt, BigUnsignedInt> {
         override val quotient: BigUnsignedInt
-        override val remainder: R
+        override val remainder: BigUnsignedInt
     }
 
-    interface DivRem<out Q: AbstractBigInteger<out Q>, out R> {
-        val quotient: Q
-        val remainder: R
-//        fun toDivRem(): IDivRem<Q, Q>
+    interface DivRem<out Q: AbstractBigInteger<out Q>, out R: AbstractBigInteger<out R>>: XsdInteger.DivRem {
+        override val quotient: Q
+        override val remainder: R
+
+        override fun component1(): Q = quotient
+        override fun component2(): R = remainder
     }
+
+    interface IntDivRem<out Q: AbstractBigInteger<out Q>, out R: AbstractBigInteger<out R>>: DivRem<Q, R>, XsdInteger.IntDivRem
+    interface UIntDivRem<out Q: AbstractBigInteger<out Q>, out R: AbstractBigInteger<out R>>: DivRem<Q, R>, XsdInteger.UIntDivRem
 
     @ExperimentalXmlUtilApi
     @XmlUtilInternal
     typealias UnsignedDivRemUInt = BigUnsignedInt.UIntDivRem
-
-
 
     @ExperimentalXmlUtilApi
     @XmlUtilInternal

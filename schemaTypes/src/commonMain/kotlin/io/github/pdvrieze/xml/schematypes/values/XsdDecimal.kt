@@ -41,6 +41,7 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     override fun toLong(): Long
     override fun toInt(): Int
     fun toUInt(): UInt = toLong().toUInt()
+    fun toULong(): ULong = toLong().toULong()
 
     override fun toDouble(): Double = xmlString.toDouble()
 
@@ -60,19 +61,22 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     operator fun minus(other: UInt): XsdDecimal = minus(XsdUnsignedInt(other))
     operator fun minus(other: ULong): XsdDecimal = minus(XsdUnsignedLong(other))
 
-    operator fun times(other: Int): XsdDecimal = times(XsdInt(other))
-    operator fun times(other: Long): XsdDecimal = times(XsdLong(other))
-    operator fun times(other: UInt): XsdDecimal = times(XsdUnsignedInt(other))
-    operator fun times(other: ULong): XsdDecimal = times(XsdUnsignedLong(other))
+    operator fun times(multiplier: Int): XsdDecimal = times(XsdInt(multiplier))
+    operator fun times(multiplier: Long): XsdDecimal = times(XsdLong(multiplier))
+    operator fun times(multiplier: UInt): XsdDecimal = times(XsdUnsignedInt(multiplier))
+    operator fun times(multiplier: ULong): XsdDecimal = times(XsdUnsignedLong(multiplier))
 
-    override fun times(other: XsdNumeric<*>): XsdNumeric<*> = when (other) {
-        is XsdDecimal -> this.times(other)
-        else -> other.times(this)
+    override fun times(multiplier: XsdNumeric<*>): XsdNumeric<*> = when (multiplier) {
+        is XsdDecimal -> this.times(multiplier)
+        else -> multiplier.times(this)
     }
 
-    fun divRem(other: XsdDecimal): DivRem
-    operator fun div(other: XsdDecimal): XsdDecimal = divRem(other).quotient
-    operator fun rem(other: XsdDecimal): XsdDecimal = divRem(other).remainder
+    fun divRem(divider: XsdDecimal): DivRem
+    fun divRem(divider: ULong): DivRem = divRem(XsdUnsignedLong(divider))
+    fun divRem(divider: UInt): DivRem = divRem(XsdUnsignedInt(divider))
+
+    operator fun div(divider: XsdDecimal): XsdDecimal = divRem(divider).quotient
+    operator fun rem(divider: XsdDecimal): XsdDecimal = divRem(divider).remainder
 
     override fun compareTo(other: XsdNumeric<*>): Int {
         return when (other) {

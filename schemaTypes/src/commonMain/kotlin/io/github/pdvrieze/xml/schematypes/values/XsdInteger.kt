@@ -86,29 +86,37 @@ interface XsdInteger : XsdDecimal {
         is XsdInteger -> times(other)
         else -> toBigDecimal().times(other)
     }
-    override fun times(other: Int): XsdInteger = times(XsdInteger(other))
-    override fun times(other: Long): XsdInteger = times(XsdInteger(other))
-    override fun times(other: UInt): XsdInteger = times(XsdInteger(other))
-    override fun times(other: ULong): XsdInteger = times(XsdInteger(other))
+    override fun times(multiplier: Int): XsdInteger = times(XsdInteger(multiplier))
+    override fun times(multiplier: Long): XsdInteger = times(XsdInteger(multiplier))
+    override fun times(multiplier: UInt): XsdInteger = times(XsdInteger(multiplier))
+    override fun times(multiplier: ULong): XsdInteger = times(XsdInteger(multiplier))
 
     operator fun div(other: XsdInteger): XsdInteger = divRem(other).quotient
-    override fun div(other: XsdDecimal): XsdDecimal = when (other) {
-        is XsdInteger -> div(other)
-        else -> divRem(other).quotient
+    override fun div(divider: XsdDecimal): XsdDecimal = when (divider) {
+        is XsdInteger -> div(divider)
+        else -> divRem(divider).quotient
     }
 
     fun rem(divider: XsdInteger): XsdInteger = divRem(divider).remainder
 
-    override fun rem(other: XsdDecimal): XsdDecimal = when (other) {
-        is XsdInteger -> rem(other)
-        else -> divRem(other).remainder
+    override fun rem(divider: XsdDecimal): XsdDecimal = when (divider) {
+        is XsdInteger -> rem(divider)
+        else -> divRem(divider).remainder
     }
 
     fun divRem(divider: XsdInteger): DivRem
 
-    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem = when (other) {
-        is XsdInteger -> divRem(other)
-        else -> toBigDecimal().divRem(other)
+    override fun divRem(divider: ULong): DivRem {
+        return divRem(XsdUnsignedLong(divider))
+    }
+
+    override fun divRem(divider: UInt): IntDivRem {
+        return IntDivRemImpl(divRem(XsdUnsignedInt(divider)))
+    }
+
+    override fun divRem(divider: XsdDecimal): XsdDecimal.DivRem = when (divider) {
+        is XsdInteger -> divRem(divider)
+        else -> toBigDecimal().divRem(divider)
     }
 
     override fun abs(): XsdNonNegativeInteger
@@ -137,6 +145,26 @@ interface XsdInteger : XsdDecimal {
     interface DivRem: XsdDecimal.DivRem {
         override val quotient: XsdInteger
         override val remainder: XsdInteger
+    }
+
+    interface IntDivRem: DivRem {
+        override val quotient: XsdInteger
+        override val remainder: XsdInteger
+        val intRemainder: Int get() = remainder.toInt()
+    }
+
+    interface UIntDivRem: DivRem {
+        override val quotient: XsdInteger
+        override val remainder: XsdInteger
+        val uintRemainder: UInt get() = remainder.toUInt()
+
+        operator fun component3() = uintRemainder
+    }
+
+    private class IntDivRemImpl(override val quotient: XsdInteger, override val intRemainder: Int) : IntDivRem {
+        constructor(orig: XsdDecimal.DivRem) : this(orig.quotient.roundToInteger(), orig.remainder.toInt())
+
+        override val remainder: XsdInteger get() = XsdInt(intRemainder)
     }
 
     companion object : SimpleTypeSerializer<XsdInteger>("xsd.integer") {

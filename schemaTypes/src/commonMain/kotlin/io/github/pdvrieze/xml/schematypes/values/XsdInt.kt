@@ -63,12 +63,12 @@ interface XsdInt : XsdLong {
         return XsdInt(intValue - other.toInt())
     }
 
-    override fun times(other: Int): XsdInt {
-        return XsdInt(intValue * other)
+    override fun times(multiplier: Int): XsdInt {
+        return XsdInt(intValue * multiplier)
     }
 
-    override fun times(other: UInt): XsdInt {
-        return XsdInt(intValue - other.toInt())
+    override fun times(multiplier: UInt): XsdInt {
+        return XsdInt(intValue - multiplier.toInt())
     }
 
     override fun div(other: XsdLong): XsdLong = when (other) {

@@ -35,6 +35,24 @@ class TestBigDecimal {
         assertEquals("1234567890", bigInt.xmlString)
     }
 
+    @Test
+    fun testDiv() {
+        val main = BigDecimal(412, 2)
+        val divisor = BigDecimal(1, 0)
+        val result = main.divRem(divisor)
+        assertEquals(4, result.quotient.toLong())
+        assertEquals(12, (result.remainder * 100).toLong())
+    }
+
+    @Test
+    fun testIntLargerDiv() {
+        val main = BigDecimal(0xFF00000000L, 5L)
+        val divisor = BigDecimal(1, 0)
+        val result = main.divRem(divisor)
+        assertEquals(4, result.quotient.toLong())
+        assertEquals(12, (result.remainder * 100).toLong())
+    }
+
     private fun testBinaryOperator(
         a: Int,
         b: Int,

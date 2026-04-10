@@ -56,8 +56,8 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
         else -> other.unaryMinus().plus(this)
     }
 
-    override fun times(other: Long): XsdLong {
-        return XsdLong(longValue * other)
+    override fun times(multiplier: Long): XsdLong {
+        return XsdLong(longValue * multiplier)
     }
 
     override fun div(other: XsdLong): XsdLong {

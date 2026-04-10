@@ -35,6 +35,11 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
 
     override fun roundToHalfEven(precision: Int): XsdDecimal
 
+    /**
+     * Exponentize the decimal with base 10 (moves the decimal point n places to the right)
+     */
+    fun exp10(n: Int): XsdBigDecimal
+
     companion object {
         operator fun invoke(i: Int): XsdBigDecimal = BigDecimal(i)
         operator fun invoke(i: UInt): XsdBigDecimal = BigDecimal(i)

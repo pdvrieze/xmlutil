@@ -35,7 +35,7 @@ interface XsdNonNegativeInteger : XsdInteger {
 
     override val schemaType: NonNegativeIntegerType<XsdNonNegativeInteger>
 
-    fun toULong(): ULong
+    override fun toULong(): ULong
 
     override fun toBigInt(): XsdNonNegativeInteger = this
 

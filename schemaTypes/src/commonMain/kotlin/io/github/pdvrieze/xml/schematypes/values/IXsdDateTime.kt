@@ -21,8 +21,10 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.values.formatters.DateTimeFormatter
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.math.absoluteValue
 import kotlin.time.Instant
 
@@ -83,14 +85,18 @@ interface IXsdDateTime: XsdAtomic {
         }
     }
 
+
     fun instant(): Instant {
+        val t = second?.splitToSecondsAndNanos() ?: 0uL
+
         val dateTime = LocalDateTime(
             year ?: 0,
             month?.toInt() ?: 1,
             day?.toInt() ?: 1,
             hour?.toInt() ?: 0,
             minute?.toInt() ?: 0,
-            second?.toDouble()?.toInt() ?: 0
+            (t shr 32).toInt(),
+            t.toInt(),
         )
 
         return dateTime.toInstant(timeZone ?: TimeZone.UTC)
@@ -151,5 +157,23 @@ interface IXsdDateTime: XsdAtomic {
         // move up (and down) to handle with div rounding to zero (as weeks start with 1 adding 7 before diff is the same as adding 1 after)
         return ((differenceInDays + 7) / 7)
     }
+
+    companion object {
+
+        @XmlUtilInternal
+        internal fun XsdDecimal.splitToSecondsAndNanos(): ULong {
+            return when (this) {
+                is XsdInteger -> toULong()
+                is BigDecimal if (isInteger) -> toULong() shl 32
+                else -> {
+                    val (sec, rem) = toBigDecimal().divRem(1u)
+                    val nano = rem.exp10(9)
+                    sec.toULong() shl 32 or nano.toULong()
+                }
+            }
+
+        }
+    }
+
 
 }

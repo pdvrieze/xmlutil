@@ -42,6 +42,11 @@ class BigDecimal internal constructor(
         require(ints.size !=2 || ints[1]!=0u) { "The second int must not be zero" }
     }
 
+    override fun exp10(n: Int): XsdBigDecimal {
+        val newDecimalPosition = decimalPositions - n
+        return BigDecimal(sign, ints, newDecimalPosition)
+    }
+
     override val isInteger: Boolean get() = decimalPositions <= 0
 
     val self: BigDecimal get() = this
@@ -65,14 +70,36 @@ class BigDecimal internal constructor(
         decimalPositions = 0L
     )
 
-    override fun toLong(): Long {
-        val base = floor()
-        return when (base.ints.size) {
-            0 -> 0L
-            1 -> base.ints[0].toLong() * sign
+    override fun toULong(): ULong {
+        check(sign>=0) { "Negative value cannot be converted to unsigned long"}
+        if (sign == 0) return 0uL
+        val base = floor().arrayWithEffectiveDecimalPosition(0)
+        return when (base.size) {
+            1 -> base[0].toULong()
+            2 -> base[0].toULong() or (base[1].toULong() shl 32)
+            else -> throw ArithmeticException("Value too large to fit in an unsigned long")
+        }
+    }
 
-            2 if (base.ints[1] and 0x8000_0000u == 0u) -> {
-                val uLongValue = base.ints[0].toULong() or (base.ints[1].toULong() shl 32)
+    override fun toUInt(): UInt {
+        check(sign>=0) { "Negative value cannot be converted to unsigned long"}
+        if (sign == 0) return 0u
+        val base = floor().arrayWithEffectiveDecimalPosition(0)
+        return when (base.size) {
+            1 -> base[0]
+            else -> throw ArithmeticException("Value too large to fit in an unsigned int")
+        }
+    }
+
+
+    override fun toLong(): Long {
+        val base = floor().arrayWithEffectiveDecimalPosition(0)
+        return when (base.size) {
+            0 -> 0L
+            1 -> base[0].toLong() * sign
+
+            2 if (base[1] and 0x8000_0000u == 0u) -> {
+                val uLongValue = base[0].toULong() or (base[1].toULong() shl 32)
                 uLongValue.toLong() * sign
             }
 
@@ -81,11 +108,11 @@ class BigDecimal internal constructor(
     }
 
     override fun toInt(): Int {
-        val base = floor()
-        return when (base.ints.size) {
+        val base = floor().arrayWithEffectiveDecimalPosition(0)
+        return when (base.size) {
             0 -> 0
-            1 if (base.ints[0] and 0x8000_0000u == 0u) -> base.ints[0].toInt() * sign
-            else -> throw ArithmeticException("Value too large to fit in a Long")
+            1 if (base[0] and 0x8000_0000u == 0u) -> base[0].toInt() * sign
+            else -> throw ArithmeticException("Value too large to fit in an Int: ${this.xmlString}")
         }
     }
 
@@ -368,12 +395,12 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(sign * other.sign, newInts, newDecimalPositions)
     }
 
-    override operator fun times(other: UInt): BigDecimal {
+    override operator fun times(multiplier: UInt): BigDecimal {
         val newInts = UIntArray(size.toInt() + 1)
 
         var carry = 0u
         for (idx in ints.indices) {
-            val m = ints[idx].toULong() * other.toULong() + carry + newInts[idx]
+            val m = ints[idx].toULong() * multiplier.toULong() + carry + newInts[idx]
             newInts[idx] = m.toUInt()
             carry = m.shr(32).toUInt()
         }
@@ -417,6 +444,46 @@ class BigDecimal internal constructor(
             expandWithEffectiveDecimalPositionsToArray(newDecimalPosition),
             newDecimalPosition
         )
+
+    private fun arrayWithEffectiveDecimalPosition(newDecimalPosition: Long): UIntArray {
+        if (newDecimalPosition == decimalPositions) return ints
+        var shiftNeeded = newDecimalPosition - decimalPositions
+        var current = BigUnsignedInt(ints, 0uL)
+        do {
+            // Note that the target exp must be 0 as we are only retaining the ints.
+            when (shiftNeeded) {
+                -9L -> return (current.div(1_000_000_000u, 0uL)).ints
+                -8L -> return (current.div(100_000_000u, 0uL)).ints
+                -7L -> return (current.div(10_000_000u, 0uL)).ints
+                -6L -> return (current.div(1_000_000u, 0uL)).ints
+                -5L -> return (current.div(100_000u, 0uL)).ints
+                -4L -> return (current.div(10_000u, 0uL)).ints
+                -3L -> return (current.div(1_000u, 0uL)).ints
+                -2L -> return (current.div(100u, 0uL)).ints
+                -1L -> return (current.div(10u, 0uL)).ints
+                0L -> return current.ints
+                1L -> return (current.times(10u, 0uL)).ints
+                2L -> return (current.times(100u, 0uL)).ints
+                3L -> return (current.times(1_000u, 0uL)).ints
+                4L -> return (current.times(10_000u, 0uL)).ints
+                5L -> return (current.times(100_000u, 0uL)).ints
+                6L -> return (current.times(1_000_000u, 0uL)).ints
+                7L -> return (current.times(10_000_000u, 0uL)).ints
+                8L -> return (current.times(100_000_000u, 0uL)).ints
+                9L -> return (current.times(1_000_000_000u, 0uL)).ints
+
+                else if newDecimalPosition > 9L-> {
+                    current *= 1_000_000_000u
+                    shiftNeeded -= 9
+                }
+                else -> {
+                    current /= 1_000_000_000u
+                    shiftNeeded++
+                }
+            }
+        } while (true)
+
+    }
 
     private fun expandWithEffectiveDecimalPositionsToArray(newDecimalPosition: Long): UIntArray {
         var additionalDecimalNeeded = newDecimalPosition - decimalPositions
@@ -530,9 +597,68 @@ class BigDecimal internal constructor(
         }
     }
 
-    override fun divRem(other: XsdDecimal): XsdDecimal.DivRem {
-        return divRem(other.toBigDecimal())
+    override fun divRem(divider: XsdDecimal): XsdDecimal.DivRem {
+        return divRem(divider.toBigDecimal())
     }
+
+    override fun divRem(divider: ULong): XsdDecimal.DivRem {
+        return super.divRem(divider)
+    }
+
+    override fun divRem(divider: UInt): DivRem {
+        when (divider) {
+            0u -> throw ArithmeticException("Division by zero")
+            1u if decimalPositions <= 0L -> return DivRem(this, ZERO)
+            else if (sign == 0) -> return DivRem(this, ZERO)
+        }
+        // If we can just extend from UInt to ULong do that here
+        val divider = when (decimalPositions) {
+            0L -> divider.toULong()
+            1L -> divider.toULong() * 10u
+            2L -> divider.toULong() * 100u
+            3L -> divider.toULong() * 1_000u
+            4L -> divider.toULong() * 10_000u
+            5L -> divider.toULong() * 100_000u
+            6L -> divider.toULong() * 1_000_000u
+            7L -> divider.toULong() * 10_000_000u
+            8L -> divider.toULong() * 100_000_000u
+            9L -> divider.toULong() * 1_000_000_000u
+            else -> return divRem(BigDecimal(1, uintArrayOf(divider), 0L))
+        }
+        val v = BigUnsignedInt(ints, 0uL)
+        val quotient: BigUnsignedInt
+        val remainder: UIntArray
+        val newRemSign: Int
+        when {
+            divider <= UInt.MAX_VALUE -> {
+                val (q, _, r) = v.divRem(divider.toUInt())
+                quotient = q
+
+                newRemSign = if(r == 0u) 0 else sign
+                remainder = uintArrayOf(r)
+            }
+            else -> {
+                val (q, r) = v.divRem(divider)
+                quotient = q
+
+                newRemSign = if(r.sign == 0) 0 else sign
+                remainder = r.ints
+            }
+        }
+
+        val newSign = if(quotient.sign == 0) 0 else sign
+
+        // We "Fixed" the position so the decimal position difference is 0
+        val quotientDec = BigDecimal(newSign, quotient.ints, 0)
+
+        val remainderDec = BigDecimal(newRemSign, remainder, decimalPositions)
+
+        return DivRem(quotientDec, remainderDec)
+
+    }
+
+    fun divRem(other: XsdUnsignedInt): XsdDecimal.DivRem = divRem(other.uIntValue)
+    fun divRem(other: XsdUnsignedLong): XsdDecimal.DivRem = divRem(other.uLongValue)
 
     fun divRem(divider: BigDecimal): DivRem { // will (initially) expand exponents
         if (divider.sign == 0) throw ArithmeticException("Division by zero")
