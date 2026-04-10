@@ -101,7 +101,7 @@ open class XsdDateTimeImpl(
     override val schemaType: DateTimeType<XsdDateTime> get() = DateTimeType.Instance
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp = when (timezoneOffset) {
-        null -> XsdDateTimeStampImpl(instant(), fallbackTimezone)
+        null -> XsdDateTimeStampImpl(year, month, day, hour, minute, second, fallbackTimezone)
         else -> XsdDateTimeStampImpl(instant(), UtcOffset(minutes = timezoneOffset).asTimeZone())
     }
 

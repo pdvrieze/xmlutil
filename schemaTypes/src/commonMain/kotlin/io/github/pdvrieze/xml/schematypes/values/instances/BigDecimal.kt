@@ -42,6 +42,8 @@ class BigDecimal internal constructor(
         require(ints.size !=2 || ints[1]!=0u) { "The second int must not be zero" }
     }
 
+    override val isInteger: Boolean get() = decimalPositions <= 0
+
     val self: BigDecimal get() = this
 
     private constructor(parseResult: ParseResult) : this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)

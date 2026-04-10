@@ -22,10 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DateTimeStampType
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.time.Instant
@@ -74,8 +71,52 @@ class XsdDateTimeStampImpl(
             second: XsdDecimal,
             timezoneOffset: Int
         ): XsdDateTimeStampImpl {
-            val localDateTime = LocalDateTime(year, month, day, hour, minute, second.toInt())
             val timezone = FixedOffsetTimeZone(UtcOffset(minutes = timezoneOffset))
+            return invoke(year, month, day, hour, minute, second, timezone)
+        }
+
+        internal operator fun invoke(
+            year: Int,
+            month: Int,
+            day: Int,
+            hour: Int,
+            minute: Int,
+            second: XsdDecimal,
+            timezone: TimeZone
+        ): XsdDateTimeStampImpl {
+            val localDateTime = LocalDateTime(year, month, day, hour, minute, second.toInt())
+            val instant = localDateTime.toInstant(timezone)
+            return XsdDateTimeStampImpl(instant, timezone)
+        }
+
+        internal operator fun invoke(
+            year: Int,
+            month: UInt,
+            day: UInt,
+            hour: UInt,
+            minute: UInt,
+            second: XsdDecimal,
+            timezoneOffset: Int
+        ): XsdDateTimeStampImpl {
+            val timezone = FixedOffsetTimeZone(UtcOffset(minutes = timezoneOffset))
+            return invoke(year, month, day, hour, minute, second, timezone)
+        }
+
+        internal operator fun invoke(
+            year: Int,
+            month: UInt,
+            day: UInt,
+            hour: UInt,
+            minute: UInt,
+            second: XsdDecimal,
+            timezone: TimeZone
+        ): XsdDateTimeStampImpl {
+            val nanos: Int = when {
+                second is XsdInteger -> 0
+                second is XsdBigDecimal && second.isInteger -> 0
+                else -> (second * 1_000_000_000).toInt().rem(1_000_000_000)
+            }
+            val localDateTime = LocalDateTime(year, month.toInt(), day.toInt(), hour.toInt(), minute.toInt(), second.toInt(), nanos)
             val instant = localDateTime.toInstant(timezone)
             return XsdDateTimeStampImpl(instant, timezone)
         }
