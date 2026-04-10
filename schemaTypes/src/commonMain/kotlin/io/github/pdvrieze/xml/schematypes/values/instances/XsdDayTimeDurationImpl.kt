@@ -72,6 +72,10 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
         return result
     }
 
+    override fun toString(): String {
+        return xmlString
+    }
+
     override val xmlString: String
         get() = buildString {
             val aMillis: ULong = millis.absoluteValue.toULong()

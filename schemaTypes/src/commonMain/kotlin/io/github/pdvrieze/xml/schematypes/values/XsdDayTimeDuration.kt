@@ -61,7 +61,7 @@ interface XsdDayTimeDuration : XsdDuration {
         }
 
         fun ofMinutes(offset: Int): XsdDayTimeDuration {
-            return XsdDayTimeDurationImpl(offset * 60_0000L)
+            return XsdDayTimeDurationImpl(offset * 60_000L)
         }
     }
 }
