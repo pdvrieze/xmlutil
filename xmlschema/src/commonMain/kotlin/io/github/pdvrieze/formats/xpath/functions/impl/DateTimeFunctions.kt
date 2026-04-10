@@ -35,8 +35,10 @@ import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.types.TimeType
 import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.formatters.DateTimeFormatter
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.asTimeZone
+import kotlin.math.roundToInt
 
 @XPathInternal
 object DateTimeFunctions : AbstractFunctionObject() {
@@ -173,15 +175,23 @@ object DateTimeFunctions : AbstractFunctionObject() {
     //endregion
 
     //region timezone adjustment functions 9.6
+    context(ctx: ExprEvalContext)
+    private fun XsdDayTimeDuration.toValidTimezone(): TimeZone {
+        val intMinutes = (seconds / 60).roundToInt()
+        when {
+            intMinutes*60.0 != seconds -> throw EvaluationException(ErrorCodes.FODT0003, "Timezone adjustments must be in whole minutes")
+            intMinutes in -14 * 60..14 * 60 -> return UtcOffset(minutes = intMinutes).asTimeZone()
+            else -> throw EvaluationException(ErrorCodes.FODT0003, "Timezone offset out of range: $this !in -14:00..14:00")
+        }
+    }
+
     val fnAdjustDateTimeToTimezone = BuiltinFunctionImpl("adjust-dateTime-to-timezone", listOf(
         functionType(DateTimeType.Instance.opt, DateTimeType.Instance.opt),
         functionType(DateTimeType.Instance.opt, DateTimeType.Instance.opt, DayTimeDurationType.Instance.opt),
     )) { args ->
         val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val timezone = when {
-            args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.let {
-                UtcOffset(seconds = it.seconds.toInt()).asTimeZone()
-            }
+            args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.toValidTimezone()
             else -> contextOf<ExprEvalContext>().defaultTimeZone
         }
 
@@ -203,9 +213,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
     )) { args ->
         val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val timezone = when {
-            args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.let {
-                UtcOffset(seconds = it.seconds.toInt()).asTimeZone()
-            }
+            args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.toValidTimezone()
             else -> contextOf<ExprEvalContext>().defaultTimeZone
         }
 
@@ -227,9 +235,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
     )) { args ->
         val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val timezone = when {
-            args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.let {
-                UtcOffset(seconds = it.seconds.toInt()).asTimeZone()
-            }
+            args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.toValidTimezone()
             else -> contextOf<ExprEvalContext>().defaultTimeZone
         }
 

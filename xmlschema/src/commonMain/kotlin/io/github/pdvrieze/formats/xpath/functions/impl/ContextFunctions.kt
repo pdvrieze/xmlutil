@@ -72,6 +72,7 @@ object ContextFunctions : AbstractFunctionObject() {
     /** Returns the value of the implicit timezone property from the dynamic context.*/
     val fnImplicitTimezone = BuiltinFunctionImpl("implicit-timezone", functionType(t(DayTimeDurationType.Instance))) { args ->
         args.checkArgCount(0)
+        // don't use the current timezone as that needs the current time to calculate the offset
         val timezoneOffset = contextOf<ExprEvalContext>().currentTimeStamp.timezoneOffset
         XdmAtomic(XsdDayTimeDuration.ofMinutes(timezoneOffset))
     }
