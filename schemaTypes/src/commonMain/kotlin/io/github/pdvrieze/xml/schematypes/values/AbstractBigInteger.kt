@@ -206,7 +206,11 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             }
             newElems[newElems.size - 1] = elems[mostSigBit.shr(5).toInt()].shr(bitShift)
 
-            return newInstance(sign, newElems, newExp)
+            var newSize = newElems.size
+            while (newSize > 1 && newElems[newSize-1] == 0u) newSize -= 1
+
+            val newArray = if (newSize!=newElems.size) newElems.copyOf(newSize) else newElems
+            return newInstance(sign, newArray, newExp)
         }
     }
 
