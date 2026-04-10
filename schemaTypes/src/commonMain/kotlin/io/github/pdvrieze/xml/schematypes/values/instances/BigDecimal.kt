@@ -548,10 +548,7 @@ class BigDecimal internal constructor(
         return 0
     }
 
-
-
-    override val xmlString: String
-        get() = buildString {appendTo(this) }
+    override val xmlString: String get() = buildString { appendTo(this) }
 
     internal fun appendTo(appendable: Appendable) {
         if (sign == 0) {
@@ -573,9 +570,13 @@ class BigDecimal internal constructor(
 
                     else -> {
                         val split = baseString.length - decimalPositions.toInt()
-                        if (split < 0) appendable.append('0')
-                        else appendable.appendRange(baseString, 0, split)
+                        when {
+                            split < 0 -> appendable.append('0')
+                            else -> appendable.appendRange(baseString, 0, split)
+                        }
+
                         appendable.append('.')
+                        if (split < 0) repeat(-split) { appendable.append('0') }
                         appendable.appendRange(baseString, split.coerceAtLeast(0), baseString.length)
                     }
                 }

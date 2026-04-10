@@ -44,6 +44,11 @@ class TestBigDecimal {
     }
 
     @Test
+    fun testFixToString() {
+        assertEquals("0.000012", BigDecimal(12, 6).xmlString)
+    }
+
+    @Test
     fun testDiv() {
         val main = BigDecimal(412, 2)
         val divisor = BigDecimal(1, 0)
