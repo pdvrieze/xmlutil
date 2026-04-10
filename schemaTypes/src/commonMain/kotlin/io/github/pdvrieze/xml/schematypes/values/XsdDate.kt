@@ -73,10 +73,18 @@ interface XsdDate : IXsdDateTime, XsdPrimitive {
         operator fun invoke(str: CharSequence): XsdDate = XsdDateImpl(str)
 
         operator fun invoke(year: Int, month: Int, day: Int, timezoneOffset: Int? = null): XsdDate {
+            return XsdDateImpl(year.toLong(), month, day, timezoneOffset)
+        }
+
+        operator fun invoke(year: Long, month: Int, day: Int, timezoneOffset: Int? = null): XsdDate {
             return XsdDateImpl(year, month, day, timezoneOffset)
         }
 
         operator fun invoke(year: Int, month: UInt, day: UInt, timezoneOffset: Int? = null): XsdDate {
+            return XsdDateImpl(year.toLong(), month, day, timezoneOffset)
+        }
+
+        operator fun invoke(year: Long, month: UInt, day: UInt, timezoneOffset: Int? = null): XsdDate {
             return XsdDateImpl(year, month, day, timezoneOffset)
         }
 

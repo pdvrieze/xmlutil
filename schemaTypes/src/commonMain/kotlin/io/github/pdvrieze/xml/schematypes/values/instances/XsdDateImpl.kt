@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.DateType
 import io.github.pdvrieze.xml.schematypes.values.XsdDate
 import kotlinx.datetime.TimeZone
@@ -34,18 +35,21 @@ import kotlin.jvm.JvmInline
 @JvmInline
 @XmlUtilInternal
 value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
-    constructor(year: Int, month: Int, day: Int) : this(year, month.toUInt(), day.toUInt())
+    constructor(year: Long, month: Int, day: Int) : this(year, month.toUInt(), day.toUInt())
 
-    constructor(year: Int, month: UInt, day: UInt, overloadMarker: Unit = Unit) : this(
+    constructor(year: Long, month: UInt, day: UInt, overloadMarker: Unit = Unit) : this(
         day.toLBits(5) or
                 month.toLBits(4, 5) or
                 year.toLBits(41, 9)
-    )
+    ) {
+        requireRange(month in 1uL..12uL) { "Month out of range: $month" }
+        requireRange(day in 1uL..31uL) { "Day out of range: $day" }
+    }
 
-    constructor(year: Int, month: Int, day: Int, timezoneOffset: Int?) :
+    constructor(year: Long, month: Int, day: Int, timezoneOffset: Int?) :
             this(year, month.toUInt(), day.toUInt(), timezoneOffset)
 
-    constructor(year: Int, month: UInt, day: UInt, timezoneOffset: Int?, overloadMarker: Unit = Unit) : this(
+    constructor(year: Long, month: UInt, day: UInt, timezoneOffset: Int?, overloadMarker: Unit = Unit) : this(
         day.toLBits(5) or
                 month.toLBits(4, 5) or
                 year.toLBits(41, 9) or
@@ -53,7 +57,11 @@ value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
                     null -> 0uL
                     else -> TZ_BIT or timezoneOffset.toLBits(13, 50)
                 }
-    )
+    ) {
+        requireRange(month in 1uL..12uL) { "Month out of range: $month" }
+        requireRange(day in 1uL..31uL) { "Day out of range: $day" }
+        requireRange(timezoneOffset == null || timezoneOffset in -14 * 60..14 * 60) { "Timezone offset out of range: $timezoneOffset" }
+    }
 
     override val day: UInt get() = dateVal.uintFromBits(5)
 
@@ -90,7 +98,9 @@ value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
         operator fun invoke(str: CharSequence) : XsdDate {
             val normalized = xmlCollapseWhitespace(str)
             val monthIdx = normalized.indexOf('-', 1) // sign can be start
-            val year = normalized.substring(0, monthIdx).toInt()
+            val year = normalized.substring(0, monthIdx).toLong()
+
+
             val month = normalized.substring(monthIdx + 1, monthIdx + 3).toInt()
             if (normalized[monthIdx + 3] != '-') throw NumberFormatException("Missing - between month and day")
             val day = normalized.substring(monthIdx + 4, monthIdx + 6).toInt()

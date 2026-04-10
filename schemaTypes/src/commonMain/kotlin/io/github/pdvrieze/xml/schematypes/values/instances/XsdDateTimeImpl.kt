@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.RangeException
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.datetime.*
@@ -69,20 +71,20 @@ open class XsdDateTimeImpl(
 
     init {
         when (month) {
-            1u, 3u, 5u, 7u, 8u, 10u, 12u -> require(day in 1u..31u) { "Long months must have days 1..31 (was $day)" }
-            4u, 6u, 9u, 11u -> require(day in 1u..30u) { "Short months must have days 1..30 (was $day)" }
+            1u, 3u, 5u, 7u, 8u, 10u, 12u -> requireRange(day in 1u..31u) { "Long months must have days 1..31 (was $day)" }
+            4u, 6u, 9u, 11u -> requireRange(day in 1u..30u) { "Short months must have days 1..30 (was $day)" }
             2u -> {
                 val isLeap = year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)
                 val days = if (isLeap) 29u else 28u
-                require(day in 1u..days) { "February must have day $day in 1..$days" }
+                requireRange(day in 1u..days) { "February must have day $day in 1..$days" }
             }
 
             else -> throw IllegalArgumentException("Month value out of range: $month")
         }
-        require(hour in 0u..23u) { "Hour value $hour !in 0..23" }
-        require(minute in 0u..59u) { "Minute value $minute !in 0..59" }
-        require(second.toDouble() in 0.0..<60.0) { "Second value !in 0.0..<60.0" }
-        require(timezoneOffset == null || timezoneOffset in -840..840) { "Timezone offset must be in -840..840 or null, was: $timezoneOffset" }
+        requireRange(hour in 0u..23u) { "Hour value $hour !in 0..23" }
+        requireRange(minute in 0u..59u) { "Minute value $minute !in 0..59" }
+        requireRange(second.toDouble() in 0.0..<60.0) { "Second value !in 0.0..<60.0" }
+        requireRange(timezoneOffset == null || timezoneOffset in -840..840) { "Timezone offset must be in -840..840 or null, was: $timezoneOffset" }
     }
 
     override val xmlString: String
@@ -114,10 +116,10 @@ open class XsdDateTimeImpl(
                 else -> throw NumberFormatException("Missing sign in timezone, found ${tz[0]}")
             }
             val hours = tz[1].digitToInt() * 10 + tz[2].digitToInt()
-            if (hours !in 0..14) throw NumberFormatException("Timezone hours must be between 0 and 14")
+            if (hours !in 0..14) throw RangeException("Timezone hours must be between 0 and 14")
             if (tz[3] != ':') throw NumberFormatException("Missing : between hours and minutes in timezone")
             val minutes = tz[4].digitToInt() * 10 + tz[5].digitToInt()
-            if (minutes !in 0..59) throw NumberFormatException("Minutes must be between 0 and 59")
+            if (minutes !in 0..59) throw RangeException("Minutes must be between 0 and 59")
             return (if (sign) -1 else 1) * ((hours * 60) + minutes)
         }
 

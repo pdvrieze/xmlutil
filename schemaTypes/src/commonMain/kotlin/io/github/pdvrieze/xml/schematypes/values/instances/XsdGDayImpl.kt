@@ -20,13 +20,12 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
-import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.GDayType
 import io.github.pdvrieze.xml.schematypes.values.XsdGDay
-import io.github.pdvrieze.xml.schematypes.values.XsdPrimitive
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -47,7 +46,7 @@ value class XsdGDayImpl(val dayVal: UInt) : XsdGDay {
     constructor(day: Int, dummy: Nothing? = null) : this(day.toIBits(6))
 
     init {
-        require((dayVal and 0xffu) in 1u..31u)
+        requireRange((dayVal and 0x3ffffu) in 1u..31u) { "Day out of range: $day" }
     }
 
     override val day: UInt get() = dayVal.uintFromBits(6)

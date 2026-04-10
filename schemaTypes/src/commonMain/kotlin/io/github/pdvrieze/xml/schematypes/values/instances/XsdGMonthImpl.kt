@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.GMonthType
 import io.github.pdvrieze.xml.schematypes.values.XsdGMonth
 import kotlinx.datetime.TimeZone
@@ -45,7 +46,7 @@ value class XsdGMonthImpl private constructor(val monthVal: UInt) : XsdGMonth {
     constructor(month: Int, dummy: Nothing? = null) : this(month.toIBits(5))
 
     init {
-        require(month in 1u..12u)
+        requireRange(month in 1u..12u) { "Month $month not in 1..12"}
     }
 
     override val month: UInt get() = monthVal.uintFromBits(5)

@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.TimeType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdTime
@@ -40,8 +41,8 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
                 minutes.toLBits(6, 5) or
                 millis.toLBits(16, 11)
     ) {
-        require(minutes < 60u) { "Minutes out of range: $minutes" }
-        require(millis < 60000u) { "Millis out of range: $millis" }
+        requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
+        requireRange(millis < 60000u) { "Millis out of range: $millis" }
     }
 
     constructor(hours: UInt, minutes: UInt, seconds: XsdDecimal) : this(
@@ -57,9 +58,9 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
                     else -> (1uL shl 63) or timezoneOffset.toLBits(13, 27)
                 }
     ) {
-        require(minutes < 60u) { "Minutes out of range: $minutes" }
-        require(millis < 60000u) { "Millis out of range: $millis" }
-        require(timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
+        requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
+        requireRange(millis < 60000u) { "Millis out of range: $millis" }
+        requireRange(timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
     }
 
 

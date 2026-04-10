@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.PositiveIntegerType
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
@@ -73,8 +74,8 @@ interface XsdPositiveInteger : XsdNonNegativeInteger {
 
         operator fun invoke(value: ULong): BigPositiveInt = BigPositiveInt(value)
         operator fun invoke(value: UInt): BigPositiveInt = BigPositiveInt(value)
-        operator fun invoke(value: Long): BigPositiveInt = run { require(value > 0); BigPositiveInt(value.toULong()) }
-        operator fun invoke(value: Int): BigPositiveInt = run { require(value > 0); BigPositiveInt(value.toUInt()) }
+        operator fun invoke(value: Long): BigPositiveInt = run { requireRange(value > 0); BigPositiveInt(value.toULong()) }
+        operator fun invoke(value: Int): BigPositiveInt = run { requireRange(value > 0); BigPositiveInt(value.toUInt()) }
 
         private val MAXLONG = ULong.MAX_VALUE.toString()
         private val MAXNONSIGNDIGITS = MAXLONG.substring(1).toLong()

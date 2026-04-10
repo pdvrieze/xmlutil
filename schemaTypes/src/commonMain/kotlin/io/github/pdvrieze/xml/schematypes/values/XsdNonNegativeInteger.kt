@@ -22,6 +22,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedIntImpl
 import kotlinx.serialization.Serializable
@@ -87,8 +88,8 @@ interface XsdNonNegativeInteger : XsdInteger {
 
         operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLong(value)
         operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedInt(value)
-        operator fun invoke(value: Long): XsdUnsignedLong = run { require(value >= 0); XsdUnsignedLong(value.toULong()) }
-        operator fun invoke(value: Int): XsdUnsignedInt = run { require(value >= 0); XsdUnsignedInt(value.toUInt()) }
+        operator fun invoke(value: Long): XsdUnsignedLong = run { requireRange(value >= 0); XsdUnsignedLong(value.toULong()) }
+        operator fun invoke(value: Int): XsdUnsignedInt = run { requireRange(value >= 0); XsdUnsignedInt(value.toUInt()) }
 
         private val MAXLONG = ULong.MAX_VALUE.toString()
         private val MAXNONSIGNDIGITS = MAXLONG.substring(1).toLong()

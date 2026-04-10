@@ -52,12 +52,12 @@ interface XsdGYearMonth : IXsdDateTime, XsdPrimitive {
 
     companion object : SimpleTypeSerializer<XsdGYearMonth>("xsd.gYearMonth") {
         operator fun invoke(str: CharSequence): XsdGYearMonth = XsdGYearMonthImpl(str)
-        operator fun invoke(year: Int, month: UInt): XsdGYearMonth = XsdGYearMonthImpl(year, month)
+        operator fun invoke(year: Int, month: UInt): XsdGYearMonth = XsdGYearMonth(year, month)
         operator fun invoke(year: Int, month: UInt, timezoneOffset: Int?): XsdGYearMonth =
-            XsdGYearMonthImpl(year, month, timezoneOffset)
+            XsdGYearMonth(year, month, timezoneOffset)
 
         override fun deserialize(raw: String, input: XmlReader?): XsdGYearMonth {
-            return XsdGYearMonthImpl(raw)
+            return XsdGYearMonth(raw)
         }
 
     }

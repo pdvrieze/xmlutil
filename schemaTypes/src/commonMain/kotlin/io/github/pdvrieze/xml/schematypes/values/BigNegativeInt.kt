@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values
 
+import io.github.pdvrieze.xml.schematypes.requireRange
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import kotlin.math.absoluteValue
 
@@ -34,7 +35,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
 
     constructor(value: Int, exp: ULong = 0uL) : this(
         uintArrayOf(value.let {
-            require(it < 0) { "Integer must be negative: $it" }
+            requireRange(it < 0) { "Integer must be negative: $it" }
             it.absoluteValue.toUInt()
         }),
         exp
@@ -42,7 +43,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
 
     constructor(value: Long, exp: ULong = 0uL) : this(
         value.let {
-            require(it < 0L) { "Integer must be negative: $it" }
+            requireRange(it < 0L) { "Integer must be negative: $it" }
             val f = it.absoluteValue.toULong()
             uintArrayOf(f.toUInt(), (f shr 32).toUInt())
         },
@@ -58,7 +59,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
     override val self: BigNegativeInt get() = this
 
     override fun newInstance(sign: Int, elems: UIntArray, exp: ULong): BigNegativeInt {
-        require(sign >=0) { "Unsigned integers may not have a negative sign: $sign"}
+        require(sign < 0) { "Negative integers may must have a negative sign: $sign"}
         return BigNegativeInt(elems, exp)
     }
 

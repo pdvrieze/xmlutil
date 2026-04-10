@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.GYearMonthType
 import io.github.pdvrieze.xml.schematypes.values.XsdGYearMonth
 import kotlinx.datetime.TimeZone
@@ -36,15 +37,15 @@ import kotlin.jvm.JvmInline
 value class XsdGYearMonthImpl(val monthYear: ULong) : XsdGYearMonth {
 
     init {
-        require(month in 1u..12u) { "Month values must be between 1 and 12, was $month"}
+        requireRange(month in 1u..12u) { "Month values must be between 1 and 12, was $month"}
     }
 
-    constructor(year: Int, month: UInt) : this(
+    constructor(year: Long, month: UInt) : this(
         month.toLBits(4) or
                 year.toLBits(52, 4)
     )
 
-    constructor(year: Int, month: UInt, timezoneOffset: Int?) : this(
+    constructor(year: Long, month: UInt, timezoneOffset: Int?) : this(
         month.toLBits(4) or
                 year.toLBits(52, 4) or
                 when (timezoneOffset) {
@@ -80,7 +81,8 @@ value class XsdGYearMonthImpl(val monthYear: ULong) : XsdGYearMonth {
         val TZ_MARKER = 1uL shl 63
 
         operator fun invoke(str: CharSequence): XsdGYearMonth {
-            val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.toInt() }
+            val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.toLong() }
+            requireRange(month in 1..12) { "Month values must be between 1 and 12, was $month"}
             return XsdGYearMonthImpl(year, month.toUInt())
         }
     }

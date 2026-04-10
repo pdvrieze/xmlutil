@@ -20,9 +20,24 @@
 
 package io.github.pdvrieze.xml.schematypes.impl
 
+import io.github.pdvrieze.xml.schematypes.requireRange
+
 internal fun Int.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
 
 internal fun Int.toLBits(bitCount: Int): ULong {
+    val exMask = ((1uL shl bitCount) - 1uL).toUInt().inv().toInt()
+    requireRange(this and exMask ==0) { "Value $this is out of range for $bitCount bits" }
+
+    val ulValue = toULong()
+    return (ulValue and (1uL shl (bitCount - 1)) - 1uL) or ((ulValue shr 63) shl (bitCount - 1))
+}
+
+internal fun Long.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
+
+internal fun Long.toLBits(bitCount: Int): ULong {
+    val exMask = ((1uL shl bitCount) - 1uL).inv().toLong()
+    requireRange(this and exMask == 0L) { "Value $this is out of range for $bitCount bits" }
+
     val ulValue = toULong()
     return (ulValue and (1uL shl (bitCount - 1)) - 1uL) or ((ulValue shr 63) shl (bitCount - 1))
 }
@@ -30,12 +45,18 @@ internal fun Int.toLBits(bitCount: Int): ULong {
 internal fun ULong.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
 
 internal fun ULong.toLBits(bitCount: Int): ULong {
+    val exMask = ((1uL shl bitCount) - 1uL).inv()
+    requireRange(this and exMask == 0uL) { "Value $this is out of range for $bitCount bits" }
+
     return (this and (1uL shl (bitCount - 1)) - 1uL) or ((this shr 63) shl (bitCount - 1))
 }
 
 internal fun Int.toIBits(bitCount: Int, shift: Int): UInt = toIBits(bitCount) shl shift
 
 internal fun Int.toIBits(bitCount: Int): UInt {
+    val exMask = ((1uL shl bitCount) - 1uL).toUInt().inv().toInt()
+    requireRange(this and exMask ==0) { "Value $this is out of range for $bitCount bits" }
+
     val uValue = toUInt()
     return (uValue and (1u shl (bitCount - 1)) - 1u) or ((uValue shr 31) shl (bitCount - 1))
 }
@@ -43,12 +64,18 @@ internal fun Int.toIBits(bitCount: Int): UInt {
 internal fun UInt.toIBits(bitCount: Int, shift: Int): UInt = toIBits(bitCount) shl shift
 
 internal fun UInt.toIBits(bitCount: Int): UInt {
+    val exMask = ((1uL shl bitCount) - 1uL).toUInt().inv()
+    requireRange(this and exMask ==0u) { "Value $this is out of range for $bitCount bits" }
+
     return this and (1u shl (bitCount)) - 1u
 }
 
 internal fun UInt.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
 
 internal fun UInt.toLBits(bitCount: Int): ULong {
+    val exMask = ((1uL shl bitCount) - 1uL).toUInt().inv()
+    requireRange(this and exMask ==0u) { "Value $this is out of range for $bitCount bits" }
+
     return toULong() and (1uL shl (bitCount)) - 1uL
 }
 
@@ -56,9 +83,8 @@ internal fun UInt.intFromBits(bitCount: Int): Int {
     val signMask: UInt = 1u shl (bitCount - 1)
     val mask = signMask - 1u
     return when {
-        this and signMask == signMask ->  // negative
-            (((-1).toUInt() xor mask) or
-                    (this and mask)).toInt()
+        this and signMask == signMask ->  // negative (mask.inv gives everything else 1's)
+            (mask.inv() or (this and mask)).toInt()
 
         else -> (this and mask).toInt()
     }
@@ -69,8 +95,7 @@ internal fun ULong.intFromBits(bitCount: Int): Int {
     val mask = signMask - 1uL
     return when {
         this and signMask == signMask ->  // negative
-            (((-1).toULong() xor mask) or
-                    (this and mask)).toInt()
+            (mask.inv() or (this and mask)).toInt()
 
         else -> (this and mask).toInt()
     }

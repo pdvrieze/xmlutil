@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.GMonthDayType
 import io.github.pdvrieze.xml.schematypes.values.XsdGMonthDay
 import kotlinx.datetime.TimeZone
@@ -50,11 +51,11 @@ value class XsdGMonthDayImpl(val monthdayVal: UInt) : XsdGMonthDay {
 
     init {
         val m = month
-        require(m in 1u..12u)
+        requireRange(m in 1u..12u)
         when(m) {
-            2u -> require(day in 1u..29u)
-            4u, 6u, 9u, 11u -> require(day in 1u..30u)
-            else -> require(day in 1u..31u)
+            2u -> requireRange(day in 1u..29u)
+            4u, 6u, 9u, 11u -> requireRange(day in 1u..30u)
+            else -> requireRange(day in 1u..31u)
         }
     }
 
