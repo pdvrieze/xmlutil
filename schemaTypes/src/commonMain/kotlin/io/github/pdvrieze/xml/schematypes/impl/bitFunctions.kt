@@ -25,8 +25,9 @@ import io.github.pdvrieze.xml.schematypes.requireRange
 internal fun Int.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
 
 internal fun Int.toLBits(bitCount: Int): ULong {
-    val exMask = ((1uL shl bitCount) - 1uL).toUInt().inv().toInt()
-    requireRange(this and exMask ==0) { "Value $this is out of range for $bitCount bits" }
+    val exMask = ((1uL shl bitCount-1) - 1uL).toUInt().inv().toInt()
+    val expected = this.shr(31).and(exMask) //sign extends
+    requireRange(this and exMask == expected) { "Value $this is out of range for $bitCount bits" }
 
     val ulValue = toULong()
     return (ulValue and (1uL shl (bitCount - 1)) - 1uL) or ((ulValue shr 63) shl (bitCount - 1))
@@ -35,8 +36,9 @@ internal fun Int.toLBits(bitCount: Int): ULong {
 internal fun Long.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift
 
 internal fun Long.toLBits(bitCount: Int): ULong {
-    val exMask = ((1uL shl bitCount) - 1uL).inv().toLong()
-    requireRange(this and exMask == 0L) { "Value $this is out of range for $bitCount bits" }
+    val exMask = ((1uL shl bitCount-1) - 1uL).inv().toLong() // include the sign bit in match
+    val expected = this.shr(31).and(exMask) //sign extends so msb target bit should match sign
+    requireRange(this and exMask == expected) { "Value $this is out of range for $bitCount bits" }
 
     val ulValue = toULong()
     return (ulValue and (1uL shl (bitCount - 1)) - 1uL) or ((ulValue shr 63) shl (bitCount - 1))
@@ -54,8 +56,9 @@ internal fun ULong.toLBits(bitCount: Int): ULong {
 internal fun Int.toIBits(bitCount: Int, shift: Int): UInt = toIBits(bitCount) shl shift
 
 internal fun Int.toIBits(bitCount: Int): UInt {
-    val exMask = ((1uL shl bitCount) - 1uL).toUInt().inv().toInt()
-    requireRange(this and exMask ==0) { "Value $this is out of range for $bitCount bits" }
+    val exMask = ((1uL shl bitCount-1) - 1uL).toUInt().inv().toInt()
+    val expected = this.shr(31).and(exMask) //sign extends
+    requireRange(this and exMask ==expected) { "Value $this is out of range for $bitCount bits" }
 
     val uValue = toUInt()
     return (uValue and (1u shl (bitCount - 1)) - 1u) or ((uValue shr 31) shl (bitCount - 1))
