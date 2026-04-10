@@ -201,7 +201,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
                 else -> XdmAtomic(dateTime.ensureTimezone(timezone))
             }
 
-            timezone == null -> XdmAtomic(XsdDateTime(dateTime.instant(), null))
+            timezone == null -> XdmAtomic(XsdDateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second))
 
             else -> XdmAtomic(XsdDateTime(dateTime.instant(), timezone))
         }
@@ -223,7 +223,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
                 else -> XdmAtomic(date.ensureTimezone(timezone))
             }
 
-            timezone == null -> XdmAtomic(XsdDateTime(date.instant(), null).toDate())
+            timezone == null -> XdmAtomic(XsdDate(date.year, date.month, date.day))
 
             else -> XdmAtomic(XsdDateTime(date.instant(), timezone).toDate())
         }
@@ -245,7 +245,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
                 else -> XdmAtomic(time.ensureTimezone(timezone))
             }
 
-            timezone == null -> XdmAtomic(XsdDateTime(XsdDateTime(XsdDate(1972, 12, 31), time).instant(), null).toTime())
+            timezone == null -> XdmAtomic(XsdTime(time.hour, time.minute, time.second))
 
             else -> XdmAtomic(XsdDateTime(XsdDateTime(XsdDateTime(XsdDate(1972, 12, 31), time).instant(), null).instant(), timezone))
         }
