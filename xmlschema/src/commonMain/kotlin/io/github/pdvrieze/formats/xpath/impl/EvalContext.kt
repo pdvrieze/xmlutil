@@ -28,7 +28,10 @@ import io.github.pdvrieze.xml.schematypes.types.builtinType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
+import kotlinx.datetime.FixedOffsetTimeZone
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.asTimeZone
+import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom2.Document
 import kotlin.contracts.ExperimentalContracts
@@ -58,7 +61,7 @@ open class EvalContext(
     val currentTimeStamp: XsdDateTimeStamp get() = deterministicState.currentDateTimeStamp
     val baseUri: XsdAnyURI? get() = deterministicState.baseURI
     val defaultCollation: Collation get() = Collations.CODEPOINT
-    val defaultTimeZone: TimeZone get() = deterministicState.defaultTimeZone
+    val defaultTimeZone: FixedOffsetTimeZone get() = deterministicState.defaultTimeZone
 
     val defaultLanguage: XsdLanguage get() = deterministicState.defaultLanguage
 
@@ -125,12 +128,16 @@ open class EvalContext(
         }
 
         private val _timeData by lazy {
-            val tz = TimeZone.currentSystemDefault()
+            // Use a fixed timezone (rather than one that varies on reference time).
+            // XPath assumes it is "fixed"
+            val now = Clock.System.now()
+            val tz = TimeZone.currentSystemDefault().offsetAt(now).asTimeZone()
+
             tz to XsdDateTimeStamp(Clock.System.now(), tz)
         }
 
-        val currentDateTimeStamp get() = _timeData.second
-        val defaultTimeZone get() = _timeData.first
+        val currentDateTimeStamp: XsdDateTimeStamp get() = _timeData.second
+        val defaultTimeZone: FixedOffsetTimeZone get() = _timeData.first
         val defaultLanguage: XsdLanguage = XsdLanguage("EN")
     }
 

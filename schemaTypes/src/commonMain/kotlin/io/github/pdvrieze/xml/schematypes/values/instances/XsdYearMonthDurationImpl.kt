@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.YearMonthDurationType
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdLong
-import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
-import io.github.pdvrieze.xml.schematypes.values.XsdYearMonthDuration
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.roundToLong
 
 class XsdYearMonthDurationImpl(override val months: Long) : XsdYearMonthDuration {
@@ -55,9 +52,9 @@ class XsdYearMonthDurationImpl(override val months: Long) : XsdYearMonthDuration
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
+        if (other !is XsdDuration) return false
 
-        other as XsdDurationImpl
+        if (other.millis != 0L) return false
 
         return months == other.months
     }

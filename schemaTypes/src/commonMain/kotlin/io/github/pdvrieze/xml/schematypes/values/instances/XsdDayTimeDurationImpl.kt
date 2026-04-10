@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
-import io.github.pdvrieze.xml.schematypes.values.XsdDayTimeDuration
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdLong
-import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 
@@ -56,14 +53,11 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
+        if (other !is XsdDuration) return false
 
-        other as XsdDurationImpl
+        if (other.months != 0L) return false
 
-        if (months != other.months) return false
-        if (millis != other.millis) return false
-
-        return true
+        return millis == other.millis
     }
 
     override fun hashCode(): Int {
