@@ -259,7 +259,6 @@ class BigDecimal internal constructor(
             decimalPositions > other.decimalPositions ->
                 return plus(other.expandWithEffectiveDecimalPositions(decimalPositions))
         }
-
         val shorter: UIntArray
         val longer: UIntArray
         when {
@@ -424,17 +423,18 @@ class BigDecimal internal constructor(
         check(additionalDecimalNeeded>=0)
         var current = BigUnsignedInt(ints, 0uL)
         do {
+            // Note that the target exp must be 0 as we are only retaining the ints.
             when (additionalDecimalNeeded) {
                 0L -> return current.ints
-                1L -> return (current*10u).ints
-                2L -> return (current*100u).ints
-                3L -> return (current*1_000u).ints
-                4L -> return (current*10_000u).ints
-                5L -> return (current*100_000u).ints
-                6L -> return (current*1_000_000u).ints
-                7L -> return (current*10_000_000u).ints
-                8L -> return (current*100_000_000u).ints
-                9L -> return (current*1_000_000_000u).ints
+                1L -> return (current.times(10u, 0uL)).ints
+                2L -> return (current.times(100u, 0uL)).ints
+                3L -> return (current.times(1_000u, 0uL)).ints
+                4L -> return (current.times(10_000u, 0uL)).ints
+                5L -> return (current.times(100_000u, 0uL)).ints
+                6L -> return (current.times(1_000_000u, 0uL)).ints
+                7L -> return (current.times(10_000_000u, 0uL)).ints
+                8L -> return (current.times(100_000_000u, 0uL)).ints
+                9L -> return (current.times(1_000_000_000u, 0uL)).ints
 
                 else -> {
                     current *= 1_000_000_000u
@@ -506,9 +506,10 @@ class BigDecimal internal constructor(
 
                     else -> {
                         val split = baseString.length - decimalPositions.toInt()
-                        appendable.appendRange(baseString, 0, split)
+                        if (split < 0) appendable.append('0')
+                        else appendable.appendRange(baseString, 0, split)
                         appendable.append('.')
-                        appendable.appendRange(baseString, split, baseString.length)
+                        appendable.appendRange(baseString, split.coerceAtLeast(0), baseString.length)
                     }
                 }
             }

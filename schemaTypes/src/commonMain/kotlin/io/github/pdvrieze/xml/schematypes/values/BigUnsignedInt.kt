@@ -21,6 +21,8 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
 @OptIn(ExperimentalUnsignedTypes::class)
 class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): AbstractBigUnsignedInt<BigUnsignedInt>(ints, exp) {
@@ -126,6 +128,27 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
 
     override operator fun times(other: XsdNonNegativeInteger): BigUnsignedInt {
         return times(other as? BigUnsignedInt ?: BigUnsignedInt(other))
+    }
+
+    @XmlUtilInternal
+    internal fun times(other: UInt, targetExp: ULong): BigUnsignedInt {
+        val newInts = UIntArray(size.toInt() + 1)
+
+        var carry = 0u
+        for (idx in ints.indices) {
+            val m = ints[idx].toULong() * other.toULong() + carry + newInts[idx]
+            newInts[idx] = m.toUInt()
+            carry = m.shr(32).toUInt()
+        }
+
+        val m = carry.toULong() + newInts[ints.size]
+        newInts[ints.size] = m.toUInt()
+        assert(m.shr(32).toUInt() == 0u)
+
+        return when (targetExp) {
+            exp -> BigUnsignedInt(newInts, exp)
+            else -> BigUnsignedInt(newInts, exp).expandWithEffectiveExp(targetExp)
+        }
     }
 
     data class UIntDivRem(
