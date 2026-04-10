@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.functions.impl.AbstractFunctionObject
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.RangeException
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
@@ -271,6 +272,22 @@ object Xs: AbstractFunctionObject() {
         throw EvaluationException("Cannot contstruct instances in namespace ${name.namespaceURI}")
     }
 
+
+    val knownTypes: Map<String, ConstructorBase<*>> = arrayOf(
+        constructAnyType, constructAnySimpleType, constructAnyAtomicType, constructAnyURI, constructBase64Binary,
+        constructBoolean, constructDate, constructDateTime, constructDateTimeStamp, constructDecimal,
+        constructInteger, constructLong, constructInt, constructShort, constructByte,
+        constructNonNegativeInteger, constructPositiveInteger, constructUnsignedLong, constructUnsignedInt,
+        constructUnsignedShort, constructUnsignedByte, constructNonPositiveInteger, constructNegativeInteger,
+        constructDouble, constructDuration, constructDayTimeDuration, constructYearMonthDuration,
+        constructFloat, constructGDay, constructGMonth, constructGMonthDay, constructGYear,
+        constructGYearMonth, constructHexBinary, constructNOTATION, constructQName, constructString,
+        constructNormalizedString, constructToken, constructLanguage, constructName, constructNCName,
+        constructENTITY, constructID, constructIDREF, constructNMTOKEN, constructTime, constructENTITIES,
+        constructIDREFS, constructNMTOKENS, constructNumeric, constructUntypedAtomic,
+    ).groupBy { it.localName }
+        .mapValues { (k, v) -> v.singleOrNull() ?: throw IllegalArgumentException("Multiple bindings to type $k") }
+
     abstract class ConstructorBase<out XR : XdmAtomicOrSequence<*>>(localName: String) :
         BuiltinFunction<XR> {
 
@@ -312,6 +329,9 @@ object Xs: AbstractFunctionObject() {
         open fun constructXsd(arg: XdmAtomic<*>): R {
             try {
                 return returnSchemaType.castFrom(arg.value)
+            } catch (e: RangeException) {
+                val errorCode = rangeErrorCodeFor(returnSchemaType)
+                throw EvaluationException(errorCode, "Value '${arg.value.xmlString}' out of supported range for ${returnSchemaType.name}", e)
             } catch (e: NumberFormatException) {
                 throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a ${returnSchemaType.name}", e)
             }
@@ -319,23 +339,17 @@ object Xs: AbstractFunctionObject() {
 
         context(ctx: ExprEvalContext)
         final override fun invoke(arg: XdmAtomic<*>): XdmAtomic<R> = XdmAtomic(constructXsd(arg))
+
+        fun rangeErrorCodeFor(type: AnyAtomicType<*>): ErrorCodes = when (type) {
+            is IntegerType -> ErrorCodes.FOCA0003
+            is DecimalType<*> -> ErrorCodes.FOCA0001
+            is DateType,
+            is TimeType,
+            is DateTimeType -> ErrorCodes.FODT0001
+            else -> ErrorCodes.FORG0001
+        }
+
     }
-
-    val knownTypes: Map<String, ConstructorBase<*>> = arrayOf(
-        constructAnyType, constructAnySimpleType, constructAnyAtomicType, constructAnyURI, constructBase64Binary,
-        constructBoolean, constructDate, constructDateTime, constructDateTimeStamp, constructDecimal,
-        constructInteger, constructLong, constructInt, constructShort, constructByte,
-        constructNonNegativeInteger, constructPositiveInteger, constructUnsignedLong, constructUnsignedInt,
-        constructUnsignedShort, constructUnsignedByte, constructNonPositiveInteger, constructNegativeInteger,
-        constructDouble, constructDuration, constructDayTimeDuration, constructYearMonthDuration,
-        constructFloat, constructGDay, constructGMonth, constructGMonthDay, constructGYear,
-        constructGYearMonth, constructHexBinary, constructNOTATION, constructQName, constructString,
-        constructNormalizedString, constructToken, constructLanguage, constructName, constructNCName,
-        constructENTITY, constructID, constructIDREF, constructNMTOKEN, constructTime, constructENTITIES,
-        constructIDREFS, constructNMTOKENS, constructNumeric, constructUntypedAtomic,
-    ).groupBy { it.localName }
-        .mapValues { (k, v) -> v.singleOrNull() ?: throw IllegalArgumentException("Multiple bindings to type $k") }
-
 
     abstract class ListConstructor<T: XsdAnySimple, E: XsdAtomic>(localName: String, override val returnSchemaType: AnySimpleListType<T, E>):
         ConstructorBase<XdmAtomicOrSequence<XdmAtomic<*>>>(localName) {
