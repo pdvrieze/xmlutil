@@ -330,7 +330,9 @@ sealed class Operator(
                     is XsdDuration -> return left - right
 
                 }
+
                 left is XsdDateTime -> when (right) {
+                    is XsdDateTime -> return left - right
                     is XsdDuration -> return left - right
                 }
 
@@ -338,7 +340,7 @@ sealed class Operator(
 
                 left is XsdYearMonthDuration && right is XsdYearMonthDuration -> return left - right
             }
-            throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType} - ${right.schemaType}")
+            throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType.name} - ${right.schemaType.name}")
         }
     }
 
