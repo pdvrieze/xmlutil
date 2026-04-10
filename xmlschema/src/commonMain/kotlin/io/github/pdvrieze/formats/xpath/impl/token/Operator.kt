@@ -122,6 +122,9 @@ sealed class Operator(
         override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
             return leftVal.equals(rightVal)
         }
+
+
+
 /*
 
         context(ctx: ExprEvalContext)
@@ -633,8 +636,14 @@ abstract class ComparisonOperator(
             is XsdBoolean if rightVal is XsdBoolean -> cmp(leftVal.value, rightVal.value)
 
             is XsdString if rightVal is XsdString -> cmp(leftVal.xmlString, rightVal.xmlString)
-            is XsdDateTime if rightVal is XsdDateTime -> cmp(leftVal, rightVal)
-            is XsdDate if rightVal is XsdDate -> cmp(leftVal, rightVal)
+            is XsdDateTime if rightVal is XsdDateTime -> {
+                val tz = ctx.defaultTimeZone
+                cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))
+            }
+            is XsdDate if rightVal is XsdDate -> {
+                val tz = ctx.defaultTimeZone
+                cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))
+            }
             is XsdDuration if rightVal is XsdDuration -> cmp(leftVal, rightVal)
             is XsdGDay if rightVal is XsdGDay -> cmp(leftVal, rightVal)
 
@@ -646,7 +655,10 @@ abstract class ComparisonOperator(
 
             is XsdNotation if rightVal is XsdNotation -> cmp(leftVal, rightVal)
             is XsdQName if rightVal is XsdQName -> cmp(leftVal, rightVal)
-            is XsdTime if rightVal is XsdTime -> cmp(leftVal, rightVal)
+            is XsdTime if rightVal is XsdTime -> {
+                val tz = ctx.defaultTimeZone
+                cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))
+            }
 
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
         }

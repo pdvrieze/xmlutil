@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
+import io.github.pdvrieze.xml.schematypes.impl.uLongFromBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.DateType
@@ -30,11 +31,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
-import kotlin.jvm.JvmInline
 
-@JvmInline
 @XmlUtilInternal
-value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
+class XsdDateImpl(private val dateVal: ULong) : XsdDate {
     constructor(year: Long, month: Int, day: Int) : this(year, month.toUInt(), day.toUInt())
 
     constructor(year: Long, month: UInt, day: UInt, overloadMarker: Unit = Unit) : this(
@@ -90,6 +89,29 @@ value class XsdDateImpl(private val dateVal: ULong) : XsdDate {
         }
         else -> this
     }
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is XsdDate) return false
+        if (other is XsdDateImpl) {
+            if (dateVal == other.dateVal) return true
+            if (timezoneOffset == null) return false
+            return instant() == other.instant()
+        }
+        if (timezoneOffset == null) {
+            if (other.timezoneOffset != null) return false
+        }
+        return instant() == other.instant()
+    }
+
+    override fun hashCode(): Int {
+        return when (timezoneOffset) {
+            null -> 31 + dateVal.uLongFromBits(50).hashCode()
+            else -> instant().hashCode()
+        }
+    }
+
 
     companion object {
 

@@ -123,3 +123,7 @@ internal fun ULong.longFromBits(bitCount: Int): Long {
         else -> (this and mask).toLong()
     }
 }
+
+internal fun ULong.uLongFromBits(bitCount: Int): ULong {
+    return this and ((1uL shl bitCount) - 1uL)
+}
