@@ -22,17 +22,11 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DateTimeStampType
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
-import kotlinx.datetime.FixedOffsetTimeZone
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.number
-import kotlinx.datetime.offsetAt
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.time.Instant
 
@@ -56,6 +50,19 @@ class XsdDateTimeStampImpl(
 
     override val xmlString: String
         get() = "${yearFrag()}-${monthFrag()}-${dayFrag()}T${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is XsdDateTime) return false
+        if (other.timezoneOffset == null) return false
+        return instant() == other.instant()
+    }
+
+    override fun hashCode(): Int {
+        return instant().hashCode()
+    }
+
 
     companion object {
         internal operator fun invoke(

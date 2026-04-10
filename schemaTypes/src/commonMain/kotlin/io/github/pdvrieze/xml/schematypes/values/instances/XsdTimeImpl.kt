@@ -31,11 +31,9 @@ import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import kotlin.jvm.JvmInline
 
 @XmlUtilInternal
-@JvmInline
-value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
+class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
     constructor(hours: UInt, minutes: UInt, millis: UInt) : this(
         hours.toLBits(5) or
                 minutes.toLBits(6, 5) or
@@ -70,13 +68,20 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
     override val minute: UInt
         get() = (msecVal shr 5).uintFromBits(6)
 
+    val millis: UInt = (msecVal shr 11).uintFromBits(16)
+
     override val second: XsdDecimal
         get() {
-            val millis = (msecVal shr 11).uintFromBits(16)
+            val millis = millis
             return when {
                 millis % 1000u == 0u -> XsdUnsignedInt(millis / 1000u)
                 else -> BigDecimal(millis.toLong(), 3L)
             }
+        }
+
+    val totalMillis: ULong
+        get() {
+            return (hour * 24uL + minute) * 60_000uL + millis
         }
 
     override val timezoneOffset: Int?
@@ -97,7 +102,32 @@ value class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
     override val xmlString: String get() = "${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
     override val schemaType: TimeType<*> get() = TimeType.Instance
 
+
+
     override fun toString(): String = xmlString
+
+    override fun hashCode(): Int = when (val tzMinutes = timezoneOffset){
+        null -> msecVal.hashCode() // this will work if there is no timezone
+
+        // in this case calculate the UTC seconds and use that as hashcode// the addition of 24 hours
+        // is to deal with "negative" timezones
+        else -> (totalMillis + (tzMinutes + 24 * 60).mod(24 * 60).toULong() * 60_000uL)
+            .hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is XsdTimeImpl) return false // extend to broader
+
+        if (msecVal == other.msecVal) return true
+        if ((timezoneOffset == null) != (other.timezoneOffset == null)) return false
+        if (timezoneOffset == null) return false // should not happen due to the msecVal comparison
+
+        val leftMillis = totalMillis + (timezoneOffset!! + 24 * 60).mod(24 * 60).toULong() * 60_000uL
+        val rightMillis = other.totalMillis + (other.timezoneOffset!! + 24 * 60).mod(24 * 60).toULong() * 60_000uL
+
+        return leftMillis == rightMillis
+    }
 
     companion object {
         val TZ_MARKER = 1uL shl 63

@@ -105,6 +105,20 @@ open class XsdDateTimeImpl(
         else -> XsdDateTimeStampImpl(instant(), UtcOffset(minutes = timezoneOffset).asTimeZone())
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is XsdDateTime) return false
+        if ((timezoneOffset == null) != (other.timezoneOffset == null)) return false
+        return instant() == other.instant()
+    }
+
+    override fun hashCode(): Int {
+        return when (timezoneOffset) {
+            null -> 31 + instant().hashCode()
+            else -> instant().hashCode()
+        }
+    }
+
     companion object {
         internal fun timezoneFragValue(tz: CharSequence): Int? {
             if (tz.isEmpty()) return null
