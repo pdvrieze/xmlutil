@@ -86,12 +86,10 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     override val sign: Int
-        get() {
-            val signBit = _sign.ushr(31)
-            val nanBit = (_sign.ushr(30) xor signBit) != 0
-            if (nanBit) throw ArithmeticException("NaN value")
-            val mask = _sign.shr(30)
-            return (_sign and 1) or mask
+        get() = when (_sign.ushr(29)) {
+            0b000, 0b001 -> _sign and 1
+            0b111, 0b110 -> -1
+            else -> throw ArithmeticException("NaN value")
         }
 
     override val isFinite: Boolean get() = ints.isNotEmpty()
