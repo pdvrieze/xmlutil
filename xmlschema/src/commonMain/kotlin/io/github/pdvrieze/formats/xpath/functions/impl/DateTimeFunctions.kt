@@ -247,7 +247,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
 
             timezone == null -> XdmAtomic(XsdTime(time.hour, time.minute, time.second))
 
-            else -> XdmAtomic(XsdDateTime(XsdDateTime(XsdDateTime(XsdDate(1972, 12, 31), time).instant(), null).instant(), timezone))
+            else -> {
+                val timeWithDate = XsdDateTime(XsdDate(1972, 12, 31), time)
+                val dateTimeWithNewTz = XsdDateTime(timeWithDate.instant(), timezone)
+                XdmAtomic(dateTimeWithNewTz.toTime())
+            }
         }
     }
     //endregion
