@@ -34,12 +34,14 @@ class BigDecimal internal constructor(
 
     init {
         when {
-            ints.size == 1 && ints[0] == 0u -> require(sign == 0) { "Zero value must have a 0 sign" }
-            sign == 0 ->throw IllegalArgumentException("Zero sign must have a single int")
+            ints.size == 1 && ints[0] == 0u -> require(sign == 0) {
+                "Zero value must have a 0 sign"
+            }
 
+            sign == 0 -> throw IllegalArgumentException("Zero sign must have a single int")
         }
 
-        require(ints.size !=2 || ints[1]!=0u) { "The second int must not be zero" }
+        require(ints.size != 2 || ints[1] != 0u) { "The second int must not be zero" }
     }
 
     /*
@@ -954,9 +956,9 @@ class BigDecimal internal constructor(
         val ZERO = BigDecimal(0, uintArrayOf(0u), 0)
         val ONE = BigDecimal(1, uintArrayOf(1u), 0)
         val MINUSONE = BigDecimal(-1, uintArrayOf(1u), 0)
-        val NaN = BigDecimal(NAN_BIT, uintArrayOf(0u), 0)
-        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, uintArrayOf(0u), 0)
-        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, uintArrayOf(0u), 0)
+        val NaN = BigDecimal(NAN_BIT, UIntArray(0), 0)
+        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, NaN.ints, 0)
+        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
 
         private const val SIGN_BIT = 1 shl 31
         private const val NAN_BIT = 1 shl 30
