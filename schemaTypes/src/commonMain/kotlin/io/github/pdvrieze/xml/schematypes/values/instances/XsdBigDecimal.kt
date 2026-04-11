@@ -29,8 +29,6 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
     val isInteger: Boolean get() = '.' !in xmlString
     override val schemaType: DecimalType<*> get() = DecimalType.Instance
 
-    operator fun compareTo(other: XsdBigDecimal): Int
-
     override fun round(precision: Int): XsdBigDecimal
 
     override fun roundToHalfEven(precision: Int): XsdBigDecimal
