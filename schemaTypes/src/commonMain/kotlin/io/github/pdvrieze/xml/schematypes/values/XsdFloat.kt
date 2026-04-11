@@ -36,6 +36,12 @@ import kotlin.math.round as kmRound
 @Serializable(XsdFloat.Companion::class)
 interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
     val value: Float
+
+    override val isFinite: Boolean get() = value.isFinite()
+    override val isNaN: Boolean get() = value.isNaN()
+    override val isInfinity: Boolean get() = value == Float.POSITIVE_INFINITY
+    override val isNegativeInfinity: Boolean get() = value == Float.NEGATIVE_INFINITY
+
     override fun toLong(): Long = value.toLong()
     override fun toFloat(): Float = value
 

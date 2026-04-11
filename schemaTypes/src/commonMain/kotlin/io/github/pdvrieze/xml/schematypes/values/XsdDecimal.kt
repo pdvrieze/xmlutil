@@ -129,6 +129,10 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
 
             when (digitCount) {
                 0 -> throw NumberFormatException("$value is not a valid number")
+                3 if (trimmed.substring(trimmed.length -3) == "INF") -> return when (negative) {
+                    false -> BigDecimal.NEGATIVE_INFINITY
+                    else -> BigDecimal.POSITIVE_INFINITY
+                }
                 in 1..9 -> return XsdIntImpl(trimmed.toInt())
                 10 -> {
                     val l = trimmed.toLong()
@@ -153,5 +157,6 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
 
         private const val MAX_INT_DIGITS = 10 // up to 2 * 10^9
     }
+
 }
 

@@ -31,6 +31,10 @@ import nl.adaptivity.xmlutil.XmlReader
 @ExperimentalXmlUtilApi
 @Serializable(XsdInteger.Companion::class)
 interface XsdInteger : XsdDecimal {
+    override val isFinite: Boolean get() = true
+    override val isNaN: Boolean get() = false
+    override val isInfinity: Boolean get() = false
+    override val isNegativeInfinity: Boolean get() = false
 
     override val schemaType: IntegerType<XsdInteger>
 

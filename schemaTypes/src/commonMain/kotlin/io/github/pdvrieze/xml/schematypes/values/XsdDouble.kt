@@ -33,6 +33,12 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
     override val schemaType: DoubleType<XsdDouble>
 
     val value: Double
+
+    override val isFinite: Boolean get() = value.isFinite()
+    override val isNaN: Boolean get() = value.isNaN()
+    override val isInfinity: Boolean get() = value == Double.POSITIVE_INFINITY
+    override val isNegativeInfinity: Boolean get() = value == Double.NEGATIVE_INFINITY
+
     override fun toLong(): Long = value.toLong()
     override fun toInt(): Int = value.toInt()
 

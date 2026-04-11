@@ -28,6 +28,11 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
     override val schemaType: PrimitiveType<XsdPrimitive>
 
+    val isFinite: Boolean
+    val isNaN: Boolean
+    val isInfinity: Boolean
+    val isNegativeInfinity: Boolean
+
     fun toDouble(): Double
     fun toFloat(): Float = toDouble().toFloat()
     fun toLong(): Long

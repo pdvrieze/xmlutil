@@ -241,9 +241,6 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         }
     }
 
-    override fun hashCode(): Int {
-        return sign + ints.contentHashCode() + exp.toInt() * 31
-    }
     override fun equals(other: Any?): Boolean {
         return compareTo(other as? XsdInteger ?: return false) == 0
     }
