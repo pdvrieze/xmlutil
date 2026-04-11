@@ -103,7 +103,7 @@ object StringFunctions : AbstractFunctionObject() {
         functionType(STRING, STRING.opt, STRING),
         functionType(STRING, STRING.opt),
     )) { args ->
-        // val _ = XdmAtomic(XsdString(""))
+        //XdmAtomic(XsdString(""))
         TODO("Unicode normalization not yet supported")
     }
 

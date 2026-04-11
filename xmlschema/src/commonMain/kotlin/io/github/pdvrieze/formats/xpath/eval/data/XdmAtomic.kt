@@ -69,9 +69,6 @@ class XdmAtomic<out T : XsdAtomic>(
                 is XsdDouble,
                 is XsdFloat -> value.toDouble() == expectedValue.toDouble()
                 is XsdDecimal -> value == expectedValue
-                /* EXHAUSTIVE
-                else -> value.toDouble() == expectedValue.toDouble()
-                */
             }
             else if(collation != null) -> collation.compare(value.xmlString, expectedValue.xmlString) == 0
             else -> value.xmlString == expectedValue.xmlString
