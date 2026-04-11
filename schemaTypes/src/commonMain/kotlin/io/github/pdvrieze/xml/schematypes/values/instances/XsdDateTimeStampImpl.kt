@@ -130,10 +130,10 @@ class XsdDateTimeStampImpl(
             val s = xmlCollapseWhitespace(str)
             val tIndex = s.indexOf('T')
             require(tIndex >= 0)
-            val (year, month, day) = s.substring(0, tIndex).split('-').map { it.toInt() }
-            val hour = s.substring(tIndex + 1, tIndex + 3).toInt()
+            val (year, month, day) = s.substring(0, tIndex).split('-').map { it.xsToInt() }
+            val hour = s.substring(tIndex + 1, tIndex + 3).xsToInt()
             if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separator between hours and minutes")
-            val minutes = s.substring(tIndex + 4, tIndex + 6).toInt()
+            val minutes = s.substring(tIndex + 4, tIndex + 6).xsToInt()
             if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separator between minutes and seconds")
             val secEnd = ((tIndex + 7)..<s.length).first {
                 s[it] != '.' && s[it] !in '0'..'9'

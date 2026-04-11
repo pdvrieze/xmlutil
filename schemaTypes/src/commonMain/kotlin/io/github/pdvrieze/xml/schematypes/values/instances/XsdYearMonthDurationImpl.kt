@@ -122,13 +122,13 @@ class XsdYearMonthDurationImpl(override val months: Long) : XsdYearMonthDuration
                 when (representation[end]) {
                     'Y' -> {
                         require(stage < 1) { "Year must be the first fragment in a duration" }
-                        years = representation.substring(i, end).toUInt()
+                        years = representation.substring(i, end).xsToUInt()
                         stage = 1
                     }
 
                     'M' -> {
                         require(stage < 2) { "Month must be the first fragment in a duration" }
-                        months = representation.substring(i, end).toUInt()
+                        months = representation.substring(i, end).xsToUInt()
                         stage = 2
                     }
 

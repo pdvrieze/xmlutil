@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.IntType
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToInt
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -126,10 +127,10 @@ interface XsdInt : XsdLong {
 
         operator fun invoke(value: Int): XsdInt = XsdIntImpl(value)
 
-        operator fun invoke(value: CharSequence): XsdInt = XsdIntImpl(value.toString().toInt())
+        operator fun invoke(value: CharSequence): XsdInt = XsdIntImpl(value.xsToInt())
 
         override fun deserialize(raw: String, input: XmlReader?): XsdInt {
-            return XsdIntImpl(raw.toInt())
+            return XsdIntImpl(raw.xsToInt())
         }
     }
 

@@ -81,7 +81,7 @@ value class XsdGYearMonthImpl(val monthYear: ULong) : XsdGYearMonth {
         val TZ_MARKER = 1uL shl 63
 
         operator fun invoke(str: CharSequence): XsdGYearMonth {
-            val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.toLong() }
+            val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.xsToLong() }
             requireRange(month in 1..12) { "Month values must be between 1 and 12, was $month"}
             return XsdGYearMonthImpl(year, month.toUInt())
         }

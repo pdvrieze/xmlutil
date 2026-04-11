@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToUInt
 
 @OptIn(ExperimentalUnsignedTypes::class)
 abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected constructor(
@@ -246,7 +247,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
             var first = normalised.length.rem(9) // actually initialise it after the first substring
 
             if (first > 0) {
-                numbers[0] = normalised.substring(0, minOf(first, last)).toUInt()
+                numbers[0] = normalised.substring(0, minOf(first, last)).xsToUInt()
             }
 
             while (first < last) {

@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.GMonthDayType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGMonthDayImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToUInt
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -59,7 +60,7 @@ interface XsdGMonthDay: IXsdDateTime, XsdPrimitive {
             XsdGMonthDayImpl(month, day, timezoneOffset)
 
         override fun deserialize(raw: String, input: nl.adaptivity.xmlutil.XmlReader?): XsdGMonthDay {
-            return XsdGMonthDayImpl(raw.toUInt())
+            return XsdGMonthDayImpl(raw.xsToUInt())
         }
     }
 }

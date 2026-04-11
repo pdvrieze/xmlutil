@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.RangeException
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
 import io.github.pdvrieze.xml.schematypes.impl.uLongFromBits
@@ -120,12 +121,22 @@ class XsdDateImpl(private val dateVal: ULong) : XsdDate {
         operator fun invoke(str: CharSequence) : XsdDate {
             val normalized = xmlCollapseWhitespace(str)
             val monthIdx = normalized.indexOf('-', 1) // sign can be start
-            val year = normalized.substring(0, monthIdx).toLong()
+            val year = try {
+                normalized.substring(0, monthIdx).xsToLong()
+            } catch (e: NumberFormatException) {
+                val yearStr = normalized.substring(0, monthIdx)
+                when {
+                    yearStr.length >= 10 && yearStr.all { c -> c.isDigit() } ->
+                        throw RangeException("Value $yearStr is out of range")
+
+                    else -> throw e
+                }
+            }
 
 
-            val month = normalized.substring(monthIdx + 1, monthIdx + 3).toInt()
+            val month = normalized.substring(monthIdx + 1, monthIdx + 3).xsToInt()
             if (normalized[monthIdx + 3] != '-') throw NumberFormatException("Missing - between month and day")
-            val day = normalized.substring(monthIdx + 4, monthIdx + 6).toInt()
+            val day = normalized.substring(monthIdx + 4, monthIdx + 6).xsToInt()
 
             return when {
                 normalized.length >= monthIdx + 6 ->

@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdFloatImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToFloat
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -138,7 +139,7 @@ interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
                 "+INF", "INF" -> XsdFloatImpl(Float.POSITIVE_INFINITY)
                 "-INF" -> XsdFloatImpl(Float.NEGATIVE_INFINITY)
                 "NaN" -> XsdFloatImpl(Float.NaN)
-                else -> XsdFloatImpl(v.toFloat())
+                else -> XsdFloatImpl(v.xsToFloat())
             }
         }
 
@@ -146,7 +147,7 @@ interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
             raw: String,
             input: XmlReader?
         ): XsdFloat {
-            return XsdFloatImpl(raw.toFloat())
+            return XsdFloatImpl(raw.xsToFloat())
         }
     }
 }

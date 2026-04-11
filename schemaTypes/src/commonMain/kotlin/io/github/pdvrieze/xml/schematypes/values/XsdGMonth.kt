@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.GMonthType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGMonthImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToInt
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -52,11 +53,11 @@ interface XsdGMonth: IXsdDateTime, XsdPrimitive {
 
     companion object: SimpleTypeSerializer<XsdGMonth>("xsd.gMonth") {
         operator fun invoke(str: CharSequence): XsdGMonth {
-            return XsdGMonthImpl(str.toString().toInt(), null)
+            return XsdGMonthImpl(str.xsToInt(), null)
         }
 
         override fun deserialize(raw: String, input: XmlReader?): XsdGMonth {
-            return XsdGMonthImpl(raw.toInt(), null)
+            return XsdGMonthImpl(raw.xsToInt(), null)
         }
     }
 }

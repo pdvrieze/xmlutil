@@ -24,9 +24,7 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.isNCName
 import io.github.pdvrieze.xml.schematypes.types.StringType
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixString
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdPrefixStringList
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdStringImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.*
 
@@ -41,12 +39,12 @@ interface XsdString : XsdPrimitive, CharSequence {
     override fun get(index: Int): Char = xmlString[index]
 
     override fun subSequence(startIndex: Int, endIndex: Int): CharSequence = xmlString.subSequence(startIndex, endIndex)
-    fun toLong(): Long = xmlCollapseWhitespace(xmlString).toLong()
-    fun toInt(): Int = xmlCollapseWhitespace(xmlString).toInt()
-    fun toULong(): ULong = xmlCollapseWhitespace(xmlString).toULong()
-    fun toUInt(): UInt = xmlCollapseWhitespace(xmlString).toUInt()
-    fun toDouble(): Double = xmlCollapseWhitespace(xmlString).toDouble()
-    fun toFloat(): Float = xmlCollapseWhitespace(xmlString).toFloat()
+    fun toLong(): Long = xmlCollapseWhitespace(xmlString).xsToLong()
+    fun toInt(): Int = xmlCollapseWhitespace(xmlString).xsToInt()
+    fun toULong(): ULong = xmlCollapseWhitespace(xmlString).xsToULong()
+    fun toUInt(): UInt = xmlCollapseWhitespace(xmlString).xsToUInt()
+    fun toDouble(): Double = xmlCollapseWhitespace(xmlString).xsToDouble()
+    fun toFloat(): Float = xmlCollapseWhitespace(xmlString).xsToFloat()
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int {
         if (other !is XsdString) throw IllegalArgumentException("Cannot compare strings with $other")

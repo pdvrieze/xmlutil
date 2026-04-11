@@ -25,6 +25,9 @@ import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.NonNegativeIntegerType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedIntImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToLong
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToUInt
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToULong
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlTrimWhitespace
@@ -78,12 +81,12 @@ interface XsdNonNegativeInteger : XsdInteger {
             rawValue == "1" -> ONE
 
             rawValue.length == MAXLONG.length && (rawValue[0] == '0' || rawValue[0] == '1')
-                    && rawValue.substring(1).toLong() <= MAXNONSIGNDIGITS ->
-                invoke(rawValue.toULong())
+                    && rawValue.substring(1).xsToLong() <= MAXNONSIGNDIGITS ->
+                invoke(rawValue.xsToULong())
 
-            rawValue.toLong() <= MAXUINT -> invoke(rawValue.toUInt())
+            rawValue.xsToLong() <= MAXUINT -> invoke(rawValue.xsToUInt())
 
-            else -> invoke(rawValue.toULong())
+            else -> invoke(rawValue.xsToULong())
         }
 
         operator fun invoke(value: ULong): XsdUnsignedLong = XsdUnsignedLong(value)

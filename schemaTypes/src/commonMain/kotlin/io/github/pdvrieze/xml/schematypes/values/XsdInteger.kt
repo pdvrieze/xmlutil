@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.IntegerType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToDouble
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -44,7 +45,7 @@ interface XsdInteger : XsdDecimal {
 
     override fun toDouble(): Double = when (size) {
         1uL, 2uL -> toLong().toDouble()
-        else -> xmlString.toDouble()
+        else -> xmlString.xsToDouble()
     }
 
     override fun toFloat(): Float = when (size) {

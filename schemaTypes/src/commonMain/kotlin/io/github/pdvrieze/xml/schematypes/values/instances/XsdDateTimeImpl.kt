@@ -148,20 +148,20 @@ open class XsdDateTimeImpl(
             val tIndex = s.indexOf('T')
             require(tIndex >= 0)
             val digitOffset = if (s.startsWith('-')) 1 else 0
-            var (year, month, day) = s.substring(digitOffset, tIndex).split('-').map { it.toInt() }
-            var hour = s.substring(tIndex + 1, tIndex + 3).toUInt()
+            var (year, month, day) = s.substring(digitOffset, tIndex).split('-').map { it.xsToInt() }
+            var hour = s.substring(tIndex + 1, tIndex + 3).xsToUInt()
             if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separtor between hours and minutes")
-            val minutes = s.substring(tIndex + 4, tIndex + 6).toUInt()
+            val minutes = s.substring(tIndex + 4, tIndex + 6).xsToUInt()
             if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separtor between minutes and seconds")
             val secEnd = ((tIndex + 7)..<s.length).firstOrNull {
                 s[it] !in '0'..'9'
             }
-            val seconds = s.substring(tIndex + 7, secEnd ?: s.length).toInt()
+            val seconds = s.substring(tIndex + 7, secEnd ?: s.length).xsToInt()
             var nanoEnd = secEnd
             val nanos = if (secEnd == null || s.getOrNull(secEnd) != '.') 0 else {
                 nanoEnd = ((secEnd + 1)..<s.length).firstOrNull { s[it] !in '0'..'9' }
                 val nanoStr = s.substring(secEnd + 1, nanoEnd ?: s.length)
-                nanoStr.padStart(9, '0').toInt()
+                nanoStr.padStart(9, '0').xsToInt()
             }
 
             val tzOffset = nanoEnd?.let { timezoneFragValue(s.substring(it)) }

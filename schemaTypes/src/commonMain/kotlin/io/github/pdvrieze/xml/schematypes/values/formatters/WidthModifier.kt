@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.formatters
 
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToULong
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import kotlin.jvm.JvmInline
 
@@ -59,16 +60,16 @@ value class WidthModifier private constructor(val data: ULong) {
             return when {
                 idx >= 0 -> {
                     val minString = str.substring(0, idx)
-                    val min = if (minString=="*") 0uL else minString.toULong()
+                    val min = if (minString=="*") 0uL else minString.xsToULong()
                     val maxString = str.substring(idx + 1)
-                    val max = if (maxString == "*") (Int.MAX_VALUE - 1).toULong() else maxString.toULong()
+                    val max = if (maxString == "*") (Int.MAX_VALUE - 1).toULong() else maxString.xsToULong()
                     require(max>=min && max>0uL) { "max width ($max) may not be less than min width ($min) "}
 
                     min.shl(32) or max
                 }
 
                 str =="*" -> (Int.MAX_VALUE - 1).toULong()
-                else -> str.toULong() shl 32 or Int.MAX_VALUE.toULong()
+                else -> str.xsToULong() shl 32 or Int.MAX_VALUE.toULong()
             }
         }
     }

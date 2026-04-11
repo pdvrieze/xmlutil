@@ -22,10 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DecimalType
-import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdIntImpl
-import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -43,7 +40,7 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     fun toUInt(): UInt = toLong().toUInt()
     fun toULong(): ULong = toLong().toULong()
 
-    override fun toDouble(): Double = xmlString.toDouble()
+    override fun toDouble(): Double = xmlString.xsToDouble()
 
     operator fun compareTo(other: XsdDecimal): Int
     operator fun plus(other: XsdDecimal): XsdDecimal

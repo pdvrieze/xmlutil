@@ -92,13 +92,13 @@ value class XsdGMonthDayImpl(val monthdayVal: UInt) : XsdGMonthDay {
             val tzIndex = normalized.indexOf('Z', 2)
             return when {
                 tzIndex < 0 -> {
-                    val (month, day) = normalized.substring(2).split('-').map { it.toUInt() }
+                    val (month, day) = normalized.substring(2).split('-').map { it.xsToUInt() }
                     XsdGMonthDayImpl(month, day)
                 }
 
                 else -> {
                     val tz = XsdDateTimeImpl.timezoneFragValue(normalized.substring(tzIndex))
-                    val (month, day) = normalized.substring(2, tzIndex).split('-').map { it.toUInt() }
+                    val (month, day) = normalized.substring(2, tzIndex).split('-').map { it.xsToUInt() }
                     XsdGMonthDayImpl(month, day, tz)
                 }
             }

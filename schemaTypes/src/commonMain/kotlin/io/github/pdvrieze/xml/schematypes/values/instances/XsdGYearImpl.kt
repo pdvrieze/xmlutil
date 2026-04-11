@@ -23,7 +23,6 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toIBits
 import io.github.pdvrieze.xml.schematypes.types.GYearType
-import io.github.pdvrieze.xml.schematypes.values.XsdGMonthDay
 import io.github.pdvrieze.xml.schematypes.values.XsdGYear
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
@@ -72,7 +71,7 @@ value class XsdGYearImpl(val yearVal: UInt) : XsdGYear {
         operator fun invoke(str: CharSequence): XsdGYearImpl {
             val s = xmlCollapseWhitespace(str)
             val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it >= 0) it + 1 else s.length }
-            val year = s.substring(0, yearEnd).toInt()
+            val year = s.substring(0, yearEnd).xsToInt()
             val tzOffset = XsdDateTimeImpl.timezoneFragValue(s.substring(yearEnd))
             return XsdGYearImpl(year, tzOffset)
         }

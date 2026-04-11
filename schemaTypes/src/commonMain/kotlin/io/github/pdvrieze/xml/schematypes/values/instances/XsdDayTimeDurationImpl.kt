@@ -147,7 +147,7 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
 
                     'D' -> {
                         require(stage < 3) { "Day must be the first fragment in a duration" }
-                        days = representation.substring(i, end).toUInt()
+                        days = representation.substring(i, end).xsToUInt()
                         stage = 3
                     }
 
@@ -168,19 +168,19 @@ class XsdDayTimeDurationImpl(override val millis: Long) : XsdDayTimeDuration {
                     when (representation[end]) {
                         'H' -> {
                             require(stage < 4) { "minutes must be the first part of the time fragment" }
-                            hours = representation.substring(i, end).toUInt()
+                            hours = representation.substring(i, end).xsToUInt()
                             stage = 4
                         }
 
                         'M' -> {
                             require(stage < 5) { "Minutes must be before seconds in a duration" }
-                            minutes = representation.substring(i, end).toUInt()
+                            minutes = representation.substring(i, end).xsToUInt()
                             stage = 5
                         }
 
                         'S' -> {
-                            require(stage < 6) { "Secons must be the last fragment in a duration" }
-                            milliSeconds = (representation.substring(i, end).toDouble()*1000.0).toULong()
+                            require(stage < 6) { "Seconds must be the last fragment in a duration" }
+                            milliSeconds = (representation.substring(i, end).xsToDouble()*1000.0).toULong()
                             stage = 6
                         }
 

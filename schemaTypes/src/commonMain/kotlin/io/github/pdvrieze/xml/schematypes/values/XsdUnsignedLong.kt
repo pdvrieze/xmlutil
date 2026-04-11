@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedLongImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToULong
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -172,7 +173,7 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
             raw: String,
             input: XmlReader?
         ): XsdUnsignedLong {
-            return XsdUnsignedLongImpl(xmlTrimWhitespace(raw).toULong())
+            return XsdUnsignedLongImpl(xmlTrimWhitespace(raw).xsToULong())
         }
 
         val ZERO: XsdUnsignedLong = XsdUnsignedLongImpl(0u)
@@ -182,7 +183,7 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
         operator fun invoke(value: CharSequence): XsdUnsignedLong = when (value.getOrNull(0) ?: throw NumberFormatException("Empty string is not a number")) {
             '-' -> if (value.length == 2 && value[1]=='0') ZERO else throw NumberFormatException("Negative numbers are not allowed")
-            else -> XsdUnsignedLongImpl(value.toString().toULong())
+            else -> XsdUnsignedLongImpl(value.xsToULong())
         }
 
     }

@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.types.UnsignedIntType
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedIntImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToUInt
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.xmlTrimWhitespace
@@ -154,14 +155,14 @@ interface XsdUnsignedInt : XsdUnsignedLong {
         val ZERO: XsdUnsignedInt = XsdUnsignedIntImpl(0u)
 
         override fun deserialize(raw: String, input: XmlReader?): XsdUnsignedInt {
-            return XsdUnsignedIntImpl(xmlTrimWhitespace(raw).toUInt())
+            return XsdUnsignedIntImpl(xmlTrimWhitespace(raw).xsToUInt())
         }
 
         operator fun invoke(value: UInt): XsdUnsignedInt = XsdUnsignedIntImpl(value)
 
         operator fun invoke(value: CharSequence): XsdUnsignedInt = when (value.getOrNull(0) ?: throw NumberFormatException("Empty string is not a number")) {
             '-' -> if (value.length == 2 && value[1]=='0') ZERO else throw NumberFormatException("Negative numbers are not allowed")
-            else -> XsdUnsignedIntImpl(value.toString().toUInt())
+            else -> XsdUnsignedIntImpl(value.xsToUInt())
         }
 
     }

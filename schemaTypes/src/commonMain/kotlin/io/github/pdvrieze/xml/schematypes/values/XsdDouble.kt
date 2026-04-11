@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDoubleImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToDouble
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -82,15 +83,12 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
                 "+INF", "INF" -> XsdDoubleImpl(Double.POSITIVE_INFINITY)
                 "-INF" -> XsdDoubleImpl(Double.NEGATIVE_INFINITY)
                 "NaN" -> XsdDoubleImpl(Double.NaN)
-                else -> XsdDoubleImpl(v.toDouble())
+                else -> XsdDoubleImpl(v.xsToDouble())
             }
         }
 
-        override fun deserialize(
-            raw: String,
-            input: XmlReader?
-        ): XsdDouble {
-            return XsdDoubleImpl(raw.toDouble())
+        override fun deserialize(raw: String, input: XmlReader?): XsdDouble {
+            return XsdDoubleImpl(raw.xsToDouble())
         }
     }
 }

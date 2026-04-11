@@ -26,7 +26,7 @@ import kotlin.math.absoluteValue
 
 internal class XsdLongImpl(override val longValue: Long) : XsdLong {
 
-    constructor(value: CharSequence): this(value.toString().toLong())
+    constructor(value: CharSequence): this(value.xsToLong())
 
     override fun toInt(): Int = longValue.toInt()
 

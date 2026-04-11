@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.GDayType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGDayImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.xsToInt
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlUtilInternal
@@ -50,10 +51,10 @@ interface XsdGDay : IXsdDateTime, XsdPrimitive {
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGDay
 
     companion object: SimpleTypeSerializer<XsdGDay>("xsd.gDay") {
-        operator fun invoke(raw: CharSequence): XsdGDay = XsdGDayImpl(raw.toString().toInt())
+        operator fun invoke(raw: CharSequence): XsdGDay = XsdGDayImpl(raw.xsToInt())
 
         override fun deserialize(raw: String, input: nl.adaptivity.xmlutil.XmlReader?): XsdGDay {
-            return XsdGDayImpl(raw.toInt())
+            return XsdGDayImpl(raw.xsToInt())
         }
     }
 }
