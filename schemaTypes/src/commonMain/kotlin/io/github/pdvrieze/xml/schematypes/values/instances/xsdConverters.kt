@@ -24,8 +24,6 @@ import io.github.pdvrieze.xml.schematypes.RangeException
 
 private fun handleNumberFormatException(s: CharSequence, e: NumberFormatException, rangeDigitCheckStart: Int): Nothing =
     when (s.length) {
-        3 if (s == "INF" || s == "NaN") -> throw RangeException("Value $s is out of range")
-        4 if (s == "-INF") -> throw RangeException("Value $s is out of range")
         in rangeDigitCheckStart..Int.MAX_VALUE if (s.removePrefix("-").all { c -> c.isDigit() }) ->
             throw RangeException("Value $s is out of range")
 
@@ -34,8 +32,6 @@ private fun handleNumberFormatException(s: CharSequence, e: NumberFormatExceptio
 
 private fun handleDecNumberFormatException(s: CharSequence, e: NumberFormatException, rangeDigitCheckStart: Int): Nothing {
     when (s.length) {
-        3 if (s == "INF" || s == "NaN") -> throw RangeException("Value $s is out of range")
-        4 if (s == "-INF") -> throw RangeException("Value $s is out of range")
         in rangeDigitCheckStart..Int.MAX_VALUE if (s.all { c -> c.isDigit() }) ->
             throw RangeException("Value $s is out of range")
 
