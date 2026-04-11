@@ -58,7 +58,7 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
     ) {
         requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
         requireRange(millis < 60000u) { "Millis out of range: $millis" }
-        requireRange(timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
+        requireRange(timezoneOffset == null || timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
     }
 
 
