@@ -664,9 +664,21 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return compareTo(other) == 0
     }
 
+    /*
+     * Note that this implementation
+     */
     override fun hashCode(): Int {
-        // TODO something more sane (and efficient)
-        return xmlString.hashCode()
+        var result = sign.hashCode()
+        if (ints.isEmpty() || sign == 0) return result
+        result = 31 * result + exp.hashCode()
+        var i = (size - 1uL)
+        while (i >= 0uL && get(i) == 0u) {
+            i -= 1uL
+        }
+        for (j in 0uL..i) {
+            result = 31 * result + get(j).hashCode()
+        }
+        return result
     }
 
 
