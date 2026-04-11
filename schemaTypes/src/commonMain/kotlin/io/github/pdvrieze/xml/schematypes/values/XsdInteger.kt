@@ -91,10 +91,11 @@ interface XsdInteger : XsdDecimal {
         is XsdInteger -> times(other)
         else -> toBigDecimal().times(other)
     }
-    override fun times(multiplier: Int): XsdInteger = times(XsdInteger(multiplier))
-    override fun times(multiplier: Long): XsdInteger = times(XsdInteger(multiplier))
-    override fun times(multiplier: UInt): XsdInteger = times(XsdInteger(multiplier))
-    override fun times(multiplier: ULong): XsdInteger = times(XsdInteger(multiplier))
+    override fun times(multiplier: Int): XsdInteger = times(XsdInt(multiplier))
+    override fun times(multiplier: Long): XsdInteger =
+        times(XsdLong(multiplier))
+    override fun times(multiplier: UInt): XsdInteger = times(XsdUnsignedInt(multiplier))
+    override fun times(multiplier: ULong): XsdInteger = times(XsdUnsignedLong(multiplier))
 
     operator fun div(other: XsdInteger): XsdInteger = divRem(other).quotient
     override fun div(divider: XsdDecimal): XsdDecimal = when (divider) {
