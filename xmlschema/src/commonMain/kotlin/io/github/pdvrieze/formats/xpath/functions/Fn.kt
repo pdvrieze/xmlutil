@@ -158,6 +158,9 @@ enum class Fn(
     defaultLanguage(ContextFunctions.fnDefaultLanguage),
     staticBaseUri(ContextFunctions.fnStaticBaseUri),
     //endregion
+
+    //region higher order functions (16)
+    //endregion
     ;
 
     override val functionName: QName = QName(XMLConstants.XPATH_FUNCTIONS_NAMESPACE, localName ?: name)
