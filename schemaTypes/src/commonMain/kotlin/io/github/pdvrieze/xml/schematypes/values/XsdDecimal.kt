@@ -86,7 +86,7 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
         }
     }
 
-    fun toBigDecimal(): BigDecimal
+    fun toBigDecimal(): XsdBigDecimal
 
     interface DivRem {
         val quotient: XsdDecimal
@@ -129,10 +129,8 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
 
             when (digitCount) {
                 0 -> throw NumberFormatException("$value is not a valid number")
-                3 if (trimmed.substring(trimmed.length -3) == "INF") -> return when (negative) {
-                    false -> BigDecimal.NEGATIVE_INFINITY
-                    else -> BigDecimal.POSITIVE_INFINITY
-                }
+                3 if (trimmed.substring(trimmed.length -3) == "INF") ->
+                    throw NumberFormatException("XPath decimals do not support INF or NaN")
                 in 1..9 -> return XsdIntImpl(trimmed.toInt())
                 10 -> {
                     val l = trimmed.toLong()

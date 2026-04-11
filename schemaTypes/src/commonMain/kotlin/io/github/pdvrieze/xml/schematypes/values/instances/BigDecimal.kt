@@ -20,13 +20,15 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.values.*
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class BigDecimal internal constructor(
+abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor(
     sign: Int,
     internal val ints: UIntArray,
     internal val decimalPositions: Long
@@ -56,7 +58,7 @@ class BigDecimal internal constructor(
      * 0 is zero (00000...000)
      * -1 is negative (11111...111)
      */
-    private val _sign = when (sign ushr 29) {
+    internal val _sign = when (sign ushr 29) {
         0 -> {
             require(ints.isNotEmpty()) { "Non-special values must have an int" }
             sign and 1 // positive or zero
@@ -103,34 +105,29 @@ class BigDecimal internal constructor(
     override val isNegativeInfinity: Boolean
         get() = sign xor (SPECIAL_MASK) == INFINITY_BIT
 
-    override fun exp10(n: Int): XsdBigDecimal {
+
+    abstract val self: T
+
+    override fun exp10(n: Int): T {
         val newDecimalPosition = decimalPositions - n
-        return BigDecimal(sign, ints, newDecimalPosition)
+        return newInstance(sign, ints, newDecimalPosition)
     }
 
     override val isInteger: Boolean
         get() = ints.isNotEmpty() && decimalPositions <= 0
 
-    val self: BigDecimal get() = this
+    abstract protected val companion: CompanionBase<T>
 
-    private constructor(parseResult: ParseResult) : this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
+    private fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): T =
+        companion.newInstance(sign, ints, decimalPositions)
 
-    constructor(value: CharSequence): this(parse(value))
+    private fun newInstance(value: Int, decimalPositions: Long = 0L): T =
+        companion.newInstance(value, decimalPositions)
 
-    constructor(value: UInt): this(
-        sign = if (value == 0u) 0 else 1,
-        ints = uintArrayOf(value),
-        decimalPositions = 0L
-    )
+    private fun newInstance(value: Long, decimalPositions: Long = 0L): T =
+        companion.newInstance(value, decimalPositions)
 
-    constructor(value: ULong) : this(
-        sign = if (value == 0uL) 0 else 1,
-        ints = when {
-            value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
-            else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
-        },
-        decimalPositions = 0L
-    )
+    abstract protected fun XsdDecimal.asT(): T
 
     override fun toULong(): ULong {
         check(sign>=0) { "Negative value cannot be converted to unsigned long"}
@@ -202,20 +199,20 @@ class BigDecimal internal constructor(
         else -> Double.NaN
     }
 
-    override fun toBigDecimal(): BigDecimal {
-        return this
+    override fun toBigDecimal(): T {
+        return unaryPlus()
     }
 
-    override fun floor(): BigDecimal {
+    override fun floor(): T {
         when {
-            sign == 0 || decimalPositions == 0L || !isFinite -> return this
+            sign == 0 || decimalPositions == 0L || !isFinite -> return unaryPlus()
             decimalPositions < 0 -> {
                 val expanded = expandWithEffectiveDecimalPositionsToArray(0)
-                return BigDecimal(sign, expanded, 0L)
+                return newInstance(sign, expanded, 0L)
             }
         }
 
-        val divisor = BigDecimal(1, uintArrayOf(1u), 0)
+        val divisor = newInstance(1, uintArrayOf(1u), 0)
             .expandWithEffectiveDecimalPositions(decimalPositions)
 
         val (quotient, _) = divRem(divisor)
@@ -224,19 +221,19 @@ class BigDecimal internal constructor(
             quotient.ints[0]+=1u
             return quotient
         } else {
-            return quotient.plus(BigDecimal(1))
+            return quotient.plus(newInstance(1))
         }
     }
 
-    override fun ceiling(): XsdDecimal {
+    override fun ceiling(): T {
         return unaryMinus().floor().unaryMinus()
     }
 
-    override fun round(): XsdDecimal {
+    override fun round(): T {
         return round(0)
     }
 
-    override fun round(precision: Int): BigDecimal {
+    override fun round(precision: Int): T {
         return roundImpl(precision, false)
     }
 
@@ -254,14 +251,14 @@ class BigDecimal internal constructor(
         }
     }
 
-    private fun roundImpl(precision: Int, halfEven: Boolean): BigDecimal {
-        if (sign == 0 || decimalPositions == precision.toLong() || !isFinite) return this
+    private fun roundImpl(precision: Int, halfEven: Boolean): T {
+        if (sign == 0 || decimalPositions == precision.toLong() || !isFinite) return unaryPlus()
 
         if (decimalPositions < precision) {
             val expanded = expandWithEffectiveDecimalPositionsToArray(precision.toLong())
-            return BigDecimal(sign, expanded, 0)
+            return newInstance(sign, expanded, 0)
         }
-        val divisor = BigDecimal(1, uintArrayOf(1u), 0)
+        val divisor = newInstance(1, uintArrayOf(1u), 0)
             .expandWithEffectiveDecimalPositions(decimalPositions - precision.toLong())
 
         val (quotient, remainder) = divRem(divisor)
@@ -275,7 +272,7 @@ class BigDecimal internal constructor(
 
             val isOdd = quotient.ints[0] and 0x1u == 1u
             if (isOdd) {
-                if (quotient.ints[0] >= UInt.MAX_VALUE) return quotient.plus(BigDecimal(1))
+                if (quotient.ints[0] >= UInt.MAX_VALUE) return quotient.plus(newInstance(1))
                 quotient.ints[0] += 1u
                 return quotient
             }
@@ -285,15 +282,15 @@ class BigDecimal internal constructor(
             quotient.ints[0] += 1u
             return quotient
         } else {
-            return quotient.plus(BigDecimal(1))
+            return quotient.plus(newInstance(1))
         }
     }
 
-    override fun roundToHalfEven(): BigDecimal {
+    override fun roundToHalfEven(): T {
         return roundToHalfEven(0)
     }
 
-    override fun roundToHalfEven(precision: Int): BigDecimal {
+    override fun roundToHalfEven(precision: Int): T {
         return roundImpl(precision, true)
     }
 
@@ -309,12 +306,12 @@ class BigDecimal internal constructor(
     private val size: ULong
         get() = ints.size.toULong()
 
-    override fun unaryMinus(): BigDecimal {
+    override fun unaryMinus(): T {
         // Note that flipping the sign works as the "special" bits are opposite to the sign bit
-        return BigDecimal(-sign, ints, decimalPositions)
+        return newInstance(-sign, ints, decimalPositions)
     }
 
-    override fun unaryPlus(): BigDecimal = this
+    override fun unaryPlus(): T = self
 
     operator fun get(index: ULong): UInt {
         return ints[index.toInt()]
@@ -324,11 +321,11 @@ class BigDecimal internal constructor(
         return ints[index]
     }
 
-    operator fun div(divider: BigDecimal): BigDecimal {
+    operator fun div(divider: AbstractBigDecimal<*>): T {
         return when {
-            !!isFinite && !!divider.isFinite -> divRem(divider).quotient
-            isNaN -> this
-            divider.isNaN -> divider
+            !!isFinite && !!divider.isFinite -> divRem(divider).quotient.asT()
+            isNaN -> self
+            divider.isNaN -> divider.asT()
 
             // neither value is NaN so one is infinite
 
@@ -346,12 +343,12 @@ class BigDecimal internal constructor(
      * @param elems The base elements for the integer
      * @params exp The exponent of the base elements. This  may not be the final value
      */
-    private fun createOptimizedInstance(sign: Int, elems: UIntArray, decimalPositions: Long): BigDecimal {
+    private fun createOptimizedInstance(sign: Int, elems: UIntArray, decimalPositions: Long): T {
         when (sign ushr 29) {
             0b001 -> return POSITIVE_INFINITY
             0b110 -> return NEGATIVE_INFINITY
             0b000, 0b111 -> {} // regular numbers
-            else -> return BigDecimal(sign, NaN.ints, NaN.decimalPositions)
+            else -> return newInstance(sign, NaN.ints, NaN.decimalPositions)
         }
 
         var lastIdx = elems.size - 1
@@ -361,33 +358,33 @@ class BigDecimal internal constructor(
         val newElems  = if (newSize<elems.size) elems.copyOfRange(0, newSize) else elems
 
 
-        return BigDecimal(sign, newElems, decimalPositions)
+        return newInstance(sign, newElems, decimalPositions)
     }
 
-    override fun plus(other: XsdDecimal): XsdDecimal = plus(other.toBigDecimal())
+    override fun plus(other: XsdDecimal): T = plus(other.asT())
 
-    operator fun plus(other: BigDecimal): BigDecimal {
+    operator fun plus(other: AbstractBigDecimal<*>): T {
         when {
-            sign == 0 -> return other
+            sign == 0 -> return other.asT()
 
-            other.sign == 0 -> return this
+            other.sign == 0 -> return self
 
             !isFinite || !other.isFinite -> return when {
-                isNaN -> this
-                other.isNaN -> other
+                isNaN -> self
+                other.isNaN -> other.asT()
                 // one infinity but we don't know the sign
                 // if the sign is equal, the result is infinity
-                sign == other.sign -> this // keep infinity if the sign is the same
+                sign == other.sign -> self // keep infinity if the sign is the same
                 // different sign, one must be infinite, the other finite
-                !!isFinite -> other
-                !!other.isFinite -> this
+                !!isFinite -> other.asT()
+                !!other.isFinite -> self
                 // -Inf + INF is NaN
                 else -> NaN
             }
 
             sign > 0 && other.sign < 0 -> return minus(other.abs())
 
-            sign < 0 && other.sign > 0 -> return other.minus(abs())
+            sign < 0 && other.sign > 0 -> return other.asT().minus(abs())
 
             decimalPositions < other.decimalPositions ->
                 return expandWithEffectiveDecimalPositions(other.decimalPositions).plus(other)
@@ -419,19 +416,19 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(sign, newInts, decimalPositions)
     }
 
-    override fun minus(other: XsdDecimal): XsdDecimal = minus(other.toBigDecimal())
+    override fun minus(other: XsdDecimal): T = minus(other.toBigDecimal())
 
-    operator fun minus(other: BigDecimal): BigDecimal {
+    operator fun minus(other: AbstractBigDecimal<*>): T {
         when {
             !isFinite || !other.isFinite -> return when {
-                isNaN -> this
-                other.isNaN -> other
+                isNaN -> self
+                other.isNaN -> other.asT()
                 // one infinity but we don't know the sign
                 // if the sign is equal, the result is infinity
-                sign == -other.sign -> this // keep infinity if the sign is the same
+                sign == -other.sign -> self // keep infinity if the sign is the same
                 // different sign, one must be infinite, the other finite
-                !!isFinite -> -other // opposite sign, unary minus is efficient
-                !!other.isFinite -> this
+                !!isFinite -> -(other.asT()) // opposite sign, unary minus is efficient
+                !!other.isFinite -> self
                 // -Inf + INF is NaN
                 else -> NaN
             }
@@ -442,8 +439,8 @@ class BigDecimal internal constructor(
             decimalPositions > other.decimalPositions ->
                 return minus(other.expandWithEffectiveDecimalPositions(decimalPositions))
 
-            sign == 0 -> return other.unaryMinus()
-            other.sign == 0 -> return this
+            sign == 0 -> return -other.asT()
+            other.sign == 0 -> return self
             sign < 0 && other.sign > 0 -> return (abs() + other)
             sign > 0 && other.sign < 0 -> return (abs() + other.abs())
         }
@@ -452,7 +449,7 @@ class BigDecimal internal constructor(
         val larger: UIntArray
         val smaller: UIntArray
         val newSign = when {
-            cmp == 0 -> return BigDecimal(0, uintArrayOf(0u), decimalPositions)
+            cmp == 0 -> return newInstance(0, uintArrayOf(0u), decimalPositions)
             cmp < 0 -> { larger = other.ints; smaller = ints; -1 }
             else -> { larger = ints; smaller = other.ints; 1 }
         }
@@ -488,26 +485,26 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(newSign, newInts, decimalPositions)
     }
 
-    override fun times(other: XsdDecimal): XsdDecimal = times(other.toBigDecimal())
+    override fun times(other: XsdDecimal): T = times(other.asT())
 
-    operator fun times(other: BigDecimal): BigDecimal {
+    operator fun times(other: AbstractBigDecimal<*>): T {
         when {
             !isFinite || !other.isFinite -> return when {
-                isNaN -> this
-                other.isNaN -> other
+                isNaN -> self
+                other.isNaN -> other.asT()
                 // one infinity but we don't know the sign
                 // if the sign is equal, the result is infinity
-                sign == other.sign -> this // keep infinity if the sign is the same
+                sign == other.sign -> self // keep infinity if the sign is the same
                 // different sign, one must be infinite, the other finite
-                !!isFinite -> other
-                !!other.isFinite -> this
+                !!isFinite -> other.asT()
+                !!other.isFinite -> self
                 // -Inf * INF is NaN
                 else -> NaN
             }
         }
 
         @Suppress("UNCHECKED_CAST")
-        if (other.ints.size> ints.size) return other.times(self)
+        if (other.ints.size> ints.size) return other.asT().times(self)
 
         val newInts = UIntArray(size.toInt() + other.size.toInt() + 1)
         val newDecimalPositions = decimalPositions + other.decimalPositions
@@ -532,10 +529,10 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(sign * other.sign, newInts, newDecimalPositions)
     }
 
-    override operator fun times(multiplier: UInt): BigDecimal {
+    override operator fun times(multiplier: UInt): T {
         when {
             multiplier == 0u -> return ZERO
-            !isFinite -> return this // multiplication of NaN/INF by a finite positive amount is the same result
+            !isFinite -> return self // multiplication of NaN/INF by a finite positive amount is the same result
         }
 
         val newInts = UIntArray(size.toInt() + 1)
@@ -554,27 +551,27 @@ class BigDecimal internal constructor(
         return createOptimizedInstance(sign, newInts, decimalPositions)
     }
 
-    infix fun shl(shift: Int): BigDecimal {
+    infix fun shl(shift: Int): T {
         require (shift >=0) { "Shift must be non-negative" }
         return shl(shift.toULong())
     }
 
-    infix fun shl(shift: ULong): BigDecimal {
+    infix fun shl(shift: ULong): T {
         if (shift == 0uL || !isFinite) return self
         val newInts = BigUnsignedInt(ints, shift).expandExp().ints
-        return BigDecimal(sign, newInts, decimalPositions)
+        return newInstance(sign, newInts, decimalPositions)
     }
 
     /**
      * Get the absolute value of this value.
      */
-    override fun abs(): BigDecimal {
+    override fun abs(): T {
         val s = _sign
         return when (s) {
             0 -> ZERO
-            1 -> this
+            1 -> self
             // Will preserve "special" bits except with flipped sign
-            else -> BigDecimal(-_sign, ints, decimalPositions)
+            else -> newInstance(-_sign, ints, decimalPositions)
         }
     }
 
@@ -582,9 +579,9 @@ class BigDecimal internal constructor(
      * Helper function to ensure decimal positions.
      * @param newDecimalPosition The new decimal position. If positive the value had decimal digits, if negative it is larger
      */
-    private fun expandWithEffectiveDecimalPositions(newDecimalPosition: Long): BigDecimal = when {
-        !isFinite -> this
-        else -> BigDecimal(
+    private fun expandWithEffectiveDecimalPositions(newDecimalPosition: Long): T = when {
+        !isFinite -> self
+        else -> newInstance(
             sign,
             expandWithEffectiveDecimalPositionsToArray(newDecimalPosition),
             newDecimalPosition
@@ -678,15 +675,15 @@ class BigDecimal internal constructor(
             sign > other.sign -> 1
 
             // Optimization when this BigDecimal could be a BigInt.
-            decimalPositions == 0L && other !is BigDecimal -> BigInt(sign, ints, 0uL).compareTo(other)
+            decimalPositions == 0L && other !is AbstractBigDecimal<*> -> BigInt(sign, ints, 0uL).compareTo(other)
 
-            else -> compareTo(other.toBigDecimal())
+            else -> compareTo(other.asT())
         }
     }
 
     override fun compareTo(other: XsdBigDecimal): Int = compareTo(other as XsdDecimal)
 
-    operator fun compareTo(other: BigDecimal): Int {
+    operator fun compareTo(other: AbstractBigDecimal<*>): Int {
         when {
             !isFinite -> return when {
                 isNaN || other.isNaN -> throw ArithmeticException("NaN values are not comparable")
@@ -772,34 +769,20 @@ class BigDecimal internal constructor(
         }
     }
 
-    /** Implementation of the division algorithm that ignores all signs. */
-    protected fun unsignedDivRem(divider: UInt): UIntDivRem { // will (initially) expand exponents
-        return when (divider) {
-            0u -> throw ArithmeticException("Division by zero")
-            1u -> UIntDivRem(this, 0u)
-            else -> {
-                TODO()
-
-//                val divRem  = unsignedDivRem(BigDecimal(1, uintArrayOf(divider), 0L))
-//                return UIntDivRem(divRem.)
-            }
-        }
+    override fun divRem(divider: XsdDecimal): XsdBigDecimal.DivRem {
+        return divRem(divider.asT())
     }
 
-    override fun divRem(divider: XsdDecimal): XsdDecimal.DivRem {
-        return divRem(divider.toBigDecimal())
-    }
-
-    override fun divRem(divider: ULong): XsdDecimal.DivRem {
+    override fun divRem(divider: ULong): XsdBigDecimal.DivRem {
         return super.divRem(divider)
     }
 
-    override fun divRem(divider: UInt): DivRem {
+    override fun divRem(divider: UInt): DivRem<T> {
         when (divider) {
             0u -> throw ArithmeticException("Division by zero")
-            else if !isFinite -> return DivRem(this, NaN)
-            1u if decimalPositions <= 0L -> return DivRem(this, ZERO)
-            else if (_sign == 0) -> return DivRem(this, ZERO)
+            else if !isFinite -> return DivRem(self, NaN)
+            1u if decimalPositions <= 0L -> return DivRem<T>(self, newInstance(0, ZERO.ints, 0))
+            else if (_sign == 0) -> return DivRem(self, ZERO)
         }
         // If we can just extend from UInt to ULong do that here
         val divider = when (decimalPositions) {
@@ -813,7 +796,7 @@ class BigDecimal internal constructor(
             7L -> divider.toULong() * 10_000_000u
             8L -> divider.toULong() * 100_000_000u
             9L -> divider.toULong() * 1_000_000_000u
-            else -> return divRem(BigDecimal(1, uintArrayOf(divider), 0L))
+            else -> return divRem(newInstance(1, uintArrayOf(divider), 0L))
         }
         val v = BigUnsignedInt(ints, 0uL)
         val quotient: BigUnsignedInt
@@ -839,9 +822,9 @@ class BigDecimal internal constructor(
         val newSign = if(quotient.sign == 0) 0 else sign
 
         // We "Fixed" the position so the decimal position difference is 0
-        val quotientDec = BigDecimal(newSign, quotient.ints, 0)
+        val quotientDec = newInstance(newSign, quotient.ints, 0)
 
-        val remainderDec = BigDecimal(newRemSign, remainder, decimalPositions)
+        val remainderDec = newInstance(newRemSign, remainder, decimalPositions)
 
         return DivRem(quotientDec, remainderDec)
 
@@ -850,14 +833,14 @@ class BigDecimal internal constructor(
     fun divRem(other: XsdUnsignedInt): XsdDecimal.DivRem = divRem(other.uIntValue)
     fun divRem(other: XsdUnsignedLong): XsdDecimal.DivRem = divRem(other.uLongValue)
 
-    fun divRem(divider: BigDecimal): DivRem { // will (initially) expand exponents
+    fun divRem(divider: T): DivRem<T> { // will (initially) expand exponents
         when {
             divider._sign == 0 -> throw ArithmeticException("Division by zero")
-            _sign == 0 -> return DivRem(this, ZERO)
+            _sign == 0 -> return DivRem(self, ZERO)
             !isFinite -> when {
-                isNaN || divider.isNaN -> return DivRem(this, NaN)
+                isNaN || divider.isNaN -> return DivRem(self, NaN)
                 !divider.isFinite -> return DivRem(NaN, NaN)
-                sign > 0 == divider.sign > 0 -> return DivRem(this, NaN)
+                sign > 0 == divider.sign > 0 -> return DivRem(self, NaN)
                 else -> return DivRem(NEGATIVE_INFINITY, ZERO)
             }
             ! divider.isFinite -> when {
@@ -867,7 +850,7 @@ class BigDecimal internal constructor(
         }
 
         if (divider.sign == 0) throw ArithmeticException("Division by zero")
-        else if (sign == 0) return DivRem(this, ZERO)
+        else if (sign == 0) return DivRem(self, ZERO)
 
         // Extend decimal positions to avoid losing digits in the remainder.
         if (decimalPositions > divider.decimalPositions) return divRem(divider.expandWithEffectiveDecimalPositions(decimalPositions))
@@ -883,10 +866,10 @@ class BigDecimal internal constructor(
             else -> -1
         }
         val newDecimalPositions = decimalPositions - divider.decimalPositions
-        val quotient = BigDecimal(newSign, unsignedDivRem.quotient.ints, newDecimalPositions)
+        val quotient = newInstance(newSign, unsignedDivRem.quotient.ints, newDecimalPositions)
 
         val remainderSign = if (unsignedDivRem.remainder.sign == 0) 0 else sign
-        val remainder = BigDecimal(remainderSign, unsignedDivRem.remainder.ints, decimalPositions)
+        val remainder = newInstance(remainderSign, unsignedDivRem.remainder.ints, decimalPositions)
 
         return DivRem(quotient, remainder)
     }
@@ -928,20 +911,20 @@ class BigDecimal internal constructor(
         append(')')
     }
 
-    interface IDivRem<out R> {
-        val quotient: BigDecimal
+    interface IDivRem<out T: AbstractBigDecimal<out T>, out R> {
+        val quotient: T
         val remainder: R
     }
 
-    data class DivRem(
-        override val quotient: BigDecimal,
-        override val remainder: BigDecimal
-    ) : IDivRem<BigDecimal>, XsdDecimal.DivRem
+    data class DivRem<out T: AbstractBigDecimal<out T>>(
+        override val quotient: T,
+        override val remainder: T
+    ) : IDivRem<T, T>, XsdBigDecimal.DivRem
 
-    data class UIntDivRem(
-        override val quotient: BigDecimal,
+    data class UIntDivRem<out T: AbstractBigDecimal<out T>>(
+        override val quotient: T,
         override val remainder: UInt
-    ) : IDivRem<UInt>
+    ) : IDivRem<T, UInt>
 
     private class RepeatSequence(val char: Char, override val length: Int) : CharSequence {
         override fun get(index: Int): Char = char
@@ -950,44 +933,31 @@ class BigDecimal internal constructor(
             RepeatSequence(char, endIndex - startIndex)
     }
 
-    private class ParseResult(val sign: Int, val ints: UIntArray, val decimalDigits: Long)
+    internal class ParseResult(val sign: Int, val ints: UIntArray, val decimalDigits: Long)
 
-    companion object {
-        val ZERO = BigDecimal(0, uintArrayOf(0u), 0)
-        val ONE = BigDecimal(1, uintArrayOf(1u), 0)
-        val MINUSONE = BigDecimal(-1, uintArrayOf(1u), 0)
-        val NaN = BigDecimal(NAN_BIT, UIntArray(0), 0)
-        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, NaN.ints, 0)
-        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
+    // TODO make abstract resolve to constants
+    private val ZERO get() = companion.ZERO
+    private val ONE get() = companion.ONE
+    private val MINUSONE get() = companion.MINUSONE
+    private val NaN get() = companion.newInstance(NAN_BIT, UIntArray(0), 0)
+    private val POSITIVE_INFINITY get() = companion.newInstance(INFINITY_BIT, NaN.ints, 0)
+    private val NEGATIVE_INFINITY get() = companion.newInstance(-1 xor INFINITY_BIT, NaN.ints, 0)
 
-        private const val SIGN_BIT = 1 shl 31
-        private const val NAN_BIT = 1 shl 30
-        private const val INFINITY_BIT = 1 shl 29
-        private const val SPECIAL_MASK = SIGN_BIT or NAN_BIT or INFINITY_BIT
+    abstract class CompanionBase<T: AbstractBigDecimal<T>> {
 
-        operator fun invoke(value: Int, decimalPositions: Long = 0L): BigDecimal = when {
-            value < 0 -> {
-                val absValue = abs(value)
-                BigDecimal(-1, uintArrayOf(absValue.toUInt()), decimalPositions)
-            }
-            value == 0 -> ZERO
-            else -> BigDecimal(1, uintArrayOf(value.toUInt()), decimalPositions)
-        }
+        abstract val ZERO: T
+        abstract val ONE: T
+        abstract val MINUSONE: T
 
-        operator fun invoke(value: Long, decimalPositions: Long = 0L): BigDecimal {
-            if (value == 0L) return ZERO
-            val absValue = value.absoluteValue.toULong()
-            val array = when {
-                absValue <= UInt.MAX_VALUE -> uintArrayOf(absValue.toUInt())
-                else -> uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt())
-            }
-            return when {
-                value < 0L -> BigDecimal(-1, array, decimalPositions)
-                else -> BigDecimal(1, array, decimalPositions)
-            }
-        }
+        internal abstract fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): T
+        fun newInstance(value: Int, decimalPositions: Long = 0L): T =
+            invoke(value, decimalPositions)
 
-        private fun parse(s: CharSequence): ParseResult {
+        fun newInstance(value: Long, decimalPositions: Long = 0L): T =
+            invoke(value, decimalPositions)
+
+        @XmlUtilInternal
+        internal fun parse(s: CharSequence): ParseResult {
             if (s.isEmpty()) throw NumberFormatException("Empty string")
 
             var normalised = s.trim()
@@ -1000,41 +970,43 @@ class BigDecimal internal constructor(
                     normalised = normalised.substring(1)
                 }
             }
+            return parseNormalised(normalised, sign)
+        }
 
-            if (normalised == "INF") {
-                val ref = if (sign > 0) POSITIVE_INFINITY else NEGATIVE_INFINITY
-                return ParseResult(ref._sign, ref.ints, ref.decimalPositions)
-            } else if (normalised == "NaN") {
-                return ParseResult(NaN._sign, NaN.ints, NaN.decimalPositions)
-            }
+        open internal fun parseNormalised(
+            normalised: CharSequence,
+            sign: Int
+        ): ParseResult {
+            var normalised1 = normalised
+            var sign1 = sign
             val decimalDigits: Long
-            val signPos = normalised.lastIndexOf('.')
+            val signPos = normalised1.lastIndexOf('.')
             if (signPos >= 0) {
-                if (normalised.lastIndexOf('.', signPos-1)>=0) {
+                if (normalised1.lastIndexOf('.', signPos - 1) >= 0) {
                     throw NumberFormatException("Multiple decimal points")
                 }
-                decimalDigits = (normalised.length - signPos - 1).toLong()
-                normalised = normalised.substring(0, signPos) + normalised.substring(signPos + 1)
+                decimalDigits = (normalised1.length - signPos - 1).toLong()
+                normalised1 = normalised1.substring(0, signPos) + normalised1.substring(signPos + 1)
             } else {
                 decimalDigits = 0L
             }
 
-            val intsNeeded = 1 + normalised.length / 9 // not very accurate but good enough for now
+            val intsNeeded = 1 + normalised1.length / 9 // not very accurate but good enough for now
 
-            val last = normalised.length
+            val last = normalised1.length
 
             var numbers = UIntArray(intsNeeded)
             var tmp = UIntArray(intsNeeded)
             var intsUsed = 1
 
-            var first = normalised.length.rem(9) // actually initialise it after the first substring
+            var first = normalised1.length.rem(9) // actually initialise it after the first substring
 
             if (first > 0) {
-                numbers[0] = normalised.substring(0, minOf(first, last)).toUInt()
+                numbers[0] = normalised1.substring(0, minOf(first, last)).toUInt()
             }
 
             while (first < last) {
-                val nextInt = normalised.substring(first, minOf(first+9, last)).toULong()
+                val nextInt = normalised1.substring(first, minOf(first + 9, last)).toULong()
 
                 val m = numbers[0].toULong() * 1_000_000_000uL + nextInt
                 tmp[0] = m.toUInt()
@@ -1052,7 +1024,9 @@ class BigDecimal internal constructor(
                     intsUsed += 1
                 }
 
-                for (i in intsUsed until tmp.size) { tmp[i] = 0u }
+                for (i in intsUsed until tmp.size) {
+                    tmp[i] = 0u
+                }
 
                 val x = numbers
                 numbers = tmp
@@ -1067,11 +1041,160 @@ class BigDecimal internal constructor(
             val array = if (lastByteToKeep + 1 == numbers.size) numbers else numbers.copyOf(lastByteToKeep + 1)
 
             // Make sure that the sign field is accurate.
-            if (array.size == 1 && array[0] == 0u) sign = 0
+            if (array.size == 1 && array[0] == 0u) sign1 = 0
 
-            return ParseResult(sign, array, decimalDigits)
+            return ParseResult(sign1, array, decimalDigits)
         }
 
+        operator fun invoke(value: Int, decimalPositions: Long = 0L): T = when {
+            value < 0 -> {
+                val absValue = abs(value)
+                newInstance(-1, uintArrayOf(absValue.toUInt()), decimalPositions)
+            }
+            value == 0 -> ZERO
+            else -> newInstance(1, uintArrayOf(value.toUInt()), decimalPositions)
+        }
+
+        operator fun invoke(value: Long, decimalPositions: Long = 0L): T {
+            if (value == 0L) return ZERO
+            val absValue = value.absoluteValue.toULong()
+            val array = when {
+                absValue <= UInt.MAX_VALUE -> uintArrayOf(absValue.toUInt())
+                else -> uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt())
+            }
+            return when {
+                value < 0L -> newInstance(-1, array, decimalPositions)
+                else -> newInstance(1, array, decimalPositions)
+            }
+        }
+
+    }
+
+    companion object {
+
+        @XmlUtilInternal
+        protected const val SIGN_BIT = 1 shl 31
+        @XmlUtilInternal
+        protected const val NAN_BIT = 1 shl 30
+        @XmlUtilInternal
+        protected const val INFINITY_BIT = 1 shl 29
+        @XmlUtilInternal
+        protected const val SPECIAL_MASK = SIGN_BIT or NAN_BIT or INFINITY_BIT
+
+    }
+
+}
+
+
+@OptIn(ExperimentalUnsignedTypes::class)
+class BigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
+    AbstractBigDecimal<BigDecimal>(sign, ints, decimalPositions) {
+
+    init {
+        val specialSign = _sign ushr 29
+        requireRange(specialSign == 0b000 || specialSign == 0b111) {
+            ""
+        }
+        if (! (specialSign == 0b000 || specialSign == 0b111)) throw NumberFormatException("Invalid special value")
+    }
+
+    constructor(value: CharSequence): this(parse(value))
+
+    constructor(bigDecimal: InfBigDecimal): this(bigDecimal._sign, bigDecimal.ints, bigDecimal.decimalPositions)
+
+    private constructor(parseResult: ParseResult) :
+            this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
+
+    constructor(value: UInt): this(
+        sign = if (value == 0u) 0 else 1,
+        ints = uintArrayOf(value),
+        decimalPositions = 0L
+    )
+
+    constructor(value: ULong) : this(
+        sign = if (value == 0uL) 0 else 1,
+        ints = when {
+            value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
+            else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
+        },
+        decimalPositions = 0L
+    )
+
+    override val self: BigDecimal get() = this
+
+    override val companion: Companion get() = Companion
+
+    override fun XsdDecimal.asT(): BigDecimal = when (this) {
+        is BigDecimal -> this
+        is AbstractBigDecimal<*> -> {
+            requireRange(isFinite) { "Cannot convert non-finite XsdBigDecimal to BigDecimal" }
+            BigDecimal(sign, ints, decimalPositions)
+        }
+        is XsdInteger -> BigDecimal(sign, UIntArray(size.toInt()) { get(it) }, 0L)
+        else -> BigDecimal(xmlString) // fallback to parsing
+    }
+
+    companion object : CompanionBase<BigDecimal>() {
+        override val ZERO = BigDecimal(0, uintArrayOf(0u), 0)
+        override val ONE = BigDecimal(1, uintArrayOf(1u), 0)
+        override val MINUSONE = BigDecimal(-1, uintArrayOf(1u), 0)
+//        val NaN = BigDecimal(NAN_BIT, UIntArray(0), 0)
+//        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, NaN.ints, 0)
+//        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
+
+        override fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): BigDecimal {
+            return BigDecimal(sign, ints, decimalPositions)
+        }
+
+
+    }
+
+}
+
+@OptIn(ExperimentalUnsignedTypes::class)
+class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
+    AbstractBigDecimal<InfBigDecimal>(sign, ints, decimalPositions) {
+
+    private constructor(parseResult: ParseResult) : this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
+
+    constructor(value: CharSequence): this(parse(value))
+
+    override val self: InfBigDecimal get() = this
+
+    override val companion: Companion get() = Companion
+
+    override fun XsdDecimal.asT(): InfBigDecimal = when (this) {
+        is InfBigDecimal -> this
+        is AbstractBigDecimal<*> -> InfBigDecimal(sign, ints, decimalPositions)
+        is XsdInteger -> InfBigDecimal(sign, UIntArray(size.toInt()) { get(it) }, 0L)
+        else -> InfBigDecimal(xmlString) // fallback to parsing
+    }
+
+    companion object: CompanionBase<InfBigDecimal>() {
+        override val ZERO = InfBigDecimal(0, uintArrayOf(0u), 0)
+        override val ONE = InfBigDecimal(1, uintArrayOf(1u), 0)
+        override val MINUSONE = InfBigDecimal(-1, uintArrayOf(1u), 0)
+        val NaN = InfBigDecimal(NAN_BIT, UIntArray(0), 0)
+        val POSITIVE_INFINITY = InfBigDecimal(INFINITY_BIT, NaN.ints, 0)
+        val NEGATIVE_INFINITY = InfBigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
+
+        override fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): InfBigDecimal {
+            return InfBigDecimal(sign, ints, decimalPositions)
+        }
+
+        override fun parseNormalised(
+            normalised: CharSequence,
+            sign: Int
+        ): ParseResult {
+            if (normalised == "INF") {
+                val ref = if (sign > 0) POSITIVE_INFINITY else NEGATIVE_INFINITY
+                return ParseResult(ref._sign, ref.ints, ref.decimalPositions)
+            } else if (normalised == "NaN") {
+                return ParseResult(NaN._sign, NaN.ints, NaN.decimalPositions)
+            }
+
+            return super.parseNormalised(normalised, sign)
+        }
     }
 
 }

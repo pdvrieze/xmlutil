@@ -21,7 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.DecimalType
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
@@ -31,14 +31,71 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
 
     operator fun compareTo(other: XsdBigDecimal): Int
 
-    override fun round(precision: Int): XsdDecimal
+    override fun round(precision: Int): XsdBigDecimal
 
-    override fun roundToHalfEven(precision: Int): XsdDecimal
+    override fun roundToHalfEven(precision: Int): XsdBigDecimal
 
     /**
      * Exponentize the decimal with base 10 (moves the decimal point n places to the right)
      */
     fun exp10(n: Int): XsdBigDecimal
+
+    override fun plus(other: XsdDecimal): XsdBigDecimal
+    override operator fun plus(other: Int): XsdBigDecimal = plus(XsdInt(other))
+    override operator fun plus(other: Long): XsdBigDecimal = plus(XsdLong(other))
+    override operator fun plus(other: UInt): XsdBigDecimal = plus(XsdUnsignedInt(other))
+    override operator fun plus(other: ULong): XsdBigDecimal = plus(XsdUnsignedLong(other))
+
+    override fun minus(other: XsdDecimal): XsdBigDecimal
+    override operator fun minus(other: Int): XsdBigDecimal = minus(XsdInt(other))
+    override operator fun minus(other: Long): XsdBigDecimal = minus(XsdLong(other))
+    override operator fun minus(other: UInt): XsdBigDecimal = minus(XsdUnsignedInt(other))
+    override operator fun minus(other: ULong): XsdBigDecimal = minus(XsdUnsignedLong(other))
+
+    override fun times(other: XsdDecimal): XsdBigDecimal
+    override operator fun times(multiplier: Int): XsdBigDecimal = times(XsdInt(multiplier))
+    override operator fun times(multiplier: Long): XsdBigDecimal = times(XsdLong(multiplier))
+    override operator fun times(multiplier: UInt): XsdBigDecimal = times(XsdUnsignedInt(multiplier))
+    override operator fun times(multiplier: ULong): XsdBigDecimal = times(XsdUnsignedLong(multiplier))
+
+    override fun divRem(divider: XsdDecimal): DivRem
+
+    override fun divRem(divider: ULong): DivRem = divRem(XsdUnsignedLong(divider))
+
+    override fun divRem(divider: UInt): DivRem = divRem(XsdUnsignedLong(divider))
+
+    override fun div(divider: XsdDecimal): XsdBigDecimal = divRem(divider).quotient
+
+    override fun rem(divider: XsdDecimal): XsdBigDecimal = divRem(divider).remainder
+
+    override fun round(): XsdBigDecimal
+
+    override fun round(precision: XsdInteger): XsdBigDecimal =
+        round(precision.toInt())
+
+    override fun roundToHalfEven(): XsdBigDecimal
+
+    override fun roundToHalfEven(precision: XsdInteger): XsdBigDecimal =
+        roundToHalfEven(precision.toInt())
+
+    override fun abs(): XsdBigDecimal
+
+    override fun unaryMinus(): XsdBigDecimal
+
+    override fun unaryPlus(): XsdBigDecimal
+
+    override fun ceiling(): XsdBigDecimal
+
+    override fun floor(): XsdBigDecimal
+
+    interface DivRem: XsdDecimal.DivRem {
+        override val quotient: XsdBigDecimal
+        override val remainder: XsdBigDecimal
+
+        override operator fun component1(): XsdBigDecimal = quotient
+        override operator fun component2(): XsdBigDecimal = remainder
+    }
+
 
     companion object {
         operator fun invoke(i: Int): XsdBigDecimal = BigDecimal(i)

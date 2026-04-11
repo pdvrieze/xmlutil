@@ -30,6 +30,8 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.RangeException
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
+import io.github.pdvrieze.xml.schematypes.values.instances.InfBigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XMLConstants
@@ -117,7 +119,39 @@ object Xs: AbstractFunctionObject() {
         }
     }
 
-    object constructDecimal: AtomicConstructor<XsdDecimal>(DecimalType.Instance)
+    object constructDecimal: AtomicConstructor<XsdDecimal>(DecimalType.Instance) {
+        context(ctx: ExprEvalContext)
+        override fun constructXsd(arg: XdmAtomic<*>): XsdDecimal {
+            when (val origVal = arg.value) {
+                is InfBigDecimal -> return origVal
+                is XsdDecimal -> return origVal.toBigDecimal()
+                is XsdFloat -> {
+                    if (!origVal.value.isFinite()) throw EvaluationException(
+                        ErrorCodes.FORG0001,
+                        "Value '${arg.value.xmlString}' out of supported range for decimal"
+                    )
+                    return BigDecimal(origVal.xmlString)
+                }
+                is XsdDouble -> {
+                    if (!origVal.value.isFinite()) throw EvaluationException(
+                        ErrorCodes.FORG0001,
+                        "Value '${arg.value.xmlString}' out of supported range for decimal"
+                    )
+                    return BigDecimal(origVal.xmlString)
+                }
+                else -> {
+                    val infDecimal = InfBigDecimal(origVal.xmlString)
+                    if (!infDecimal.isFinite) {
+                        throw EvaluationException(ErrorCodes.FORG0001, "Decimal does not support NaN or Infinite values")
+                    }
+                    return BigDecimal(infDecimal)
+                }
+            }
+            val value = super.constructXsd(arg)
+            if (! value.isFinite) throw EvaluationException(ErrorCodes.FORG0001, "Value '${arg.value.xmlString}' out of supported range for decimal")
+            return value
+        }
+    }
 
     object constructInteger: AtomicConstructor<XsdInteger>(IntegerType.Instance)
 
@@ -334,7 +368,7 @@ object Xs: AbstractFunctionObject() {
                 throw EvaluationException(errorCode, "Value '${arg.value.xmlString}' out of supported range for ${returnSchemaType.name}", e)
             } catch (e: NumberFormatException) {
                 val errorCode = rangeErrorCodeFor(returnSchemaType)
-                throw EvaluationException(errorCode, "Cannot convert '${arg.value.xmlString}' to a ${returnSchemaType.name}", e)
+                throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a ${returnSchemaType.name}", e)
             }
         }
 
