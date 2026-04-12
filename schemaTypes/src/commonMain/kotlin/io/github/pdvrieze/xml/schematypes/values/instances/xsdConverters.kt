@@ -21,6 +21,8 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.RangeException
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.isXmlWhitespace
 
 private fun handleNumberFormatException(s: CharSequence, e: NumberFormatException, rangeDigitCheckStart: Int): Nothing =
     when (s.length) {
@@ -123,3 +125,30 @@ internal fun CharSequence.xsToDouble(): Double {
         handleDecNumberFormatException(s, e, 14)
     }
 }
+
+/**
+ * Returns a string with all whitespace removed
+ */
+@XmlUtilInternal
+public fun CharSequence.withoutWhitespace(): CharSequence {
+    val s = this
+    val e = s.length
+
+    var i = 0
+    while (i < e && !isXmlWhitespace(s[i])) i += 1
+    if (i >= e) return s
+    return buildString {
+        appendRange(s, 0, i)
+        i += 1 // I is already checked to be whitespace
+        while (i < e && isXmlWhitespace(s[i])) i += 1
+
+        while (i < e) {
+            val start = i
+            while (i < e && !isXmlWhitespace(s[i])) i += 1
+            appendRange(s, start, i)
+            i += 1
+            while (i < e && isXmlWhitespace(s[i])) i += 1
+        }
+    }
+}
+

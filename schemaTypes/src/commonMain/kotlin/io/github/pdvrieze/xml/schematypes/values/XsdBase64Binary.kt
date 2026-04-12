@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdBase64BinaryImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.withoutWhitespace
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -42,13 +43,16 @@ interface XsdBase64Binary : XsdByteArray, XsdPrimitive {
 
         public operator fun invoke(value: ByteArray): XsdBase64Binary = XsdBase64BinaryImpl(value)
 
-        public operator fun invoke(base64Text: CharSequence): XsdBase64Binary = XsdBase64BinaryImpl(Base64.decode(base64Text))
+        public operator fun invoke(base64Text: CharSequence): XsdBase64Binary {
+            return XsdBase64BinaryImpl(Base64.decode(base64Text.withoutWhitespace()))
+        }
+
 
         override fun deserialize(
             raw: String,
             input: XmlReader?
         ): XsdBase64Binary {
-            return XsdBase64BinaryImpl(Base64.decode(raw))
+            return XsdBase64BinaryImpl(Base64.decode(raw.withoutWhitespace()))
         }
 
     }
