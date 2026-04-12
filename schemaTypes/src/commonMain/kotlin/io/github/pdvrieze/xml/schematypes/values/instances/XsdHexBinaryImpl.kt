@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.impl.ListHelper
 import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
 import io.github.pdvrieze.xml.schematypes.values.XsdHexBinary
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.jvm.JvmInline
@@ -45,42 +46,32 @@ value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, List
     override fun toString(): String = xmlString
 
     companion object {
-        private fun normalize(representation: String): CharSequence {
-            var i = 0
-            var result: StringBuilder? = null
-            while (i < representation.length) {
-                when (representation[i]) {
-                    ' ', '\t', '\n', '\r' -> {
-                        result = StringBuilder(representation.length).also {
-                            it.append(representation, 0, i)
-                        }
-                        break
-                    }
-
-                    in '0'..'9',
-                    in 'A'..'F',
-                    in 'a'..'b' -> i+=1
-
-
-                    else -> error("Unexpected character ${representation[i]} in hex binary value")
-                }
-            }
-            if (i == representation.length) return representation
-
-            result!!
-
-            for (j in i until representation.length) {
-                result.append(representation[j])
-            }
-
-            return representation
-        }
 
         private fun String.toByteArray(): ByteArray {
-            val normalized = normalize(this)
-            val l =  normalized.length / 2
-            return ByteArray(l) { normalized.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+            var start = 0
+            while (start < length && this[start] == ' ') start += 1
+            if (start >= length) return ByteArray(0)
+            var end = length - 1
+            while (end > start && this[end] == ' ') end -= 1
 
+            val result = ByteArray((end - start + 1) / 2)
+            var rPos = 0
+            for (i in start until end step 2) {
+                var byteValue = 0
+                for (j in 0..1) {
+                    val digitValue = when (val c = this[i + j]) {
+                        in '0'..'9' -> c - '0'
+                        in 'A'..'F' -> c - 'A' + 10
+                        in 'a'..'f' -> c - 'a' + 10
+                        else -> throw NumberFormatException("Unexpected character $c in hex binary value")
+                    }
+                    byteValue = (byteValue shl 4) or digitValue
+                }
+
+                result[rPos++] = byteValue.toByte()
+            }
+            assert(rPos == result.size) { "Unexpected number of bytes in hex binary value" }
+            return result
         }
     }
 }
