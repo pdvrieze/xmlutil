@@ -146,7 +146,10 @@ abstract class AbstractTestSetSuite {
                         Qt3DependencyType.UNICODE_NORMALIZATION_FORM -> !dep.satisfied
                         Qt3DependencyType.UNICODE_VERSION -> !dep.satisfied
                         Qt3DependencyType.XML_VERSION -> dep.satisfied
-                        Qt3DependencyType.XSD_VERSION -> dep.satisfied
+                        Qt3DependencyType.XSD_VERSION -> when (dep.value) {
+                            "1.0" -> ! dep.satisfied // we support 1.1
+                            else -> dep.satisfied
+                        }
                     }
                 }
 
