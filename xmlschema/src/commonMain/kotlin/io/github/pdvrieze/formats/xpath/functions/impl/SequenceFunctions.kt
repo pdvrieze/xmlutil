@@ -36,6 +36,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
 import kotlin.math.round
 
 @XPathInternal
@@ -259,9 +260,16 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                 .map { it as? XsdFloat ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
                 }.fold(head) { acc, d -> acc + d }
 
-            is XsdDecimal -> tail
-                .map { it as? XsdDecimal ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
-                }.fold(head) { acc, d -> acc + d }
+            is XsdDecimal -> tail.map {
+                when (it) { // do conversion to large types
+                    !is XsdDecimal -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                    is XsdLong -> BigInt(it)
+                    is XsdUnsignedLong -> BigUnsignedInt(it)
+                    else -> it
+                }
+            }.fold(head) { acc, d ->
+                acc + d
+            }
 
             is XsdYearMonthDuration -> tail
                 .map { it as? XsdYearMonthDuration ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
@@ -286,7 +294,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val avg = when (sum) {
             is XsdDouble -> XsdDouble(sum.value / arg.size)
             is XsdFloat -> XsdFloat(sum.value / arg.size)
-            is XsdDecimal -> sum / XsdInt(arg.size)
+            is XsdDecimal -> sum.toBigDecimal() / XsdBigDecimal(arg.size) // division gives decimal
             is XsdYearMonthDuration -> sum / XsdDouble(arg.size.toDouble())
             is XsdDayTimeDuration -> sum / XsdDouble(arg.size.toDouble())
             else -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${sum.schemaType}")
