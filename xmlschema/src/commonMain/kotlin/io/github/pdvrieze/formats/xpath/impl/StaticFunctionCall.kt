@@ -126,9 +126,9 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
         val function = when (name.namespaceURI) {
             BuiltinFunction.FN_NAMESPACE, "" -> Fn.of(name.localPart)
             XMLConstants.XSD_NS_URI -> ctx.withExprContext(this) { Xs.createFromSchemaType(name) }
-            else -> throw EvaluationException(this, "No builtin function from namespace: '${name.namespaceURI}'")
+            else -> throw EvaluationException("No builtin function from namespace: '${name.namespaceURI}'")
         }
-        if (function == null) throw EvaluationException(this, "Function with name ${name} not found")
+        if (function == null) throw EvaluationException("Function with name ${name} not found")
 
         if (args.any { it is ParamPlaceholder }) {
             val partialArgs = args.map {
@@ -140,7 +140,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
             return XdmPartialApplication(XdmBuiltinFunction(function), partialArgs)
         }
         val functionType = function.functionTypes.singleOrNull { it.isVarArg || it.argTypes.size == args.size }
-            ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, this, "Function with name ${name} has no matching signature")
+            ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name $name has no matching signature")
 
 
         return withExprContext {

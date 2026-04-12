@@ -58,7 +58,7 @@ object XdmEmptySequenceType : XdmType() {
                 }
             }
         }
-        if (state != 2) throw EvaluationException(ctx.expr, "Cannot convert string to empty sequence")
+        if (state != 2) throw EvaluationException("Cannot convert string to empty sequence")
 
         return XdmSequence.EMPTY
     }

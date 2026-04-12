@@ -72,7 +72,7 @@ class XdmNode(
     context(ctx: ExprEvalContext)
     fun typedValue(): XdmValue<*> = when (node) {
         is Attr -> staticType.fromString(node.value)
-        else -> throw EvaluationException(ctx.expr, "Node has no value")
+        else -> throw EvaluationException("Node has no value")
     }
 
 

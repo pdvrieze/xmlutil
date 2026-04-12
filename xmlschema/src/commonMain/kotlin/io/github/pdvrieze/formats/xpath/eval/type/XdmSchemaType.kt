@@ -62,10 +62,8 @@ class XdmSchemaType(
 
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmAtomic<*> {
-        if (schemaType !is AnyAtomicType<*>) throw EvaluationException(
-            ctx.expr,
-            "Cannot convert string to non-atomic type"
-        )
+        if (schemaType !is AnyAtomicType<*>)
+            throw EvaluationException("Cannot convert string to non-atomic type")
         val xsdValue: XsdAtomic = schemaType.fromString(value)
         return XdmAtomic(xsdValue)
     }

@@ -36,7 +36,7 @@ internal class VariableRef(val varName: QName): AbstractExprSingle() {
     @XPathInternal
     override fun eval(): XdmValue<*> {
         return ctx.variables[varName.namespaceURI]?.get(varName.localPart)
-            ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, this, "Undeclared variable: $varName")
+            ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, "Undeclared variable: $varName")
     }
 
     override fun collectUnsupportedExprs(

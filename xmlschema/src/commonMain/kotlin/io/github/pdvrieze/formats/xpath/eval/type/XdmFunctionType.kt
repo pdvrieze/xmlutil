@@ -78,7 +78,7 @@ open class XdmFunctionType(
     @XPathInternal
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue<*> {
-        throw EvaluationException(ctx.expr, "Functions cannot be created from strings")
+        throw EvaluationException("Functions cannot be created from strings")
     }
 
     override fun toString(): String {

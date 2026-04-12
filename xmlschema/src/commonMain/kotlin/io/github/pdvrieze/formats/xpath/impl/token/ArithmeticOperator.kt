@@ -79,12 +79,12 @@ abstract class ArithmeticOperator(
         val l = when (val n = normalizeToArithmetic(left)) {
             is XdmAtomic<*> -> n
             XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
+            else -> throw EvaluationException("Implementation in number normalization")
         }
         val r = when (val n = normalizeToArithmetic(right)) {
             is XdmAtomic<*> -> n
             XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            else -> throw EvaluationException(ctx.expr, "Implementation in number normalization")
+            else -> throw EvaluationException("Implementation in number normalization")
         }
         val lType = l.value.schemaType
         val rType = r.value.schemaType

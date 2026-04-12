@@ -48,7 +48,7 @@ class XdmMap private constructor(
 
     context(ctx: ExprEvalContext)
     override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
-        if (type !is XdmMapTypeTest) throw EvaluationException(ctx.expr, "Cannot cast map to $type")
+        if (type !is XdmMapTypeTest) throw EvaluationException("Cannot cast map to $type")
         return XdmMap(content, type.toValueType(staticType).single as XdmMapType, _dynamicType)
     }
 
@@ -89,11 +89,7 @@ class XdmMap private constructor(
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Nothing {
-        throw EvaluationException(
-            ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
-            ctx.expr,
-            "Cannot cast maps to boolean"
-        )
+        throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast maps to boolean")
     }
 
     @XPathInternal

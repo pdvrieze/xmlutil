@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.eval
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.Expr
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -108,19 +107,32 @@ open class EvaluationException : Exception {
 
 }
 
-class UserEvaluationException: EvaluationException {
-    val qName: XsdQName
-    val context: XdmValue<*>?
 
-    constructor(qName: XsdQName, expr: Expr, description: String, context: XdmValue<*>? = null) :
-            super(qName, expr, description) {
-        this.qName = qName
-        this.context = context
-    }
+@Suppress("NOTHING_TO_INLINE")
+inline fun Expr.EvaluationException(message: String?): EvaluationException {
+    return EvaluationException(this, message)
+}
 
-    constructor(errorCode: ErrorCodes, expr: Expr, description: String, context: XdmValue<*>? = null) : super(errorCode, expr, description) {
-        this.qName = errorCode.qName
-        this.context = context
-    }
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun Expr.EvaluationException(errorCode: ErrorCodes, message: String?): EvaluationException {
+    return EvaluationException(errorCode, this, message)
+}
+
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Expr.EvaluationException(errorCode: ErrorCodes, message: String?, cause: Throwable?): EvaluationException {
+    return EvaluationException(errorCode, this, message, cause)
+}
+
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Expr.EvaluationException(errorCode: ErrorCodes, cause: Throwable?): EvaluationException {
+    return EvaluationException(errorCode, this, cause)
+}
+
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Expr.EvaluationException(errorCode: ErrorCodes): EvaluationException {
+    return EvaluationException(errorCode, this)
 }

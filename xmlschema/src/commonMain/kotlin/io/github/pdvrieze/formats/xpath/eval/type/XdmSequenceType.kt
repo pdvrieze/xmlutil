@@ -65,7 +65,7 @@ class XdmSequenceType(val baseType: XdmSingleType, val cardinality: OccurrenceTy
 
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue<*> {
-        throw EvaluationException(ctx.expr, "Sequences cannot be created from strings")
+        throw EvaluationException("Sequences cannot be created from strings")
     }
 
     override fun toString(): String = buildString{

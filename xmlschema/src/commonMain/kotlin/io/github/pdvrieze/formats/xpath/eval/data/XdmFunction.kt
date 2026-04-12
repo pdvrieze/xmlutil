@@ -53,7 +53,7 @@ sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
 
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean {
-        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, ctx.expr, "Cannot cast functions to boolean")
+        throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast functions to boolean")
     }
 
 }
