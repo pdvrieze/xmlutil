@@ -43,7 +43,7 @@ object Accessors : AbstractFunctionObject() {
         contextFunctionTypes(t(QNameType.Instance).opt, NODE.opt)
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmAtomic(XsdQName(arg.node.nodeName))
+        atomic(XsdQName(arg.node.nodeName))
     }
 
     val fnNilled: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl(
@@ -51,13 +51,10 @@ object Accessors : AbstractFunctionObject() {
     ) { args ->
         val arg = (args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY)
             .node
-        XdmAtomic(
-            XsdBoolean(
-                arg is Element &&
-                        arg.getAttributeNS(XMLConstants.XSI_NS_URI, "nil").let { v ->
-                            v != null && XsdBoolean(v).value
-                        })
-        )
+        atomic(
+            arg is Element &&
+                    arg.getAttributeNS(XMLConstants.XSI_NS_URI, "nil")
+                .let { v -> v != null && XsdBoolean(v).value })
 
     }
 
@@ -75,7 +72,7 @@ object Accessors : AbstractFunctionObject() {
             is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
         }
 
-        XdmAtomic(XsdString(s))
+        atomic(s)
     }
 
     val fnData: BuiltinFunctionImpl<XdmAtomicOrSequence<XdmAtomic<*>>> = BuiltinFunctionImpl(

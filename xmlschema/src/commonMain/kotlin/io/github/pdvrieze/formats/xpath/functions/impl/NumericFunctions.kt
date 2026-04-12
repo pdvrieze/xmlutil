@@ -102,9 +102,9 @@ object NumericFunctions: AbstractFunctionObject() {
         @Suppress("UNCHECKED_CAST")
         when (val value = arg.value) {
             is XsdDouble -> arg as XdmAtomic<XsdDouble>
-            is XsdFloat -> XdmAtomic(XsdDouble(value.value.toDouble()))
-            is XsdDecimal -> XdmAtomic(XsdDouble(value.toDouble()))
-            else -> XdmAtomic(XsdDouble(value.xmlString.toDoubleOrNull() ?: Double.NaN))
+            is XsdFloat -> atomic(value.value.toDouble())
+            is XsdDecimal -> atomic(value.toDouble())
+            else -> atomic(value.xmlString.toDoubleOrNull() ?: Double.NaN)
         }
     }
     //endregion
@@ -125,7 +125,7 @@ object NumericFunctions: AbstractFunctionObject() {
         } catch (e: IllegalArgumentException) {
             throw EvaluationException(ErrorCodes.FODF1310, "Invalid picture for format-integer: '$picture'", e)
         }
-        XdmAtomic(XsdString(formatter.format(value)))
+        atomic(formatter.format(value))
     }
     //endregion
 }

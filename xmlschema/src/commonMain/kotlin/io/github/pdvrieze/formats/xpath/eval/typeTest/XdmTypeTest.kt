@@ -46,6 +46,7 @@ sealed class XdmSequenceTypeTest {
     abstract fun isInstance(value: XdmValue<*>): Boolean
 
     abstract fun toValueType(fallbackType: XdmSingleType): XdmType
+    open fun toValueType(): XdmType = toValueType(XdmSingleType.ANY)
 
     @XPathInternal
     context(ctx: ExprEvalContext)

@@ -33,9 +33,9 @@ import io.github.pdvrieze.formats.xpath.functions.argN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgOrEmpty
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
@@ -46,11 +46,40 @@ import kotlin.math.roundToInt
 @XPathInternal
 object StringFunctions : AbstractFunctionObject() {
 
+    //region functions to assemble and disassemble strings
+    val fnCodepointsToString = BuiltinFunctionImpl("codepoints-to-string", STRING, INTEGER.any) { args ->
+        val arg = args[0].asSequence().map { ((it as XdmAtomic<*>).value as XsdInteger) }
+
+        val s = buildString {
+            for (cpInt in arg) {
+                when {
+                    cpInt.sign == 0 -> throw NumberFormatException("0 is not a valid xml codepoint")
+                    cpInt.sign < -1 -> throw NumberFormatException("negative values are not valid codepoints")
+                    cpInt > XsdInt(0x10ffff) -> throw NumberFormatException("codepoint out of range")
+                    else -> appendCodepoint(cpInt.toInt())
+                }
+            }
+        }
+
+        atomic(s)
+    }
+
+    val fnStringToCodepoints = BuiltinFunctionImpl("string-to-codepoints", INTEGER.any, STRING.opt) { args ->
+        val arg = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+
+        val result = arg.map { atomic(it.code) }
+
+
+        XdmSequence.fromList(result, INTEGER.opt.toValueType())
+    }
+
+    //endregion
+
     //region functions on string values 5.4
     val fnConcat: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("concat", flexFunctionType(STRING, ATOMIC.opt, ATOMIC.opt)) { args ->
         if (args.size < 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Concat requires at least two arguments")
         val concat = args.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString("")
-        XdmAtomic(XsdString(concat))
+        atomic(concat)
     }
 
     val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) { args ->
@@ -58,7 +87,7 @@ object StringFunctions : AbstractFunctionObject() {
         val seq = args.argN<XdmAtomicOrSequence<XdmAtomic<*>>>(0)
         val separator = if (args.size == 2) args.atomicArgN<XsdString>(1) else ""
         val join = seq.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString(separator)
-        XdmAtomic(XsdString(join))
+        atomic(join)
     }
 
     val fnSubstring = BuiltinFunctionImpl("substring", listOf(
@@ -84,19 +113,19 @@ object StringFunctions : AbstractFunctionObject() {
             }
         }
 
-        XdmAtomic(XsdString(result))
+        atomic(result)
     }
 
     val fnStringLength = BuiltinFunctionImpl("string-length", contextFunctionTypes(INTEGER, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl XdmAtomic(XsdInt(0))
+        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl atomic(0)
 
-        XdmAtomic(XsdInt(arg.xmlString.length))
+        atomic(arg.xmlString.length)
     }
 
     val fnNormalizeSpace = BuiltinFunctionImpl("normalize-space", contextFunctionTypes(STRING, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl atomic("")
 
-        XdmAtomic(XsdString(xmlCollapseWhitespace(arg.xmlString)))
+        atomic(xmlCollapseWhitespace(arg.xmlString))
     }
 
     val fnNormalizeUnicode = BuiltinFunctionImpl("normalize-unicode", listOf(
@@ -108,15 +137,15 @@ object StringFunctions : AbstractFunctionObject() {
     }
 
     val fnUpperCase = BuiltinFunctionImpl("upper-case", functionType(STRING, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl atomic("")
 
-        XdmAtomic(XsdString(arg.xmlString.uppercase()))
+        atomic(arg.xmlString.uppercase())
     }
 
     val fnLowerCase = BuiltinFunctionImpl("lower-case", functionType(STRING, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl atomic("")
 
-        XdmAtomic(XsdString(arg.xmlString.lowercase()))
+        atomic(arg.xmlString.lowercase())
     }
 
     private fun Appendable.translateCodepoints(arg: String, mapArray: IntArray, transArray: IntArray) {
@@ -147,7 +176,7 @@ object StringFunctions : AbstractFunctionObject() {
     }
 
     val fnTranslate = BuiltinFunctionImpl("translate", functionType(STRING, STRING.opt, STRING, STRING)) { args ->
-        val arg = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val arg = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl atomic("")
         val mapString = args.atomicArgN<XsdString>(1).xmlString
         val transString = args.atomicArgN<XsdString>(1).xmlString
 
@@ -164,7 +193,7 @@ object StringFunctions : AbstractFunctionObject() {
             }
         }
 
-        XdmAtomic(XsdString(result))
+        atomic(result)
     }
     //endregion
 
@@ -183,7 +212,7 @@ object StringFunctions : AbstractFunctionObject() {
         val regex = XRegex(pattern, SchemaVersion.V1_1)
         // TODO support flags
         val result = regex.containsMatchIn(input)
-        XdmAtomic(XsdBoolean(result))
+        atomic(result)
     }
     //endregion
 }

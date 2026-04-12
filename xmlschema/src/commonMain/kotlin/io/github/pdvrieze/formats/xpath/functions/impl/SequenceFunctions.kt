@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
@@ -43,23 +44,23 @@ import kotlin.math.round
 internal object SequenceFunctions : AbstractFunctionObject() {
 
     //region 14.1 General Functions and Operators on Sequences
-    internal val fnEmpty = BuiltinFunctionImpl("empty", functionType(BOOLEAN, ITEM.any)) { args ->
+    internal val fnEmpty = BuiltinFunctionImpl("empty", BOOLEAN, ITEM.any) { args ->
         val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmAtomic(XsdBoolean(arg.size==0))
+        atomic(arg.isEmpty())
     }
 
-    internal val fnExists = BuiltinFunctionImpl("exists", functionType(BOOLEAN, ITEM.any)) { args ->
+    internal val fnExists = BuiltinFunctionImpl("exists", BOOLEAN, ITEM.any) { args ->
         val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        XdmAtomic(XsdBoolean(arg.size>0))
+        atomic(arg.isNotEmpty())
     }
 
-    internal val fnHead = BuiltinFunctionImpl("head", functionType(ITEM.opt, ITEM.any)) { args ->
+    internal val fnHead = BuiltinFunctionImpl("head", ITEM.opt, ITEM.any) { args ->
         val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        if (arg.size==0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
         arg[0]
     }
 
-    internal val fnTail = BuiltinFunctionImpl("tail", functionType(ITEM.any, ITEM.any)) { args ->
+    internal val fnTail = BuiltinFunctionImpl("tail", ITEM.any, ITEM.any) { args ->
         val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         if (arg !is XdmSequence<*> || arg.size<=1) return@BuiltinFunctionImpl XdmSequence.EMPTY
         XdmSequence.buildSingle(arg.staticType) {
@@ -68,7 +69,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     }
 
     internal val fnInsertBefore =
-        BuiltinFunctionImpl("insert-before", functionType(ITEM.any, ITEM.any, INTEGER, ITEM.any)) { args ->
+        BuiltinFunctionImpl("insert-before", ITEM.any, ITEM.any, INTEGER, ITEM.any) { args ->
             if (args.size != 3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
             val target = args[0]
             val position =
@@ -77,8 +78,8 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                     .coerceIn(0, target.size)
             val inserts = args[2]
 
-            if (target.size == 0) return@BuiltinFunctionImpl inserts
-            else if (inserts.size == 0) return@BuiltinFunctionImpl target
+            if (target.isEmpty()) return@BuiltinFunctionImpl inserts
+            else if (inserts.isEmpty()) return@BuiltinFunctionImpl target
 
             XdmSequence.buildSingle(target.staticType) {
                 for (i in 0 until position) {
@@ -91,11 +92,11 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             }
         }
 
-    internal val fnRemove = BuiltinFunctionImpl("remove", functionType(ITEM.any, ITEM.any, INTEGER)) { args ->
+    internal val fnRemove = BuiltinFunctionImpl("remove", ITEM.any, ITEM.any, INTEGER) { args ->
         if (args.size != 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val target = args[0]
         val position = ((args.atomicOrEmpty<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
-        if (position < 0 || position>=target.size) return@BuiltinFunctionImpl target
+        if (position < 0 || position >= target.size) return@BuiltinFunctionImpl target
         XdmSequence.buildSingle(target.staticType) {
             for (i in 0 until position) {
                 add(target[i])
@@ -106,12 +107,12 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         }
     }
 
-    internal val fnReverse = BuiltinFunctionImpl("reverse", functionType(ITEM.any, ITEM.any)) { args ->
+    internal val fnReverse = BuiltinFunctionImpl("reverse", ITEM.any, ITEM.any) { args ->
         val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        if (arg.size==1) return@BuiltinFunctionImpl arg[0]
+        if (arg.size == 1) return@BuiltinFunctionImpl arg[0]
 
         XdmSequence.buildSingle(arg.staticType) {
-            for(n in arg.size-1 downTo 0) { add(arg[n]) }
+            for (n in arg.size - 1 downTo 0) add(arg[n])
         }
     }
 
@@ -149,7 +150,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     /**
      * Returns the same sequence as the argument. This function is only relevant for optimization.
      */
-    internal val fnUnordered = BuiltinFunctionImpl("unordered", functionType(ITEM.any, ITEM.any)) { args ->
+    internal val fnUnordered = BuiltinFunctionImpl("unordered", ITEM.any, ITEM.any) { args ->
         args.argOrContext() ?: XdmSequence.EMPTY
     }
     //endregion
@@ -162,7 +163,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val arg = args.argN<XdmValue<XdmAtomic<*>>>(0)
         val collation = args.maybeCollation(1)
 
-        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
 
         val distinct = HashSet<XdmAtomic<*>>()
         for(arg in args) { distinct.add(arg as XdmAtomic<*>) }
@@ -172,7 +173,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             else -> distinct.sortedWith { l, r -> collation.compare(l.value.xmlString, r.value.xmlString) }
         }
 
-        XdmSequence.fromList(result)
+        XdmSequence.fromList(result, arg.staticType)
     }
 
     val fnIndexOf = BuiltinFunctionImpl("index-of", listOf(
@@ -202,41 +203,38 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val collation = args.maybeCollation(2)
 
         when {
-            param1.size != param2.size -> return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
-            param1.size == 0 -> return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.TRUE)
+            param1.size != param2.size -> return@BuiltinFunctionImpl atomic(false)
+            param1.size == 0 -> return@BuiltinFunctionImpl atomic(true)
         }
 
         for (i in 0 until param1.size) {
             val elem1 = param1[i]
             val elem2 = param1[i]
-            if (! elem1.isDeepEqual(elem2, collation)) return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
+            if (! elem1.isDeepEqual(elem2, collation)) return@BuiltinFunctionImpl atomic(false)
         }
 
-        XdmAtomic(XsdBoolean.TRUE)
+        atomic(true)
     }
     //endregion
 
     //region 14.3 Sequence cardinality testing functions
-    internal val fnZeroOrOne = BuiltinFunctionImpl("zero-or-one", functionType(ITEM.opt, ITEM.any)) { args ->
+    internal val fnZeroOrOne = BuiltinFunctionImpl("zero-or-one", ITEM.opt, ITEM.any) { args ->
         args[0].also { if (it.size > 1) throw EvaluationException(ErrorCodes.FORG0003) }
     }
 
-    internal val fnOneOrMore = BuiltinFunctionImpl("one-or-more", functionType(ITEM.atLeastOne, ITEM.any)) { args ->
+    internal val fnOneOrMore = BuiltinFunctionImpl("one-or-more", ITEM.atLeastOne, ITEM.any) { args ->
         args[0].also { if (it.size == 0) throw EvaluationException(ErrorCodes.FORG0004) }
     }
 
-    internal val fnExactlyOne = BuiltinFunctionImpl("exactly-one", functionType(ITEM.single, ITEM.any)) { args ->
+    internal val fnExactlyOne = BuiltinFunctionImpl("exactly-one", ITEM.single, ITEM.any) { args ->
         args[0].also { if (it.size != 1) throw EvaluationException(ErrorCodes.FORG0005) }
     }
 
     //endregion
 
     //region 14.4 Sequence aggregate functions
-    internal val fnCount = BuiltinFunctionImpl(
-        "count",
-        functionType(INTEGER, ITEM.any)
-    ) { args ->
-        XdmAtomic(XsdInteger(args[0].size))
+    internal val fnCount = BuiltinFunctionImpl("count", INTEGER, ITEM.any) { args ->
+        atomic(args[0].size)
     }
 
     context(ctx: ExprEvalContext)
@@ -253,16 +251,16 @@ internal object SequenceFunctions : AbstractFunctionObject() {
 
         return when (head) {
             is XsdDouble -> tail
-                .map { it as? XsdDouble ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                .map { it as? XsdDouble ?: throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE)
                 }.fold(head) { acc, d -> acc + d }
 
             is XsdFloat -> tail
-                .map { it as? XsdFloat ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                .map { it as? XsdFloat ?: throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE)
                 }.fold(head) { acc, d -> acc + d }
 
             is XsdDecimal -> tail.map {
                 when (it) { // do conversion to large types
-                    !is XsdDecimal -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                    !is XsdDecimal -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE)
                     is XsdLong -> BigInt(it)
                     is XsdUnsignedLong -> BigUnsignedInt(it)
                     else -> it
@@ -272,14 +270,14 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             }
 
             is XsdYearMonthDuration -> tail
-                .map { it as? XsdYearMonthDuration ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                .map { it as? XsdYearMonthDuration ?: throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE)
                 }.fold(head) { acc, d -> acc + d }
 
             is XsdDayTimeDuration -> tail
-                .map { it as? XsdDayTimeDuration ?: throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE)
+                .map { it as? XsdDayTimeDuration ?: throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE)
                 }.fold(head) { acc, d -> acc + d }
 
-            else -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${head.schemaType}")
+            else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${head.schemaType}")
         }
 
     }
@@ -290,16 +288,14 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val arg = args[0] as XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>
         if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
 
-        val sum = seqSum(arg)
-        val avg = when (sum) {
-            is XsdDouble -> XsdDouble(sum.value / arg.size)
-            is XsdFloat -> XsdFloat(sum.value / arg.size)
-            is XsdDecimal -> sum.toBigDecimal() / XsdBigDecimal(arg.size) // division gives decimal
-            is XsdYearMonthDuration -> sum / XsdDouble(arg.size.toDouble())
-            is XsdDayTimeDuration -> sum / XsdDouble(arg.size.toDouble())
-            else -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${sum.schemaType}")
+        when (val sum = seqSum(arg)) {
+            is XsdDouble -> atomic(sum.value / arg.size)
+            is XsdFloat -> atomic(sum.value / arg.size)
+            is XsdDecimal -> atomic(sum.toBigDecimal() / XsdBigDecimal(arg.size)) // division gives decimal
+            is XsdYearMonthDuration -> atomic(sum / XsdDouble(arg.size.toDouble()))
+            is XsdDayTimeDuration -> atomic(sum / XsdDouble(arg.size.toDouble()))
+            else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${sum.schemaType}")
         }
-        XdmAtomic(avg)
     }
 
     context(context: ExprEvalContext)
@@ -325,7 +321,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             "string" in usedTypes && "anyURI" in usedTypes -> {
                 if (usedTypes.size != 2) {
                     throw EvaluationException(
-                        ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                        FORG0006_INVALID_ARGUMENT_TYPE,
                         "Max with unsupported types: ${usedTypes.joinToString()}"
                     )
                 }
@@ -335,7 +331,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             "double" in usedTypes -> {
                 if ((usedTypes - setOf("decimal", "float", "double")).isNotEmpty()) {
                     throw EvaluationException(
-                        ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                        FORG0006_INVALID_ARGUMENT_TYPE,
                         "Max with unsupported types: ${usedTypes.joinToString()}"
                     )
                 }
@@ -345,7 +341,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             arrayOf("decimal", "float").any { it in usedTypes } -> {
                 if ((usedTypes - setOf("decimal", "float", "double")).isNotEmpty()) {
                     throw EvaluationException(
-                        ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                        FORG0006_INVALID_ARGUMENT_TYPE,
                         "Max with unsupported types: ${usedTypes.joinToString()}"
                     )
                 }
@@ -353,7 +349,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             }
 
             else -> throw EvaluationException(
-                ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE,
+                FORG0006_INVALID_ARGUMENT_TYPE,
                 "Max with unsupported types: ${usedTypes.joinToString()}"
             )
         }
@@ -374,7 +370,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val max = actualValues.reduce { left, right ->
             if (left.compareTo(right, collation) > 0) left else right
         }
-        XdmAtomic(max)
+        atomic(max)
     }
 
     internal val fnMin = BuiltinFunctionImpl<XdmAtomicOrSequence<*>>("min", listOf(
@@ -382,7 +378,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         functionType(ATOMIC.opt, ATOMIC.any, STRING),
     )) { args ->
         val arg = args[0] as XdmAtomicOrSequence<*>
-        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
         val collation = args.maybeCollation(1) ?: contextOf<ExprEvalContext>().defaultCollation
 
         val actualValues = getComparisonSequence(arg)
@@ -391,7 +387,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val min = actualValues.reduce { left, right ->
             if (left.compareTo(right, collation) < 0) left else right
         }
-        XdmAtomic(min)
+        atomic(min)
     }
 
     internal val fnSum = BuiltinFunctionImpl("sum", listOf(
@@ -400,9 +396,9 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     )) { args ->
         val arg = args[0]
         val zero = args.getOrNull(1)
-        if (arg.size == 0) return@BuiltinFunctionImpl zero ?: XdmAtomic(XsdInt(0))
+        if (arg.isEmpty()) return@BuiltinFunctionImpl zero ?: XdmAtomic(XsdInt(0))
 
-        XdmAtomic(seqSum(arg as XdmAtomic<XsdAtomic>))
+        atomic(seqSum(arg as XdmAtomic<XsdAtomic>))
     }
 
 

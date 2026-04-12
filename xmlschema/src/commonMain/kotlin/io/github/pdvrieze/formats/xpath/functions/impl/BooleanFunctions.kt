@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmBoolean
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
@@ -37,14 +36,14 @@ object BooleanFunctions: AbstractFunctionObject() {
         BooleanType.Instance
     ) { args ->
         if (args.isNotEmpty()) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
-        XdmAtomic(XsdBoolean.TRUE)
+        atomic(XsdBoolean.TRUE)
     }
     val fnFalse: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
         "false",
         BooleanType.Instance
     ) { args ->
         if (args.isNotEmpty()) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
-        XdmAtomic(XsdBoolean.FALSE)
+        atomic(XsdBoolean.FALSE)
     }
 
     val opBooleanEqual: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl("op:boolean-equal", BooleanType.Instance, BooleanType.Instance, BooleanType.Instance) { args ->
@@ -52,7 +51,7 @@ object BooleanFunctions: AbstractFunctionObject() {
         val left = args.atomicArgN<XsdBoolean>(0).value
         val right = args.atomicArgN<XsdBoolean>(1).value
 
-        XdmAtomic(XsdBoolean(left == right))
+        atomic(left == right)
     }
 
     val opBooleanLessThan: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
@@ -65,7 +64,7 @@ object BooleanFunctions: AbstractFunctionObject() {
         val left = args.atomicArgN<XsdBoolean>(0).value
         val right = args.atomicArgN<XsdBoolean>(1).value
 
-        XdmAtomic(XsdBoolean(!left && right))
+        atomic(!left && right)
     }
 
     val opBooleanGreaterThan: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
@@ -78,23 +77,21 @@ object BooleanFunctions: AbstractFunctionObject() {
         val left = args.atomicArgN<XsdBoolean>(0).value
         val right = args.atomicArgN<XsdBoolean>(1).value
 
-        XdmAtomic(XsdBoolean(left && !right))
+        atomic(left && !right)
     }
 
     val fnBoolean: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
         "boolean",
         listOf(functionType(BooleanType.Instance, ITEM.any))
     ) { args ->
-            val r = args.argOrContext()?.toBoolean() ?: false
-            XdmAtomic(XsdBoolean(r))
-        }
+        atomic(args.argOrContext()?.toBoolean() ?: false)
+    }
 
     val fnNot: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
         "not",
         listOf(functionType(BooleanType.Instance, ITEM.any))
     ) { args ->
         // empty sequence has the false value
-        val r = args.argOrContext()?.toBoolean() ?: false
-        XdmAtomic(XsdBoolean(!r))
+        atomic(!(args.argOrContext()?.toBoolean() ?: false))
     }
 }

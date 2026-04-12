@@ -36,7 +36,7 @@ import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
-import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.reflect.typeOf
 
 @XPathInternal
@@ -169,6 +169,16 @@ abstract class AbstractFunctionObject() {
     val AnyAtomicType<*>.atLeastOne: XdmSchemaTypeTest
         get() = XdmSchemaTypeTest(this, SequenceType.OccurrenceType.AT_LEAST_ONE)
 
+
+    protected fun <T: XsdAtomic> atomic(value: T): XdmAtomic<T> = XdmAtomic(value)
+    protected fun atomic(value: String): XdmAtomic<XsdString> = XdmAtomic(XsdString(value))
+    protected fun atomic(value: Int): XdmAtomic<XsdInt> = XdmAtomic(XsdInt(value))
+    protected fun atomic(value: Long): XdmAtomic<XsdLong> = XdmAtomic(XsdLong(value))
+    protected fun atomic(value: UInt): XdmAtomic<XsdUnsignedInt> = XdmAtomic(XsdUnsignedInt(value))
+    protected fun atomic(value: ULong): XdmAtomic<XsdUnsignedLong> = XdmAtomic(XsdUnsignedLong(value))
+    protected fun atomic(value: Float): XdmAtomic<XsdFloat> = XdmAtomic(XsdFloat(value))
+    protected fun atomic(value: Double): XdmAtomic<XsdDouble> = XdmAtomic(XsdDouble(value))
+    protected fun atomic(value: Boolean): XdmAtomic<XsdBoolean> = XdmAtomic(XsdBoolean(value))
 
     companion object {
         val BOOLEAN = XdmSchemaTypeTest(BooleanType.Instance, SINGLE)

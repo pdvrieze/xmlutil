@@ -25,12 +25,10 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.checkArgCount
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdDayTimeDuration
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
@@ -39,58 +37,50 @@ object ContextFunctions : AbstractFunctionObject() {
 
     /** Returns the context position from the dynamic context.*/
     val fnPosition = BuiltinFunctionImpl("position", functionType(INTEGER)) { args ->
-        args.checkArgCount(0)
         val item = contextOf<ExprEvalContext>().contextItem ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
-        XdmAtomic(XsdInteger(item.position))
+        atomic(item.position)
     }
 
     /** Returns the context size from the dynamic context.*/
     val fnLast = BuiltinFunctionImpl("last", functionType(INTEGER)) { args ->
-        args.checkArgCount(0)
         val item = contextOf<ExprEvalContext>().contextItem ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
-        XdmAtomic(XsdInteger(item.last))
+        atomic(item.last)
     }
 
     /** Returns the current date and time (with timezone).*/
     val fnCurrentDateTime = BuiltinFunctionImpl("current-dateTime", functionType(t(DateTimeStampType.Instance))) { args ->
-        args.checkArgCount(0)
-        XdmAtomic(contextOf<ExprEvalContext>().currentTimeStamp)
+        atomic(contextOf<ExprEvalContext>().currentTimeStamp)
     }
 
     /** Returns the current date.*/
     val fnCurrentDate = BuiltinFunctionImpl("current-date", functionType(t(DateType.Instance))) { args ->
-        args.checkArgCount(0)
-        XdmAtomic(contextOf<ExprEvalContext>().currentTimeStamp.toDate())
+        atomic(contextOf<ExprEvalContext>().currentTimeStamp.toDate())
     }
 
     /** Returns the current time.*/
     val fnCurrentTime = BuiltinFunctionImpl("current-time", functionType(t(TimeType.Instance))) { args ->
-        args.checkArgCount(0)
-        XdmAtomic(contextOf<ExprEvalContext>().currentTimeStamp.toTime())
+        atomic(contextOf<ExprEvalContext>().currentTimeStamp.toTime())
     }
 
     /** Returns the value of the implicit timezone property from the dynamic context.*/
     val fnImplicitTimezone = BuiltinFunctionImpl("implicit-timezone", functionType(t(DayTimeDurationType.Instance))) { args ->
-        args.checkArgCount(0)
         // don't use the current timezone as that needs the current time to calculate the offset
         val timezoneOffset = contextOf<ExprEvalContext>().currentTimeStamp.timezoneOffset
-        XdmAtomic(XsdDayTimeDuration.ofMinutes(timezoneOffset))
+        atomic(XsdDayTimeDuration.ofMinutes(timezoneOffset))
     }
 
     /** Returns the value of the default collation property from the static context.*/
     val fnDefaultCollation = BuiltinFunctionImpl("default-collation", functionType(STRING)) { args ->
-        XdmAtomic(XsdString(contextOf<ExprEvalContext>().defaultCollation.uri))
+        atomic(XsdString(contextOf<ExprEvalContext>().defaultCollation.uri))
     }
 
     /** Returns the value of the default language property from the dynamic context.*/
     val fnDefaultLanguage = BuiltinFunctionImpl("default-language", functionType(t(LanguageType.Instance))) { args ->
-        args.checkArgCount(0)
-        XdmAtomic(XsdLanguage("en"))
+        atomic(XsdLanguage("en"))
     }
 
     /** This function returns the value of the static base URI property from the static context.*/
     val fnStaticBaseUri = BuiltinFunctionImpl("static-base-uri", functionType(t(AnyURIType.Instance))) { args ->
-        args.checkArgCount(0)
         contextOf<ExprEvalContext>().baseUri?.let{ XdmAtomic(it) } ?: XdmSequence.EMPTY
     }
 

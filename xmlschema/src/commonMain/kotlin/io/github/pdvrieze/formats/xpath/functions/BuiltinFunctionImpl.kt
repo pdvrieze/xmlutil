@@ -82,6 +82,17 @@ class BuiltinFunctionImpl<out R: XdmValue<*>>(
 
     constructor(
         name: String,
+        returnType: XdmTypeTest,
+        vararg argumentTypes: XdmTypeTest,
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+    ) : this(
+        name,
+        listOf(XdmFunctionType(returnType, *argumentTypes)),
+        evalFunction
+    )
+
+    constructor(
+        name: String,
         returnType: AnyType,
         vararg argumentTypes: AnyType,
         evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R

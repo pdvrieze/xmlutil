@@ -70,6 +70,9 @@ enum class Fn(
     //endregion
 
     //region String functions (5)
+    codepointsToString(StringFunctions.fnCodepointsToString),
+    stringToCodepoints(StringFunctions.fnStringToCodepoints),
+
     concat(StringFunctions.fnConcat),
     stringJoin(StringFunctions.fnStringJoin),
     substring(StringFunctions.fnSubstring),
