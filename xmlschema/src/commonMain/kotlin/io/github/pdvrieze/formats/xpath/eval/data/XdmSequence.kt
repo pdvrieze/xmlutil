@@ -207,10 +207,13 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
             return XdmSequenceBuilderImpl<T>().apply(builderAction).build(type)
         }
 
-        fun <T : XdmSingleValue<T>> fromList(result: List<T>): XdmValue<T> = when (result.size) {
+        fun <T : XdmSingleValue<T>> fromList(
+            result: List<T>,
+            staticType: XdmType = XdmSequenceType.ANYSEQ
+        ): XdmValue<T> = when (result.size) {
             0 -> EMPTY
             1 -> result.single().asT()
-            else -> XdmSequence(result)
+            else -> XdmSequence(result, staticType)
         }
 
     }
