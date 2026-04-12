@@ -24,13 +24,14 @@ import io.github.pdvrieze.xml.schematypes.RangeException
 import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.IXsdDateTime.Companion.splitToSecondsAndNanos
 import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.time.Instant
 
 @XmlUtilInternal
-open class XsdDateTimeImpl(
+open class XsdDateTimeImpl private constructor(
     final override val year: Int,
     final override val month: UInt,
     final override val day: UInt,
@@ -140,6 +141,37 @@ open class XsdDateTimeImpl(
             val minutes = tz[4].digitToInt() * 10 + tz[5].digitToInt()
             if (minutes !in 0..59) throw RangeException("Minutes must be between 0 and 59")
             return (if (sign) -1 else 1) * ((hours * 60) + minutes)
+        }
+
+        operator fun invoke(
+            year: Int,
+            month: UInt,
+            day: UInt,
+            hour: UInt,
+            minute: UInt,
+            second: XsdDecimal,
+            timezoneOffset: Int? = null,
+        ): XsdDateTimeImpl = when (month){
+            24u if (day <27u) -> XsdDateTimeImpl(year, month, day+1u, 0u, minute, second, timezoneOffset)
+            24u -> {
+                val tzOffset = timezoneOffset?.let { UtcOffset(minutes = it) } ?: UtcOffset.ZERO
+                val tz = tzOffset.asTimeZone()
+                val secPack = second.splitToSecondsAndNanos()
+                val localDateTime = LocalDateTime(year, month.toInt(), day.toInt(), 23, minute.toInt(), secPack.shr(32).toInt(), secPack.toInt())
+                val instant = localDateTime.toInstant(tz).plus(1, DateTimeUnit.HOUR)
+                val newDateTime = instant.toLocalDateTime(tz)
+
+                XsdDateTimeImpl(
+                    newDateTime.year,
+                    newDateTime.month.number.toUInt(),
+                    newDateTime.day.toUInt(),
+                    0u,
+                    minute,
+                    second,
+                    timezoneOffset
+                )
+            }
+            else -> XsdDateTimeImpl(year, month, day, hour, minute, second, timezoneOffset)
         }
 
 

@@ -174,7 +174,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
         var mostSigBit = elems.size.toULong() shl 5
 
-        for (i in elems.size-1 downTo trailingInts) {
+        for (i in elems.size - 1 downTo trailingInts) {
             when (val v = elems[i]) {
                 0u -> mostSigBit -= 32uL
                 else -> {
@@ -196,16 +196,20 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             return newInstance(sign, newElems, newExp)
 
         } else {
+            val newBitCount = mostSigBit - trailingBits
 
-            val newElems = UIntArray((31u + mostSigBit + bitShift.toUInt()).shr(5).toInt())
-            val newExp: ULong = exp + (trailingInts.toULong() shr 5) + bitShift.toUInt()
+            val newElems = UIntArray((newBitCount + 31u).shr(5).toInt())
 
-            for (i in trailingInts until (mostSigBit shr 5).toInt()) {
-                newElems[i - trailingInts] = (elems[i] shr bitShift) or
-                        (elems[i + 1] shl 32 - bitShift)
+            // we always move a bit of n+1 into n, using trailingInts as offset into elem
+            if (newBitCount > 32u) {
+                for (i in 0..(newElems.size - 2)) {
+                    newElems[i] = elems[i + trailingInts].shr(bitShift) or
+                            elems[i+trailingInts+1].shl(32 - bitShift)
+                }
             }
-            newElems[newElems.size - 1] = elems[mostSigBit.shr(5).toInt()].shr(bitShift)
+            newElems[newElems.lastIndex] = elems[trailingInts+newElems.lastIndex].shr(bitShift)
 
+            val newExp: ULong = exp + (trailingInts.toULong() shr 5) + bitShift.toUInt()
             return newInstance(sign, newElems.trimTrailingZeros(), newExp)
         }
     }

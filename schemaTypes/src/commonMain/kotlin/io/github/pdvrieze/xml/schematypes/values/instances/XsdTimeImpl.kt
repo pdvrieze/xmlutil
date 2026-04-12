@@ -135,10 +135,10 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
         operator fun invoke(representation: CharSequence): XsdTimeImpl {
             require(representation.length >= 8)
             val hours = representation.substring(0, 2).xsToUInt()
-            require(representation[2] == ':')
+            require(representation[2] == ':') { "Expected ':' at position 2 of '$representation'"}
             val minutes = representation.substring(3, 5).xsToUInt()
             requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
-            require(representation[5] == ':')
+            require(representation[5] == ':') { "Expected ':' at position5 of '$representation'" }
             val secEnd = (6..<representation.length)
                 .firstOrNull { val c = representation[it]; c != '.' && c !in '0'..'9' }
                 ?: representation.length
