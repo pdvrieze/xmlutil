@@ -62,7 +62,7 @@ class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : Abstra
             }
         }
 
-        return elems.singleOrNull() ?: XdmSequence(elems)
+        return XdmSequence.fromList(elems)
     }
 
     context(c: OutputContext)

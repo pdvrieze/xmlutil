@@ -46,11 +46,7 @@ internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr
                             ctx.withValueContext(value, index, current.size) { predicate.eval() }.toBoolean()
                         }
 
-                        when (newElems.size) {
-                            0 -> return XdmSequence.EMPTY
-                            1 -> current = newElems.single()
-                            else -> current = XdmSequence(newElems, current.staticType)
-                        }
+                        current = XdmSequence.fromList (newElems, current.staticType)
                     }
 
                     else -> ctx.withValueContext(current, 1, 1) {

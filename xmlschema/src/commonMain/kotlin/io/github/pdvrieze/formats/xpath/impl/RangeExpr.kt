@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 
@@ -35,7 +34,7 @@ class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : Abstrac
         val start = ((from.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
         val end = ((to.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
 
-        return XdmSequence((start..end).map { XdmAtomic(XsdInt(it)) })
+        return XdmSequence.fromList((start..end).map { XdmAtomic(XsdInt(it)) })
     }
 
     context(c: OutputContext)

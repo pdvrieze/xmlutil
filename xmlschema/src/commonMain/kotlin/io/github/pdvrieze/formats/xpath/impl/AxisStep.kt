@@ -51,11 +51,7 @@ open class AxisStep(
                         ctx.withValueContext(value, index, current.size) { predicate.eval() }.toBoolean()
                     }
 
-                    current = when (newElems.size) {
-                        0 -> return XdmSequence.EMPTY
-                        1 -> newElems.single()
-                        else -> XdmSequence(newElems, current.staticType)
-                    }
+                    current = XdmSequence.fromList (newElems, current.staticType)
                 }
 
                 else -> ctx.withValueContext(current, 1, 1) {
