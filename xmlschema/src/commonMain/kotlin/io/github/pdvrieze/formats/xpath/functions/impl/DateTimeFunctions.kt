@@ -133,7 +133,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
 
     val fnTimezoneFromDate = BuiltinFunctionImpl(
         "timezone-from-date",
-        functionType(DayTimeDurationType.Instance.opt, TimeType.Instance.opt)
+        functionType(DayTimeDurationType.Instance.opt, DateType.Instance.opt)
     ) { args ->
         val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
         val offset = date.timezoneOffset ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
