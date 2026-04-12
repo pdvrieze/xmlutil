@@ -77,10 +77,18 @@ object Xs: AbstractFunctionObject() {
     object constructBase64Binary: AtomicConstructor<XsdBase64Binary>(Base64BinaryType.Instance) {
         context(ctx: ExprEvalContext)
         override fun constructXsd(arg: XdmAtomic<*>): XsdBase64Binary {
-            return try {
-                XsdBase64Binary(arg.value.xmlString)
-            } catch (e: IllegalArgumentException) {
-                throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a base64Binary")
+            return when (val v = arg.value) {
+                is XsdBase64Binary -> v
+                is XsdHexBinary -> XsdBase64Binary(v.value)
+
+                else if (v !is XsdString && UntypedAtomicType.Instance.isBaseOf(v.schemaType)) ->
+                    throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot convert '${arg.value.xmlString}' to a base64Binary")
+
+                else -> try {
+                    XsdBase64Binary(arg.value.xmlString)
+                } catch (e: IllegalArgumentException) {
+                    throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a base64Binary")
+                }
             }
         }
     }
@@ -199,7 +207,25 @@ object Xs: AbstractFunctionObject() {
 
     object constructGYearMonth: AtomicConstructor<XsdGYearMonth>(GYearMonthType.Instance)
 
-    object constructHexBinary: AtomicConstructor<XsdHexBinary>(HexBinaryType.Instance)
+    object constructHexBinary: AtomicConstructor<XsdHexBinary>(HexBinaryType.Instance) {
+        context(ctx: ExprEvalContext)
+        override fun constructXsd(arg: XdmAtomic<*>): XsdHexBinary {
+            return when (val v = arg.value) {
+                is XsdBase64Binary -> XsdHexBinary(v.value)
+                is XsdHexBinary -> v
+
+                else if (v !is XsdString && UntypedAtomicType.Instance.isBaseOf(v.schemaType)) ->
+                    throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Cannot convert '${arg.value.xmlString}' to a base64Binary")
+
+                else -> try {
+                    XsdHexBinary(arg.value.xmlString)
+                } catch (e: IllegalArgumentException) {
+                    throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a base64Binary")
+                }
+            }
+        }
+
+    }
 
     object constructNOTATION: AtomicConstructor<XsdNotation>(NotationType.Instance) {
         context(ctx: ExprEvalContext)
