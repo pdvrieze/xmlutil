@@ -33,7 +33,7 @@ import kotlin.time.Instant
 
 class XsdDateTimeStampImpl(
     val instant: Instant,
-    val timezone: TimeZone = TimeZone.UTC,
+    override val timezone: TimeZone = TimeZone.UTC,
 ) : XsdDateTimeStamp {
     override val schemaType: DateTimeType<XsdDateTimeStamp> get() = DateTimeStampType.Instance
 
@@ -131,13 +131,14 @@ class XsdDateTimeStampImpl(
             val tIndex = s.indexOf('T')
             require(tIndex >= 0)
             val (year, month, day) = s.substring(0, tIndex).split('-').map { it.xsToInt() }
-            val hour = s.substring(tIndex + 1, tIndex + 3).xsToInt()
+            val hour: Int
+            hour = s.substring(tIndex + 1, tIndex + 3).xsToInt()
             if (s[tIndex + 3] != ':') throw NumberFormatException("Missing : separator between hours and minutes")
             val minutes = s.substring(tIndex + 4, tIndex + 6).xsToInt()
             if (s[tIndex + 6] != ':') throw NumberFormatException("Missing : separator between minutes and seconds")
-            val secEnd = ((tIndex + 7)..<s.length).first {
+            val secEnd = ((tIndex + 7)..<s.length).firstOrNull() {
                 s[it] != '.' && s[it] !in '0'..'9'
-            }
+            } ?: throw NumberFormatException("Missing timezone")
 //            if (s[secEnd] == '.') {
 //
 //            }

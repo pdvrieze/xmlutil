@@ -60,7 +60,7 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
 
     fun toDate(): XsdDate = XsdDate(year, month, day, timezoneOffset)
     fun toTime(): XsdTime = XsdTime(hour, minute, second, timezoneOffset)
-    fun toLocalDateTime(fallbackTimezone: TimeZone = TimeZone.UTC): LocalDateTime = instant().toLocalDateTime(timeZone ?: fallbackTimezone)
+    fun toLocalDateTime(fallbackTimezone: TimeZone = TimeZone.UTC): LocalDateTime = instant().toLocalDateTime(timezone ?: fallbackTimezone)
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp
 
@@ -79,7 +79,7 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
             0L -> newBase
             else -> newBase + millisToAdd.milliseconds
         }
-        return XsdDateTimeImpl(newInstant, timeZone)
+        return XsdDateTimeImpl(newInstant, timezone)
     }
 
     operator fun minus(duration: XsdDuration): XsdDateTime {
@@ -97,7 +97,7 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
             0L -> newBase
             else -> newBase - millisToSubtract.milliseconds
         }
-        return XsdDateTimeImpl(newInstant, timeZone)
+        return XsdDateTimeImpl(newInstant, timezone)
     }
 
     operator fun minus(other: XsdDateTime): XsdDayTimeDuration {

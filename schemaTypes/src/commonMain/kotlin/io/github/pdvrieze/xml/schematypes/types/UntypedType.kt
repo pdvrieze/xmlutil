@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.XmlUtilInternal
 
 interface UntypedType: ComplexType {
     override val baseType: AnyType get() = ComplexType.Instance
@@ -52,7 +53,8 @@ interface UntypedAtomicType : AnyAtomicType<XsdAtomic> {
         }
     }
 
-    private class XsdUntyped(override val xmlString: String): XsdAtomic {
+    @XmlUtilInternal
+    public class XsdUntyped(override val xmlString: String): XsdAtomic {
         override val schemaType: Instance
             get() = Instance
     }

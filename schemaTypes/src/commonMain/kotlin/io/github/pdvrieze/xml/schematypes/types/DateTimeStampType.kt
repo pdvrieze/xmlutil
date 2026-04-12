@@ -22,9 +22,8 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
-import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeStampImpl
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface DateTimeStampType<out T : XsdDateTimeStamp> : DateTimeType<T> {
@@ -49,6 +48,29 @@ interface DateTimeStampType<out T : XsdDateTimeStamp> : DateTimeType<T> {
         )
 
         override fun fromString(value: CharSequence): XsdDateTimeStamp = XsdDateTimeStamp(value)
+
+        override fun castFrom(other: XsdAtomic): XsdDateTimeStamp = when (other) {
+            is XsdDateTimeStampImpl -> other
+            is XsdDateTimeStamp -> XsdDateTimeStampImpl(other.instant(), other.timezone)
+            is XsdDateTime -> {
+                val tz = requireNotNull(other.timezone) { "No timezone for casting to dateTimeStamp"}
+                XsdDateTimeStampImpl(other.instant(), tz)
+            }
+            is XsdDate -> {
+                val tz = requireNotNull(other.timezone) { "No timezone for casting to dateTimeStamp"}
+                val inst = XsdDateTime(other, XsdTime(0u,0u,0u)).instant()
+                XsdDateTimeStampImpl(inst, tz)
+            }
+            is UntypedAtomicType.XsdUntyped, is XsdString -> XsdDateTimeStampImpl(other.xmlString)
+            else -> throw IllegalArgumentException("Cannot cast from $other of type ${other.schemaType}")
+        }
+
+        override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean = when (sourceType) {
+            is DateTimeType -> true
+            is DateType -> true
+            is UntypedAtomicType, is XsdString -> true
+            else -> false
+        }
     }
 
 }

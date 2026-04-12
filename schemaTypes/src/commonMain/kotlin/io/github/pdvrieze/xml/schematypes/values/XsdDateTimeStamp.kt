@@ -35,7 +35,7 @@ import kotlin.time.Instant
 @Serializable(XsdDateTimeStamp.Companion::class)
 interface XsdDateTimeStamp : XsdDateTime {
     override val timezoneOffset: Int
-
+    override val timezone: TimeZone
     override val schemaType: DateTimeType<XsdDateTimeStamp>
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp = this

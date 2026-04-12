@@ -392,8 +392,7 @@ object Xs: AbstractFunctionObject() {
             } catch (e: RangeException) {
                 val errorCode = rangeErrorCodeFor(returnSchemaType)
                 throw EvaluationException(errorCode, "Value '${arg.value.xmlString}' out of supported range for ${returnSchemaType.name}", e)
-            } catch (e: NumberFormatException) {
-                val errorCode = rangeErrorCodeFor(returnSchemaType)
+            } catch (e: IllegalArgumentException) {
                 throw EvaluationException(ErrorCodes.FORG0001, "Cannot convert '${arg.value.xmlString}' to a ${returnSchemaType.name}", e)
             }
         }

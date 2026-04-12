@@ -99,10 +99,10 @@ interface IXsdDateTime: XsdAtomic {
             t.toInt(),
         )
 
-        return dateTime.toInstant(timeZone ?: TimeZone.UTC)
+        return dateTime.toInstant(timezone ?: TimeZone.UTC)
     }
 
-    val timeZone: TimeZone?
+    val timezone: TimeZone?
         get() = timezoneOffset?.let { UtcOffset(minutes = it).asTimeZone() }
 
     operator fun compareTo(other: IXsdDateTime): Int {
