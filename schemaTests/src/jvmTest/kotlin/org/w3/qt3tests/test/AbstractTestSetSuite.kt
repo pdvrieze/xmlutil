@@ -104,9 +104,7 @@ abstract class AbstractTestSetSuite {
             return testCases.getOrPut(testSetName) {
                 val testSet = TestParseCatalog.parseTestSetImpl(TestParseCatalog.getTestSetSpec(testSetName))
                 testSet.testCases.asSequence()
-                    .filter {
-                        it.test.expr.getOrNull() is XPathExpression
-                    }
+                    .filter { it.test.expr.getOrNull() is XPathExpression }
                     .filter { tc ->
                         overrides.overrides.none { o ->
                             val p = o.path

@@ -48,11 +48,17 @@ class TestsetSuite : AbstractTestSetSuite() {
     }
 
     fun tests(): List<Named<ResolvedQt3TestCase>> {
+        val overrides = TestParseCatalog.overrides
         return testSet.testCases.asSequence()
-            .filter {
-                it.test.expr.getOrNull() is XPathExpression
+            .filter { it.test.expr.getOrNull() is XPathExpression }
+            .filter { tc ->
+                overrides.overrides.none { o ->
+                    val p = o.path
+                    p.testSet == testSet.name && p.group == null || p.group == tc.name || p.test == tc.name
+                }
             }
-            .filter { "namespace-axis" !in it.neededFeatures() }
+
+            .filter { it.dependencies.all { d ->  supportsDependency(d) } }
             .map { Named.named(it.name, it) }
             .toList()
     }
