@@ -25,7 +25,6 @@ import io.github.pdvrieze.xml.schematypes.types.HexBinaryType
 import io.github.pdvrieze.xml.schematypes.values.XsdHexBinary
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.jvm.JvmInline
 
@@ -36,7 +35,7 @@ value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, List
 
     constructor(hexString: CharSequence) : this(hexString.toString().toByteArray())
 
-    override val xmlString: String get() = Base64.encode(value)
+    override val xmlString: String get() = value.toHexString(HexFormat.UpperCase)
 
     override fun get(index: Int): Byte = value[index]
 
