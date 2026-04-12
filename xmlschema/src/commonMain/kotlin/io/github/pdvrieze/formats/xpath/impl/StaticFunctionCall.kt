@@ -55,7 +55,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
                 0 -> return XdmSequence.EMPTY
                 else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected empty sequence, but got ${arg.size} items")
             }
-            is XdmTypeTest -> if (!type.cardinality.matches(arg.size)) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected sequence of cardinality ${type.cardinality}, but got ${arg.size} items")
+            is XdmTypeTest -> if (!type.cardinality.matches(arg.size)) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $name expected sequence of cardinality ${type.cardinality}, but got ${arg.size} items")
         }
 
         val atomizedArg = if (type is XdmSchemaTypeTest) arg.atomize() else arg
@@ -75,14 +75,14 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
     private fun promoteArgument(arg: XdmSingleValue<*>, type: XdmTypeTest): XdmValue<*> {
         when {
             type.isInstance(arg) -> return arg
-            arg !is XdmAtomic<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected type $type, but got ${arg.staticType}")
+            arg !is XdmAtomic<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $name expected type $type, but got ${arg.staticType}")
         }
 
 
         val neededSchemaType = when (type) {
             is XdmTypeTest.AnyItem -> return arg
-            is XdmNodeKindTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node of kind ${type.nodeKind} but got ${arg.staticType}")
-            is XdmFunctionTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected function type $type, but got $arg")
+            is XdmNodeKindTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $name expected node of kind ${type.nodeKind} but got ${arg.staticType}")
+            is XdmFunctionTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $name expected function type $type, but got $arg")
             is XdmSchemaTypeTest -> type.schemaType
         }
         val argType = arg.dynamicType.schemaType
@@ -99,7 +99,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
             neededSchemaType.name isEquivalent StringType.Instance.name &&
                     (argValue is XsdAnyURI) -> return XdmAtomic(XsdString(argValue.value))
 
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected type $neededSchemaType, but got ${arg.staticType}")
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In ${name} Expected type $neededSchemaType, but got ${arg.staticType}")
         }
     }
 
