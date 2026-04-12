@@ -22,8 +22,7 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface IntegerType<out T: XsdInteger> : DecimalType<T> {
@@ -47,6 +46,17 @@ interface IntegerType<out T: XsdInteger> : DecimalType<T> {
             FacetFractionDigits(0u),
             FacetPattern("[\\-+]?[0-9]+"),
         )
+
+        override fun castFrom(other: XsdAtomic): XsdInteger = when (other) {
+            is XsdFloat,
+            is XsdDouble -> BigInt(other.xmlString)
+            is XsdInteger -> other.toBigInt()
+            is XsdDecimal -> other.roundToInteger().toBigInt()
+            is XsdBoolean -> BigInt(if (other.value) 1 else 0)
+            is XsdString -> BigInt(other.xmlString)
+            else -> throw IllegalArgumentException("Cannot cast $other to decimal")
+
+        }
 
         override fun fromString(value: CharSequence): XsdInteger {
             return XsdInteger(value)

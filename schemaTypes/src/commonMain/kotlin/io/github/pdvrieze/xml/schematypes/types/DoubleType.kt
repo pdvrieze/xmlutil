@@ -22,11 +22,8 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdFloat
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDoubleImpl
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface DoubleType<out T: XsdDouble> : PrimitiveType<T>, NumericType<T> {
@@ -50,6 +47,10 @@ interface DoubleType<out T: XsdDouble> : PrimitiveType<T>, NumericType<T> {
         return super<PrimitiveType>.isBaseOf(maybeSubType)
     }
 
+    override fun castFrom(other: XsdAtomic): T {
+        return super<PrimitiveType>.castFrom(other)
+    }
+
     object Instance: DoubleType<XsdDouble>,PrimitiveTypeInstance<XsdDouble>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "double", "xs")
 
@@ -62,10 +63,10 @@ interface DoubleType<out T: XsdDouble> : PrimitiveType<T>, NumericType<T> {
         }
 
         override fun castFrom(other: XsdAtomic): XsdDouble = when (other) {
-            is XsdDouble -> other
+            is XsdDoubleImpl -> other
             is XsdFloat -> XsdDouble(other.value.toDouble())
             is XsdDecimal -> XsdDouble(other.toDouble())
-            else -> DoubleType.Instance.fromString(other.xmlString)
+            else -> fromString(other.xmlString)
         }
     }
 

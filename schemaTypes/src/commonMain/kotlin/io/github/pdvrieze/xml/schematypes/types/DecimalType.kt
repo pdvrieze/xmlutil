@@ -22,9 +22,9 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface DecimalType<out T: XsdDecimal> : PrimitiveType<T>, NumericType<T> {
@@ -46,6 +46,10 @@ interface DecimalType<out T: XsdDecimal> : PrimitiveType<T>, NumericType<T> {
         return super<PrimitiveType>.isBaseOf(maybeSubType)
     }
 
+    override fun castFrom(other: XsdAtomic): T {
+        return super<PrimitiveType>.castFrom(other)
+    }
+
     object Instance: DecimalType<XsdDecimal>, PrimitiveTypeInstance<XsdDecimal>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "decimal", "xs")
 
@@ -55,6 +59,16 @@ interface DecimalType<out T: XsdDecimal> : PrimitiveType<T>, NumericType<T> {
 
         override fun fromString(value: CharSequence): XsdDecimal {
             return BigDecimal(value)
+        }
+
+        override fun castFrom(other: XsdAtomic): XsdDecimal = when (other) {
+            is XsdBigDecimal -> other
+            is XsdFloat,
+            is XsdDouble -> BigDecimal(other.xmlString)
+            is XsdDecimal -> other.toBigDecimal()
+            is XsdBoolean -> BigDecimal(if (other.value) 1 else 0)
+            is XsdString -> BigDecimal(other.xmlString)
+            else -> throw IllegalArgumentException("Cannot cast $other to decimal")
         }
     }
 

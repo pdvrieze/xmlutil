@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 
 interface AnySimpleUnion<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T> {
     fun isPureUnion(): Boolean
@@ -39,4 +40,22 @@ interface AnySimpleUnion<out T : XsdAnySimple> : AnySimpleType.AtomicOrUnion<T> 
         else -> NumericType.Instance.members.any { it.isBaseOf(maybeSubType) }
     }
 
+    override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean {
+        if (members.any { it.canCastFrom(sourceType) }) return true
+        return super.canCastFrom(sourceType)
+    }
+
+    override fun castFrom(other: XsdAtomic): T {
+        var result: Result<T>? = null
+        for (m in members) {
+            if (m is AnySimpleType.AtomicOrUnion<*>) {
+                @Suppress("UNCHECKED_CAST")
+                val r = runCatching { m.castFrom(other) as T }
+                if (r.isSuccess) return r.getOrThrow()
+                result = r
+            }
+        }
+        if (result == null) throw IllegalStateException("Union is empty or only contains list elements")
+        return result.getOrThrow() // should always throw
+    }
 }

@@ -42,6 +42,10 @@ interface DateType<out T : XsdDate> : PrimitiveType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
+    override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean {
+        return sourceType is DateTimeType<*> || super.canCastFrom(sourceType)
+    }
+
     object Instance : DateType<XsdDate>, PrimitiveTypeInstance<XsdDate>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "date", "xs")
 

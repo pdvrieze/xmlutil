@@ -42,6 +42,10 @@ interface Base64BinaryType<out T : XsdBase64Binary> : PrimitiveType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
+    override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean {
+        return sourceType is HexBinaryType<*> || super.canCastFrom(sourceType)
+    }
+
     object Instance : Base64BinaryType<XsdBase64Binary>, PrimitiveTypeInstance<XsdBase64Binary>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "base64Binary", "xs")
 

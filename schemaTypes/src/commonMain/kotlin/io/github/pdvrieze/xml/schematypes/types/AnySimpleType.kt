@@ -22,12 +22,26 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface AnySimpleType<out T : XsdAnySimple> : AnyType {
+    fun canCastFrom(sourceType: AnySimpleType<*>): Boolean {
+        when {
+            sourceType is UntypedAtomicType -> return true
+            isBaseOf(sourceType) -> return true
+            sourceType is StringType -> return true
 
-    interface AtomicOrUnion<out T : XsdAnySimple> : AnySimpleType<T>
+            // must be overridden in derived types
+            sourceType is AnySimpleListType<*, *> -> return false
+            else -> return false
+        }
+    }
+
+    interface AtomicOrUnion<out T : XsdAnySimple> : AnySimpleType<T> {
+        fun castFrom(other: XsdAtomic): T
+    }
 
     val ordered: FacetOrdered
     val bounded: FacetBounded

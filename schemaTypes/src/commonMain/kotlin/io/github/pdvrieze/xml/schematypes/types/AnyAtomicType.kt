@@ -32,7 +32,8 @@ interface AnyAtomicType<out T : XsdAtomic> : AnySimpleType.AtomicOrUnion<T> {
     override val baseType: AnySimpleType<*>
 
     fun fromString(value: CharSequence): T
-    fun castFrom(other: XsdAtomic): T = fromString(other.xmlString)
+
+    override fun castFrom(other: XsdAtomic): T = fromString(other.xmlString)
 
     object Instance : AnyAtomicType<XsdAtomic>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "anyAtomicType", "xs")

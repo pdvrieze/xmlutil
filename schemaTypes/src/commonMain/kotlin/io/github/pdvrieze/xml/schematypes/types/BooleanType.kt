@@ -39,6 +39,14 @@ interface BooleanType<out T : XsdBoolean> : PrimitiveType<T> {
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
 
+    override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean = when (sourceType){
+        is AnyURIType<*> -> true
+        is NumericType<*> -> true
+        is BooleanType<*> -> true
+        is StringType<*> -> true
+        else -> false
+    }
+
     object Instance: BooleanType<XsdBoolean>, PrimitiveTypeInstance<XsdBoolean>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "boolean", "xs")
 

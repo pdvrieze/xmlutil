@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.token.NodeType
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.isEquivalent
@@ -58,6 +59,18 @@ class XdmSchemaType(
             is AnySimpleUnion<*> -> schemaType.isPureUnion()
             else -> false
         }
+    }
+
+    context(ctx: ExprEvalContext)
+    fun canCastFrom(sourceType: XdmSingleType): Boolean {
+        val sourceSchemaType = when (sourceType) {
+            is XdmSchemaType -> sourceType.schemaType
+            is XdmNodeType if(sourceType.nodeType == NodeType.TEXT) -> UNTYPED_ATOMIC
+            else -> return false // not simple
+        }
+        if (schemaType !is AnySimpleType<*> || sourceSchemaType!is AnySimpleType<*>) return false
+
+        return schemaType.canCastFrom(sourceSchemaType)
     }
 
     context(ctx: ExprEvalContext)

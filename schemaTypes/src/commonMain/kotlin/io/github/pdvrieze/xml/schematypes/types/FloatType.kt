@@ -22,11 +22,7 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdFloat
-import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface FloatType<out T : XsdFloat> : PrimitiveType<T>, NumericType<T> {
@@ -45,6 +41,10 @@ interface FloatType<out T : XsdFloat> : PrimitiveType<T>, NumericType<T> {
 
     override fun isBaseOf(maybeSubType: AnyType): Boolean {
         return super<PrimitiveType>.isBaseOf(maybeSubType)
+    }
+
+    override fun castFrom(other: XsdAtomic): T {
+        return super<PrimitiveType>.castFrom(other)
     }
 
     object Instance : FloatType<XsdFloat>, PrimitiveTypeInstance<XsdFloat>, BuiltinType {

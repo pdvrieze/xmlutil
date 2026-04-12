@@ -23,9 +23,7 @@ package io.github.pdvrieze.xml.schematypes.types
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
 import io.github.pdvrieze.xml.schematypes.values.XsdAnySimple
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
@@ -52,6 +50,16 @@ interface NumericType<out T: XsdNumeric<*>> : AnySimpleUnion<T> {
 
     override val constrainingFacets: List<ConstrainingFacet>
         get() = Instance.constrainingFacets
+
+    override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean {
+        return when (sourceType) {
+            is NumericType<*> -> true
+            is UntypedAtomicType -> true
+            is StringType -> true
+            is BooleanType-> true
+            else -> false
+        }
+    }
 
     object Instance: NumericType<XsdNumeric<*>>, AnySimpleUnion<XsdNumeric<*>>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "numeric", "xs")
