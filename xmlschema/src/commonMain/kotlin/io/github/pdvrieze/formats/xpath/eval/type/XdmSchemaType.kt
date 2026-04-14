@@ -83,9 +83,12 @@ class XdmSchemaType(
 
     context(ctx: ExprEvalContext)
     override fun sharedBaseType(other: XdmSingleType): XdmSingleType = when (other) {
-        is XdmSchemaType -> XdmSchemaType(schemaType.sharedBaseType(other.schemaType))
+        is XdmSchemaType -> sharedBaseType(other)
         else -> ANY
     }
+
+    context(ctx: ExprEvalContext)
+    fun sharedBaseType(other: XdmSchemaType): XdmSchemaType = XdmSchemaType(schemaType.sharedBaseType(other.schemaType))
 
     override fun toString(): String {
         return schemaType.name.toString()

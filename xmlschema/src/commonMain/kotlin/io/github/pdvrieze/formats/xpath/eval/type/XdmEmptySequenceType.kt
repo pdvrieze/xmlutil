@@ -41,6 +41,7 @@ object XdmEmptySequenceType : XdmType() {
 
     override fun toTypeTest(): XdmSequenceTypeTest = XdmSequenceTypeTest.EMPTY
 
+    @OptIn(XPathInternal::class)
     context(ctx: ExprEvalContext)
     override fun sharedBaseType(other: XdmType): XdmType = when (other) {
         XdmEmptySequenceType -> this
