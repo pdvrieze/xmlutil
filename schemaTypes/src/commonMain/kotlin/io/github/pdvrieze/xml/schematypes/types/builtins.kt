@@ -75,6 +75,7 @@ fun builtinType(localName: String, targetNamespace: String): BuiltinType? {
         "ENTITIES" -> EntitiesType.Instance
         "IDREFS" -> IDRefsType.Instance
         "NMTOKENS" -> NMTokensType.Instance
+        "error" -> ErrorType.Instance
         else -> null
     }
 }
