@@ -22,7 +22,10 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdNotation
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 
 interface QNameType<out T : XsdQName> : PrimitiveType<T> {
@@ -45,6 +48,21 @@ interface QNameType<out T : XsdQName> : PrimitiveType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )
 
+        override fun castFrom(other: XsdAtomic): XsdQName = when (other) {
+            is XsdQName -> XsdQName(other.toQName())
+            is XsdNotation -> XsdQName(other.getNamespaceURI(), other.getLocalPart(), other.getPrefix())
+            is XsdString, is UntypedAtomicType.XsdUntyped -> throw UnsupportedOperationException("QName casting from string needs special treatment to resolve namespaces")
+            else -> super<QNameType>.castFrom(other)
+        }
+
+        override fun canCastFrom(sourceType: AnySimpleType<*>): Boolean {
+            return when (sourceType) {
+                is QNameType<*>,
+                is NotationType -> true
+
+                else -> super<QNameType>.canCastFrom(sourceType)
+            }
+        }
 
         override fun fromString(value: CharSequence): XsdQName {
             throw UnsupportedOperationException("QName types are namespace sensitive and cannot be parsed from strings")
