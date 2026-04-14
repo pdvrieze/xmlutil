@@ -511,7 +511,7 @@ sealed class Operator(
     ): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -520,7 +520,7 @@ sealed class Operator(
         }
         val rightVal = when (val a = right.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -608,7 +608,7 @@ abstract class ComparisonOperator(
     override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,
@@ -617,7 +617,7 @@ abstract class ComparisonOperator(
         }
         val rightVal = when (val a = right.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.staticType is UntypedAtomicType) -> XsdString(a.value.xmlString)
+            is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
             is XdmSequence<*> -> throw EvaluationException(
                 ErrorCodes.XPTY0004_TYPE_ERROR,

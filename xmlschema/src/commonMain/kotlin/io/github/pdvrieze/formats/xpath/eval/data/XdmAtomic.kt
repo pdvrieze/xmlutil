@@ -143,7 +143,7 @@ class XdmAtomic<out T : XsdAtomic>(
             throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS)
         }
 
-        return XdmAtomic(value, type.toValueType(staticType).single)
+        return XdmAtomic(value, type.toValueType(staticType).single as XdmSchemaType)
     }
 
 
